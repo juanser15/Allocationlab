@@ -24,6 +24,8 @@ import type {
   ConstraintsInput,
   ErrorResponse,
   HealthStatus,
+  LivePricesFetchInput,
+  LivePricesResult,
   PricesStatus,
   PricesUploadInput,
   ReportInput,
@@ -510,6 +512,76 @@ export function useGetPricesStatus<TData = Awaited<ReturnType<typeof getPricesSt
 
 
 
+
+export const getFetchLivePricesUrl = () => {
+
+
+
+
+  return `/api/prices/live`
+}
+
+/**
+ * @summary Fetch live adjusted close prices from Yahoo Finance for the active ETF universe
+ */
+export const fetchLivePrices = async (livePricesFetchInput: LivePricesFetchInput, options?: RequestInit): Promise<LivePricesResult> => {
+
+  return customFetch<LivePricesResult>(getFetchLivePricesUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(livePricesFetchInput)
+  }
+);}
+
+
+
+
+export const getFetchLivePricesMutationOptions = <TError = ErrorType<LivePricesResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fetchLivePrices>>, TError,{data: BodyType<LivePricesFetchInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof fetchLivePrices>>, TError,{data: BodyType<LivePricesFetchInput>}, TContext> => {
+
+const mutationKey = ['fetchLivePrices'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof fetchLivePrices>>, {data: BodyType<LivePricesFetchInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  fetchLivePrices(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FetchLivePricesMutationResult = NonNullable<Awaited<ReturnType<typeof fetchLivePrices>>>
+    export type FetchLivePricesMutationBody = BodyType<LivePricesFetchInput>
+    export type FetchLivePricesMutationError = ErrorType<LivePricesResult>
+
+    /**
+ * @summary Fetch live adjusted close prices from Yahoo Finance for the active ETF universe
+ */
+export const useFetchLivePrices = <TError = ErrorType<LivePricesResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fetchLivePrices>>, TError,{data: BodyType<LivePricesFetchInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof fetchLivePrices>>,
+        TError,
+        {data: BodyType<LivePricesFetchInput>},
+        TContext
+      > => {
+      return useMutation(getFetchLivePricesMutationOptions(options));
+    }
 
 export const getUploadPricesUrl = () => {
 

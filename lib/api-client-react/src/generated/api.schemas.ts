@@ -76,6 +76,34 @@ export interface PricesUploadInput {
   csvContent: string;
 }
 
+export interface LivePricesFetchInput {
+  /** Ticker symbols to fetch. If omitted, uses the active ETF universe. */
+  tickers?: string[];
+  /** Number of calendar days of history to fetch (default 400) */
+  lookbackDays?: number;
+}
+
+export interface LivePricesTickerResult {
+  ticker: string;
+  success: boolean;
+  rows: number;
+  /** @nullable */
+  error: string | null;
+}
+
+export interface LivePricesResult {
+  succeeded: LivePricesTickerResult[];
+  failed: LivePricesTickerResult[];
+  totalRows: number;
+  /** @nullable */
+  startDate: string | null;
+  /** @nullable */
+  endDate: string | null;
+  savedToDb: boolean;
+  message: string;
+  fetchedAt: string;
+}
+
 export interface RunInput {
   /**
      * Optional label for this run (e.g. "July 2026 Rebalance")

@@ -111,6 +111,36 @@ export const GetPricesStatusResponse = zod.object({
 
 
 /**
+ * @summary Fetch live adjusted close prices from Yahoo Finance for the active ETF universe
+ */
+export const FetchLivePricesBody = zod.object({
+  "tickers": zod.array(zod.string()).optional().describe('Ticker symbols to fetch. If omitted, uses the active ETF universe.'),
+  "lookbackDays": zod.number().optional().describe('Number of calendar days of history to fetch (default 400)')
+})
+
+export const FetchLivePricesResponse = zod.object({
+  "succeeded": zod.array(zod.object({
+  "ticker": zod.string(),
+  "success": zod.boolean(),
+  "rows": zod.number(),
+  "error": zod.string().nullable()
+})),
+  "failed": zod.array(zod.object({
+  "ticker": zod.string(),
+  "success": zod.boolean(),
+  "rows": zod.number(),
+  "error": zod.string().nullable()
+})),
+  "totalRows": zod.number(),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "savedToDb": zod.boolean(),
+  "message": zod.string(),
+  "fetchedAt": zod.string()
+})
+
+
+/**
  * @summary Upload CSV price history
  */
 export const UploadPricesBody = zod.object({

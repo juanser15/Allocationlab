@@ -111,6 +111,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/PricesStatus"
 
+  /prices/live:
+    post:
+      operationId: fetchLivePrices
+      tags: [prices]
+      summary: Fetch live adjusted close prices from Yahoo Finance for the active ETF universe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LivePricesFetchInput"
+      responses:
+        "200":
+          description: Live fetch result (may be partial success)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LivePricesResult"
+        "503":
+          description: All tickers failed to download
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LivePricesResult"
+
   /prices/upload:
     post:
       operationId: uploadPrices
@@ -388,6 +413,57 @@ components:
           type: string
           description: CSV file content as string. First column is Date, remaining columns are ticker symbols.
       required: [csvContent]
+
+    LivePricesFetchInput:
+      type: object
+      properties:
+        tickers:
+          type: array
+          items:
+            type: string
+          description: Ticker symbols to fetch. If omitted, uses the active ETF universe.
+        lookbackDays:
+          type: integer
+          description: Number of calendar days of history to fetch (default 400)
+      required: []
+
+    LivePricesTickerResult:
+      type: object
+      properties:
+        ticker:
+          type: string
+        success:
+          type: boolean
+        rows:
+          type: integer
+        error:
+          type: ["string", "null"]
+      required: [ticker, success, rows, error]
+
+    LivePricesResult:
+      type: object
+      properties:
+        succeeded:
+          type: array
+          items:
+            $ref: "#/components/schemas/LivePricesTickerResult"
+        failed:
+          type: array
+          items:
+            $ref: "#/components/schemas/LivePricesTickerResult"
+        totalRows:
+          type: integer
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+        savedToDb:
+          type: boolean
+        message:
+          type: string
+        fetchedAt:
+          type: string
+      required: [succeeded, failed, totalRows, startDate, endDate, savedToDb, message, fetchedAt]
 
     RunInput:
       type: object

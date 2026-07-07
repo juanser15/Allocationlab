@@ -1,0 +1,1 @@
+- [yahoo-finance2 v3 usage](yahoo-finance2-v3.md) — must use `new YahooFinance()`, pass `events: "history" as const` for correct overload, adjClose needs type cast

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useGetUniverse, useUpdateUniverse, useGetConstraints, useUpdateConstraints, useGetPricesStatus, useUploadPrices } from "@workspace/api-client-react";
+import { useGetUniverse, useUpdateUniverse, useGetConstraints, useUpdateConstraints, useGetPricesStatus, useUploadPrices, useFetchLivePrices } from "@workspace/api-client-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Slider } from "@/components/ui/slider";
-import { Loader2, Save, Upload, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, Save, Upload, CheckCircle2, AlertCircle, RefreshCw, WifiOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function PortfolioConstruction() {
@@ -76,6 +76,8 @@ export default function PortfolioConstruction() {
   const { data: pricesStatus, isLoading: loadingPrices, refetch: refetchPrices } = useGetPricesStatus();
   const uploadPrices = useUploadPrices();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [liveResult, setLiveResult] = useState<any>(null);
+  const fetchLivePrices = useFetchLivePrices();
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,6 +92,7 @@ export default function PortfolioConstruction() {
           onSuccess: () => {
             toast({ title: "Prices uploaded successfully" });
             refetchPrices();
+            setLiveResult(null);
             if (fileInputRef.current) fileInputRef.current.value = '';
           },
           onError: (err: any) => {
@@ -99,6 +102,29 @@ export default function PortfolioConstruction() {
       );
     };
     reader.readAsText(file);
+  };
+
+  const handleRefreshMarketData = () => {
+    setLiveResult(null);
+    fetchLivePrices.mutate(
+      { data: { lookbackDays: 400 } },
+      {
+        onSuccess: (data: any) => {
+          setLiveResult(data);
+          if (data.savedToDb) {
+            refetchPrices();
+            toast({ title: "Market data refreshed", description: data.message });
+          } else {
+            toast({ title: "Partial download", description: data.message, variant: "destructive" });
+          }
+        },
+        onError: (err: any) => {
+          const msg = err?.response?.data?.message || err?.message || "Failed to fetch live prices";
+          setLiveResult({ error: msg });
+          toast({ title: "Download failed", description: msg, variant: "destructive" });
+        }
+      }
+    );
   };
 
   if (loadingUniverse || loadingConstraints) {
@@ -271,9 +297,11 @@ export default function PortfolioConstruction() {
         <Card>
           <CardHeader>
             <CardTitle>Price Data Source</CardTitle>
-            <CardDescription>Upload historical daily prices (CSV).</CardDescription>
+            <CardDescription>Download live market data or upload a CSV file.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+
+            {/* Current data status */}
             {!loadingPrices && pricesStatus && (
               <div className={`p-4 rounded-md border ${pricesStatus.hasData ? 'bg-green-50/50 border-green-100' : 'bg-amber-50/50 border-amber-100'}`}>
                 <div className="flex items-start">
@@ -304,9 +332,90 @@ export default function PortfolioConstruction() {
               </div>
             )}
 
+            {/* Live fetch section */}
             <div className="space-y-3">
-              <Label>Upload New Price Data</Label>
-              <div className="text-sm text-muted-foreground mb-2">
+              <div>
+                <Label className="text-base">Refresh Market Data</Label>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Downloads adjusted close prices for all enabled ETFs from Yahoo Finance (last 400 days).
+                </p>
+              </div>
+              <Button
+                onClick={handleRefreshMarketData}
+                disabled={fetchLivePrices.isPending}
+                variant="default"
+                className="w-full"
+              >
+                {fetchLivePrices.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Downloading from Yahoo Finance...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Refresh Market Data
+                  </>
+                )}
+              </Button>
+
+              {/* Live fetch result */}
+              {liveResult && !fetchLivePrices.isPending && (
+                <div className={`p-3 rounded-md border text-sm ${
+                  liveResult.error
+                    ? 'bg-red-50 border-red-100'
+                    : liveResult.savedToDb
+                    ? 'bg-green-50 border-green-100'
+                    : 'bg-amber-50 border-amber-100'
+                }`}>
+                  {liveResult.error ? (
+                    <div className="flex items-start gap-2">
+                      <WifiOff className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-red-900">Download failed</p>
+                        <p className="text-red-700 mt-0.5">{liveResult.error}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-2">
+                      {liveResult.savedToDb ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                      ) : (
+                        <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                      )}
+                      <div className="space-y-1">
+                        <p className={`font-medium ${liveResult.savedToDb ? 'text-green-900' : 'text-amber-900'}`}>
+                          {liveResult.message}
+                        </p>
+                        {liveResult.totalRows > 0 && (
+                          <p className="text-gray-600">
+                            {liveResult.startDate} to {liveResult.endDate} &middot; {liveResult.totalRows} rows
+                          </p>
+                        )}
+                        {liveResult.failed?.length > 0 && (
+                          <p className="text-gray-500">
+                            Skipped: {liveResult.failed.map((f: any) => f.ticker).join(', ')}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-muted-foreground">or upload CSV</span>
+              </div>
+            </div>
+
+            {/* CSV upload */}
+            <div className="space-y-3">
+              <div className="text-sm text-muted-foreground">
                 CSV format: First column "Date" (YYYY-MM-DD), remaining columns are ticker symbols.
               </div>
               <div className="flex items-center gap-4">
@@ -333,6 +442,7 @@ export default function PortfolioConstruction() {
                 </div>
               )}
             </div>
+
           </CardContent>
         </Card>
 
