@@ -1,22 +1,35 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Allocation Lab v2 API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: universe
+    description: ETF universe management
+  - name: constraints
+    description: Allocation constraints
+  - name: prices
+    description: Price data management
+  - name: run
+    description: Allocation pipeline execution
+  - name: results
+    description: Allocation results
+  - name: reports
+    description: Report generation
+  - name: sessions
+    description: Run history
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +37,228 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /universe:
+    get:
+      operationId: getUniverse
+      tags: [universe]
+      summary: Get ETF universe and prior weights
+      responses:
+        "200":
+          description: Universe config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Universe"
+    put:
+      operationId: updateUniverse
+      tags: [universe]
+      summary: Update ETF universe and prior weights
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UniverseInput"
+      responses:
+        "200":
+          description: Updated universe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Universe"
+
+  /constraints:
+    get:
+      operationId: getConstraints
+      tags: [constraints]
+      summary: Get allocation constraints
+      responses:
+        "200":
+          description: Constraints
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Constraints"
+    put:
+      operationId: updateConstraints
+      tags: [constraints]
+      summary: Update allocation constraints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConstraintsInput"
+      responses:
+        "200":
+          description: Updated constraints
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Constraints"
+
+  /prices/status:
+    get:
+      operationId: getPricesStatus
+      tags: [prices]
+      summary: Check price data availability and coverage
+      responses:
+        "200":
+          description: Price data status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricesStatus"
+
+  /prices/upload:
+    post:
+      operationId: uploadPrices
+      tags: [prices]
+      summary: Upload CSV price history
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PricesUploadInput"
+      responses:
+        "200":
+          description: Upload result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricesStatus"
+
+  /run:
+    post:
+      operationId: runPipeline
+      tags: [run]
+      summary: Execute the full allocation pipeline
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunInput"
+      responses:
+        "200":
+          description: Run result with full allocation output
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunResult"
+        "400":
+          description: Missing price data or invalid config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /results/latest:
+    get:
+      operationId: getLatestResults
+      tags: [results]
+      summary: Get the most recent allocation run results
+      responses:
+        "200":
+          description: Latest run results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunResult"
+        "404":
+          description: No results yet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /sessions:
+    get:
+      operationId: listSessions
+      tags: [sessions]
+      summary: List past allocation run sessions
+      responses:
+        "200":
+          description: Session list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Session"
+
+  /sessions/{sessionId}:
+    get:
+      operationId: getSession
+      tags: [sessions]
+      summary: Get a specific past run session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Session detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /reports/generate:
+    post:
+      operationId: generateReport
+      tags: [reports]
+      summary: Generate a downloadable report from the latest results
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+      responses:
+        "200":
+          description: Report metadata and download tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportResult"
+
+  /reports/download/{token}:
+    get:
+      operationId: downloadReport
+      tags: [reports]
+      summary: Download a generated report file
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: File download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +266,316 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: ["string", "null"]
+      required: [error]
+
+    EtfEntry:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        sector:
+          type: string
+        priorWeight:
+          type: number
+          description: Prior month weight as decimal (e.g. 0.09 = 9%)
+        enabled:
+          type: boolean
+      required: [ticker, name, sector, priorWeight, enabled]
+
+    Universe:
+      type: object
+      properties:
+        etfs:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtfEntry"
+        cashPriorWeight:
+          type: number
+        updatedAt:
+          type: string
+      required: [etfs, cashPriorWeight, updatedAt]
+
+    UniverseInput:
+      type: object
+      properties:
+        etfs:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtfEntry"
+        cashPriorWeight:
+          type: number
+      required: [etfs, cashPriorWeight]
+
+    Constraints:
+      type: object
+      properties:
+        cashMin:
+          type: number
+          description: Minimum cash as decimal
+        cashMax:
+          type: number
+          description: Maximum cash as decimal
+        maxEtfWeight:
+          type: number
+          description: Max single ETF weight as decimal
+        minInclusionThreshold:
+          type: number
+          description: Minimum score threshold for inclusion (0-100)
+        targetActiveEtfs:
+          type: integer
+          description: Target number of active ETF positions
+        diversificationEnabled:
+          type: boolean
+        updatedAt:
+          type: string
+      required: [cashMin, cashMax, maxEtfWeight, minInclusionThreshold, targetActiveEtfs, diversificationEnabled, updatedAt]
+
+    ConstraintsInput:
+      type: object
+      properties:
+        cashMin:
+          type: number
+        cashMax:
+          type: number
+        maxEtfWeight:
+          type: number
+        minInclusionThreshold:
+          type: number
+        targetActiveEtfs:
+          type: integer
+        diversificationEnabled:
+          type: boolean
+      required: [cashMin, cashMax, maxEtfWeight, minInclusionThreshold, targetActiveEtfs, diversificationEnabled]
+
+    PricesStatus:
+      type: object
+      properties:
+        hasData:
+          type: boolean
+        tickers:
+          type: array
+          items:
+            type: string
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+        rowCount:
+          type: integer
+        missingTickers:
+          type: array
+          items:
+            type: string
+        message:
+          type: string
+      required: [hasData, tickers, startDate, endDate, rowCount, missingTickers, message]
+
+    PricesUploadInput:
+      type: object
+      properties:
+        csvContent:
+          type: string
+          description: CSV file content as string. First column is Date, remaining columns are ticker symbols.
+      required: [csvContent]
+
+    RunInput:
+      type: object
+      properties:
+        label:
+          type: ["string", "null"]
+          description: Optional label for this run (e.g. "July 2026 Rebalance")
+        overrideDiversification:
+          type: ["boolean", "null"]
+      required: []
+
+    FactorScores:
+      type: object
+      properties:
+        mom20:
+          type: number
+          description: 20-day momentum score 0-100
+        mom60:
+          type: number
+          description: 60-day momentum score 0-100
+        mom120:
+          type: number
+          description: 120-day momentum score 0-100
+        mom252:
+          type: number
+          description: 252-day momentum score 0-100
+        trendQuality:
+          type: number
+          description: Trend quality score 0-100
+        realizedVol60:
+          type: number
+          description: 60-day realized volatility score 0-100 (higher = lower vol)
+        drawdown:
+          type: number
+          description: Drawdown score 0-100 (higher = smaller drawdown)
+        meanReversion:
+          type: number
+          description: Short-term mean reversion score 0-100
+        composite:
+          type: number
+          description: Composite factor score 0-100
+      required: [mom20, mom60, mom120, mom252, trendQuality, realizedVol60, drawdown, meanReversion, composite]
+
+    EtfAllocation:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        sector:
+          type: string
+        weight:
+          type: number
+          description: Final allocated weight as decimal
+        priorWeight:
+          type: number
+          description: Prior month weight as decimal
+        change:
+          type: number
+          description: Weight change vs prior month as decimal
+        factorScores:
+          $ref: "#/components/schemas/FactorScores"
+        active:
+          type: boolean
+      required: [ticker, name, sector, weight, priorWeight, change, factorScores, active]
+
+    RegimeScores:
+      type: object
+      properties:
+        trend:
+          type: number
+          description: Trend score 0-100
+        breadth:
+          type: number
+          description: Breadth score 0-100
+        volatility:
+          type: number
+          description: Volatility score 0-100 (higher = lower vol environment)
+        liquidity:
+          type: number
+          description: Liquidity score 0-100
+        composite:
+          type: number
+          description: Composite regime score 0-100
+        label:
+          type: string
+          description: Human-readable regime label e.g. "Risk-On", "Cautious", "Risk-Off"
+      required: [trend, breadth, volatility, liquidity, composite, label]
+
+    RunResult:
+      type: object
+      properties:
+        sessionId:
+          type: integer
+        runAt:
+          type: string
+        label:
+          type: ["string", "null"]
+        regime:
+          $ref: "#/components/schemas/RegimeScores"
+        allocations:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtfAllocation"
+        cashWeight:
+          type: number
+          description: Cash allocation as decimal
+        cashPriorWeight:
+          type: number
+        cashChange:
+          type: number
+        activeEtfCount:
+          type: integer
+        investedSleeve:
+          type: number
+          description: Total invested (non-cash) weight
+        priceDataEnd:
+          type: string
+          description: Last date of price data used
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/PipelineStep"
+      required: [sessionId, runAt, label, regime, allocations, cashWeight, cashPriorWeight, cashChange, activeEtfCount, investedSleeve, priceDataEnd, steps]
+
+    PipelineStep:
+      type: object
+      properties:
+        step:
+          type: string
+        label:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, done, error]
+        message:
+          type: ["string", "null"]
+      required: [step, label, status, message]
+
+    Session:
+      type: object
+      properties:
+        id:
+          type: integer
+        runAt:
+          type: string
+        label:
+          type: ["string", "null"]
+        activeEtfCount:
+          type: integer
+        cashWeight:
+          type: number
+        regimeLabel:
+          type: string
+        regimeComposite:
+          type: number
+      required: [id, runAt, label, activeEtfCount, cashWeight, regimeLabel, regimeComposite]
+
+    SessionDetail:
+      type: object
+      properties:
+        session:
+          $ref: "#/components/schemas/Session"
+        result:
+          $ref: "#/components/schemas/RunResult"
+      required: [session, result]
+
+    ReportInput:
+      type: object
+      properties:
+        sessionId:
+          type: ["integer", "null"]
+          description: Session to report on; null = latest
+        format:
+          type: string
+          enum: [pdf, png, csv]
+      required: [format]
+
+    ReportResult:
+      type: object
+      properties:
+        format:
+          type: string
+        downloadToken:
+          type: string
+        filename:
+          type: string
+        generatedAt:
+          type: string
+      required: [format, downloadToken, filename, generatedAt]

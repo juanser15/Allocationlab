@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Allocation Lab v2"
+version = "1.0.0"
+id = "artifacts/allocation-lab"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18596
+
+[services.development]
+run = "pnpm --filter @workspace/allocation-lab run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/allocation-lab", "run", "build" ]
+publicDir = "artifacts/allocation-lab/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18596"
+BASE_PATH = "/"
