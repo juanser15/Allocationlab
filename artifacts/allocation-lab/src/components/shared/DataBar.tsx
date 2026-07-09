@@ -1,9 +1,10 @@
-import { Link } from "wouter";
 import { useGetPricesStatus } from "@workspace/api-client-react";
 import { CheckCircle2, AlertCircle, RefreshCw, Upload } from "lucide-react";
+import { useSettingsDrawer } from "@/context/settings-drawer-context";
 
 export function DataBar() {
   const { data: pricesStatus, isLoading } = useGetPricesStatus();
+  const { openSettings } = useSettingsDrawer();
   const hasData = !!pricesStatus?.hasData;
 
   if (isLoading) return null;
@@ -28,12 +29,12 @@ export function DataBar() {
         </span>
       )}
       <span className="ml-auto flex items-center gap-3 shrink-0">
-        <Link href="/settings" className="inline-flex items-center gap-1 hover:underline font-medium text-primary">
+        <button onClick={() => openSettings("data-sources")} className="inline-flex items-center gap-1 hover:underline font-medium text-primary">
           <RefreshCw className="h-3 w-3" /> Refresh
-        </Link>
-        <Link href="/settings" className="inline-flex items-center gap-1 hover:underline font-medium text-primary">
+        </button>
+        <button onClick={() => openSettings("data-sources")} className="inline-flex items-center gap-1 hover:underline font-medium text-primary">
           <Upload className="h-3 w-3" /> Upload
-        </Link>
+        </button>
       </span>
     </div>
   );

@@ -17,11 +17,12 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   AlertCircle, Loader2, DollarSign, Activity,
-  ShieldAlert, Eye, FileCheck2, ShieldCheck, ExternalLink, Gauge, Compass,
+  ShieldAlert, Eye, FileCheck2, ShieldCheck, ExternalLink, Gauge, Compass, ArrowRight,
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useWorkflowStage } from "@/lib/workflow";
 import { WorkflowStatusBar } from "@/components/shared/WorkflowStatusBar";
+import { useSettingsDrawer } from "@/context/settings-drawer-context";
 
 type Preset = "today" | "week" | "month" | "ytd" | "custom";
 
@@ -58,6 +59,7 @@ function startOfYear() {
 export default function Dashboard() {
   const { stage } = useWorkflowStage();
   const { data: pricesStatus, isLoading: loadingPrices } = useGetPricesStatus();
+  const { openSettings } = useSettingsDrawer();
 
   const [preset, setPreset] = useState<Preset>("today");
   const [customFrom, setCustomFrom] = useState(isoDaysAgo(30));
@@ -136,8 +138,11 @@ export default function Dashboard() {
       {!loadingPrices && !hasData && (
         <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive-foreground">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="ml-2">
-            No price data loaded. You must upload price history in Settings before any rebalance can be run.
+          <AlertDescription className="ml-2 flex items-center justify-between w-full flex-wrap gap-2">
+            <span>No price data loaded. You must upload price history in the Settings drawer before any rebalance can be run.</span>
+            <Button variant="link" size="sm" className="h-auto p-0 text-destructive-foreground underline" onClick={() => openSettings("data-sources")}>
+              Open Settings <ArrowRight className="ml-1 h-3 w-3" />
+            </Button>
           </AlertDescription>
         </Alert>
       )}

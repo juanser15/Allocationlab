@@ -24,6 +24,7 @@ import {
 import { Link } from "wouter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { useSettingsDrawer } from "@/context/settings-drawer-context";
 
 function EtfLink({ ticker, className }: { ticker: string; className?: string }) {
   return (
@@ -228,6 +229,7 @@ function ResearchNotesTab() {
 }
 
 export default function ResearchLab() {
+  const { openSettings } = useSettingsDrawer();
   const { data: pricesStatus, isLoading: loadingPrices } = useGetPricesStatus();
   const { data: universe, isLoading: loadingUniverse } = useGetUniverse();
   const { data: result, isLoading: loadingResult } = useGetLatestResults();
@@ -283,8 +285,8 @@ export default function ResearchLab() {
           icon={FlaskConical}
           title="No price data yet"
           description="Upload or refresh price data in Settings before exploring ETFs, factors, or running a backtest."
-          actionLabel="Go to Settings"
-          actionHref="/settings"
+          actionLabel="Open Settings"
+          onAction={() => openSettings("data-sources")}
         />
       ) : (
         <Tabs defaultValue="overview">
@@ -718,7 +720,7 @@ export default function ResearchLab() {
                   <p className="text-xs text-amber-700 max-w-md mx-auto">{bt.insufficientReason}</p>
                   <div className="flex items-center justify-center gap-4 mt-4 text-xs">
                     <Link href="/portfolio-lab" className="text-primary underline">Run a rebalance</Link>
-                    <Link href="/settings" className="text-primary underline">Upload price data</Link>
+                    <button onClick={() => openSettings("data-sources")} className="text-primary underline">Upload price data</button>
                   </div>
                 </CardContent>
               </Card>

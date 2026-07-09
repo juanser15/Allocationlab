@@ -1,11 +1,11 @@
 import { ReactNode, useState } from "react";
-import { Link } from "wouter";
 import { Activity, Menu, Settings } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DataBar } from "@/components/shared/DataBar";
+import { useSettingsDrawer } from "@/context/settings-drawer-context";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -14,17 +14,17 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
+  const { openSettings } = useSettingsDrawer();
 
   const SettingsButton = (
     <Button
       variant="ghost"
       size="icon"
       className="h-9 w-9 text-sidebar-primary-foreground hover:bg-white/10 hover:text-sidebar-primary-foreground"
-      asChild
+      aria-label="Settings"
+      onClick={() => openSettings()}
     >
-      <Link href="/settings" aria-label="Settings">
-        <Settings className="h-5 w-5" />
-      </Link>
+      <Settings className="h-5 w-5" />
     </Button>
   );
 

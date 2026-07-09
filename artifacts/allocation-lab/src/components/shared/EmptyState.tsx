@@ -8,9 +8,10 @@ interface EmptyStateProps {
   description: string;
   actionLabel?: string;
   actionHref?: string;
+  onAction?: () => void;
 }
 
-export function EmptyState({ icon: Icon, title, description, actionLabel, actionHref }: EmptyStateProps) {
+export function EmptyState({ icon: Icon, title, description, actionLabel, actionHref, onAction }: EmptyStateProps) {
   return (
     <div className="py-16 flex flex-col items-center text-center px-4">
       <div className="h-14 w-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
@@ -22,6 +23,9 @@ export function EmptyState({ icon: Icon, title, description, actionLabel, action
         <Button asChild>
           <Link href={actionHref}>{actionLabel}</Link>
         </Button>
+      )}
+      {actionLabel && onAction && !actionHref && (
+        <Button onClick={onAction}>{actionLabel}</Button>
       )}
     </div>
   );

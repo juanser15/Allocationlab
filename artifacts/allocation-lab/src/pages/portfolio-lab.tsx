@@ -12,6 +12,7 @@ import {
   Play, AlertCircle, ShieldCheck, ShieldAlert, Gauge, Send, CheckCircle2, XCircle,
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { useSettingsDrawer } from "@/context/settings-drawer-context";
 
 function pct(n: number) {
   return `${(n * 100).toFixed(1)}%`;
@@ -39,6 +40,7 @@ function getCellColorClass(val: number) {
 
 export default function PortfolioLab() {
   const [, setLocation] = useLocation();
+  const { openSettings } = useSettingsDrawer();
   const { data: result, isLoading: loadingResult } = useGetLatestResults();
   const sessionId = result?.sessionId;
   const { data: decisionLog, refetch: refetchDecisionLog } = useGetOrCreateDecisionLog(sessionId ?? 0);
@@ -102,9 +104,9 @@ export default function PortfolioLab() {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="ml-2 flex items-center justify-between w-full flex-wrap gap-2">
             <span>No price data loaded. You must upload price history before running a rebalance.</span>
-            <Link href="/settings" className="text-sm font-medium underline flex items-center">
-              Go to Settings <ArrowRight className="ml-1 h-3 w-3" />
-            </Link>
+            <button onClick={() => openSettings("data-sources")} className="text-sm font-medium underline flex items-center">
+              Open Settings <ArrowRight className="ml-1 h-3 w-3" />
+            </button>
           </AlertDescription>
         </Alert>
       )}
@@ -129,8 +131,8 @@ export default function PortfolioLab() {
                 <span>
                   ETFs are ranked by composite factor score; the top-ranked names receive score-weighted allocations,
                   dampened 30% toward prior weights for continuity. Cash is dynamically adjusted by the regime composite.
-                  Constraints (cash range, max weight, inclusion threshold, target active ETFs) are configured in{" "}
-                  <Link href="/settings" className="underline font-medium text-primary">Settings</Link>.
+                  Constraints (cash range, max weight, inclusion threshold, target active ETFs) are configured in the{" "}
+                  <button onClick={() => openSettings("constraints")} className="underline font-medium text-primary">Settings drawer</button>.
                 </span>
               </div>
             </CardContent>
@@ -371,8 +373,8 @@ export default function PortfolioLab() {
                 <ShieldCheck className="h-4 w-4 text-primary" /> Constraint Compliance
               </CardTitle>
               <CardDescription>
-                Checks the current allocation against the constraints configured in{" "}
-                <Link href="/settings" className="underline font-medium text-primary">Settings</Link>.
+                Checks the current allocation against the constraints configured in the{" "}
+                <button onClick={() => openSettings("constraints")} className="underline font-medium text-primary">Settings drawer</button>.
               </CardDescription>
             </CardHeader>
             <CardContent>
