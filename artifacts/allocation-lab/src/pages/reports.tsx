@@ -208,10 +208,10 @@ export default function Reports() {
         <PieChartIcon className="h-16 w-16 text-gray-300 mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">No Results Available</h2>
         <p className="text-muted-foreground mb-6 max-w-md">
-          Run the allocation pipeline from Command Center before building a committee report.
+          Run the allocation pipeline from the Dashboard before building a committee report.
         </p>
         <Button asChild size="lg">
-          <Link href="/">Go to Command Center</Link>
+          <Link href="/">Go to Dashboard</Link>
         </Button>
       </div>
     );
@@ -240,7 +240,7 @@ export default function Reports() {
   return (
     <div className="p-4 sm:p-8 max-w-[1600px] mx-auto space-y-6">
       <PageHeader
-        section="7 · Reports & Exports"
+        section="6 · Reports"
         title="Committee Report Builder"
         description="Compose a one-page report for the latest allocation run, preview it, and export PDF, PNG, or CSV."
       />

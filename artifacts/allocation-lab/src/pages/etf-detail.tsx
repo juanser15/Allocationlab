@@ -123,14 +123,14 @@ export default function EtfDetail() {
   if (error || !etf) {
     return (
       <div className="p-8 max-w-5xl mx-auto">
-        <Link href="/results" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6">
-          <ArrowLeft className="h-4 w-4" /> Results Dashboard
+        <Link href="/portfolio-lab" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6">
+          <ArrowLeft className="h-4 w-4" /> Portfolio Lab
         </Link>
         <Card className="border-amber-200 bg-amber-50">
           <CardContent className="py-8 text-center">
             <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-3" />
             <p className="text-sm font-medium text-amber-800 mb-1">{ticker} not found in the configured universe.</p>
-            <p className="text-xs text-amber-700">Check the ETF universe in Portfolio Construction.</p>
+            <p className="text-xs text-amber-700">Check the ETF universe in Configuration.</p>
           </CardContent>
         </Card>
       </div>
@@ -161,11 +161,11 @@ export default function EtfDetail() {
     <div className="p-8 max-w-6xl mx-auto space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/results" className="hover:text-primary transition-colors flex items-center gap-1">
-          <ArrowLeft className="h-3.5 w-3.5" /> Results Dashboard
+        <Link href="/portfolio-lab" className="hover:text-primary transition-colors flex items-center gap-1">
+          <ArrowLeft className="h-3.5 w-3.5" /> Portfolio Lab
         </Link>
         <span>·</span>
-        <Link href="/portfolio-construction" className="hover:text-primary transition-colors">Portfolio Construction</Link>
+        <Link href="/market-intelligence" className="hover:text-primary transition-colors">Market Intelligence</Link>
         <span>·</span>
         <span className="text-gray-900 font-medium">{ticker}</span>
       </div>

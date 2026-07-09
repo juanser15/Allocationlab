@@ -4,15 +4,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { AppLayout } from "@/components/layout/AppLayout";
-import CommandCenter from "@/pages/command-center";
-import SetupData from "@/pages/setup-data";
-import PortfolioConstruction from "@/pages/portfolio-construction";
-import ResultsDashboard from "@/pages/results-dashboard";
-import ResearchLab from "@/pages/research-lab";
+import Dashboard from "@/pages/dashboard";
+import PortfolioLab from "@/pages/portfolio-lab";
+import MarketIntelligence from "@/pages/market-intelligence";
+import Configuration from "@/pages/configuration";
 import InvestmentCommittee from "@/pages/investment-committee";
 import Reports from "@/pages/reports";
 import HistoricalArchive from "@/pages/historical-archive";
-import Methodology from "@/pages/methodology";
 import EtfDetail from "@/pages/etf-detail";
 
 const queryClient = new QueryClient({
@@ -28,16 +26,14 @@ function Router() {
   return (
     <AppLayout>
       <Switch>
-        <Route path="/" component={CommandCenter} />
-        <Route path="/setup-data" component={SetupData} />
-        <Route path="/portfolio-construction" component={PortfolioConstruction} />
-        <Route path="/results" component={ResultsDashboard} />
-        <Route path="/research-lab" component={ResearchLab} />
+        <Route path="/" component={Dashboard} />
+        <Route path="/portfolio-lab" component={PortfolioLab} />
+        <Route path="/market-intelligence" component={MarketIntelligence} />
+        <Route path="/configuration" component={Configuration} />
         <Route path="/etf/:ticker" component={EtfDetail} />
         <Route path="/investment-committee" component={InvestmentCommittee} />
         <Route path="/reports" component={Reports} />
         <Route path="/archive" component={HistoricalArchive} />
-        <Route path="/methodology" component={Methodology} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
@@ -48,7 +44,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <WouterRouter>
           <Router />
         </WouterRouter>
         <Toaster />

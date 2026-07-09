@@ -140,7 +140,7 @@ export default function InvestmentCommittee() {
   return (
     <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-6">
       <PageHeader
-        section="6 · Investment Committee"
+        section="5 · Investment Committee"
         title="Investment Committee"
         description="Monthly rebalance decision room, structured recommendations, approval workflow, and the AI committee's deterministic analysis."
       />
@@ -151,7 +151,7 @@ export default function InvestmentCommittee() {
           <AlertDescription className="ml-2 flex items-center justify-between w-full flex-wrap gap-2">
             <span>No allocation run to review yet. Run the pipeline first.</span>
             <Link href="/" className="text-sm font-medium underline flex items-center">
-              Go to Command Center <ArrowRight className="ml-1 h-3 w-3" />
+              Go to Dashboard <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </AlertDescription>
         </Alert>
@@ -281,7 +281,7 @@ export default function InvestmentCommittee() {
                 <ClipboardList className="h-3.5 w-3.5 shrink-0 mt-0.5 text-gray-400" />
                 <span>
                   The full trade list and target allocation table live in{" "}
-                  <Link href="/portfolio-construction" className="underline font-medium text-primary">Portfolio Construction</Link>.
+                  <Link href="/portfolio-lab" className="underline font-medium text-primary">Portfolio Lab</Link>.
                 </span>
               </div>
 

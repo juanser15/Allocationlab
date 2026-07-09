@@ -1,1 +1,1 @@
-- [Allocation Lab nav structure](allocation-lab-nav.md) — 9-item sidebar is a hard product constraint; use tabs within pages to merge sub-workflows, never add a 10th sidebar item.
+- [Allocation Lab nav structure](allocation-lab-nav.md) — 7-item sidebar (was 9) is a hard product constraint; use tabs within pages to merge sub-workflows, never add a new top-level item.

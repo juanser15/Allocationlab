@@ -430,7 +430,7 @@ export default function HistoricalArchive() {
   return (
     <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-6">
       <PageHeader
-        section="8 · Archive & Governance"
+        section="7 · Archive"
         title="Historical Archive"
         description="Browse every completed rebalance, open a prior month in detail, or compare two periods side by side."
         actions={
@@ -513,12 +513,12 @@ export default function HistoricalArchive() {
             <p className="text-muted-foreground max-w-md mb-4">
               {hasFilters
                 ? "Try widening your date range or clearing a filter."
-                : "Every rebalance you run from Command Center is saved here automatically. Run the pipeline once to start building history."}
+                : "Every rebalance you run from the Dashboard is saved here automatically. Run the pipeline once to start building history."}
             </p>
             {hasFilters ? (
               <Button variant="outline" onClick={clearFilters}>Clear filters</Button>
             ) : (
-              <Button asChild><Link href="/">Go to Command Center</Link></Button>
+              <Button asChild><Link href="/">Go to Dashboard</Link></Button>
             )}
           </CardContent>
         </Card>

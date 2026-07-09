@@ -295,7 +295,7 @@ export default function Backtesting({ embedded = false }: { embedded?: boolean }
             <p className="text-xs text-amber-700 max-w-md mx-auto">{bt.insufficientReason}</p>
             <div className="flex items-center justify-center gap-4 mt-4 text-xs">
               <Link href="/" className="text-primary underline">Run the pipeline</Link>
-              <Link href="/setup-data" className="text-primary underline">Upload price data</Link>
+              <Link href="/configuration" className="text-primary underline">Upload price data</Link>
             </div>
           </CardContent>
         </Card>
