@@ -401,32 +401,138 @@ export interface BacktestMonthlyReturn {
   benchmarkReturn: number | null;
 }
 
-export interface BacktestPeriod {
-  sessionId: number;
+export type BacktestConfigEchoRebalanceFrequency = typeof BacktestConfigEchoRebalanceFrequency[keyof typeof BacktestConfigEchoRebalanceFrequency];
+
+
+export const BacktestConfigEchoRebalanceFrequency = {
+  monthly: 'monthly',
+  quarterly: 'quarterly',
+} as const;
+
+export type BacktestConfigEchoExecutionTiming = typeof BacktestConfigEchoExecutionTiming[keyof typeof BacktestConfigEchoExecutionTiming];
+
+
+export const BacktestConfigEchoExecutionTiming = {
+  same_close: 'same_close',
+  next_close: 'next_close',
+  next_open: 'next_open',
+} as const;
+
+export interface BacktestConfigEcho {
+  rebalanceFrequency: BacktestConfigEchoRebalanceFrequency;
+  executionTiming: BacktestConfigEchoExecutionTiming;
+  transactionCostBps: number;
+  slippageBps: number;
+  maxTurnoverPerRebalance: number;
+  cashYieldAnnual: number;
+  warmupDays: number;
+}
+
+export interface BacktestRebalanceLogEntry {
+  /** Date the point-in-time signal was computed, using only price data strictly before this date */
+  rebalanceDate: string;
+  /**
+     * Date the resulting target weights actually take effect, per the chosen execution timing
+     * @nullable
+     */
+  executionDate: string | null;
+  lookbackDays: number;
+  regimeLabel: string;
+  regimeComposite: number;
+  cashWeight: number;
+  activeEtfCount: number;
+  topHoldings: string[];
+  turnoverRequested: number;
+  turnoverApplied: number;
+  turnoverCapped: boolean;
+  transactionCostPct: number;
+}
+
+export type IntegrityCheckStatus = typeof IntegrityCheckStatus[keyof typeof IntegrityCheckStatus];
+
+
+export const IntegrityCheckStatus = {
+  pass: 'pass',
+  warn: 'warn',
+  fail: 'fail',
+} as const;
+
+export interface IntegrityCheck {
+  id: string;
+  label: string;
+  status: IntegrityCheckStatus;
+  detail: string;
+}
+
+export type IntegrityAuditGrade = typeof IntegrityAuditGrade[keyof typeof IntegrityAuditGrade];
+
+
+export const IntegrityAuditGrade = {
+  research_grade: 'research_grade',
+  developmental: 'developmental',
+  not_reliable: 'not_reliable',
+} as const;
+
+export interface IntegrityAudit {
+  score: number;
+  grade: IntegrityAuditGrade;
+  hardFail: boolean;
+  checklist: IntegrityCheck[];
+}
+
+export type SensitivityRunRebalanceFrequency = typeof SensitivityRunRebalanceFrequency[keyof typeof SensitivityRunRebalanceFrequency];
+
+
+export const SensitivityRunRebalanceFrequency = {
+  monthly: 'monthly',
+  quarterly: 'quarterly',
+} as const;
+
+export type SensitivityRunExecutionTiming = typeof SensitivityRunExecutionTiming[keyof typeof SensitivityRunExecutionTiming];
+
+
+export const SensitivityRunExecutionTiming = {
+  same_close: 'same_close',
+  next_close: 'next_close',
+} as const;
+
+export interface SensitivityRun {
+  rebalanceFrequency: SensitivityRunRebalanceFrequency;
+  executionTiming: SensitivityRunExecutionTiming;
+  transactionCostBps: number;
   /** @nullable */
-  label: string | null;
+  cumulativeReturn: number | null;
+  /** @nullable */
+  annualizedReturn: number | null;
+  /** @nullable */
+  sharpeRatio: number | null;
+}
+
+export interface SensitivityResult {
+  runs: SensitivityRun[];
+  stabilityWarning: boolean;
+  note: string;
+}
+
+export interface WalkForwardFold {
+  foldIndex: number;
   startDate: string;
   endDate: string;
   tradingDays: number;
-  regimeLabel: string;
-  cashWeight: number;
-  /** Top 1-3 held tickers by weight during this period */
-  topHoldings: string[];
-  /**
-     * Compounded portfolio return during this period, null if no overlapping price data
-     * @nullable
-     */
-  periodReturn: number | null;
-  /**
-     * Contribution to total cumulative return, in decimal (sums across periods to cumulativeReturn)
-     * @nullable
-     */
-  contributionPct: number | null;
-  /**
-     * One-way turnover fraction vs prior period's weights, null for the first period
-     * @nullable
-     */
-  turnover: number | null;
+  rebalanceCount: number;
+  /** @nullable */
+  cumulativeReturn: number | null;
+  /** @nullable */
+  annualizedReturn: number | null;
+  /** @nullable */
+  sharpeRatio: number | null;
+  /** @nullable */
+  maxDrawdown: number | null;
+}
+
+export interface WalkForwardResult {
+  folds: WalkForwardFold[];
+  note: string;
 }
 
 export interface BacktestResult {
@@ -453,13 +559,10 @@ export interface BacktestResult {
   maxDrawdown: number | null;
   /** @nullable */
   avgTurnover: number | null;
+  /** @nullable */
+  totalTransactionCostPct: number | null;
   monthlyReturns: BacktestMonthlyReturn[];
-  periods: BacktestPeriod[];
-  /**
-     * Plain-language summary of which rebalances contributed most/least to performance
-     * @nullable
-     */
-  narrative: string | null;
+  rebalanceLog: BacktestRebalanceLogEntry[];
   /** @nullable */
   benchmarkTicker: string | null;
   /** @nullable */
@@ -469,7 +572,66 @@ export interface BacktestResult {
   /** @nullable */
   benchmarkUnavailableReason: string | null;
   availableBenchmarkTickers: string[];
+  config: BacktestConfigEcho;
+  integrity: IntegrityAudit;
+  walkForward: WalkForwardResult;
+  sensitivity: SensitivityResult;
+  warnings: string[];
   methodologyNote: string;
+}
+
+export type CommitteeRecommendationPersonaId = typeof CommitteeRecommendationPersonaId[keyof typeof CommitteeRecommendationPersonaId];
+
+
+export const CommitteeRecommendationPersonaId = {
+  macro_strategist: 'macro_strategist',
+  momentum_analyst: 'momentum_analyst',
+  risk_manager: 'risk_manager',
+  portfolio_construction_analyst: 'portfolio_construction_analyst',
+} as const;
+
+export type CommitteeRecommendationStance = typeof CommitteeRecommendationStance[keyof typeof CommitteeRecommendationStance];
+
+
+export const CommitteeRecommendationStance = {
+  support: 'support',
+  modify: 'modify',
+  reject: 'reject',
+} as const;
+
+export interface CommitteeRecommendation {
+  personaId: CommitteeRecommendationPersonaId;
+  personaLabel: string;
+  stance: CommitteeRecommendationStance;
+  confidence: number;
+  summary: string;
+  evidence: string[];
+  keyConcern: string;
+}
+
+export type CommitteeCioSynthesisStance = typeof CommitteeCioSynthesisStance[keyof typeof CommitteeCioSynthesisStance];
+
+
+export const CommitteeCioSynthesisStance = {
+  support: 'support',
+  modify: 'modify',
+  reject: 'reject',
+} as const;
+
+export interface CommitteeCioSynthesis {
+  stance: CommitteeCioSynthesisStance;
+  confidence: number;
+  summary: string;
+  dissent: string[];
+}
+
+export interface CommitteeResult {
+  sessionId: number;
+  generatedAt: string;
+  recommendations: CommitteeRecommendation[];
+  cio: CommitteeCioSynthesis;
+  dataQualityNotes: string[];
+  memo: string;
 }
 
 export type TradeListEntryAction = typeof TradeListEntryAction[keyof typeof TradeListEntryAction];
@@ -662,5 +824,33 @@ b: number;
 
 export type GetBacktestParams = {
 benchmark?: string;
+rebalanceFrequency?: GetBacktestRebalanceFrequency;
+executionTiming?: GetBacktestExecutionTiming;
+transactionCostBps?: number;
+slippageBps?: number;
+maxTurnoverPerRebalance?: number;
+cashYieldAnnual?: number;
+warmupDays?: number;
+};
+
+export type GetBacktestRebalanceFrequency = typeof GetBacktestRebalanceFrequency[keyof typeof GetBacktestRebalanceFrequency];
+
+
+export const GetBacktestRebalanceFrequency = {
+  monthly: 'monthly',
+  quarterly: 'quarterly',
+} as const;
+
+export type GetBacktestExecutionTiming = typeof GetBacktestExecutionTiming[keyof typeof GetBacktestExecutionTiming];
+
+
+export const GetBacktestExecutionTiming = {
+  same_close: 'same_close',
+  next_close: 'next_close',
+  next_open: 'next_open',
+} as const;
+
+export type GetCommittee404 = {
+  error: string;
 };
 

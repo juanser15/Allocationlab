@@ -1,14 +1,18 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { useGetBacktest } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartTooltip, ResponsiveContainer, Legend,
 } from "recharts";
-import { Loader2, Info, AlertTriangle, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import {
+  Loader2, Info, AlertTriangle, TrendingUp, TrendingDown, CheckCircle2, XCircle, MinusCircle, ShieldAlert,
+} from "lucide-react";
 import { Link } from "wouter";
 
 function InfoTip({ tip }: { tip: string }) {
@@ -87,20 +91,134 @@ function EquityTooltip({
   );
 }
 
+const GRADE_LABEL: Record<string, string> = {
+  research_grade: "Research Grade",
+  developmental: "Developmental",
+  not_reliable: "Not Reliable",
+};
+
+const GRADE_CLASS: Record<string, string> = {
+  research_grade: "bg-green-100 text-green-800 border-green-300",
+  developmental: "bg-amber-100 text-amber-800 border-amber-300",
+  not_reliable: "bg-red-100 text-red-800 border-red-300",
+};
+
+function StatusIcon({ status }: { status: string }) {
+  if (status === "pass") return <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />;
+  if (status === "warn") return <ShieldAlert className="h-4 w-4 text-amber-500 shrink-0" />;
+  return <XCircle className="h-4 w-4 text-red-600 shrink-0" />;
+}
+
 export default function Backtesting() {
   const [benchmark, setBenchmark] = useState<string>("none");
-  const { data: bt, isLoading, error } = useGetBacktest(
-    benchmark !== "none" ? { benchmark } : undefined
-  );
+  const [frequency, setFrequency] = useState<"monthly" | "quarterly">("monthly");
+  const [timing, setTiming] = useState<"same_close" | "next_close" | "next_open">("next_close");
+  const [txnCostBps, setTxnCostBps] = useState(10);
+  const [slippageBps, setSlippageBps] = useState(5);
+  const [turnoverCap, setTurnoverCap] = useState(100);
+  const [cashYield, setCashYield] = useState(4);
+
+  const { data: bt, isLoading, error } = useGetBacktest({
+    ...(benchmark !== "none" ? { benchmark } : {}),
+    rebalanceFrequency: frequency,
+    executionTiming: timing,
+    transactionCostBps: txnCostBps,
+    slippageBps: slippageBps,
+    maxTurnoverPerRebalance: turnoverCap / 100,
+    cashYieldAnnual: cashYield / 100,
+  });
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-primary">Backtesting</h1>
         <p className="text-muted-foreground mt-1">
-          Historical performance of the current allocation model over available price history.
+          Bias-resistant, point-in-time walk-forward backtest of the current allocation model. Signals are computed
+          only from data strictly before each rebalance date.
         </p>
       </div>
+
+      {/* Config Panel */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Backtest Configuration</CardTitle>
+          <CardDescription className="text-xs">
+            These settings directly affect realism — configure them deliberately rather than tuning to chase results.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center">
+              Rebalance Frequency
+              <InfoTip tip="How often the portfolio is re-scored and re-weighted." />
+            </Label>
+            <Select value={frequency} onValueChange={(v) => setFrequency(v as "monthly" | "quarterly")}>
+              <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="quarterly">Quarterly</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center">
+              Execution Timing
+              <InfoTip tip="When a rebalance decision actually gets filled. Same-close is unrealistic (assumes zero-latency execution); next-close and next-open impose a one-day implementation lag." />
+            </Label>
+            <Select value={timing} onValueChange={(v) => setTiming(v as typeof timing)}>
+              <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="same_close">Same Close (unrealistic)</SelectItem>
+                <SelectItem value="next_close">Next Close</SelectItem>
+                <SelectItem value="next_open">Next Open (approximated)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center">
+              Benchmark
+              <InfoTip tip="Buy-and-hold comparison ticker from the enabled universe." />
+            </Label>
+            <Select value={benchmark} onValueChange={setBenchmark}>
+              <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="None" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {(bt?.availableBenchmarkTickers ?? []).map((t) => (
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center justify-between">
+              <span className="flex items-center">Transaction Cost<InfoTip tip="Applied to turnover at each rebalance, in basis points." /></span>
+              <span className="text-gray-700 font-normal normal-case">{txnCostBps} bps</span>
+            </Label>
+            <Slider value={[txnCostBps]} min={0} max={100} step={1} onValueChange={(v) => setTxnCostBps(v[0])} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center justify-between">
+              <span className="flex items-center">Slippage<InfoTip tip="Additional market-impact cost applied to turnover, in basis points." /></span>
+              <span className="text-gray-700 font-normal normal-case">{slippageBps} bps</span>
+            </Label>
+            <Slider value={[slippageBps]} min={0} max={100} step={1} onValueChange={(v) => setSlippageBps(v[0])} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center justify-between">
+              <span className="flex items-center">Max Turnover / Rebalance<InfoTip tip="Caps how much the portfolio can change in a single rebalance, simulating implementation constraints." /></span>
+              <span className="text-gray-700 font-normal normal-case">{turnoverCap}%</span>
+            </Label>
+            <Slider value={[turnoverCap]} min={5} max={100} step={5} onValueChange={(v) => setTurnoverCap(v[0])} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center justify-between">
+              <span className="flex items-center">Cash Yield (annual)<InfoTip tip="Interest earned on the uninvested cash sleeve, modeling cash drag realistically instead of assuming 0%." /></span>
+              <span className="text-gray-700 font-normal normal-case">{cashYield.toFixed(1)}%</span>
+            </Label>
+            <Slider value={[cashYield]} min={0} max={8} step={0.5} onValueChange={(v) => setCashYield(v[0])} />
+          </div>
+        </CardContent>
+      </Card>
 
       {isLoading && (
         <div className="flex items-center gap-3 text-muted-foreground text-sm py-12 justify-center">
@@ -133,27 +251,60 @@ export default function Backtesting() {
 
       {!isLoading && !error && bt && bt.hasSufficientData && (
         <>
-          {/* Header status + benchmark selector */}
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <p className="text-sm text-muted-foreground">
-              Backtest window: <strong className="text-gray-800">{bt.startDate}</strong> to{" "}
-              <strong className="text-gray-800">{bt.endDate}</strong> ({bt.tradingDays} trading days)
-            </p>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Benchmark</span>
-              <Select value={benchmark} onValueChange={setBenchmark}>
-                <SelectTrigger className="w-40 h-8 text-sm">
-                  <SelectValue placeholder="None" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {bt.availableBenchmarkTickers.map((t) => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {/* Integrity Score */}
+          <Card className={bt.integrity.hardFail ? "border-red-300" : "border-l-4 border-l-primary/40"}>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  Backtest Integrity Score
+                  <InfoTip tip="A composite audit of whether this backtest is methodologically trustworthy — never labeled production-grade if any check fails." />
+                </CardTitle>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-primary tabular-nums">{bt.integrity.score}/100</span>
+                  <Badge variant="outline" className={GRADE_CLASS[bt.integrity.grade] ?? ""}>
+                    {GRADE_LABEL[bt.integrity.grade] ?? bt.integrity.grade}
+                  </Badge>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {bt.integrity.hardFail && (
+                <div className="flex items-start gap-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                  This configuration fails at least one integrity check. It is never labeled production-grade until every check passes.
+                </div>
+              )}
+              <div className="grid sm:grid-cols-2 gap-2.5">
+                {bt.integrity.checklist.map((c) => (
+                  <div key={c.id} className="flex items-start gap-2 rounded border border-gray-100 px-3 py-2">
+                    <StatusIcon status={c.status} />
+                    <div>
+                      <p className="text-xs font-semibold text-gray-800">{c.label}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{c.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Warnings */}
+          {bt.warnings.length > 0 && (
+            <div className="space-y-2">
+              {bt.warnings.map((w, i) => (
+                <div key={i} className="flex items-start gap-2 rounded border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs text-amber-800">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                  {w}
+                </div>
+              ))}
             </div>
-          </div>
+          )}
+
+          {/* Header status */}
+          <p className="text-sm text-muted-foreground">
+            Simulated window: <strong className="text-gray-800">{bt.startDate}</strong> to{" "}
+            <strong className="text-gray-800">{bt.endDate}</strong> ({bt.tradingDays} trading days)
+          </p>
 
           {bt.benchmarkUnavailableReason && (
             <div className="flex items-start gap-2 rounded border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs text-amber-800">
@@ -173,7 +324,7 @@ export default function Backtesting() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <KpiCard
               label="Cumulative Return"
-              tip="Total compounded return of the portfolio over the full backtest window."
+              tip="Total compounded return of the portfolio over the full backtest window, net of transaction costs and slippage."
               value={pct(bt.cumulativeReturn)}
               valueClass={(bt.cumulativeReturn ?? 0) >= 0 ? "text-green-700" : "text-red-600"}
             />
@@ -206,17 +357,16 @@ export default function Backtesting() {
             />
             <KpiCard
               label="Avg Turnover"
-              tip="Average one-way turnover per rebalance: half the sum of absolute weight changes across all tickers."
+              tip="Average one-way turnover per rebalance, after any turnover cap is applied."
               value={bt.avgTurnover !== null ? pctPlain(bt.avgTurnover) : "N/A"}
               valueClass="text-gray-700"
-              sub={bt.avgTurnover === null ? "Needs 2+ rebalances" : undefined}
+              sub={bt.avgTurnover === null ? "Needs 1+ rebalance" : undefined}
             />
             <KpiCard
-              label="Benchmark Return"
-              tip="Cumulative return of the selected benchmark ETF, buy-and-hold, over the same window."
-              value={bt.benchmarkCumulativeReturn !== null ? pct(bt.benchmarkCumulativeReturn) : "N/A"}
-              valueClass={bt.benchmarkCumulativeReturn !== null && bt.benchmarkCumulativeReturn >= 0 ? "text-amber-600" : bt.benchmarkCumulativeReturn !== null ? "text-red-600" : "text-gray-400"}
-              sub={bt.benchmarkTicker ?? "No benchmark selected"}
+              label="Total Txn Cost"
+              tip="Cumulative drag from transaction costs and slippage across all rebalances."
+              value={bt.totalTransactionCostPct !== null ? pctPlain(bt.totalTransactionCostPct, 2) : "N/A"}
+              valueClass="text-gray-700"
             />
             <KpiCard
               label="Excess Return"
@@ -227,6 +377,7 @@ export default function Backtesting() {
                   ? bt.cumulativeReturn - bt.benchmarkCumulativeReturn >= 0 ? "text-green-700" : "text-red-600"
                   : "text-gray-400"
               }
+              sub={bt.benchmarkTicker ?? "No benchmark selected"}
             />
           </div>
 
@@ -317,87 +468,132 @@ export default function Backtesting() {
             </CardContent>
           </Card>
 
-          {/* Contribution Summary */}
-          <Card className="border-l-4 border-l-primary/40 bg-primary/3">
+          {/* Rebalance Log */}
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                <Info className="h-4 w-4 text-primary/70" />
-                Contribution Summary
-              </CardTitle>
+              <CardTitle className="text-base">Rebalance Log</CardTitle>
+              <CardDescription className="text-xs">
+                Each row: the signal date (point-in-time computation), the execution date it actually traded at, and realized costs.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {bt.narrative ? (
-                <p className="text-sm text-gray-800 leading-relaxed">{bt.narrative}</p>
-              ) : (
-                <p className="text-sm text-muted-foreground italic">Not enough priced rebalance periods to summarize contribution.</p>
-              )}
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b text-xs uppercase tracking-wider text-muted-foreground">
-                      <th className="text-left pb-2 font-semibold pr-4">Period</th>
-                      <th className="text-left pb-2 font-semibold pr-4">Regime</th>
-                      <th className="text-left pb-2 font-semibold pr-4">Top Holdings</th>
-                      <th className="text-right pb-2 font-semibold pr-4">Return</th>
-                      <th className="text-right pb-2 font-semibold pr-4">Contribution</th>
-                      <th className="text-right pb-2 font-semibold">Turnover</th>
+            <CardContent className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-xs uppercase tracking-wider text-muted-foreground">
+                    <th className="text-left pb-2 font-semibold pr-4">Signal Date</th>
+                    <th className="text-left pb-2 font-semibold pr-4">Executed</th>
+                    <th className="text-left pb-2 font-semibold pr-4">Lookback</th>
+                    <th className="text-left pb-2 font-semibold pr-4">Regime</th>
+                    <th className="text-left pb-2 font-semibold pr-4">Top Holdings</th>
+                    <th className="text-right pb-2 font-semibold pr-4">Cash</th>
+                    <th className="text-right pb-2 font-semibold pr-4">Turnover</th>
+                    <th className="text-right pb-2 font-semibold">Txn Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bt.rebalanceLog.map((r) => (
+                    <tr key={r.rebalanceDate} className="border-b border-gray-50">
+                      <td className="py-2 pr-4 text-gray-700">{r.rebalanceDate}</td>
+                      <td className="py-2 pr-4 text-gray-700">{r.executionDate}</td>
+                      <td className="py-2 pr-4 text-gray-600 text-xs">{r.lookbackDays}d</td>
+                      <td className="py-2 pr-4 text-gray-600 text-xs">{r.regimeLabel} ({r.regimeComposite.toFixed(0)})</td>
+                      <td className="py-2 pr-4 text-gray-600 text-xs">
+                        {r.topHoldings.length > 0 ? r.topHoldings.join(", ") : "Cash only"}
+                      </td>
+                      <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{pctPlain(r.cashWeight)}</td>
+                      <td className="py-2 pr-4 text-right tabular-nums text-gray-600">
+                        {pctPlain(r.turnoverApplied)}
+                        {r.turnoverCapped && <span className="text-amber-600 font-semibold ml-1" title="Capped by max turnover constraint">*</span>}
+                      </td>
+                      <td className="py-2 text-right tabular-nums text-gray-600">{pctPlain(r.transactionCostPct, 3)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {(() => {
-                      const priced = bt.periods.filter((p) => p.tradingDays > 0);
-                      const unpriced = bt.periods.filter((p) => p.tradingDays === 0);
-                      const rows: ReactNode[] = priced.map((p) => (
-                        <tr key={p.sessionId} className="border-b border-gray-50">
-                          <td className="py-2 pr-4 text-gray-700">
-                            {p.label && <span className="font-medium">{p.label}</span>}
-                            {!p.label && <span>{p.startDate} → {p.endDate}</span>}
-                          </td>
-                          <td className="py-2 pr-4 text-gray-600 text-xs">{p.regimeLabel}</td>
-                          <td className="py-2 pr-4 text-gray-600 text-xs">
-                            {p.topHoldings.length > 0 ? p.topHoldings.join(", ") : "Cash only"}
-                          </td>
-                          <td className="py-2 pr-4 text-right tabular-nums">
-                            {p.periodReturn !== null ? (
-                              <span className={p.periodReturn >= 0 ? "text-green-700" : "text-red-600"}>
-                                {pct(p.periodReturn)}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400">—</span>
-                            )}
-                          </td>
-                          <td className="py-2 pr-4 text-right tabular-nums">
-                            {p.contributionPct !== null ? (
-                              <span className={`inline-flex items-center gap-0.5 font-semibold ${p.contributionPct >= 0 ? "text-green-700" : "text-red-600"}`}>
-                                {p.contributionPct >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                                {pct(p.contributionPct)}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400">—</span>
-                            )}
-                          </td>
-                          <td className="py-2 text-right tabular-nums text-gray-600">
-                            {p.turnover !== null ? pctPlain(p.turnover) : "—"}
-                          </td>
-                        </tr>
-                      ));
-                      if (unpriced.length > 0) {
-                        rows.push(
-                          <tr key="unpriced-summary" className="border-b border-gray-50">
-                            <td colSpan={6} className="py-2 text-xs text-gray-400 italic">
-                              {unpriced.length} rebalance{unpriced.length > 1 ? "s" : ""} on{" "}
-                              {Array.from(new Set(unpriced.map((p) => p.startDate))).join(", ")} had no subsequent price
-                              data and could not be scored — only the most recent allocation carries forward.
-                            </td>
-                          </tr>
-                        );
-                      }
-                      return rows;
-                    })()}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
+              {bt.rebalanceLog.some((r) => r.turnoverCapped) && (
+                <p className="text-xs text-muted-foreground mt-2">* turnover was capped by the max turnover per rebalance constraint.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Walk-Forward */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Walk-Forward Analysis</CardTitle>
+              <CardDescription className="text-xs">{bt.walkForward.note}</CardDescription>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-xs uppercase tracking-wider text-muted-foreground">
+                    <th className="text-left pb-2 font-semibold pr-4">Fold</th>
+                    <th className="text-left pb-2 font-semibold pr-4">Window</th>
+                    <th className="text-right pb-2 font-semibold pr-4">Days</th>
+                    <th className="text-right pb-2 font-semibold pr-4">Rebalances</th>
+                    <th className="text-right pb-2 font-semibold pr-4">Return</th>
+                    <th className="text-right pb-2 font-semibold pr-4">Ann. Return</th>
+                    <th className="text-right pb-2 font-semibold pr-4">Sharpe</th>
+                    <th className="text-right pb-2 font-semibold">Max DD</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bt.walkForward.folds.map((f) => (
+                    <tr key={f.foldIndex} className="border-b border-gray-50">
+                      <td className="py-2 pr-4 text-gray-700">{f.foldIndex}</td>
+                      <td className="py-2 pr-4 text-gray-600 text-xs">{f.startDate} → {f.endDate}</td>
+                      <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.tradingDays}</td>
+                      <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.rebalanceCount}</td>
+                      <td className="py-2 pr-4 text-right tabular-nums">
+                        <span className={(f.cumulativeReturn ?? 0) >= 0 ? "text-green-700" : "text-red-600"}>{pct(f.cumulativeReturn)}</span>
+                      </td>
+                      <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.annualizedReturn !== null ? pct(f.annualizedReturn) : "N/A"}</td>
+                      <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.sharpeRatio !== null ? f.sharpeRatio.toFixed(2) : "N/A"}</td>
+                      <td className="py-2 text-right tabular-nums text-red-600">{pctPlain(f.maxDrawdown)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+
+          {/* Sensitivity */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                Parameter Sensitivity
+                {bt.sensitivity.stabilityWarning && (
+                  <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 text-[10px]">Unstable</Badge>
+                )}
+              </CardTitle>
+              <CardDescription className="text-xs">{bt.sensitivity.note}</CardDescription>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-xs uppercase tracking-wider text-muted-foreground">
+                    <th className="text-left pb-2 font-semibold pr-4">Frequency</th>
+                    <th className="text-left pb-2 font-semibold pr-4">Timing</th>
+                    <th className="text-right pb-2 font-semibold pr-4">Cost (bps)</th>
+                    <th className="text-right pb-2 font-semibold pr-4">Cum. Return</th>
+                    <th className="text-right pb-2 font-semibold">Sharpe</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bt.sensitivity.runs.map((r, i) => (
+                    <tr key={i} className="border-b border-gray-50">
+                      <td className="py-1.5 pr-4 text-gray-700 capitalize">{r.rebalanceFrequency}</td>
+                      <td className="py-1.5 pr-4 text-gray-600 text-xs">{r.executionTiming.replace("_", " ")}</td>
+                      <td className="py-1.5 pr-4 text-right tabular-nums text-gray-600">{r.transactionCostBps}</td>
+                      <td className="py-1.5 pr-4 text-right tabular-nums">
+                        {r.cumulativeReturn !== null ? (
+                          <span className={r.cumulativeReturn >= 0 ? "text-green-700" : "text-red-600"}>{pct(r.cumulativeReturn)}</span>
+                        ) : <span className="text-gray-400">N/A</span>}
+                      </td>
+                      <td className="py-1.5 text-right tabular-nums text-gray-600">{r.sharpeRatio !== null ? r.sharpeRatio.toFixed(2) : "N/A"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </CardContent>
           </Card>
 

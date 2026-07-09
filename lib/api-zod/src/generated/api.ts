@@ -1108,10 +1108,17 @@ export const CompareArchiveResponse = zod.object({
 
 
 /**
- * @summary Run a forward-chained rebalancing backtest across historical price data using stored allocation sessions
+ * @summary Run a bias-resistant, point-in-time walk-forward backtest with configurable execution/cost assumptions and an integrity audit
  */
 export const GetBacktestQueryParams = zod.object({
-  "benchmark": zod.coerce.string().optional()
+  "benchmark": zod.coerce.string().optional(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']).optional(),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']).optional(),
+  "transactionCostBps": zod.coerce.number().optional(),
+  "slippageBps": zod.coerce.number().optional(),
+  "maxTurnoverPerRebalance": zod.coerce.number().optional(),
+  "cashYieldAnnual": zod.coerce.number().optional(),
+  "warmupDays": zod.coerce.number().optional()
 })
 
 export const GetBacktestResponse = zod.object({
@@ -1133,31 +1140,105 @@ export const GetBacktestResponse = zod.object({
   "sharpeRatio": zod.number().nullable(),
   "maxDrawdown": zod.number().nullable(),
   "avgTurnover": zod.number().nullable(),
+  "totalTransactionCostPct": zod.number().nullable(),
   "monthlyReturns": zod.array(zod.object({
   "month": zod.string().describe('YYYY-MM'),
   "portfolioReturn": zod.number(),
   "benchmarkReturn": zod.number().nullable()
 })),
-  "periods": zod.array(zod.object({
-  "sessionId": zod.number(),
-  "label": zod.string().nullable(),
-  "startDate": zod.string(),
-  "endDate": zod.string(),
-  "tradingDays": zod.number(),
+  "rebalanceLog": zod.array(zod.object({
+  "rebalanceDate": zod.string().describe('Date the point-in-time signal was computed, using only price data strictly before this date'),
+  "executionDate": zod.string().nullable().describe('Date the resulting target weights actually take effect, per the chosen execution timing'),
+  "lookbackDays": zod.number(),
   "regimeLabel": zod.string(),
+  "regimeComposite": zod.number(),
   "cashWeight": zod.number(),
-  "topHoldings": zod.array(zod.string()).describe('Top 1-3 held tickers by weight during this period'),
-  "periodReturn": zod.number().nullable().describe('Compounded portfolio return during this period, null if no overlapping price data'),
-  "contributionPct": zod.number().nullable().describe('Contribution to total cumulative return, in decimal (sums across periods to cumulativeReturn)'),
-  "turnover": zod.number().nullable().describe('One-way turnover fraction vs prior period\'s weights, null for the first period')
+  "activeEtfCount": zod.number(),
+  "topHoldings": zod.array(zod.string()),
+  "turnoverRequested": zod.number(),
+  "turnoverApplied": zod.number(),
+  "turnoverCapped": zod.boolean(),
+  "transactionCostPct": zod.number()
 })),
-  "narrative": zod.string().nullable().describe('Plain-language summary of which rebalances contributed most\/least to performance'),
   "benchmarkTicker": zod.string().nullable(),
   "benchmarkCumulativeReturn": zod.number().nullable(),
   "benchmarkAnnualizedReturn": zod.number().nullable(),
   "benchmarkUnavailableReason": zod.string().nullable(),
   "availableBenchmarkTickers": zod.array(zod.string()),
+  "config": zod.object({
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "maxTurnoverPerRebalance": zod.number(),
+  "cashYieldAnnual": zod.number(),
+  "warmupDays": zod.number()
+}),
+  "integrity": zod.object({
+  "score": zod.number(),
+  "grade": zod.enum(['research_grade', 'developmental', 'not_reliable']),
+  "hardFail": zod.boolean(),
+  "checklist": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "status": zod.enum(['pass', 'warn', 'fail']),
+  "detail": zod.string()
+}))
+}),
+  "walkForward": zod.object({
+  "folds": zod.array(zod.object({
+  "foldIndex": zod.number(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "tradingDays": zod.number(),
+  "rebalanceCount": zod.number(),
+  "cumulativeReturn": zod.number().nullable(),
+  "annualizedReturn": zod.number().nullable(),
+  "sharpeRatio": zod.number().nullable(),
+  "maxDrawdown": zod.number().nullable()
+})),
+  "note": zod.string()
+}),
+  "sensitivity": zod.object({
+  "runs": zod.array(zod.object({
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close']),
+  "transactionCostBps": zod.number(),
+  "cumulativeReturn": zod.number().nullable(),
+  "annualizedReturn": zod.number().nullable(),
+  "sharpeRatio": zod.number().nullable()
+})),
+  "stabilityWarning": zod.boolean(),
+  "note": zod.string()
+}),
+  "warnings": zod.array(zod.string()),
   "methodologyNote": zod.string()
+})
+
+
+/**
+ * @summary Deterministic AI Investment Committee synthesis grounded strictly in already-computed session data
+ */
+export const GetCommitteeResponse = zod.object({
+  "sessionId": zod.number(),
+  "generatedAt": zod.string(),
+  "recommendations": zod.array(zod.object({
+  "personaId": zod.enum(['macro_strategist', 'momentum_analyst', 'risk_manager', 'portfolio_construction_analyst']),
+  "personaLabel": zod.string(),
+  "stance": zod.enum(['support', 'modify', 'reject']),
+  "confidence": zod.number(),
+  "summary": zod.string(),
+  "evidence": zod.array(zod.string()),
+  "keyConcern": zod.string()
+})),
+  "cio": zod.object({
+  "stance": zod.enum(['support', 'modify', 'reject']),
+  "confidence": zod.number(),
+  "summary": zod.string(),
+  "dissent": zod.array(zod.string())
+}),
+  "dataQualityNotes": zod.array(zod.string()),
+  "memo": zod.string()
 })
 
 

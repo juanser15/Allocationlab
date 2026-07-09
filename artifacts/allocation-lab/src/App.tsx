@@ -13,6 +13,7 @@ import PortfolioDiagnostics from "@/pages/diagnostics";
 import EtfDetail from "@/pages/etf-detail";
 import Backtesting from "@/pages/backtesting";
 import HistoricalArchive from "@/pages/historical-archive";
+import Committee from "@/pages/committee";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +35,7 @@ function Router() {
         <Route path="/etf/:ticker" component={EtfDetail} />
         <Route path="/backtesting" component={Backtesting} />
         <Route path="/archive" component={HistoricalArchive} />
+        <Route path="/committee" component={Committee} />
         <Route path="/reports" component={Reports} />
         <Route path="/methodology" component={Methodology} />
         <Route component={NotFound} />

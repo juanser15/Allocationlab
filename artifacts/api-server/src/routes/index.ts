@@ -11,6 +11,7 @@ import etfRouter from "./etf";
 import backtestRouter from "./backtest";
 import decisionLogRouter from "./decision-log";
 import archiveRouter from "./archive";
+import committeeRouter from "./committee";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(etfRouter);
 router.use(backtestRouter);
 router.use(decisionLogRouter);
 router.use(archiveRouter);
+router.use(committeeRouter);
 
 export default router;

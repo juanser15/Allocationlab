@@ -5,9 +5,13 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+import type { BacktestConfigEcho } from './backtestConfigEcho';
 import type { BacktestEquityPoint } from './backtestEquityPoint';
 import type { BacktestMonthlyReturn } from './backtestMonthlyReturn';
-import type { BacktestPeriod } from './backtestPeriod';
+import type { BacktestRebalanceLogEntry } from './backtestRebalanceLogEntry';
+import type { IntegrityAudit } from './integrityAudit';
+import type { SensitivityResult } from './sensitivityResult';
+import type { WalkForwardResult } from './walkForwardResult';
 
 export interface BacktestResult {
   hasSufficientData: boolean;
@@ -33,13 +37,10 @@ export interface BacktestResult {
   maxDrawdown: number | null;
   /** @nullable */
   avgTurnover: number | null;
+  /** @nullable */
+  totalTransactionCostPct: number | null;
   monthlyReturns: BacktestMonthlyReturn[];
-  periods: BacktestPeriod[];
-  /**
-     * Plain-language summary of which rebalances contributed most/least to performance
-     * @nullable
-     */
-  narrative: string | null;
+  rebalanceLog: BacktestRebalanceLogEntry[];
   /** @nullable */
   benchmarkTicker: string | null;
   /** @nullable */
@@ -49,5 +50,10 @@ export interface BacktestResult {
   /** @nullable */
   benchmarkUnavailableReason: string | null;
   availableBenchmarkTickers: string[];
+  config: BacktestConfigEcho;
+  integrity: IntegrityAudit;
+  walkForward: WalkForwardResult;
+  sensitivity: SensitivityResult;
+  warnings: string[];
   methodologyNote: string;
 }

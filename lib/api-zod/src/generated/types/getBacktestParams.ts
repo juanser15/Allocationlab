@@ -5,7 +5,16 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+import type { GetBacktestExecutionTiming } from './getBacktestExecutionTiming';
+import type { GetBacktestRebalanceFrequency } from './getBacktestRebalanceFrequency';
 
 export type GetBacktestParams = {
 benchmark?: string;
+rebalanceFrequency?: GetBacktestRebalanceFrequency;
+executionTiming?: GetBacktestExecutionTiming;
+transactionCostBps?: number;
+slippageBps?: number;
+maxTurnoverPerRebalance?: number;
+cashYieldAnnual?: number;
+warmupDays?: number;
 };

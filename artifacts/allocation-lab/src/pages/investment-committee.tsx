@@ -150,13 +150,18 @@ export default function InvestmentCommittee() {
     "Committee report builder (editable one-page report, preview mode, polished PDF/PNG export, quality checklist)",
     "PM Decision Room with structured recommendation cards and an auditable Decision Log",
     "Historical Archive workspace (browse prior rebalances, side-by-side comparison with turnover & realized return, filters, PDF/PNG/CSV export)",
+    "Bias-resistant backtester (execution timing/costs/slippage, walk-forward testing, sensitivity checks, bias audit checklist, Integrity Score)",
+    "AI Investment Committee reasoning layer (deterministic persona debate + CIO synthesis + exportable memo, zero fabrication)",
   ];
   const iterationNext = [
-    "Dollar & Rates components (add DXY, IEF/TLT to universe)",
-    "Live regime alerts & notification rules",
+    "Risk Model Pro (factor risk model, stress-tested VaR, scenario-aware risk budgeting)",
+    "Scenario & Stress Lab (historical and hypothetical macro shock scenarios)",
+    "Trade Implementation (order staging, execution scheduling, broker-ready trade tickets)",
+    "Attribution Engine (return decomposition by factor, sector, and selection vs. allocation)",
+    "Production Governance (audit trails, approval workflows, role-based access controls)",
   ];
-  const CURRENT_ITERATION = 8;
-  const MAX_ITERATIONS = 10;
+  const CURRENT_ITERATION = 10;
+  const MAX_ITERATIONS = 15;
 
   const content = decisionLog?.content;
   const tradeList = content?.tradeList ?? [];

@@ -1040,3 +1040,980 @@ export function computeRealizedReturn(
 
   return { returnPct: round4(index / 100 - 1), reason: null };
 }
+
+// ── Iteration 9: Bias-resistant walk-forward backtest engine ────────────────
+//
+// Design principle: every signal used to set weights at a rebalance date is
+// computed from a price slice that is STRICTLY BEFORE that date
+// (`r.date < rebalanceDate`). This is the structural fix for look-ahead bias —
+// unlike a naive backtest that reuses stored allocation sessions (which were
+// computed against the full uploaded history), this engine recomputes the
+// factor/regime signal from scratch, in isolation, per rebalance date.
+
+export type RebalanceFrequency = "monthly" | "quarterly";
+export type ExecutionTiming = "same_close" | "next_close" | "next_open";
+
+export interface BacktestConfig {
+  rebalanceFrequency: RebalanceFrequency;
+  executionTiming: ExecutionTiming;
+  transactionCostBps: number;
+  slippageBps: number;
+  maxTurnoverPerRebalance: number;
+  cashYieldAnnual: number;
+  warmupDays: number;
+}
+
+export interface RebalanceLogEntry {
+  rebalanceDate: string;
+  executionDate: string | null;
+  lookbackDays: number;
+  regimeLabel: string;
+  regimeComposite: number;
+  cashWeight: number;
+  activeEtfCount: number;
+  topHoldings: string[];
+  turnoverRequested: number;
+  turnoverApplied: number;
+  turnoverCapped: boolean;
+  transactionCostPct: number;
+}
+
+export interface IntegrityCheck {
+  id: string;
+  label: string;
+  status: "pass" | "warn" | "fail";
+  detail: string;
+}
+
+export interface IntegrityAudit {
+  score: number;
+  grade: "research_grade" | "developmental" | "not_reliable";
+  hardFail: boolean;
+  checklist: IntegrityCheck[];
+}
+
+export interface SensitivityRun {
+  rebalanceFrequency: RebalanceFrequency;
+  executionTiming: ExecutionTiming;
+  transactionCostBps: number;
+  cumulativeReturn: number | null;
+  annualizedReturn: number | null;
+  sharpeRatio: number | null;
+}
+
+export interface SensitivityResult {
+  runs: SensitivityRun[];
+  stabilityWarning: boolean;
+  note: string;
+}
+
+export interface WalkForwardFold {
+  foldIndex: number;
+  startDate: string;
+  endDate: string;
+  tradingDays: number;
+  rebalanceCount: number;
+  cumulativeReturn: number | null;
+  annualizedReturn: number | null;
+  sharpeRatio: number | null;
+  maxDrawdown: number | null;
+}
+
+export interface WalkForwardResult {
+  folds: WalkForwardFold[];
+  note: string;
+}
+
+export interface BacktestEquityPoint {
+  date: string;
+  portfolioIndex: number;
+  benchmarkIndex: number | null;
+  drawdownPct: number;
+}
+
+export interface BacktestEngineResult {
+  hasSufficientData: boolean;
+  insufficientReason: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  tradingDays: number;
+  canAnnualize: boolean;
+  equityCurve: BacktestEquityPoint[];
+  cumulativeReturn: number | null;
+  annualizedReturn: number | null;
+  annualizedVolatility: number | null;
+  sharpeRatio: number | null;
+  maxDrawdown: number | null;
+  avgTurnover: number | null;
+  totalTransactionCostPct: number | null;
+  monthlyReturns: Array<{ month: string; portfolioReturn: number; benchmarkReturn: number | null }>;
+  rebalanceLog: RebalanceLogEntry[];
+  benchmarkTicker: string | null;
+  benchmarkCumulativeReturn: number | null;
+  benchmarkAnnualizedReturn: number | null;
+  benchmarkUnavailableReason: null | string;
+}
+
+const TRADING_DAYS_PER_YEAR = 252;
+const MIN_DAYS_FOR_ANNUALIZATION = 10;
+
+export function defaultBacktestConfig(): BacktestConfig {
+  return {
+    rebalanceFrequency: "monthly",
+    executionTiming: "next_close",
+    transactionCostBps: 10,
+    slippageBps: 5,
+    maxTurnoverPerRebalance: 1,
+    cashYieldAnnual: 0,
+    warmupDays: 252,
+  };
+}
+
+function periodKeyFor(date: string, frequency: RebalanceFrequency): string {
+  if (frequency === "monthly") return date.slice(0, 7);
+  const month = parseInt(date.slice(5, 7), 10);
+  const quarter = Math.floor((month - 1) / 3) + 1;
+  return `${date.slice(0, 4)}-Q${quarter}`;
+}
+
+/** First trading day of each calendar month/quarter, after the warmup window has elapsed. */
+export function generateRebalanceDates(priceRows: PriceRow[], frequency: RebalanceFrequency, warmupDays: number): string[] {
+  const dates: string[] = [];
+  let lastKey: string | null = null;
+  for (let i = 0; i < priceRows.length; i++) {
+    if (i < warmupDays) continue;
+    const key = periodKeyFor(priceRows[i].date, frequency);
+    if (key !== lastKey) {
+      dates.push(priceRows[i].date);
+      lastKey = key;
+    }
+  }
+  return dates;
+}
+
+/**
+ * Compute the point-in-time signal (factors, regime, target allocation) for a rebalance
+ * date using ONLY price rows strictly before that date. This is the look-ahead-bias fix.
+ */
+export function computeSignalAsOf(
+  priceRows: PriceRow[],
+  rebalanceDate: string,
+  tickers: string[],
+  etfs: EtfEntry[],
+  constraints: Constraints
+): { factorData: EtfFactorData[]; regime: EnrichedRegimeScores; allocations: AllocationResult[]; lookbackDays: number } {
+  const priorRows = priceRows.filter((r) => r.date < rebalanceDate);
+  const factorData = computeFactors(priorRows, tickers);
+  const regime = computeRegime(priorRows, tickers);
+  const allocations = constructAllocation(factorData, etfs, constraints, regime);
+  return { factorData, regime, allocations, lookbackDays: priorRows.length };
+}
+
+/** Resolves the date on which a rebalance's target weights actually take effect. */
+export function resolveExecutionDate(priceRows: PriceRow[], rebalanceDate: string, timing: ExecutionTiming): string | null {
+  const idx = priceRows.findIndex((r) => r.date === rebalanceDate);
+  if (idx === -1) return null;
+  if (timing === "same_close") return rebalanceDate;
+  // next_close and next_open both execute at the following trading day; true intraday open
+  // prices aren't collected, so "next_open" is approximated using the next day's close,
+  // disclosed as a data limitation in the integrity audit and UI.
+  return idx + 1 < priceRows.length ? priceRows[idx + 1].date : null;
+}
+
+interface EngineEvent {
+  executionDate: string;
+  appliedWeights: Map<string, number>;
+  cashWeight: number;
+  transactionCostPct: number;
+  log: RebalanceLogEntry;
+}
+
+/**
+ * Runs the full walk-forward simulation: for each rebalance date, computes a strictly
+ * point-in-time signal, applies turnover caps and transaction costs/slippage, and
+ * simulates daily portfolio returns (with cash drag) until the next rebalance.
+ */
+export function runBacktestEngine(
+  priceRows: PriceRow[],
+  etfs: EtfEntry[],
+  constraints: Constraints,
+  config: BacktestConfig,
+  benchmarkTicker: string | null
+): BacktestEngineResult {
+  const enabledTickers = etfs.filter((e) => e.enabled).map((e) => e.ticker);
+  const empty = (reason: string): BacktestEngineResult => ({
+    hasSufficientData: false,
+    insufficientReason: reason,
+    startDate: null,
+    endDate: null,
+    tradingDays: 0,
+    canAnnualize: false,
+    equityCurve: [],
+    cumulativeReturn: null,
+    annualizedReturn: null,
+    annualizedVolatility: null,
+    sharpeRatio: null,
+    maxDrawdown: null,
+    avgTurnover: null,
+    totalTransactionCostPct: null,
+    monthlyReturns: [],
+    rebalanceLog: [],
+    benchmarkTicker: null,
+    benchmarkCumulativeReturn: null,
+    benchmarkAnnualizedReturn: null,
+    benchmarkUnavailableReason: null,
+  });
+
+  if (priceRows.length < config.warmupDays + 2) {
+    return empty(
+      `Need at least ${config.warmupDays + 2} days of price history (a ${config.warmupDays}-day signal warmup plus tradeable days ahead); only ${priceRows.length} are uploaded.`
+    );
+  }
+
+  const rebalanceDates = generateRebalanceDates(priceRows, config.rebalanceFrequency, config.warmupDays);
+  if (rebalanceDates.length === 0) {
+    return empty("No rebalance dates fall after the signal warmup window — upload more price history.");
+  }
+
+  let benchmarkUnavailableReason: string | null = null;
+  if (benchmarkTicker) {
+    if (!enabledTickers.includes(benchmarkTicker)) benchmarkUnavailableReason = `${benchmarkTicker} is not an enabled ETF in the current universe.`;
+    else if (!priceRows.some((r) => r.prices[benchmarkTicker] !== undefined))
+      benchmarkUnavailableReason = `No price data available for ${benchmarkTicker} over the backtest period.`;
+  }
+
+  // Build rebalance events: strictly-prior signal -> execution date -> turnover-capped weights.
+  const events: EngineEvent[] = [];
+  let currentWeights = new Map<string, number>();
+  let priorWeightMap = new Map<string, number>();
+
+  for (const rebalanceDate of rebalanceDates) {
+    const executionDate = resolveExecutionDate(priceRows, rebalanceDate, config.executionTiming);
+    if (!executionDate) continue;
+
+    const etfsForSignal = etfs.map((e) => ({ ...e, priorWeight: priorWeightMap.get(e.ticker) ?? e.priorWeight }));
+    const { regime, allocations, lookbackDays } = computeSignalAsOf(priceRows, rebalanceDate, enabledTickers, etfsForSignal, constraints);
+
+    const targetWeights = new Map<string, number>();
+    for (const a of allocations) if (a.active) targetWeights.set(a.ticker, a.weight);
+
+    const allTickers = new Set([...currentWeights.keys(), ...targetWeights.keys()]);
+    let requestedTurnover = 0;
+    for (const t of allTickers) requestedTurnover += Math.abs((targetWeights.get(t) ?? 0) - (currentWeights.get(t) ?? 0));
+    requestedTurnover /= 2;
+
+    const cap = clamp(config.maxTurnoverPerRebalance, 0, 1);
+    const turnoverCapped = requestedTurnover > cap + 1e-9;
+    const scale = requestedTurnover > 0 ? Math.min(1, cap / requestedTurnover) : 1;
+
+    const appliedWeights = new Map<string, number>();
+    for (const t of allTickers) {
+      const from = currentWeights.get(t) ?? 0;
+      const to = targetWeights.get(t) ?? 0;
+      appliedWeights.set(t, round4(from + (to - from) * scale));
+    }
+    const appliedSum = Array.from(appliedWeights.values()).reduce((s, w) => s + Math.max(0, w), 0);
+    const cashWeight = clamp(1 - appliedSum, 0, 1);
+
+    let turnoverApplied = 0;
+    for (const t of allTickers) turnoverApplied += Math.abs((appliedWeights.get(t) ?? 0) - (currentWeights.get(t) ?? 0));
+    turnoverApplied /= 2;
+
+    const transactionCostPct = turnoverApplied * ((config.transactionCostBps + config.slippageBps) / 10000);
+
+    const topHoldings = Array.from(appliedWeights.entries())
+      .filter(([, w]) => w > 0.001)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([t]) => t);
+
+    events.push({
+      executionDate,
+      appliedWeights,
+      cashWeight,
+      transactionCostPct,
+      log: {
+        rebalanceDate,
+        executionDate,
+        lookbackDays,
+        regimeLabel: regime.label,
+        regimeComposite: regime.composite,
+        cashWeight: round4(cashWeight),
+        activeEtfCount: topHoldings.length > 0 ? Array.from(appliedWeights.values()).filter((w) => w > 0.001).length : 0,
+        topHoldings,
+        turnoverRequested: round4(requestedTurnover),
+        turnoverApplied: round4(turnoverApplied),
+        turnoverCapped,
+        transactionCostPct: round4(transactionCostPct),
+      },
+    });
+
+    currentWeights = appliedWeights;
+    priorWeightMap = appliedWeights;
+  }
+
+  if (events.length === 0) {
+    return empty("No rebalance could be executed — there is no trading day available after any rebalance date to apply weights.");
+  }
+
+  function eventForDate(date: string): EngineEvent {
+    let active = events[0];
+    for (const e of events) {
+      if (e.executionDate <= date) active = e;
+      else break;
+    }
+    return active;
+  }
+
+  const simRows = priceRows.filter((r) => r.date >= events[0].executionDate);
+  if (simRows.length < 2) {
+    return empty("Not enough trading days remain after the first executable rebalance to simulate returns.");
+  }
+
+  const dailyCashReturn = Math.pow(1 + config.cashYieldAnnual, 1 / TRADING_DAYS_PER_YEAR) - 1;
+  const dailyReturns: Array<{ date: string; portfolioReturn: number; benchmarkReturn: number | null }> = [];
+
+  for (let i = 1; i < simRows.length; i++) {
+    const prevRow = simRows[i - 1];
+    const row = simRows[i];
+    const event = eventForDate(row.date);
+
+    let portfolioReturn = event.cashWeight * dailyCashReturn;
+    for (const [ticker, weight] of event.appliedWeights) {
+      const prevPrice = prevRow.prices[ticker];
+      const price = row.prices[ticker];
+      if (prevPrice && price && prevPrice > 0) portfolioReturn += weight * ((price - prevPrice) / prevPrice);
+    }
+    // Transaction cost is charged on the day a rebalance takes effect.
+    if (row.date === event.executionDate) portfolioReturn -= event.transactionCostPct;
+
+    let benchmarkReturn: number | null = null;
+    if (benchmarkTicker && !benchmarkUnavailableReason) {
+      const prevPrice = prevRow.prices[benchmarkTicker];
+      const price = row.prices[benchmarkTicker];
+      if (prevPrice && price && prevPrice > 0) benchmarkReturn = (price - prevPrice) / prevPrice;
+    }
+
+    dailyReturns.push({ date: row.date, portfolioReturn, benchmarkReturn });
+  }
+
+  const { equityCurve, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown, benchmarkCumulativeReturn, benchmarkAnnualizedReturn } =
+    computeCurveMetrics(simRows[0].date, dailyReturns, !!benchmarkTicker && !benchmarkUnavailableReason);
+
+  const monthlyReturns = computeMonthlyReturns(dailyReturns, !!benchmarkTicker && !benchmarkUnavailableReason);
+
+  const turnoverValues = events.map((e) => e.log.turnoverApplied);
+  const avgTurnover = turnoverValues.length > 0 ? round4(turnoverValues.reduce((s, t) => s + t, 0) / turnoverValues.length) : null;
+  const totalTransactionCostPct = round4(events.reduce((s, e) => s + e.transactionCostPct, 0));
+
+  return {
+    hasSufficientData: true,
+    insufficientReason: null,
+    startDate: simRows[0].date,
+    endDate: simRows[simRows.length - 1].date,
+    tradingDays: dailyReturns.length,
+    canAnnualize: dailyReturns.length >= MIN_DAYS_FOR_ANNUALIZATION,
+    equityCurve,
+    cumulativeReturn,
+    annualizedReturn,
+    annualizedVolatility,
+    sharpeRatio,
+    maxDrawdown,
+    avgTurnover,
+    totalTransactionCostPct,
+    monthlyReturns,
+    rebalanceLog: events.map((e) => e.log),
+    benchmarkTicker: benchmarkTicker && !benchmarkUnavailableReason ? benchmarkTicker : null,
+    benchmarkCumulativeReturn,
+    benchmarkAnnualizedReturn,
+    benchmarkUnavailableReason,
+  };
+}
+
+function computeCurveMetrics(
+  firstDate: string,
+  dailyReturns: Array<{ date: string; portfolioReturn: number; benchmarkReturn: number | null }>,
+  hasBenchmark: boolean
+) {
+  let portfolioIndex = 100;
+  let benchmarkIndex = hasBenchmark ? 100 : null;
+  let peak = 100;
+  const equityCurve: BacktestEquityPoint[] = [{ date: firstDate, portfolioIndex: 100, benchmarkIndex, drawdownPct: 0 }];
+
+  for (const dr of dailyReturns) {
+    portfolioIndex *= 1 + dr.portfolioReturn;
+    if (benchmarkIndex !== null) benchmarkIndex *= 1 + (dr.benchmarkReturn ?? 0);
+    peak = Math.max(peak, portfolioIndex);
+    const drawdownPct = peak > 0 ? portfolioIndex / peak - 1 : 0;
+    equityCurve.push({
+      date: dr.date,
+      portfolioIndex: Math.round(portfolioIndex * 100) / 100,
+      benchmarkIndex: benchmarkIndex !== null ? Math.round(benchmarkIndex * 100) / 100 : null,
+      drawdownPct: Math.round(drawdownPct * 10000) / 10000,
+    });
+  }
+
+  const tradingDays = dailyReturns.length;
+  const cumulativeReturn = round4(portfolioIndex / 100 - 1);
+  const maxDrawdown = Math.min(...equityCurve.map((p) => p.drawdownPct), 0);
+  const canAnnualize = tradingDays >= MIN_DAYS_FOR_ANNUALIZATION;
+
+  let annualizedReturn: number | null = null;
+  let annualizedVolatility: number | null = null;
+  let sharpeRatio: number | null = null;
+  if (canAnnualize) {
+    annualizedReturn = Math.pow(1 + cumulativeReturn, TRADING_DAYS_PER_YEAR / tradingDays) - 1;
+    const m = mean(dailyReturns.map((d) => d.portfolioReturn));
+    const variance = dailyReturns.reduce((s, d) => s + Math.pow(d.portfolioReturn - m, 2), 0) / tradingDays;
+    const dailyStd = Math.sqrt(variance);
+    annualizedVolatility = dailyStd * Math.sqrt(TRADING_DAYS_PER_YEAR);
+    sharpeRatio = annualizedVolatility > 0 ? annualizedReturn / annualizedVolatility : null;
+    annualizedReturn = round4(annualizedReturn);
+    annualizedVolatility = round4(annualizedVolatility);
+    sharpeRatio = sharpeRatio !== null ? Math.round(sharpeRatio * 1000) / 1000 : null;
+  }
+
+  const benchmarkCumulativeReturn = benchmarkIndex !== null ? round4(benchmarkIndex / 100 - 1) : null;
+  const benchmarkAnnualizedReturn =
+    benchmarkCumulativeReturn !== null && canAnnualize ? round4(Math.pow(1 + benchmarkCumulativeReturn, TRADING_DAYS_PER_YEAR / tradingDays) - 1) : null;
+
+  return {
+    equityCurve,
+    cumulativeReturn,
+    annualizedReturn,
+    annualizedVolatility,
+    sharpeRatio,
+    maxDrawdown: Math.round(maxDrawdown * 10000) / 10000,
+    benchmarkCumulativeReturn,
+    benchmarkAnnualizedReturn,
+  };
+}
+
+function computeMonthlyReturns(
+  dailyReturns: Array<{ date: string; portfolioReturn: number; benchmarkReturn: number | null }>,
+  hasBenchmark: boolean
+): Array<{ month: string; portfolioReturn: number; benchmarkReturn: number | null }> {
+  const monthlyMap = new Map<string, { portfolioFactor: number; benchmarkFactor: number | null }>();
+  for (const dr of dailyReturns) {
+    const month = dr.date.slice(0, 7);
+    const existing = monthlyMap.get(month) ?? { portfolioFactor: 1, benchmarkFactor: hasBenchmark ? 1 : null };
+    existing.portfolioFactor *= 1 + dr.portfolioReturn;
+    if (existing.benchmarkFactor !== null) existing.benchmarkFactor *= 1 + (dr.benchmarkReturn ?? 0);
+    monthlyMap.set(month, existing);
+  }
+  return Array.from(monthlyMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, v]) => ({
+      month,
+      portfolioReturn: round4(v.portfolioFactor - 1),
+      benchmarkReturn: v.benchmarkFactor !== null ? round4(v.benchmarkFactor - 1) : null,
+    }));
+}
+
+/** Splits the simulated period into chronological folds to check consistency of out-of-sample performance. */
+export function runWalkForwardFolds(engineResult: BacktestEngineResult, foldCount = 3): WalkForwardResult {
+  if (!engineResult.hasSufficientData || engineResult.equityCurve.length < foldCount * 2 + 1) {
+    return { folds: [], note: "Not enough simulated trading days to split into walk-forward folds; run with more price history." };
+  }
+
+  const points = engineResult.equityCurve;
+  const foldSize = Math.floor((points.length - 1) / foldCount);
+  const folds: WalkForwardFold[] = [];
+
+  for (let f = 0; f < foldCount; f++) {
+    const startIdx = f * foldSize;
+    const endIdx = f === foldCount - 1 ? points.length - 1 : (f + 1) * foldSize;
+    if (endIdx <= startIdx) continue;
+
+    const startPoint = points[startIdx];
+    const slice = points.slice(startIdx, endIdx + 1);
+    const rets = slice.map((p, i) => (i === 0 ? 0 : p.portfolioIndex / slice[i - 1].portfolioIndex - 1));
+    const tradingDays = slice.length - 1;
+    const cumulativeReturn = round4(slice[slice.length - 1].portfolioIndex / startPoint.portfolioIndex - 1);
+    let annualizedReturn: number | null = null;
+    let sharpeRatio: number | null = null;
+    if (tradingDays >= MIN_DAYS_FOR_ANNUALIZATION) {
+      annualizedReturn = round4(Math.pow(1 + cumulativeReturn, TRADING_DAYS_PER_YEAR / tradingDays) - 1);
+      const m = mean(rets.slice(1));
+      const variance = rets.slice(1).reduce((s, r) => s + Math.pow(r - m, 2), 0) / tradingDays;
+      const dailyStd = Math.sqrt(variance);
+      const vol = dailyStd * Math.sqrt(TRADING_DAYS_PER_YEAR);
+      sharpeRatio = vol > 0 ? Math.round((annualizedReturn / vol) * 1000) / 1000 : null;
+    }
+    let peak = slice[0].portfolioIndex;
+    let maxDD = 0;
+    for (const p of slice) {
+      peak = Math.max(peak, p.portfolioIndex);
+      maxDD = Math.min(maxDD, p.portfolioIndex / peak - 1);
+    }
+
+    const rebalanceCount = 0; // filled by caller if needed; folds here are purely time-sliced.
+    folds.push({
+      foldIndex: f + 1,
+      startDate: startPoint.date,
+      endDate: slice[slice.length - 1].date,
+      tradingDays,
+      rebalanceCount,
+      cumulativeReturn,
+      annualizedReturn,
+      sharpeRatio,
+      maxDrawdown: Math.round(maxDD * 10000) / 10000,
+    });
+  }
+
+  return {
+    folds,
+    note: "Each fold is a distinct, non-overlapping chronological slice of the simulated period. Because signals are always computed from strictly prior data, every fold is inherently out-of-sample with respect to the signal — these folds test whether performance is consistent across sub-periods rather than concentrated in one lucky stretch.",
+  };
+}
+
+/** Re-runs the engine across a small grid of timing/cost assumptions to check result stability. */
+export function runSensitivityGrid(priceRows: PriceRow[], etfs: EtfEntry[], constraints: Constraints, baseConfig: BacktestConfig): SensitivityResult {
+  const frequencies: RebalanceFrequency[] = ["monthly", "quarterly"];
+  const timings: ExecutionTiming[] = ["same_close", "next_close"];
+  const costs = [0, baseConfig.transactionCostBps, baseConfig.transactionCostBps + 25];
+
+  const runs: SensitivityRun[] = [];
+  for (const rebalanceFrequency of frequencies) {
+    for (const executionTiming of timings) {
+      for (const transactionCostBps of costs) {
+        const result = runBacktestEngine(priceRows, etfs, constraints, { ...baseConfig, rebalanceFrequency, executionTiming, transactionCostBps }, null);
+        runs.push({
+          rebalanceFrequency,
+          executionTiming,
+          transactionCostBps,
+          cumulativeReturn: result.cumulativeReturn,
+          annualizedReturn: result.annualizedReturn,
+          sharpeRatio: result.sharpeRatio,
+        });
+      }
+    }
+  }
+
+  const sharpes = runs.map((r) => r.sharpeRatio).filter((s): s is number => s !== null);
+  const returns = runs.map((r) => r.cumulativeReturn).filter((r): r is number => r !== null);
+  const sharpeSpread = sharpes.length > 1 ? Math.max(...sharpes) - Math.min(...sharpes) : 0;
+  const signFlip = returns.length > 1 && returns.some((r) => r > 0) && returns.some((r) => r < 0);
+  const stabilityWarning = sharpeSpread > 0.75 || signFlip;
+
+  return {
+    runs,
+    stabilityWarning,
+    note: stabilityWarning
+      ? "Results vary meaningfully across reasonable rebalance-frequency, execution-timing, and cost assumptions — treat headline numbers as indicative, not precise, and avoid tuning further to chase a specific configuration."
+      : "Results are directionally consistent across reasonable rebalance-frequency, execution-timing, and cost assumptions.",
+  };
+}
+
+/** Rates the overall trustworthiness of a backtest run. Never labels a run production-grade if any check fails. */
+export function computeIntegrityAudit(
+  engineResult: BacktestEngineResult,
+  config: BacktestConfig,
+  sensitivity: SensitivityResult,
+  walkForward: WalkForwardResult
+): IntegrityAudit {
+  const checks: Array<IntegrityCheck & { weight: number }> = [];
+
+  checks.push({
+    id: "lookahead_bias",
+    label: "Look-ahead bias",
+    weight: 20,
+    status: "pass",
+    detail: "Every rebalance signal is computed from price data strictly before the rebalance date — the engine never sees future prices when sizing a trade.",
+  });
+
+  const dataSufficiencyStatus: IntegrityCheck["status"] =
+    engineResult.tradingDays >= TRADING_DAYS_PER_YEAR ? "pass" : engineResult.tradingDays >= 60 ? "warn" : "fail";
+  checks.push({
+    id: "data_sufficiency",
+    label: "Data sufficiency",
+    weight: 15,
+    status: dataSufficiencyStatus,
+    detail:
+      dataSufficiencyStatus === "pass"
+        ? `${engineResult.tradingDays} simulated trading days — at least one full year of out-of-sample activity.`
+        : `Only ${engineResult.tradingDays} simulated trading days. Upload more price history for a trustworthy read.`,
+  });
+
+  checks.push({
+    id: "survivorship_bias",
+    label: "Survivorship bias",
+    weight: 10,
+    status: "warn",
+    detail:
+      "The ETF universe reflects funds that exist today, fetched live from Yahoo Finance. Delisted, merged, or renamed ETFs from the historical period cannot be reconstructed, which can flatter results. Adjusted-close prices also embed dividend/split assumptions that may not exactly match a live execution.",
+  });
+
+  const realExecution = config.executionTiming !== "same_close";
+  const realCosts = config.transactionCostBps > 0 || config.slippageBps > 0;
+  const executionStatus: IntegrityCheck["status"] = realExecution && realCosts ? "pass" : realExecution || realCosts ? "warn" : "fail";
+  checks.push({
+    id: "execution_realism",
+    label: "Execution realism",
+    weight: 15,
+    status: executionStatus,
+    detail:
+      executionStatus === "pass"
+        ? `Trades execute at ${config.executionTiming.replace("_", " ")} with ${config.transactionCostBps}bps cost + ${config.slippageBps}bps slippage applied to turnover.`
+        : executionStatus === "fail"
+          ? "Trades execute at the same close used to generate the signal with zero cost/slippage — this is not achievable in live trading."
+          : "Only one of realistic execution timing or non-zero costs is configured — set both for a realistic read.",
+  });
+
+  checks.push({
+    id: "rebalance_timing",
+    label: "Rebalancing timing discipline",
+    weight: 10,
+    status: realExecution ? "pass" : "warn",
+    detail: realExecution
+      ? `Weights take effect at the ${config.executionTiming === "next_open" ? "next open (approximated via next close — intraday open prices aren't collected)" : "next close"}, one trading day after the signal date.`
+      : "Same-close execution assumes you can trade at the exact price used to compute the signal — a naive, unrealistic timing assumption.",
+  });
+
+  const sufficientFolds = walkForward.folds.filter((f) => f.tradingDays >= 20).length;
+  const oosStatus: IntegrityCheck["status"] = sufficientFolds >= 3 ? "pass" : sufficientFolds >= 1 ? "warn" : "fail";
+  checks.push({
+    id: "out_of_sample",
+    label: "Out-of-sample validation",
+    weight: 15,
+    status: oosStatus,
+    detail:
+      oosStatus === "fail"
+        ? "No walk-forward fold has enough trading days to evaluate — results rest on a single undivided window."
+        : `${sufficientFolds} walk-forward fold(s) with sufficient trading days to check consistency across sub-periods.`,
+  });
+
+  checks.push({
+    id: "parameter_robustness",
+    label: "Parameter robustness",
+    weight: 10,
+    status: sensitivity.stabilityWarning ? "warn" : "pass",
+    detail: sensitivity.note,
+  });
+
+  checks.push({
+    id: "data_snooping",
+    label: "Data snooping / overfitting risk",
+    weight: 5,
+    status: sensitivity.stabilityWarning ? "warn" : "pass",
+    detail: sensitivity.stabilityWarning
+      ? "Sensitivity to configuration choices raises the risk that a single reported configuration was implicitly cherry-picked. All grid results are shown for transparency."
+      : "Factor weights and thresholds are fixed in the calculation engine, not fit to this backtest's data, and results hold up across a grid of reasonable configuration choices.",
+  });
+
+  const hardFail = checks.some((c) => c.status === "fail");
+  let score = 0;
+  for (const c of checks) score += c.status === "pass" ? c.weight : c.status === "warn" ? c.weight * 0.5 : 0;
+  score = Math.round(score);
+
+  const grade: IntegrityAudit["grade"] = hardFail ? "not_reliable" : score >= 85 ? "research_grade" : score >= 60 ? "developmental" : "not_reliable";
+
+  return { score, grade, hardFail, checklist: checks.map(({ weight: _weight, ...c }) => c) };
+}
+
+// ── Iteration 10: AI Investment Committee reasoning layer ──────────────────
+//
+// This is intentionally a deterministic, rule-based synthesis over already-computed
+// numbers (regime, factor scores, diagnostics, watchlist, allocations, backtest
+// integrity) — not a generative model. That guarantees every sentence traces back
+// to a real computed value and nothing can be fabricated.
+
+export type CommitteePersonaId =
+  | "macro_strategist"
+  | "momentum_analyst"
+  | "risk_manager"
+  | "portfolio_construction_analyst";
+
+export type CommitteeStance = "support" | "modify" | "reject";
+
+export interface CommitteeRecommendation {
+  personaId: CommitteePersonaId;
+  personaLabel: string;
+  stance: CommitteeStance;
+  confidence: number;
+  summary: string;
+  evidence: string[];
+  keyConcern: string;
+}
+
+export interface CommitteeCioSynthesis {
+  stance: CommitteeStance;
+  confidence: number;
+  summary: string;
+  dissent: string[];
+}
+
+export interface CommitteeInput {
+  sessionId: number;
+  runAt: string;
+  regime: EnrichedRegimeScores;
+  allocations: AllocationResult[];
+  cashWeight: number;
+  activeEtfCount: number;
+  watchlist: WatchlistEntry[];
+  diagnostics: PortfolioDiagnostics;
+  constraints: Constraints;
+  backtestIntegrity: IntegrityAudit | null;
+}
+
+export interface CommitteeResult {
+  sessionId: number;
+  generatedAt: string;
+  recommendations: CommitteeRecommendation[];
+  cio: CommitteeCioSynthesis;
+  dataQualityNotes: string[];
+  memo: string;
+}
+
+function clampConfidence(v: number): number {
+  return Math.max(5, Math.min(95, Math.round(v)));
+}
+
+function stanceLabel(s: CommitteeStance): string {
+  return s === "support" ? "Supports" : s === "reject" ? "Rejects" : "Modifies";
+}
+
+function buildMacroStrategist(input: CommitteeInput, dataQualityNotes: string[]): CommitteeRecommendation {
+  const { regime } = input;
+  let stance: CommitteeStance = "modify";
+  let summary: string;
+  if (regime.composite >= 65) {
+    stance = "support";
+    summary = `Regime composite of ${regime.composite} (${regime.label}) supports the current risk posture — macro backdrop favors staying invested.`;
+  } else if (regime.composite <= 35) {
+    stance = "reject";
+    summary = `Regime composite of ${regime.composite} (${regime.label}) argues against the current risk posture — macro backdrop favors defensiveness over the proposed allocation.`;
+  } else {
+    summary = `Regime composite of ${regime.composite} (${regime.label}) is mixed — recommend trimming conviction rather than a full risk-on or risk-off stance.`;
+  }
+
+  let confidence = clampConfidence(regime.confidence);
+  const evidence = [
+    `Regime composite: ${regime.composite} (${regime.label})`,
+    `Trend ${regime.trend} / Breadth ${regime.breadth} / Volatility ${regime.volatility} / Liquidity ${regime.liquidity}`,
+    `Regime confidence: ${regime.confidence}%`,
+    regime.drivers,
+  ];
+
+  const unavailableComponents = regime.components.filter((c) => c.method === "unavailable");
+  let keyConcern = `Regime read leans on ${regime.components.filter((c) => c.method === "computed").length} of ${regime.components.length} components computed directly from price data.`;
+  if (unavailableComponents.length > 0) {
+    confidence = clampConfidence(confidence - unavailableComponents.length * 10);
+    keyConcern = `${unavailableComponents.length} regime component(s) unavailable (${unavailableComponents.map((c) => c.label).join(", ")}) — reads on proxies, not full data.`;
+    dataQualityNotes.push(`Macro Strategist confidence downgraded: ${unavailableComponents.length} regime component(s) unavailable.`);
+  }
+  if (regime.confidence < 50) {
+    dataQualityNotes.push(`Regime confidence is only ${regime.confidence}% — Macro Strategist view carries a wider error band.`);
+  }
+
+  return { personaId: "macro_strategist", personaLabel: "Macro Strategist", stance, confidence, summary, evidence, keyConcern };
+}
+
+function buildMomentumAnalyst(input: CommitteeInput, dataQualityNotes: string[]): CommitteeRecommendation {
+  const active = input.allocations.filter((a) => a.active);
+  if (active.length === 0) {
+    dataQualityNotes.push("Momentum Analyst has no active holdings to evaluate — allocation is 100% cash.");
+    return {
+      personaId: "momentum_analyst",
+      personaLabel: "Momentum Analyst",
+      stance: "modify",
+      confidence: clampConfidence(30),
+      summary: "No active ETFs are held, so there is no momentum signal to assess. Confidence is low by construction.",
+      evidence: ["Active ETF count: 0"],
+      keyConcern: "Cannot validate momentum thesis with zero active positions.",
+    };
+  }
+
+  const avgMomComposite = active.reduce((s, a) => s + a.factorScores.composite, 0) / active.length;
+  const weightedMom20 = active.reduce((s, a) => s + a.factorScores.mom20 * a.weight, 0) / (active.reduce((s, a) => s + a.weight, 0) || 1);
+  const top = [...active].sort((a, b) => b.factorScores.composite - a.factorScores.composite).slice(0, 3);
+  const bottom = [...active].sort((a, b) => a.factorScores.composite - b.factorScores.composite).slice(0, 2);
+
+  let stance: CommitteeStance = "modify";
+  let summary: string;
+  if (avgMomComposite >= 60) {
+    stance = "support";
+    summary = `Average composite factor score across active holdings is ${avgMomComposite.toFixed(0)} — the book is concentrated in names the model itself ranks favorably.`;
+  } else if (avgMomComposite <= 40) {
+    stance = "reject";
+    summary = `Average composite factor score across active holdings is only ${avgMomComposite.toFixed(0)} — several positions are being held despite weak scores, likely due to constraint requirements (min active count) rather than conviction.`;
+  } else {
+    summary = `Average composite factor score of ${avgMomComposite.toFixed(0)} is middling — supportive of current names but not a strong momentum tailwind.`;
+  }
+
+  const confidence = clampConfidence(50 + (avgMomComposite - 50) * 0.6);
+  const evidence = [
+    `Avg composite factor score (active holdings): ${avgMomComposite.toFixed(1)}`,
+    `Weight-adjusted 20d momentum: ${weightedMom20.toFixed(1)}`,
+    `Top-ranked: ${top.map((a) => `${a.ticker} (${a.factorScores.composite.toFixed(0)})`).join(", ")}`,
+  ];
+  const keyConcern = bottom.length > 0
+    ? `Weakest holdings by composite score: ${bottom.map((a) => `${a.ticker} (${a.factorScores.composite.toFixed(0)})`).join(", ")} — worth confirming these are held for diversification, not inertia.`
+    : "No material weak spots among active holdings.";
+
+  return { personaId: "momentum_analyst", personaLabel: "Momentum Analyst", stance, confidence, summary, evidence, keyConcern };
+}
+
+function buildRiskManager(input: CommitteeInput, dataQualityNotes: string[]): CommitteeRecommendation {
+  const { diagnostics, cashWeight, constraints } = input;
+  const hasData = diagnostics.insufficientDataReasons.length === 0 && diagnostics.activeTickers.length > 0;
+
+  if (!hasData) {
+    dataQualityNotes.push(`Risk Manager confidence downgraded — diagnostics incomplete: ${diagnostics.insufficientDataReasons.join("; ") || "no active tickers to assess"}.`);
+    return {
+      personaId: "risk_manager",
+      personaLabel: "Risk Manager",
+      stance: "modify",
+      confidence: clampConfidence(25),
+      summary: "Portfolio risk diagnostics are incomplete, so risk sign-off cannot be given at full confidence.",
+      evidence: diagnostics.insufficientDataReasons.length > 0 ? diagnostics.insufficientDataReasons : ["No active tickers to compute risk diagnostics for."],
+      keyConcern: "Insufficient data to certify concentration or volatility risk.",
+    };
+  }
+
+  const cashInBand = cashWeight >= constraints.cashMin && cashWeight <= constraints.cashMax;
+  const wellDiversified = diagnostics.diversificationScore >= 60;
+  let stance: CommitteeStance = "support";
+  let summary: string;
+  if (!cashInBand) {
+    stance = "reject";
+    summary = `Cash weight of ${(cashWeight * 100).toFixed(1)}% is outside the ${(constraints.cashMin * 100).toFixed(0)}–${(constraints.cashMax * 100).toFixed(0)}% policy band — this is a hard constraint breach, not a judgment call.`;
+  } else if (!wellDiversified) {
+    stance = "modify";
+    summary = `Cash weight is within policy, but diversification score of ${diagnostics.diversificationScore.toFixed(0)}/100 and HHI of ${diagnostics.hhi.toFixed(3)} indicate concentration risk worth trimming before sign-off.`;
+  } else {
+    summary = `Cash weight ${(cashWeight * 100).toFixed(1)}% is within the policy band and diversification score of ${diagnostics.diversificationScore.toFixed(0)}/100 (effective bets: ${diagnostics.effectiveNumberOfBets.toFixed(1)}) indicates reasonable risk spread.`;
+  }
+
+  const confidence = clampConfidence((cashInBand ? 70 : 40) + (wellDiversified ? 15 : -10));
+  const evidence = [
+    `Cash weight: ${(cashWeight * 100).toFixed(1)}% (policy: ${(constraints.cashMin * 100).toFixed(0)}–${(constraints.cashMax * 100).toFixed(0)}%)`,
+    `Expected volatility: ${(diagnostics.expectedVolatility * 100).toFixed(1)}%`,
+    `HHI: ${diagnostics.hhi.toFixed(3)}, Effective number of bets: ${diagnostics.effectiveNumberOfBets.toFixed(1)}`,
+    `Diversification score: ${diagnostics.diversificationScore.toFixed(0)}/100`,
+  ];
+  const topRiskContributor = [...diagnostics.riskContributions].sort((a, b) => b.riskContributionPct - a.riskContributionPct)[0];
+  const keyConcern = topRiskContributor
+    ? `${topRiskContributor.ticker} contributes ${(topRiskContributor.riskContributionPct * 100).toFixed(0)}% of total portfolio risk at only ${(topRiskContributor.weight * 100).toFixed(1)}% weight — check this concentration is intentional.`
+    : "No single-name risk concentration detected.";
+
+  return { personaId: "risk_manager", personaLabel: "Risk Manager", stance, confidence, summary, evidence, keyConcern };
+}
+
+function buildPortfolioConstructionAnalyst(input: CommitteeInput, dataQualityNotes: string[]): CommitteeRecommendation {
+  const { allocations, activeEtfCount, constraints, watchlist } = input;
+  const turnover = allocations.reduce((s, a) => s + Math.abs(a.change), 0) / 2;
+  const meetsMinActive = activeEtfCount >= constraints.targetActiveEtfs;
+  const blockedNearMiss = watchlist.filter((w) => w.blockingReason === "score_below_threshold" || w.blockingReason === "rank_cutoff");
+
+  let stance: CommitteeStance = "support";
+  let summary: string;
+  if (!meetsMinActive) {
+    stance = "reject";
+    summary = `Only ${activeEtfCount} active ETFs vs. a target of ${constraints.targetActiveEtfs} — the allocation does not meet the minimum diversification requirement and should be reworked before approval.`;
+    dataQualityNotes.push(`Portfolio Construction Analyst: active ETF count (${activeEtfCount}) is below the configured target (${constraints.targetActiveEtfs}).`);
+  } else if (turnover > 0.35) {
+    stance = "modify";
+    summary = `Implied turnover of ${(turnover * 100).toFixed(1)}% vs. prior weights is high — recommend phasing the trade list rather than executing all at once to control cost and slippage.`;
+  } else {
+    summary = `Allocation meets the ${constraints.targetActiveEtfs}-name target with ${(turnover * 100).toFixed(1)}% turnover from prior weights — a reasonably incremental rebalance.`;
+  }
+
+  const confidence = clampConfidence(meetsMinActive ? 75 - turnover * 40 : 35);
+  const evidence = [
+    `Active ETFs: ${activeEtfCount} (target: ${constraints.targetActiveEtfs})`,
+    `Implied one-way turnover vs. prior weights: ${(turnover * 100).toFixed(1)}%`,
+    `Max single-ETF weight constraint: ${(constraints.maxEtfWeight * 100).toFixed(0)}%`,
+  ];
+  const keyConcern = blockedNearMiss.length > 0
+    ? `${blockedNearMiss.length} watchlist name(s) sit just outside inclusion (e.g. ${blockedNearMiss[0].ticker}: ${blockedNearMiss[0].improvement}) — allocation is sensitive to small score shifts.`
+    : "No near-miss watchlist names identified; allocation is not on a knife's edge.";
+
+  return { personaId: "portfolio_construction_analyst", personaLabel: "Portfolio Construction Analyst", stance, confidence, summary, evidence, keyConcern };
+}
+
+function synthesizeCio(
+  recommendations: CommitteeRecommendation[],
+  backtestIntegrity: IntegrityAudit | null,
+  dataQualityNotes: string[]
+): CommitteeCioSynthesis {
+  const weights: Record<CommitteeStance, number> = { support: 0, modify: 0, reject: 0 };
+  for (const r of recommendations) weights[r.stance] += r.confidence;
+
+  let stance: CommitteeStance = "modify";
+  if (weights.support >= weights.modify && weights.support >= weights.reject) stance = "support";
+  else if (weights.reject >= weights.modify && weights.reject >= weights.support) stance = "reject";
+
+  const dissent = recommendations.filter((r) => r.stance !== stance).map((r) => `${r.personaLabel} (${stanceLabel(r.stance).toLowerCase()}, ${r.confidence}% confidence): ${r.keyConcern}`);
+
+  let confidence = clampConfidence(recommendations.reduce((s, r) => s + r.confidence, 0) / recommendations.length);
+
+  let summary = `Committee ${stanceLabel(stance).toLowerCase()} the proposed allocation. ${recommendations.filter((r) => r.stance === stance).length} of ${recommendations.length} desks agree` +
+    (dissent.length > 0 ? `, with ${dissent.length} dissenting view(s) below.` : " unanimously.");
+
+  if (backtestIntegrity) {
+    if (backtestIntegrity.hardFail) {
+      confidence = clampConfidence(confidence - 25);
+      summary += ` Backtest integrity check failed (score ${backtestIntegrity.score}/100, grade "${backtestIntegrity.grade}") — this recommendation should not be treated as validated by historical simulation; committee confidence is downgraded accordingly.`;
+      dataQualityNotes.push("CIO confidence downgraded because the backtest integrity audit reports a hard fail.");
+    } else if (backtestIntegrity.grade !== "research_grade") {
+      confidence = clampConfidence(confidence - 10);
+      summary += ` Backtest integrity grade is "${backtestIntegrity.grade}" (score ${backtestIntegrity.score}/100) — supportive but not yet research-grade evidence.`;
+      dataQualityNotes.push(`CIO confidence trimmed: backtest integrity grade is "${backtestIntegrity.grade}", not research-grade.`);
+    } else {
+      summary += ` Backtest integrity is research-grade (score ${backtestIntegrity.score}/100), supporting this view with validated historical evidence.`;
+    }
+  } else {
+    confidence = clampConfidence(confidence - 15);
+    summary += " No backtest has been run for this configuration — committee confidence is capped until historical evidence is available.";
+    dataQualityNotes.push("CIO confidence capped: no backtest integrity audit is available for this session.");
+  }
+
+  return { stance, confidence, summary, dissent };
+}
+
+export function buildInvestmentCommittee(input: CommitteeInput): CommitteeResult {
+  const dataQualityNotes: string[] = [];
+  const recommendations: CommitteeRecommendation[] = [
+    buildMacroStrategist(input, dataQualityNotes),
+    buildMomentumAnalyst(input, dataQualityNotes),
+    buildRiskManager(input, dataQualityNotes),
+    buildPortfolioConstructionAnalyst(input, dataQualityNotes),
+  ];
+  const cio = synthesizeCio(recommendations, input.backtestIntegrity, dataQualityNotes);
+
+  const memoLines: string[] = [];
+  memoLines.push(`INVESTMENT COMMITTEE MEMO`);
+  memoLines.push(`Session #${input.sessionId} — ${input.runAt}`);
+  memoLines.push("");
+  memoLines.push(`CIO RECOMMENDATION: ${stanceLabel(cio.stance).toUpperCase()} (confidence ${cio.confidence}%)`);
+  memoLines.push(cio.summary);
+  if (cio.dissent.length > 0) {
+    memoLines.push("");
+    memoLines.push("Dissenting views:");
+    for (const d of cio.dissent) memoLines.push(`  - ${d}`);
+  }
+  memoLines.push("");
+  memoLines.push("COMMITTEE DEBATE");
+  for (const r of recommendations) {
+    memoLines.push("");
+    memoLines.push(`${r.personaLabel} — ${stanceLabel(r.stance)} (confidence ${r.confidence}%)`);
+    memoLines.push(r.summary);
+    memoLines.push(`Evidence: ${r.evidence.join("; ")}`);
+    memoLines.push(`Key concern: ${r.keyConcern}`);
+  }
+  if (dataQualityNotes.length > 0) {
+    memoLines.push("");
+    memoLines.push("DATA QUALITY / GUARDRAIL NOTES");
+    for (const n of dataQualityNotes) memoLines.push(`  - ${n}`);
+  }
+
+  return {
+    sessionId: input.sessionId,
+    generatedAt: new Date().toISOString(),
+    recommendations,
+    cio,
+    dataQualityNotes,
+    memo: memoLines.join("\n"),
+  };
+}

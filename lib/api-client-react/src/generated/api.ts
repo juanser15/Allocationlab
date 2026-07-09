@@ -24,6 +24,7 @@ import type {
   ArchiveEntry,
   ArchiveListResponse,
   BacktestResult,
+  CommitteeResult,
   CompareArchiveParams,
   Constraints,
   ConstraintsInput,
@@ -32,6 +33,7 @@ import type {
   ErrorResponse,
   EtfDetail,
   GetBacktestParams,
+  GetCommittee404,
   HealthStatus,
   ListArchiveParams,
   LivePricesFetchInput,
@@ -1596,7 +1598,7 @@ export const getGetBacktestUrl = (params?: GetBacktestParams,) => {
 }
 
 /**
- * @summary Run a forward-chained rebalancing backtest across historical price data using stored allocation sessions
+ * @summary Run a bias-resistant, point-in-time walk-forward backtest with configurable execution/cost assumptions and an integrity audit
  */
 export const getBacktest = async (params?: GetBacktestParams, options?: RequestInit): Promise<BacktestResult> => {
 
@@ -1643,7 +1645,7 @@ export type GetBacktestQueryError = ErrorType<unknown>
 
 
 /**
- * @summary Run a forward-chained rebalancing backtest across historical price data using stored allocation sessions
+ * @summary Run a bias-resistant, point-in-time walk-forward backtest with configurable execution/cost assumptions and an integrity audit
  */
 
 export function useGetBacktest<TData = Awaited<ReturnType<typeof getBacktest>>, TError = ErrorType<unknown>>(
@@ -1652,6 +1654,83 @@ export function useGetBacktest<TData = Awaited<ReturnType<typeof getBacktest>>, 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetBacktestQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetCommitteeUrl = () => {
+
+
+
+
+  return `/api/committee`
+}
+
+/**
+ * @summary Deterministic AI Investment Committee synthesis grounded strictly in already-computed session data
+ */
+export const getCommittee = async ( options?: RequestInit): Promise<CommitteeResult> => {
+
+  return customFetch<CommitteeResult>(getGetCommitteeUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCommitteeQueryKey = () => {
+    return [
+    `/api/committee`
+    ] as const;
+    }
+
+
+export const getGetCommitteeQueryOptions = <TData = Awaited<ReturnType<typeof getCommittee>>, TError = ErrorType<GetCommittee404>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCommittee>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCommitteeQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCommittee>>> = ({ signal }) => getCommittee({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCommittee>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCommitteeQueryResult = NonNullable<Awaited<ReturnType<typeof getCommittee>>>
+export type GetCommitteeQueryError = ErrorType<GetCommittee404>
+
+
+/**
+ * @summary Deterministic AI Investment Committee synthesis grounded strictly in already-computed session data
+ */
+
+export function useGetCommittee<TData = Awaited<ReturnType<typeof getCommittee>>, TError = ErrorType<GetCommittee404>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCommittee>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCommitteeQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

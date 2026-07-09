@@ -18,11 +18,16 @@ export default function Methodology() {
     { id: 12, label: "Committee report builder (editable one-page report, preview mode, polished PDF/PNG export, quality checklist)", done: true },
     { id: 13, label: "PM Decision Room with structured recommendation cards and an auditable Decision Log", done: true },
     { id: 14, label: "Historical Archive workspace (browse prior rebalances, side-by-side comparison with turnover & realized return, filters, PDF/PNG/CSV export)", done: true },
-    { id: 15, label: "Dollar & Rates components (add DXY, IEF/TLT to universe)", done: false },
-    { id: 16, label: "Live regime alerts & notification rules", done: false },
+    { id: 15, label: "Bias-resistant backtester (execution timing/costs/slippage, walk-forward testing, sensitivity checks, bias audit checklist, Integrity Score)", done: true },
+    { id: 16, label: "AI Investment Committee reasoning layer (deterministic persona debate + CIO synthesis + exportable memo, zero fabrication)", done: true },
+    { id: 17, label: "Risk Model Pro (factor risk model, stress-tested VaR, scenario-aware risk budgeting)", done: false },
+    { id: 18, label: "Scenario & Stress Lab (historical and hypothetical macro shock scenarios)", done: false },
+    { id: 19, label: "Trade Implementation (order staging, execution scheduling, broker-ready trade tickets)", done: false },
+    { id: 20, label: "Attribution Engine (return decomposition by factor, sector, and selection vs. allocation)", done: false },
+    { id: 21, label: "Production Governance (audit trails, approval workflows, role-based access controls)", done: false },
   ];
-  const CURRENT_ITERATION = 8;
-  const MAX_ITERATIONS = 10;
+  const CURRENT_ITERATION = 10;
+  const MAX_ITERATIONS = 15;
 
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-8">

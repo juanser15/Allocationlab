@@ -465,13 +465,50 @@ paths:
     get:
       operationId: getBacktest
       tags: [backtest]
-      summary: Run a forward-chained rebalancing backtest across historical price data using stored allocation sessions
+      summary: Run a bias-resistant, point-in-time walk-forward backtest with configurable execution/cost assumptions and an integrity audit
       parameters:
         - name: benchmark
           in: query
           required: false
           schema:
             type: string
+        - name: rebalanceFrequency
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [monthly, quarterly]
+        - name: executionTiming
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [same_close, next_close, next_open]
+        - name: transactionCostBps
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: slippageBps
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: maxTurnoverPerRebalance
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: cashYieldAnnual
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: warmupDays
+          in: query
+          required: false
+          schema:
+            type: number
       responses:
         "200":
           description: Success
@@ -479,6 +516,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BacktestResult"
+
+  /committee:
+    get:
+      operationId: getCommittee
+      tags: [committee]
+      summary: Deterministic AI Investment Committee synthesis grounded strictly in already-computed session data
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommitteeResult"
+        "404":
+          description: No allocation run available yet
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required: [error]
 
 components:
   schemas:
@@ -1108,38 +1168,155 @@ components:
           type: ["number", "null"]
       required: [month, portfolioReturn, benchmarkReturn]
 
-    BacktestPeriod:
+    BacktestConfigEcho:
       type: object
       properties:
-        sessionId:
+        rebalanceFrequency:
+          type: string
+          enum: [monthly, quarterly]
+        executionTiming:
+          type: string
+          enum: [same_close, next_close, next_open]
+        transactionCostBps:
+          type: number
+        slippageBps:
+          type: number
+        maxTurnoverPerRebalance:
+          type: number
+        cashYieldAnnual:
+          type: number
+        warmupDays:
           type: integer
-        label:
+      required: [rebalanceFrequency, executionTiming, transactionCostBps, slippageBps, maxTurnoverPerRebalance, cashYieldAnnual, warmupDays]
+
+    BacktestRebalanceLogEntry:
+      type: object
+      properties:
+        rebalanceDate:
+          type: string
+          description: Date the point-in-time signal was computed, using only price data strictly before this date
+        executionDate:
           type: ["string", "null"]
+          description: Date the resulting target weights actually take effect, per the chosen execution timing
+        lookbackDays:
+          type: integer
+        regimeLabel:
+          type: string
+        regimeComposite:
+          type: number
+        cashWeight:
+          type: number
+        activeEtfCount:
+          type: integer
+        topHoldings:
+          type: array
+          items:
+            type: string
+        turnoverRequested:
+          type: number
+        turnoverApplied:
+          type: number
+        turnoverCapped:
+          type: boolean
+        transactionCostPct:
+          type: number
+      required: [rebalanceDate, executionDate, lookbackDays, regimeLabel, regimeComposite, cashWeight, activeEtfCount, topHoldings, turnoverRequested, turnoverApplied, turnoverCapped, transactionCostPct]
+
+    IntegrityCheck:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        status:
+          type: string
+          enum: [pass, warn, fail]
+        detail:
+          type: string
+      required: [id, label, status, detail]
+
+    IntegrityAudit:
+      type: object
+      properties:
+        score:
+          type: number
+        grade:
+          type: string
+          enum: [research_grade, developmental, not_reliable]
+        hardFail:
+          type: boolean
+        checklist:
+          type: array
+          items:
+            $ref: "#/components/schemas/IntegrityCheck"
+      required: [score, grade, hardFail, checklist]
+
+    SensitivityRun:
+      type: object
+      properties:
+        rebalanceFrequency:
+          type: string
+          enum: [monthly, quarterly]
+        executionTiming:
+          type: string
+          enum: [same_close, next_close]
+        transactionCostBps:
+          type: number
+        cumulativeReturn:
+          type: ["number", "null"]
+        annualizedReturn:
+          type: ["number", "null"]
+        sharpeRatio:
+          type: ["number", "null"]
+      required: [rebalanceFrequency, executionTiming, transactionCostBps, cumulativeReturn, annualizedReturn, sharpeRatio]
+
+    SensitivityResult:
+      type: object
+      properties:
+        runs:
+          type: array
+          items:
+            $ref: "#/components/schemas/SensitivityRun"
+        stabilityWarning:
+          type: boolean
+        note:
+          type: string
+      required: [runs, stabilityWarning, note]
+
+    WalkForwardFold:
+      type: object
+      properties:
+        foldIndex:
+          type: integer
         startDate:
           type: string
         endDate:
           type: string
         tradingDays:
           type: integer
-        regimeLabel:
-          type: string
-        cashWeight:
-          type: number
-        topHoldings:
+        rebalanceCount:
+          type: integer
+        cumulativeReturn:
+          type: ["number", "null"]
+        annualizedReturn:
+          type: ["number", "null"]
+        sharpeRatio:
+          type: ["number", "null"]
+        maxDrawdown:
+          type: ["number", "null"]
+      required: [foldIndex, startDate, endDate, tradingDays, rebalanceCount, cumulativeReturn, annualizedReturn, sharpeRatio, maxDrawdown]
+
+    WalkForwardResult:
+      type: object
+      properties:
+        folds:
           type: array
           items:
-            type: string
-          description: Top 1-3 held tickers by weight during this period
-        periodReturn:
-          type: ["number", "null"]
-          description: Compounded portfolio return during this period, null if no overlapping price data
-        contributionPct:
-          type: ["number", "null"]
-          description: Contribution to total cumulative return, in decimal (sums across periods to cumulativeReturn)
-        turnover:
-          type: ["number", "null"]
-          description: One-way turnover fraction vs prior period's weights, null for the first period
-      required: [sessionId, label, startDate, endDate, tradingDays, regimeLabel, cashWeight, topHoldings, periodReturn, contributionPct, turnover]
+            $ref: "#/components/schemas/WalkForwardFold"
+        note:
+          type: string
+      required: [folds, note]
 
     BacktestResult:
       type: object
@@ -1173,17 +1350,16 @@ components:
           type: ["number", "null"]
         avgTurnover:
           type: ["number", "null"]
+        totalTransactionCostPct:
+          type: ["number", "null"]
         monthlyReturns:
           type: array
           items:
             $ref: "#/components/schemas/BacktestMonthlyReturn"
-        periods:
+        rebalanceLog:
           type: array
           items:
-            $ref: "#/components/schemas/BacktestPeriod"
-        narrative:
-          type: ["string", "null"]
-          description: Plain-language summary of which rebalances contributed most/least to performance
+            $ref: "#/components/schemas/BacktestRebalanceLogEntry"
         benchmarkTicker:
           type: ["string", "null"]
         benchmarkCumulativeReturn:
@@ -1196,9 +1372,81 @@ components:
           type: array
           items:
             type: string
+        config:
+          $ref: "#/components/schemas/BacktestConfigEcho"
+        integrity:
+          $ref: "#/components/schemas/IntegrityAudit"
+        walkForward:
+          $ref: "#/components/schemas/WalkForwardResult"
+        sensitivity:
+          $ref: "#/components/schemas/SensitivityResult"
+        warnings:
+          type: array
+          items:
+            type: string
         methodologyNote:
           type: string
-      required: [hasSufficientData, insufficientReason, startDate, endDate, tradingDays, canAnnualize, equityCurve, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown, avgTurnover, monthlyReturns, periods, narrative, benchmarkTicker, benchmarkCumulativeReturn, benchmarkAnnualizedReturn, benchmarkUnavailableReason, availableBenchmarkTickers, methodologyNote]
+      required: [hasSufficientData, insufficientReason, startDate, endDate, tradingDays, canAnnualize, equityCurve, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown, avgTurnover, totalTransactionCostPct, monthlyReturns, rebalanceLog, benchmarkTicker, benchmarkCumulativeReturn, benchmarkAnnualizedReturn, benchmarkUnavailableReason, availableBenchmarkTickers, config, integrity, walkForward, sensitivity, warnings, methodologyNote]
+
+    CommitteeRecommendation:
+      type: object
+      properties:
+        personaId:
+          type: string
+          enum: [macro_strategist, momentum_analyst, risk_manager, portfolio_construction_analyst]
+        personaLabel:
+          type: string
+        stance:
+          type: string
+          enum: [support, modify, reject]
+        confidence:
+          type: number
+        summary:
+          type: string
+        evidence:
+          type: array
+          items:
+            type: string
+        keyConcern:
+          type: string
+      required: [personaId, personaLabel, stance, confidence, summary, evidence, keyConcern]
+
+    CommitteeCioSynthesis:
+      type: object
+      properties:
+        stance:
+          type: string
+          enum: [support, modify, reject]
+        confidence:
+          type: number
+        summary:
+          type: string
+        dissent:
+          type: array
+          items:
+            type: string
+      required: [stance, confidence, summary, dissent]
+
+    CommitteeResult:
+      type: object
+      properties:
+        sessionId:
+          type: integer
+        generatedAt:
+          type: string
+        recommendations:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommitteeRecommendation"
+        cio:
+          $ref: "#/components/schemas/CommitteeCioSynthesis"
+        dataQualityNotes:
+          type: array
+          items:
+            type: string
+        memo:
+          type: string
+      required: [sessionId, generatedAt, recommendations, cio, dataQualityNotes, memo]
 
     TradeListEntry:
       type: object
