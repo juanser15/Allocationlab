@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
-import { useGetLatestResults, useGetConstraints, useGenerateReport, useGetRiskModel } from "@workspace/api-client-react";
+import { useGetLatestResults, useGetConstraints, useGenerateReport, useGetRiskModel, useGetScenarioStressMeta } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,6 +50,7 @@ export default function Reports() {
   const { data: result, isLoading: loadingResult } = useGetLatestResults();
   const { data: constraints, isLoading: loadingConstraints } = useGetConstraints();
   const { data: riskModel } = useGetRiskModel();
+  const { data: scenarioMeta } = useGetScenarioStressMeta();
   const generateReport = useGenerateReport();
 
   const today = new Date().toISOString().slice(0, 10);
@@ -151,6 +152,22 @@ export default function Reports() {
       items.push({ id: "risk-model", label: "Risk model computed cleanly", severity: "pass", detail: `Ann. vol ${(riskModel.annualizedVolatility! * 100).toFixed(1)}%, diversification score ${riskModel.diversificationScore!.toFixed(0)}/100.` });
     }
 
+    // Scenario & stress coverage
+    if (!scenarioMeta) {
+      items.push({ id: "scenario-stress", label: "Scenario & stress data unavailable", severity: "warn", detail: "Loading scenario & stress readiness — refresh before finalizing the report." });
+    } else if (!scenarioMeta.hasAllocation) {
+      items.push({ id: "scenario-stress", label: "Scenario & stress lab not yet run", severity: "warn", detail: "Run the pipeline before scenario analysis or stress testing can be evaluated." });
+    } else {
+      const availableProxies = scenarioMeta.proxies.filter((p) => p.available).length;
+      const availableScenarios = scenarioMeta.scenarios.filter((s) => s.available).length;
+      const totalHistoricalScenarios = scenarioMeta.scenarios.filter((s) => s.id !== "custom-window").length;
+      if (availableProxies === 0 && availableScenarios === 0) {
+        items.push({ id: "scenario-stress", label: "No scenario or stress coverage available", severity: "warn", detail: "No macro proxies or historical stress windows are covered by the current price history." });
+      } else {
+        items.push({ id: "scenario-stress", label: "Scenario & stress coverage present", severity: "pass", detail: `${availableProxies}/${scenarioMeta.proxies.length} macro proxies and ${availableScenarios}/${totalHistoricalScenarios} historical scenarios available.` });
+      }
+    }
+
     // Report fields sanity
     if (!portfolioName.trim()) {
       items.push({ id: "portfolio-name", label: "Portfolio name is empty", severity: "warn", detail: "Add a portfolio name so the report is clearly attributed." });
@@ -160,7 +177,7 @@ export default function Reports() {
     }
 
     return items;
-  }, [result, constraints, riskModel, portfolioName, title]);
+  }, [result, constraints, riskModel, scenarioMeta, portfolioName, title]);
 
   const failCount = checklist.filter((c) => c.severity === "fail").length;
   const warnCount = checklist.filter((c) => c.severity === "warn").length;

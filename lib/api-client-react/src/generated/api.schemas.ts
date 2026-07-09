@@ -320,6 +320,164 @@ export interface RiskModelResult {
   availableBenchmarks: string[];
 }
 
+export type MacroProxyInfoKey = typeof MacroProxyInfoKey[keyof typeof MacroProxyInfoKey];
+
+
+export const MacroProxyInfoKey = {
+  equityBeta: 'equityBeta',
+  rates: 'rates',
+  usd: 'usd',
+  oilCommodities: 'oilCommodities',
+  volatility: 'volatility',
+  creditSpreads: 'creditSpreads',
+} as const;
+
+export interface MacroProxyInfo {
+  key: MacroProxyInfoKey;
+  label: string;
+  description: string;
+  candidateTickers: string[];
+  /** @nullable */
+  resolvedTicker: string | null;
+  available: boolean;
+}
+
+export interface PredefinedStressScenarioMeta {
+  id: string;
+  label: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  available: boolean;
+  /** @nullable */
+  reason: string | null;
+}
+
+export interface ScenarioStressPortfolioVersion {
+  id: number;
+  label: string;
+  runAt: string;
+}
+
+export interface ScenarioStressMeta {
+  proxies: MacroProxyInfo[];
+  scenarios: PredefinedStressScenarioMeta[];
+  versions: ScenarioStressPortfolioVersion[];
+  /** @nullable */
+  dataStartDate: string | null;
+  /** @nullable */
+  dataEndDate: string | null;
+  hasAllocation: boolean;
+}
+
+export type MacroShockInputKey = typeof MacroShockInputKey[keyof typeof MacroShockInputKey];
+
+
+export const MacroShockInputKey = {
+  equityBeta: 'equityBeta',
+  rates: 'rates',
+  usd: 'usd',
+  oilCommodities: 'oilCommodities',
+  volatility: 'volatility',
+  creditSpreads: 'creditSpreads',
+} as const;
+
+export interface MacroShockInput {
+  key: MacroShockInputKey;
+  magnitudePct: number;
+}
+
+export interface CustomEtfShockInput {
+  ticker: string;
+  magnitudePct: number;
+}
+
+export type ScenarioStressRunInputMode = typeof ScenarioStressRunInputMode[keyof typeof ScenarioStressRunInputMode];
+
+
+export const ScenarioStressRunInputMode = {
+  scenario: 'scenario',
+  stress: 'stress',
+} as const;
+
+export interface ScenarioStressRunInput {
+  mode: ScenarioStressRunInputMode;
+  /** @nullable */
+  versionId?: number | null;
+  macroShocks?: MacroShockInput[];
+  customEtfShocks?: CustomEtfShockInput[];
+  scenarioId?: string;
+  customStart?: string;
+  customEnd?: string;
+}
+
+export type EtfShockContributionBasis = typeof EtfShockContributionBasis[keyof typeof EtfShockContributionBasis];
+
+
+export const EtfShockContributionBasis = {
+  'historical-beta': 'historical-beta',
+  'correlation-shock': 'correlation-shock',
+  'direct-etf-shock': 'direct-etf-shock',
+  'historical-replay': 'historical-replay',
+  excluded: 'excluded',
+} as const;
+
+export interface EtfShockContribution {
+  ticker: string;
+  name: string;
+  sector: string;
+  weight: number;
+  assumedReturnPct: number;
+  contributionPct: number;
+  basis: EtfShockContributionBasis;
+  basisDetail: string;
+}
+
+export interface ScenarioBucketContribution {
+  key: string;
+  label: string;
+  weight: number;
+  contributionPct: number;
+}
+
+export type ScenarioWarningSeverity = typeof ScenarioWarningSeverity[keyof typeof ScenarioWarningSeverity];
+
+
+export const ScenarioWarningSeverity = {
+  warn: 'warn',
+  fail: 'fail',
+} as const;
+
+export interface ScenarioWarning {
+  id: string;
+  severity: ScenarioWarningSeverity;
+  message: string;
+}
+
+export interface ScenarioExcludedTicker {
+  ticker: string;
+  reason: string;
+}
+
+export interface ScenarioStressResult {
+  hasSufficientData: boolean;
+  /** @nullable */
+  insufficientReason: string | null;
+  basisSummary: string;
+  /** @nullable */
+  portfolioImpactPct: number | null;
+  cashWeight: number;
+  /** @nullable */
+  cashBufferAdequate: boolean | null;
+  cashBufferNote: string;
+  etfContributions: EtfShockContribution[];
+  bucketContributions: ScenarioBucketContribution[];
+  largestRiskDrivers: EtfShockContribution[];
+  watchItems: string[];
+  warnings: ScenarioWarning[];
+  excludedTickers: ScenarioExcludedTicker[];
+}
+
 export type PipelineStepStatus = typeof PipelineStepStatus[keyof typeof PipelineStepStatus];
 
 

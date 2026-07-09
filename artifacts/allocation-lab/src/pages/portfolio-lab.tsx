@@ -14,6 +14,7 @@ import {
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useSettingsDrawer } from "@/context/settings-drawer-context";
 import { RiskModelProSection } from "@/components/portfolio-lab/RiskModelProSection";
+import { ScenarioStressReadinessSection } from "@/components/portfolio-lab/ScenarioStressReadinessSection";
 
 function pct(n: number) {
   return `${(n * 100).toFixed(1)}%`;
@@ -369,6 +370,9 @@ export default function PortfolioLab() {
 
           {/* Risk Model Pro */}
           <RiskModelProSection />
+
+          {/* Scenario & Stress Readiness */}
+          <ScenarioStressReadinessSection />
 
           {/* Constraint Compliance */}
           <Card>

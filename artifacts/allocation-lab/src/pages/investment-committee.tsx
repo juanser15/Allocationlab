@@ -3,6 +3,7 @@ import {
   useGetLatestResults,
   useGetOrCreateDecisionLog,
   useGetRiskModel,
+  useGetScenarioStressMeta,
   useUpdateDecisionLogStatus,
   useGetCommittee,
 } from "@workspace/api-client-react";
@@ -115,6 +116,7 @@ export default function InvestmentCommittee() {
   } = useGetOrCreateDecisionLog(sessionId ?? 0);
   const updateStatus = useUpdateDecisionLogStatus();
   const { data: riskModel } = useGetRiskModel();
+  const { data: scenarioMeta } = useGetScenarioStressMeta();
 
   const [committeeRequested, setCommitteeRequested] = useState(false);
   const {
@@ -276,6 +278,41 @@ export default function InvestmentCommittee() {
                       )}
                       <p className="text-xs text-muted-foreground pt-1">
                         Full breakdown (MCR/CCR by ETF, beta, sector decomposition) available in Portfolio Lab &rarr; Risk Model Pro.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <ShieldAlert className="h-4 w-4 text-primary" /> Scenario &amp; Stress Evidence
+                  </CardTitle>
+                  <CardDescription>Data coverage for macro shock scenarios and historical stress replays available for this portfolio.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {!scenarioMeta?.hasAllocation ? (
+                    <p className="text-sm text-muted-foreground">Scenario &amp; stress data unavailable.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Macro proxies available</p>
+                          <p className="font-semibold text-gray-900">
+                            {scenarioMeta.proxies.filter((p) => p.available).length} / {scenarioMeta.proxies.length}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Historical scenarios available</p>
+                          <p className="font-semibold text-gray-900">
+                            {scenarioMeta.scenarios.filter((s) => s.available).length} / {scenarioMeta.scenarios.filter((s) => s.id !== "custom-window").length}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground pt-1">
+                        Run user-defined shocks or historical stress replays in{" "}
+                        <Link href="/research-lab" className="text-primary underline">Research Lab &rarr; Scenario &amp; Stress Lab</Link>.
                       </p>
                     </div>
                   )}

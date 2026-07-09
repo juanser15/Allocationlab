@@ -24,6 +24,7 @@ import {
 import { Link } from "wouter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { ScenarioStressLab } from "@/components/research-lab/ScenarioStressLab";
 import { useSettingsDrawer } from "@/context/settings-drawer-context";
 
 function EtfLink({ ticker, className }: { ticker: string; className?: string }) {
@@ -1151,46 +1152,8 @@ export default function ResearchLab() {
           </TabsContent>
 
           {/* ── 6. Scenario & Stress Lab ── */}
-          <TabsContent value="scenario" className="space-y-6 pt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Dices className="h-4 w-4 text-primary" /> Scenario Analysis
-                </CardTitle>
-                <CardDescription>
-                  User-defined shocks — set your own moves in SPX, rates, USD, oil, volatility, and credit spreads to see the impact on the current allocation.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                  <Activity className="h-8 w-8 text-muted-foreground/50" />
-                  <p className="text-sm font-medium text-gray-600">Not yet implemented — planned for a future build cycle.</p>
-                  <p className="text-xs text-muted-foreground max-w-md">
-                    Custom shock sliders for SPX, rates, USD, oil, volatility, and credit spreads will appear here once built.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <ShieldAlert className="h-4 w-4 text-primary" /> Stress Testing
-                </CardTitle>
-                <CardDescription>
-                  Historical, pre-defined episodes — COVID crash, 2022 rates shock, regional banking crisis, tech unwind, and custom date windows.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                  <Activity className="h-8 w-8 text-muted-foreground/50" />
-                  <p className="text-sm font-medium text-gray-600">Not yet implemented — planned for a future build cycle.</p>
-                  <p className="text-xs text-muted-foreground max-w-md">
-                    Pre-defined historical episodes (COVID, 2022 rates shock, regional banking crisis, tech unwind) plus custom window selection will appear here once built.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="scenario" className="pt-4">
+            <ScenarioStressLab />
           </TabsContent>
 
           {/* ── 7. Research Notes / Export ── */}

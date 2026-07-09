@@ -13,6 +13,7 @@ import decisionLogRouter from "./decision-log";
 import archiveRouter from "./archive";
 import committeeRouter from "./committee";
 import riskModelRouter from "./riskModel";
+import scenarioStressRouter from "./scenarioStress";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(decisionLogRouter);
 router.use(archiveRouter);
 router.use(committeeRouter);
 router.use(riskModelRouter);
+router.use(scenarioStressRouter);
 
 export default router;

@@ -46,6 +46,9 @@ import type {
   RiskModelResult,
   RunInput,
   RunResult,
+  ScenarioStressMeta,
+  ScenarioStressResult,
+  ScenarioStressRunInput,
   Session,
   SessionDetail,
   Universe,
@@ -985,6 +988,153 @@ export function useGetRiskModel<TData = Awaited<ReturnType<typeof getRiskModel>>
 
 
 
+
+export const getGetScenarioStressMetaUrl = () => {
+
+
+
+
+  return `/api/scenario-stress/meta`
+}
+
+/**
+ * @summary Macro proxy availability, predefined stress scenario coverage, and saved portfolio versions
+ */
+export const getScenarioStressMeta = async ( options?: RequestInit): Promise<ScenarioStressMeta> => {
+
+  return customFetch<ScenarioStressMeta>(getGetScenarioStressMetaUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetScenarioStressMetaQueryKey = () => {
+    return [
+    `/api/scenario-stress/meta`
+    ] as const;
+    }
+
+
+export const getGetScenarioStressMetaQueryOptions = <TData = Awaited<ReturnType<typeof getScenarioStressMeta>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getScenarioStressMeta>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetScenarioStressMetaQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getScenarioStressMeta>>> = ({ signal }) => getScenarioStressMeta({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getScenarioStressMeta>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetScenarioStressMetaQueryResult = NonNullable<Awaited<ReturnType<typeof getScenarioStressMeta>>>
+export type GetScenarioStressMetaQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Macro proxy availability, predefined stress scenario coverage, and saved portfolio versions
+ */
+
+export function useGetScenarioStressMeta<TData = Awaited<ReturnType<typeof getScenarioStressMeta>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getScenarioStressMeta>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetScenarioStressMetaQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getRunScenarioStressUrl = () => {
+
+
+
+
+  return `/api/scenario-stress/run`
+}
+
+/**
+ * @summary Run a scenario analysis (user-defined shocks) or a stress test (predefined historical window)
+ */
+export const runScenarioStress = async (scenarioStressRunInput: ScenarioStressRunInput, options?: RequestInit): Promise<ScenarioStressResult> => {
+
+  return customFetch<ScenarioStressResult>(getRunScenarioStressUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(scenarioStressRunInput)
+  }
+);}
+
+
+
+
+export const getRunScenarioStressMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runScenarioStress>>, TError,{data: BodyType<ScenarioStressRunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof runScenarioStress>>, TError,{data: BodyType<ScenarioStressRunInput>}, TContext> => {
+
+const mutationKey = ['runScenarioStress'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof runScenarioStress>>, {data: BodyType<ScenarioStressRunInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  runScenarioStress(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RunScenarioStressMutationResult = NonNullable<Awaited<ReturnType<typeof runScenarioStress>>>
+    export type RunScenarioStressMutationBody = BodyType<ScenarioStressRunInput>
+    export type RunScenarioStressMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Run a scenario analysis (user-defined shocks) or a stress test (predefined historical window)
+ */
+export const useRunScenarioStress = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runScenarioStress>>, TError,{data: BodyType<ScenarioStressRunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof runScenarioStress>>,
+        TError,
+        {data: BodyType<ScenarioStressRunInput>},
+        TContext
+      > => {
+      return useMutation(getRunScenarioStressMutationOptions(options));
+    }
 
 export const getGenerateReportUrl = () => {
 

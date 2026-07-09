@@ -529,6 +529,104 @@ export const GetRiskModelResponse = zod.object({
 })
 
 
+/**
+ * @summary Macro proxy availability, predefined stress scenario coverage, and saved portfolio versions
+ */
+export const GetScenarioStressMetaResponse = zod.object({
+  "proxies": zod.array(zod.object({
+  "key": zod.enum(['equityBeta', 'rates', 'usd', 'oilCommodities', 'volatility', 'creditSpreads']),
+  "label": zod.string(),
+  "description": zod.string(),
+  "candidateTickers": zod.array(zod.string()),
+  "resolvedTicker": zod.string().nullable(),
+  "available": zod.boolean()
+})),
+  "scenarios": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "description": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "available": zod.boolean(),
+  "reason": zod.string().nullable()
+})),
+  "versions": zod.array(zod.object({
+  "id": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string()
+})),
+  "dataStartDate": zod.string().nullable(),
+  "dataEndDate": zod.string().nullable(),
+  "hasAllocation": zod.boolean()
+})
+
+
+/**
+ * @summary Run a scenario analysis (user-defined shocks) or a stress test (predefined historical window)
+ */
+export const RunScenarioStressBody = zod.object({
+  "mode": zod.enum(['scenario', 'stress']),
+  "versionId": zod.number().nullish(),
+  "macroShocks": zod.array(zod.object({
+  "key": zod.enum(['equityBeta', 'rates', 'usd', 'oilCommodities', 'volatility', 'creditSpreads']),
+  "magnitudePct": zod.number()
+})).optional(),
+  "customEtfShocks": zod.array(zod.object({
+  "ticker": zod.string(),
+  "magnitudePct": zod.number()
+})).optional(),
+  "scenarioId": zod.string().optional(),
+  "customStart": zod.string().optional(),
+  "customEnd": zod.string().optional()
+})
+
+export const RunScenarioStressResponse = zod.object({
+  "hasSufficientData": zod.boolean(),
+  "insufficientReason": zod.string().nullable(),
+  "basisSummary": zod.string(),
+  "portfolioImpactPct": zod.number().nullable(),
+  "cashWeight": zod.number(),
+  "cashBufferAdequate": zod.boolean().nullable(),
+  "cashBufferNote": zod.string(),
+  "etfContributions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "weight": zod.number(),
+  "assumedReturnPct": zod.number(),
+  "contributionPct": zod.number(),
+  "basis": zod.enum(['historical-beta', 'correlation-shock', 'direct-etf-shock', 'historical-replay', 'excluded']),
+  "basisDetail": zod.string()
+})),
+  "bucketContributions": zod.array(zod.object({
+  "key": zod.string(),
+  "label": zod.string(),
+  "weight": zod.number(),
+  "contributionPct": zod.number()
+})),
+  "largestRiskDrivers": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "weight": zod.number(),
+  "assumedReturnPct": zod.number(),
+  "contributionPct": zod.number(),
+  "basis": zod.enum(['historical-beta', 'correlation-shock', 'direct-etf-shock', 'historical-replay', 'excluded']),
+  "basisDetail": zod.string()
+})),
+  "watchItems": zod.array(zod.string()),
+  "warnings": zod.array(zod.object({
+  "id": zod.string(),
+  "severity": zod.enum(['warn', 'fail']),
+  "message": zod.string()
+})),
+  "excludedTickers": zod.array(zod.object({
+  "ticker": zod.string(),
+  "reason": zod.string()
+}))
+})
+
+
 export const GenerateReportBody = zod.object({
   "sessionId": zod.number().nullish(),
   "format": zod.enum(['pdf', 'png', 'csv']),

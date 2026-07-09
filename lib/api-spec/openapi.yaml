@@ -17,6 +17,7 @@ tags:
   - name: sessions
   - name: etf
   - name: risk-model
+  - name: scenario-stress
 
 paths:
   /healthz:
@@ -243,6 +244,44 @@ paths:
                 $ref: "#/components/schemas/RiskModelResult"
         "400":
           description: No allocation run available
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /scenario-stress/meta:
+    get:
+      operationId: getScenarioStressMeta
+      tags: [scenario-stress]
+      summary: Macro proxy availability, predefined stress scenario coverage, and saved portfolio versions
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScenarioStressMeta"
+
+  /scenario-stress/run:
+    post:
+      operationId: runScenarioStress
+      tags: [scenario-stress]
+      summary: Run a scenario analysis (user-defined shocks) or a stress test (predefined historical window)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScenarioStressRunInput"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScenarioStressResult"
+        "400":
+          description: Bad request
           content:
             application/json:
               schema:
@@ -1097,6 +1136,221 @@ components:
           items:
             type: string
       required: [hasSufficientData, insufficientReason, covarianceModel, lookbackDays, activeTickers, annualizedVolatility, downsideVolatility, drawdownRisk, concentrationRisk, effectiveRiskBets, diversificationRatio, diversificationScore, riskContributions, decompositionBySector, cashWeight, betas, warnings, availableBenchmarks]
+
+    MacroProxyInfo:
+      type: object
+      properties:
+        key:
+          type: string
+          enum: [equityBeta, rates, usd, oilCommodities, volatility, creditSpreads]
+        label:
+          type: string
+        description:
+          type: string
+        candidateTickers:
+          type: array
+          items:
+            type: string
+        resolvedTicker:
+          type: ["string", "null"]
+        available:
+          type: boolean
+      required: [key, label, description, candidateTickers, resolvedTicker, available]
+
+    PredefinedStressScenarioMeta:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        available:
+          type: boolean
+        reason:
+          type: ["string", "null"]
+      required: [id, label, description, startDate, endDate, available, reason]
+
+    ScenarioStressPortfolioVersion:
+      type: object
+      properties:
+        id:
+          type: integer
+        label:
+          type: string
+        runAt:
+          type: string
+      required: [id, label, runAt]
+
+    ScenarioStressMeta:
+      type: object
+      properties:
+        proxies:
+          type: array
+          items:
+            $ref: "#/components/schemas/MacroProxyInfo"
+        scenarios:
+          type: array
+          items:
+            $ref: "#/components/schemas/PredefinedStressScenarioMeta"
+        versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScenarioStressPortfolioVersion"
+        dataStartDate:
+          type: ["string", "null"]
+        dataEndDate:
+          type: ["string", "null"]
+        hasAllocation:
+          type: boolean
+      required: [proxies, scenarios, versions, dataStartDate, dataEndDate, hasAllocation]
+
+    MacroShockInput:
+      type: object
+      properties:
+        key:
+          type: string
+          enum: [equityBeta, rates, usd, oilCommodities, volatility, creditSpreads]
+        magnitudePct:
+          type: number
+      required: [key, magnitudePct]
+
+    CustomEtfShockInput:
+      type: object
+      properties:
+        ticker:
+          type: string
+        magnitudePct:
+          type: number
+      required: [ticker, magnitudePct]
+
+    ScenarioStressRunInput:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum: [scenario, stress]
+        versionId:
+          type: ["integer", "null"]
+        macroShocks:
+          type: array
+          items:
+            $ref: "#/components/schemas/MacroShockInput"
+        customEtfShocks:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomEtfShockInput"
+        scenarioId:
+          type: string
+        customStart:
+          type: string
+        customEnd:
+          type: string
+      required: [mode]
+
+    EtfShockContribution:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        sector:
+          type: string
+        weight:
+          type: number
+        assumedReturnPct:
+          type: number
+        contributionPct:
+          type: number
+        basis:
+          type: string
+          enum: [historical-beta, correlation-shock, direct-etf-shock, historical-replay, excluded]
+        basisDetail:
+          type: string
+      required: [ticker, name, sector, weight, assumedReturnPct, contributionPct, basis, basisDetail]
+
+    ScenarioBucketContribution:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        weight:
+          type: number
+        contributionPct:
+          type: number
+      required: [key, label, weight, contributionPct]
+
+    ScenarioWarning:
+      type: object
+      properties:
+        id:
+          type: string
+        severity:
+          type: string
+          enum: [warn, fail]
+        message:
+          type: string
+      required: [id, severity, message]
+
+    ScenarioExcludedTicker:
+      type: object
+      properties:
+        ticker:
+          type: string
+        reason:
+          type: string
+      required: [ticker, reason]
+
+    ScenarioStressResult:
+      type: object
+      properties:
+        hasSufficientData:
+          type: boolean
+        insufficientReason:
+          type: ["string", "null"]
+        basisSummary:
+          type: string
+        portfolioImpactPct:
+          type: ["number", "null"]
+        cashWeight:
+          type: number
+        cashBufferAdequate:
+          type: ["boolean", "null"]
+        cashBufferNote:
+          type: string
+        etfContributions:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtfShockContribution"
+        bucketContributions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScenarioBucketContribution"
+        largestRiskDrivers:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtfShockContribution"
+        watchItems:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScenarioWarning"
+        excludedTickers:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScenarioExcludedTicker"
+      required: [hasSufficientData, insufficientReason, basisSummary, portfolioImpactPct, cashWeight, cashBufferAdequate, cashBufferNote, etfContributions, bucketContributions, largestRiskDrivers, watchItems, warnings, excludedTickers]
 
     RunResult:
       type: object
