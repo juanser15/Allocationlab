@@ -6,8 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { EtfAllocation } from './etfAllocation';
+import type { IcSummary } from './icSummary';
+import type { IterationInfo } from './iterationInfo';
 import type { PipelineStep } from './pipelineStep';
 import type { RegimeScores } from './regimeScores';
+import type { WatchlistEntry } from './watchlistEntry';
 
 export interface RunResult {
   sessionId: number;
@@ -26,4 +29,8 @@ export interface RunResult {
   /** Last date of price data used */
   priceDataEnd: string;
   steps: PipelineStep[];
+  /** Near-miss ETFs that almost entered the portfolio */
+  watchlist: WatchlistEntry[];
+  icSummary: IcSummary;
+  iterationInfo: IterationInfo;
 }

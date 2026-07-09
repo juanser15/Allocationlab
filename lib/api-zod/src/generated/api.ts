@@ -176,7 +176,16 @@ export const RunPipelineResponse = zod.object({
   "volatility": zod.number().describe('Volatility score 0-100 (higher = lower vol environment)'),
   "liquidity": zod.number().describe('Liquidity score 0-100'),
   "composite": zod.number().describe('Composite regime score 0-100'),
-  "label": zod.string().describe('Human-readable regime label e.g. \"Risk-On\", \"Cautious\", \"Risk-Off\"')
+  "label": zod.string().describe('Human-readable regime label e.g. \"Risk-On\", \"Cautious\", \"Risk-Off\"'),
+  "components": zod.array(zod.object({
+  "key": zod.string(),
+  "label": zod.string(),
+  "score": zod.number().nullable().describe('Component score 0-100, or null if unavailable'),
+  "method": zod.enum(['computed', 'proxy', 'unavailable']).describe('How this component was derived'),
+  "description": zod.string().describe('Plain-English explanation of what drove this reading')
+})).describe('All 10 regime components with method and score'),
+  "confidence": zod.number().describe('Model confidence 0-100 based on data availability'),
+  "drivers": zod.string().describe('Plain-English explanation of main regime drivers')
 }),
   "allocations": zod.array(zod.object({
   "ticker": zod.string(),
@@ -209,7 +218,28 @@ export const RunPipelineResponse = zod.object({
   "label": zod.string(),
   "status": zod.enum(['pending', 'running', 'done', 'error']),
   "message": zod.string().nullable()
-}))
+})),
+  "watchlist": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "compositeScore": zod.number().describe('Composite factor score 0-100'),
+  "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
+  "blockingFactor": zod.string().describe('The specific factor or rule that blocked inclusion'),
+  "improvement": zod.string().describe('What needs to change for this ETF to enter the portfolio')
+})).describe('Near-miss ETFs that almost entered the portfolio'),
+  "icSummary": zod.object({
+  "whatChanged": zod.string().describe('Position and cash changes vs prior month'),
+  "why": zod.string().describe('Regime-based explanation for the allocation'),
+  "risks": zod.string().describe('Key risks and weak signals from the model'),
+  "watchNext": zod.string().describe('What to monitor before the next rebalance')
+}),
+  "iterationInfo": zod.object({
+  "current": zod.number().describe('Current iteration number'),
+  "max": zod.number().describe('Maximum planned iterations'),
+  "completed": zod.array(zod.string()).describe('Completed milestone labels'),
+  "next": zod.array(zod.string()).describe('Recommended next items')
+})
 })
 
 
@@ -226,7 +256,16 @@ export const GetLatestResultsResponse = zod.object({
   "volatility": zod.number().describe('Volatility score 0-100 (higher = lower vol environment)'),
   "liquidity": zod.number().describe('Liquidity score 0-100'),
   "composite": zod.number().describe('Composite regime score 0-100'),
-  "label": zod.string().describe('Human-readable regime label e.g. \"Risk-On\", \"Cautious\", \"Risk-Off\"')
+  "label": zod.string().describe('Human-readable regime label e.g. \"Risk-On\", \"Cautious\", \"Risk-Off\"'),
+  "components": zod.array(zod.object({
+  "key": zod.string(),
+  "label": zod.string(),
+  "score": zod.number().nullable().describe('Component score 0-100, or null if unavailable'),
+  "method": zod.enum(['computed', 'proxy', 'unavailable']).describe('How this component was derived'),
+  "description": zod.string().describe('Plain-English explanation of what drove this reading')
+})).describe('All 10 regime components with method and score'),
+  "confidence": zod.number().describe('Model confidence 0-100 based on data availability'),
+  "drivers": zod.string().describe('Plain-English explanation of main regime drivers')
 }),
   "allocations": zod.array(zod.object({
   "ticker": zod.string(),
@@ -259,7 +298,28 @@ export const GetLatestResultsResponse = zod.object({
   "label": zod.string(),
   "status": zod.enum(['pending', 'running', 'done', 'error']),
   "message": zod.string().nullable()
-}))
+})),
+  "watchlist": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "compositeScore": zod.number().describe('Composite factor score 0-100'),
+  "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
+  "blockingFactor": zod.string().describe('The specific factor or rule that blocked inclusion'),
+  "improvement": zod.string().describe('What needs to change for this ETF to enter the portfolio')
+})).describe('Near-miss ETFs that almost entered the portfolio'),
+  "icSummary": zod.object({
+  "whatChanged": zod.string().describe('Position and cash changes vs prior month'),
+  "why": zod.string().describe('Regime-based explanation for the allocation'),
+  "risks": zod.string().describe('Key risks and weak signals from the model'),
+  "watchNext": zod.string().describe('What to monitor before the next rebalance')
+}),
+  "iterationInfo": zod.object({
+  "current": zod.number().describe('Current iteration number'),
+  "max": zod.number().describe('Maximum planned iterations'),
+  "completed": zod.array(zod.string()).describe('Completed milestone labels'),
+  "next": zod.array(zod.string()).describe('Recommended next items')
+})
 })
 
 
@@ -305,7 +365,16 @@ export const GetSessionResponse = zod.object({
   "volatility": zod.number().describe('Volatility score 0-100 (higher = lower vol environment)'),
   "liquidity": zod.number().describe('Liquidity score 0-100'),
   "composite": zod.number().describe('Composite regime score 0-100'),
-  "label": zod.string().describe('Human-readable regime label e.g. \"Risk-On\", \"Cautious\", \"Risk-Off\"')
+  "label": zod.string().describe('Human-readable regime label e.g. \"Risk-On\", \"Cautious\", \"Risk-Off\"'),
+  "components": zod.array(zod.object({
+  "key": zod.string(),
+  "label": zod.string(),
+  "score": zod.number().nullable().describe('Component score 0-100, or null if unavailable'),
+  "method": zod.enum(['computed', 'proxy', 'unavailable']).describe('How this component was derived'),
+  "description": zod.string().describe('Plain-English explanation of what drove this reading')
+})).describe('All 10 regime components with method and score'),
+  "confidence": zod.number().describe('Model confidence 0-100 based on data availability'),
+  "drivers": zod.string().describe('Plain-English explanation of main regime drivers')
 }),
   "allocations": zod.array(zod.object({
   "ticker": zod.string(),
@@ -338,7 +407,28 @@ export const GetSessionResponse = zod.object({
   "label": zod.string(),
   "status": zod.enum(['pending', 'running', 'done', 'error']),
   "message": zod.string().nullable()
-}))
+})),
+  "watchlist": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "compositeScore": zod.number().describe('Composite factor score 0-100'),
+  "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
+  "blockingFactor": zod.string().describe('The specific factor or rule that blocked inclusion'),
+  "improvement": zod.string().describe('What needs to change for this ETF to enter the portfolio')
+})).describe('Near-miss ETFs that almost entered the portfolio'),
+  "icSummary": zod.object({
+  "whatChanged": zod.string().describe('Position and cash changes vs prior month'),
+  "why": zod.string().describe('Regime-based explanation for the allocation'),
+  "risks": zod.string().describe('Key risks and weak signals from the model'),
+  "watchNext": zod.string().describe('What to monitor before the next rebalance')
+}),
+  "iterationInfo": zod.object({
+  "current": zod.number().describe('Current iteration number'),
+  "max": zod.number().describe('Maximum planned iterations'),
+  "completed": zod.array(zod.string()).describe('Completed milestone labels'),
+  "next": zod.array(zod.string()).describe('Recommended next items')
+})
 })
 })
 

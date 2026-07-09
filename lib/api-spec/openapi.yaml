@@ -531,6 +531,25 @@ components:
           type: boolean
       required: [ticker, name, sector, weight, priorWeight, change, factorScores, active]
 
+    RegimeComponent:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        score:
+          type: ["number", "null"]
+          description: Component score 0-100, or null if unavailable
+        method:
+          type: string
+          enum: [computed, proxy, unavailable]
+          description: How this component was derived
+        description:
+          type: string
+          description: Plain-English explanation of what drove this reading
+      required: [key, label, score, method, description]
+
     RegimeScores:
       type: object
       properties:
@@ -552,7 +571,79 @@ components:
         label:
           type: string
           description: Human-readable regime label e.g. "Risk-On", "Cautious", "Risk-Off"
-      required: [trend, breadth, volatility, liquidity, composite, label]
+        components:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegimeComponent"
+          description: All 10 regime components with method and score
+        confidence:
+          type: number
+          description: Model confidence 0-100 based on data availability
+        drivers:
+          type: string
+          description: Plain-English explanation of main regime drivers
+      required: [trend, breadth, volatility, liquidity, composite, label, components, confidence, drivers]
+
+    WatchlistEntry:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        sector:
+          type: string
+        compositeScore:
+          type: number
+          description: Composite factor score 0-100
+        blockingReason:
+          type: string
+          enum: [score_below_threshold, rank_cutoff, no_price_data]
+        blockingFactor:
+          type: string
+          description: The specific factor or rule that blocked inclusion
+        improvement:
+          type: string
+          description: What needs to change for this ETF to enter the portfolio
+      required: [ticker, name, sector, compositeScore, blockingReason, blockingFactor, improvement]
+
+    IcSummary:
+      type: object
+      properties:
+        whatChanged:
+          type: string
+          description: Position and cash changes vs prior month
+        why:
+          type: string
+          description: Regime-based explanation for the allocation
+        risks:
+          type: string
+          description: Key risks and weak signals from the model
+        watchNext:
+          type: string
+          description: What to monitor before the next rebalance
+      required: [whatChanged, why, risks, watchNext]
+
+    IterationInfo:
+      type: object
+      properties:
+        current:
+          type: integer
+          description: Current iteration number
+        max:
+          type: integer
+          description: Maximum planned iterations
+        completed:
+          type: array
+          items:
+            type: string
+          description: Completed milestone labels
+        next:
+          type: array
+          items:
+            type: string
+          description: Recommended next items
+      required: [current, max, completed, next]
 
     RunResult:
       type: object
@@ -588,7 +679,16 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PipelineStep"
-      required: [sessionId, runAt, label, regime, allocations, cashWeight, cashPriorWeight, cashChange, activeEtfCount, investedSleeve, priceDataEnd, steps]
+        watchlist:
+          type: array
+          items:
+            $ref: "#/components/schemas/WatchlistEntry"
+          description: Near-miss ETFs that almost entered the portfolio
+        icSummary:
+          $ref: "#/components/schemas/IcSummary"
+        iterationInfo:
+          $ref: "#/components/schemas/IterationInfo"
+      required: [sessionId, runAt, label, regime, allocations, cashWeight, cashPriorWeight, cashChange, activeEtfCount, investedSleeve, priceDataEnd, steps, watchlist, icSummary, iterationInfo]
 
     PipelineStep:
       type: object

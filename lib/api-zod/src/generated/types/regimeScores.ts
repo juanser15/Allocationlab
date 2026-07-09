@@ -5,6 +5,7 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+import type { RegimeComponent } from './regimeComponent';
 
 export interface RegimeScores {
   /** Trend score 0-100 */
@@ -19,4 +20,10 @@ export interface RegimeScores {
   composite: number;
   /** Human-readable regime label e.g. "Risk-On", "Cautious", "Risk-Off" */
   label: string;
+  /** All 10 regime components with method and score */
+  components: RegimeComponent[];
+  /** Model confidence 0-100 based on data availability */
+  confidence: number;
+  /** Plain-English explanation of main regime drivers */
+  drivers: string;
 }

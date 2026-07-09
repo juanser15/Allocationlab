@@ -149,6 +149,32 @@ export interface EtfAllocation {
   active: boolean;
 }
 
+/**
+ * How this component was derived
+ */
+export type RegimeComponentMethod = typeof RegimeComponentMethod[keyof typeof RegimeComponentMethod];
+
+
+export const RegimeComponentMethod = {
+  computed: 'computed',
+  proxy: 'proxy',
+  unavailable: 'unavailable',
+} as const;
+
+export interface RegimeComponent {
+  key: string;
+  label: string;
+  /**
+     * Component score 0-100, or null if unavailable
+     * @nullable
+     */
+  score: number | null;
+  /** How this component was derived */
+  method: RegimeComponentMethod;
+  /** Plain-English explanation of what drove this reading */
+  description: string;
+}
+
 export interface RegimeScores {
   /** Trend score 0-100 */
   trend: number;
@@ -162,6 +188,56 @@ export interface RegimeScores {
   composite: number;
   /** Human-readable regime label e.g. "Risk-On", "Cautious", "Risk-Off" */
   label: string;
+  /** All 10 regime components with method and score */
+  components: RegimeComponent[];
+  /** Model confidence 0-100 based on data availability */
+  confidence: number;
+  /** Plain-English explanation of main regime drivers */
+  drivers: string;
+}
+
+export type WatchlistEntryBlockingReason = typeof WatchlistEntryBlockingReason[keyof typeof WatchlistEntryBlockingReason];
+
+
+export const WatchlistEntryBlockingReason = {
+  score_below_threshold: 'score_below_threshold',
+  rank_cutoff: 'rank_cutoff',
+  no_price_data: 'no_price_data',
+} as const;
+
+export interface WatchlistEntry {
+  ticker: string;
+  name: string;
+  sector: string;
+  /** Composite factor score 0-100 */
+  compositeScore: number;
+  blockingReason: WatchlistEntryBlockingReason;
+  /** The specific factor or rule that blocked inclusion */
+  blockingFactor: string;
+  /** What needs to change for this ETF to enter the portfolio */
+  improvement: string;
+}
+
+export interface IcSummary {
+  /** Position and cash changes vs prior month */
+  whatChanged: string;
+  /** Regime-based explanation for the allocation */
+  why: string;
+  /** Key risks and weak signals from the model */
+  risks: string;
+  /** What to monitor before the next rebalance */
+  watchNext: string;
+}
+
+export interface IterationInfo {
+  /** Current iteration number */
+  current: number;
+  /** Maximum planned iterations */
+  max: number;
+  /** Completed milestone labels */
+  completed: string[];
+  /** Recommended next items */
+  next: string[];
 }
 
 export type PipelineStepStatus = typeof PipelineStepStatus[keyof typeof PipelineStepStatus];
@@ -199,6 +275,10 @@ export interface RunResult {
   /** Last date of price data used */
   priceDataEnd: string;
   steps: PipelineStep[];
+  /** Near-miss ETFs that almost entered the portfolio */
+  watchlist: WatchlistEntry[];
+  icSummary: IcSummary;
+  iterationInfo: IterationInfo;
 }
 
 export interface Session {
