@@ -550,6 +550,155 @@ export const GetEtfDetailResponse = zod.object({
 
 
 /**
+ * @summary List all committee decision log entries, most recent first
+ */
+export const ListDecisionLogsResponseItem = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number(),
+  "portfolioVersion": zod.string(),
+  "status": zod.enum(['draft', 'under_review', 'approved']),
+  "regimeLabel": zod.string(),
+  "regimeComposite": zod.number(),
+  "content": zod.object({
+  "marketView": zod.string(),
+  "keyRisks": zod.array(zod.string()),
+  "tradeList": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "action": zod.enum(['ADD', 'INCREASE', 'DECREASE', 'TRIM', 'REMOVE', 'HOLD']),
+  "fromWeight": zod.number(),
+  "toWeight": zod.number(),
+  "deltaWeight": zod.number(),
+  "compositeScore": zod.number(),
+  "rationale": zod.string()
+})),
+  "watchlist": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "compositeScore": zod.number(),
+  "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
+  "blockingFactor": zod.string(),
+  "improvement": zod.string()
+})),
+  "cashWeight": zod.number(),
+  "cashChange": zod.number(),
+  "activeEtfCount": zod.number()
+}),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "approvedAt": zod.string().nullable(),
+  "approvedBy": zod.string().nullable()
+})
+export const ListDecisionLogsResponse = zod.array(ListDecisionLogsResponseItem)
+
+
+/**
+ * @summary Get the decision log for a session, auto-generating a Draft entry from that session's results if none exists
+ */
+export const GetOrCreateDecisionLogParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const GetOrCreateDecisionLogResponse = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number(),
+  "portfolioVersion": zod.string(),
+  "status": zod.enum(['draft', 'under_review', 'approved']),
+  "regimeLabel": zod.string(),
+  "regimeComposite": zod.number(),
+  "content": zod.object({
+  "marketView": zod.string(),
+  "keyRisks": zod.array(zod.string()),
+  "tradeList": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "action": zod.enum(['ADD', 'INCREASE', 'DECREASE', 'TRIM', 'REMOVE', 'HOLD']),
+  "fromWeight": zod.number(),
+  "toWeight": zod.number(),
+  "deltaWeight": zod.number(),
+  "compositeScore": zod.number(),
+  "rationale": zod.string()
+})),
+  "watchlist": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "compositeScore": zod.number(),
+  "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
+  "blockingFactor": zod.string(),
+  "improvement": zod.string()
+})),
+  "cashWeight": zod.number(),
+  "cashChange": zod.number(),
+  "activeEtfCount": zod.number()
+}),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "approvedAt": zod.string().nullable(),
+  "approvedBy": zod.string().nullable()
+})
+
+
+/**
+ * @summary Transition a decision log through Draft -> Under Review -> Approved (or back to Draft)
+ */
+export const UpdateDecisionLogStatusParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateDecisionLogStatusBody = zod.object({
+  "status": zod.enum(['draft', 'under_review', 'approved']),
+  "approvedBy": zod.string().optional()
+})
+
+export const UpdateDecisionLogStatusResponse = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number(),
+  "portfolioVersion": zod.string(),
+  "status": zod.enum(['draft', 'under_review', 'approved']),
+  "regimeLabel": zod.string(),
+  "regimeComposite": zod.number(),
+  "content": zod.object({
+  "marketView": zod.string(),
+  "keyRisks": zod.array(zod.string()),
+  "tradeList": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "action": zod.enum(['ADD', 'INCREASE', 'DECREASE', 'TRIM', 'REMOVE', 'HOLD']),
+  "fromWeight": zod.number(),
+  "toWeight": zod.number(),
+  "deltaWeight": zod.number(),
+  "compositeScore": zod.number(),
+  "rationale": zod.string()
+})),
+  "watchlist": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "compositeScore": zod.number(),
+  "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
+  "blockingFactor": zod.string(),
+  "improvement": zod.string()
+})),
+  "cashWeight": zod.number(),
+  "cashChange": zod.number(),
+  "activeEtfCount": zod.number()
+}),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "approvedAt": zod.string().nullable(),
+  "approvedBy": zod.string().nullable()
+})
+
+
+/**
  * @summary Run a forward-chained rebalancing backtest across historical price data using stored allocation sessions
  */
 export const GetBacktestQueryParams = zod.object({

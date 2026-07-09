@@ -472,6 +472,81 @@ export interface BacktestResult {
   methodologyNote: string;
 }
 
+export type TradeListEntryAction = typeof TradeListEntryAction[keyof typeof TradeListEntryAction];
+
+
+export const TradeListEntryAction = {
+  ADD: 'ADD',
+  INCREASE: 'INCREASE',
+  DECREASE: 'DECREASE',
+  TRIM: 'TRIM',
+  REMOVE: 'REMOVE',
+  HOLD: 'HOLD',
+} as const;
+
+export interface TradeListEntry {
+  ticker: string;
+  name: string;
+  sector: string;
+  action: TradeListEntryAction;
+  fromWeight: number;
+  toWeight: number;
+  deltaWeight: number;
+  compositeScore: number;
+  rationale: string;
+}
+
+export interface DecisionLogContent {
+  marketView: string;
+  keyRisks: string[];
+  tradeList: TradeListEntry[];
+  watchlist: WatchlistEntry[];
+  cashWeight: number;
+  cashChange: number;
+  activeEtfCount: number;
+}
+
+export type DecisionLogStatus = typeof DecisionLogStatus[keyof typeof DecisionLogStatus];
+
+
+export const DecisionLogStatus = {
+  draft: 'draft',
+  under_review: 'under_review',
+  approved: 'approved',
+} as const;
+
+export interface DecisionLog {
+  id: number;
+  sessionId: number;
+  portfolioVersion: string;
+  status: DecisionLogStatus;
+  regimeLabel: string;
+  regimeComposite: number;
+  content: DecisionLogContent;
+  createdAt: string;
+  updatedAt: string;
+  /** @nullable */
+  submittedAt: string | null;
+  /** @nullable */
+  approvedAt: string | null;
+  /** @nullable */
+  approvedBy: string | null;
+}
+
+export type DecisionLogStatusInputStatus = typeof DecisionLogStatusInputStatus[keyof typeof DecisionLogStatusInputStatus];
+
+
+export const DecisionLogStatusInputStatus = {
+  draft: 'draft',
+  under_review: 'under_review',
+  approved: 'approved',
+} as const;
+
+export interface DecisionLogStatusInput {
+  status: DecisionLogStatusInputStatus;
+  approvedBy?: string;
+}
+
 export type GetBacktestParams = {
 benchmark?: string;
 };

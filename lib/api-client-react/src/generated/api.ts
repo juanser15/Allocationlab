@@ -23,6 +23,8 @@ import type {
   BacktestResult,
   Constraints,
   ConstraintsInput,
+  DecisionLog,
+  DecisionLogStatusInput,
   ErrorResponse,
   EtfDetail,
   GetBacktestParams,
@@ -1102,6 +1104,231 @@ export function useGetEtfDetail<TData = Awaited<ReturnType<typeof getEtfDetail>>
 
 
 
+
+export const getListDecisionLogsUrl = () => {
+
+
+
+
+  return `/api/decision-log`
+}
+
+/**
+ * @summary List all committee decision log entries, most recent first
+ */
+export const listDecisionLogs = async ( options?: RequestInit): Promise<DecisionLog[]> => {
+
+  return customFetch<DecisionLog[]>(getListDecisionLogsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListDecisionLogsQueryKey = () => {
+    return [
+    `/api/decision-log`
+    ] as const;
+    }
+
+
+export const getListDecisionLogsQueryOptions = <TData = Awaited<ReturnType<typeof listDecisionLogs>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDecisionLogs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListDecisionLogsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listDecisionLogs>>> = ({ signal }) => listDecisionLogs({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listDecisionLogs>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListDecisionLogsQueryResult = NonNullable<Awaited<ReturnType<typeof listDecisionLogs>>>
+export type ListDecisionLogsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all committee decision log entries, most recent first
+ */
+
+export function useListDecisionLogs<TData = Awaited<ReturnType<typeof listDecisionLogs>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDecisionLogs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListDecisionLogsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetOrCreateDecisionLogUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/decision-log/${sessionId}`
+}
+
+/**
+ * @summary Get the decision log for a session, auto-generating a Draft entry from that session's results if none exists
+ */
+export const getOrCreateDecisionLog = async (sessionId: number, options?: RequestInit): Promise<DecisionLog> => {
+
+  return customFetch<DecisionLog>(getGetOrCreateDecisionLogUrl(sessionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetOrCreateDecisionLogQueryKey = (sessionId: number,) => {
+    return [
+    `/api/decision-log/${sessionId}`
+    ] as const;
+    }
+
+
+export const getGetOrCreateDecisionLogQueryOptions = <TData = Awaited<ReturnType<typeof getOrCreateDecisionLog>>, TError = ErrorType<ErrorResponse>>(sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOrCreateDecisionLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetOrCreateDecisionLogQueryKey(sessionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOrCreateDecisionLog>>> = ({ signal }) => getOrCreateDecisionLog(sessionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: sessionId !== null && sessionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOrCreateDecisionLog>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetOrCreateDecisionLogQueryResult = NonNullable<Awaited<ReturnType<typeof getOrCreateDecisionLog>>>
+export type GetOrCreateDecisionLogQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get the decision log for a session, auto-generating a Draft entry from that session's results if none exists
+ */
+
+export function useGetOrCreateDecisionLog<TData = Awaited<ReturnType<typeof getOrCreateDecisionLog>>, TError = ErrorType<ErrorResponse>>(
+ sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOrCreateDecisionLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetOrCreateDecisionLogQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateDecisionLogStatusUrl = (id: number,) => {
+
+
+
+
+  return `/api/decision-log/${id}/status`
+}
+
+/**
+ * @summary Transition a decision log through Draft -> Under Review -> Approved (or back to Draft)
+ */
+export const updateDecisionLogStatus = async (id: number,
+    decisionLogStatusInput: DecisionLogStatusInput, options?: RequestInit): Promise<DecisionLog> => {
+
+  return customFetch<DecisionLog>(getUpdateDecisionLogStatusUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(decisionLogStatusInput)
+  }
+);}
+
+
+
+
+export const getUpdateDecisionLogStatusMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDecisionLogStatus>>, TError,{id: number;data: BodyType<DecisionLogStatusInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDecisionLogStatus>>, TError,{id: number;data: BodyType<DecisionLogStatusInput>}, TContext> => {
+
+const mutationKey = ['updateDecisionLogStatus'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDecisionLogStatus>>, {id: number;data: BodyType<DecisionLogStatusInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateDecisionLogStatus(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateDecisionLogStatusMutationResult = NonNullable<Awaited<ReturnType<typeof updateDecisionLogStatus>>>
+    export type UpdateDecisionLogStatusMutationBody = BodyType<DecisionLogStatusInput>
+    export type UpdateDecisionLogStatusMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Transition a decision log through Draft -> Under Review -> Approved (or back to Draft)
+ */
+export const useUpdateDecisionLogStatus = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDecisionLogStatus>>, TError,{id: number;data: BodyType<DecisionLogStatusInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateDecisionLogStatus>>,
+        TError,
+        {id: number;data: BodyType<DecisionLogStatusInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateDecisionLogStatusMutationOptions(options));
+    }
 
 export const getGetBacktestUrl = (params?: GetBacktestParams,) => {
   const normalizedParams = new URLSearchParams();

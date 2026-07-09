@@ -598,6 +598,174 @@ export function generateIcSummary(regime: EnrichedRegimeScores, cashWeight: numb
   return { whatChanged, why: regime.drivers, risks: riskParts.length > 0 ? riskParts.join(" ") : "No acute risk signals from available components.", watchNext: watchParts.join(" ") };
 }
 
+// ── Decision Log / PM Decision Room ─────────────────────────────────────────
+
+export type TradeAction = "ADD" | "INCREASE" | "DECREASE" | "TRIM" | "REMOVE" | "HOLD";
+
+export interface TradeListEntry {
+  ticker: string;
+  name: string;
+  sector: string;
+  action: TradeAction;
+  fromWeight: number;
+  toWeight: number;
+  deltaWeight: number;
+  compositeScore: number;
+  rationale: string;
+}
+
+const FACTOR_LABELS: Record<string, string> = {
+  mom20: "20d Momentum",
+  mom60: "60d Momentum",
+  mom120: "120d Momentum",
+  mom252: "252d Momentum",
+  trendQuality: "Trend Quality",
+  realizedVol60: "Low Volatility",
+  drawdown: "Drawdown Resilience",
+  meanReversion: "Mean Reversion",
+};
+
+function topFactors(fs: FactorScores, n: number): Array<[string, number]> {
+  return (Object.keys(FACTOR_LABELS) as Array<keyof typeof FACTOR_LABELS>)
+    .map((k) => [FACTOR_LABELS[k], fs[k as keyof FactorScores]] as [string, number])
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n);
+}
+
+function bottomFactors(fs: FactorScores, n: number): Array<[string, number]> {
+  return (Object.keys(FACTOR_LABELS) as Array<keyof typeof FACTOR_LABELS>)
+    .map((k) => [FACTOR_LABELS[k], fs[k as keyof FactorScores]] as [string, number])
+    .sort((a, b) => a[1] - b[1])
+    .slice(0, n);
+}
+
+/**
+ * Builds an institutional-grade rationale for a single allocation change,
+ * tying the weight change back to the specific factors and regime backdrop
+ * that drove it — never generic boilerplate.
+ */
+function buildTradeRationale(
+  action: TradeAction,
+  ticker: string,
+  fs: FactorScores,
+  regime: EnrichedRegimeScores,
+  fromWeight: number,
+  toWeight: number,
+  minInclusionThreshold: number,
+): string {
+  const deltaPts = Math.abs((toWeight - fromWeight) * 100).toFixed(1);
+  const strong = topFactors(fs, 2);
+  const weak = bottomFactors(fs, 1)[0];
+  const strongText = strong.map(([label, v]) => `${label} (${v.toFixed(0)})`).join(" and ");
+  const regimeText = `${regime.label.toLowerCase()} regime (composite ${regime.composite.toFixed(0)})`;
+
+  switch (action) {
+    case "ADD":
+      return `New position at ${(toWeight * 100).toFixed(1)}%. Composite score of ${fs.composite.toFixed(0)} led by ${strongText}, supported by the ${regimeText}.`;
+    case "INCREASE":
+      return `Increased +${deltaPts}pp to ${(toWeight * 100).toFixed(1)}% on continued strength in ${strongText}. Composite ${fs.composite.toFixed(0)}, consistent with the ${regimeText}.`;
+    case "DECREASE":
+    case "TRIM":
+      return `Trimmed ${deltaPts}pp to ${(toWeight * 100).toFixed(1)}% as ${weak[0]} weakened to ${weak[0] === "Low Volatility" ? weak[1].toFixed(0) : weak[1].toFixed(0)}, pulling composite to ${fs.composite.toFixed(0)}.`;
+    case "REMOVE":
+      return `Exited position; composite fell to ${fs.composite.toFixed(0)}, below the ${minInclusionThreshold}pt inclusion threshold. Weakest factor: ${weak[0]} (${weak[1].toFixed(0)}).`;
+    default:
+      return `Held at ${(toWeight * 100).toFixed(1)}%. Composite ${fs.composite.toFixed(0)}, factors broadly unchanged (${strongText}).`;
+  }
+}
+
+/** Builds a full, ranked trade list from allocation changes, each with a factor-tied rationale. */
+export function generateTradeList(
+  allocations: AllocationResult[],
+  regime: EnrichedRegimeScores,
+  minInclusionThreshold: number,
+  includeHolds = false,
+): TradeListEntry[] {
+  const entries: TradeListEntry[] = [];
+  for (const a of allocations) {
+    const deltaWeight = a.change;
+    let action: TradeAction;
+    if (a.active && a.priorWeight < 0.001) action = "ADD";
+    else if (!a.active && a.priorWeight >= 0.001) action = "REMOVE";
+    else if (deltaWeight > 0.005) action = "INCREASE";
+    else if (deltaWeight < -0.005) action = "DECREASE";
+    else action = "HOLD";
+
+    if (action === "HOLD" && !includeHolds) continue;
+
+    entries.push({
+      ticker: a.ticker,
+      name: a.name,
+      sector: a.sector,
+      action,
+      fromWeight: round4(a.priorWeight),
+      toWeight: round4(a.weight),
+      deltaWeight: round4(deltaWeight),
+      compositeScore: round2(a.factorScores.composite),
+      rationale: buildTradeRationale(action, a.ticker, a.factorScores, regime, a.priorWeight, a.weight, minInclusionThreshold),
+    });
+  }
+  const rank: Record<TradeAction, number> = { ADD: 0, INCREASE: 1, DECREASE: 2, TRIM: 2, REMOVE: 3, HOLD: 4 };
+  entries.sort((x, y) => rank[x.action] - rank[y.action] || Math.abs(y.deltaWeight) - Math.abs(x.deltaWeight));
+  return entries;
+}
+
+/** Institutional market-view paragraph tying the regime backdrop directly to the resulting positioning. */
+export function generateMarketView(regime: EnrichedRegimeScores, cashWeight: number, activeEtfCount: number): string {
+  const supportive = regime.components.filter((c) => c.score !== null && c.score >= 55).map((c) => c.label);
+  const weak = regime.components.filter((c) => c.score !== null && c.score <= 40).map((c) => c.label);
+  const supportText = supportive.length > 0 ? `Supported by ${supportive.join(", ")}.` : "No components showing clear strength.";
+  const weakText = weak.length > 0 ? ` Headwinds from ${weak.join(", ")}.` : "";
+  return `The model reads a ${regime.label} regime (composite ${regime.composite.toFixed(0)}/100, confidence ${regime.confidence.toFixed(0)}%). ${supportText}${weakText} Positioning reflects this backdrop with ${(cashWeight * 100).toFixed(1)}% in cash and ${activeEtfCount} active ETF sleeves.`;
+}
+
+/** Structured key-risk bullets (regime softness, concentration, data coverage) for the committee. */
+export function generateKeyRisks(regime: EnrichedRegimeScores, cashWeight: number, diagnostics: PortfolioDiagnostics): string[] {
+  const risks: string[] = [];
+  const weak = regime.components.filter((c) => c.score !== null && c.score <= 40).map((c) => c.label);
+  if (weak.length > 0) risks.push(`Weak regime readings in ${weak.join(", ")} increase the odds of a near-term reversal in positioning.`);
+  if (regime.volatility < 45) risks.push("Elevated realized volatility warrants caution on position sizing and tighter rebalancing bands.");
+  if (cashWeight >= 0.58) risks.push("High cash allocation reflects model defensiveness — opportunity cost if the regime firms up quickly.");
+  const unavailable = regime.components.filter((c) => c.method === "unavailable").length;
+  if (unavailable >= 3) risks.push(`${unavailable} regime components (Dollar, Rates, Earnings Revision) are unavailable — external macro judgment should supplement the model.`);
+  if (diagnostics.effectiveNumberOfBets > 0 && diagnostics.effectiveNumberOfBets < 5) risks.push(`Effective number of bets is low (${diagnostics.effectiveNumberOfBets.toFixed(1)}), indicating concentration risk in the invested sleeve.`);
+  if (diagnostics.hhi > 0.15) risks.push(`HHI of ${diagnostics.hhi.toFixed(3)} signals meaningful concentration among active positions.`);
+  if (risks.length === 0) risks.push("No acute risk signals from available components this cycle.");
+  return risks;
+}
+
+export interface DecisionLogContent {
+  marketView: string;
+  keyRisks: string[];
+  tradeList: TradeListEntry[];
+  watchlist: WatchlistEntry[];
+  cashWeight: number;
+  cashChange: number;
+  activeEtfCount: number;
+}
+
+/** Aggregates the full PM decision-room content for a session — the audit snapshot stored in the Decision Log. */
+export function buildDecisionLogContent(
+  regime: EnrichedRegimeScores,
+  allocations: AllocationResult[],
+  watchlist: WatchlistEntry[],
+  diagnostics: PortfolioDiagnostics,
+  cashWeight: number,
+  cashChange: number,
+  activeEtfCount: number,
+  minInclusionThreshold: number,
+): DecisionLogContent {
+  return {
+    marketView: generateMarketView(regime, cashWeight, activeEtfCount),
+    keyRisks: generateKeyRisks(regime, cashWeight, diagnostics),
+    tradeList: generateTradeList(allocations, regime, minInclusionThreshold),
+    watchlist,
+    cashWeight,
+    cashChange,
+    activeEtfCount,
+  };
+}
+
 // ── Portfolio Diagnostics ────────────────────────────────────────────────────
 
 /** Known benchmark tickers to auto-detect from price data. */

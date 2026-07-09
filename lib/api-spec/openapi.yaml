@@ -289,6 +289,83 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /decision-log:
+    get:
+      operationId: listDecisionLogs
+      tags: [decision-log]
+      summary: List all committee decision log entries, most recent first
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DecisionLog"
+
+  /decision-log/{sessionId}:
+    get:
+      operationId: getOrCreateDecisionLog
+      tags: [decision-log]
+      summary: Get the decision log for a session, auto-generating a Draft entry from that session's results if none exists
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionLog"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /decision-log/{id}/status:
+    patch:
+      operationId: updateDecisionLogStatus
+      tags: [decision-log]
+      summary: Transition a decision log through Draft -> Under Review -> Approved (or back to Draft)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DecisionLogStatusInput"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionLog"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /backtest:
     get:
       operationId: getBacktest
@@ -1027,3 +1104,92 @@ components:
         methodologyNote:
           type: string
       required: [hasSufficientData, insufficientReason, startDate, endDate, tradingDays, canAnnualize, equityCurve, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown, avgTurnover, monthlyReturns, periods, narrative, benchmarkTicker, benchmarkCumulativeReturn, benchmarkAnnualizedReturn, benchmarkUnavailableReason, availableBenchmarkTickers, methodologyNote]
+
+    TradeListEntry:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        sector:
+          type: string
+        action:
+          type: string
+          enum: [ADD, INCREASE, DECREASE, TRIM, REMOVE, HOLD]
+        fromWeight:
+          type: number
+        toWeight:
+          type: number
+        deltaWeight:
+          type: number
+        compositeScore:
+          type: number
+        rationale:
+          type: string
+      required: [ticker, name, sector, action, fromWeight, toWeight, deltaWeight, compositeScore, rationale]
+
+    DecisionLogContent:
+      type: object
+      properties:
+        marketView:
+          type: string
+        keyRisks:
+          type: array
+          items:
+            type: string
+        tradeList:
+          type: array
+          items:
+            $ref: "#/components/schemas/TradeListEntry"
+        watchlist:
+          type: array
+          items:
+            $ref: "#/components/schemas/WatchlistEntry"
+        cashWeight:
+          type: number
+        cashChange:
+          type: number
+        activeEtfCount:
+          type: integer
+      required: [marketView, keyRisks, tradeList, watchlist, cashWeight, cashChange, activeEtfCount]
+
+    DecisionLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: integer
+        portfolioVersion:
+          type: string
+        status:
+          type: string
+          enum: [draft, under_review, approved]
+        regimeLabel:
+          type: string
+        regimeComposite:
+          type: integer
+        content:
+          $ref: "#/components/schemas/DecisionLogContent"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        submittedAt:
+          type: ["string", "null"]
+        approvedAt:
+          type: ["string", "null"]
+        approvedBy:
+          type: ["string", "null"]
+      required: [id, sessionId, portfolioVersion, status, regimeLabel, regimeComposite, content, createdAt, updatedAt, submittedAt, approvedAt, approvedBy]
+
+    DecisionLogStatusInput:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [draft, under_review, approved]
+        approvedBy:
+          type: string
+      required: [status]

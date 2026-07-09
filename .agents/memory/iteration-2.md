@@ -4,7 +4,7 @@ description: Tracks which build iteration the app is on and what has been comple
 ---
 
 ## Current state
-Iteration 6 of 10, completed 2026-07-09. (Note: an earlier memory entry said "5 of 5, extended" — the roadmap cap is 10, not 5; trust `CURRENT_ITERATION`/`MAX_ITERATIONS` constants in investment-committee.tsx and methodology.tsx as the source of truth if this drifts again.)
+Iteration 7 of 10, completed 2026-07-09. (Note: an earlier memory entry said "5 of 5, extended" — the roadmap cap is 10, not 5; trust `CURRENT_ITERATION`/`MAX_ITERATIONS` constants in investment-committee.tsx and methodology.tsx as the source of truth if this drifts again.)
 
 ## Completed
 1. Core UI scaffold & navigation
@@ -19,11 +19,16 @@ Iteration 6 of 10, completed 2026-07-09. (Note: an earlier memory entry said "5 
 10. ETF Explorer (price chart, factor breakdown, score history, IC narrative, clickable links)
 11. Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)
 12. Committee Report Builder: editable title/subtitle/date/portfolio/note, quality checklist, preview mode, one-page landscape PDF/PNG/CSV export
+13. PM Decision Room: Market View/Key Risks/Portfolio Actions/Watchlist/Trade List cards with per-trade rationale generated from factor+regime data, plus an auditable Decision Log (draft/under_review/approved workflow, JSONB content snapshot)
 
 ## Planned next
 - Historical regime trend chart (rolling composite over time)
 - Session comparison view (diff two runs)
 - Dollar & Rates components (add DXY, IEF/TLT to universe)
+
+## Decision Log design note
+**Why:** the Decision Log must be an audit trail, not a live view — content is generated once (via `buildDecisionLogContent` in calculator.ts) and persisted as a JSONB snapshot on first GET for a session, then never regenerated automatically.
+**How to apply:** if allocation/rationale logic changes later, existing decision logs will keep their original snapshot; only new sessions get the updated rationale. Status transitions are restricted (draft→under_review→approved, with a manual revert-to-draft escape hatch) — see `FORWARD_TRANSITIONS` in `artifacts/api-server/src/routes/decision-log.ts`.
 
 ## Backtesting design note
 **Why:** all sessions are run "now" against uploaded historical CSV data, so no price data exists after the last session — scoping the backtest window to dates ≥ first session's runAt yields 0 tradeable days. Fix: use the entire uploaded price history and backdate the earliest session's weights to pre-existing dates, disclosed via an explicit `methodologyNote` in the API response.

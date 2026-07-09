@@ -9,6 +9,7 @@ import sessionsRouter from "./sessions";
 import reportsRouter from "./reports";
 import etfRouter from "./etf";
 import backtestRouter from "./backtest";
+import decisionLogRouter from "./decision-log";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(sessionsRouter);
 router.use(reportsRouter);
 router.use(etfRouter);
 router.use(backtestRouter);
+router.use(decisionLogRouter);
 
 export default router;

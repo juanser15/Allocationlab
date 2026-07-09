@@ -22,7 +22,7 @@ import { getLatestPriceData } from "./prices";
 const router: IRouter = Router();
 
 const ITERATION_INFO = {
-  current: 6,
+  current: 7,
   max: 10,
   completed: [
     "Core UI scaffold & navigation",
@@ -37,6 +37,7 @@ const ITERATION_INFO = {
     "ETF Explorer (price chart, factor breakdown, score history, IC narrative, clickable links)",
     "Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)",
     "Committee report builder (editable one-page report, preview mode, polished PDF/PNG export, quality checklist)",
+    "PM Decision Room with structured recommendation cards and an auditable Decision Log",
   ],
   next: [
     "Historical regime trend chart (rolling composite over time)",

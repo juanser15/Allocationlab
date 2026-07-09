@@ -1,3 +1,3 @@
-- [Iteration tracking](iteration-2.md) — Allocation Lab is now at Iteration 6/10 (Committee Report Builder done); next items are regime trend chart, session comparison, Dollar/Rates components.
+- [Iteration tracking](iteration-2.md) — Allocation Lab is now at Iteration 7/10 (PM Decision Room + auditable Decision Log done); next items are regime trend chart, session comparison, Dollar/Rates components.
 - [Recharts in flex/grid layouts](recharts-responsive-container.md) — ResponsiveContainer can render blank (0-size) in nested flex/grid preview panels; use fixed width/height PieChart instead when this happens.
 - [Report generate/download flow](report-generate-download-flow.md) — POST /reports/generate returns a JSON downloadToken, not the file; must GET /reports/download/:token to fetch actual PDF/CSV bytes.

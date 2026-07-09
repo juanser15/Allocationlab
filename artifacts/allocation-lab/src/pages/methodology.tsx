@@ -16,8 +16,9 @@ export default function Methodology() {
     { id: 10, label: "ETF Explorer (price chart, factor breakdown, score history, IC narrative, clickable links)", done: true },
     { id: 11, label: "Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)", done: true },
     { id: 12, label: "Committee report builder (editable one-page report, preview mode, polished PDF/PNG export, quality checklist)", done: true },
+    { id: 13, label: "PM Decision Room with structured recommendation cards and an auditable Decision Log", done: true },
   ];
-  const CURRENT_ITERATION = 6;
+  const CURRENT_ITERATION = 7;
   const MAX_ITERATIONS = 10;
 
   return (
