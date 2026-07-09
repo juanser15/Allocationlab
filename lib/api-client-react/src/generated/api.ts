@@ -20,10 +20,12 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  BacktestResult,
   Constraints,
   ConstraintsInput,
   ErrorResponse,
   EtfDetail,
+  GetBacktestParams,
   HealthStatus,
   LivePricesFetchInput,
   LivePricesResult,
@@ -1089,6 +1091,90 @@ export function useGetEtfDetail<TData = Awaited<ReturnType<typeof getEtfDetail>>
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetEtfDetailQueryOptions(ticker,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetBacktestUrl = (params?: GetBacktestParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/backtest?${stringifiedParams}` : `/api/backtest`
+}
+
+/**
+ * @summary Run a forward-chained rebalancing backtest across historical price data using stored allocation sessions
+ */
+export const getBacktest = async (params?: GetBacktestParams, options?: RequestInit): Promise<BacktestResult> => {
+
+  return customFetch<BacktestResult>(getGetBacktestUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBacktestQueryKey = (params?: GetBacktestParams,) => {
+    return [
+    `/api/backtest`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetBacktestQueryOptions = <TData = Awaited<ReturnType<typeof getBacktest>>, TError = ErrorType<unknown>>(params?: GetBacktestParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBacktest>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBacktestQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBacktest>>> = ({ signal }) => getBacktest(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBacktest>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetBacktestQueryResult = NonNullable<Awaited<ReturnType<typeof getBacktest>>>
+export type GetBacktestQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Run a forward-chained rebalancing backtest across historical price data using stored allocation sessions
+ */
+
+export function useGetBacktest<TData = Awaited<ReturnType<typeof getBacktest>>, TError = ErrorType<unknown>>(
+ params?: GetBacktestParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBacktest>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetBacktestQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

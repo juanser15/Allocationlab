@@ -11,6 +11,7 @@ import Reports from "@/pages/reports";
 import Methodology from "@/pages/methodology";
 import PortfolioDiagnostics from "@/pages/diagnostics";
 import EtfDetail from "@/pages/etf-detail";
+import Backtesting from "@/pages/backtesting";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +31,7 @@ function Router() {
         <Route path="/results" component={ResultsDashboard} />
         <Route path="/diagnostics" component={PortfolioDiagnostics} />
         <Route path="/etf/:ticker" component={EtfDetail} />
+        <Route path="/backtesting" component={Backtesting} />
         <Route path="/reports" component={Reports} />
         <Route path="/methodology" component={Methodology} />
         <Route component={NotFound} />

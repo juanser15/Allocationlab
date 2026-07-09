@@ -375,3 +375,99 @@ export interface EtfDetail {
   priceDataStart: string | null;
 }
 
+export interface BacktestEquityPoint {
+  date: string;
+  /** Portfolio value indexed to 100 at backtest start */
+  portfolioIndex: number;
+  /**
+     * Benchmark value indexed to 100 at backtest start, null if no benchmark selected or unavailable
+     * @nullable
+     */
+  benchmarkIndex: number | null;
+  /** Portfolio drawdown from running peak, as a decimal (negative or zero) */
+  drawdownPct: number;
+}
+
+export interface BacktestMonthlyReturn {
+  /** YYYY-MM */
+  month: string;
+  portfolioReturn: number;
+  /** @nullable */
+  benchmarkReturn: number | null;
+}
+
+export interface BacktestPeriod {
+  sessionId: number;
+  /** @nullable */
+  label: string | null;
+  startDate: string;
+  endDate: string;
+  tradingDays: number;
+  regimeLabel: string;
+  cashWeight: number;
+  /** Top 1-3 held tickers by weight during this period */
+  topHoldings: string[];
+  /**
+     * Compounded portfolio return during this period, null if no overlapping price data
+     * @nullable
+     */
+  periodReturn: number | null;
+  /**
+     * Contribution to total cumulative return, in decimal (sums across periods to cumulativeReturn)
+     * @nullable
+     */
+  contributionPct: number | null;
+  /**
+     * One-way turnover fraction vs prior period's weights, null for the first period
+     * @nullable
+     */
+  turnover: number | null;
+}
+
+export interface BacktestResult {
+  hasSufficientData: boolean;
+  /** @nullable */
+  insufficientReason: string | null;
+  /** @nullable */
+  startDate: string | null;
+  /** @nullable */
+  endDate: string | null;
+  tradingDays: number;
+  /** Whether the sample is long enough (>= 10 trading days) to trust annualized figures */
+  canAnnualize: boolean;
+  equityCurve: BacktestEquityPoint[];
+  /** @nullable */
+  cumulativeReturn: number | null;
+  /** @nullable */
+  annualizedReturn: number | null;
+  /** @nullable */
+  annualizedVolatility: number | null;
+  /** @nullable */
+  sharpeRatio: number | null;
+  /** @nullable */
+  maxDrawdown: number | null;
+  /** @nullable */
+  avgTurnover: number | null;
+  monthlyReturns: BacktestMonthlyReturn[];
+  periods: BacktestPeriod[];
+  /**
+     * Plain-language summary of which rebalances contributed most/least to performance
+     * @nullable
+     */
+  narrative: string | null;
+  /** @nullable */
+  benchmarkTicker: string | null;
+  /** @nullable */
+  benchmarkCumulativeReturn: number | null;
+  /** @nullable */
+  benchmarkAnnualizedReturn: number | null;
+  /** @nullable */
+  benchmarkUnavailableReason: string | null;
+  availableBenchmarkTickers: string[];
+  methodologyNote: string;
+}
+
+export type GetBacktestParams = {
+benchmark?: string;
+};
+

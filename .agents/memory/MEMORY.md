@@ -1,1 +1,1 @@
-- [Iteration tracking](iteration-2.md) — Allocation Lab is now at Iteration 2/10; next items are regime trend chart, session comparison, Dollar/Rates components.
+- [Iteration tracking](iteration-2.md) — Allocation Lab is now at Iteration 5/5 (Backtesting done); next items are regime trend chart, session comparison, Dollar/Rates components.

@@ -14,6 +14,7 @@ export default function Methodology() {
     { id: 8, label: "10-component Market Health module + IC Summary + Watchlist", done: true },
     { id: 9, label: "Portfolio Diagnostics (vol, HHI, ENB, risk contributions, correlation heatmap, tracking error)", done: true },
     { id: 10, label: "ETF Explorer (price chart, factor breakdown, score history, IC narrative, clickable links)", done: true },
+    { id: 11, label: "Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)", done: true },
   ];
 
   return (

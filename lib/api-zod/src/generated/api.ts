@@ -544,3 +544,57 @@ export const GetEtfDetailResponse = zod.object({
 })
 
 
+/**
+ * @summary Run a forward-chained rebalancing backtest across historical price data using stored allocation sessions
+ */
+export const GetBacktestQueryParams = zod.object({
+  "benchmark": zod.coerce.string().optional()
+})
+
+export const GetBacktestResponse = zod.object({
+  "hasSufficientData": zod.boolean(),
+  "insufficientReason": zod.string().nullable(),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "tradingDays": zod.number(),
+  "canAnnualize": zod.boolean().describe('Whether the sample is long enough (>= 10 trading days) to trust annualized figures'),
+  "equityCurve": zod.array(zod.object({
+  "date": zod.string(),
+  "portfolioIndex": zod.number().describe('Portfolio value indexed to 100 at backtest start'),
+  "benchmarkIndex": zod.number().nullable().describe('Benchmark value indexed to 100 at backtest start, null if no benchmark selected or unavailable'),
+  "drawdownPct": zod.number().describe('Portfolio drawdown from running peak, as a decimal (negative or zero)')
+})),
+  "cumulativeReturn": zod.number().nullable(),
+  "annualizedReturn": zod.number().nullable(),
+  "annualizedVolatility": zod.number().nullable(),
+  "sharpeRatio": zod.number().nullable(),
+  "maxDrawdown": zod.number().nullable(),
+  "avgTurnover": zod.number().nullable(),
+  "monthlyReturns": zod.array(zod.object({
+  "month": zod.string().describe('YYYY-MM'),
+  "portfolioReturn": zod.number(),
+  "benchmarkReturn": zod.number().nullable()
+})),
+  "periods": zod.array(zod.object({
+  "sessionId": zod.number(),
+  "label": zod.string().nullable(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "tradingDays": zod.number(),
+  "regimeLabel": zod.string(),
+  "cashWeight": zod.number(),
+  "topHoldings": zod.array(zod.string()).describe('Top 1-3 held tickers by weight during this period'),
+  "periodReturn": zod.number().nullable().describe('Compounded portfolio return during this period, null if no overlapping price data'),
+  "contributionPct": zod.number().nullable().describe('Contribution to total cumulative return, in decimal (sums across periods to cumulativeReturn)'),
+  "turnover": zod.number().nullable().describe('One-way turnover fraction vs prior period\'s weights, null for the first period')
+})),
+  "narrative": zod.string().nullable().describe('Plain-language summary of which rebalances contributed most\/least to performance'),
+  "benchmarkTicker": zod.string().nullable(),
+  "benchmarkCumulativeReturn": zod.number().nullable(),
+  "benchmarkAnnualizedReturn": zod.number().nullable(),
+  "benchmarkUnavailableReason": zod.string().nullable(),
+  "availableBenchmarkTickers": zod.array(zod.string()),
+  "methodologyNote": zod.string()
+})
+
+

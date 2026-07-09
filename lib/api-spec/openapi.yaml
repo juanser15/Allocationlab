@@ -289,6 +289,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /backtest:
+    get:
+      operationId: getBacktest
+      tags: [backtest]
+      summary: Run a forward-chained rebalancing backtest across historical price data using stored allocation sessions
+      parameters:
+        - name: benchmark
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BacktestResult"
+
 components:
   schemas:
     HealthStatus:
@@ -878,3 +897,123 @@ components:
         priceDataStart:
           type: ["string", "null"]
       required: [ticker, name, sector, weight, priorWeight, change, active, inclusionStatus, rank, totalScored, factorScores, explanation, priceHistory, scoreHistory, lookbackRows, priceDataEnd, priceDataStart]
+
+    BacktestEquityPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        portfolioIndex:
+          type: number
+          description: Portfolio value indexed to 100 at backtest start
+        benchmarkIndex:
+          type: ["number", "null"]
+          description: Benchmark value indexed to 100 at backtest start, null if no benchmark selected or unavailable
+        drawdownPct:
+          type: number
+          description: Portfolio drawdown from running peak, as a decimal (negative or zero)
+      required: [date, portfolioIndex, benchmarkIndex, drawdownPct]
+
+    BacktestMonthlyReturn:
+      type: object
+      properties:
+        month:
+          type: string
+          description: YYYY-MM
+        portfolioReturn:
+          type: number
+        benchmarkReturn:
+          type: ["number", "null"]
+      required: [month, portfolioReturn, benchmarkReturn]
+
+    BacktestPeriod:
+      type: object
+      properties:
+        sessionId:
+          type: integer
+        label:
+          type: ["string", "null"]
+        startDate:
+          type: string
+        endDate:
+          type: string
+        tradingDays:
+          type: integer
+        regimeLabel:
+          type: string
+        cashWeight:
+          type: number
+        topHoldings:
+          type: array
+          items:
+            type: string
+          description: Top 1-3 held tickers by weight during this period
+        periodReturn:
+          type: ["number", "null"]
+          description: Compounded portfolio return during this period, null if no overlapping price data
+        contributionPct:
+          type: ["number", "null"]
+          description: Contribution to total cumulative return, in decimal (sums across periods to cumulativeReturn)
+        turnover:
+          type: ["number", "null"]
+          description: One-way turnover fraction vs prior period's weights, null for the first period
+      required: [sessionId, label, startDate, endDate, tradingDays, regimeLabel, cashWeight, topHoldings, periodReturn, contributionPct, turnover]
+
+    BacktestResult:
+      type: object
+      properties:
+        hasSufficientData:
+          type: boolean
+        insufficientReason:
+          type: ["string", "null"]
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+        tradingDays:
+          type: integer
+        canAnnualize:
+          type: boolean
+          description: Whether the sample is long enough (>= 10 trading days) to trust annualized figures
+        equityCurve:
+          type: array
+          items:
+            $ref: "#/components/schemas/BacktestEquityPoint"
+        cumulativeReturn:
+          type: ["number", "null"]
+        annualizedReturn:
+          type: ["number", "null"]
+        annualizedVolatility:
+          type: ["number", "null"]
+        sharpeRatio:
+          type: ["number", "null"]
+        maxDrawdown:
+          type: ["number", "null"]
+        avgTurnover:
+          type: ["number", "null"]
+        monthlyReturns:
+          type: array
+          items:
+            $ref: "#/components/schemas/BacktestMonthlyReturn"
+        periods:
+          type: array
+          items:
+            $ref: "#/components/schemas/BacktestPeriod"
+        narrative:
+          type: ["string", "null"]
+          description: Plain-language summary of which rebalances contributed most/least to performance
+        benchmarkTicker:
+          type: ["string", "null"]
+        benchmarkCumulativeReturn:
+          type: ["number", "null"]
+        benchmarkAnnualizedReturn:
+          type: ["number", "null"]
+        benchmarkUnavailableReason:
+          type: ["string", "null"]
+        availableBenchmarkTickers:
+          type: array
+          items:
+            type: string
+        methodologyNote:
+          type: string
+      required: [hasSufficientData, insufficientReason, startDate, endDate, tradingDays, canAnnualize, equityCurve, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown, avgTurnover, monthlyReturns, periods, narrative, benchmarkTicker, benchmarkCumulativeReturn, benchmarkAnnualizedReturn, benchmarkUnavailableReason, availableBenchmarkTickers, methodologyNote]

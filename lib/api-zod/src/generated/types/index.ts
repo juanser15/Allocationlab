@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './backtestEquityPoint';
+export * from './backtestMonthlyReturn';
+export * from './backtestPeriod';
+export * from './backtestResult';
 export * from './constraints';
 export * from './constraintsInput';
 export * from './correlationCell';
@@ -17,6 +21,7 @@ export * from './etfEntry';
 export * from './etfPricePoint';
 export * from './etfScoreHistoryEntry';
 export * from './factorScores';
+export * from './getBacktestParams';
 export * from './healthStatus';
 export * from './icSummary';
 export * from './iterationInfo';

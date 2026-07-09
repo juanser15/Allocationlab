@@ -8,6 +8,7 @@ import runRouter from "./run";
 import sessionsRouter from "./sessions";
 import reportsRouter from "./reports";
 import etfRouter from "./etf";
+import backtestRouter from "./backtest";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(runRouter);
 router.use(sessionsRouter);
 router.use(reportsRouter);
 router.use(etfRouter);
+router.use(backtestRouter);
 
 export default router;

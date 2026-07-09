@@ -6,6 +6,7 @@ import {
   Briefcase,
   FileText,
   LayoutDashboard,
+  LineChart,
   Stethoscope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ const navigation = [
   { name: "Portfolio Construction", href: "/portfolio", icon: Briefcase },
   { name: "Results Dashboard", href: "/results", icon: BarChart2 },
   { name: "Portfolio Diagnostics", href: "/diagnostics", icon: Stethoscope },
+  { name: "Backtesting", href: "/backtesting", icon: LineChart },
   { name: "Reports", href: "/reports", icon: FileText },
   { name: "Methodology", href: "/methodology", icon: BookOpen },
 ];
