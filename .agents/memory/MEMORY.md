@@ -1,8 +1,1 @@
-- [Iteration tracking](iteration-2.md) — Allocation Lab is now at Iteration 10/15 (bias-resistant backtester + AI Investment Committee done); next: Risk Model Pro, Scenario & Stress Lab, Trade Implementation, Attribution Engine, Production Governance.
-- [Deterministic AI committee pattern](deterministic-ai-committee.md) — when asked for "AI"/persona reasoning layers with a zero-fabrication guarantee, build it as rule-based synthesis over already-computed data, not an LLM call.
-- [Archive/compare regime backfill](iteration-2.md) — any route reading old `sessionsTable.resultJson` for regime data must backfill `components`/`confidence`/`drivers` or Zod validation throws on pre-Iteration-2 sessions.
-- [Recharts in flex/grid layouts](recharts-responsive-container.md) — ResponsiveContainer can render blank (0-size) in nested flex/grid preview panels; use fixed width/height PieChart instead when this happens.
-- [Report generate/download flow](report-generate-download-flow.md) — POST /reports/generate returns a JSON downloadToken, not the file; must GET /reports/download/:token to fetch actual PDF/CSV bytes.
-- [Backtest date-range filtering](backtest-date-range.md) — startDate/endDate query params on /api/backtest; endDate truncates priceRows, startDate skips early rebalances but keeps full history for warmup.
-- [Mobile layout pattern](mobile-layout-pattern.md) — AppLayout/Sidebar use useIsMobile + Sheet drawer instead of fixed w-64 sidebar; hamburger top bar only rendered on mobile.
-- [Explicit date-range params](explicit-date-range-params.md) — endpoints defaulting to a lookback window (e.g. lookbackDays) should accept optional explicit startDate/endDate that override the default, not replace it.
+- [Allocation Lab nav structure](allocation-lab-nav.md) — 9-item sidebar is a hard product constraint; use tabs within pages to merge sub-workflows, never add a 10th sidebar item.

@@ -15,6 +15,7 @@ import {
 import { Link } from "wouter";
 import { PieChart, Pie, Cell } from "recharts";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 type ChecklistSeverity = "pass" | "warn" | "fail";
 interface ChecklistItem {
@@ -207,10 +208,10 @@ export default function Reports() {
         <PieChartIcon className="h-16 w-16 text-gray-300 mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">No Results Available</h2>
         <p className="text-muted-foreground mb-6 max-w-md">
-          Run the allocation pipeline from Investment Committee before building a committee report.
+          Run the allocation pipeline from Command Center before building a committee report.
         </p>
         <Button asChild size="lg">
-          <Link href="/">Go to Investment Committee</Link>
+          <Link href="/">Go to Command Center</Link>
         </Button>
       </div>
     );
@@ -237,13 +238,12 @@ export default function Reports() {
   const topAllocations = result.allocations.slice().sort((a, b) => b.weight - a.weight);
 
   return (
-    <div className="p-8 max-w-[1600px] mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-primary">Committee Report Builder</h1>
-        <p className="text-muted-foreground mt-2">
-          Compose a one-page report for the latest allocation run, preview it, and export PDF, PNG, or CSV.
-        </p>
-      </div>
+    <div className="p-4 sm:p-8 max-w-[1600px] mx-auto space-y-6">
+      <PageHeader
+        section="7 · Reports & Exports"
+        title="Committee Report Builder"
+        description="Compose a one-page report for the latest allocation run, preview it, and export PDF, PNG, or CSV."
+      />
 
       <div className="grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-6 items-start">
         {/* Left: editable fields + checklist */}

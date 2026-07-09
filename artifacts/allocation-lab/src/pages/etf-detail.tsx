@@ -165,7 +165,7 @@ export default function EtfDetail() {
           <ArrowLeft className="h-3.5 w-3.5" /> Results Dashboard
         </Link>
         <span>·</span>
-        <Link href="/portfolio" className="hover:text-primary transition-colors">Portfolio Construction</Link>
+        <Link href="/portfolio-construction" className="hover:text-primary transition-colors">Portfolio Construction</Link>
         <span>·</span>
         <span className="text-gray-900 font-medium">{ticker}</span>
       </div>

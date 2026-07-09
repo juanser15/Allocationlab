@@ -111,7 +111,7 @@ function StatusIcon({ status }: { status: string }) {
   return <XCircle className="h-4 w-4 text-red-600 shrink-0" />;
 }
 
-export default function Backtesting() {
+export default function Backtesting({ embedded = false }: { embedded?: boolean } = {}) {
   const [benchmark, setBenchmark] = useState<string>("none");
   const [frequency, setFrequency] = useState<"monthly" | "quarterly">("monthly");
   const [timing, setTiming] = useState<"same_close" | "next_close" | "next_open">("next_close");
@@ -139,14 +139,16 @@ export default function Backtesting() {
   const hasRangeFilter = !!startDate || !!endDate;
 
   return (
-    <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-primary">Backtesting</h1>
-        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-          Bias-resistant, point-in-time walk-forward backtest of the current allocation model. Signals are computed
-          only from data strictly before each rebalance date.
-        </p>
-      </div>
+    <div className={embedded ? "pt-4 space-y-6" : "p-4 sm:p-8 max-w-6xl mx-auto space-y-6"}>
+      {!embedded && (
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-primary">Backtesting</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+            Bias-resistant, point-in-time walk-forward backtest of the current allocation model. Signals are computed
+            only from data strictly before each rebalance date.
+          </p>
+        </div>
+      )}
 
       {/* Config Panel */}
       <Card>
@@ -293,7 +295,7 @@ export default function Backtesting() {
             <p className="text-xs text-amber-700 max-w-md mx-auto">{bt.insufficientReason}</p>
             <div className="flex items-center justify-center gap-4 mt-4 text-xs">
               <Link href="/" className="text-primary underline">Run the pipeline</Link>
-              <Link href="/portfolio" className="text-primary underline">Upload price data</Link>
+              <Link href="/setup-data" className="text-primary underline">Upload price data</Link>
             </div>
           </CardContent>
         </Card>

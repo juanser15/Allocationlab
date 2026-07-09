@@ -1,38 +1,23 @@
-import { useState, type ReactElement } from "react";
-import { useLocation } from "wouter";
+import { type ReactElement } from "react";
 import {
-  useGetPricesStatus,
-  useRunPipeline,
   useGetLatestResults,
   useGetOrCreateDecisionLog,
   useUpdateDecisionLogStatus,
+  useGetCommittee,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Play,
-  CheckCircle2,
-  Circle,
   AlertCircle,
   Loader2,
   ArrowRight,
-  CheckSquare,
-  Square,
   TrendingUp,
+  TrendingDown,
   ShieldAlert,
   Eye,
   ListChecks,
@@ -42,8 +27,15 @@ import {
   Minus,
   X,
   Plus,
+  Download,
+  AlertTriangle,
+  Info,
+  Scale,
+  Layers,
+  Gavel,
 } from "lucide-react";
 import { Link } from "wouter";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 const ACTION_STYLES: Record<string, { icon: ReactElement; className: string }> = {
   ADD: { icon: <Plus className="h-3 w-3" />, className: "bg-green-50 text-green-700 border-green-200" },
@@ -66,17 +58,51 @@ const STATUS_LABELS: Record<string, string> = {
   approved: "Approved",
 };
 
+const STANCE_CLASS: Record<string, string> = {
+  support: "bg-green-100 text-green-800 border-green-300",
+  modify: "bg-amber-100 text-amber-800 border-amber-300",
+  reject: "bg-red-100 text-red-800 border-red-300",
+};
+
+const STANCE_LABEL: Record<string, string> = {
+  support: "Supports",
+  modify: "Modifies",
+  reject: "Rejects",
+};
+
+const PERSONA_ICON: Record<string, typeof TrendingUp> = {
+  macro_strategist: Layers,
+  momentum_analyst: TrendingUp,
+  risk_manager: Scale,
+  portfolio_construction_analyst: TrendingDown,
+};
+
 function pct(n: number) {
   return `${(n * 100).toFixed(1)}%`;
 }
 
-export default function InvestmentCommittee() {
-  const [, setLocation] = useLocation();
-  const { data: pricesStatus, isLoading: loadingPrices } = useGetPricesStatus();
-  const { data: latestResult, isLoading: loadingLatest } = useGetLatestResults();
+function StanceBadge({ stance }: { stance: string }) {
+  return (
+    <Badge variant="outline" className={STANCE_CLASS[stance] ?? ""}>
+      {STANCE_LABEL[stance] ?? stance}
+    </Badge>
+  );
+}
 
-  const [runLabel, setRunLabel] = useState("");
-  const runPipeline = useRunPipeline();
+function ConfidenceBar({ value }: { value: number }) {
+  const color = value >= 60 ? "bg-green-600" : value >= 35 ? "bg-amber-500" : "bg-red-500";
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-1.5 w-24 bg-gray-200 rounded-full overflow-hidden">
+        <div className={`h-full rounded-full ${color}`} style={{ width: `${value}%` }} />
+      </div>
+      <span className="text-xs font-semibold text-gray-600 tabular-nums">{value}%</span>
+    </div>
+  );
+}
+
+export default function InvestmentCommittee() {
+  const { data: latestResult, isLoading: loadingLatest } = useGetLatestResults();
 
   const sessionId = latestResult?.sessionId;
   const {
@@ -86,6 +112,8 @@ export default function InvestmentCommittee() {
   } = useGetOrCreateDecisionLog(sessionId ?? 0);
   const updateStatus = useUpdateDecisionLogStatus();
 
+  const { data: committee, isLoading: loadingCommittee, error: committeeError } = useGetCommittee();
+
   const handleStatusChange = (status: "draft" | "under_review" | "approved") => {
     if (!decisionLog) return;
     updateStatus.mutate(
@@ -94,382 +122,147 @@ export default function InvestmentCommittee() {
     );
   };
 
-  const handleRun = () => {
-    runPipeline.mutate(
-      { data: { label: runLabel || undefined } },
-      {
-        onSuccess: () => {
-          setLocation("/results");
-        },
-      }
-    );
-  };
-
-  const hasData = pricesStatus?.hasData;
-
-  const steps = runPipeline.isPending
-    ? [
-        { step: "load_data", label: "Load Data", status: "done" },
-        { step: "compute_factors", label: "Compute Factors", status: "running" },
-        { step: "estimate_regime", label: "Estimate Regime (10 components)", status: "pending" },
-        { step: "score_etfs", label: "Score ETFs", status: "pending" },
-        { step: "construct_allocation", label: "Construct Allocation", status: "pending" },
-        { step: "generate_report", label: "Generate Report", status: "pending" },
-      ]
-    : [
-        { step: "load_data", label: "Load Data", status: "pending" },
-        { step: "compute_factors", label: "Compute Factors", status: "pending" },
-        { step: "estimate_regime", label: "Estimate Regime (10 components)", status: "pending" },
-        { step: "score_etfs", label: "Score ETFs", status: "pending" },
-        { step: "construct_allocation", label: "Construct Allocation", status: "pending" },
-        { step: "generate_report", label: "Generate Report", status: "pending" },
-      ];
-
-  const getStepIcon = (status: string) => {
-    switch (status) {
-      case "done": return <CheckCircle2 className="h-5 w-5 text-green-600" />;
-      case "running": return <Loader2 className="h-5 w-5 text-accent animate-spin" />;
-      case "error": return <AlertCircle className="h-5 w-5 text-destructive" />;
-      default: return <Circle className="h-5 w-5 text-gray-300" />;
-    }
-  };
-
-  // Iteration progress data
-  const iterationCompleted = [
-    "Core UI scaffold & navigation",
-    "Price data upload & live Yahoo Finance integration",
-    "Factor computation engine (8 factors)",
-    "Regime estimation (4 computed components)",
-    "Allocation constructor with constraints",
-    "Results dashboard with heatmap",
-    "Report generation (CSV + PDF)",
-    "10-component Market Health module + IC Summary + Watchlist",
-    "Portfolio Diagnostics (vol, HHI, ENB, risk contributions, correlation heatmap, tracking error)",
-    "ETF Explorer (price chart, factor breakdown, score history, IC narrative, clickable links)",
-    "Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)",
-    "Committee report builder (editable one-page report, preview mode, polished PDF/PNG export, quality checklist)",
-    "PM Decision Room with structured recommendation cards and an auditable Decision Log",
-    "Historical Archive workspace (browse prior rebalances, side-by-side comparison with turnover & realized return, filters, PDF/PNG/CSV export)",
-    "Bias-resistant backtester (execution timing/costs/slippage, walk-forward testing, sensitivity checks, bias audit checklist, Integrity Score)",
-    "AI Investment Committee reasoning layer (deterministic persona debate + CIO synthesis + exportable memo, zero fabrication)",
-  ];
-  const iterationNext = [
-    "Risk Model Pro (factor risk model, stress-tested VaR, scenario-aware risk budgeting)",
-    "Scenario & Stress Lab (historical and hypothetical macro shock scenarios)",
-    "Trade Implementation (order staging, execution scheduling, broker-ready trade tickets)",
-    "Attribution Engine (return decomposition by factor, sector, and selection vs. allocation)",
-    "Production Governance (audit trails, approval workflows, role-based access controls)",
-  ];
-  const CURRENT_ITERATION = 10;
-  const MAX_ITERATIONS = 15;
-
   const content = decisionLog?.content;
   const tradeList = content?.tradeList ?? [];
   const activeTrades = tradeList.filter((t) => t.action !== "HOLD");
 
-  return (
-    <div className="p-8 max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-primary">Investment Committee</h1>
-        <p className="text-muted-foreground mt-2">Monthly rebalance decision room and auditable record of committee action.</p>
-      </div>
+  const downloadMemo = () => {
+    if (!committee) return;
+    const blob = new Blob([committee.memo], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `committee-memo-session-${committee.sessionId}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
-      {!loadingPrices && !hasData && (
-        <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive-foreground">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="ml-2 flex items-center justify-between w-full">
-            <span>No price data loaded. You must upload price history to run the pipeline.</span>
-            <Link href="/portfolio" className="text-sm font-medium underline flex items-center">
-              Go to Portfolio Construction <ArrowRight className="ml-1 h-3 w-3" />
+  return (
+    <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-6">
+      <PageHeader
+        section="6 · Investment Committee"
+        title="Investment Committee"
+        description="Monthly rebalance decision room, structured recommendations, approval workflow, and the AI committee's deterministic analysis."
+      />
+
+      {!sessionId && !loadingLatest && (
+        <Alert className="bg-gray-50 border-gray-200">
+          <AlertCircle className="h-4 w-4 text-muted-foreground" />
+          <AlertDescription className="ml-2 flex items-center justify-between w-full flex-wrap gap-2">
+            <span>No allocation run to review yet. Run the pipeline first.</span>
+            <Link href="/" className="text-sm font-medium underline flex items-center">
+              Go to Command Center <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </AlertDescription>
         </Alert>
       )}
 
-      {!loadingPrices && hasData && (
-        <Alert className="bg-primary/5 border-primary/20">
-          <CheckCircle2 className="h-4 w-4 text-primary" />
-          <AlertDescription className="ml-2 text-primary font-medium">
-            Price data ready. Coverage: {pricesStatus.rowCount} rows, {pricesStatus.tickers.length} tickers.
-            {pricesStatus.startDate && pricesStatus.endDate && ` (${pricesStatus.startDate} to ${pricesStatus.endDate})`}
-          </AlertDescription>
-        </Alert>
-      )}
+      <Tabs defaultValue="decision-room">
+        <TabsList>
+          <TabsTrigger value="decision-room">Decision Room</TabsTrigger>
+          <TabsTrigger value="ai-committee">AI Committee Analysis</TabsTrigger>
+        </TabsList>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Pipeline card */}
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle>Pipeline Execution</CardTitle>
-            <CardDescription>Configure and run the monthly allocation model.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="runLabel">Run Label (Optional)</Label>
-              <Input
-                id="runLabel"
-                placeholder="e.g. July 2026 Monthly Rebalance"
-                value={runLabel}
-                onChange={(e) => setRunLabel(e.target.value)}
-                disabled={runPipeline.isPending}
-              />
-            </div>
-
-            <div className="border rounded-md p-4 space-y-4 bg-gray-50/50">
-              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Execution Steps</h4>
-              <div className="space-y-3">
-                {steps.map((step, idx) => (
-                  <div key={step.step} className="flex items-center text-sm">
-                    {getStepIcon(step.status)}
-                    <span
-                      className={`ml-3 font-medium ${
-                        step.status === "running"
-                          ? "text-accent font-bold"
-                          : step.status === "done"
-                          ? "text-gray-900"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      {idx + 1}. {step.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="bg-gray-50 border-t py-4">
-            <Button
-              onClick={handleRun}
-              disabled={!hasData || runPipeline.isPending}
-              className="w-full h-12 text-base font-semibold shadow-sm"
-              size="lg"
-            >
-              {runPipeline.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Running Pipeline...
-                </>
-              ) : (
-                <>
-                  <Play className="mr-2 h-5 w-5" />
-                  Run Monthly Rebalance
-                </>
-              )}
-            </Button>
-          </CardFooter>
-        </Card>
-
-        {/* Right column: Latest Run + Iteration Progress */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Latest Run Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loadingLatest ? (
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
-                  <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse" />
-                </div>
-              ) : latestResult ? (
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Last Executed</p>
-                    <p className="font-medium text-gray-900 text-sm">{new Date(latestResult.runAt).toLocaleString()}</p>
-                  </div>
-                  {latestResult.label && (
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Label</p>
-                      <p className="font-medium text-gray-900 text-sm">{latestResult.label}</p>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Market Regime</p>
-                    <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary mt-1">
-                      {latestResult.regime.label}
-                      {latestResult.regime.confidence > 0 && (
-                        <span className="ml-1.5 text-primary/60">· {latestResult.regime.confidence.toFixed(0)}% conf.</span>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Cash / Active ETFs</p>
-                    <p className="font-medium text-gray-900 text-sm">
-                      {(latestResult.cashWeight * 100).toFixed(1)}% cash · {latestResult.activeEtfCount} ETFs
-                    </p>
-                  </div>
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link href="/results">View Results Dashboard</Link>
-                  </Button>
-                </div>
-              ) : (
-                <div className="text-center py-6 text-muted-foreground">
-                  <p className="text-sm">No previous runs found.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Iteration Progress card */}
-          <Card className="bg-gray-50 border-gray-200">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm uppercase tracking-wider text-muted-foreground">
-                  Build Progress
-                </CardTitle>
-                <span className="text-xs font-semibold text-primary bg-primary/10 rounded px-2 py-0.5">
-                  {CURRENT_ITERATION} / {MAX_ITERATIONS}
-                </span>
-              </div>
-              <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full"
-                  style={{ width: `${(CURRENT_ITERATION / MAX_ITERATIONS) * 100}%` }}
-                />
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 pt-1">
-              <div>
-                <p className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1.5">Completed</p>
-                <div className="space-y-1">
-                  {iterationCompleted.map((item) => (
-                    <div key={item} className="flex items-start gap-1.5">
-                      <CheckSquare className="h-3.5 w-3.5 text-green-600 mt-0.5 shrink-0" />
-                      <span className="text-xs text-gray-500 line-through leading-tight">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="border-t pt-2">
-                <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-1.5">Up Next</p>
-                <div className="space-y-1">
-                  {iterationNext.map((item) => (
-                    <div key={item} className="flex items-start gap-1.5">
-                      <Square className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
-                      <span className="text-xs text-gray-700 leading-tight">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* PM Decision Room */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-bold tracking-tight text-primary">PM Decision Room</h2>
-          {decisionLog && (
-            <Badge variant="outline" className={STATUS_STYLES[decisionLog.status]}>
-              {STATUS_LABELS[decisionLog.status]}
-            </Badge>
-          )}
-        </div>
-
-        {!sessionId && !loadingLatest && (
-          <Alert className="bg-gray-50 border-gray-200">
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-            <AlertDescription className="ml-2 text-muted-foreground">
-              Run the pipeline to generate a committee recommendation.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {sessionId && loadingDecisionLog && (
-          <div className="space-y-2">
-            <div className="h-24 bg-gray-100 rounded animate-pulse" />
+        {/* ── Decision Room Tab ── */}
+        <TabsContent value="decision-room" className="space-y-6 pt-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold tracking-tight text-primary">PM Decision Room</h2>
+            {decisionLog && (
+              <Badge variant="outline" className={STATUS_STYLES[decisionLog.status]}>
+                {STATUS_LABELS[decisionLog.status]}
+              </Badge>
+            )}
           </div>
-        )}
 
-        {sessionId && content && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Market View */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-primary" /> Market View
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-700 leading-relaxed">{content.marketView}</p>
-                </CardContent>
-              </Card>
-
-              {/* Key Risks */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <ShieldAlert className="h-4 w-4 text-amber-600" /> Key Risks
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {content.keyRisks.map((risk, i) => (
-                      <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                        <span className="text-amber-600 mt-1">&bull;</span>
-                        <span>{risk}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+          {sessionId && loadingDecisionLog && (
+            <div className="space-y-2">
+              <div className="h-24 bg-gray-100 rounded animate-pulse" />
             </div>
+          )}
 
-            {/* Portfolio Actions */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <ListChecks className="h-4 w-4 text-primary" /> Portfolio Actions
-                </CardTitle>
-                <CardDescription>Recommended allocation changes with rationale tied to model factors.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {activeTrades.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No allocation changes recommended this cycle.</p>
-                )}
-                {activeTrades.map((trade) => {
-                  const style = ACTION_STYLES[trade.action] ?? ACTION_STYLES.HOLD;
-                  return (
-                    <div key={trade.ticker} className="border rounded-md p-3 bg-gray-50/50">
-                      <div className="flex items-start justify-between gap-3 flex-wrap">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className={`${style.className} flex items-center gap-1`}>
-                            {style.icon} {trade.action}
-                          </Badge>
-                          <span className="font-semibold text-gray-900 text-sm">{trade.ticker}</span>
-                          <span className="text-xs text-muted-foreground">{trade.name}</span>
+          {sessionId && content && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-primary" /> Market View
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-700 leading-relaxed">{content.marketView}</p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <ShieldAlert className="h-4 w-4 text-amber-600" /> Key Risks
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {content.keyRisks.map((risk, i) => (
+                        <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                          <span className="text-amber-600 mt-1">&bull;</span>
+                          <span>{risk}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <ListChecks className="h-4 w-4 text-primary" /> Portfolio Actions
+                  </CardTitle>
+                  <CardDescription>Recommended allocation changes with rationale tied to model factors.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {activeTrades.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No allocation changes recommended this cycle.</p>
+                  )}
+                  {activeTrades.map((trade) => {
+                    const style = ACTION_STYLES[trade.action] ?? ACTION_STYLES.HOLD;
+                    return (
+                      <div key={trade.ticker} className="border rounded-md p-3 bg-gray-50/50">
+                        <div className="flex items-start justify-between gap-3 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className={`${style.className} flex items-center gap-1`}>
+                              {style.icon} {trade.action}
+                            </Badge>
+                            <span className="font-semibold text-gray-900 text-sm">{trade.ticker}</span>
+                            <span className="text-xs text-muted-foreground">{trade.name}</span>
+                          </div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {pct(trade.fromWeight)} &rarr; {pct(trade.toWeight)}
+                            <span className={trade.deltaWeight >= 0 ? "text-green-700 ml-1.5" : "text-red-700 ml-1.5"}>
+                              ({trade.deltaWeight >= 0 ? "+" : ""}
+                              {(trade.deltaWeight * 100).toFixed(1)}pp)
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {pct(trade.fromWeight)} &rarr; {pct(trade.toWeight)}
-                          <span className={trade.deltaWeight >= 0 ? "text-green-700 ml-1.5" : "text-red-700 ml-1.5"}>
-                            ({trade.deltaWeight >= 0 ? "+" : ""}
-                            {(trade.deltaWeight * 100).toFixed(1)}pp)
-                          </span>
-                        </div>
+                        <p className="text-sm text-gray-700 mt-2 leading-relaxed">{trade.rationale}</p>
                       </div>
-                      <p className="text-sm text-gray-700 mt-2 leading-relaxed">{trade.rationale}</p>
-                    </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
+                    );
+                  })}
+                </CardContent>
+              </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Watchlist */}
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <Eye className="h-4 w-4 text-primary" /> Watchlist
                   </CardTitle>
-                  <CardDescription>Names close to inclusion, blocked this cycle.</CardDescription>
+                  <CardDescription>Names close to inclusion, blocked this cycle. Full detail available in Results &amp; Diagnostics.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {content.watchlist.length === 0 ? (
                     <p className="text-sm text-muted-foreground">No names on the watchlist.</p>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                       {content.watchlist.map((w) => (
                         <div key={w.ticker} className="text-sm border-b last:border-0 pb-2 last:pb-0">
                           <div className="flex items-center justify-between">
@@ -484,99 +277,214 @@ export default function InvestmentCommittee() {
                 </CardContent>
               </Card>
 
-              {/* Trade List (full table) */}
+              <div className="flex items-start gap-2 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-600">
+                <ClipboardList className="h-3.5 w-3.5 shrink-0 mt-0.5 text-gray-400" />
+                <span>
+                  The full trade list and target allocation table live in{" "}
+                  <Link href="/portfolio-construction" className="underline font-medium text-primary">Portfolio Construction</Link>.
+                </span>
+              </div>
+
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <ClipboardList className="h-4 w-4 text-primary" /> Trade List
-                  </CardTitle>
-                  <CardDescription>Full execution list for this rebalance.</CardDescription>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                      <CardTitle className="text-sm">Decision Log</CardTitle>
+                      <CardDescription>Auditable record of committee review and approval.</CardDescription>
+                    </div>
+                    <Badge variant="outline" className={STATUS_STYLES[decisionLog!.status]}>
+                      {STATUS_LABELS[decisionLog!.status]}
+                    </Badge>
+                  </div>
                 </CardHeader>
-                <CardContent className="max-h-64 overflow-y-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-xs">Ticker</TableHead>
-                        <TableHead className="text-xs">Action</TableHead>
-                        <TableHead className="text-xs text-right">Weight</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {tradeList.map((t) => (
-                        <TableRow key={t.ticker}>
-                          <TableCell className="text-xs font-medium">{t.ticker}</TableCell>
-                          <TableCell className="text-xs">{t.action}</TableCell>
-                          <TableCell className="text-xs text-right">{pct(t.toWeight)}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Portfolio Version</p>
+                      <p className="font-medium text-gray-900">{decisionLog!.portfolioVersion}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Regime</p>
+                      <p className="font-medium text-gray-900">
+                        {decisionLog!.regimeLabel} ({decisionLog!.regimeComposite})
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Created</p>
+                      <p className="font-medium text-gray-900">{new Date(decisionLog!.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Approved By</p>
+                      <p className="font-medium text-gray-900">{decisionLog!.approvedBy ?? "—"}</p>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {decisionLog!.status === "draft" && (
+                      <Button size="sm" onClick={() => handleStatusChange("under_review")} disabled={updateStatus.isPending}>
+                        Submit for Review
+                      </Button>
+                    )}
+                    {decisionLog!.status === "under_review" && (
+                      <>
+                        <Button size="sm" onClick={() => handleStatusChange("approved")} disabled={updateStatus.isPending}>
+                          Approve
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleStatusChange("draft")} disabled={updateStatus.isPending}>
+                          Send Back to Draft
+                        </Button>
+                      </>
+                    )}
+                    {decisionLog!.status === "approved" && (
+                      <Button size="sm" variant="outline" onClick={() => handleStatusChange("draft")} disabled={updateStatus.isPending}>
+                        Reopen as Draft
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
+          )}
+        </TabsContent>
 
-            {/* Decision Log */}
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div>
-                    <CardTitle className="text-sm">Decision Log</CardTitle>
-                    <CardDescription>Auditable record of committee review and approval.</CardDescription>
-                  </div>
-                  <Badge variant="outline" className={STATUS_STYLES[decisionLog!.status]}>
-                    {STATUS_LABELS[decisionLog!.status]}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Portfolio Version</p>
-                    <p className="font-medium text-gray-900">{decisionLog!.portfolioVersion}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Regime</p>
-                    <p className="font-medium text-gray-900">
-                      {decisionLog!.regimeLabel} ({decisionLog!.regimeComposite})
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Created</p>
-                    <p className="font-medium text-gray-900">{new Date(decisionLog!.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Approved By</p>
-                    <p className="font-medium text-gray-900">{decisionLog!.approvedBy ?? "—"}</p>
-                  </div>
-                </div>
-                <Separator />
-                <div className="flex items-center gap-2 flex-wrap">
-                  {decisionLog!.status === "draft" && (
-                    <Button size="sm" onClick={() => handleStatusChange("under_review")} disabled={updateStatus.isPending}>
-                      Submit for Review
-                    </Button>
-                  )}
-                  {decisionLog!.status === "under_review" && (
-                    <>
-                      <Button size="sm" onClick={() => handleStatusChange("approved")} disabled={updateStatus.isPending}>
-                        Approve
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleStatusChange("draft")} disabled={updateStatus.isPending}>
-                        Send Back to Draft
-                      </Button>
-                    </>
-                  )}
-                  {decisionLog!.status === "approved" && (
-                    <Button size="sm" variant="outline" onClick={() => handleStatusChange("draft")} disabled={updateStatus.isPending}>
-                      Reopen as Draft
-                    </Button>
-                  )}
+        {/* ── AI Committee Analysis Tab ── */}
+        <TabsContent value="ai-committee" className="space-y-6 pt-4">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <p className="text-sm text-muted-foreground max-w-2xl">
+              A deterministic, rule-based synthesis of the current session's regime, factor, diagnostics, watchlist, and
+              backtest integrity data — every statement traces back to a computed number, nothing is generated or fabricated.
+            </p>
+            {committee && (
+              <Button variant="outline" size="sm" onClick={downloadMemo} className="gap-1.5">
+                <Download className="h-3.5 w-3.5" /> Export Committee Memo
+              </Button>
+            )}
+          </div>
+
+          {loadingCommittee && (
+            <div className="flex items-center gap-3 text-muted-foreground text-sm py-12 justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              Convening committee...
+            </div>
+          )}
+
+          {committeeError && !loadingCommittee && (
+            <Card className="border-amber-200 bg-amber-50">
+              <CardContent className="py-10 text-center">
+                <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-3" />
+                <p className="text-sm font-medium text-amber-800 mb-1">No committee data available yet.</p>
+                <p className="text-xs text-amber-700 max-w-md mx-auto">
+                  Run the allocation pipeline first to generate the regime, diagnostics, and allocation data the committee needs.
+                </p>
+                <div className="flex items-center justify-center gap-1 mt-4 text-xs">
+                  <Link href="/" className="text-primary underline inline-flex items-center gap-1">
+                    Run the pipeline <ArrowRight className="h-3 w-3" />
+                  </Link>
                 </div>
               </CardContent>
             </Card>
-          </div>
-        )}
-      </div>
+          )}
+
+          {!loadingCommittee && !committeeError && committee && (
+            <>
+              <Card className="border-l-4 border-l-primary">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Gavel className="h-4 w-4 text-primary" />
+                      CIO Final Recommendation
+                    </CardTitle>
+                    <div className="flex items-center gap-3">
+                      <StanceBadge stance={committee.cio.stance} />
+                      <ConfidenceBar value={committee.cio.confidence} />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-gray-800 leading-relaxed">{committee.cio.summary}</p>
+                  {committee.cio.dissent.length > 0 && (
+                    <div className="rounded border border-amber-200 bg-amber-50 px-4 py-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-amber-800 mb-2 flex items-center gap-1.5">
+                        <ShieldAlert className="h-3.5 w-3.5" /> Dissenting Views
+                      </p>
+                      <ul className="space-y-1.5 text-xs text-amber-800">
+                        {committee.cio.dissent.map((d, i) => (
+                          <li key={i}>&bull; {d}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {committee.dataQualityNotes.length > 0 && (
+                <div className="space-y-2">
+                  {committee.dataQualityNotes.map((n, i) => (
+                    <div key={i} className="flex items-start gap-2 rounded border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs text-gray-700">
+                      <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-gray-400" />
+                      {n}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div>
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Committee Debate</h2>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {committee.recommendations.map((r) => {
+                    const Icon = PERSONA_ICON[r.personaId] ?? Layers;
+                    return (
+                      <Card key={r.personaId}>
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <CardTitle className="text-sm flex items-center gap-2">
+                              <Icon className="h-4 w-4 text-primary/70" />
+                              {r.personaLabel}
+                            </CardTitle>
+                            <StanceBadge stance={r.stance} />
+                          </div>
+                          <CardDescription className="pt-1">
+                            <ConfidenceBar value={r.confidence} />
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <p className="text-sm text-gray-800 leading-relaxed">{r.summary}</p>
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Evidence</p>
+                            <ul className="space-y-1 text-xs text-gray-600">
+                              {r.evidence.map((e, i) => (
+                                <li key={i} className="flex gap-1.5">
+                                  <span className="text-gray-300">&bull;</span>
+                                  <span>{e}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div className="rounded bg-gray-50 border border-gray-100 px-3 py-2">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">Key Concern</p>
+                            <p className="text-xs text-gray-700 leading-snug">{r.keyConcern}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-600">
+                <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-gray-400" />
+                <span>
+                  <Badge variant="outline" className="mr-2 text-[10px] align-middle">Methodology</Badge>
+                  Each persona's stance, confidence, and evidence are derived deterministically from the latest session's
+                  regime scores, factor scores, portfolio diagnostics, watchlist, and backtest integrity audit (when
+                  available). Confidence is automatically downgraded — with a stated reason — whenever underlying data is
+                  incomplete or the backtest integrity check has not passed.
+                </span>
+              </div>
+            </>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

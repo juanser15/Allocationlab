@@ -4,16 +4,16 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { AppLayout } from "@/components/layout/AppLayout";
-import InvestmentCommittee from "@/pages/investment-committee";
+import CommandCenter from "@/pages/command-center";
+import SetupData from "@/pages/setup-data";
 import PortfolioConstruction from "@/pages/portfolio-construction";
 import ResultsDashboard from "@/pages/results-dashboard";
+import ResearchLab from "@/pages/research-lab";
+import InvestmentCommittee from "@/pages/investment-committee";
 import Reports from "@/pages/reports";
-import Methodology from "@/pages/methodology";
-import PortfolioDiagnostics from "@/pages/diagnostics";
-import EtfDetail from "@/pages/etf-detail";
-import Backtesting from "@/pages/backtesting";
 import HistoricalArchive from "@/pages/historical-archive";
-import Committee from "@/pages/committee";
+import Methodology from "@/pages/methodology";
+import EtfDetail from "@/pages/etf-detail";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,15 +28,15 @@ function Router() {
   return (
     <AppLayout>
       <Switch>
-        <Route path="/" component={InvestmentCommittee} />
-        <Route path="/portfolio" component={PortfolioConstruction} />
+        <Route path="/" component={CommandCenter} />
+        <Route path="/setup-data" component={SetupData} />
+        <Route path="/portfolio-construction" component={PortfolioConstruction} />
         <Route path="/results" component={ResultsDashboard} />
-        <Route path="/diagnostics" component={PortfolioDiagnostics} />
+        <Route path="/research-lab" component={ResearchLab} />
         <Route path="/etf/:ticker" component={EtfDetail} />
-        <Route path="/backtesting" component={Backtesting} />
-        <Route path="/archive" component={HistoricalArchive} />
-        <Route path="/committee" component={Committee} />
+        <Route path="/investment-committee" component={InvestmentCommittee} />
         <Route path="/reports" component={Reports} />
+        <Route path="/archive" component={HistoricalArchive} />
         <Route path="/methodology" component={Methodology} />
         <Route component={NotFound} />
       </Switch>

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 function pct(v: number, digits = 1): string {
   return `${(v * 100).toFixed(digits)}%`;
@@ -427,21 +428,20 @@ export default function HistoricalArchive() {
   };
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-6">
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Historical Archive</h1>
-          <p className="text-muted-foreground mt-1">
-            Browse every completed rebalance, open a prior month in detail, or compare two periods side by side.
-          </p>
-        </div>
-        {compareSelection.length === 2 && (
-          <Button onClick={() => { setCompareIds([compareSelection[0], compareSelection[1]]); setOpenSessionId(null); }}>
-            <GitCompare className="mr-1.5 h-4 w-4" />
-            Compare Selected
-          </Button>
-        )}
-      </div>
+    <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-6">
+      <PageHeader
+        section="8 · Archive & Governance"
+        title="Historical Archive"
+        description="Browse every completed rebalance, open a prior month in detail, or compare two periods side by side."
+        actions={
+          compareSelection.length === 2 ? (
+            <Button onClick={() => { setCompareIds([compareSelection[0], compareSelection[1]]); setOpenSessionId(null); }}>
+              <GitCompare className="mr-1.5 h-4 w-4" />
+              Compare Selected
+            </Button>
+          ) : undefined
+        }
+      />
 
       <Card>
         <CardHeader className="pb-3">
@@ -513,12 +513,12 @@ export default function HistoricalArchive() {
             <p className="text-muted-foreground max-w-md mb-4">
               {hasFilters
                 ? "Try widening your date range or clearing a filter."
-                : "Every rebalance you run from Investment Committee is saved here automatically. Run the pipeline once to start building history."}
+                : "Every rebalance you run from Command Center is saved here automatically. Run the pipeline once to start building history."}
             </p>
             {hasFilters ? (
               <Button variant="outline" onClick={clearFilters}>Clear filters</Button>
             ) : (
-              <Button asChild><Link href="/">Go to Investment Committee</Link></Button>
+              <Button asChild><Link href="/">Go to Command Center</Link></Button>
             )}
           </CardContent>
         </Card>

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CheckSquare, Square } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function Methodology() {
   const cycles = [
@@ -30,11 +31,12 @@ export default function Methodology() {
   const MAX_ITERATIONS = 15;
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-primary">Methodology & Documentation</h1>
-        <p className="text-muted-foreground mt-2">Underlying logic for the Allocation Lab v2 model.</p>
-      </div>
+    <div className="p-4 sm:p-8 max-w-4xl mx-auto space-y-8">
+      <PageHeader
+        section="9 · Methodology & Settings"
+        title="Methodology & Documentation"
+        description="Underlying logic for the Allocation Lab v2 model."
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-8">
