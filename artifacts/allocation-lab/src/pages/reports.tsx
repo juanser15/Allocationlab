@@ -1,13 +1,35 @@
-import { useListSessions } from "@workspace/api-client-react";
+import { useState } from "react";
+import { useListSessions, useGenerateReport } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, Download, Search } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
 export default function Reports() {
+  const { toast } = useToast();
   const { data: sessions, isLoading } = useListSessions();
+  const generateReport = useGenerateReport();
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
+
+  const handleDownload = (sessionId: number) => {
+    setDownloadingId(sessionId);
+    generateReport.mutate(
+      { data: { format: "csv", sessionId } },
+      {
+        onSuccess: (result) => {
+          window.open(`/api/reports/download/${result.downloadToken}`, "_blank");
+          setDownloadingId(null);
+        },
+        onError: () => {
+          toast({ title: "Download failed", description: "Could not generate the report. Try again.", variant: "destructive" });
+          setDownloadingId(null);
+        },
+      }
+    );
+  };
 
   if (isLoading) {
     return <div className="p-8 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -44,26 +66,39 @@ export default function Reports() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sessions.map((session) => (
-                  <TableRow key={session.id}>
-                    <TableCell className="font-medium">
-                      {format(new Date(session.runAt), 'MMM dd, yyyy HH:mm')}
-                    </TableCell>
-                    <TableCell>{session.label || `Run #${session.id}`}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
-                        {session.regimeLabel} ({session.regimeComposite.toFixed(0)})
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">{(session.cashWeight * 100).toFixed(1)}%</TableCell>
-                    <TableCell className="text-right">{session.activeEtfCount}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => window.open(`/api/reports/download/demo-token?session=${session.id}`, '_blank')}>
-                        <Download className="h-4 w-4 mr-2" /> PDF
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {sessions.map((session) => {
+                  const isDownloading = downloadingId === session.id;
+                  return (
+                    <TableRow key={session.id}>
+                      <TableCell className="font-medium">
+                        {format(new Date(session.runAt), "MMM dd, yyyy HH:mm")}
+                      </TableCell>
+                      <TableCell>{session.label || `Run #${session.id}`}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
+                          {session.regimeLabel} ({session.regimeComposite.toFixed(0)})
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">{(session.cashWeight * 100).toFixed(1)}%</TableCell>
+                      <TableCell className="text-right">{session.activeEtfCount}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={isDownloading}
+                          onClick={() => handleDownload(session.id)}
+                        >
+                          {isDownloading ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Download className="h-4 w-4 mr-2" />
+                          )}
+                          CSV
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
