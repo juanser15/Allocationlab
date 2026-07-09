@@ -8,21 +8,13 @@ servers:
     description: Base API path
 tags:
   - name: health
-    description: Health operations
   - name: universe
-    description: ETF universe management
   - name: constraints
-    description: Allocation constraints
   - name: prices
-    description: Price data management
   - name: run
-    description: Allocation pipeline execution
   - name: results
-    description: Allocation results
   - name: reports
-    description: Report generation
   - name: sessions
-    description: Run history
 
 paths:
   /healthz:
@@ -32,7 +24,7 @@ paths:
       summary: Health check
       responses:
         "200":
-          description: Healthy
+          description: Success
           content:
             application/json:
               schema:
@@ -42,10 +34,9 @@ paths:
     get:
       operationId: getUniverse
       tags: [universe]
-      summary: Get ETF universe and prior weights
       responses:
         "200":
-          description: Universe config
+          description: Success
           content:
             application/json:
               schema:
@@ -53,7 +44,6 @@ paths:
     put:
       operationId: updateUniverse
       tags: [universe]
-      summary: Update ETF universe and prior weights
       requestBody:
         required: true
         content:
@@ -62,7 +52,7 @@ paths:
               $ref: "#/components/schemas/UniverseInput"
       responses:
         "200":
-          description: Updated universe
+          description: Success
           content:
             application/json:
               schema:
@@ -72,10 +62,9 @@ paths:
     get:
       operationId: getConstraints
       tags: [constraints]
-      summary: Get allocation constraints
       responses:
         "200":
-          description: Constraints
+          description: Success
           content:
             application/json:
               schema:
@@ -83,7 +72,6 @@ paths:
     put:
       operationId: updateConstraints
       tags: [constraints]
-      summary: Update allocation constraints
       requestBody:
         required: true
         content:
@@ -92,7 +80,7 @@ paths:
               $ref: "#/components/schemas/ConstraintsInput"
       responses:
         "200":
-          description: Updated constraints
+          description: Success
           content:
             application/json:
               schema:
@@ -102,10 +90,9 @@ paths:
     get:
       operationId: getPricesStatus
       tags: [prices]
-      summary: Check price data availability and coverage
       responses:
         "200":
-          description: Price data status
+          description: Success
           content:
             application/json:
               schema:
@@ -115,7 +102,6 @@ paths:
     post:
       operationId: fetchLivePrices
       tags: [prices]
-      summary: Fetch live adjusted close prices from Yahoo Finance for the active ETF universe
       requestBody:
         required: true
         content:
@@ -124,13 +110,13 @@ paths:
               $ref: "#/components/schemas/LivePricesFetchInput"
       responses:
         "200":
-          description: Live fetch result (may be partial success)
+          description: Success
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/LivePricesResult"
         "503":
-          description: All tickers failed to download
+          description: Service unavailable
           content:
             application/json:
               schema:
@@ -140,7 +126,6 @@ paths:
     post:
       operationId: uploadPrices
       tags: [prices]
-      summary: Upload CSV price history
       requestBody:
         required: true
         content:
@@ -149,7 +134,7 @@ paths:
               $ref: "#/components/schemas/PricesUploadInput"
       responses:
         "200":
-          description: Upload result
+          description: Success
           content:
             application/json:
               schema:
@@ -159,7 +144,6 @@ paths:
     post:
       operationId: runPipeline
       tags: [run]
-      summary: Execute the full allocation pipeline
       requestBody:
         required: true
         content:
@@ -168,13 +152,13 @@ paths:
               $ref: "#/components/schemas/RunInput"
       responses:
         "200":
-          description: Run result with full allocation output
+          description: Success
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/RunResult"
         "400":
-          description: Missing price data or invalid config
+          description: Bad request
           content:
             application/json:
               schema:
@@ -184,16 +168,15 @@ paths:
     get:
       operationId: getLatestResults
       tags: [results]
-      summary: Get the most recent allocation run results
       responses:
         "200":
-          description: Latest run results
+          description: Success
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/RunResult"
         "404":
-          description: No results yet
+          description: Not found
           content:
             application/json:
               schema:
@@ -203,10 +186,9 @@ paths:
     get:
       operationId: listSessions
       tags: [sessions]
-      summary: List past allocation run sessions
       responses:
         "200":
-          description: Session list
+          description: Success
           content:
             application/json:
               schema:
@@ -218,7 +200,6 @@ paths:
     get:
       operationId: getSession
       tags: [sessions]
-      summary: Get a specific past run session
       parameters:
         - name: sessionId
           in: path
@@ -227,7 +208,7 @@ paths:
             type: integer
       responses:
         "200":
-          description: Session detail
+          description: Success
           content:
             application/json:
               schema:
@@ -243,7 +224,6 @@ paths:
     post:
       operationId: generateReport
       tags: [reports]
-      summary: Generate a downloadable report from the latest results
       requestBody:
         required: true
         content:
@@ -252,7 +232,7 @@ paths:
               $ref: "#/components/schemas/ReportInput"
       responses:
         "200":
-          description: Report metadata and download tokens
+          description: Success
           content:
             application/json:
               schema:
@@ -262,7 +242,6 @@ paths:
     get:
       operationId: downloadReport
       tags: [reports]
-      summary: Download a generated report file
       parameters:
         - name: token
           in: path
@@ -271,7 +250,7 @@ paths:
             type: string
       responses:
         "200":
-          description: File download
+          description: Success
           content:
             application/octet-stream:
               schema:
@@ -313,7 +292,6 @@ components:
           type: string
         priorWeight:
           type: number
-          description: Prior month weight as decimal (e.g. 0.09 = 9%)
         enabled:
           type: boolean
       required: [ticker, name, sector, priorWeight, enabled]
@@ -347,19 +325,14 @@ components:
       properties:
         cashMin:
           type: number
-          description: Minimum cash as decimal
         cashMax:
           type: number
-          description: Maximum cash as decimal
         maxEtfWeight:
           type: number
-          description: Max single ETF weight as decimal
         minInclusionThreshold:
           type: number
-          description: Minimum score threshold for inclusion (0-100)
         targetActiveEtfs:
           type: integer
-          description: Target number of active ETF positions
         diversificationEnabled:
           type: boolean
         updatedAt:
@@ -411,7 +384,6 @@ components:
       properties:
         csvContent:
           type: string
-          description: CSV file content as string. First column is Date, remaining columns are ticker symbols.
       required: [csvContent]
 
     LivePricesFetchInput:
@@ -421,10 +393,8 @@ components:
           type: array
           items:
             type: string
-          description: Ticker symbols to fetch. If omitted, uses the active ETF universe.
         lookbackDays:
           type: integer
-          description: Number of calendar days of history to fetch (default 400)
       required: []
 
     LivePricesTickerResult:
@@ -470,7 +440,6 @@ components:
       properties:
         label:
           type: ["string", "null"]
-          description: Optional label for this run (e.g. "July 2026 Rebalance")
         overrideDiversification:
           type: ["boolean", "null"]
       required: []
@@ -480,31 +449,22 @@ components:
       properties:
         mom20:
           type: number
-          description: 20-day momentum score 0-100
         mom60:
           type: number
-          description: 60-day momentum score 0-100
         mom120:
           type: number
-          description: 120-day momentum score 0-100
         mom252:
           type: number
-          description: 252-day momentum score 0-100
         trendQuality:
           type: number
-          description: Trend quality score 0-100
         realizedVol60:
           type: number
-          description: 60-day realized volatility score 0-100 (higher = lower vol)
         drawdown:
           type: number
-          description: Drawdown score 0-100 (higher = smaller drawdown)
         meanReversion:
           type: number
-          description: Short-term mean reversion score 0-100
         composite:
           type: number
-          description: Composite factor score 0-100
       required: [mom20, mom60, mom120, mom252, trendQuality, realizedVol60, drawdown, meanReversion, composite]
 
     EtfAllocation:
@@ -518,13 +478,10 @@ components:
           type: string
         weight:
           type: number
-          description: Final allocated weight as decimal
         priorWeight:
           type: number
-          description: Prior month weight as decimal
         change:
           type: number
-          description: Weight change vs prior month as decimal
         factorScores:
           $ref: "#/components/schemas/FactorScores"
         active:
@@ -540,14 +497,11 @@ components:
           type: string
         score:
           type: ["number", "null"]
-          description: Component score 0-100, or null if unavailable
         method:
           type: string
           enum: [computed, proxy, unavailable]
-          description: How this component was derived
         description:
           type: string
-          description: Plain-English explanation of what drove this reading
       required: [key, label, score, method, description]
 
     RegimeScores:
@@ -555,33 +509,24 @@ components:
       properties:
         trend:
           type: number
-          description: Trend score 0-100
         breadth:
           type: number
-          description: Breadth score 0-100
         volatility:
           type: number
-          description: Volatility score 0-100 (higher = lower vol environment)
         liquidity:
           type: number
-          description: Liquidity score 0-100
         composite:
           type: number
-          description: Composite regime score 0-100
         label:
           type: string
-          description: Human-readable regime label e.g. "Risk-On", "Cautious", "Risk-Off"
         components:
           type: array
           items:
             $ref: "#/components/schemas/RegimeComponent"
-          description: All 10 regime components with method and score
         confidence:
           type: number
-          description: Model confidence 0-100 based on data availability
         drivers:
           type: string
-          description: Plain-English explanation of main regime drivers
       required: [trend, breadth, volatility, liquidity, composite, label, components, confidence, drivers]
 
     WatchlistEntry:
@@ -595,16 +540,13 @@ components:
           type: string
         compositeScore:
           type: number
-          description: Composite factor score 0-100
         blockingReason:
           type: string
           enum: [score_below_threshold, rank_cutoff, no_price_data]
         blockingFactor:
           type: string
-          description: The specific factor or rule that blocked inclusion
         improvement:
           type: string
-          description: What needs to change for this ETF to enter the portfolio
       required: [ticker, name, sector, compositeScore, blockingReason, blockingFactor, improvement]
 
     IcSummary:
@@ -612,16 +554,12 @@ components:
       properties:
         whatChanged:
           type: string
-          description: Position and cash changes vs prior month
         why:
           type: string
-          description: Regime-based explanation for the allocation
         risks:
           type: string
-          description: Key risks and weak signals from the model
         watchNext:
           type: string
-          description: What to monitor before the next rebalance
       required: [whatChanged, why, risks, watchNext]
 
     IterationInfo:
@@ -629,21 +567,99 @@ components:
       properties:
         current:
           type: integer
-          description: Current iteration number
         max:
           type: integer
-          description: Maximum planned iterations
         completed:
           type: array
           items:
             type: string
-          description: Completed milestone labels
         next:
           type: array
           items:
             type: string
-          description: Recommended next items
       required: [current, max, completed, next]
+
+    RiskContributionEntry:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        weight:
+          type: number
+          description: Portfolio weight as decimal
+        riskContributionPct:
+          type: number
+          description: Percentage of total portfolio variance attributed to this position
+        marginalVolContribution:
+          type: number
+          description: Annualized vol contribution (marginal contribution to portfolio vol)
+      required: [ticker, name, weight, riskContributionPct, marginalVolContribution]
+
+    CorrelationCell:
+      type: object
+      properties:
+        tickerA:
+          type: string
+        tickerB:
+          type: string
+        correlation:
+          type: number
+          description: Pearson correlation coefficient -1 to 1
+      required: [tickerA, tickerB, correlation]
+
+    TrackingErrorEntry:
+      type: object
+      properties:
+        benchmarkTicker:
+          type: string
+        trackingError:
+          type: number
+          description: Annualized tracking error as decimal (e.g. 0.045 = 4.5%)
+      required: [benchmarkTicker, trackingError]
+
+    PortfolioDiagnostics:
+      type: object
+      properties:
+        expectedVolatility:
+          type: number
+          description: Annualized portfolio volatility as decimal (e.g. 0.12 = 12%)
+        hhi:
+          type: number
+          description: Herfindahl-Hirschman Index of portfolio weights 0-1 (1 = fully concentrated)
+        effectiveNumberOfBets:
+          type: number
+          description: Effective number of independent bets (1/HHI). Higher = more diversified.
+        diversificationScore:
+          type: number
+          description: Diversification score 0-100 based on average pairwise correlation
+        riskContributions:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskContributionEntry"
+        correlationMatrix:
+          type: array
+          items:
+            $ref: "#/components/schemas/CorrelationCell"
+          description: Full N×N correlation matrix for active ETFs
+        activeTickers:
+          type: array
+          items:
+            type: string
+        trackingErrors:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrackingErrorEntry"
+        lookbackDays:
+          type: integer
+          description: Number of trading days used for covariance estimation
+        insufficientDataReasons:
+          type: array
+          items:
+            type: string
+          description: Flags for any metrics that could not be fully computed
+      required: [expectedVolatility, hhi, effectiveNumberOfBets, diversificationScore, riskContributions, correlationMatrix, activeTickers, trackingErrors, lookbackDays, insufficientDataReasons]
 
     RunResult:
       type: object
@@ -662,7 +678,6 @@ components:
             $ref: "#/components/schemas/EtfAllocation"
         cashWeight:
           type: number
-          description: Cash allocation as decimal
         cashPriorWeight:
           type: number
         cashChange:
@@ -671,10 +686,8 @@ components:
           type: integer
         investedSleeve:
           type: number
-          description: Total invested (non-cash) weight
         priceDataEnd:
           type: string
-          description: Last date of price data used
         steps:
           type: array
           items:
@@ -683,12 +696,13 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/WatchlistEntry"
-          description: Near-miss ETFs that almost entered the portfolio
         icSummary:
           $ref: "#/components/schemas/IcSummary"
         iterationInfo:
           $ref: "#/components/schemas/IterationInfo"
-      required: [sessionId, runAt, label, regime, allocations, cashWeight, cashPriorWeight, cashChange, activeEtfCount, investedSleeve, priceDataEnd, steps, watchlist, icSummary, iterationInfo]
+        diagnostics:
+          $ref: "#/components/schemas/PortfolioDiagnostics"
+      required: [sessionId, runAt, label, regime, allocations, cashWeight, cashPriorWeight, cashChange, activeEtfCount, investedSleeve, priceDataEnd, steps, watchlist, icSummary, iterationInfo, diagnostics]
 
     PipelineStep:
       type: object
@@ -737,7 +751,6 @@ components:
       properties:
         sessionId:
           type: ["integer", "null"]
-          description: Session to report on; null = latest
         format:
           type: string
           enum: [pdf, png, csv]

@@ -6,9 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-/**
- * How this component was derived
- */
 export type RegimeComponentMethod = typeof RegimeComponentMethod[keyof typeof RegimeComponentMethod];
 
 

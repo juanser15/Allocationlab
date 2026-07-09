@@ -8,10 +8,7 @@
 import type { ReportInputFormat } from './reportInputFormat';
 
 export interface ReportInput {
-  /**
-     * Session to report on; null = latest
-     * @nullable
-     */
+  /** @nullable */
   sessionId?: number | null;
   format: ReportInputFormat;
 }

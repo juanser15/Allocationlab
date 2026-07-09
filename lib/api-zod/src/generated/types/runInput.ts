@@ -7,10 +7,7 @@
  */
 
 export interface RunInput {
-  /**
-     * Optional label for this run (e.g. "July 2026 Rebalance")
-     * @nullable
-     */
+  /** @nullable */
   label?: string | null;
   /** @nullable */
   overrideDiversification?: boolean | null;

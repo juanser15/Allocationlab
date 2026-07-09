@@ -7,8 +7,6 @@
  */
 
 export interface LivePricesFetchInput {
-  /** Ticker symbols to fetch. If omitted, uses the active ETF universe. */
   tickers?: string[];
-  /** Number of calendar days of history to fetch (default 400) */
   lookbackDays?: number;
 }

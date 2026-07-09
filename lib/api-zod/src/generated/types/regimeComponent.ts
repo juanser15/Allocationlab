@@ -10,13 +10,8 @@ import type { RegimeComponentMethod } from './regimeComponentMethod';
 export interface RegimeComponent {
   key: string;
   label: string;
-  /**
-     * Component score 0-100, or null if unavailable
-     * @nullable
-     */
+  /** @nullable */
   score: number | null;
-  /** How this component was derived */
   method: RegimeComponentMethod;
-  /** Plain-English explanation of what drove this reading */
   description: string;
 }

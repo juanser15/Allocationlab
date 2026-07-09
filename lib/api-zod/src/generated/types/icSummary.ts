@@ -7,12 +7,8 @@
  */
 
 export interface IcSummary {
-  /** Position and cash changes vs prior month */
   whatChanged: string;
-  /** Regime-based explanation for the allocation */
   why: string;
-  /** Key risks and weak signals from the model */
   risks: string;
-  /** What to monitor before the next rebalance */
   watchNext: string;
 }

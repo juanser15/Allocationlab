@@ -19,7 +19,6 @@ export interface EtfEntry {
   ticker: string;
   name: string;
   sector: string;
-  /** Prior month weight as decimal (e.g. 0.09 = 9%) */
   priorWeight: number;
   enabled: boolean;
 }
@@ -36,15 +35,10 @@ export interface UniverseInput {
 }
 
 export interface Constraints {
-  /** Minimum cash as decimal */
   cashMin: number;
-  /** Maximum cash as decimal */
   cashMax: number;
-  /** Max single ETF weight as decimal */
   maxEtfWeight: number;
-  /** Minimum score threshold for inclusion (0-100) */
   minInclusionThreshold: number;
-  /** Target number of active ETF positions */
   targetActiveEtfs: number;
   diversificationEnabled: boolean;
   updatedAt: string;
@@ -72,14 +66,11 @@ export interface PricesStatus {
 }
 
 export interface PricesUploadInput {
-  /** CSV file content as string. First column is Date, remaining columns are ticker symbols. */
   csvContent: string;
 }
 
 export interface LivePricesFetchInput {
-  /** Ticker symbols to fetch. If omitted, uses the active ETF universe. */
   tickers?: string[];
-  /** Number of calendar days of history to fetch (default 400) */
   lookbackDays?: number;
 }
 
@@ -105,33 +96,21 @@ export interface LivePricesResult {
 }
 
 export interface RunInput {
-  /**
-     * Optional label for this run (e.g. "July 2026 Rebalance")
-     * @nullable
-     */
+  /** @nullable */
   label?: string | null;
   /** @nullable */
   overrideDiversification?: boolean | null;
 }
 
 export interface FactorScores {
-  /** 20-day momentum score 0-100 */
   mom20: number;
-  /** 60-day momentum score 0-100 */
   mom60: number;
-  /** 120-day momentum score 0-100 */
   mom120: number;
-  /** 252-day momentum score 0-100 */
   mom252: number;
-  /** Trend quality score 0-100 */
   trendQuality: number;
-  /** 60-day realized volatility score 0-100 (higher = lower vol) */
   realizedVol60: number;
-  /** Drawdown score 0-100 (higher = smaller drawdown) */
   drawdown: number;
-  /** Short-term mean reversion score 0-100 */
   meanReversion: number;
-  /** Composite factor score 0-100 */
   composite: number;
 }
 
@@ -139,19 +118,13 @@ export interface EtfAllocation {
   ticker: string;
   name: string;
   sector: string;
-  /** Final allocated weight as decimal */
   weight: number;
-  /** Prior month weight as decimal */
   priorWeight: number;
-  /** Weight change vs prior month as decimal */
   change: number;
   factorScores: FactorScores;
   active: boolean;
 }
 
-/**
- * How this component was derived
- */
 export type RegimeComponentMethod = typeof RegimeComponentMethod[keyof typeof RegimeComponentMethod];
 
 
@@ -164,35 +137,21 @@ export const RegimeComponentMethod = {
 export interface RegimeComponent {
   key: string;
   label: string;
-  /**
-     * Component score 0-100, or null if unavailable
-     * @nullable
-     */
+  /** @nullable */
   score: number | null;
-  /** How this component was derived */
   method: RegimeComponentMethod;
-  /** Plain-English explanation of what drove this reading */
   description: string;
 }
 
 export interface RegimeScores {
-  /** Trend score 0-100 */
   trend: number;
-  /** Breadth score 0-100 */
   breadth: number;
-  /** Volatility score 0-100 (higher = lower vol environment) */
   volatility: number;
-  /** Liquidity score 0-100 */
   liquidity: number;
-  /** Composite regime score 0-100 */
   composite: number;
-  /** Human-readable regime label e.g. "Risk-On", "Cautious", "Risk-Off" */
   label: string;
-  /** All 10 regime components with method and score */
   components: RegimeComponent[];
-  /** Model confidence 0-100 based on data availability */
   confidence: number;
-  /** Plain-English explanation of main regime drivers */
   drivers: string;
 }
 
@@ -209,35 +168,68 @@ export interface WatchlistEntry {
   ticker: string;
   name: string;
   sector: string;
-  /** Composite factor score 0-100 */
   compositeScore: number;
   blockingReason: WatchlistEntryBlockingReason;
-  /** The specific factor or rule that blocked inclusion */
   blockingFactor: string;
-  /** What needs to change for this ETF to enter the portfolio */
   improvement: string;
 }
 
 export interface IcSummary {
-  /** Position and cash changes vs prior month */
   whatChanged: string;
-  /** Regime-based explanation for the allocation */
   why: string;
-  /** Key risks and weak signals from the model */
   risks: string;
-  /** What to monitor before the next rebalance */
   watchNext: string;
 }
 
 export interface IterationInfo {
-  /** Current iteration number */
   current: number;
-  /** Maximum planned iterations */
   max: number;
-  /** Completed milestone labels */
   completed: string[];
-  /** Recommended next items */
   next: string[];
+}
+
+export interface RiskContributionEntry {
+  ticker: string;
+  name: string;
+  /** Portfolio weight as decimal */
+  weight: number;
+  /** Percentage of total portfolio variance attributed to this position */
+  riskContributionPct: number;
+  /** Annualized vol contribution (marginal contribution to portfolio vol) */
+  marginalVolContribution: number;
+}
+
+export interface CorrelationCell {
+  tickerA: string;
+  tickerB: string;
+  /** Pearson correlation coefficient -1 to 1 */
+  correlation: number;
+}
+
+export interface TrackingErrorEntry {
+  benchmarkTicker: string;
+  /** Annualized tracking error as decimal (e.g. 0.045 = 4.5%) */
+  trackingError: number;
+}
+
+export interface PortfolioDiagnostics {
+  /** Annualized portfolio volatility as decimal (e.g. 0.12 = 12%) */
+  expectedVolatility: number;
+  /** Herfindahl-Hirschman Index of portfolio weights 0-1 (1 = fully concentrated) */
+  hhi: number;
+  /** Effective number of independent bets (1/HHI). Higher = more diversified. */
+  effectiveNumberOfBets: number;
+  /** Diversification score 0-100 based on average pairwise correlation */
+  diversificationScore: number;
+  riskContributions: RiskContributionEntry[];
+  /** Full N×N correlation matrix for active ETFs */
+  correlationMatrix: CorrelationCell[];
+  activeTickers: string[];
+  trackingErrors: TrackingErrorEntry[];
+  /** Number of trading days used for covariance estimation */
+  lookbackDays: number;
+  /** Flags for any metrics that could not be fully computed */
+  insufficientDataReasons: string[];
 }
 
 export type PipelineStepStatus = typeof PipelineStepStatus[keyof typeof PipelineStepStatus];
@@ -265,20 +257,17 @@ export interface RunResult {
   label: string | null;
   regime: RegimeScores;
   allocations: EtfAllocation[];
-  /** Cash allocation as decimal */
   cashWeight: number;
   cashPriorWeight: number;
   cashChange: number;
   activeEtfCount: number;
-  /** Total invested (non-cash) weight */
   investedSleeve: number;
-  /** Last date of price data used */
   priceDataEnd: string;
   steps: PipelineStep[];
-  /** Near-miss ETFs that almost entered the portfolio */
   watchlist: WatchlistEntry[];
   icSummary: IcSummary;
   iterationInfo: IterationInfo;
+  diagnostics: PortfolioDiagnostics;
 }
 
 export interface Session {
@@ -307,10 +296,7 @@ export const ReportInputFormat = {
 } as const;
 
 export interface ReportInput {
-  /**
-     * Session to report on; null = latest
-     * @nullable
-     */
+  /** @nullable */
   sessionId?: number | null;
   format: ReportInputFormat;
 }

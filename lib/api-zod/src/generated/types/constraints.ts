@@ -7,15 +7,10 @@
  */
 
 export interface Constraints {
-  /** Minimum cash as decimal */
   cashMin: number;
-  /** Maximum cash as decimal */
   cashMax: number;
-  /** Max single ETF weight as decimal */
   maxEtfWeight: number;
-  /** Minimum score threshold for inclusion (0-100) */
   minInclusionThreshold: number;
-  /** Target number of active ETF positions */
   targetActiveEtfs: number;
   diversificationEnabled: boolean;
   updatedAt: string;

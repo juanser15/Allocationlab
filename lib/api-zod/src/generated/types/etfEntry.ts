@@ -10,7 +10,6 @@ export interface EtfEntry {
   ticker: string;
   name: string;
   sector: string;
-  /** Prior month weight as decimal (e.g. 0.09 = 9%) */
   priorWeight: number;
   enabled: boolean;
 }

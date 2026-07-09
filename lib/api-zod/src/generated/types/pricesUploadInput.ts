@@ -7,6 +7,5 @@
  */
 
 export interface PricesUploadInput {
-  /** CSV file content as string. First column is Date, remaining columns are ticker symbols. */
   csvContent: string;
 }

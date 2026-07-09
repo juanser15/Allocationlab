@@ -150,9 +150,6 @@ export const getGetUniverseUrl = () => {
   return `/api/universe`
 }
 
-/**
- * @summary Get ETF universe and prior weights
- */
 export const getUniverse = async ( options?: RequestInit): Promise<Universe> => {
 
   return customFetch<Universe>(getGetUniverseUrl(),
@@ -197,9 +194,6 @@ export type GetUniverseQueryResult = NonNullable<Awaited<ReturnType<typeof getUn
 export type GetUniverseQueryError = ErrorType<unknown>
 
 
-/**
- * @summary Get ETF universe and prior weights
- */
 
 export function useGetUniverse<TData = Awaited<ReturnType<typeof getUniverse>>, TError = ErrorType<unknown>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUniverse>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
@@ -227,9 +221,6 @@ export const getUpdateUniverseUrl = () => {
   return `/api/universe`
 }
 
-/**
- * @summary Update ETF universe and prior weights
- */
 export const updateUniverse = async (universeInput: UniverseInput, options?: RequestInit): Promise<Universe> => {
 
   return customFetch<Universe>(getUpdateUniverseUrl(),
@@ -275,10 +266,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateUniverseMutationBody = BodyType<UniverseInput>
     export type UpdateUniverseMutationError = ErrorType<unknown>
 
-    /**
- * @summary Update ETF universe and prior weights
- */
-export const useUpdateUniverse = <TError = ErrorType<unknown>,
+    export const useUpdateUniverse = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateUniverse>>, TError,{data: BodyType<UniverseInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateUniverse>>,
@@ -297,9 +285,6 @@ export const getGetConstraintsUrl = () => {
   return `/api/constraints`
 }
 
-/**
- * @summary Get allocation constraints
- */
 export const getConstraints = async ( options?: RequestInit): Promise<Constraints> => {
 
   return customFetch<Constraints>(getGetConstraintsUrl(),
@@ -344,9 +329,6 @@ export type GetConstraintsQueryResult = NonNullable<Awaited<ReturnType<typeof ge
 export type GetConstraintsQueryError = ErrorType<unknown>
 
 
-/**
- * @summary Get allocation constraints
- */
 
 export function useGetConstraints<TData = Awaited<ReturnType<typeof getConstraints>>, TError = ErrorType<unknown>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getConstraints>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
@@ -374,9 +356,6 @@ export const getUpdateConstraintsUrl = () => {
   return `/api/constraints`
 }
 
-/**
- * @summary Update allocation constraints
- */
 export const updateConstraints = async (constraintsInput: ConstraintsInput, options?: RequestInit): Promise<Constraints> => {
 
   return customFetch<Constraints>(getUpdateConstraintsUrl(),
@@ -422,10 +401,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateConstraintsMutationBody = BodyType<ConstraintsInput>
     export type UpdateConstraintsMutationError = ErrorType<unknown>
 
-    /**
- * @summary Update allocation constraints
- */
-export const useUpdateConstraints = <TError = ErrorType<unknown>,
+    export const useUpdateConstraints = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateConstraints>>, TError,{data: BodyType<ConstraintsInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateConstraints>>,
@@ -444,9 +420,6 @@ export const getGetPricesStatusUrl = () => {
   return `/api/prices/status`
 }
 
-/**
- * @summary Check price data availability and coverage
- */
 export const getPricesStatus = async ( options?: RequestInit): Promise<PricesStatus> => {
 
   return customFetch<PricesStatus>(getGetPricesStatusUrl(),
@@ -491,9 +464,6 @@ export type GetPricesStatusQueryResult = NonNullable<Awaited<ReturnType<typeof g
 export type GetPricesStatusQueryError = ErrorType<unknown>
 
 
-/**
- * @summary Check price data availability and coverage
- */
 
 export function useGetPricesStatus<TData = Awaited<ReturnType<typeof getPricesStatus>>, TError = ErrorType<unknown>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPricesStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
@@ -521,9 +491,6 @@ export const getFetchLivePricesUrl = () => {
   return `/api/prices/live`
 }
 
-/**
- * @summary Fetch live adjusted close prices from Yahoo Finance for the active ETF universe
- */
 export const fetchLivePrices = async (livePricesFetchInput: LivePricesFetchInput, options?: RequestInit): Promise<LivePricesResult> => {
 
   return customFetch<LivePricesResult>(getFetchLivePricesUrl(),
@@ -569,10 +536,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type FetchLivePricesMutationBody = BodyType<LivePricesFetchInput>
     export type FetchLivePricesMutationError = ErrorType<LivePricesResult>
 
-    /**
- * @summary Fetch live adjusted close prices from Yahoo Finance for the active ETF universe
- */
-export const useFetchLivePrices = <TError = ErrorType<LivePricesResult>,
+    export const useFetchLivePrices = <TError = ErrorType<LivePricesResult>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fetchLivePrices>>, TError,{data: BodyType<LivePricesFetchInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof fetchLivePrices>>,
@@ -591,9 +555,6 @@ export const getUploadPricesUrl = () => {
   return `/api/prices/upload`
 }
 
-/**
- * @summary Upload CSV price history
- */
 export const uploadPrices = async (pricesUploadInput: PricesUploadInput, options?: RequestInit): Promise<PricesStatus> => {
 
   return customFetch<PricesStatus>(getUploadPricesUrl(),
@@ -639,10 +600,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UploadPricesMutationBody = BodyType<PricesUploadInput>
     export type UploadPricesMutationError = ErrorType<unknown>
 
-    /**
- * @summary Upload CSV price history
- */
-export const useUploadPrices = <TError = ErrorType<unknown>,
+    export const useUploadPrices = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadPrices>>, TError,{data: BodyType<PricesUploadInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof uploadPrices>>,
@@ -661,9 +619,6 @@ export const getRunPipelineUrl = () => {
   return `/api/run`
 }
 
-/**
- * @summary Execute the full allocation pipeline
- */
 export const runPipeline = async (runInput: RunInput, options?: RequestInit): Promise<RunResult> => {
 
   return customFetch<RunResult>(getRunPipelineUrl(),
@@ -709,10 +664,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type RunPipelineMutationBody = BodyType<RunInput>
     export type RunPipelineMutationError = ErrorType<ErrorResponse>
 
-    /**
- * @summary Execute the full allocation pipeline
- */
-export const useRunPipeline = <TError = ErrorType<ErrorResponse>,
+    export const useRunPipeline = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runPipeline>>, TError,{data: BodyType<RunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof runPipeline>>,
@@ -731,9 +683,6 @@ export const getGetLatestResultsUrl = () => {
   return `/api/results/latest`
 }
 
-/**
- * @summary Get the most recent allocation run results
- */
 export const getLatestResults = async ( options?: RequestInit): Promise<RunResult> => {
 
   return customFetch<RunResult>(getGetLatestResultsUrl(),
@@ -778,9 +727,6 @@ export type GetLatestResultsQueryResult = NonNullable<Awaited<ReturnType<typeof 
 export type GetLatestResultsQueryError = ErrorType<ErrorResponse>
 
 
-/**
- * @summary Get the most recent allocation run results
- */
 
 export function useGetLatestResults<TData = Awaited<ReturnType<typeof getLatestResults>>, TError = ErrorType<ErrorResponse>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLatestResults>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
@@ -808,9 +754,6 @@ export const getListSessionsUrl = () => {
   return `/api/sessions`
 }
 
-/**
- * @summary List past allocation run sessions
- */
 export const listSessions = async ( options?: RequestInit): Promise<Session[]> => {
 
   return customFetch<Session[]>(getListSessionsUrl(),
@@ -855,9 +798,6 @@ export type ListSessionsQueryResult = NonNullable<Awaited<ReturnType<typeof list
 export type ListSessionsQueryError = ErrorType<unknown>
 
 
-/**
- * @summary List past allocation run sessions
- */
 
 export function useListSessions<TData = Awaited<ReturnType<typeof listSessions>>, TError = ErrorType<unknown>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
@@ -885,9 +825,6 @@ export const getGetSessionUrl = (sessionId: number,) => {
   return `/api/sessions/${sessionId}`
 }
 
-/**
- * @summary Get a specific past run session
- */
 export const getSession = async (sessionId: number, options?: RequestInit): Promise<SessionDetail> => {
 
   return customFetch<SessionDetail>(getGetSessionUrl(sessionId),
@@ -932,9 +869,6 @@ export type GetSessionQueryResult = NonNullable<Awaited<ReturnType<typeof getSes
 export type GetSessionQueryError = ErrorType<ErrorResponse>
 
 
-/**
- * @summary Get a specific past run session
- */
 
 export function useGetSession<TData = Awaited<ReturnType<typeof getSession>>, TError = ErrorType<ErrorResponse>>(
  sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
@@ -962,9 +896,6 @@ export const getGenerateReportUrl = () => {
   return `/api/reports/generate`
 }
 
-/**
- * @summary Generate a downloadable report from the latest results
- */
 export const generateReport = async (reportInput: ReportInput, options?: RequestInit): Promise<ReportResult> => {
 
   return customFetch<ReportResult>(getGenerateReportUrl(),
@@ -1010,10 +941,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type GenerateReportMutationBody = BodyType<ReportInput>
     export type GenerateReportMutationError = ErrorType<unknown>
 
-    /**
- * @summary Generate a downloadable report from the latest results
- */
-export const useGenerateReport = <TError = ErrorType<unknown>,
+    export const useGenerateReport = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateReport>>, TError,{data: BodyType<ReportInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof generateReport>>,
@@ -1032,9 +960,6 @@ export const getDownloadReportUrl = (token: string,) => {
   return `/api/reports/download/${token}`
 }
 
-/**
- * @summary Download a generated report file
- */
 export const downloadReport = async (token: string, options?: RequestInit): Promise<Blob> => {
 
   return customFetch<Blob>(getDownloadReportUrl(token),
@@ -1079,9 +1004,6 @@ export type DownloadReportQueryResult = NonNullable<Awaited<ReturnType<typeof do
 export type DownloadReportQueryError = ErrorType<ErrorResponse>
 
 
-/**
- * @summary Download a generated report file
- */
 
 export function useDownloadReport<TData = Awaited<ReturnType<typeof downloadReport>>, TError = ErrorType<ErrorResponse>>(
  token: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}

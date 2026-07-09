@@ -16,15 +16,12 @@ export const HealthCheckResponse = zod.object({
 })
 
 
-/**
- * @summary Get ETF universe and prior weights
- */
 export const GetUniverseResponse = zod.object({
   "etfs": zod.array(zod.object({
   "ticker": zod.string(),
   "name": zod.string(),
   "sector": zod.string(),
-  "priorWeight": zod.number().describe('Prior month weight as decimal (e.g. 0.09 = 9%)'),
+  "priorWeight": zod.number(),
   "enabled": zod.boolean()
 })),
   "cashPriorWeight": zod.number(),
@@ -32,15 +29,12 @@ export const GetUniverseResponse = zod.object({
 })
 
 
-/**
- * @summary Update ETF universe and prior weights
- */
 export const UpdateUniverseBody = zod.object({
   "etfs": zod.array(zod.object({
   "ticker": zod.string(),
   "name": zod.string(),
   "sector": zod.string(),
-  "priorWeight": zod.number().describe('Prior month weight as decimal (e.g. 0.09 = 9%)'),
+  "priorWeight": zod.number(),
   "enabled": zod.boolean()
 })),
   "cashPriorWeight": zod.number()
@@ -51,7 +45,7 @@ export const UpdateUniverseResponse = zod.object({
   "ticker": zod.string(),
   "name": zod.string(),
   "sector": zod.string(),
-  "priorWeight": zod.number().describe('Prior month weight as decimal (e.g. 0.09 = 9%)'),
+  "priorWeight": zod.number(),
   "enabled": zod.boolean()
 })),
   "cashPriorWeight": zod.number(),
@@ -59,23 +53,17 @@ export const UpdateUniverseResponse = zod.object({
 })
 
 
-/**
- * @summary Get allocation constraints
- */
 export const GetConstraintsResponse = zod.object({
-  "cashMin": zod.number().describe('Minimum cash as decimal'),
-  "cashMax": zod.number().describe('Maximum cash as decimal'),
-  "maxEtfWeight": zod.number().describe('Max single ETF weight as decimal'),
-  "minInclusionThreshold": zod.number().describe('Minimum score threshold for inclusion (0-100)'),
-  "targetActiveEtfs": zod.number().describe('Target number of active ETF positions'),
+  "cashMin": zod.number(),
+  "cashMax": zod.number(),
+  "maxEtfWeight": zod.number(),
+  "minInclusionThreshold": zod.number(),
+  "targetActiveEtfs": zod.number(),
   "diversificationEnabled": zod.boolean(),
   "updatedAt": zod.string()
 })
 
 
-/**
- * @summary Update allocation constraints
- */
 export const UpdateConstraintsBody = zod.object({
   "cashMin": zod.number(),
   "cashMax": zod.number(),
@@ -86,19 +74,16 @@ export const UpdateConstraintsBody = zod.object({
 })
 
 export const UpdateConstraintsResponse = zod.object({
-  "cashMin": zod.number().describe('Minimum cash as decimal'),
-  "cashMax": zod.number().describe('Maximum cash as decimal'),
-  "maxEtfWeight": zod.number().describe('Max single ETF weight as decimal'),
-  "minInclusionThreshold": zod.number().describe('Minimum score threshold for inclusion (0-100)'),
-  "targetActiveEtfs": zod.number().describe('Target number of active ETF positions'),
+  "cashMin": zod.number(),
+  "cashMax": zod.number(),
+  "maxEtfWeight": zod.number(),
+  "minInclusionThreshold": zod.number(),
+  "targetActiveEtfs": zod.number(),
   "diversificationEnabled": zod.boolean(),
   "updatedAt": zod.string()
 })
 
 
-/**
- * @summary Check price data availability and coverage
- */
 export const GetPricesStatusResponse = zod.object({
   "hasData": zod.boolean(),
   "tickers": zod.array(zod.string()),
@@ -110,12 +95,9 @@ export const GetPricesStatusResponse = zod.object({
 })
 
 
-/**
- * @summary Fetch live adjusted close prices from Yahoo Finance for the active ETF universe
- */
 export const FetchLivePricesBody = zod.object({
-  "tickers": zod.array(zod.string()).optional().describe('Ticker symbols to fetch. If omitted, uses the active ETF universe.'),
-  "lookbackDays": zod.number().optional().describe('Number of calendar days of history to fetch (default 400)')
+  "tickers": zod.array(zod.string()).optional(),
+  "lookbackDays": zod.number().optional()
 })
 
 export const FetchLivePricesResponse = zod.object({
@@ -140,11 +122,8 @@ export const FetchLivePricesResponse = zod.object({
 })
 
 
-/**
- * @summary Upload CSV price history
- */
 export const UploadPricesBody = zod.object({
-  "csvContent": zod.string().describe('CSV file content as string. First column is Date, remaining columns are ticker symbols.')
+  "csvContent": zod.string()
 })
 
 export const UploadPricesResponse = zod.object({
@@ -158,11 +137,8 @@ export const UploadPricesResponse = zod.object({
 })
 
 
-/**
- * @summary Execute the full allocation pipeline
- */
 export const RunPipelineBody = zod.object({
-  "label": zod.string().nullish().describe('Optional label for this run (e.g. \"July 2026 Rebalance\")'),
+  "label": zod.string().nullish(),
   "overrideDiversification": zod.boolean().nullish()
 })
 
@@ -171,48 +147,48 @@ export const RunPipelineResponse = zod.object({
   "runAt": zod.string(),
   "label": zod.string().nullable(),
   "regime": zod.object({
-  "trend": zod.number().describe('Trend score 0-100'),
-  "breadth": zod.number().describe('Breadth score 0-100'),
-  "volatility": zod.number().describe('Volatility score 0-100 (higher = lower vol environment)'),
-  "liquidity": zod.number().describe('Liquidity score 0-100'),
-  "composite": zod.number().describe('Composite regime score 0-100'),
-  "label": zod.string().describe('Human-readable regime label e.g. \"Risk-On\", \"Cautious\", \"Risk-Off\"'),
+  "trend": zod.number(),
+  "breadth": zod.number(),
+  "volatility": zod.number(),
+  "liquidity": zod.number(),
+  "composite": zod.number(),
+  "label": zod.string(),
   "components": zod.array(zod.object({
   "key": zod.string(),
   "label": zod.string(),
-  "score": zod.number().nullable().describe('Component score 0-100, or null if unavailable'),
-  "method": zod.enum(['computed', 'proxy', 'unavailable']).describe('How this component was derived'),
-  "description": zod.string().describe('Plain-English explanation of what drove this reading')
-})).describe('All 10 regime components with method and score'),
-  "confidence": zod.number().describe('Model confidence 0-100 based on data availability'),
-  "drivers": zod.string().describe('Plain-English explanation of main regime drivers')
+  "score": zod.number().nullable(),
+  "method": zod.enum(['computed', 'proxy', 'unavailable']),
+  "description": zod.string()
+})),
+  "confidence": zod.number(),
+  "drivers": zod.string()
 }),
   "allocations": zod.array(zod.object({
   "ticker": zod.string(),
   "name": zod.string(),
   "sector": zod.string(),
-  "weight": zod.number().describe('Final allocated weight as decimal'),
-  "priorWeight": zod.number().describe('Prior month weight as decimal'),
-  "change": zod.number().describe('Weight change vs prior month as decimal'),
+  "weight": zod.number(),
+  "priorWeight": zod.number(),
+  "change": zod.number(),
   "factorScores": zod.object({
-  "mom20": zod.number().describe('20-day momentum score 0-100'),
-  "mom60": zod.number().describe('60-day momentum score 0-100'),
-  "mom120": zod.number().describe('120-day momentum score 0-100'),
-  "mom252": zod.number().describe('252-day momentum score 0-100'),
-  "trendQuality": zod.number().describe('Trend quality score 0-100'),
-  "realizedVol60": zod.number().describe('60-day realized volatility score 0-100 (higher = lower vol)'),
-  "drawdown": zod.number().describe('Drawdown score 0-100 (higher = smaller drawdown)'),
-  "meanReversion": zod.number().describe('Short-term mean reversion score 0-100'),
-  "composite": zod.number().describe('Composite factor score 0-100')
+  "mom20": zod.number(),
+  "mom60": zod.number(),
+  "mom120": zod.number(),
+  "mom252": zod.number(),
+  "trendQuality": zod.number(),
+  "realizedVol60": zod.number(),
+  "drawdown": zod.number(),
+  "meanReversion": zod.number(),
+  "composite": zod.number()
 }),
   "active": zod.boolean()
 })),
-  "cashWeight": zod.number().describe('Cash allocation as decimal'),
+  "cashWeight": zod.number(),
   "cashPriorWeight": zod.number(),
   "cashChange": zod.number(),
   "activeEtfCount": zod.number(),
-  "investedSleeve": zod.number().describe('Total invested (non-cash) weight'),
-  "priceDataEnd": zod.string().describe('Last date of price data used'),
+  "investedSleeve": zod.number(),
+  "priceDataEnd": zod.string(),
   "steps": zod.array(zod.object({
   "step": zod.string(),
   "label": zod.string(),
@@ -223,76 +199,98 @@ export const RunPipelineResponse = zod.object({
   "ticker": zod.string(),
   "name": zod.string(),
   "sector": zod.string(),
-  "compositeScore": zod.number().describe('Composite factor score 0-100'),
+  "compositeScore": zod.number(),
   "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
-  "blockingFactor": zod.string().describe('The specific factor or rule that blocked inclusion'),
-  "improvement": zod.string().describe('What needs to change for this ETF to enter the portfolio')
-})).describe('Near-miss ETFs that almost entered the portfolio'),
+  "blockingFactor": zod.string(),
+  "improvement": zod.string()
+})),
   "icSummary": zod.object({
-  "whatChanged": zod.string().describe('Position and cash changes vs prior month'),
-  "why": zod.string().describe('Regime-based explanation for the allocation'),
-  "risks": zod.string().describe('Key risks and weak signals from the model'),
-  "watchNext": zod.string().describe('What to monitor before the next rebalance')
+  "whatChanged": zod.string(),
+  "why": zod.string(),
+  "risks": zod.string(),
+  "watchNext": zod.string()
 }),
   "iterationInfo": zod.object({
-  "current": zod.number().describe('Current iteration number'),
-  "max": zod.number().describe('Maximum planned iterations'),
-  "completed": zod.array(zod.string()).describe('Completed milestone labels'),
-  "next": zod.array(zod.string()).describe('Recommended next items')
+  "current": zod.number(),
+  "max": zod.number(),
+  "completed": zod.array(zod.string()),
+  "next": zod.array(zod.string())
+}),
+  "diagnostics": zod.object({
+  "expectedVolatility": zod.number().describe('Annualized portfolio volatility as decimal (e.g. 0.12 = 12%)'),
+  "hhi": zod.number().describe('Herfindahl-Hirschman Index of portfolio weights 0-1 (1 = fully concentrated)'),
+  "effectiveNumberOfBets": zod.number().describe('Effective number of independent bets (1\/HHI). Higher = more diversified.'),
+  "diversificationScore": zod.number().describe('Diversification score 0-100 based on average pairwise correlation'),
+  "riskContributions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "weight": zod.number().describe('Portfolio weight as decimal'),
+  "riskContributionPct": zod.number().describe('Percentage of total portfolio variance attributed to this position'),
+  "marginalVolContribution": zod.number().describe('Annualized vol contribution (marginal contribution to portfolio vol)')
+})),
+  "correlationMatrix": zod.array(zod.object({
+  "tickerA": zod.string(),
+  "tickerB": zod.string(),
+  "correlation": zod.number().describe('Pearson correlation coefficient -1 to 1')
+})).describe('Full N×N correlation matrix for active ETFs'),
+  "activeTickers": zod.array(zod.string()),
+  "trackingErrors": zod.array(zod.object({
+  "benchmarkTicker": zod.string(),
+  "trackingError": zod.number().describe('Annualized tracking error as decimal (e.g. 0.045 = 4.5%)')
+})),
+  "lookbackDays": zod.number().describe('Number of trading days used for covariance estimation'),
+  "insufficientDataReasons": zod.array(zod.string()).describe('Flags for any metrics that could not be fully computed')
 })
 })
 
 
-/**
- * @summary Get the most recent allocation run results
- */
 export const GetLatestResultsResponse = zod.object({
   "sessionId": zod.number(),
   "runAt": zod.string(),
   "label": zod.string().nullable(),
   "regime": zod.object({
-  "trend": zod.number().describe('Trend score 0-100'),
-  "breadth": zod.number().describe('Breadth score 0-100'),
-  "volatility": zod.number().describe('Volatility score 0-100 (higher = lower vol environment)'),
-  "liquidity": zod.number().describe('Liquidity score 0-100'),
-  "composite": zod.number().describe('Composite regime score 0-100'),
-  "label": zod.string().describe('Human-readable regime label e.g. \"Risk-On\", \"Cautious\", \"Risk-Off\"'),
+  "trend": zod.number(),
+  "breadth": zod.number(),
+  "volatility": zod.number(),
+  "liquidity": zod.number(),
+  "composite": zod.number(),
+  "label": zod.string(),
   "components": zod.array(zod.object({
   "key": zod.string(),
   "label": zod.string(),
-  "score": zod.number().nullable().describe('Component score 0-100, or null if unavailable'),
-  "method": zod.enum(['computed', 'proxy', 'unavailable']).describe('How this component was derived'),
-  "description": zod.string().describe('Plain-English explanation of what drove this reading')
-})).describe('All 10 regime components with method and score'),
-  "confidence": zod.number().describe('Model confidence 0-100 based on data availability'),
-  "drivers": zod.string().describe('Plain-English explanation of main regime drivers')
+  "score": zod.number().nullable(),
+  "method": zod.enum(['computed', 'proxy', 'unavailable']),
+  "description": zod.string()
+})),
+  "confidence": zod.number(),
+  "drivers": zod.string()
 }),
   "allocations": zod.array(zod.object({
   "ticker": zod.string(),
   "name": zod.string(),
   "sector": zod.string(),
-  "weight": zod.number().describe('Final allocated weight as decimal'),
-  "priorWeight": zod.number().describe('Prior month weight as decimal'),
-  "change": zod.number().describe('Weight change vs prior month as decimal'),
+  "weight": zod.number(),
+  "priorWeight": zod.number(),
+  "change": zod.number(),
   "factorScores": zod.object({
-  "mom20": zod.number().describe('20-day momentum score 0-100'),
-  "mom60": zod.number().describe('60-day momentum score 0-100'),
-  "mom120": zod.number().describe('120-day momentum score 0-100'),
-  "mom252": zod.number().describe('252-day momentum score 0-100'),
-  "trendQuality": zod.number().describe('Trend quality score 0-100'),
-  "realizedVol60": zod.number().describe('60-day realized volatility score 0-100 (higher = lower vol)'),
-  "drawdown": zod.number().describe('Drawdown score 0-100 (higher = smaller drawdown)'),
-  "meanReversion": zod.number().describe('Short-term mean reversion score 0-100'),
-  "composite": zod.number().describe('Composite factor score 0-100')
+  "mom20": zod.number(),
+  "mom60": zod.number(),
+  "mom120": zod.number(),
+  "mom252": zod.number(),
+  "trendQuality": zod.number(),
+  "realizedVol60": zod.number(),
+  "drawdown": zod.number(),
+  "meanReversion": zod.number(),
+  "composite": zod.number()
 }),
   "active": zod.boolean()
 })),
-  "cashWeight": zod.number().describe('Cash allocation as decimal'),
+  "cashWeight": zod.number(),
   "cashPriorWeight": zod.number(),
   "cashChange": zod.number(),
   "activeEtfCount": zod.number(),
-  "investedSleeve": zod.number().describe('Total invested (non-cash) weight'),
-  "priceDataEnd": zod.string().describe('Last date of price data used'),
+  "investedSleeve": zod.number(),
+  "priceDataEnd": zod.string(),
   "steps": zod.array(zod.object({
   "step": zod.string(),
   "label": zod.string(),
@@ -303,29 +301,51 @@ export const GetLatestResultsResponse = zod.object({
   "ticker": zod.string(),
   "name": zod.string(),
   "sector": zod.string(),
-  "compositeScore": zod.number().describe('Composite factor score 0-100'),
+  "compositeScore": zod.number(),
   "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
-  "blockingFactor": zod.string().describe('The specific factor or rule that blocked inclusion'),
-  "improvement": zod.string().describe('What needs to change for this ETF to enter the portfolio')
-})).describe('Near-miss ETFs that almost entered the portfolio'),
+  "blockingFactor": zod.string(),
+  "improvement": zod.string()
+})),
   "icSummary": zod.object({
-  "whatChanged": zod.string().describe('Position and cash changes vs prior month'),
-  "why": zod.string().describe('Regime-based explanation for the allocation'),
-  "risks": zod.string().describe('Key risks and weak signals from the model'),
-  "watchNext": zod.string().describe('What to monitor before the next rebalance')
+  "whatChanged": zod.string(),
+  "why": zod.string(),
+  "risks": zod.string(),
+  "watchNext": zod.string()
 }),
   "iterationInfo": zod.object({
-  "current": zod.number().describe('Current iteration number'),
-  "max": zod.number().describe('Maximum planned iterations'),
-  "completed": zod.array(zod.string()).describe('Completed milestone labels'),
-  "next": zod.array(zod.string()).describe('Recommended next items')
+  "current": zod.number(),
+  "max": zod.number(),
+  "completed": zod.array(zod.string()),
+  "next": zod.array(zod.string())
+}),
+  "diagnostics": zod.object({
+  "expectedVolatility": zod.number().describe('Annualized portfolio volatility as decimal (e.g. 0.12 = 12%)'),
+  "hhi": zod.number().describe('Herfindahl-Hirschman Index of portfolio weights 0-1 (1 = fully concentrated)'),
+  "effectiveNumberOfBets": zod.number().describe('Effective number of independent bets (1\/HHI). Higher = more diversified.'),
+  "diversificationScore": zod.number().describe('Diversification score 0-100 based on average pairwise correlation'),
+  "riskContributions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "weight": zod.number().describe('Portfolio weight as decimal'),
+  "riskContributionPct": zod.number().describe('Percentage of total portfolio variance attributed to this position'),
+  "marginalVolContribution": zod.number().describe('Annualized vol contribution (marginal contribution to portfolio vol)')
+})),
+  "correlationMatrix": zod.array(zod.object({
+  "tickerA": zod.string(),
+  "tickerB": zod.string(),
+  "correlation": zod.number().describe('Pearson correlation coefficient -1 to 1')
+})).describe('Full N×N correlation matrix for active ETFs'),
+  "activeTickers": zod.array(zod.string()),
+  "trackingErrors": zod.array(zod.object({
+  "benchmarkTicker": zod.string(),
+  "trackingError": zod.number().describe('Annualized tracking error as decimal (e.g. 0.045 = 4.5%)')
+})),
+  "lookbackDays": zod.number().describe('Number of trading days used for covariance estimation'),
+  "insufficientDataReasons": zod.array(zod.string()).describe('Flags for any metrics that could not be fully computed')
 })
 })
 
 
-/**
- * @summary List past allocation run sessions
- */
 export const ListSessionsResponseItem = zod.object({
   "id": zod.number(),
   "runAt": zod.string(),
@@ -338,9 +358,6 @@ export const ListSessionsResponseItem = zod.object({
 export const ListSessionsResponse = zod.array(ListSessionsResponseItem)
 
 
-/**
- * @summary Get a specific past run session
- */
 export const GetSessionParams = zod.object({
   "sessionId": zod.coerce.number()
 })
@@ -360,48 +377,48 @@ export const GetSessionResponse = zod.object({
   "runAt": zod.string(),
   "label": zod.string().nullable(),
   "regime": zod.object({
-  "trend": zod.number().describe('Trend score 0-100'),
-  "breadth": zod.number().describe('Breadth score 0-100'),
-  "volatility": zod.number().describe('Volatility score 0-100 (higher = lower vol environment)'),
-  "liquidity": zod.number().describe('Liquidity score 0-100'),
-  "composite": zod.number().describe('Composite regime score 0-100'),
-  "label": zod.string().describe('Human-readable regime label e.g. \"Risk-On\", \"Cautious\", \"Risk-Off\"'),
+  "trend": zod.number(),
+  "breadth": zod.number(),
+  "volatility": zod.number(),
+  "liquidity": zod.number(),
+  "composite": zod.number(),
+  "label": zod.string(),
   "components": zod.array(zod.object({
   "key": zod.string(),
   "label": zod.string(),
-  "score": zod.number().nullable().describe('Component score 0-100, or null if unavailable'),
-  "method": zod.enum(['computed', 'proxy', 'unavailable']).describe('How this component was derived'),
-  "description": zod.string().describe('Plain-English explanation of what drove this reading')
-})).describe('All 10 regime components with method and score'),
-  "confidence": zod.number().describe('Model confidence 0-100 based on data availability'),
-  "drivers": zod.string().describe('Plain-English explanation of main regime drivers')
+  "score": zod.number().nullable(),
+  "method": zod.enum(['computed', 'proxy', 'unavailable']),
+  "description": zod.string()
+})),
+  "confidence": zod.number(),
+  "drivers": zod.string()
 }),
   "allocations": zod.array(zod.object({
   "ticker": zod.string(),
   "name": zod.string(),
   "sector": zod.string(),
-  "weight": zod.number().describe('Final allocated weight as decimal'),
-  "priorWeight": zod.number().describe('Prior month weight as decimal'),
-  "change": zod.number().describe('Weight change vs prior month as decimal'),
+  "weight": zod.number(),
+  "priorWeight": zod.number(),
+  "change": zod.number(),
   "factorScores": zod.object({
-  "mom20": zod.number().describe('20-day momentum score 0-100'),
-  "mom60": zod.number().describe('60-day momentum score 0-100'),
-  "mom120": zod.number().describe('120-day momentum score 0-100'),
-  "mom252": zod.number().describe('252-day momentum score 0-100'),
-  "trendQuality": zod.number().describe('Trend quality score 0-100'),
-  "realizedVol60": zod.number().describe('60-day realized volatility score 0-100 (higher = lower vol)'),
-  "drawdown": zod.number().describe('Drawdown score 0-100 (higher = smaller drawdown)'),
-  "meanReversion": zod.number().describe('Short-term mean reversion score 0-100'),
-  "composite": zod.number().describe('Composite factor score 0-100')
+  "mom20": zod.number(),
+  "mom60": zod.number(),
+  "mom120": zod.number(),
+  "mom252": zod.number(),
+  "trendQuality": zod.number(),
+  "realizedVol60": zod.number(),
+  "drawdown": zod.number(),
+  "meanReversion": zod.number(),
+  "composite": zod.number()
 }),
   "active": zod.boolean()
 })),
-  "cashWeight": zod.number().describe('Cash allocation as decimal'),
+  "cashWeight": zod.number(),
   "cashPriorWeight": zod.number(),
   "cashChange": zod.number(),
   "activeEtfCount": zod.number(),
-  "investedSleeve": zod.number().describe('Total invested (non-cash) weight'),
-  "priceDataEnd": zod.string().describe('Last date of price data used'),
+  "investedSleeve": zod.number(),
+  "priceDataEnd": zod.string(),
   "steps": zod.array(zod.object({
   "step": zod.string(),
   "label": zod.string(),
@@ -412,32 +429,54 @@ export const GetSessionResponse = zod.object({
   "ticker": zod.string(),
   "name": zod.string(),
   "sector": zod.string(),
-  "compositeScore": zod.number().describe('Composite factor score 0-100'),
+  "compositeScore": zod.number(),
   "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
-  "blockingFactor": zod.string().describe('The specific factor or rule that blocked inclusion'),
-  "improvement": zod.string().describe('What needs to change for this ETF to enter the portfolio')
-})).describe('Near-miss ETFs that almost entered the portfolio'),
+  "blockingFactor": zod.string(),
+  "improvement": zod.string()
+})),
   "icSummary": zod.object({
-  "whatChanged": zod.string().describe('Position and cash changes vs prior month'),
-  "why": zod.string().describe('Regime-based explanation for the allocation'),
-  "risks": zod.string().describe('Key risks and weak signals from the model'),
-  "watchNext": zod.string().describe('What to monitor before the next rebalance')
+  "whatChanged": zod.string(),
+  "why": zod.string(),
+  "risks": zod.string(),
+  "watchNext": zod.string()
 }),
   "iterationInfo": zod.object({
-  "current": zod.number().describe('Current iteration number'),
-  "max": zod.number().describe('Maximum planned iterations'),
-  "completed": zod.array(zod.string()).describe('Completed milestone labels'),
-  "next": zod.array(zod.string()).describe('Recommended next items')
+  "current": zod.number(),
+  "max": zod.number(),
+  "completed": zod.array(zod.string()),
+  "next": zod.array(zod.string())
+}),
+  "diagnostics": zod.object({
+  "expectedVolatility": zod.number().describe('Annualized portfolio volatility as decimal (e.g. 0.12 = 12%)'),
+  "hhi": zod.number().describe('Herfindahl-Hirschman Index of portfolio weights 0-1 (1 = fully concentrated)'),
+  "effectiveNumberOfBets": zod.number().describe('Effective number of independent bets (1\/HHI). Higher = more diversified.'),
+  "diversificationScore": zod.number().describe('Diversification score 0-100 based on average pairwise correlation'),
+  "riskContributions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "weight": zod.number().describe('Portfolio weight as decimal'),
+  "riskContributionPct": zod.number().describe('Percentage of total portfolio variance attributed to this position'),
+  "marginalVolContribution": zod.number().describe('Annualized vol contribution (marginal contribution to portfolio vol)')
+})),
+  "correlationMatrix": zod.array(zod.object({
+  "tickerA": zod.string(),
+  "tickerB": zod.string(),
+  "correlation": zod.number().describe('Pearson correlation coefficient -1 to 1')
+})).describe('Full N×N correlation matrix for active ETFs'),
+  "activeTickers": zod.array(zod.string()),
+  "trackingErrors": zod.array(zod.object({
+  "benchmarkTicker": zod.string(),
+  "trackingError": zod.number().describe('Annualized tracking error as decimal (e.g. 0.045 = 4.5%)')
+})),
+  "lookbackDays": zod.number().describe('Number of trading days used for covariance estimation'),
+  "insufficientDataReasons": zod.array(zod.string()).describe('Flags for any metrics that could not be fully computed')
 })
 })
 })
 
 
-/**
- * @summary Generate a downloadable report from the latest results
- */
 export const GenerateReportBody = zod.object({
-  "sessionId": zod.number().nullish().describe('Session to report on; null = latest'),
+  "sessionId": zod.number().nullish(),
   "format": zod.enum(['pdf', 'png', 'csv'])
 })
 
@@ -449,9 +488,6 @@ export const GenerateReportResponse = zod.object({
 })
 
 
-/**
- * @summary Download a generated report file
- */
 export const DownloadReportParams = zod.object({
   "token": zod.coerce.string()
 })

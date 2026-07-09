@@ -12,8 +12,8 @@ export default function Methodology() {
     { id: 6, label: "Report generation (CSV + PDF)", done: true },
     { id: 7, label: "Session history & reporting", done: true },
     { id: 8, label: "10-component Market Health module + IC Summary + Watchlist", done: true },
-    { id: 9, label: "Historical regime trend chart & session comparison", done: false },
-    { id: 10, label: "Dollar & Rates components (DXY, IEF/TLT data)", done: false },
+    { id: 9, label: "Portfolio Diagnostics (vol, HHI, ENB, risk contributions, correlation heatmap, tracking error)", done: true },
+    { id: 10, label: "Historical regime trend chart, session comparison & Dollar/Rates components", done: false },
   ];
 
   return (

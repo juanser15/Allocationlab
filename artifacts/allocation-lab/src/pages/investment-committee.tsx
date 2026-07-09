@@ -67,14 +67,15 @@ export default function InvestmentCommittee() {
     "Allocation constructor with constraints",
     "Results dashboard with heatmap",
     "Report generation (CSV + PDF)",
-    "Richer Market Health module (10 components, IC Summary, Watchlist)",
+    "10-component Market Health module + IC Summary + Watchlist",
+    "Portfolio Diagnostics (vol, HHI, ENB, risk contributions, correlation heatmap, tracking error)",
   ];
   const iterationNext = [
     "Historical regime trend chart (rolling composite over time)",
     "Session comparison view (diff between two runs)",
-    "Dollar & Rates components (add DXY, IEF to universe)",
+    "Dollar & Rates components (add DXY, IEF/TLT to universe)",
   ];
-  const CURRENT_ITERATION = 2;
+  const CURRENT_ITERATION = 3;
   const MAX_ITERATIONS = 10;
 
   return (

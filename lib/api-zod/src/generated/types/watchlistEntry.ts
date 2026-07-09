@@ -11,11 +11,8 @@ export interface WatchlistEntry {
   ticker: string;
   name: string;
   sector: string;
-  /** Composite factor score 0-100 */
   compositeScore: number;
   blockingReason: WatchlistEntryBlockingReason;
-  /** The specific factor or rule that blocked inclusion */
   blockingFactor: string;
-  /** What needs to change for this ETF to enter the portfolio */
   improvement: string;
 }

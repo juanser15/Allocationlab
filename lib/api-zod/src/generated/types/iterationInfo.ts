@@ -7,12 +7,8 @@
  */
 
 export interface IterationInfo {
-  /** Current iteration number */
   current: number;
-  /** Maximum planned iterations */
   max: number;
-  /** Completed milestone labels */
   completed: string[];
-  /** Recommended next items */
   next: string[];
 }

@@ -9,6 +9,7 @@ import PortfolioConstruction from "@/pages/portfolio-construction";
 import ResultsDashboard from "@/pages/results-dashboard";
 import Reports from "@/pages/reports";
 import Methodology from "@/pages/methodology";
+import PortfolioDiagnostics from "@/pages/diagnostics";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +27,7 @@ function Router() {
         <Route path="/" component={InvestmentCommittee} />
         <Route path="/portfolio" component={PortfolioConstruction} />
         <Route path="/results" component={ResultsDashboard} />
+        <Route path="/diagnostics" component={PortfolioDiagnostics} />
         <Route path="/reports" component={Reports} />
         <Route path="/methodology" component={Methodology} />
         <Route component={NotFound} />

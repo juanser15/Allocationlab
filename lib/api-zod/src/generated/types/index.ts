@@ -8,6 +8,7 @@
 
 export * from './constraints';
 export * from './constraintsInput';
+export * from './correlationCell';
 export * from './errorResponse';
 export * from './etfAllocation';
 export * from './etfEntry';
@@ -20,6 +21,7 @@ export * from './livePricesResult';
 export * from './livePricesTickerResult';
 export * from './pipelineStep';
 export * from './pipelineStepStatus';
+export * from './portfolioDiagnostics';
 export * from './pricesStatus';
 export * from './pricesUploadInput';
 export * from './regimeComponent';
@@ -28,10 +30,12 @@ export * from './regimeScores';
 export * from './reportInput';
 export * from './reportInputFormat';
 export * from './reportResult';
+export * from './riskContributionEntry';
 export * from './runInput';
 export * from './runResult';
 export * from './session';
 export * from './sessionDetail';
+export * from './trackingErrorEntry';
 export * from './universe';
 export * from './universeInput';
 export * from './watchlistEntry';

@@ -11,11 +11,8 @@ export interface EtfAllocation {
   ticker: string;
   name: string;
   sector: string;
-  /** Final allocated weight as decimal */
   weight: number;
-  /** Prior month weight as decimal */
   priorWeight: number;
-  /** Weight change vs prior month as decimal */
   change: number;
   factorScores: FactorScores;
   active: boolean;
