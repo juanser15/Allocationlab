@@ -71,14 +71,15 @@ export default function InvestmentCommittee() {
     "Portfolio Diagnostics (vol, HHI, ENB, risk contributions, correlation heatmap, tracking error)",
     "ETF Explorer (price chart, factor breakdown, score history, IC narrative, clickable links)",
     "Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)",
+    "Committee report builder (editable one-page report, preview mode, polished PDF/PNG export, quality checklist)",
   ];
   const iterationNext = [
     "Historical regime trend chart (rolling composite over time)",
     "Session comparison view (diff between two runs)",
     "Dollar & Rates components (add DXY, IEF/TLT to universe)",
   ];
-  const CURRENT_ITERATION = iterationCompleted.length;
-  const MAX_ITERATIONS = iterationCompleted.length;
+  const CURRENT_ITERATION = 6;
+  const MAX_ITERATIONS = 10;
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-6">

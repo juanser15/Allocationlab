@@ -11,4 +11,9 @@ export interface ReportInput {
   /** @nullable */
   sessionId?: number | null;
   format: ReportInputFormat;
+  title?: string;
+  subtitle?: string;
+  reportDate?: string;
+  portfolioName?: string;
+  internalNote?: string;
 }

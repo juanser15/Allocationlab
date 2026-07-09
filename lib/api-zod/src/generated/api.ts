@@ -477,7 +477,12 @@ export const GetSessionResponse = zod.object({
 
 export const GenerateReportBody = zod.object({
   "sessionId": zod.number().nullish(),
-  "format": zod.enum(['pdf', 'png', 'csv'])
+  "format": zod.enum(['pdf', 'png', 'csv']),
+  "title": zod.string().optional(),
+  "subtitle": zod.string().optional(),
+  "reportDate": zod.string().optional(),
+  "portfolioName": zod.string().optional(),
+  "internalNote": zod.string().optional()
 })
 
 export const GenerateReportResponse = zod.object({

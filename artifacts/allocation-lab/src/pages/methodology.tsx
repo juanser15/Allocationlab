@@ -15,7 +15,10 @@ export default function Methodology() {
     { id: 9, label: "Portfolio Diagnostics (vol, HHI, ENB, risk contributions, correlation heatmap, tracking error)", done: true },
     { id: 10, label: "ETF Explorer (price chart, factor breakdown, score history, IC narrative, clickable links)", done: true },
     { id: 11, label: "Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)", done: true },
+    { id: 12, label: "Committee report builder (editable one-page report, preview mode, polished PDF/PNG export, quality checklist)", done: true },
   ];
+  const CURRENT_ITERATION = 6;
+  const MAX_ITERATIONS = 10;
 
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-8">
@@ -125,13 +128,13 @@ export default function Methodology() {
                   Build Progress
                 </CardTitle>
                 <span className="text-xs font-semibold text-primary bg-primary/10 rounded px-2 py-0.5">
-                  {cycles.filter((c) => c.done).length} / {cycles.length}
+                  {CURRENT_ITERATION} / {MAX_ITERATIONS}
                 </span>
               </div>
               <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary rounded-full transition-all"
-                  style={{ width: `${(cycles.filter((c) => c.done).length / cycles.length) * 100}%` }}
+                  style={{ width: `${(CURRENT_ITERATION / MAX_ITERATIONS) * 100}%` }}
                 />
               </div>
             </CardHeader>

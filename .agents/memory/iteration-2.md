@@ -4,7 +4,7 @@ description: Tracks which build iteration the app is on and what has been comple
 ---
 
 ## Current state
-Iteration 5 of 5 (max, extended from original 10-cap as of 2026-07-09), completed 2026-07-09.
+Iteration 6 of 10, completed 2026-07-09. (Note: an earlier memory entry said "5 of 5, extended" — the roadmap cap is 10, not 5; trust `CURRENT_ITERATION`/`MAX_ITERATIONS` constants in investment-committee.tsx and methodology.tsx as the source of truth if this drifts again.)
 
 ## Completed
 1. Core UI scaffold & navigation
@@ -18,6 +18,7 @@ Iteration 5 of 5 (max, extended from original 10-cap as of 2026-07-09), complete
 9. Portfolio Diagnostics (vol, HHI, ENB, risk contributions, correlation heatmap, tracking error)
 10. ETF Explorer (price chart, factor breakdown, score history, IC narrative, clickable links)
 11. Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)
+12. Committee Report Builder: editable title/subtitle/date/portfolio/note, quality checklist, preview mode, one-page landscape PDF/PNG/CSV export
 
 ## Planned next
 - Historical regime trend chart (rolling composite over time)

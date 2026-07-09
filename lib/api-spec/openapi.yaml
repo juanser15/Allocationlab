@@ -799,6 +799,16 @@ components:
         format:
           type: string
           enum: [pdf, png, csv]
+        title:
+          type: string
+        subtitle:
+          type: string
+        reportDate:
+          type: string
+        portfolioName:
+          type: string
+        internalNote:
+          type: string
       required: [format]
 
     ReportResult:

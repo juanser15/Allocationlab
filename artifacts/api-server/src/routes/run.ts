@@ -22,7 +22,7 @@ import { getLatestPriceData } from "./prices";
 const router: IRouter = Router();
 
 const ITERATION_INFO = {
-  current: 3,
+  current: 6,
   max: 10,
   completed: [
     "Core UI scaffold & navigation",
@@ -34,6 +34,9 @@ const ITERATION_INFO = {
     "Report generation (CSV + PDF)",
     "10-component Market Health module + IC Summary + Watchlist",
     "Portfolio Diagnostics (vol, HHI, ENB, risk contributions, correlation heatmap, tracking error)",
+    "ETF Explorer (price chart, factor breakdown, score history, IC narrative, clickable links)",
+    "Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)",
+    "Committee report builder (editable one-page report, preview mode, polished PDF/PNG export, quality checklist)",
   ],
   next: [
     "Historical regime trend chart (rolling composite over time)",
