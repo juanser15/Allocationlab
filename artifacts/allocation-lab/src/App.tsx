@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Dashboard from "@/pages/dashboard";
-import MarketMonitor from "@/pages/market-monitor";
 import PortfolioLab from "@/pages/portfolio-lab";
 import ResearchLab from "@/pages/research-lab";
 import InvestmentCommittee from "@/pages/investment-committee";
@@ -26,7 +25,6 @@ function Router() {
     <AppLayout>
       <Switch>
         <Route path="/" component={Dashboard} />
-        <Route path="/market-monitor" component={MarketMonitor} />
         <Route path="/portfolio-lab" component={PortfolioLab} />
         <Route path="/research-lab" component={ResearchLab} />
         <Route path="/investment-committee" component={InvestmentCommittee} />
@@ -34,7 +32,8 @@ function Router() {
         <Route path="/etf/:ticker" component={EtfDetail} />
 
         {/* Legacy path redirects */}
-        <Route path="/market-intelligence"><Redirect to="/market-monitor" /></Route>
+        <Route path="/market-monitor"><Redirect to="/research-lab" /></Route>
+        <Route path="/market-intelligence"><Redirect to="/research-lab" /></Route>
         <Route path="/configuration"><Redirect to="/settings" /></Route>
         <Route path="/backtesting"><Redirect to="/research-lab" /></Route>
         <Route path="/reports"><Redirect to="/investment-committee" /></Route>

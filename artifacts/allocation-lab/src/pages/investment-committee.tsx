@@ -1,4 +1,4 @@
-import { type ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 import {
   useGetLatestResults,
   useGetOrCreateDecisionLog,
@@ -114,7 +114,20 @@ export default function InvestmentCommittee() {
   } = useGetOrCreateDecisionLog(sessionId ?? 0);
   const updateStatus = useUpdateDecisionLogStatus();
 
-  const { data: committee, isLoading: loadingCommittee, error: committeeError } = useGetCommittee();
+  const [committeeRequested, setCommitteeRequested] = useState(false);
+  const {
+    data: committee,
+    isLoading: loadingCommittee,
+    error: committeeError,
+    refetch: refetchCommittee,
+  } = useGetCommittee({
+    query: { enabled: !!sessionId && committeeRequested },
+  } as any);
+
+  const handleGenerateCommitteePack = () => {
+    setCommitteeRequested(true);
+    refetchCommittee();
+  };
 
   const handleStatusChange = (status: "draft" | "under_review" | "approved") => {
     if (!decisionLog) return;
@@ -151,9 +164,9 @@ export default function InvestmentCommittee() {
         <Alert className="bg-gray-50 border-gray-200">
           <AlertCircle className="h-4 w-4 text-muted-foreground" />
           <AlertDescription className="ml-2 flex items-center justify-between w-full flex-wrap gap-2">
-            <span>No allocation run to review yet. Run the pipeline first.</span>
-            <Link href="/" className="text-sm font-medium underline flex items-center">
-              Go to Dashboard <ArrowRight className="ml-1 h-3 w-3" />
+            <span>No allocation run to review yet. Run a rebalance in Portfolio Lab first.</span>
+            <Link href="/portfolio-lab" className="text-sm font-medium underline flex items-center">
+              Go to Portfolio Lab <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </AlertDescription>
         </Alert>
@@ -358,12 +371,47 @@ export default function InvestmentCommittee() {
               A deterministic, rule-based synthesis of the current session's regime, factor, diagnostics, watchlist, and
               backtest integrity data — every statement traces back to a computed number, nothing is generated or fabricated.
             </p>
-            {committee && (
-              <Button variant="outline" size="sm" onClick={downloadMemo} className="gap-1.5">
-                <Download className="h-3.5 w-3.5" /> Export Committee Memo
+            <div className="flex items-center gap-2">
+              {committee && (
+                <Button variant="outline" size="sm" onClick={downloadMemo} className="gap-1.5">
+                  <Download className="h-3.5 w-3.5" /> Export Committee Memo
+                </Button>
+              )}
+              <Button size="sm" onClick={handleGenerateCommitteePack} disabled={!sessionId || loadingCommittee} className="gap-1.5">
+                {loadingCommittee ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Gavel className="h-3.5 w-3.5" />}
+                {committee ? "Regenerate Committee Pack" : "Generate Committee Pack"}
               </Button>
-            )}
+            </div>
           </div>
+
+          {!sessionId && (
+            <Card className="border-gray-200 bg-gray-50">
+              <CardContent className="py-10 text-center">
+                <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm font-medium text-gray-700 mb-1">No allocation run to build a committee pack from.</p>
+                <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                  Run a rebalance in Portfolio Lab first, then return here to generate the committee pack.
+                </p>
+                <div className="flex items-center justify-center gap-1 mt-4 text-xs">
+                  <Link href="/portfolio-lab" className="text-primary underline inline-flex items-center gap-1">
+                    Go to Portfolio Lab <ArrowRight className="h-3 w-3" />
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {sessionId && !committeeRequested && (
+            <Card className="border-gray-200 bg-gray-50">
+              <CardContent className="py-10 text-center">
+                <Gavel className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm font-medium text-gray-700 mb-1">Committee pack not yet generated for this session.</p>
+                <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                  Click Generate Committee Pack above to synthesize persona recommendations and the CIO's final view.
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {loadingCommittee && (
             <div className="flex items-center gap-3 text-muted-foreground text-sm py-12 justify-center">
@@ -372,17 +420,17 @@ export default function InvestmentCommittee() {
             </div>
           )}
 
-          {committeeError && !loadingCommittee && (
+          {committeeError && !loadingCommittee && committeeRequested && (
             <Card className="border-amber-200 bg-amber-50">
               <CardContent className="py-10 text-center">
                 <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-3" />
                 <p className="text-sm font-medium text-amber-800 mb-1">No committee data available yet.</p>
                 <p className="text-xs text-amber-700 max-w-md mx-auto">
-                  Run the allocation pipeline first to generate the regime, diagnostics, and allocation data the committee needs.
+                  Run a rebalance first to generate the regime, diagnostics, and allocation data the committee needs.
                 </p>
                 <div className="flex items-center justify-center gap-1 mt-4 text-xs">
-                  <Link href="/" className="text-primary underline inline-flex items-center gap-1">
-                    Run the pipeline <ArrowRight className="h-3 w-3" />
+                  <Link href="/portfolio-lab" className="text-primary underline inline-flex items-center gap-1">
+                    Go to Portfolio Lab <ArrowRight className="h-3 w-3" />
                   </Link>
                 </div>
               </CardContent>

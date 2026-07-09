@@ -5,6 +5,7 @@ import { Sidebar } from "./Sidebar";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { DataBar } from "@/components/shared/DataBar";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -56,6 +57,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             {SettingsButton}
           </div>
         )}
+        <DataBar />
         <main className="flex-1 overflow-y-auto bg-gray-50">
           {children}
         </main>

@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useLocation, Link } from "wouter";
 import {
   useGetPricesStatus,
-  useRunPipeline,
   useGetLatestResults,
   useListArchive,
   useGetArchiveEntry,
@@ -17,8 +16,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import {
-  Play, RefreshCw, AlertCircle, Loader2, ArrowRight, DollarSign, Activity,
-  ShieldAlert, Eye, FileCheck2, ShieldCheck, ExternalLink, Gauge, ClipboardList,
+  AlertCircle, Loader2, ArrowRight, DollarSign, Activity,
+  ShieldAlert, Eye, FileCheck2, ShieldCheck, ExternalLink, Gauge, ClipboardList, Compass,
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useWorkflowStage } from "@/lib/workflow";
@@ -60,8 +59,6 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { stage } = useWorkflowStage();
   const { data: pricesStatus, isLoading: loadingPrices } = useGetPricesStatus();
-  const runPipeline = useRunPipeline();
-  const { toast } = { toast: (_: any) => {} };
 
   const [preset, setPreset] = useState<Preset>("today");
   const [customFrom, setCustomFrom] = useState(isoDaysAgo(30));
@@ -98,16 +95,14 @@ export default function Dashboard() {
   const view = isViewingLatest ? latestResult : archiveEntry;
   const isLoading = isViewingLatest ? loadingLatest : loadingArchiveEntry;
 
-  const handleRun = () => {
-    runPipeline.mutate(
-      { data: {} },
-      { onSuccess: () => setLocation("/portfolio-lab") }
-    );
-  };
-
-  const handleRefreshData = () => setLocation("/settings");
-
   const hasData = pricesStatus?.hasData;
+
+  const nextStep = useMemo(() => {
+    if (!hasData) return { label: "Upload price data", href: "/settings", desc: "No price history loaded yet — required before any run." };
+    if (!latestResult) return { label: "Run Rebalance", href: "/portfolio-lab", desc: "Generate the current allocation from the latest prices." };
+    if (!backtest?.hasSufficientData) return { label: "Review Backtester", href: "/research-lab", desc: "Validate the model historically before committee review." };
+    return { label: "Open Investment Committee", href: "/investment-committee", desc: "Generate the committee pack and route it for approval." };
+  }, [hasData, latestResult, backtest]);
 
   const topChanges = useMemo(() => {
     if (!view) return [];
@@ -130,18 +125,7 @@ export default function Dashboard() {
       <PageHeader
         section="1 · Dashboard"
         title="Dashboard"
-        description="Interactive overview of the portfolio, market regime, allocation, and risk — for today or any historical date."
-        actions={
-          <>
-            <Button variant="outline" size="sm" onClick={handleRefreshData}>
-              <RefreshCw className="mr-2 h-3.5 w-3.5" /> Refresh Data
-            </Button>
-            <Button size="sm" onClick={handleRun} disabled={!hasData || runPipeline.isPending}>
-              {runPipeline.isPending ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Play className="mr-2 h-3.5 w-3.5" />}
-              Run Committee
-            </Button>
-          </>
-        }
+        description="Read-only overview of the portfolio, market regime, allocation, and risk — for today or any historical date."
       />
 
       <Card>
@@ -154,13 +138,28 @@ export default function Dashboard() {
         <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive-foreground">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="ml-2 flex items-center justify-between w-full flex-wrap gap-2">
-            <span>No price data loaded. You must upload price history before running the committee.</span>
+            <span>No price data loaded. You must upload price history before any rebalance can be run.</span>
             <Link href="/settings" className="text-sm font-medium underline flex items-center">
               Go to Settings <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </AlertDescription>
         </Alert>
       )}
+
+      <Card className="border-l-4 border-l-accent">
+        <CardContent className="py-4 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <Compass className="h-5 w-5 text-accent shrink-0" />
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Next Recommended Step</p>
+              <p className="text-sm text-gray-700 mt-0.5">{nextStep.desc}</p>
+            </div>
+          </div>
+          <Button size="sm" asChild>
+            <Link href={nextStep.href}>{nextStep.label} <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Date range / as-of selector */}
       <Card>
@@ -227,7 +226,7 @@ export default function Dashboard() {
       ) : !view ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
-            No allocation run available for this range yet. Run the committee to generate one.
+            No allocation run available for this range yet. Run a rebalance from Portfolio Lab to generate one.
           </CardContent>
         </Card>
       ) : (
@@ -371,7 +370,7 @@ export default function Dashboard() {
                 ) : (
                   <p className="text-sm text-muted-foreground mt-1">Insufficient data</p>
                 )}
-                <Link href="/market-monitor" className="text-xs text-primary underline">View details</Link>
+                <Link href="/research-lab" className="text-xs text-primary underline">View details</Link>
               </CardContent>
             </Card>
             <Card>

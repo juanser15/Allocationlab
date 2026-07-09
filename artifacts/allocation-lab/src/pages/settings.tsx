@@ -566,7 +566,7 @@ export default function Settings() {
                   Benchmarks (SPY, QQQ, IWM, VTI, AGG, EFA, GLD) are auto-detected from ticker columns in your uploaded
                   price data — no separate benchmark selection is needed. Add one of these tickers to your CSV or live
                   fetch to unlock tracking error, shown in{" "}
-                  <Link href="/market-monitor" className="underline font-medium text-primary">Market Monitor</Link>.
+                  <Link href="/research-lab" className="underline font-medium text-primary">Research Lab</Link>.
                 </span>
               </div>
               <div className="flex items-start gap-2 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
