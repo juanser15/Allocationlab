@@ -495,3 +495,52 @@ export const DownloadReportParams = zod.object({
 export const DownloadReportResponse = zod.unknown()
 
 
+/**
+ * @summary Get detailed ETF data including factor scores, price history, and allocation narrative
+ */
+export const GetEtfDetailParams = zod.object({
+  "ticker": zod.coerce.string()
+})
+
+export const GetEtfDetailResponse = zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "weight": zod.number().describe('Current portfolio weight as decimal'),
+  "priorWeight": zod.number(),
+  "change": zod.number().describe('Change vs prior weight (decimal)'),
+  "active": zod.boolean(),
+  "inclusionStatus": zod.enum(['active', 'excluded_threshold', 'excluded_rank', 'no_data', 'no_results']).describe('Why this ETF is or isn\'t in the portfolio'),
+  "rank": zod.number().nullable().describe('Rank by composite score among all scored ETFs (1 = highest)'),
+  "totalScored": zod.number().describe('Total number of ETFs that received a composite score this run'),
+  "factorScores": zod.union([zod.object({
+  "mom20": zod.number(),
+  "mom60": zod.number(),
+  "mom120": zod.number(),
+  "mom252": zod.number(),
+  "trendQuality": zod.number(),
+  "realizedVol60": zod.number(),
+  "drawdown": zod.number(),
+  "meanReversion": zod.number(),
+  "composite": zod.number()
+}),zod.null()]),
+  "explanation": zod.string().describe('Human-readable narrative of inclusion\/exclusion decision'),
+  "priceHistory": zod.array(zod.object({
+  "date": zod.string(),
+  "price": zod.number(),
+  "returnPct": zod.number().nullable().describe('Daily return vs previous trading day (decimal)')
+})).describe('Last 90 trading days of price data'),
+  "scoreHistory": zod.array(zod.object({
+  "sessionId": zod.number(),
+  "runAt": zod.string(),
+  "composite": zod.number(),
+  "rank": zod.number(),
+  "active": zod.boolean(),
+  "weight": zod.number()
+})).describe('Composite score and rank across past pipeline runs'),
+  "lookbackRows": zod.number().describe('Number of price rows available for this ticker'),
+  "priceDataEnd": zod.string().nullable(),
+  "priceDataStart": zod.string().nullable()
+})
+
+

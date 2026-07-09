@@ -4,12 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Loader2, Download, DollarSign, Activity, FileDown, PieChart as PieChartIcon,
-  AlertTriangle, Info, ShieldAlert, Eye,
+  AlertTriangle, Info, ShieldAlert, Eye, ExternalLink,
 } from "lucide-react";
 import { Link } from "wouter";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+
+function EtfLink({ ticker, className }: { ticker: string; className?: string }) {
+  return (
+    <Link
+      href={`/etf/${ticker}`}
+      className={`inline-flex items-center gap-0.5 hover:text-accent hover:underline transition-colors group ${className ?? ""}`}
+    >
+      {ticker}
+      <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-60 transition-opacity" />
+    </Link>
+  );
+}
 
 export default function ResultsDashboard() {
   const { data: result, isLoading } = useGetLatestResults();
@@ -130,13 +142,13 @@ export default function ResultsDashboard() {
       {/* ── Row 1: Market Health + KPIs ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Market Health card — full 10-component regime */}
+        {/* Market Health card */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle className="text-lg">Global Market Health</CardTitle>
-                <CardDescription className="mt-0.5">10-component regime framework — composite of computed, proxy, and flagged-unavailable signals</CardDescription>
+                <CardDescription className="mt-0.5">10-component regime framework</CardDescription>
               </div>
               <div className="flex flex-col items-end gap-1">
                 <Badge variant="outline" className={`text-sm py-1 px-2 font-semibold ${getRegimeBadgeStyle(regime.label)}`}>
@@ -149,32 +161,23 @@ export default function ResultsDashboard() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Composite bar */}
             <div className="space-y-1">
               <div className="flex justify-between items-center text-sm">
                 <span className="font-bold text-gray-900">Composite Score</span>
                 <span className="font-bold text-lg text-primary">{regime.composite.toFixed(1)}</span>
               </div>
               <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${getRegimeBarColor(regime.composite)}`}
-                  style={{ width: `${regime.composite}%` }}
-                />
+                <div className={`h-full rounded-full transition-all ${getRegimeBarColor(regime.composite)}`} style={{ width: `${regime.composite}%` }} />
               </div>
-              {regime.drivers && (
-                <p className="text-xs text-muted-foreground pt-1 leading-snug">{regime.drivers}</p>
-              )}
+              {regime.drivers && <p className="text-xs text-muted-foreground pt-1 leading-snug">{regime.drivers}</p>}
             </div>
-
             <div className="border-t pt-3 space-y-2">
               {components.map((c) => (
                 <div key={c.key} className="space-y-1">
                   <div className="flex justify-between items-center gap-2">
                     <div className="flex items-center gap-1.5 min-w-0">
                       {methodBadge(c.method)}
-                      <span className={`text-sm truncate ${c.method === "unavailable" ? "text-gray-400" : "text-gray-700"}`}>
-                        {c.label}
-                      </span>
+                      <span className={`text-sm truncate ${c.method === "unavailable" ? "text-gray-400" : "text-gray-700"}`}>{c.label}</span>
                     </div>
                     <span className={`text-sm font-medium tabular-nums shrink-0 ${c.score === null ? "text-gray-400" : "text-gray-900"}`}>
                       {c.score !== null ? c.score.toFixed(1) : "—"}
@@ -182,10 +185,7 @@ export default function ResultsDashboard() {
                   </div>
                   <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     {c.score !== null ? (
-                      <div
-                        className={`h-full rounded-full ${getRegimeBarColor(c.score)}`}
-                        style={{ width: `${c.score}%` }}
-                      />
+                      <div className={`h-full rounded-full ${getRegimeBarColor(c.score)}`} style={{ width: `${c.score}%` }} />
                     ) : (
                       <div className="h-full w-full bg-gray-200 rounded-full" style={{ backgroundImage: "repeating-linear-gradient(90deg, #d1d5db 0, #d1d5db 4px, #f3f4f6 4px, #f3f4f6 8px)" }} />
                     )}
@@ -206,44 +206,27 @@ export default function ResultsDashboard() {
               </p>
               <p className="text-4xl font-bold text-primary mt-1">{(result.cashWeight * 100).toFixed(1)}%</p>
               <div className="mt-3 flex items-center">
-                <Badge
-                  variant="secondary"
-                  className={result.cashChange > 0 ? "bg-green-100 text-green-800" : result.cashChange < 0 ? "bg-red-100 text-red-800" : "bg-gray-100"}
-                >
+                <Badge variant="secondary" className={result.cashChange > 0 ? "bg-green-100 text-green-800" : result.cashChange < 0 ? "bg-red-100 text-red-800" : "bg-gray-100"}>
                   {result.cashChange > 0 ? "+" : ""}{(result.cashChange * 100).toFixed(1)}pp vs prior
                 </Badge>
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardContent className="pt-5 pb-4">
               <p className="text-sm font-medium text-muted-foreground flex items-center">
                 <Activity className="h-4 w-4 mr-1 text-primary/60" /> Active ETFs
               </p>
               <p className="text-4xl font-bold text-primary mt-1">{result.activeEtfCount}</p>
-              <p className="text-sm text-muted-foreground mt-3">
-                Invested: {(result.investedSleeve * 100).toFixed(1)}%
-              </p>
+              <p className="text-sm text-muted-foreground mt-3">Invested: {(result.investedSleeve * 100).toFixed(1)}%</p>
             </CardContent>
           </Card>
-
           <Card>
             <CardContent className="pt-4 h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={donutData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={72}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {donutData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
+                  <Pie data={donutData} cx="50%" cy="50%" innerRadius={55} outerRadius={72} paddingAngle={2} dataKey="value">
+                    {donutData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                   </Pie>
                   <Tooltip formatter={(value: number) => `${value.toFixed(1)}%`} />
                   <Legend verticalAlign="middle" align="right" layout="vertical" iconSize={8} />
@@ -256,7 +239,6 @@ export default function ResultsDashboard() {
 
       {/* ── Row 2: IC Summary + Watchlist ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Investment Committee Summary */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
@@ -289,14 +271,13 @@ export default function ResultsDashboard() {
           </CardContent>
         </Card>
 
-        {/* Watchlist */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
               Near-Miss Watchlist
             </CardTitle>
-            <CardDescription>ETFs that almost entered the portfolio this cycle.</CardDescription>
+            <CardDescription>ETFs that almost entered the portfolio this cycle. Click a ticker to explore.</CardDescription>
           </CardHeader>
           <CardContent>
             {result.watchlist.length === 0 ? (
@@ -307,26 +288,18 @@ export default function ResultsDashboard() {
                   <div key={entry.ticker} className="border rounded-md p-3 space-y-1.5 bg-gray-50/60">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-gray-900">{entry.ticker}</span>
+                        <EtfLink ticker={entry.ticker} className="font-semibold text-sm text-gray-900" />
                         <span className="text-xs text-muted-foreground">{entry.name}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge
-                          variant="outline"
-                          className={entry.blockingReason === "rank_cutoff"
-                            ? "bg-amber-50 text-amber-800 border-amber-200 text-xs"
-                            : "bg-red-50 text-red-800 border-red-200 text-xs"}
-                        >
+                        <Badge variant="outline" className={entry.blockingReason === "rank_cutoff" ? "bg-amber-50 text-amber-800 border-amber-200 text-xs" : "bg-red-50 text-red-800 border-red-200 text-xs"}>
                           {entry.blockingReason === "rank_cutoff" ? "Rank Cutoff" : "Below Threshold"}
                         </Badge>
                         <span className="text-sm font-medium tabular-nums">{entry.compositeScore.toFixed(1)}</span>
                       </div>
                     </div>
                     <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-amber-400 rounded-full"
-                        style={{ width: `${entry.compositeScore}%` }}
-                      />
+                      <div className="h-full bg-amber-400 rounded-full" style={{ width: `${entry.compositeScore}%` }} />
                     </div>
                     <p className="text-xs text-gray-500 leading-snug">
                       <span className="font-medium text-gray-600">Blocking factor:</span> {entry.blockingFactor}
@@ -344,7 +317,7 @@ export default function ResultsDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Final Allocation</CardTitle>
-          <CardDescription>Target weights and changes versus prior month.</CardDescription>
+          <CardDescription>Target weights and changes versus prior month. Click any ticker to open its ETF Explorer.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -381,8 +354,10 @@ export default function ResultsDashboard() {
                 .slice()
                 .sort((a, b) => b.weight - a.weight)
                 .map((etf) => (
-                  <TableRow key={etf.ticker} className={!etf.active ? "opacity-60 bg-gray-50/50" : ""}>
-                    <TableCell className="font-medium">{etf.ticker}</TableCell>
+                  <TableRow key={etf.ticker} className={!etf.active ? "opacity-60 bg-gray-50/50" : "hover:bg-primary/3 cursor-pointer"}>
+                    <TableCell className="font-medium">
+                      <EtfLink ticker={etf.ticker} className="font-semibold" />
+                    </TableCell>
                     <TableCell>{etf.name}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">{etf.sector}</TableCell>
                     <TableCell className="text-right font-mono">{etf.factorScores.composite.toFixed(1)}</TableCell>
@@ -395,9 +370,7 @@ export default function ResultsDashboard() {
                         <span className={etf.change > 0 ? "text-green-600" : "text-red-600"}>
                           {etf.change > 0 ? "+" : ""}{(etf.change * 100).toFixed(1)}%
                         </span>
-                      ) : (
-                        <span className="text-gray-400">—</span>
-                      )}
+                      ) : <span className="text-gray-400">—</span>}
                     </TableCell>
                     <TableCell className="text-center">
                       {etf.active ? (
@@ -417,7 +390,10 @@ export default function ResultsDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Factor Score Heatmap</CardTitle>
-          <CardDescription>Underlying component scores for all evaluated ETFs (0–100 cross-sectional rank).</CardDescription>
+          <CardDescription>
+            Underlying component scores for all evaluated ETFs (0–100 cross-sectional rank).
+            Click any ticker to open its ETF Explorer.
+          </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <Table>
@@ -440,8 +416,10 @@ export default function ResultsDashboard() {
                 .slice()
                 .sort((a, b) => b.factorScores.composite - a.factorScores.composite)
                 .map((etf) => (
-                  <TableRow key={etf.ticker} className="border-b border-gray-100 hover:bg-transparent">
-                    <TableCell className="font-medium border-r border-gray-100">{etf.ticker}</TableCell>
+                  <TableRow key={etf.ticker} className="border-b border-gray-100 hover:bg-primary/3 cursor-pointer">
+                    <TableCell className="font-medium border-r border-gray-100">
+                      <EtfLink ticker={etf.ticker} />
+                    </TableCell>
                     <TableCell className={`text-center font-bold border-r border-gray-100 ${getCellColorClass(etf.factorScores.composite)}`}>
                       {etf.factorScores.composite.toFixed(0)}
                     </TableCell>

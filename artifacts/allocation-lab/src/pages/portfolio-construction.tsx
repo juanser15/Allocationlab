@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Slider } from "@/components/ui/slider";
-import { Loader2, Save, Upload, CheckCircle2, AlertCircle, RefreshCw, WifiOff } from "lucide-react";
+import { Loader2, Save, Upload, CheckCircle2, AlertCircle, RefreshCw, WifiOff, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 
 export default function PortfolioConstruction() {
   const { toast } = useToast();
@@ -167,7 +168,15 @@ export default function PortfolioConstruction() {
                           onCheckedChange={(c) => handleEtfChange(idx, "enabled", c)} 
                         />
                       </TableCell>
-                      <TableCell className="font-medium">{etf.ticker}</TableCell>
+                      <TableCell className="font-medium">
+                        <Link
+                          href={`/etf/${etf.ticker}`}
+                          className="inline-flex items-center gap-0.5 hover:text-accent hover:underline transition-colors group"
+                        >
+                          {etf.ticker}
+                          <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-60 transition-opacity" />
+                        </Link>
+                      </TableCell>
                       <TableCell>{etf.name}</TableCell>
                       <TableCell>{etf.sector}</TableCell>
                       <TableCell className="text-right">

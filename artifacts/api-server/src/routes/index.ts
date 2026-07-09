@@ -7,6 +7,7 @@ import livePricesRouter from "./live-prices";
 import runRouter from "./run";
 import sessionsRouter from "./sessions";
 import reportsRouter from "./reports";
+import etfRouter from "./etf";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(livePricesRouter);
 router.use(runRouter);
 router.use(sessionsRouter);
 router.use(reportsRouter);
+router.use(etfRouter);
 
 export default router;

@@ -15,6 +15,7 @@ tags:
   - name: results
   - name: reports
   - name: sessions
+  - name: etf
 
 paths:
   /healthz:
@@ -256,6 +257,31 @@ paths:
               schema:
                 type: string
                 format: binary
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /etf/{ticker}:
+    get:
+      operationId: getEtfDetail
+      tags: [etf]
+      summary: Get detailed ETF data including factor scores, price history, and allocation narrative
+      parameters:
+        - name: ticker
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EtfDetail"
         "404":
           description: Not found
           content:
@@ -768,3 +794,87 @@ components:
         generatedAt:
           type: string
       required: [format, downloadToken, filename, generatedAt]
+
+    EtfPricePoint:
+      type: object
+      properties:
+        date:
+          type: string
+        price:
+          type: number
+        returnPct:
+          type: ["number", "null"]
+          description: Daily return vs previous trading day (decimal)
+      required: [date, price, returnPct]
+
+    EtfScoreHistoryEntry:
+      type: object
+      properties:
+        sessionId:
+          type: integer
+        runAt:
+          type: string
+        composite:
+          type: number
+        rank:
+          type: integer
+        active:
+          type: boolean
+        weight:
+          type: number
+      required: [sessionId, runAt, composite, rank, active, weight]
+
+    EtfDetail:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        sector:
+          type: string
+        weight:
+          type: number
+          description: Current portfolio weight as decimal
+        priorWeight:
+          type: number
+        change:
+          type: number
+          description: Change vs prior weight (decimal)
+        active:
+          type: boolean
+        inclusionStatus:
+          type: string
+          enum: [active, excluded_threshold, excluded_rank, no_data, no_results]
+          description: Why this ETF is or isn't in the portfolio
+        rank:
+          type: ["integer", "null"]
+          description: Rank by composite score among all scored ETFs (1 = highest)
+        totalScored:
+          type: integer
+          description: Total number of ETFs that received a composite score this run
+        factorScores:
+          oneOf:
+            - $ref: "#/components/schemas/FactorScores"
+            - type: "null"
+        explanation:
+          type: string
+          description: Human-readable narrative of inclusion/exclusion decision
+        priceHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtfPricePoint"
+          description: Last 90 trading days of price data
+        scoreHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtfScoreHistoryEntry"
+          description: Composite score and rank across past pipeline runs
+        lookbackRows:
+          type: integer
+          description: Number of price rows available for this ticker
+        priceDataEnd:
+          type: ["string", "null"]
+        priceDataStart:
+          type: ["string", "null"]
+      required: [ticker, name, sector, weight, priorWeight, change, active, inclusionStatus, rank, totalScored, factorScores, explanation, priceHistory, scoreHistory, lookbackRows, priceDataEnd, priceDataStart]

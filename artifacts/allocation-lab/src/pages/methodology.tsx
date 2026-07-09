@@ -13,7 +13,7 @@ export default function Methodology() {
     { id: 7, label: "Session history & reporting", done: true },
     { id: 8, label: "10-component Market Health module + IC Summary + Watchlist", done: true },
     { id: 9, label: "Portfolio Diagnostics (vol, HHI, ENB, risk contributions, correlation heatmap, tracking error)", done: true },
-    { id: 10, label: "Historical regime trend chart, session comparison & Dollar/Rates components", done: false },
+    { id: 10, label: "ETF Explorer (price chart, factor breakdown, score history, IC narrative, clickable links)", done: true },
   ];
 
   return (

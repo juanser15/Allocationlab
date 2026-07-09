@@ -308,3 +308,70 @@ export interface ReportResult {
   generatedAt: string;
 }
 
+export interface EtfPricePoint {
+  date: string;
+  price: number;
+  /**
+     * Daily return vs previous trading day (decimal)
+     * @nullable
+     */
+  returnPct: number | null;
+}
+
+export interface EtfScoreHistoryEntry {
+  sessionId: number;
+  runAt: string;
+  composite: number;
+  rank: number;
+  active: boolean;
+  weight: number;
+}
+
+/**
+ * Why this ETF is or isn't in the portfolio
+ */
+export type EtfDetailInclusionStatus = typeof EtfDetailInclusionStatus[keyof typeof EtfDetailInclusionStatus];
+
+
+export const EtfDetailInclusionStatus = {
+  active: 'active',
+  excluded_threshold: 'excluded_threshold',
+  excluded_rank: 'excluded_rank',
+  no_data: 'no_data',
+  no_results: 'no_results',
+} as const;
+
+export interface EtfDetail {
+  ticker: string;
+  name: string;
+  sector: string;
+  /** Current portfolio weight as decimal */
+  weight: number;
+  priorWeight: number;
+  /** Change vs prior weight (decimal) */
+  change: number;
+  active: boolean;
+  /** Why this ETF is or isn't in the portfolio */
+  inclusionStatus: EtfDetailInclusionStatus;
+  /**
+     * Rank by composite score among all scored ETFs (1 = highest)
+     * @nullable
+     */
+  rank: number | null;
+  /** Total number of ETFs that received a composite score this run */
+  totalScored: number;
+  factorScores: FactorScores | null;
+  /** Human-readable narrative of inclusion/exclusion decision */
+  explanation: string;
+  /** Last 90 trading days of price data */
+  priceHistory: EtfPricePoint[];
+  /** Composite score and rank across past pipeline runs */
+  scoreHistory: EtfScoreHistoryEntry[];
+  /** Number of price rows available for this ticker */
+  lookbackRows: number;
+  /** @nullable */
+  priceDataEnd: string | null;
+  /** @nullable */
+  priceDataStart: string | null;
+}
+

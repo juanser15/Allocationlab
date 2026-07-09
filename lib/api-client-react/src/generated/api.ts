@@ -23,6 +23,7 @@ import type {
   Constraints,
   ConstraintsInput,
   ErrorResponse,
+  EtfDetail,
   HealthStatus,
   LivePricesFetchInput,
   LivePricesResult,
@@ -1011,6 +1012,83 @@ export function useDownloadReport<TData = Awaited<ReturnType<typeof downloadRepo
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getDownloadReportQueryOptions(token,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEtfDetailUrl = (ticker: string,) => {
+
+
+
+
+  return `/api/etf/${ticker}`
+}
+
+/**
+ * @summary Get detailed ETF data including factor scores, price history, and allocation narrative
+ */
+export const getEtfDetail = async (ticker: string, options?: RequestInit): Promise<EtfDetail> => {
+
+  return customFetch<EtfDetail>(getGetEtfDetailUrl(ticker),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEtfDetailQueryKey = (ticker: string,) => {
+    return [
+    `/api/etf/${ticker}`
+    ] as const;
+    }
+
+
+export const getGetEtfDetailQueryOptions = <TData = Awaited<ReturnType<typeof getEtfDetail>>, TError = ErrorType<ErrorResponse>>(ticker: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEtfDetail>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEtfDetailQueryKey(ticker);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEtfDetail>>> = ({ signal }) => getEtfDetail(ticker, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: ticker !== null && ticker !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEtfDetail>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetEtfDetailQueryResult = NonNullable<Awaited<ReturnType<typeof getEtfDetail>>>
+export type GetEtfDetailQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get detailed ETF data including factor scores, price history, and allocation narrative
+ */
+
+export function useGetEtfDetail<TData = Awaited<ReturnType<typeof getEtfDetail>>, TError = ErrorType<ErrorResponse>>(
+ ticker: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEtfDetail>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetEtfDetailQueryOptions(ticker,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
