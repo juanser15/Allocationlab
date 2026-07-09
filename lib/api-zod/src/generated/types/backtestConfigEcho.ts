@@ -16,4 +16,6 @@ export interface BacktestConfigEcho {
   maxTurnoverPerRebalance: number;
   cashYieldAnnual: number;
   warmupDays: number;
+  /** @nullable */
+  startDate: string | null;
 }

@@ -3,3 +3,5 @@
 - [Archive/compare regime backfill](iteration-2.md) — any route reading old `sessionsTable.resultJson` for regime data must backfill `components`/`confidence`/`drivers` or Zod validation throws on pre-Iteration-2 sessions.
 - [Recharts in flex/grid layouts](recharts-responsive-container.md) — ResponsiveContainer can render blank (0-size) in nested flex/grid preview panels; use fixed width/height PieChart instead when this happens.
 - [Report generate/download flow](report-generate-download-flow.md) — POST /reports/generate returns a JSON downloadToken, not the file; must GET /reports/download/:token to fetch actual PDF/CSV bytes.
+- [Backtest date-range filtering](backtest-date-range.md) — startDate/endDate query params on /api/backtest; endDate truncates priceRows, startDate skips early rebalances but keeps full history for warmup.
+- [Mobile layout pattern](mobile-layout-pattern.md) — AppLayout/Sidebar use useIsMobile + Sheet drawer instead of fixed w-64 sidebar; hamburger top bar only rendered on mobile.

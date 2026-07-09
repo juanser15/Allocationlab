@@ -6,6 +6,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartTooltip, ResponsiveContainer, Legend,
@@ -117,6 +119,8 @@ export default function Backtesting() {
   const [slippageBps, setSlippageBps] = useState(5);
   const [turnoverCap, setTurnoverCap] = useState(100);
   const [cashYield, setCashYield] = useState(4);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
 
   const { data: bt, isLoading, error } = useGetBacktest({
     ...(benchmark !== "none" ? { benchmark } : {}),
@@ -126,13 +130,19 @@ export default function Backtesting() {
     slippageBps: slippageBps,
     maxTurnoverPerRebalance: turnoverCap / 100,
     cashYieldAnnual: cashYield / 100,
+    ...(startDate ? { startDate } : {}),
+    ...(endDate ? { endDate } : {}),
   });
 
+  const dataMin = bt?.dataStartDate ?? undefined;
+  const dataMax = bt?.dataEndDate ?? undefined;
+  const hasRangeFilter = !!startDate || !!endDate;
+
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-6">
+    <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-primary">Backtesting</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-primary">Backtesting</h1>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
           Bias-resistant, point-in-time walk-forward backtest of the current allocation model. Signals are computed
           only from data strictly before each rebalance date.
         </p>
@@ -146,7 +156,47 @@ export default function Backtesting() {
             These settings directly affect realism — configure them deliberately rather than tuning to chase results.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-6">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6">
+          <div className="space-y-1.5 sm:col-span-2 md:col-span-3">
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center">
+              Date Range
+              <InfoTip tip="Restrict the simulated window. Start date skips early rebalances (full history is still used for factor warmup); end date truncates price data to simulate an 'as of' date." />
+            </Label>
+            <div className="flex flex-wrap items-center gap-2">
+              <Input
+                type="date"
+                value={startDate}
+                min={dataMin}
+                max={endDate || dataMax}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="h-8 text-sm w-[150px]"
+              />
+              <span className="text-xs text-muted-foreground">to</span>
+              <Input
+                type="date"
+                value={endDate}
+                min={startDate || dataMin}
+                max={dataMax}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="h-8 text-sm w-[150px]"
+              />
+              {hasRangeFilter && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-xs text-muted-foreground"
+                  onClick={() => { setStartDate(""); setEndDate(""); }}
+                >
+                  Reset to full history
+                </Button>
+              )}
+              {(dataMin || dataMax) && (
+                <span className="text-xs text-muted-foreground">
+                  Available data: {dataMin ?? "—"} to {dataMax ?? "—"}
+                </span>
+              )}
+            </div>
+          </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center">
               Rebalance Frequency

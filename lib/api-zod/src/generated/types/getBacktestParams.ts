@@ -17,4 +17,12 @@ slippageBps?: number;
 maxTurnoverPerRebalance?: number;
 cashYieldAnnual?: number;
 warmupDays?: number;
+/**
+ * Optional ISO date (YYYY-MM-DD). Restricts simulated rebalances to this date or later; signal computation still uses earlier history for lookback warmup.
+ */
+startDate?: string;
+/**
+ * Optional ISO date (YYYY-MM-DD). Truncates uploaded price history so the backtest simulates "as of" this date.
+ */
+endDate?: string;
 };

@@ -25,12 +25,12 @@ const navigation = [
   { name: "Methodology", href: "/methodology", icon: BookOpen },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const [location] = useLocation();
 
   return (
     <div className="flex h-full w-64 flex-col bg-sidebar border-r border-sidebar-border">
-      <div className="flex h-16 items-center px-6 border-b border-sidebar-border bg-sidebar-primary text-sidebar-primary-foreground">
+      <div className="flex h-16 items-center px-6 border-b border-sidebar-border bg-sidebar-primary text-sidebar-primary-foreground shrink-0">
         <Activity className="mr-2 h-6 w-6 text-accent" />
         <span className="text-lg font-bold tracking-tight">Allocation Lab</span>
       </div>
@@ -42,11 +42,12 @@ export function Sidebar() {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={onNavigate}
                 className={cn(
                   isActive
                     ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                     : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
-                  "group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                  "group flex items-center rounded-md px-3 py-2.5 sm:py-2 text-sm font-medium transition-colors"
                 )}
               >
                 <item.icon
@@ -62,7 +63,7 @@ export function Sidebar() {
           })}
         </nav>
       </div>
-      <div className="border-t border-sidebar-border p-4">
+      <div className="border-t border-sidebar-border p-4 shrink-0">
         <div className="flex items-center">
           <div className="ml-3">
             <p className="text-xs font-medium text-sidebar-foreground">Allocation Lab v2</p>

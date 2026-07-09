@@ -509,6 +509,18 @@ paths:
           required: false
           schema:
             type: number
+        - name: startDate
+          in: query
+          required: false
+          description: Optional ISO date (YYYY-MM-DD). Restricts simulated rebalances to this date or later; signal computation still uses earlier history for lookback warmup.
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          required: false
+          description: Optional ISO date (YYYY-MM-DD). Truncates uploaded price history so the backtest simulates "as of" this date.
+          schema:
+            type: string
       responses:
         "200":
           description: Success
@@ -1187,7 +1199,9 @@ components:
           type: number
         warmupDays:
           type: integer
-      required: [rebalanceFrequency, executionTiming, transactionCostBps, slippageBps, maxTurnoverPerRebalance, cashYieldAnnual, warmupDays]
+        startDate:
+          type: ["string", "null"]
+      required: [rebalanceFrequency, executionTiming, transactionCostBps, slippageBps, maxTurnoverPerRebalance, cashYieldAnnual, warmupDays, startDate]
 
     BacktestRebalanceLogEntry:
       type: object
@@ -1372,6 +1386,10 @@ components:
           type: array
           items:
             type: string
+        dataStartDate:
+          type: ["string", "null"]
+        dataEndDate:
+          type: ["string", "null"]
         config:
           $ref: "#/components/schemas/BacktestConfigEcho"
         integrity:
@@ -1386,7 +1404,7 @@ components:
             type: string
         methodologyNote:
           type: string
-      required: [hasSufficientData, insufficientReason, startDate, endDate, tradingDays, canAnnualize, equityCurve, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown, avgTurnover, totalTransactionCostPct, monthlyReturns, rebalanceLog, benchmarkTicker, benchmarkCumulativeReturn, benchmarkAnnualizedReturn, benchmarkUnavailableReason, availableBenchmarkTickers, config, integrity, walkForward, sensitivity, warnings, methodologyNote]
+      required: [hasSufficientData, insufficientReason, startDate, endDate, tradingDays, canAnnualize, equityCurve, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown, avgTurnover, totalTransactionCostPct, monthlyReturns, rebalanceLog, benchmarkTicker, benchmarkCumulativeReturn, benchmarkAnnualizedReturn, benchmarkUnavailableReason, availableBenchmarkTickers, dataStartDate, dataEndDate, config, integrity, walkForward, sensitivity, warnings, methodologyNote]
 
     CommitteeRecommendation:
       type: object

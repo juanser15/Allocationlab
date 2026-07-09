@@ -1118,7 +1118,9 @@ export const GetBacktestQueryParams = zod.object({
   "slippageBps": zod.coerce.number().optional(),
   "maxTurnoverPerRebalance": zod.coerce.number().optional(),
   "cashYieldAnnual": zod.coerce.number().optional(),
-  "warmupDays": zod.coerce.number().optional()
+  "warmupDays": zod.coerce.number().optional(),
+  "startDate": zod.coerce.string().optional().describe('Optional ISO date (YYYY-MM-DD). Restricts simulated rebalances to this date or later; signal computation still uses earlier history for lookback warmup.'),
+  "endDate": zod.coerce.string().optional().describe('Optional ISO date (YYYY-MM-DD). Truncates uploaded price history so the backtest simulates \"as of\" this date.')
 })
 
 export const GetBacktestResponse = zod.object({
@@ -1165,6 +1167,8 @@ export const GetBacktestResponse = zod.object({
   "benchmarkAnnualizedReturn": zod.number().nullable(),
   "benchmarkUnavailableReason": zod.string().nullable(),
   "availableBenchmarkTickers": zod.array(zod.string()),
+  "dataStartDate": zod.string().nullable(),
+  "dataEndDate": zod.string().nullable(),
   "config": zod.object({
   "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
   "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']),
@@ -1172,7 +1176,8 @@ export const GetBacktestResponse = zod.object({
   "slippageBps": zod.number(),
   "maxTurnoverPerRebalance": zod.number(),
   "cashYieldAnnual": zod.number(),
-  "warmupDays": zod.number()
+  "warmupDays": zod.number(),
+  "startDate": zod.string().nullable()
 }),
   "integrity": zod.object({
   "score": zod.number(),

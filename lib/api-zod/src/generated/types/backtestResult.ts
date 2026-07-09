@@ -50,6 +50,10 @@ export interface BacktestResult {
   /** @nullable */
   benchmarkUnavailableReason: string | null;
   availableBenchmarkTickers: string[];
+  /** @nullable */
+  dataStartDate: string | null;
+  /** @nullable */
+  dataEndDate: string | null;
   config: BacktestConfigEcho;
   integrity: IntegrityAudit;
   walkForward: WalkForwardResult;

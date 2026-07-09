@@ -37,6 +37,12 @@ function parseNumber(v: unknown, fallback: number, min: number, max: number): nu
   return Math.min(max, Math.max(min, n));
 }
 
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function parseIsoDate(v: unknown): string | null {
+  return typeof v === "string" && ISO_DATE_RE.test(v) ? v : null;
+}
+
 router.get("/backtest", async (req, res): Promise<void> => {
   const benchmarkParam = typeof req.query.benchmark === "string" ? req.query.benchmark.toUpperCase() : null;
 
@@ -49,14 +55,16 @@ router.get("/backtest", async (req, res): Promise<void> => {
     maxTurnoverPerRebalance: parseNumber(req.query.maxTurnoverPerRebalance, defaults.maxTurnoverPerRebalance, 0, 1),
     cashYieldAnnual: parseNumber(req.query.cashYieldAnnual, defaults.cashYieldAnnual, 0, 0.2),
     warmupDays: Math.round(parseNumber(req.query.warmupDays, defaults.warmupDays, 60, 756)),
+    startDate: parseIsoDate(req.query.startDate),
   };
+  const endDate = parseIsoDate(req.query.endDate);
 
   const universe = await getUniverseConfig();
   const etfs = universe.etfs as EtfEntry[];
   const enabledTickers = etfs.filter((e) => e.enabled).map((e) => e.ticker);
   const constraints = (await getConstraintsConfig()) as Constraints;
 
-  const empty = (reason: string) =>
+  const empty = (reason: string, dataStartDate: string | null = null, dataEndDate: string | null = null) =>
     GetBacktestResponse.parse({
       hasSufficientData: false,
       insufficientReason: reason,
@@ -79,6 +87,8 @@ router.get("/backtest", async (req, res): Promise<void> => {
       benchmarkAnnualizedReturn: null,
       benchmarkUnavailableReason: null,
       availableBenchmarkTickers: enabledTickers,
+      dataStartDate,
+      dataEndDate,
       config,
       integrity: { score: 0, grade: "not_reliable", hardFail: true, checklist: [] },
       walkForward: { folds: [], note: "" },
@@ -101,14 +111,25 @@ router.get("/backtest", async (req, res): Promise<void> => {
     return;
   }
 
+  const fullDataStartDate = priceRows.length > 0 ? priceRows[0].date : null;
+  const fullDataEndDate = priceRows.length > 0 ? priceRows[priceRows.length - 1].date : null;
+
   if (enabledTickers.length === 0) {
-    res.json(empty("No ETFs are enabled in the current universe. Enable at least one ETF in Portfolio Construction."));
+    res.json(empty("No ETFs are enabled in the current universe. Enable at least one ETF in Portfolio Construction.", fullDataStartDate, fullDataEndDate));
     return;
+  }
+
+  if (endDate) {
+    priceRows = priceRows.filter((r) => r.date <= endDate);
+    if (priceRows.length === 0) {
+      res.json(empty("No price data available on or before the selected end date.", fullDataStartDate, fullDataEndDate));
+      return;
+    }
   }
 
   const engineResult = runBacktestEngine(priceRows, etfs, constraints, config, benchmarkParam);
   if (!engineResult.hasSufficientData) {
-    res.json(empty(engineResult.insufficientReason ?? "Not enough data to run a backtest."));
+    res.json(empty(engineResult.insufficientReason ?? "Not enough data to run a backtest.", fullDataStartDate, fullDataEndDate));
     return;
   }
 
@@ -140,6 +161,8 @@ router.get("/backtest", async (req, res): Promise<void> => {
       ...engineResult,
       benchmarkUnavailableReason,
       availableBenchmarkTickers: enabledTickers,
+      dataStartDate: fullDataStartDate,
+      dataEndDate: fullDataEndDate,
       config,
       integrity,
       walkForward,

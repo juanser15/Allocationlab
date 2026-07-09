@@ -1061,6 +1061,7 @@ export interface BacktestConfig {
   maxTurnoverPerRebalance: number;
   cashYieldAnnual: number;
   warmupDays: number;
+  startDate: string | null;
 }
 
 export interface RebalanceLogEntry {
@@ -1166,6 +1167,7 @@ export function defaultBacktestConfig(): BacktestConfig {
     maxTurnoverPerRebalance: 1,
     cashYieldAnnual: 0,
     warmupDays: 252,
+    startDate: null,
   };
 }
 
@@ -1177,11 +1179,17 @@ function periodKeyFor(date: string, frequency: RebalanceFrequency): string {
 }
 
 /** First trading day of each calendar month/quarter, after the warmup window has elapsed. */
-export function generateRebalanceDates(priceRows: PriceRow[], frequency: RebalanceFrequency, warmupDays: number): string[] {
+export function generateRebalanceDates(
+  priceRows: PriceRow[],
+  frequency: RebalanceFrequency,
+  warmupDays: number,
+  minRebalanceDate: string | null = null
+): string[] {
   const dates: string[] = [];
   let lastKey: string | null = null;
   for (let i = 0; i < priceRows.length; i++) {
     if (i < warmupDays) continue;
+    if (minRebalanceDate && priceRows[i].date < minRebalanceDate) continue;
     const key = periodKeyFor(priceRows[i].date, frequency);
     if (key !== lastKey) {
       dates.push(priceRows[i].date);
@@ -1270,7 +1278,7 @@ export function runBacktestEngine(
     );
   }
 
-  const rebalanceDates = generateRebalanceDates(priceRows, config.rebalanceFrequency, config.warmupDays);
+  const rebalanceDates = generateRebalanceDates(priceRows, config.rebalanceFrequency, config.warmupDays, config.startDate);
   if (rebalanceDates.length === 0) {
     return empty("No rebalance dates fall after the signal warmup window — upload more price history.");
   }

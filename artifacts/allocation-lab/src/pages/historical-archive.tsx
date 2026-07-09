@@ -128,7 +128,7 @@ function EntryDetail({ sessionId, onClose }: { sessionId: number; onClose: () =>
         )}
         {entry && (
           <div ref={previewRef} className="bg-white space-y-5">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
               <div className="border rounded p-3">
                 <p className="text-[10px] uppercase text-muted-foreground">Regime</p>
                 <p className="text-sm font-bold text-primary">{entry.regime.label}</p>
@@ -292,7 +292,7 @@ function CompareView({ idA, idB, onClose }: { idA: number; idB: number; onClose:
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
               <div className="border rounded p-3">
                 <p className="text-[10px] uppercase text-muted-foreground">Cash Weight</p>
                 <p className="text-sm font-bold">{pct(cmp.a.cashWeight)} <ArrowRight className="inline h-3 w-3 mx-0.5" /> {pct(cmp.b.cashWeight)}</p>

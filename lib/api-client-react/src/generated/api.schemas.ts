@@ -426,6 +426,8 @@ export interface BacktestConfigEcho {
   maxTurnoverPerRebalance: number;
   cashYieldAnnual: number;
   warmupDays: number;
+  /** @nullable */
+  startDate: string | null;
 }
 
 export interface BacktestRebalanceLogEntry {
@@ -572,6 +574,10 @@ export interface BacktestResult {
   /** @nullable */
   benchmarkUnavailableReason: string | null;
   availableBenchmarkTickers: string[];
+  /** @nullable */
+  dataStartDate: string | null;
+  /** @nullable */
+  dataEndDate: string | null;
   config: BacktestConfigEcho;
   integrity: IntegrityAudit;
   walkForward: WalkForwardResult;
@@ -831,6 +837,14 @@ slippageBps?: number;
 maxTurnoverPerRebalance?: number;
 cashYieldAnnual?: number;
 warmupDays?: number;
+/**
+ * Optional ISO date (YYYY-MM-DD). Restricts simulated rebalances to this date or later; signal computation still uses earlier history for lookback warmup.
+ */
+startDate?: string;
+/**
+ * Optional ISO date (YYYY-MM-DD). Truncates uploaded price history so the backtest simulates "as of" this date.
+ */
+endDate?: string;
 };
 
 export type GetBacktestRebalanceFrequency = typeof GetBacktestRebalanceFrequency[keyof typeof GetBacktestRebalanceFrequency];
