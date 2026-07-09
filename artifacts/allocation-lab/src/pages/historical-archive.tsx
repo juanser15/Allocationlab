@@ -13,13 +13,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Loader2, Archive as ArchiveIcon, Download, FileText, Image as ImageIcon, FileSpreadsheet,
-  X, ArrowRight, GitCompare, Info, ChevronRight,
+  X, ArrowRight, GitCompare, Info, ChevronRight, BarChart3,
 } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { AttributionSection } from "@/components/archive/AttributionSection";
 
 function pct(v: number, digits = 1): string {
   return `${(v * 100).toFixed(digits)}%`;
@@ -443,6 +445,15 @@ export default function HistoricalArchive() {
         }
       />
 
+      <Tabs defaultValue="browse">
+        <TabsList>
+          <TabsTrigger value="browse">Browse &amp; Compare</TabsTrigger>
+          <TabsTrigger value="attribution">
+            <BarChart3 className="mr-1.5 h-3.5 w-3.5" /> Attribution
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="browse" className="space-y-6 mt-4">
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Filters</CardTitle>
@@ -583,6 +594,12 @@ export default function HistoricalArchive() {
       {compareIds && (
         <CompareView idA={compareIds[0]} idB={compareIds[1]} onClose={() => { setCompareIds(null); setCompareSelection([]); }} />
       )}
+        </TabsContent>
+
+        <TabsContent value="attribution" className="mt-4">
+          <AttributionSection />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

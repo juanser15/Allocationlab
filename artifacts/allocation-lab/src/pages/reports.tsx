@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
-import { useGetLatestResults, useGetConstraints, useGenerateReport, useGetRiskModel, useGetScenarioStressMeta, useGetTradeImplementationMeta } from "@workspace/api-client-react";
+import { useGetLatestResults, useGetConstraints, useGenerateReport, useGetRiskModel, useGetScenarioStressMeta, useGetTradeImplementationMeta, useGetAttributionMeta } from "@workspace/api-client-react";
+import { localSettings } from "@/lib/local-settings";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,6 +53,7 @@ export default function Reports() {
   const { data: riskModel } = useGetRiskModel();
   const { data: scenarioMeta } = useGetScenarioStressMeta();
   const { data: tradeImplMeta } = useGetTradeImplementationMeta();
+  const { data: attributionMeta } = useGetAttributionMeta({ benchmarkTicker: localSettings.getBenchmarksSettings().defaultBenchmark });
   const generateReport = useGenerateReport();
 
   const today = new Date().toISOString().slice(0, 10);
@@ -178,6 +180,15 @@ export default function Reports() {
       items.push({ id: "trade-implementation", label: "Trade implementation ready", severity: "pass", detail: `${tradeImplMeta.activeEtfCount} active ETFs covered; enter AUM in Portfolio Lab to generate the trade blotter.` });
     }
 
+    // Attribution readiness
+    if (!attributionMeta) {
+      items.push({ id: "attribution", label: "Attribution data unavailable", severity: "warn", detail: "Loading attribution readiness — refresh before finalizing the report." });
+    } else if (!attributionMeta.ready) {
+      items.push({ id: "attribution", label: "Attribution not yet available", severity: "warn", detail: attributionMeta.reason ?? "Save a rebalance with prior weights and realized price history to unlock attribution." });
+    } else {
+      items.push({ id: "attribution", label: "Attribution available", severity: "pass", detail: `${attributionMeta.versions.length} saved version${attributionMeta.versions.length === 1 ? "" : "s"} with attribution coverage in the Archive tab.` });
+    }
+
     // Report fields sanity
     if (!portfolioName.trim()) {
       items.push({ id: "portfolio-name", label: "Portfolio name is empty", severity: "warn", detail: "Add a portfolio name so the report is clearly attributed." });
@@ -187,7 +198,7 @@ export default function Reports() {
     }
 
     return items;
-  }, [result, constraints, riskModel, scenarioMeta, tradeImplMeta, portfolioName, title]);
+  }, [result, constraints, riskModel, scenarioMeta, tradeImplMeta, attributionMeta, portfolioName, title]);
 
   const failCount = checklist.filter((c) => c.severity === "fail").length;
   const warnCount = checklist.filter((c) => c.severity === "warn").length;

@@ -15,6 +15,7 @@ import committeeRouter from "./committee";
 import riskModelRouter from "./riskModel";
 import scenarioStressRouter from "./scenarioStress";
 import tradeImplementationRouter from "./tradeImplementation";
+import attributionRouter from "./attribution";
 
 const router: IRouter = Router();
 
@@ -34,5 +35,6 @@ router.use(committeeRouter);
 router.use(riskModelRouter);
 router.use(scenarioStressRouter);
 router.use(tradeImplementationRouter);
+router.use(attributionRouter);
 
 export default router;

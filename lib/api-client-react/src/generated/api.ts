@@ -23,6 +23,8 @@ import type {
   ArchiveCompareResult,
   ArchiveEntry,
   ArchiveListResponse,
+  AttributionMeta,
+  AttributionResult,
   BacktestResult,
   CommitteeResult,
   CompareArchiveParams,
@@ -32,6 +34,8 @@ import type {
   DecisionLogStatusInput,
   ErrorResponse,
   EtfDetail,
+  GetAttributionMetaParams,
+  GetAttributionParams,
   GetBacktestParams,
   GetCommittee404,
   GetRiskModelParams,
@@ -1288,6 +1292,174 @@ export function useGetTradeImplementation<TData = Awaited<ReturnType<typeof getT
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetTradeImplementationQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAttributionMetaUrl = (params?: GetAttributionMetaParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/attribution/meta?${stringifiedParams}` : `/api/attribution/meta`
+}
+
+/**
+ * @summary Cheap readiness check for the attribution engine (session, realized history, prior weights, benchmark availability)
+ */
+export const getAttributionMeta = async (params?: GetAttributionMetaParams, options?: RequestInit): Promise<AttributionMeta> => {
+
+  return customFetch<AttributionMeta>(getGetAttributionMetaUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAttributionMetaQueryKey = (params?: GetAttributionMetaParams,) => {
+    return [
+    `/api/attribution/meta`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAttributionMetaQueryOptions = <TData = Awaited<ReturnType<typeof getAttributionMeta>>, TError = ErrorType<unknown>>(params?: GetAttributionMetaParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAttributionMeta>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAttributionMetaQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAttributionMeta>>> = ({ signal }) => getAttributionMeta(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAttributionMeta>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAttributionMetaQueryResult = NonNullable<Awaited<ReturnType<typeof getAttributionMeta>>>
+export type GetAttributionMetaQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Cheap readiness check for the attribution engine (session, realized history, prior weights, benchmark availability)
+ */
+
+export function useGetAttributionMeta<TData = Awaited<ReturnType<typeof getAttributionMeta>>, TError = ErrorType<unknown>>(
+ params?: GetAttributionMetaParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAttributionMeta>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAttributionMetaQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAttributionUrl = (params?: GetAttributionParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/attribution?${stringifiedParams}` : `/api/attribution`
+}
+
+/**
+ * @summary Decompose realized performance of a saved rebalance version vs benchmark, by ETF, by decision, by factor, by regime, and net of costs
+ */
+export const getAttribution = async (params?: GetAttributionParams, options?: RequestInit): Promise<AttributionResult> => {
+
+  return customFetch<AttributionResult>(getGetAttributionUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAttributionQueryKey = (params?: GetAttributionParams,) => {
+    return [
+    `/api/attribution`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAttributionQueryOptions = <TData = Awaited<ReturnType<typeof getAttribution>>, TError = ErrorType<unknown>>(params?: GetAttributionParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAttribution>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAttributionQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAttribution>>> = ({ signal }) => getAttribution(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAttribution>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAttributionQueryResult = NonNullable<Awaited<ReturnType<typeof getAttribution>>>
+export type GetAttributionQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Decompose realized performance of a saved rebalance version vs benchmark, by ETF, by decision, by factor, by regime, and net of costs
+ */
+
+export function useGetAttribution<TData = Awaited<ReturnType<typeof getAttribution>>, TError = ErrorType<unknown>>(
+ params?: GetAttributionParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAttribution>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAttributionQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

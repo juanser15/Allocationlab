@@ -591,6 +591,206 @@ export interface TradeImplementationResult {
   warnings: TradeImplementationWarning[];
 }
 
+export interface AttributionVersionOption {
+  id: number;
+  label: string;
+  runAt: string;
+}
+
+export interface AttributionMeta {
+  ready: boolean;
+  /** @nullable */
+  reason: string | null;
+  hasSession: boolean;
+  hasRealizedHistory: boolean;
+  hasPriorWeights: boolean;
+  benchmarkAvailable: boolean;
+  versions: AttributionVersionOption[];
+  /** @nullable */
+  selectedSessionId: number | null;
+  /** @nullable */
+  runAt: string | null;
+}
+
+export interface EtfContributionEntry {
+  ticker: string;
+  name: string;
+  sector: string;
+  weight: number;
+  priorWeight: number;
+  /** @nullable */
+  realizedReturn: number | null;
+  /** @nullable */
+  contribution: number | null;
+  /** @nullable */
+  activeContribution: number | null;
+  priceDataAvailable: boolean;
+}
+
+export interface EtfContributionResult {
+  entries: EtfContributionEntry[];
+  cashWeight: number;
+  cashPriorWeight: number;
+  cashReturnContribution: number;
+  cashDrag: number;
+  cashDragNote: string;
+  etfSleeveReturn: number;
+  totalPortfolioReturn: number;
+}
+
+export type DecisionEntryAction = typeof DecisionEntryAction[keyof typeof DecisionEntryAction];
+
+
+export const DecisionEntryAction = {
+  NEW: 'NEW',
+  REMOVED: 'REMOVED',
+  INCREASED: 'INCREASED',
+  REDUCED: 'REDUCED',
+  HELD: 'HELD',
+} as const;
+
+export interface DecisionEntry {
+  ticker: string;
+  name: string;
+  action: DecisionEntryAction;
+  priorWeight: number;
+  weight: number;
+  /** @nullable */
+  realizedReturn: number | null;
+  /** @nullable */
+  helped: boolean | null;
+  note: string;
+}
+
+export interface CashDecision {
+  cashChange: number;
+  /** @nullable */
+  avgActiveReturn: number | null;
+  /** @nullable */
+  helped: boolean | null;
+  note: string;
+}
+
+export interface DecisionAttributionResult {
+  available: boolean;
+  /** @nullable */
+  reason: string | null;
+  entries: DecisionEntry[];
+  cashDecision: CashDecision | null;
+  helpedCount: number;
+  hurtCount: number;
+}
+
+export type FactorBucketResultKey = typeof FactorBucketResultKey[keyof typeof FactorBucketResultKey];
+
+
+export const FactorBucketResultKey = {
+  momentum: 'momentum',
+  trend: 'trend',
+  volatility: 'volatility',
+  meanReversion: 'meanReversion',
+  riskFit: 'riskFit',
+} as const;
+
+export interface FactorBucketResult {
+  key: FactorBucketResultKey;
+  label: string;
+  weightedAvgScore: number;
+  /** @nullable */
+  correlationWithReturn: number | null;
+}
+
+export interface FactorAttributionMacroRegime {
+  regimeLabel: string;
+  regimeComposite: number;
+  portfolioReturn: number;
+  aligned: boolean;
+  note: string;
+}
+
+export interface FactorAttributionResult {
+  available: boolean;
+  /** @nullable */
+  reason: string | null;
+  buckets: FactorBucketResult[];
+  macroRegime: FactorAttributionMacroRegime | null;
+}
+
+export interface RegimeAttributionBucket {
+  regimeLabel: string;
+  periodCount: number;
+  avgRealizedReturn: number;
+}
+
+export interface RegimeAttributionResult {
+  available: boolean;
+  /** @nullable */
+  reason: string | null;
+  buckets: RegimeAttributionBucket[];
+}
+
+export interface CostAttributionResult {
+  grossReturn: number;
+  transactionCostBps: number;
+  slippageBps: number;
+  turnoverPct: number;
+  costImpact: number;
+  netReturn: number;
+}
+
+export interface BenchmarkComparisonResult {
+  available: boolean;
+  /** @nullable */
+  reason: string | null;
+  /** @nullable */
+  benchmarkTicker: string | null;
+  /** @nullable */
+  portfolioReturn: number | null;
+  /** @nullable */
+  benchmarkReturn: number | null;
+  /** @nullable */
+  excessReturn: number | null;
+  /** @nullable */
+  trackingError: number | null;
+  /** @nullable */
+  hitRatio: number | null;
+  /** @nullable */
+  informationRatio: number | null;
+}
+
+export interface AttributionReportSummary {
+  bestContributors: EtfContributionEntry[];
+  worstContributors: EtfContributionEntry[];
+  decisionsHelped: DecisionEntry[];
+  decisionsHurt: DecisionEntry[];
+  cashDragNote: string;
+  benchmarkComparisonNote: string;
+  lessonsLearned: string[];
+}
+
+export interface AttributionResult {
+  hasSufficientData: boolean;
+  /** @nullable */
+  insufficientReason: string | null;
+  /** @nullable */
+  sessionId: number | null;
+  /** @nullable */
+  versionLabel: string | null;
+  /** @nullable */
+  runAt: string | null;
+  /** @nullable */
+  asOfDate: string | null;
+  versions: AttributionVersionOption[];
+  etfContribution: EtfContributionResult | null;
+  decisionAttribution: DecisionAttributionResult | null;
+  factorAttribution: FactorAttributionResult | null;
+  regimeAttribution: RegimeAttributionResult | null;
+  costAttribution: CostAttributionResult | null;
+  benchmarkComparison: BenchmarkComparisonResult | null;
+  reportSummary: AttributionReportSummary | null;
+  methodologyNote: string;
+}
+
 export type PipelineStepStatus = typeof PipelineStepStatus[keyof typeof PipelineStepStatus];
 
 
@@ -1202,6 +1402,19 @@ export const GetTradeImplementationRebalanceFrequency = {
   monthly: 'monthly',
   quarterly: 'quarterly',
 } as const;
+
+export type GetAttributionMetaParams = {
+versionId?: number;
+benchmarkTicker?: string;
+};
+
+export type GetAttributionParams = {
+versionId?: number;
+benchmarkTicker?: string;
+transactionCostBps?: number;
+slippageBps?: number;
+cashYieldAnnualPct?: number;
+};
 
 export type ListArchiveParams = {
 fromDate?: string;

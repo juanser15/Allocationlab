@@ -22,7 +22,7 @@ import { getLatestPriceData } from "./prices";
 const router: IRouter = Router();
 
 const ITERATION_INFO = {
-  current: 13,
+  current: 14,
   max: 15,
   completed: [
     "Core UI scaffold & navigation",
@@ -44,9 +44,9 @@ const ITERATION_INFO = {
     "Risk Model Pro (selectable covariance models, MCR/CCR, beta, downside vol, drawdown risk, risk-based concentration & decomposition, embedded in Portfolio Lab diagnostics)",
     "Scenario & Stress Lab (user-defined macro shocks and predefined historical stress scenarios, ETF/bucket contribution, cash buffer adequacy, watch items, embedded in Research Lab, Portfolio Lab, Investment Committee, and Reports)",
     "Trade Implementation (current -> target trade list with AUM-scaled $ sizing, rounding to whole shares, min trade size filter, turnover & cash impact, ADV/liquidity marked unavailable never fabricated, execution assumptions, CSV blotter export, embedded in Portfolio Lab, Dashboard, Investment Committee, and Reports)",
+    "Attribution Engine (realized portfolio-vs-benchmark, ETF contribution, decision, factor, regime, and trading-cost attribution off saved rebalance versions, with an exportable committee report section, embedded in Investment Committee's Archive tab, Dashboard, Portfolio Lab, Research Lab, and Reports)",
   ],
   next: [
-    "Attribution Engine (return decomposition by factor, sector, and selection vs. allocation)",
     "Production Governance (audit trails, approval workflows, role-based access controls)",
   ],
 };

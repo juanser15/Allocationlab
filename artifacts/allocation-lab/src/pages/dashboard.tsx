@@ -25,6 +25,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { useWorkflowStage } from "@/lib/workflow";
 import { WorkflowStatusBar } from "@/components/shared/WorkflowStatusBar";
 import { useSettingsDrawer } from "@/context/settings-drawer-context";
+import { AttributionSummaryCard } from "@/components/archive/AttributionSummaryCard";
 
 type Preset = "today" | "week" | "month" | "ytd" | "custom";
 
@@ -429,6 +430,7 @@ export default function Dashboard() {
                 <Link href="/portfolio-lab" className="text-xs text-primary underline mt-1 inline-block">Build trade list</Link>
               </CardContent>
             </Card>
+            <AttributionSummaryCard />
           </div>
         </>
       )}

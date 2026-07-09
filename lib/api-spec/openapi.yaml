@@ -19,6 +19,7 @@ tags:
   - name: risk-model
   - name: scenario-stress
   - name: trade-implementation
+  - name: attribution
 
 paths:
   /healthz:
@@ -357,6 +358,69 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
+  /attribution/meta:
+    get:
+      operationId: getAttributionMeta
+      tags: [attribution]
+      summary: Cheap readiness check for the attribution engine (session, realized history, prior weights, benchmark availability)
+      parameters:
+        - name: versionId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: benchmarkTicker
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttributionMeta"
+
+  /attribution:
+    get:
+      operationId: getAttribution
+      tags: [attribution]
+      summary: Decompose realized performance of a saved rebalance version vs benchmark, by ETF, by decision, by factor, by regime, and net of costs
+      parameters:
+        - name: versionId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: benchmarkTicker
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: transactionCostBps
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: slippageBps
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: cashYieldAnnualPct
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttributionResult"
 
   /reports/generate:
     post:
@@ -1572,6 +1636,334 @@ components:
           items:
             $ref: "#/components/schemas/TradeImplementationWarning"
       required: [hasSufficientData, insufficientReason, generatedAt, aumUsd, assumptions, trades, cash, grossTradeUsd, estimatedTotalCostUsd, turnoverPct, buyCount, sellCount, newCount, removeCount, holdCount, belowMinCount, warnings]
+
+    AttributionVersionOption:
+      type: object
+      properties:
+        id:
+          type: integer
+        label:
+          type: string
+        runAt:
+          type: string
+      required: [id, label, runAt]
+
+    AttributionMeta:
+      type: object
+      properties:
+        ready:
+          type: boolean
+        reason:
+          type: ["string", "null"]
+        hasSession:
+          type: boolean
+        hasRealizedHistory:
+          type: boolean
+        hasPriorWeights:
+          type: boolean
+        benchmarkAvailable:
+          type: boolean
+        versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttributionVersionOption"
+        selectedSessionId:
+          type: ["integer", "null"]
+        runAt:
+          type: ["string", "null"]
+      required: [ready, reason, hasSession, hasRealizedHistory, hasPriorWeights, benchmarkAvailable, versions, selectedSessionId, runAt]
+
+    EtfContributionEntry:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        sector:
+          type: string
+        weight:
+          type: number
+        priorWeight:
+          type: number
+        realizedReturn:
+          type: ["number", "null"]
+        contribution:
+          type: ["number", "null"]
+        activeContribution:
+          type: ["number", "null"]
+        priceDataAvailable:
+          type: boolean
+      required: [ticker, name, sector, weight, priorWeight, realizedReturn, contribution, activeContribution, priceDataAvailable]
+
+    EtfContributionResult:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtfContributionEntry"
+        cashWeight:
+          type: number
+        cashPriorWeight:
+          type: number
+        cashReturnContribution:
+          type: number
+        cashDrag:
+          type: number
+        cashDragNote:
+          type: string
+        etfSleeveReturn:
+          type: number
+        totalPortfolioReturn:
+          type: number
+      required: [entries, cashWeight, cashPriorWeight, cashReturnContribution, cashDrag, cashDragNote, etfSleeveReturn, totalPortfolioReturn]
+
+    DecisionEntry:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        action:
+          type: string
+          enum: [NEW, REMOVED, INCREASED, REDUCED, HELD]
+        priorWeight:
+          type: number
+        weight:
+          type: number
+        realizedReturn:
+          type: ["number", "null"]
+        helped:
+          type: ["boolean", "null"]
+        note:
+          type: string
+      required: [ticker, name, action, priorWeight, weight, realizedReturn, helped, note]
+
+    CashDecision:
+      type: object
+      properties:
+        cashChange:
+          type: number
+        avgActiveReturn:
+          type: ["number", "null"]
+        helped:
+          type: ["boolean", "null"]
+        note:
+          type: string
+      required: [cashChange, avgActiveReturn, helped, note]
+
+    DecisionAttributionResult:
+      type: object
+      properties:
+        available:
+          type: boolean
+        reason:
+          type: ["string", "null"]
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/DecisionEntry"
+        cashDecision:
+          oneOf:
+            - $ref: "#/components/schemas/CashDecision"
+            - type: "null"
+        helpedCount:
+          type: integer
+        hurtCount:
+          type: integer
+      required: [available, reason, entries, cashDecision, helpedCount, hurtCount]
+
+    FactorBucketResult:
+      type: object
+      properties:
+        key:
+          type: string
+          enum: [momentum, trend, volatility, meanReversion, riskFit]
+        label:
+          type: string
+        weightedAvgScore:
+          type: number
+        correlationWithReturn:
+          type: ["number", "null"]
+      required: [key, label, weightedAvgScore, correlationWithReturn]
+
+    FactorAttributionMacroRegime:
+      type: object
+      properties:
+        regimeLabel:
+          type: string
+        regimeComposite:
+          type: number
+        portfolioReturn:
+          type: number
+        aligned:
+          type: boolean
+        note:
+          type: string
+      required: [regimeLabel, regimeComposite, portfolioReturn, aligned, note]
+
+    FactorAttributionResult:
+      type: object
+      properties:
+        available:
+          type: boolean
+        reason:
+          type: ["string", "null"]
+        buckets:
+          type: array
+          items:
+            $ref: "#/components/schemas/FactorBucketResult"
+        macroRegime:
+          oneOf:
+            - $ref: "#/components/schemas/FactorAttributionMacroRegime"
+            - type: "null"
+      required: [available, reason, buckets, macroRegime]
+
+    RegimeAttributionBucket:
+      type: object
+      properties:
+        regimeLabel:
+          type: string
+        periodCount:
+          type: integer
+        avgRealizedReturn:
+          type: number
+      required: [regimeLabel, periodCount, avgRealizedReturn]
+
+    RegimeAttributionResult:
+      type: object
+      properties:
+        available:
+          type: boolean
+        reason:
+          type: ["string", "null"]
+        buckets:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegimeAttributionBucket"
+      required: [available, reason, buckets]
+
+    CostAttributionResult:
+      type: object
+      properties:
+        grossReturn:
+          type: number
+        transactionCostBps:
+          type: number
+        slippageBps:
+          type: number
+        turnoverPct:
+          type: number
+        costImpact:
+          type: number
+        netReturn:
+          type: number
+      required: [grossReturn, transactionCostBps, slippageBps, turnoverPct, costImpact, netReturn]
+
+    BenchmarkComparisonResult:
+      type: object
+      properties:
+        available:
+          type: boolean
+        reason:
+          type: ["string", "null"]
+        benchmarkTicker:
+          type: ["string", "null"]
+        portfolioReturn:
+          type: ["number", "null"]
+        benchmarkReturn:
+          type: ["number", "null"]
+        excessReturn:
+          type: ["number", "null"]
+        trackingError:
+          type: ["number", "null"]
+        hitRatio:
+          type: ["number", "null"]
+        informationRatio:
+          type: ["number", "null"]
+      required: [available, reason, benchmarkTicker, portfolioReturn, benchmarkReturn, excessReturn, trackingError, hitRatio, informationRatio]
+
+    AttributionReportSummary:
+      type: object
+      properties:
+        bestContributors:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtfContributionEntry"
+        worstContributors:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtfContributionEntry"
+        decisionsHelped:
+          type: array
+          items:
+            $ref: "#/components/schemas/DecisionEntry"
+        decisionsHurt:
+          type: array
+          items:
+            $ref: "#/components/schemas/DecisionEntry"
+        cashDragNote:
+          type: string
+        benchmarkComparisonNote:
+          type: string
+        lessonsLearned:
+          type: array
+          items:
+            type: string
+      required: [bestContributors, worstContributors, decisionsHelped, decisionsHurt, cashDragNote, benchmarkComparisonNote, lessonsLearned]
+
+    AttributionResult:
+      type: object
+      properties:
+        hasSufficientData:
+          type: boolean
+        insufficientReason:
+          type: ["string", "null"]
+        sessionId:
+          type: ["integer", "null"]
+        versionLabel:
+          type: ["string", "null"]
+        runAt:
+          type: ["string", "null"]
+        asOfDate:
+          type: ["string", "null"]
+        versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttributionVersionOption"
+        etfContribution:
+          oneOf:
+            - $ref: "#/components/schemas/EtfContributionResult"
+            - type: "null"
+        decisionAttribution:
+          oneOf:
+            - $ref: "#/components/schemas/DecisionAttributionResult"
+            - type: "null"
+        factorAttribution:
+          oneOf:
+            - $ref: "#/components/schemas/FactorAttributionResult"
+            - type: "null"
+        regimeAttribution:
+          oneOf:
+            - $ref: "#/components/schemas/RegimeAttributionResult"
+            - type: "null"
+        costAttribution:
+          oneOf:
+            - $ref: "#/components/schemas/CostAttributionResult"
+            - type: "null"
+        benchmarkComparison:
+          oneOf:
+            - $ref: "#/components/schemas/BenchmarkComparisonResult"
+            - type: "null"
+        reportSummary:
+          oneOf:
+            - $ref: "#/components/schemas/AttributionReportSummary"
+            - type: "null"
+        methodologyNote:
+          type: string
+      required: [hasSufficientData, insufficientReason, sessionId, versionLabel, runAt, asOfDate, versions, etfContribution, decisionAttribution, factorAttribution, regimeAttribution, costAttribution, benchmarkComparison, reportSummary, methodologyNote]
 
     RunResult:
       type: object

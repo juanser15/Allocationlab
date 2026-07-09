@@ -710,6 +710,192 @@ export const GetTradeImplementationResponse = zod.object({
 })
 
 
+/**
+ * @summary Cheap readiness check for the attribution engine (session, realized history, prior weights, benchmark availability)
+ */
+export const GetAttributionMetaQueryParams = zod.object({
+  "versionId": zod.coerce.number().optional(),
+  "benchmarkTicker": zod.coerce.string().optional()
+})
+
+export const GetAttributionMetaResponse = zod.object({
+  "ready": zod.boolean(),
+  "reason": zod.string().nullable(),
+  "hasSession": zod.boolean(),
+  "hasRealizedHistory": zod.boolean(),
+  "hasPriorWeights": zod.boolean(),
+  "benchmarkAvailable": zod.boolean(),
+  "versions": zod.array(zod.object({
+  "id": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string()
+})),
+  "selectedSessionId": zod.number().nullable(),
+  "runAt": zod.string().nullable()
+})
+
+
+/**
+ * @summary Decompose realized performance of a saved rebalance version vs benchmark, by ETF, by decision, by factor, by regime, and net of costs
+ */
+export const GetAttributionQueryParams = zod.object({
+  "versionId": zod.coerce.number().optional(),
+  "benchmarkTicker": zod.coerce.string().optional(),
+  "transactionCostBps": zod.coerce.number().optional(),
+  "slippageBps": zod.coerce.number().optional(),
+  "cashYieldAnnualPct": zod.coerce.number().optional()
+})
+
+export const GetAttributionResponse = zod.object({
+  "hasSufficientData": zod.boolean(),
+  "insufficientReason": zod.string().nullable(),
+  "sessionId": zod.number().nullable(),
+  "versionLabel": zod.string().nullable(),
+  "runAt": zod.string().nullable(),
+  "asOfDate": zod.string().nullable(),
+  "versions": zod.array(zod.object({
+  "id": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string()
+})),
+  "etfContribution": zod.union([zod.object({
+  "entries": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "weight": zod.number(),
+  "priorWeight": zod.number(),
+  "realizedReturn": zod.number().nullable(),
+  "contribution": zod.number().nullable(),
+  "activeContribution": zod.number().nullable(),
+  "priceDataAvailable": zod.boolean()
+})),
+  "cashWeight": zod.number(),
+  "cashPriorWeight": zod.number(),
+  "cashReturnContribution": zod.number(),
+  "cashDrag": zod.number(),
+  "cashDragNote": zod.string(),
+  "etfSleeveReturn": zod.number(),
+  "totalPortfolioReturn": zod.number()
+}),zod.null()]),
+  "decisionAttribution": zod.union([zod.object({
+  "available": zod.boolean(),
+  "reason": zod.string().nullable(),
+  "entries": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "action": zod.enum(['NEW', 'REMOVED', 'INCREASED', 'REDUCED', 'HELD']),
+  "priorWeight": zod.number(),
+  "weight": zod.number(),
+  "realizedReturn": zod.number().nullable(),
+  "helped": zod.boolean().nullable(),
+  "note": zod.string()
+})),
+  "cashDecision": zod.union([zod.object({
+  "cashChange": zod.number(),
+  "avgActiveReturn": zod.number().nullable(),
+  "helped": zod.boolean().nullable(),
+  "note": zod.string()
+}),zod.null()]),
+  "helpedCount": zod.number(),
+  "hurtCount": zod.number()
+}),zod.null()]),
+  "factorAttribution": zod.union([zod.object({
+  "available": zod.boolean(),
+  "reason": zod.string().nullable(),
+  "buckets": zod.array(zod.object({
+  "key": zod.enum(['momentum', 'trend', 'volatility', 'meanReversion', 'riskFit']),
+  "label": zod.string(),
+  "weightedAvgScore": zod.number(),
+  "correlationWithReturn": zod.number().nullable()
+})),
+  "macroRegime": zod.union([zod.object({
+  "regimeLabel": zod.string(),
+  "regimeComposite": zod.number(),
+  "portfolioReturn": zod.number(),
+  "aligned": zod.boolean(),
+  "note": zod.string()
+}),zod.null()])
+}),zod.null()]),
+  "regimeAttribution": zod.union([zod.object({
+  "available": zod.boolean(),
+  "reason": zod.string().nullable(),
+  "buckets": zod.array(zod.object({
+  "regimeLabel": zod.string(),
+  "periodCount": zod.number(),
+  "avgRealizedReturn": zod.number()
+}))
+}),zod.null()]),
+  "costAttribution": zod.union([zod.object({
+  "grossReturn": zod.number(),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "turnoverPct": zod.number(),
+  "costImpact": zod.number(),
+  "netReturn": zod.number()
+}),zod.null()]),
+  "benchmarkComparison": zod.union([zod.object({
+  "available": zod.boolean(),
+  "reason": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable(),
+  "portfolioReturn": zod.number().nullable(),
+  "benchmarkReturn": zod.number().nullable(),
+  "excessReturn": zod.number().nullable(),
+  "trackingError": zod.number().nullable(),
+  "hitRatio": zod.number().nullable(),
+  "informationRatio": zod.number().nullable()
+}),zod.null()]),
+  "reportSummary": zod.union([zod.object({
+  "bestContributors": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "weight": zod.number(),
+  "priorWeight": zod.number(),
+  "realizedReturn": zod.number().nullable(),
+  "contribution": zod.number().nullable(),
+  "activeContribution": zod.number().nullable(),
+  "priceDataAvailable": zod.boolean()
+})),
+  "worstContributors": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "weight": zod.number(),
+  "priorWeight": zod.number(),
+  "realizedReturn": zod.number().nullable(),
+  "contribution": zod.number().nullable(),
+  "activeContribution": zod.number().nullable(),
+  "priceDataAvailable": zod.boolean()
+})),
+  "decisionsHelped": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "action": zod.enum(['NEW', 'REMOVED', 'INCREASED', 'REDUCED', 'HELD']),
+  "priorWeight": zod.number(),
+  "weight": zod.number(),
+  "realizedReturn": zod.number().nullable(),
+  "helped": zod.boolean().nullable(),
+  "note": zod.string()
+})),
+  "decisionsHurt": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "action": zod.enum(['NEW', 'REMOVED', 'INCREASED', 'REDUCED', 'HELD']),
+  "priorWeight": zod.number(),
+  "weight": zod.number(),
+  "realizedReturn": zod.number().nullable(),
+  "helped": zod.boolean().nullable(),
+  "note": zod.string()
+})),
+  "cashDragNote": zod.string(),
+  "benchmarkComparisonNote": zod.string(),
+  "lessonsLearned": zod.array(zod.string())
+}),zod.null()]),
+  "methodologyNote": zod.string()
+})
+
+
 export const GenerateReportBody = zod.object({
   "sessionId": zod.number().nullish(),
   "format": zod.enum(['pdf', 'png', 'csv']),

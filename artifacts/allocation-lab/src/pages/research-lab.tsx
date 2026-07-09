@@ -26,6 +26,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ScenarioStressLab } from "@/components/research-lab/ScenarioStressLab";
 import { useSettingsDrawer } from "@/context/settings-drawer-context";
+import { AttributionSummaryCard } from "@/components/archive/AttributionSummaryCard";
 
 function EtfLink({ ticker, className }: { ticker: string; className?: string }) {
   return (
@@ -570,6 +571,8 @@ export default function ResearchLab() {
                     </CardContent>
                   </Card>
                 )}
+
+                <AttributionSummaryCard />
               </>
             )}
           </TabsContent>
