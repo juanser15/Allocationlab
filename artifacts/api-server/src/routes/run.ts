@@ -22,7 +22,7 @@ import { getLatestPriceData } from "./prices";
 const router: IRouter = Router();
 
 const ITERATION_INFO = {
-  current: 14,
+  current: 15,
   max: 15,
   completed: [
     "Core UI scaffold & navigation",
@@ -45,9 +45,15 @@ const ITERATION_INFO = {
     "Scenario & Stress Lab (user-defined macro shocks and predefined historical stress scenarios, ETF/bucket contribution, cash buffer adequacy, watch items, embedded in Research Lab, Portfolio Lab, Investment Committee, and Reports)",
     "Trade Implementation (current -> target trade list with AUM-scaled $ sizing, rounding to whole shares, min trade size filter, turnover & cash impact, ADV/liquidity marked unavailable never fabricated, execution assumptions, CSV blotter export, embedded in Portfolio Lab, Dashboard, Investment Committee, and Reports)",
     "Attribution Engine (realized portfolio-vs-benchmark, ETF contribution, decision, factor, regime, and trading-cost attribution off saved rebalance versions, with an exportable committee report section, embedded in Investment Committee's Archive tab, Dashboard, Portfolio Lab, Research Lab, and Reports)",
+    "Production Governance (model/data/parameter/report versioning, reproducibility hash, rerun consistency check, archive locking, approval-linked audit trail, governance dashboard embedded in Investment Committee, and governance controls in Settings/Data — no placeholder governance values)",
   ],
-  next: [
-    "Production Governance (audit trails, approval workflows, role-based access controls)",
+  next: [],
+  postV1Backlog: [
+    "Role-based access controls (distinct reviewer/approver/admin permissions, not just attributed actors)",
+    "Multi-user collaborative committee review with concurrent-edit protections",
+    "Per-version stored backtest integrity score (currently computed live in Research Lab against current inputs, not persisted per saved version)",
+    "Configurable staleness and validation thresholds per governance mode (currently fixed)",
+    "Automated regulatory/compliance export templates beyond CSV audit log and governance summary",
   ],
 };
 
@@ -216,7 +222,7 @@ router.get("/results/latest", async (req, res): Promise<void> => {
       whatChanged: "Pre-Iteration-2 session. Re-run the pipeline to generate.",
       why: "Not available.", risks: "Not available.", watchNext: "Re-run the pipeline.",
     },
-    iterationInfo: (stored.iterationInfo as object | undefined) ?? ITERATION_INFO,
+    iterationInfo: ITERATION_INFO,
     diagnostics: (stored.diagnostics as object | undefined) ?? EMPTY_DIAGNOSTICS,
     regime: {
       ...(stored.regime as object),

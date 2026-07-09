@@ -42,6 +42,7 @@ import { Link } from "wouter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import Reports from "@/pages/reports";
 import HistoricalArchive from "@/pages/historical-archive";
+import { GovernanceDashboard } from "@/components/committee/GovernanceDashboard";
 
 const ACTION_STYLES: Record<string, { icon: ReactElement; className: string }> = {
   ADD: { icon: <Plus className="h-3 w-3" />, className: "bg-green-50 text-green-700 border-green-200" },
@@ -185,6 +186,7 @@ export default function InvestmentCommittee() {
           <TabsTrigger value="ai-committee">AI Committee Analysis</TabsTrigger>
           <TabsTrigger value="report">Report</TabsTrigger>
           <TabsTrigger value="archive">Archive</TabsTrigger>
+          <TabsTrigger value="governance">Governance</TabsTrigger>
         </TabsList>
 
         {/* ── Decision Room Tab ── */}
@@ -674,6 +676,11 @@ export default function InvestmentCommittee() {
           <div className="-mx-4 sm:-mx-8 -mt-4">
             <HistoricalArchive />
           </div>
+        </TabsContent>
+
+        {/* ── Governance Tab ── */}
+        <TabsContent value="governance" className="pt-4">
+          <GovernanceDashboard />
         </TabsContent>
       </Tabs>
     </div>

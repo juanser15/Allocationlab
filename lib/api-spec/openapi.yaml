@@ -422,6 +422,222 @@ paths:
               schema:
                 $ref: "#/components/schemas/AttributionResult"
 
+  /governance/dashboard:
+    get:
+      operationId: getGovernanceDashboard
+      tags: [governance]
+      summary: Governance dashboard — version status, pending approvals, stale data warnings, missing validation, locked reports, recent audit events
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GovernanceDashboard"
+
+  /governance/versions:
+    get:
+      operationId: listGovernanceVersions
+      tags: [governance]
+      summary: List all saved portfolio versions with their governance record (or lack thereof)
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GovernanceVersionSummary"
+
+  /governance/versions/{sessionId}:
+    get:
+      operationId: getGovernanceVersion
+      tags: [governance]
+      summary: Full governance record and change history for a saved portfolio version
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GovernanceVersionDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /governance/versions/{sessionId}/snapshot:
+    post:
+      operationId: createGovernanceSnapshot
+      tags: [governance]
+      summary: Record (or refresh) the immutable governance snapshot for a saved portfolio version
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernanceSnapshotInput"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GovernanceVersionDetail"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /governance/versions/{sessionId}/lock:
+    post:
+      operationId: lockGovernanceVersion
+      tags: [governance]
+      summary: Archive-lock an approved version so it cannot be modified without a new version
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernanceActorInput"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GovernanceVersionDetail"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /governance/versions/{sessionId}/unlock:
+    post:
+      operationId: unlockGovernanceVersion
+      tags: [governance]
+      summary: Remove the archive lock on a version (audited)
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernanceActorInput"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GovernanceVersionDetail"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /governance/versions/{sessionId}/rerun-check:
+    post:
+      operationId: rerunGovernanceConsistencyCheck
+      tags: [governance]
+      summary: Rerun the pipeline against this version's stored governance inputs and compare the reproducibility hash
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GovernanceRerunCheckResult"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /governance/audit-log:
+    get:
+      operationId: getGovernanceAuditLog
+      tags: [governance]
+      summary: Full governance audit trail, optionally filtered by session
+      parameters:
+        - name: sessionId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GovernanceAuditLogEntry"
+
   /reports/generate:
     post:
       operationId: generateReport
@@ -1071,7 +1287,11 @@ components:
           type: array
           items:
             type: string
-      required: [current, max, completed, next]
+        postV1Backlog:
+          type: array
+          items:
+            type: string
+      required: [current, max, completed, next, postV1Backlog]
 
     RiskContributionEntry:
       type: object
@@ -1913,6 +2133,167 @@ components:
           items:
             type: string
       required: [bestContributors, worstContributors, decisionsHelped, decisionsHurt, cashDragNote, benchmarkComparisonNote, lessonsLearned]
+
+    GovernanceActorInput:
+      type: object
+      properties:
+        actor:
+          type: string
+      required: []
+
+    GovernanceSnapshotInput:
+      type: object
+      properties:
+        priceSource:
+          type: string
+        benchmarkTicker:
+          type: string
+        modelVersion:
+          type: string
+        parameterVersion:
+          type: string
+        executionAssumptions:
+          $ref: "#/components/schemas/TradeImplementationExecutionAssumptions"
+      required: [priceSource, benchmarkTicker, modelVersion, parameterVersion, executionAssumptions]
+
+    GovernanceVersionSummary:
+      type: object
+      properties:
+        sessionId:
+          type: integer
+        label:
+          type: string
+        runAt:
+          type: string
+        hasGovernanceRecord:
+          type: boolean
+        dataTimestamp:
+          type: ["string", "null"]
+        priceSource:
+          type: ["string", "null"]
+        benchmarkTicker:
+          type: ["string", "null"]
+        modelVersion:
+          type: ["string", "null"]
+        parameterVersion:
+          type: ["string", "null"]
+        reproducibilityHash:
+          type: ["string", "null"]
+        locked:
+          type: boolean
+        lockedAt:
+          type: ["string", "null"]
+        lockedBy:
+          type: ["string", "null"]
+        committeeStatus:
+          type: string
+        approvalState:
+          type: string
+        reportStatus:
+          type: string
+        diagnosticsStatus:
+          type: string
+        backtestIntegrityStatus:
+          type: string
+        isStale:
+          type: boolean
+        missingValidationItems:
+          type: array
+          items:
+            type: string
+      required: [sessionId, label, runAt, hasGovernanceRecord, dataTimestamp, priceSource, benchmarkTicker, modelVersion, parameterVersion, reproducibilityHash, locked, lockedAt, lockedBy, committeeStatus, approvalState, reportStatus, diagnosticsStatus, backtestIntegrityStatus, isStale, missingValidationItems]
+
+    GovernanceVersionDetail:
+      allOf:
+        - $ref: "#/components/schemas/GovernanceVersionSummary"
+        - type: object
+          properties:
+            universe:
+              oneOf:
+                - type: object
+                - type: "null"
+            constraints:
+              oneOf:
+                - type: object
+                - type: "null"
+            executionAssumptions:
+              oneOf:
+                - $ref: "#/components/schemas/TradeImplementationExecutionAssumptions"
+                - type: "null"
+            auditEvents:
+              type: array
+              items:
+                $ref: "#/components/schemas/GovernanceAuditLogEntry"
+          required: [universe, constraints, executionAssumptions, auditEvents]
+
+    GovernanceAuditLogEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: ["integer", "null"]
+        eventType:
+          type: string
+        actor:
+          type: string
+        detail:
+          type: string
+        createdAt:
+          type: string
+      required: [id, sessionId, eventType, actor, detail, createdAt]
+
+    GovernanceDashboard:
+      type: object
+      properties:
+        totalVersions:
+          type: integer
+        versionsWithGovernanceRecord:
+          type: integer
+        pendingApprovals:
+          type: array
+          items:
+            $ref: "#/components/schemas/GovernanceVersionSummary"
+        staleWarnings:
+          type: array
+          items:
+            $ref: "#/components/schemas/GovernanceVersionSummary"
+        missingValidation:
+          type: array
+          items:
+            $ref: "#/components/schemas/GovernanceVersionSummary"
+        lockedVersions:
+          type: array
+          items:
+            $ref: "#/components/schemas/GovernanceVersionSummary"
+        recentAuditEvents:
+          type: array
+          items:
+            $ref: "#/components/schemas/GovernanceAuditLogEntry"
+        governanceNote:
+          type: ["string", "null"]
+      required: [totalVersions, versionsWithGovernanceRecord, pendingApprovals, staleWarnings, missingValidation, lockedVersions, recentAuditEvents, governanceNote]
+
+    GovernanceRerunCheckResult:
+      type: object
+      properties:
+        sessionId:
+          type: integer
+        consistent:
+          type: boolean
+        originalHash:
+          type: string
+        rerunHash:
+          type: string
+        changedFactors:
+          type: array
+          items:
+            type: string
+        summary:
+          type: string
+        checkedAt:
+          type: string
+      required: [sessionId, consistent, originalHash, rerunHash, changedFactors, summary, checkedAt]
 
     AttributionResult:
       type: object

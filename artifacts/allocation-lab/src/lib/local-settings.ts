@@ -33,6 +33,10 @@ export interface ReportingDefaults {
 export interface GovernanceSettings {
   parameterVersion: string;
   archiveAutomatically: boolean;
+  modelVersionLabel: string;
+  parameterPreset: "institutional_default" | "conservative" | "aggressive" | "custom";
+  archiveBehavior: "auto_archive" | "manual_archive" | "auto_archive_and_lock";
+  governanceMode: "standard" | "strict";
 }
 
 export const DEFAULT_EXECUTION_ASSUMPTIONS: ExecutionAssumptions = {
@@ -62,6 +66,10 @@ export const DEFAULT_REPORTING_DEFAULTS: ReportingDefaults = {
 export const DEFAULT_GOVERNANCE_SETTINGS: GovernanceSettings = {
   parameterVersion: "1.0.0",
   archiveAutomatically: true,
+  modelVersionLabel: "1.0.0",
+  parameterPreset: "institutional_default",
+  archiveBehavior: "auto_archive",
+  governanceMode: "standard",
 };
 
 const KEYS = {

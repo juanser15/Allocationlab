@@ -216,7 +216,8 @@ export const RunPipelineResponse = zod.object({
   "current": zod.number(),
   "max": zod.number(),
   "completed": zod.array(zod.string()),
-  "next": zod.array(zod.string())
+  "next": zod.array(zod.string()),
+  "postV1Backlog": zod.array(zod.string())
 }),
   "diagnostics": zod.object({
   "expectedVolatility": zod.number().describe('Annualized portfolio volatility as decimal (e.g. 0.12 = 12%)'),
@@ -318,7 +319,8 @@ export const GetLatestResultsResponse = zod.object({
   "current": zod.number(),
   "max": zod.number(),
   "completed": zod.array(zod.string()),
-  "next": zod.array(zod.string())
+  "next": zod.array(zod.string()),
+  "postV1Backlog": zod.array(zod.string())
 }),
   "diagnostics": zod.object({
   "expectedVolatility": zod.number().describe('Annualized portfolio volatility as decimal (e.g. 0.12 = 12%)'),
@@ -446,7 +448,8 @@ export const GetSessionResponse = zod.object({
   "current": zod.number(),
   "max": zod.number(),
   "completed": zod.array(zod.string()),
-  "next": zod.array(zod.string())
+  "next": zod.array(zod.string()),
+  "postV1Backlog": zod.array(zod.string())
 }),
   "diagnostics": zod.object({
   "expectedVolatility": zod.number().describe('Annualized portfolio volatility as decimal (e.g. 0.12 = 12%)'),
@@ -894,6 +897,415 @@ export const GetAttributionResponse = zod.object({
 }),zod.null()]),
   "methodologyNote": zod.string()
 })
+
+
+/**
+ * @summary Governance dashboard — version status, pending approvals, stale data warnings, missing validation, locked reports, recent audit events
+ */
+export const GetGovernanceDashboardResponse = zod.object({
+  "totalVersions": zod.number(),
+  "versionsWithGovernanceRecord": zod.number(),
+  "pendingApprovals": zod.array(zod.object({
+  "sessionId": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string(),
+  "hasGovernanceRecord": zod.boolean(),
+  "dataTimestamp": zod.string().nullable(),
+  "priceSource": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable(),
+  "modelVersion": zod.string().nullable(),
+  "parameterVersion": zod.string().nullable(),
+  "reproducibilityHash": zod.string().nullable(),
+  "locked": zod.boolean(),
+  "lockedAt": zod.string().nullable(),
+  "lockedBy": zod.string().nullable(),
+  "committeeStatus": zod.string(),
+  "approvalState": zod.string(),
+  "reportStatus": zod.string(),
+  "diagnosticsStatus": zod.string(),
+  "backtestIntegrityStatus": zod.string(),
+  "isStale": zod.boolean(),
+  "missingValidationItems": zod.array(zod.string())
+})),
+  "staleWarnings": zod.array(zod.object({
+  "sessionId": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string(),
+  "hasGovernanceRecord": zod.boolean(),
+  "dataTimestamp": zod.string().nullable(),
+  "priceSource": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable(),
+  "modelVersion": zod.string().nullable(),
+  "parameterVersion": zod.string().nullable(),
+  "reproducibilityHash": zod.string().nullable(),
+  "locked": zod.boolean(),
+  "lockedAt": zod.string().nullable(),
+  "lockedBy": zod.string().nullable(),
+  "committeeStatus": zod.string(),
+  "approvalState": zod.string(),
+  "reportStatus": zod.string(),
+  "diagnosticsStatus": zod.string(),
+  "backtestIntegrityStatus": zod.string(),
+  "isStale": zod.boolean(),
+  "missingValidationItems": zod.array(zod.string())
+})),
+  "missingValidation": zod.array(zod.object({
+  "sessionId": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string(),
+  "hasGovernanceRecord": zod.boolean(),
+  "dataTimestamp": zod.string().nullable(),
+  "priceSource": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable(),
+  "modelVersion": zod.string().nullable(),
+  "parameterVersion": zod.string().nullable(),
+  "reproducibilityHash": zod.string().nullable(),
+  "locked": zod.boolean(),
+  "lockedAt": zod.string().nullable(),
+  "lockedBy": zod.string().nullable(),
+  "committeeStatus": zod.string(),
+  "approvalState": zod.string(),
+  "reportStatus": zod.string(),
+  "diagnosticsStatus": zod.string(),
+  "backtestIntegrityStatus": zod.string(),
+  "isStale": zod.boolean(),
+  "missingValidationItems": zod.array(zod.string())
+})),
+  "lockedVersions": zod.array(zod.object({
+  "sessionId": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string(),
+  "hasGovernanceRecord": zod.boolean(),
+  "dataTimestamp": zod.string().nullable(),
+  "priceSource": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable(),
+  "modelVersion": zod.string().nullable(),
+  "parameterVersion": zod.string().nullable(),
+  "reproducibilityHash": zod.string().nullable(),
+  "locked": zod.boolean(),
+  "lockedAt": zod.string().nullable(),
+  "lockedBy": zod.string().nullable(),
+  "committeeStatus": zod.string(),
+  "approvalState": zod.string(),
+  "reportStatus": zod.string(),
+  "diagnosticsStatus": zod.string(),
+  "backtestIntegrityStatus": zod.string(),
+  "isStale": zod.boolean(),
+  "missingValidationItems": zod.array(zod.string())
+})),
+  "recentAuditEvents": zod.array(zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number().nullable(),
+  "eventType": zod.string(),
+  "actor": zod.string(),
+  "detail": zod.string(),
+  "createdAt": zod.string()
+})),
+  "governanceNote": zod.string().nullable()
+})
+
+
+/**
+ * @summary List all saved portfolio versions with their governance record (or lack thereof)
+ */
+export const ListGovernanceVersionsResponseItem = zod.object({
+  "sessionId": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string(),
+  "hasGovernanceRecord": zod.boolean(),
+  "dataTimestamp": zod.string().nullable(),
+  "priceSource": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable(),
+  "modelVersion": zod.string().nullable(),
+  "parameterVersion": zod.string().nullable(),
+  "reproducibilityHash": zod.string().nullable(),
+  "locked": zod.boolean(),
+  "lockedAt": zod.string().nullable(),
+  "lockedBy": zod.string().nullable(),
+  "committeeStatus": zod.string(),
+  "approvalState": zod.string(),
+  "reportStatus": zod.string(),
+  "diagnosticsStatus": zod.string(),
+  "backtestIntegrityStatus": zod.string(),
+  "isStale": zod.boolean(),
+  "missingValidationItems": zod.array(zod.string())
+})
+export const ListGovernanceVersionsResponse = zod.array(ListGovernanceVersionsResponseItem)
+
+
+/**
+ * @summary Full governance record and change history for a saved portfolio version
+ */
+export const GetGovernanceVersionParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const GetGovernanceVersionResponse = zod.object({
+  "sessionId": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string(),
+  "hasGovernanceRecord": zod.boolean(),
+  "dataTimestamp": zod.string().nullable(),
+  "priceSource": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable(),
+  "modelVersion": zod.string().nullable(),
+  "parameterVersion": zod.string().nullable(),
+  "reproducibilityHash": zod.string().nullable(),
+  "locked": zod.boolean(),
+  "lockedAt": zod.string().nullable(),
+  "lockedBy": zod.string().nullable(),
+  "committeeStatus": zod.string(),
+  "approvalState": zod.string(),
+  "reportStatus": zod.string(),
+  "diagnosticsStatus": zod.string(),
+  "backtestIntegrityStatus": zod.string(),
+  "isStale": zod.boolean(),
+  "missingValidationItems": zod.array(zod.string())
+}).and(zod.object({
+  "universe": zod.union([zod.object({
+
+}).passthrough(),zod.null()]),
+  "constraints": zod.union([zod.object({
+
+}).passthrough(),zod.null()]),
+  "executionAssumptions": zod.union([zod.object({
+  "executionTiming": zod.enum(['next_close', 'next_open']),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "cashYieldAnnualPct": zod.number(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "minTradeSizeUsd": zod.number()
+}),zod.null()]),
+  "auditEvents": zod.array(zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number().nullable(),
+  "eventType": zod.string(),
+  "actor": zod.string(),
+  "detail": zod.string(),
+  "createdAt": zod.string()
+}))
+}))
+
+
+/**
+ * @summary Record (or refresh) the immutable governance snapshot for a saved portfolio version
+ */
+export const CreateGovernanceSnapshotParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const CreateGovernanceSnapshotBody = zod.object({
+  "priceSource": zod.string(),
+  "benchmarkTicker": zod.string(),
+  "modelVersion": zod.string(),
+  "parameterVersion": zod.string(),
+  "executionAssumptions": zod.object({
+  "executionTiming": zod.enum(['next_close', 'next_open']),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "cashYieldAnnualPct": zod.number(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "minTradeSizeUsd": zod.number()
+})
+})
+
+export const CreateGovernanceSnapshotResponse = zod.object({
+  "sessionId": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string(),
+  "hasGovernanceRecord": zod.boolean(),
+  "dataTimestamp": zod.string().nullable(),
+  "priceSource": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable(),
+  "modelVersion": zod.string().nullable(),
+  "parameterVersion": zod.string().nullable(),
+  "reproducibilityHash": zod.string().nullable(),
+  "locked": zod.boolean(),
+  "lockedAt": zod.string().nullable(),
+  "lockedBy": zod.string().nullable(),
+  "committeeStatus": zod.string(),
+  "approvalState": zod.string(),
+  "reportStatus": zod.string(),
+  "diagnosticsStatus": zod.string(),
+  "backtestIntegrityStatus": zod.string(),
+  "isStale": zod.boolean(),
+  "missingValidationItems": zod.array(zod.string())
+}).and(zod.object({
+  "universe": zod.union([zod.object({
+
+}).passthrough(),zod.null()]),
+  "constraints": zod.union([zod.object({
+
+}).passthrough(),zod.null()]),
+  "executionAssumptions": zod.union([zod.object({
+  "executionTiming": zod.enum(['next_close', 'next_open']),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "cashYieldAnnualPct": zod.number(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "minTradeSizeUsd": zod.number()
+}),zod.null()]),
+  "auditEvents": zod.array(zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number().nullable(),
+  "eventType": zod.string(),
+  "actor": zod.string(),
+  "detail": zod.string(),
+  "createdAt": zod.string()
+}))
+}))
+
+
+/**
+ * @summary Archive-lock an approved version so it cannot be modified without a new version
+ */
+export const LockGovernanceVersionParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const LockGovernanceVersionBody = zod.object({
+  "actor": zod.string().optional()
+})
+
+export const LockGovernanceVersionResponse = zod.object({
+  "sessionId": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string(),
+  "hasGovernanceRecord": zod.boolean(),
+  "dataTimestamp": zod.string().nullable(),
+  "priceSource": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable(),
+  "modelVersion": zod.string().nullable(),
+  "parameterVersion": zod.string().nullable(),
+  "reproducibilityHash": zod.string().nullable(),
+  "locked": zod.boolean(),
+  "lockedAt": zod.string().nullable(),
+  "lockedBy": zod.string().nullable(),
+  "committeeStatus": zod.string(),
+  "approvalState": zod.string(),
+  "reportStatus": zod.string(),
+  "diagnosticsStatus": zod.string(),
+  "backtestIntegrityStatus": zod.string(),
+  "isStale": zod.boolean(),
+  "missingValidationItems": zod.array(zod.string())
+}).and(zod.object({
+  "universe": zod.union([zod.object({
+
+}).passthrough(),zod.null()]),
+  "constraints": zod.union([zod.object({
+
+}).passthrough(),zod.null()]),
+  "executionAssumptions": zod.union([zod.object({
+  "executionTiming": zod.enum(['next_close', 'next_open']),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "cashYieldAnnualPct": zod.number(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "minTradeSizeUsd": zod.number()
+}),zod.null()]),
+  "auditEvents": zod.array(zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number().nullable(),
+  "eventType": zod.string(),
+  "actor": zod.string(),
+  "detail": zod.string(),
+  "createdAt": zod.string()
+}))
+}))
+
+
+/**
+ * @summary Remove the archive lock on a version (audited)
+ */
+export const UnlockGovernanceVersionParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const UnlockGovernanceVersionBody = zod.object({
+  "actor": zod.string().optional()
+})
+
+export const UnlockGovernanceVersionResponse = zod.object({
+  "sessionId": zod.number(),
+  "label": zod.string(),
+  "runAt": zod.string(),
+  "hasGovernanceRecord": zod.boolean(),
+  "dataTimestamp": zod.string().nullable(),
+  "priceSource": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable(),
+  "modelVersion": zod.string().nullable(),
+  "parameterVersion": zod.string().nullable(),
+  "reproducibilityHash": zod.string().nullable(),
+  "locked": zod.boolean(),
+  "lockedAt": zod.string().nullable(),
+  "lockedBy": zod.string().nullable(),
+  "committeeStatus": zod.string(),
+  "approvalState": zod.string(),
+  "reportStatus": zod.string(),
+  "diagnosticsStatus": zod.string(),
+  "backtestIntegrityStatus": zod.string(),
+  "isStale": zod.boolean(),
+  "missingValidationItems": zod.array(zod.string())
+}).and(zod.object({
+  "universe": zod.union([zod.object({
+
+}).passthrough(),zod.null()]),
+  "constraints": zod.union([zod.object({
+
+}).passthrough(),zod.null()]),
+  "executionAssumptions": zod.union([zod.object({
+  "executionTiming": zod.enum(['next_close', 'next_open']),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "cashYieldAnnualPct": zod.number(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "minTradeSizeUsd": zod.number()
+}),zod.null()]),
+  "auditEvents": zod.array(zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number().nullable(),
+  "eventType": zod.string(),
+  "actor": zod.string(),
+  "detail": zod.string(),
+  "createdAt": zod.string()
+}))
+}))
+
+
+/**
+ * @summary Rerun the pipeline against this version's stored governance inputs and compare the reproducibility hash
+ */
+export const RerunGovernanceConsistencyCheckParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const RerunGovernanceConsistencyCheckResponse = zod.object({
+  "sessionId": zod.number(),
+  "consistent": zod.boolean(),
+  "originalHash": zod.string(),
+  "rerunHash": zod.string(),
+  "changedFactors": zod.array(zod.string()),
+  "summary": zod.string(),
+  "checkedAt": zod.string()
+})
+
+
+/**
+ * @summary Full governance audit trail, optionally filtered by session
+ */
+export const GetGovernanceAuditLogQueryParams = zod.object({
+  "sessionId": zod.coerce.number().optional()
+})
+
+export const GetGovernanceAuditLogResponseItem = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number().nullable(),
+  "eventType": zod.string(),
+  "actor": zod.string(),
+  "detail": zod.string(),
+  "createdAt": zod.string()
+})
+export const GetGovernanceAuditLogResponse = zod.array(GetGovernanceAuditLogResponseItem)
 
 
 export const GenerateReportBody = zod.object({

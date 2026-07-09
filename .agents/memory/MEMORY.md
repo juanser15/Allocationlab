@@ -2,3 +2,4 @@
 - [Allocation Lab workflow-stage model](allocation-lab-workflow-stage.md) — 12-stage gating derived live from backend state, never inferred; drives EmptyStates and StatusBar so diagnostics never render before their generating run.
 - [Orval query hook options typing](orval-query-hook-options-typing.md) — generated `{ query: { enabled } }` options can fail TS (`queryKey` required) despite matching the documented shape; `as any` on that options object is the workaround.
 - [Recovering deleted files mid-session](deleted-file-recovery.md) — check HEAD via git show before assuming uncommitted deletes are unrecoverable
+- [Postgres JSONB key reordering](postgres-jsonb-key-order.md) — JSONB round-trip reorders keys; use stable/sorted stringify (not raw JSON.stringify) for config diffing/reproducibility checks.

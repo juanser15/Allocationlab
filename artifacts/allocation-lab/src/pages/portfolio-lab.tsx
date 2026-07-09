@@ -2,7 +2,9 @@ import { Link, useLocation } from "wouter";
 import {
   useGetLatestResults, useGetOrCreateDecisionLog,
   useGetPricesStatus, useGetConstraints, useRunPipeline,
+  useCreateGovernanceSnapshot,
 } from "@workspace/api-client-react";
+import { localSettings } from "@/lib/local-settings";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -52,10 +54,33 @@ export default function PortfolioLab() {
   const { data: pricesStatus, isLoading: loadingPrices } = useGetPricesStatus();
   const { data: constraints } = useGetConstraints();
   const runPipeline = useRunPipeline();
+  const createGovernanceSnapshot = useCreateGovernanceSnapshot();
   const hasData = pricesStatus?.hasData;
 
   const handleRunRebalance = () => {
-    runPipeline.mutate({ data: {} }, { onSuccess: () => refetchDecisionLog() });
+    runPipeline.mutate(
+      { data: {} },
+      {
+        onSuccess: (data) => {
+          refetchDecisionLog();
+          const governance = localSettings.getGovernanceSettings();
+          const execution = localSettings.getExecutionAssumptions();
+          const benchmarks = localSettings.getBenchmarksSettings();
+          if (data.sessionId) {
+            createGovernanceSnapshot.mutate({
+              sessionId: data.sessionId,
+              data: {
+                priceSource: "Uploaded/synced price dataset",
+                benchmarkTicker: benchmarks.defaultBenchmark,
+                modelVersion: governance.modelVersionLabel,
+                parameterVersion: governance.parameterVersion,
+                executionAssumptions: execution,
+              },
+            });
+          }
+        },
+      }
+    );
   };
 
   const diagnostics = result?.diagnostics;

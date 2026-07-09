@@ -11,4 +11,5 @@ export interface IterationInfo {
   max: number;
   completed: string[];
   next: string[];
+  postV1Backlog: string[];
 }

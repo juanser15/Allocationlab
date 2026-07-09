@@ -38,8 +38,16 @@ import type {
   GetAttributionParams,
   GetBacktestParams,
   GetCommittee404,
+  GetGovernanceAuditLogParams,
   GetRiskModelParams,
   GetTradeImplementationParams,
+  GovernanceActorInput,
+  GovernanceAuditLogEntry,
+  GovernanceDashboard,
+  GovernanceRerunCheckResult,
+  GovernanceSnapshotInput,
+  GovernanceVersionDetail,
+  GovernanceVersionSummary,
   HealthStatus,
   ListArchiveParams,
   LivePricesFetchInput,
@@ -1460,6 +1468,604 @@ export function useGetAttribution<TData = Awaited<ReturnType<typeof getAttributi
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetAttributionQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetGovernanceDashboardUrl = () => {
+
+
+
+
+  return `/api/governance/dashboard`
+}
+
+/**
+ * @summary Governance dashboard — version status, pending approvals, stale data warnings, missing validation, locked reports, recent audit events
+ */
+export const getGovernanceDashboard = async ( options?: RequestInit): Promise<GovernanceDashboard> => {
+
+  return customFetch<GovernanceDashboard>(getGetGovernanceDashboardUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetGovernanceDashboardQueryKey = () => {
+    return [
+    `/api/governance/dashboard`
+    ] as const;
+    }
+
+
+export const getGetGovernanceDashboardQueryOptions = <TData = Awaited<ReturnType<typeof getGovernanceDashboard>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGovernanceDashboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetGovernanceDashboardQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGovernanceDashboard>>> = ({ signal }) => getGovernanceDashboard({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGovernanceDashboard>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetGovernanceDashboardQueryResult = NonNullable<Awaited<ReturnType<typeof getGovernanceDashboard>>>
+export type GetGovernanceDashboardQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Governance dashboard — version status, pending approvals, stale data warnings, missing validation, locked reports, recent audit events
+ */
+
+export function useGetGovernanceDashboard<TData = Awaited<ReturnType<typeof getGovernanceDashboard>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGovernanceDashboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetGovernanceDashboardQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListGovernanceVersionsUrl = () => {
+
+
+
+
+  return `/api/governance/versions`
+}
+
+/**
+ * @summary List all saved portfolio versions with their governance record (or lack thereof)
+ */
+export const listGovernanceVersions = async ( options?: RequestInit): Promise<GovernanceVersionSummary[]> => {
+
+  return customFetch<GovernanceVersionSummary[]>(getListGovernanceVersionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListGovernanceVersionsQueryKey = () => {
+    return [
+    `/api/governance/versions`
+    ] as const;
+    }
+
+
+export const getListGovernanceVersionsQueryOptions = <TData = Awaited<ReturnType<typeof listGovernanceVersions>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listGovernanceVersions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListGovernanceVersionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listGovernanceVersions>>> = ({ signal }) => listGovernanceVersions({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listGovernanceVersions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListGovernanceVersionsQueryResult = NonNullable<Awaited<ReturnType<typeof listGovernanceVersions>>>
+export type ListGovernanceVersionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all saved portfolio versions with their governance record (or lack thereof)
+ */
+
+export function useListGovernanceVersions<TData = Awaited<ReturnType<typeof listGovernanceVersions>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listGovernanceVersions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListGovernanceVersionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetGovernanceVersionUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/governance/versions/${sessionId}`
+}
+
+/**
+ * @summary Full governance record and change history for a saved portfolio version
+ */
+export const getGovernanceVersion = async (sessionId: number, options?: RequestInit): Promise<GovernanceVersionDetail> => {
+
+  return customFetch<GovernanceVersionDetail>(getGetGovernanceVersionUrl(sessionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetGovernanceVersionQueryKey = (sessionId: number,) => {
+    return [
+    `/api/governance/versions/${sessionId}`
+    ] as const;
+    }
+
+
+export const getGetGovernanceVersionQueryOptions = <TData = Awaited<ReturnType<typeof getGovernanceVersion>>, TError = ErrorType<ErrorResponse>>(sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGovernanceVersion>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetGovernanceVersionQueryKey(sessionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGovernanceVersion>>> = ({ signal }) => getGovernanceVersion(sessionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: sessionId !== null && sessionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGovernanceVersion>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetGovernanceVersionQueryResult = NonNullable<Awaited<ReturnType<typeof getGovernanceVersion>>>
+export type GetGovernanceVersionQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Full governance record and change history for a saved portfolio version
+ */
+
+export function useGetGovernanceVersion<TData = Awaited<ReturnType<typeof getGovernanceVersion>>, TError = ErrorType<ErrorResponse>>(
+ sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGovernanceVersion>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetGovernanceVersionQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateGovernanceSnapshotUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/governance/versions/${sessionId}/snapshot`
+}
+
+/**
+ * @summary Record (or refresh) the immutable governance snapshot for a saved portfolio version
+ */
+export const createGovernanceSnapshot = async (sessionId: number,
+    governanceSnapshotInput: GovernanceSnapshotInput, options?: RequestInit): Promise<GovernanceVersionDetail> => {
+
+  return customFetch<GovernanceVersionDetail>(getCreateGovernanceSnapshotUrl(sessionId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(governanceSnapshotInput)
+  }
+);}
+
+
+
+
+export const getCreateGovernanceSnapshotMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createGovernanceSnapshot>>, TError,{sessionId: number;data: BodyType<GovernanceSnapshotInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createGovernanceSnapshot>>, TError,{sessionId: number;data: BodyType<GovernanceSnapshotInput>}, TContext> => {
+
+const mutationKey = ['createGovernanceSnapshot'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createGovernanceSnapshot>>, {sessionId: number;data: BodyType<GovernanceSnapshotInput>}> = (props) => {
+          const {sessionId,data} = props ?? {};
+
+          return  createGovernanceSnapshot(sessionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateGovernanceSnapshotMutationResult = NonNullable<Awaited<ReturnType<typeof createGovernanceSnapshot>>>
+    export type CreateGovernanceSnapshotMutationBody = BodyType<GovernanceSnapshotInput>
+    export type CreateGovernanceSnapshotMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Record (or refresh) the immutable governance snapshot for a saved portfolio version
+ */
+export const useCreateGovernanceSnapshot = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createGovernanceSnapshot>>, TError,{sessionId: number;data: BodyType<GovernanceSnapshotInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createGovernanceSnapshot>>,
+        TError,
+        {sessionId: number;data: BodyType<GovernanceSnapshotInput>},
+        TContext
+      > => {
+      return useMutation(getCreateGovernanceSnapshotMutationOptions(options));
+    }
+
+export const getLockGovernanceVersionUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/governance/versions/${sessionId}/lock`
+}
+
+/**
+ * @summary Archive-lock an approved version so it cannot be modified without a new version
+ */
+export const lockGovernanceVersion = async (sessionId: number,
+    governanceActorInput?: GovernanceActorInput, options?: RequestInit): Promise<GovernanceVersionDetail> => {
+
+  return customFetch<GovernanceVersionDetail>(getLockGovernanceVersionUrl(sessionId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(governanceActorInput)
+  }
+);}
+
+
+
+
+export const getLockGovernanceVersionMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof lockGovernanceVersion>>, TError,{sessionId: number;data?: BodyType<GovernanceActorInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof lockGovernanceVersion>>, TError,{sessionId: number;data?: BodyType<GovernanceActorInput>}, TContext> => {
+
+const mutationKey = ['lockGovernanceVersion'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof lockGovernanceVersion>>, {sessionId: number;data?: BodyType<GovernanceActorInput>}> = (props) => {
+          const {sessionId,data} = props ?? {};
+
+          return  lockGovernanceVersion(sessionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LockGovernanceVersionMutationResult = NonNullable<Awaited<ReturnType<typeof lockGovernanceVersion>>>
+    export type LockGovernanceVersionMutationBody = BodyType<GovernanceActorInput> | undefined
+    export type LockGovernanceVersionMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Archive-lock an approved version so it cannot be modified without a new version
+ */
+export const useLockGovernanceVersion = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof lockGovernanceVersion>>, TError,{sessionId: number;data?: BodyType<GovernanceActorInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof lockGovernanceVersion>>,
+        TError,
+        {sessionId: number;data?: BodyType<GovernanceActorInput>},
+        TContext
+      > => {
+      return useMutation(getLockGovernanceVersionMutationOptions(options));
+    }
+
+export const getUnlockGovernanceVersionUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/governance/versions/${sessionId}/unlock`
+}
+
+/**
+ * @summary Remove the archive lock on a version (audited)
+ */
+export const unlockGovernanceVersion = async (sessionId: number,
+    governanceActorInput?: GovernanceActorInput, options?: RequestInit): Promise<GovernanceVersionDetail> => {
+
+  return customFetch<GovernanceVersionDetail>(getUnlockGovernanceVersionUrl(sessionId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(governanceActorInput)
+  }
+);}
+
+
+
+
+export const getUnlockGovernanceVersionMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unlockGovernanceVersion>>, TError,{sessionId: number;data?: BodyType<GovernanceActorInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof unlockGovernanceVersion>>, TError,{sessionId: number;data?: BodyType<GovernanceActorInput>}, TContext> => {
+
+const mutationKey = ['unlockGovernanceVersion'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof unlockGovernanceVersion>>, {sessionId: number;data?: BodyType<GovernanceActorInput>}> = (props) => {
+          const {sessionId,data} = props ?? {};
+
+          return  unlockGovernanceVersion(sessionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UnlockGovernanceVersionMutationResult = NonNullable<Awaited<ReturnType<typeof unlockGovernanceVersion>>>
+    export type UnlockGovernanceVersionMutationBody = BodyType<GovernanceActorInput> | undefined
+    export type UnlockGovernanceVersionMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Remove the archive lock on a version (audited)
+ */
+export const useUnlockGovernanceVersion = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unlockGovernanceVersion>>, TError,{sessionId: number;data?: BodyType<GovernanceActorInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof unlockGovernanceVersion>>,
+        TError,
+        {sessionId: number;data?: BodyType<GovernanceActorInput>},
+        TContext
+      > => {
+      return useMutation(getUnlockGovernanceVersionMutationOptions(options));
+    }
+
+export const getRerunGovernanceConsistencyCheckUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/governance/versions/${sessionId}/rerun-check`
+}
+
+/**
+ * @summary Rerun the pipeline against this version's stored governance inputs and compare the reproducibility hash
+ */
+export const rerunGovernanceConsistencyCheck = async (sessionId: number, options?: RequestInit): Promise<GovernanceRerunCheckResult> => {
+
+  return customFetch<GovernanceRerunCheckResult>(getRerunGovernanceConsistencyCheckUrl(sessionId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRerunGovernanceConsistencyCheckMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rerunGovernanceConsistencyCheck>>, TError,{sessionId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof rerunGovernanceConsistencyCheck>>, TError,{sessionId: number}, TContext> => {
+
+const mutationKey = ['rerunGovernanceConsistencyCheck'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof rerunGovernanceConsistencyCheck>>, {sessionId: number}> = (props) => {
+          const {sessionId} = props ?? {};
+
+          return  rerunGovernanceConsistencyCheck(sessionId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RerunGovernanceConsistencyCheckMutationResult = NonNullable<Awaited<ReturnType<typeof rerunGovernanceConsistencyCheck>>>
+
+    export type RerunGovernanceConsistencyCheckMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Rerun the pipeline against this version's stored governance inputs and compare the reproducibility hash
+ */
+export const useRerunGovernanceConsistencyCheck = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rerunGovernanceConsistencyCheck>>, TError,{sessionId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof rerunGovernanceConsistencyCheck>>,
+        TError,
+        {sessionId: number},
+        TContext
+      > => {
+      return useMutation(getRerunGovernanceConsistencyCheckMutationOptions(options));
+    }
+
+export const getGetGovernanceAuditLogUrl = (params?: GetGovernanceAuditLogParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/governance/audit-log?${stringifiedParams}` : `/api/governance/audit-log`
+}
+
+/**
+ * @summary Full governance audit trail, optionally filtered by session
+ */
+export const getGovernanceAuditLog = async (params?: GetGovernanceAuditLogParams, options?: RequestInit): Promise<GovernanceAuditLogEntry[]> => {
+
+  return customFetch<GovernanceAuditLogEntry[]>(getGetGovernanceAuditLogUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetGovernanceAuditLogQueryKey = (params?: GetGovernanceAuditLogParams,) => {
+    return [
+    `/api/governance/audit-log`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetGovernanceAuditLogQueryOptions = <TData = Awaited<ReturnType<typeof getGovernanceAuditLog>>, TError = ErrorType<unknown>>(params?: GetGovernanceAuditLogParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGovernanceAuditLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetGovernanceAuditLogQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGovernanceAuditLog>>> = ({ signal }) => getGovernanceAuditLog(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGovernanceAuditLog>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetGovernanceAuditLogQueryResult = NonNullable<Awaited<ReturnType<typeof getGovernanceAuditLog>>>
+export type GetGovernanceAuditLogQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Full governance audit trail, optionally filtered by session
+ */
+
+export function useGetGovernanceAuditLog<TData = Awaited<ReturnType<typeof getGovernanceAuditLog>>, TError = ErrorType<unknown>>(
+ params?: GetGovernanceAuditLogParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGovernanceAuditLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetGovernanceAuditLogQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

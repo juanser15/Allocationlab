@@ -188,6 +188,7 @@ export interface IterationInfo {
   max: number;
   completed: string[];
   next: string[];
+  postV1Backlog: string[];
 }
 
 export interface RiskContributionEntry {
@@ -766,6 +767,92 @@ export interface AttributionReportSummary {
   cashDragNote: string;
   benchmarkComparisonNote: string;
   lessonsLearned: string[];
+}
+
+export interface GovernanceActorInput {
+  actor?: string;
+}
+
+export interface GovernanceSnapshotInput {
+  priceSource: string;
+  benchmarkTicker: string;
+  modelVersion: string;
+  parameterVersion: string;
+  executionAssumptions: TradeImplementationExecutionAssumptions;
+}
+
+export interface GovernanceVersionSummary {
+  sessionId: number;
+  label: string;
+  runAt: string;
+  hasGovernanceRecord: boolean;
+  /** @nullable */
+  dataTimestamp: string | null;
+  /** @nullable */
+  priceSource: string | null;
+  /** @nullable */
+  benchmarkTicker: string | null;
+  /** @nullable */
+  modelVersion: string | null;
+  /** @nullable */
+  parameterVersion: string | null;
+  /** @nullable */
+  reproducibilityHash: string | null;
+  locked: boolean;
+  /** @nullable */
+  lockedAt: string | null;
+  /** @nullable */
+  lockedBy: string | null;
+  committeeStatus: string;
+  approvalState: string;
+  reportStatus: string;
+  diagnosticsStatus: string;
+  backtestIntegrityStatus: string;
+  isStale: boolean;
+  missingValidationItems: string[];
+}
+
+export type GovernanceVersionDetailUniverse = { [key: string]: unknown } | null;
+
+export type GovernanceVersionDetailConstraints = { [key: string]: unknown } | null;
+
+export interface GovernanceAuditLogEntry {
+  id: number;
+  /** @nullable */
+  sessionId: number | null;
+  eventType: string;
+  actor: string;
+  detail: string;
+  createdAt: string;
+}
+
+export type GovernanceVersionDetail = GovernanceVersionSummary & ({
+  universe: GovernanceVersionDetailUniverse;
+  constraints: GovernanceVersionDetailConstraints;
+  executionAssumptions: TradeImplementationExecutionAssumptions | null;
+  auditEvents: GovernanceAuditLogEntry[];
+});
+
+export interface GovernanceDashboard {
+  totalVersions: number;
+  versionsWithGovernanceRecord: number;
+  pendingApprovals: GovernanceVersionSummary[];
+  staleWarnings: GovernanceVersionSummary[];
+  missingValidation: GovernanceVersionSummary[];
+  lockedVersions: GovernanceVersionSummary[];
+  recentAuditEvents: GovernanceAuditLogEntry[];
+  /** @nullable */
+  governanceNote: string | null;
+}
+
+export interface GovernanceRerunCheckResult {
+  sessionId: number;
+  consistent: boolean;
+  originalHash: string;
+  rerunHash: string;
+  changedFactors: string[];
+  summary: string;
+  checkedAt: string;
 }
 
 export interface AttributionResult {
@@ -1414,6 +1501,10 @@ benchmarkTicker?: string;
 transactionCostBps?: number;
 slippageBps?: number;
 cashYieldAnnualPct?: number;
+};
+
+export type GetGovernanceAuditLogParams = {
+sessionId?: number;
 };
 
 export type ListArchiveParams = {
