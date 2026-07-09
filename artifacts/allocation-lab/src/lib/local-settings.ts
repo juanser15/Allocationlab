@@ -9,6 +9,7 @@ export interface ExecutionAssumptions {
   slippageBps: number;
   cashYieldAnnualPct: number;
   rebalanceFrequency: "monthly" | "quarterly";
+  minTradeSizeUsd: number;
 }
 
 export interface ModelFactorsInfo {
@@ -40,6 +41,7 @@ export const DEFAULT_EXECUTION_ASSUMPTIONS: ExecutionAssumptions = {
   slippageBps: 3,
   cashYieldAnnualPct: 4.5,
   rebalanceFrequency: "monthly",
+  minTradeSizeUsd: 500,
 };
 
 export const DEFAULT_BENCHMARKS_SETTINGS: BenchmarksSettings = {

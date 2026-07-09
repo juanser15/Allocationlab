@@ -18,6 +18,7 @@ tags:
   - name: etf
   - name: risk-model
   - name: scenario-stress
+  - name: trade-implementation
 
 paths:
   /healthz:
@@ -282,6 +283,76 @@ paths:
                 $ref: "#/components/schemas/ScenarioStressResult"
         "400":
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /trade-implementation/meta:
+    get:
+      operationId: getTradeImplementationMeta
+      tags: [trade-implementation]
+      summary: Cheap readiness check for trade implementation (no AUM required) — used by Dashboard and Investment Committee
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradeImplementationMeta"
+
+  /trade-implementation:
+    get:
+      operationId: getTradeImplementation
+      tags: [trade-implementation]
+      summary: Convert the latest allocation's current -> target weights into an actionable, cost-aware trade list for a given AUM
+      parameters:
+        - name: aumUsd
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: executionTiming
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [next_close, next_open]
+        - name: transactionCostBps
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: slippageBps
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: cashYieldAnnualPct
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: rebalanceFrequency
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [monthly, quarterly]
+        - name: minTradeSizeUsd
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradeImplementationResult"
+        "400":
+          description: Bad request — missing allocation, previous weights, price data, or AUM
           content:
             application/json:
               schema:
@@ -1351,6 +1422,156 @@ components:
           items:
             $ref: "#/components/schemas/ScenarioExcludedTicker"
       required: [hasSufficientData, insufficientReason, basisSummary, portfolioImpactPct, cashWeight, cashBufferAdequate, cashBufferNote, etfContributions, bucketContributions, largestRiskDrivers, watchItems, warnings, excludedTickers]
+
+    TradeImplementationMeta:
+      type: object
+      properties:
+        ready:
+          type: boolean
+        reason:
+          type: ["string", "null"]
+        hasAllocation:
+          type: boolean
+        hasPreviousWeights:
+          type: boolean
+        priceDataAvailable:
+          type: boolean
+        activeEtfCount:
+          type: integer
+        lastRunAt:
+          type: ["string", "null"]
+      required: [ready, reason, hasAllocation, hasPreviousWeights, priceDataAvailable, activeEtfCount, lastRunAt]
+
+    TradeImplementationExecutionAssumptions:
+      type: object
+      properties:
+        executionTiming:
+          type: string
+          enum: [next_close, next_open]
+        transactionCostBps:
+          type: number
+        slippageBps:
+          type: number
+        cashYieldAnnualPct:
+          type: number
+        rebalanceFrequency:
+          type: string
+          enum: [monthly, quarterly]
+        minTradeSizeUsd:
+          type: number
+      required: [executionTiming, transactionCostBps, slippageBps, cashYieldAnnualPct, rebalanceFrequency, minTradeSizeUsd]
+
+    TradeImplementationEntry:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        sector:
+          type: string
+        currentWeight:
+          type: number
+        targetWeight:
+          type: number
+        deltaWeight:
+          type: number
+        action:
+          type: string
+          enum: [BUY, SELL, HOLD, REMOVE, NEW]
+        latestPrice:
+          type: ["number", "null"]
+        estimatedShares:
+          type: ["number", "null"]
+        estimatedTradeUsd:
+          type: number
+        estimatedCostUsd:
+          type: number
+        advAvailable:
+          type: boolean
+        advReason:
+          type: string
+        belowMinTradeSize:
+          type: boolean
+        violatesMaxWeight:
+          type: boolean
+        warnings:
+          type: array
+          items:
+            type: string
+      required: [ticker, name, sector, currentWeight, targetWeight, deltaWeight, action, latestPrice, estimatedShares, estimatedTradeUsd, estimatedCostUsd, advAvailable, advReason, belowMinTradeSize, violatesMaxWeight, warnings]
+
+    CashImplementationEntry:
+      type: object
+      properties:
+        currentWeight:
+          type: number
+        targetWeight:
+          type: number
+        currentUsd:
+          type: number
+        targetUsd:
+          type: number
+        cashImpactUsd:
+          type: number
+        postTradeCashUsd:
+          type: number
+      required: [currentWeight, targetWeight, currentUsd, targetUsd, cashImpactUsd, postTradeCashUsd]
+
+    TradeImplementationWarning:
+      type: object
+      properties:
+        id:
+          type: string
+        severity:
+          type: string
+          enum: [warn, fail]
+        message:
+          type: string
+      required: [id, severity, message]
+
+    TradeImplementationResult:
+      type: object
+      properties:
+        hasSufficientData:
+          type: boolean
+        insufficientReason:
+          type: ["string", "null"]
+        generatedAt:
+          type: string
+        aumUsd:
+          type: number
+        assumptions:
+          $ref: "#/components/schemas/TradeImplementationExecutionAssumptions"
+        trades:
+          type: array
+          items:
+            $ref: "#/components/schemas/TradeImplementationEntry"
+        cash:
+          $ref: "#/components/schemas/CashImplementationEntry"
+        grossTradeUsd:
+          type: number
+        estimatedTotalCostUsd:
+          type: number
+        turnoverPct:
+          type: number
+        buyCount:
+          type: integer
+        sellCount:
+          type: integer
+        newCount:
+          type: integer
+        removeCount:
+          type: integer
+        holdCount:
+          type: integer
+        belowMinCount:
+          type: integer
+        warnings:
+          type: array
+          items:
+            $ref: "#/components/schemas/TradeImplementationWarning"
+      required: [hasSufficientData, insufficientReason, generatedAt, aumUsd, assumptions, trades, cash, grossTradeUsd, estimatedTotalCostUsd, turnoverPct, buyCount, sellCount, newCount, removeCount, holdCount, belowMinCount, warnings]
 
     RunResult:
       type: object

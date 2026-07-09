@@ -6,6 +6,7 @@ import {
   useGetScenarioStressMeta,
   useUpdateDecisionLogStatus,
   useGetCommittee,
+  useGetTradeImplementationMeta,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -35,6 +36,7 @@ import {
   Scale,
   Layers,
   Gavel,
+  ArrowLeftRight,
 } from "lucide-react";
 import { Link } from "wouter";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -117,6 +119,7 @@ export default function InvestmentCommittee() {
   const updateStatus = useUpdateDecisionLogStatus();
   const { data: riskModel } = useGetRiskModel();
   const { data: scenarioMeta } = useGetScenarioStressMeta();
+  const { data: tradeImplMeta } = useGetTradeImplementationMeta();
 
   const [committeeRequested, setCommitteeRequested] = useState(false);
   const {
@@ -313,6 +316,39 @@ export default function InvestmentCommittee() {
                       <p className="text-xs text-muted-foreground pt-1">
                         Run user-defined shocks or historical stress replays in{" "}
                         <Link href="/research-lab" className="text-primary underline">Research Lab &rarr; Scenario &amp; Stress Lab</Link>.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <ArrowLeftRight className="h-4 w-4 text-primary" /> Trade Implementation Evidence
+                  </CardTitle>
+                  <CardDescription>Readiness of the current/target/delta trade blotter used to execute this allocation.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {!tradeImplMeta?.ready ? (
+                    <p className="text-sm text-muted-foreground">
+                      {tradeImplMeta?.reason ?? "Trade implementation data unavailable."}
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Active ETFs covered</p>
+                          <p className="font-semibold text-gray-900">{tradeImplMeta.activeEtfCount}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Previous weights configured</p>
+                          <p className="font-semibold text-gray-900">{tradeImplMeta.hasPreviousWeights ? "Yes" : "No"}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground pt-1">
+                        Full trade list, turnover, cost estimate, and CSV blotter export available in{" "}
+                        <Link href="/portfolio-lab" className="text-primary underline">Portfolio Lab &rarr; Trade Implementation</Link>. Liquidity/ADV is always shown as unavailable.
                       </p>
                     </div>
                   )}

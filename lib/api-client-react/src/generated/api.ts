@@ -35,6 +35,7 @@ import type {
   GetBacktestParams,
   GetCommittee404,
   GetRiskModelParams,
+  GetTradeImplementationParams,
   HealthStatus,
   ListArchiveParams,
   LivePricesFetchInput,
@@ -51,6 +52,8 @@ import type {
   ScenarioStressRunInput,
   Session,
   SessionDetail,
+  TradeImplementationMeta,
+  TradeImplementationResult,
   Universe,
   UniverseInput
 } from './api.schemas';
@@ -1135,6 +1138,167 @@ export const useRunScenarioStress = <TError = ErrorType<ErrorResponse>,
       > => {
       return useMutation(getRunScenarioStressMutationOptions(options));
     }
+
+export const getGetTradeImplementationMetaUrl = () => {
+
+
+
+
+  return `/api/trade-implementation/meta`
+}
+
+/**
+ * @summary Cheap readiness check for trade implementation (no AUM required) — used by Dashboard and Investment Committee
+ */
+export const getTradeImplementationMeta = async ( options?: RequestInit): Promise<TradeImplementationMeta> => {
+
+  return customFetch<TradeImplementationMeta>(getGetTradeImplementationMetaUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTradeImplementationMetaQueryKey = () => {
+    return [
+    `/api/trade-implementation/meta`
+    ] as const;
+    }
+
+
+export const getGetTradeImplementationMetaQueryOptions = <TData = Awaited<ReturnType<typeof getTradeImplementationMeta>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTradeImplementationMeta>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTradeImplementationMetaQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTradeImplementationMeta>>> = ({ signal }) => getTradeImplementationMeta({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTradeImplementationMeta>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTradeImplementationMetaQueryResult = NonNullable<Awaited<ReturnType<typeof getTradeImplementationMeta>>>
+export type GetTradeImplementationMetaQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Cheap readiness check for trade implementation (no AUM required) — used by Dashboard and Investment Committee
+ */
+
+export function useGetTradeImplementationMeta<TData = Awaited<ReturnType<typeof getTradeImplementationMeta>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTradeImplementationMeta>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTradeImplementationMetaQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetTradeImplementationUrl = (params: GetTradeImplementationParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/trade-implementation?${stringifiedParams}` : `/api/trade-implementation`
+}
+
+/**
+ * @summary Convert the latest allocation's current -> target weights into an actionable, cost-aware trade list for a given AUM
+ */
+export const getTradeImplementation = async (params: GetTradeImplementationParams, options?: RequestInit): Promise<TradeImplementationResult> => {
+
+  return customFetch<TradeImplementationResult>(getGetTradeImplementationUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTradeImplementationQueryKey = (params?: GetTradeImplementationParams,) => {
+    return [
+    `/api/trade-implementation`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetTradeImplementationQueryOptions = <TData = Awaited<ReturnType<typeof getTradeImplementation>>, TError = ErrorType<ErrorResponse>>(params: GetTradeImplementationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTradeImplementation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTradeImplementationQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTradeImplementation>>> = ({ signal }) => getTradeImplementation(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTradeImplementation>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTradeImplementationQueryResult = NonNullable<Awaited<ReturnType<typeof getTradeImplementation>>>
+export type GetTradeImplementationQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Convert the latest allocation's current -> target weights into an actionable, cost-aware trade list for a given AUM
+ */
+
+export function useGetTradeImplementation<TData = Awaited<ReturnType<typeof getTradeImplementation>>, TError = ErrorType<ErrorResponse>>(
+ params: GetTradeImplementationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTradeImplementation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTradeImplementationQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getGenerateReportUrl = () => {
 

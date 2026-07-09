@@ -31,6 +31,7 @@ export function ExecutionAssumptionsSection() {
     if (draft.transactionCostBps < 0 || draft.transactionCostBps > 500) errs.push("Transaction cost must be between 0 and 500 bps.");
     if (draft.slippageBps < 0 || draft.slippageBps > 500) errs.push("Slippage must be between 0 and 500 bps.");
     if (draft.cashYieldAnnualPct < 0 || draft.cashYieldAnnualPct > 20) errs.push("Cash yield must be between 0% and 20%.");
+    if (draft.minTradeSizeUsd < 0 || draft.minTradeSizeUsd > 10_000_000) errs.push("Minimum trade size must be between $0 and $10,000,000.");
     return errs;
   }, [draft]);
 
@@ -109,11 +110,15 @@ export function ExecutionAssumptionsSection() {
             </div>
           </RadioGroup>
         </div>
+        <div className="space-y-2">
+          <Label>Minimum Trade Size ($)</Label>
+          <Input type="number" step="50" value={draft.minTradeSizeUsd} onChange={(e) => setDraft((d) => ({ ...d, minTradeSizeUsd: parseFloat(e.target.value) || 0 }))} />
+        </div>
       </div>
 
       <div className="flex items-start gap-2 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
         <Info className="h-4 w-4 shrink-0 mt-0.5 text-gray-400" />
-        <span>Cash drag is modeled by applying the cash yield above to cash balances between rebalances during backtests.</span>
+        <span>Cash drag is modeled by applying the cash yield above to cash balances between rebalances during backtests. Minimum trade size filters out sub-threshold orders in Trade Implementation.</span>
       </div>
     </SectionShell>
   );

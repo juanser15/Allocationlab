@@ -627,6 +627,89 @@ export const RunScenarioStressResponse = zod.object({
 })
 
 
+/**
+ * @summary Cheap readiness check for trade implementation (no AUM required) — used by Dashboard and Investment Committee
+ */
+export const GetTradeImplementationMetaResponse = zod.object({
+  "ready": zod.boolean(),
+  "reason": zod.string().nullable(),
+  "hasAllocation": zod.boolean(),
+  "hasPreviousWeights": zod.boolean(),
+  "priceDataAvailable": zod.boolean(),
+  "activeEtfCount": zod.number(),
+  "lastRunAt": zod.string().nullable()
+})
+
+
+/**
+ * @summary Convert the latest allocation's current -> target weights into an actionable, cost-aware trade list for a given AUM
+ */
+export const GetTradeImplementationQueryParams = zod.object({
+  "aumUsd": zod.coerce.number(),
+  "executionTiming": zod.enum(['next_close', 'next_open']).optional(),
+  "transactionCostBps": zod.coerce.number().optional(),
+  "slippageBps": zod.coerce.number().optional(),
+  "cashYieldAnnualPct": zod.coerce.number().optional(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']).optional(),
+  "minTradeSizeUsd": zod.coerce.number().optional()
+})
+
+export const GetTradeImplementationResponse = zod.object({
+  "hasSufficientData": zod.boolean(),
+  "insufficientReason": zod.string().nullable(),
+  "generatedAt": zod.string(),
+  "aumUsd": zod.number(),
+  "assumptions": zod.object({
+  "executionTiming": zod.enum(['next_close', 'next_open']),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "cashYieldAnnualPct": zod.number(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "minTradeSizeUsd": zod.number()
+}),
+  "trades": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "currentWeight": zod.number(),
+  "targetWeight": zod.number(),
+  "deltaWeight": zod.number(),
+  "action": zod.enum(['BUY', 'SELL', 'HOLD', 'REMOVE', 'NEW']),
+  "latestPrice": zod.number().nullable(),
+  "estimatedShares": zod.number().nullable(),
+  "estimatedTradeUsd": zod.number(),
+  "estimatedCostUsd": zod.number(),
+  "advAvailable": zod.boolean(),
+  "advReason": zod.string(),
+  "belowMinTradeSize": zod.boolean(),
+  "violatesMaxWeight": zod.boolean(),
+  "warnings": zod.array(zod.string())
+})),
+  "cash": zod.object({
+  "currentWeight": zod.number(),
+  "targetWeight": zod.number(),
+  "currentUsd": zod.number(),
+  "targetUsd": zod.number(),
+  "cashImpactUsd": zod.number(),
+  "postTradeCashUsd": zod.number()
+}),
+  "grossTradeUsd": zod.number(),
+  "estimatedTotalCostUsd": zod.number(),
+  "turnoverPct": zod.number(),
+  "buyCount": zod.number(),
+  "sellCount": zod.number(),
+  "newCount": zod.number(),
+  "removeCount": zod.number(),
+  "holdCount": zod.number(),
+  "belowMinCount": zod.number(),
+  "warnings": zod.array(zod.object({
+  "id": zod.string(),
+  "severity": zod.enum(['warn', 'fail']),
+  "message": zod.string()
+}))
+})
+
+
 export const GenerateReportBody = zod.object({
   "sessionId": zod.number().nullish(),
   "format": zod.enum(['pdf', 'png', 'csv']),

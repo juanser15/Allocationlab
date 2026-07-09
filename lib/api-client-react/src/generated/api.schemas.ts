@@ -478,6 +478,119 @@ export interface ScenarioStressResult {
   excludedTickers: ScenarioExcludedTicker[];
 }
 
+export interface TradeImplementationMeta {
+  ready: boolean;
+  /** @nullable */
+  reason: string | null;
+  hasAllocation: boolean;
+  hasPreviousWeights: boolean;
+  priceDataAvailable: boolean;
+  activeEtfCount: number;
+  /** @nullable */
+  lastRunAt: string | null;
+}
+
+export type TradeImplementationExecutionAssumptionsExecutionTiming = typeof TradeImplementationExecutionAssumptionsExecutionTiming[keyof typeof TradeImplementationExecutionAssumptionsExecutionTiming];
+
+
+export const TradeImplementationExecutionAssumptionsExecutionTiming = {
+  next_close: 'next_close',
+  next_open: 'next_open',
+} as const;
+
+export type TradeImplementationExecutionAssumptionsRebalanceFrequency = typeof TradeImplementationExecutionAssumptionsRebalanceFrequency[keyof typeof TradeImplementationExecutionAssumptionsRebalanceFrequency];
+
+
+export const TradeImplementationExecutionAssumptionsRebalanceFrequency = {
+  monthly: 'monthly',
+  quarterly: 'quarterly',
+} as const;
+
+export interface TradeImplementationExecutionAssumptions {
+  executionTiming: TradeImplementationExecutionAssumptionsExecutionTiming;
+  transactionCostBps: number;
+  slippageBps: number;
+  cashYieldAnnualPct: number;
+  rebalanceFrequency: TradeImplementationExecutionAssumptionsRebalanceFrequency;
+  minTradeSizeUsd: number;
+}
+
+export type TradeImplementationEntryAction = typeof TradeImplementationEntryAction[keyof typeof TradeImplementationEntryAction];
+
+
+export const TradeImplementationEntryAction = {
+  BUY: 'BUY',
+  SELL: 'SELL',
+  HOLD: 'HOLD',
+  REMOVE: 'REMOVE',
+  NEW: 'NEW',
+} as const;
+
+export interface TradeImplementationEntry {
+  ticker: string;
+  name: string;
+  sector: string;
+  currentWeight: number;
+  targetWeight: number;
+  deltaWeight: number;
+  action: TradeImplementationEntryAction;
+  /** @nullable */
+  latestPrice: number | null;
+  /** @nullable */
+  estimatedShares: number | null;
+  estimatedTradeUsd: number;
+  estimatedCostUsd: number;
+  advAvailable: boolean;
+  advReason: string;
+  belowMinTradeSize: boolean;
+  violatesMaxWeight: boolean;
+  warnings: string[];
+}
+
+export interface CashImplementationEntry {
+  currentWeight: number;
+  targetWeight: number;
+  currentUsd: number;
+  targetUsd: number;
+  cashImpactUsd: number;
+  postTradeCashUsd: number;
+}
+
+export type TradeImplementationWarningSeverity = typeof TradeImplementationWarningSeverity[keyof typeof TradeImplementationWarningSeverity];
+
+
+export const TradeImplementationWarningSeverity = {
+  warn: 'warn',
+  fail: 'fail',
+} as const;
+
+export interface TradeImplementationWarning {
+  id: string;
+  severity: TradeImplementationWarningSeverity;
+  message: string;
+}
+
+export interface TradeImplementationResult {
+  hasSufficientData: boolean;
+  /** @nullable */
+  insufficientReason: string | null;
+  generatedAt: string;
+  aumUsd: number;
+  assumptions: TradeImplementationExecutionAssumptions;
+  trades: TradeImplementationEntry[];
+  cash: CashImplementationEntry;
+  grossTradeUsd: number;
+  estimatedTotalCostUsd: number;
+  turnoverPct: number;
+  buyCount: number;
+  sellCount: number;
+  newCount: number;
+  removeCount: number;
+  holdCount: number;
+  belowMinCount: number;
+  warnings: TradeImplementationWarning[];
+}
+
 export type PipelineStepStatus = typeof PipelineStepStatus[keyof typeof PipelineStepStatus];
 
 
@@ -1062,6 +1175,32 @@ export const GetRiskModelCovarianceModel = {
   sample: 'sample',
   ewma: 'ewma',
   shrinkage: 'shrinkage',
+} as const;
+
+export type GetTradeImplementationParams = {
+aumUsd: number;
+executionTiming?: GetTradeImplementationExecutionTiming;
+transactionCostBps?: number;
+slippageBps?: number;
+cashYieldAnnualPct?: number;
+rebalanceFrequency?: GetTradeImplementationRebalanceFrequency;
+minTradeSizeUsd?: number;
+};
+
+export type GetTradeImplementationExecutionTiming = typeof GetTradeImplementationExecutionTiming[keyof typeof GetTradeImplementationExecutionTiming];
+
+
+export const GetTradeImplementationExecutionTiming = {
+  next_close: 'next_close',
+  next_open: 'next_open',
+} as const;
+
+export type GetTradeImplementationRebalanceFrequency = typeof GetTradeImplementationRebalanceFrequency[keyof typeof GetTradeImplementationRebalanceFrequency];
+
+
+export const GetTradeImplementationRebalanceFrequency = {
+  monthly: 'monthly',
+  quarterly: 'quarterly',
 } as const;
 
 export type ListArchiveParams = {

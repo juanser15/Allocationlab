@@ -15,6 +15,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { useSettingsDrawer } from "@/context/settings-drawer-context";
 import { RiskModelProSection } from "@/components/portfolio-lab/RiskModelProSection";
 import { ScenarioStressReadinessSection } from "@/components/portfolio-lab/ScenarioStressReadinessSection";
+import { TradeImplementationSection } from "@/components/portfolio-lab/TradeImplementationSection";
 
 function pct(n: number) {
   return `${(n * 100).toFixed(1)}%`;
@@ -412,6 +413,9 @@ export default function PortfolioLab() {
               )}
             </CardContent>
           </Card>
+
+          {/* Trade Implementation */}
+          <TradeImplementationSection />
 
           {/* Send to Committee */}
           <Card className="border-l-4 border-l-accent">

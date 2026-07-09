@@ -22,7 +22,7 @@ import { getLatestPriceData } from "./prices";
 const router: IRouter = Router();
 
 const ITERATION_INFO = {
-  current: 12,
+  current: 13,
   max: 15,
   completed: [
     "Core UI scaffold & navigation",
@@ -43,9 +43,9 @@ const ITERATION_INFO = {
     "AI Investment Committee reasoning layer (deterministic persona debate + CIO synthesis + exportable memo, zero fabrication)",
     "Risk Model Pro (selectable covariance models, MCR/CCR, beta, downside vol, drawdown risk, risk-based concentration & decomposition, embedded in Portfolio Lab diagnostics)",
     "Scenario & Stress Lab (user-defined macro shocks and predefined historical stress scenarios, ETF/bucket contribution, cash buffer adequacy, watch items, embedded in Research Lab, Portfolio Lab, Investment Committee, and Reports)",
+    "Trade Implementation (current -> target trade list with AUM-scaled $ sizing, rounding to whole shares, min trade size filter, turnover & cash impact, ADV/liquidity marked unavailable never fabricated, execution assumptions, CSV blotter export, embedded in Portfolio Lab, Dashboard, Investment Committee, and Reports)",
   ],
   next: [
-    "Trade Implementation (order staging, execution scheduling, broker-ready trade tickets)",
     "Attribution Engine (return decomposition by factor, sector, and selection vs. allocation)",
     "Production Governance (audit trails, approval workflows, role-based access controls)",
   ],

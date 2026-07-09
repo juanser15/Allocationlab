@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
-import { useGetLatestResults, useGetConstraints, useGenerateReport, useGetRiskModel, useGetScenarioStressMeta } from "@workspace/api-client-react";
+import { useGetLatestResults, useGetConstraints, useGenerateReport, useGetRiskModel, useGetScenarioStressMeta, useGetTradeImplementationMeta } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,6 +51,7 @@ export default function Reports() {
   const { data: constraints, isLoading: loadingConstraints } = useGetConstraints();
   const { data: riskModel } = useGetRiskModel();
   const { data: scenarioMeta } = useGetScenarioStressMeta();
+  const { data: tradeImplMeta } = useGetTradeImplementationMeta();
   const generateReport = useGenerateReport();
 
   const today = new Date().toISOString().slice(0, 10);
@@ -168,6 +169,15 @@ export default function Reports() {
       }
     }
 
+    // Trade implementation readiness
+    if (!tradeImplMeta) {
+      items.push({ id: "trade-implementation", label: "Trade implementation data unavailable", severity: "warn", detail: "Loading trade implementation readiness — refresh before finalizing the report." });
+    } else if (!tradeImplMeta.ready) {
+      items.push({ id: "trade-implementation", label: "Trade implementation not ready", severity: "warn", detail: tradeImplMeta.reason ?? "Run the rebalance pipeline and configure previous weights before a trade blotter can be generated." });
+    } else {
+      items.push({ id: "trade-implementation", label: "Trade implementation ready", severity: "pass", detail: `${tradeImplMeta.activeEtfCount} active ETFs covered; enter AUM in Portfolio Lab to generate the trade blotter.` });
+    }
+
     // Report fields sanity
     if (!portfolioName.trim()) {
       items.push({ id: "portfolio-name", label: "Portfolio name is empty", severity: "warn", detail: "Add a portfolio name so the report is clearly attributed." });
@@ -177,7 +187,7 @@ export default function Reports() {
     }
 
     return items;
-  }, [result, constraints, riskModel, scenarioMeta, portfolioName, title]);
+  }, [result, constraints, riskModel, scenarioMeta, tradeImplMeta, portfolioName, title]);
 
   const failCount = checklist.filter((c) => c.severity === "fail").length;
   const warnCount = checklist.filter((c) => c.severity === "warn").length;

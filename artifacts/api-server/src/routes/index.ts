@@ -14,6 +14,7 @@ import archiveRouter from "./archive";
 import committeeRouter from "./committee";
 import riskModelRouter from "./riskModel";
 import scenarioStressRouter from "./scenarioStress";
+import tradeImplementationRouter from "./tradeImplementation";
 
 const router: IRouter = Router();
 
@@ -32,5 +33,6 @@ router.use(archiveRouter);
 router.use(committeeRouter);
 router.use(riskModelRouter);
 router.use(scenarioStressRouter);
+router.use(tradeImplementationRouter);
 
 export default router;

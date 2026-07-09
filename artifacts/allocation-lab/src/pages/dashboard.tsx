@@ -7,6 +7,7 @@ import {
   useGetArchiveEntry,
   useGetBacktest,
   useGetRiskModel,
+  useGetTradeImplementationMeta,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   AlertCircle, Loader2, DollarSign, Activity,
-  ShieldAlert, Eye, FileCheck2, ShieldCheck, ExternalLink, Gauge, Compass, ArrowRight,
+  ShieldAlert, Eye, FileCheck2, ShieldCheck, ExternalLink, Gauge, Compass, ArrowRight, ArrowLeftRight,
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useWorkflowStage } from "@/lib/workflow";
@@ -94,6 +95,7 @@ export default function Dashboard() {
   );
 
   const { data: backtest } = useGetBacktest();
+  const { data: tradeImplMeta } = useGetTradeImplementationMeta();
 
   const view = isViewingLatest ? latestResult : archiveEntry;
   const isLoading = isViewingLatest ? loadingLatest : loadingArchiveEntry;
@@ -345,7 +347,7 @@ export default function Dashboard() {
           </div>
 
           {/* Data / backtest integrity strip */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <Card>
               <CardContent className="pt-4 pb-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Latest Data</p>
@@ -408,6 +410,23 @@ export default function Dashboard() {
                   </p>
                 )}
                 <Link href="/portfolio-lab" className="text-xs text-primary underline mt-1 inline-block">View full risk model</Link>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4 pb-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                  <ArrowLeftRight className="h-3.5 w-3.5" /> Trade Implementation
+                </p>
+                {tradeImplMeta?.ready ? (
+                  <p className="text-sm font-medium text-gray-900 mt-1">
+                    Ready · {tradeImplMeta.activeEtfCount} active ETFs
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {tradeImplMeta?.reason ?? "Loading…"}
+                  </p>
+                )}
+                <Link href="/portfolio-lab" className="text-xs text-primary underline mt-1 inline-block">Build trade list</Link>
               </CardContent>
             </Card>
           </div>
