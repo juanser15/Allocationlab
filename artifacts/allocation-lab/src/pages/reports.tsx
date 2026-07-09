@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
-import { useGetLatestResults, useGetConstraints, useGenerateReport } from "@workspace/api-client-react";
+import { useGetLatestResults, useGetConstraints, useGenerateReport, useGetRiskModel } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -49,6 +49,7 @@ export default function Reports() {
   const { toast } = useToast();
   const { data: result, isLoading: loadingResult } = useGetLatestResults();
   const { data: constraints, isLoading: loadingConstraints } = useGetConstraints();
+  const { data: riskModel } = useGetRiskModel();
   const generateReport = useGenerateReport();
 
   const today = new Date().toISOString().slice(0, 10);
@@ -137,6 +138,19 @@ export default function Reports() {
       });
     }
 
+    // Risk model coverage
+    if (!riskModel) {
+      items.push({ id: "risk-model", label: "Risk model unavailable", severity: "warn", detail: "Loading risk model — refresh before finalizing the report." });
+    } else if (!riskModel.hasSufficientData) {
+      items.push({ id: "risk-model", label: "Risk model has insufficient data", severity: "warn", detail: riskModel.insufficientReason ?? "Not enough return history to compute risk metrics." });
+    } else if (riskModel.warnings.some((w) => w.severity === "fail")) {
+      items.push({ id: "risk-model", label: "Risk model flags a hard issue", severity: "fail", detail: riskModel.warnings.find((w) => w.severity === "fail")!.message });
+    } else if (riskModel.warnings.length > 0) {
+      items.push({ id: "risk-model", label: "Risk model has warnings", severity: "warn", detail: riskModel.warnings.map((w) => w.message).join(" ") });
+    } else {
+      items.push({ id: "risk-model", label: "Risk model computed cleanly", severity: "pass", detail: `Ann. vol ${(riskModel.annualizedVolatility! * 100).toFixed(1)}%, diversification score ${riskModel.diversificationScore!.toFixed(0)}/100.` });
+    }
+
     // Report fields sanity
     if (!portfolioName.trim()) {
       items.push({ id: "portfolio-name", label: "Portfolio name is empty", severity: "warn", detail: "Add a portfolio name so the report is clearly attributed." });
@@ -146,7 +160,7 @@ export default function Reports() {
     }
 
     return items;
-  }, [result, constraints, portfolioName, title]);
+  }, [result, constraints, riskModel, portfolioName, title]);
 
   const failCount = checklist.filter((c) => c.severity === "fail").length;
   const warnCount = checklist.filter((c) => c.severity === "warn").length;

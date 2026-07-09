@@ -2,6 +2,7 @@ import { type ReactElement, useState } from "react";
 import {
   useGetLatestResults,
   useGetOrCreateDecisionLog,
+  useGetRiskModel,
   useUpdateDecisionLogStatus,
   useGetCommittee,
 } from "@workspace/api-client-react";
@@ -113,6 +114,7 @@ export default function InvestmentCommittee() {
     refetch: refetchDecisionLog,
   } = useGetOrCreateDecisionLog(sessionId ?? 0);
   const updateStatus = useUpdateDecisionLogStatus();
+  const { data: riskModel } = useGetRiskModel();
 
   const [committeeRequested, setCommitteeRequested] = useState(false);
   const {
@@ -229,6 +231,56 @@ export default function InvestmentCommittee() {
                   </CardContent>
                 </Card>
               </div>
+
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <ShieldAlert className="h-4 w-4 text-primary" /> Risk Model Evidence
+                  </CardTitle>
+                  <CardDescription>Quantitative risk backing for the committee's view, computed from the current allocation and price history.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {!riskModel?.hasSufficientData ? (
+                    <p className="text-sm text-muted-foreground">
+                      {riskModel?.insufficientReason ?? "Risk model data unavailable."}
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Ann. Volatility</p>
+                          <p className="font-semibold text-gray-900">{(riskModel.annualizedVolatility! * 100).toFixed(1)}%</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Downside Vol</p>
+                          <p className="font-semibold text-gray-900">{(riskModel.downsideVolatility! * 100).toFixed(1)}%</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Risk Concentration</p>
+                          <p className="font-semibold text-gray-900">{riskModel.concentrationRisk!.toFixed(2)} HHI</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Diversification</p>
+                          <p className="font-semibold text-gray-900">{riskModel.diversificationScore!.toFixed(0)}/100</p>
+                        </div>
+                      </div>
+                      {riskModel.warnings.length > 0 && (
+                        <ul className="space-y-1 pt-1">
+                          {riskModel.warnings.map((w) => (
+                            <li key={w.id} className="text-xs text-amber-800 flex items-start gap-1.5">
+                              <span className="mt-0.5">&bull;</span>
+                              <span>{w.message}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <p className="text-xs text-muted-foreground pt-1">
+                        Full breakdown (MCR/CCR by ETF, beta, sector decomposition) available in Portfolio Lab &rarr; Risk Model Pro.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               <Card>
                 <CardHeader className="pb-3">

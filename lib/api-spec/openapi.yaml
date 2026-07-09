@@ -16,6 +16,7 @@ tags:
   - name: reports
   - name: sessions
   - name: etf
+  - name: risk-model
 
 paths:
   /healthz:
@@ -216,6 +217,32 @@ paths:
                 $ref: "#/components/schemas/SessionDetail"
         "404":
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /risk-model:
+    get:
+      operationId: getRiskModel
+      tags: [risk-model]
+      summary: Risk Model Pro — covariance-based risk analytics for the latest allocation
+      parameters:
+        - name: covarianceModel
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [sample, ewma, shrinkage]
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskModelResult"
+        "400":
+          description: No allocation run available
           content:
             application/json:
               schema:
@@ -953,6 +980,123 @@ components:
             type: string
           description: Flags for any metrics that could not be fully computed
       required: [expectedVolatility, hhi, effectiveNumberOfBets, diversificationScore, riskContributions, correlationMatrix, activeTickers, trackingErrors, lookbackDays, insufficientDataReasons]
+
+    RiskModelWarning:
+      type: object
+      properties:
+        id:
+          type: string
+        severity:
+          type: string
+          enum: [warn, fail]
+        message:
+          type: string
+      required: [id, severity, message]
+
+    RiskContributionDetail:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        sector:
+          type: string
+        weight:
+          type: number
+        marginalContributionToRisk:
+          type: number
+          description: MCR — annualized vol units, derivative of portfolio vol w.r.t. this weight
+        componentContributionToRisk:
+          type: number
+          description: CCR — annualized vol units; sums to total portfolio volatility
+        componentContributionPct:
+          type: number
+          description: CCR expressed as a percentage of total portfolio volatility
+      required: [ticker, name, sector, weight, marginalContributionToRisk, componentContributionToRisk, componentContributionPct]
+
+    RiskDecompositionBucket:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        weight:
+          type: number
+        componentContributionPct:
+          type: number
+      required: [key, label, weight, componentContributionPct]
+
+    BetaResult:
+      type: object
+      properties:
+        benchmarkTicker:
+          type: string
+        available:
+          type: boolean
+        reason:
+          type: ["string", "null"]
+        beta:
+          type: ["number", "null"]
+        rSquared:
+          type: ["number", "null"]
+      required: [benchmarkTicker, available, reason, beta, rSquared]
+
+    RiskModelResult:
+      type: object
+      properties:
+        hasSufficientData:
+          type: boolean
+        insufficientReason:
+          type: ["string", "null"]
+        covarianceModel:
+          type: string
+          enum: [sample, ewma, shrinkage]
+        lookbackDays:
+          type: integer
+        activeTickers:
+          type: array
+          items:
+            type: string
+        annualizedVolatility:
+          type: ["number", "null"]
+        downsideVolatility:
+          type: ["number", "null"]
+        drawdownRisk:
+          type: ["number", "null"]
+        concentrationRisk:
+          type: ["number", "null"]
+          description: Risk-based HHI (0-1) of component-contribution-to-risk shares
+        effectiveRiskBets:
+          type: ["number", "null"]
+        diversificationRatio:
+          type: ["number", "null"]
+        diversificationScore:
+          type: ["number", "null"]
+        riskContributions:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskContributionDetail"
+        decompositionBySector:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskDecompositionBucket"
+        cashWeight:
+          type: number
+        betas:
+          type: array
+          items:
+            $ref: "#/components/schemas/BetaResult"
+        warnings:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskModelWarning"
+        availableBenchmarks:
+          type: array
+          items:
+            type: string
+      required: [hasSufficientData, insufficientReason, covarianceModel, lookbackDays, activeTickers, annualizedVolatility, downsideVolatility, drawdownRisk, concentrationRisk, effectiveRiskBets, diversificationRatio, diversificationScore, riskContributions, decompositionBySector, cashWeight, betas, warnings, availableBenchmarks]
 
     RunResult:
       type: object

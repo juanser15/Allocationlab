@@ -22,7 +22,7 @@ import { getLatestPriceData } from "./prices";
 const router: IRouter = Router();
 
 const ITERATION_INFO = {
-  current: 10,
+  current: 11,
   max: 15,
   completed: [
     "Core UI scaffold & navigation",
@@ -41,9 +41,9 @@ const ITERATION_INFO = {
     "Historical Archive workspace (browse prior rebalances, side-by-side comparison with turnover & realized return, filters, PDF/PNG/CSV export)",
     "Bias-resistant backtester (execution timing/costs/slippage, walk-forward testing, sensitivity checks, bias audit checklist, Integrity Score)",
     "AI Investment Committee reasoning layer (deterministic persona debate + CIO synthesis + exportable memo, zero fabrication)",
+    "Risk Model Pro (selectable covariance models, MCR/CCR, beta, downside vol, drawdown risk, risk-based concentration & decomposition, embedded in Portfolio Lab diagnostics)",
   ],
   next: [
-    "Risk Model Pro (factor risk model, stress-tested VaR, scenario-aware risk budgeting)",
     "Scenario & Stress Lab (historical and hypothetical macro shock scenarios)",
     "Trade Implementation (order staging, execution scheduling, broker-ready trade tickets)",
     "Attribution Engine (return decomposition by factor, sector, and selection vs. allocation)",

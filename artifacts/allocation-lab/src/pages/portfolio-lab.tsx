@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useSettingsDrawer } from "@/context/settings-drawer-context";
+import { RiskModelProSection } from "@/components/portfolio-lab/RiskModelProSection";
 
 function pct(n: number) {
   return `${(n * 100).toFixed(1)}%`;
@@ -365,6 +366,9 @@ export default function PortfolioLab() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Risk Model Pro */}
+          <RiskModelProSection />
 
           {/* Constraint Compliance */}
           <Card>

@@ -34,6 +34,7 @@ import type {
   EtfDetail,
   GetBacktestParams,
   GetCommittee404,
+  GetRiskModelParams,
   HealthStatus,
   ListArchiveParams,
   LivePricesFetchInput,
@@ -42,6 +43,7 @@ import type {
   PricesUploadInput,
   ReportInput,
   ReportResult,
+  RiskModelResult,
   RunInput,
   RunResult,
   Session,
@@ -888,6 +890,90 @@ export function useGetSession<TData = Awaited<ReturnType<typeof getSession>>, TE
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetSessionQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetRiskModelUrl = (params?: GetRiskModelParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/risk-model?${stringifiedParams}` : `/api/risk-model`
+}
+
+/**
+ * @summary Risk Model Pro — covariance-based risk analytics for the latest allocation
+ */
+export const getRiskModel = async (params?: GetRiskModelParams, options?: RequestInit): Promise<RiskModelResult> => {
+
+  return customFetch<RiskModelResult>(getGetRiskModelUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetRiskModelQueryKey = (params?: GetRiskModelParams,) => {
+    return [
+    `/api/risk-model`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetRiskModelQueryOptions = <TData = Awaited<ReturnType<typeof getRiskModel>>, TError = ErrorType<ErrorResponse>>(params?: GetRiskModelParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRiskModel>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRiskModelQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRiskModel>>> = ({ signal }) => getRiskModel(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRiskModel>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetRiskModelQueryResult = NonNullable<Awaited<ReturnType<typeof getRiskModel>>>
+export type GetRiskModelQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Risk Model Pro — covariance-based risk analytics for the latest allocation
+ */
+
+export function useGetRiskModel<TData = Awaited<ReturnType<typeof getRiskModel>>, TError = ErrorType<ErrorResponse>>(
+ params?: GetRiskModelParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRiskModel>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetRiskModelQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

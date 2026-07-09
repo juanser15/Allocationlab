@@ -477,6 +477,58 @@ export const GetSessionResponse = zod.object({
 })
 
 
+/**
+ * @summary Risk Model Pro — covariance-based risk analytics for the latest allocation
+ */
+export const GetRiskModelQueryParams = zod.object({
+  "covarianceModel": zod.enum(['sample', 'ewma', 'shrinkage']).optional()
+})
+
+export const GetRiskModelResponse = zod.object({
+  "hasSufficientData": zod.boolean(),
+  "insufficientReason": zod.string().nullable(),
+  "covarianceModel": zod.enum(['sample', 'ewma', 'shrinkage']),
+  "lookbackDays": zod.number(),
+  "activeTickers": zod.array(zod.string()),
+  "annualizedVolatility": zod.number().nullable(),
+  "downsideVolatility": zod.number().nullable(),
+  "drawdownRisk": zod.number().nullable(),
+  "concentrationRisk": zod.number().nullable().describe('Risk-based HHI (0-1) of component-contribution-to-risk shares'),
+  "effectiveRiskBets": zod.number().nullable(),
+  "diversificationRatio": zod.number().nullable(),
+  "diversificationScore": zod.number().nullable(),
+  "riskContributions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "weight": zod.number(),
+  "marginalContributionToRisk": zod.number().describe('MCR — annualized vol units, derivative of portfolio vol w.r.t. this weight'),
+  "componentContributionToRisk": zod.number().describe('CCR — annualized vol units; sums to total portfolio volatility'),
+  "componentContributionPct": zod.number().describe('CCR expressed as a percentage of total portfolio volatility')
+})),
+  "decompositionBySector": zod.array(zod.object({
+  "key": zod.string(),
+  "label": zod.string(),
+  "weight": zod.number(),
+  "componentContributionPct": zod.number()
+})),
+  "cashWeight": zod.number(),
+  "betas": zod.array(zod.object({
+  "benchmarkTicker": zod.string(),
+  "available": zod.boolean(),
+  "reason": zod.string().nullable(),
+  "beta": zod.number().nullable(),
+  "rSquared": zod.number().nullable()
+})),
+  "warnings": zod.array(zod.object({
+  "id": zod.string(),
+  "severity": zod.enum(['warn', 'fail']),
+  "message": zod.string()
+})),
+  "availableBenchmarks": zod.array(zod.string())
+})
+
+
 export const GenerateReportBody = zod.object({
   "sessionId": zod.number().nullish(),
   "format": zod.enum(['pdf', 'png', 'csv']),

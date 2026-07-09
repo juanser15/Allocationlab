@@ -6,6 +6,7 @@ import {
   useListArchive,
   useGetArchiveEntry,
   useGetBacktest,
+  useGetRiskModel,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -85,6 +86,7 @@ export default function Dashboard() {
 
   const { data: latestResult, isLoading: loadingLatest } = useGetLatestResults();
   const isViewingLatest = effectiveSessionId === null || effectiveSessionId === latestResult?.sessionId;
+  const { data: riskModel } = useGetRiskModel(undefined, { query: { enabled: isViewingLatest } as any });
 
   const { data: archiveEntry, isLoading: loadingArchiveEntry } = useGetArchiveEntry(
     effectiveSessionId ?? 0,
@@ -343,7 +345,7 @@ export default function Dashboard() {
           </div>
 
           {/* Data / backtest integrity strip */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardContent className="pt-4 pb-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Latest Data</p>
@@ -380,6 +382,32 @@ export default function Dashboard() {
                 ) : (
                   <p className="text-sm text-muted-foreground mt-1">Vol {(view.diagnostics.expectedVolatility * 100).toFixed(1)}%</p>
                 )}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4 pb-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                  <ShieldAlert className="h-3.5 w-3.5" /> Risk Model Pro
+                </p>
+                {!isViewingLatest ? (
+                  <p className="text-sm text-muted-foreground mt-1">Latest session only</p>
+                ) : riskModel?.hasSufficientData ? (
+                  <div className="text-sm font-medium text-gray-900 mt-1">
+                    Ann. vol {(riskModel.annualizedVolatility! * 100).toFixed(1)}%
+                    {" "}· Concentration {riskModel.concentrationRisk!.toFixed(2)}
+                    {" "}· Div. score {riskModel.diversificationScore!.toFixed(0)}
+                    {riskModel.warnings.length > 0 && (
+                      <Badge variant="secondary" className="ml-2 bg-amber-100 text-amber-800 text-[10px]">
+                        {riskModel.warnings.length} warning{riskModel.warnings.length > 1 ? "s" : ""}
+                      </Badge>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {riskModel?.insufficientReason ?? "Loading…"}
+                  </p>
+                )}
+                <Link href="/portfolio-lab" className="text-xs text-primary underline mt-1 inline-block">View full risk model</Link>
               </CardContent>
             </Card>
           </div>

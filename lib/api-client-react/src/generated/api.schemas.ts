@@ -234,6 +234,92 @@ export interface PortfolioDiagnostics {
   insufficientDataReasons: string[];
 }
 
+export type RiskModelWarningSeverity = typeof RiskModelWarningSeverity[keyof typeof RiskModelWarningSeverity];
+
+
+export const RiskModelWarningSeverity = {
+  warn: 'warn',
+  fail: 'fail',
+} as const;
+
+export interface RiskModelWarning {
+  id: string;
+  severity: RiskModelWarningSeverity;
+  message: string;
+}
+
+export interface RiskContributionDetail {
+  ticker: string;
+  name: string;
+  sector: string;
+  weight: number;
+  /** MCR — annualized vol units, derivative of portfolio vol w.r.t. this weight */
+  marginalContributionToRisk: number;
+  /** CCR — annualized vol units; sums to total portfolio volatility */
+  componentContributionToRisk: number;
+  /** CCR expressed as a percentage of total portfolio volatility */
+  componentContributionPct: number;
+}
+
+export interface RiskDecompositionBucket {
+  key: string;
+  label: string;
+  weight: number;
+  componentContributionPct: number;
+}
+
+export interface BetaResult {
+  benchmarkTicker: string;
+  available: boolean;
+  /** @nullable */
+  reason: string | null;
+  /** @nullable */
+  beta: number | null;
+  /** @nullable */
+  rSquared: number | null;
+}
+
+export type RiskModelResultCovarianceModel = typeof RiskModelResultCovarianceModel[keyof typeof RiskModelResultCovarianceModel];
+
+
+export const RiskModelResultCovarianceModel = {
+  sample: 'sample',
+  ewma: 'ewma',
+  shrinkage: 'shrinkage',
+} as const;
+
+export interface RiskModelResult {
+  hasSufficientData: boolean;
+  /** @nullable */
+  insufficientReason: string | null;
+  covarianceModel: RiskModelResultCovarianceModel;
+  lookbackDays: number;
+  activeTickers: string[];
+  /** @nullable */
+  annualizedVolatility: number | null;
+  /** @nullable */
+  downsideVolatility: number | null;
+  /** @nullable */
+  drawdownRisk: number | null;
+  /**
+     * Risk-based HHI (0-1) of component-contribution-to-risk shares
+     * @nullable
+     */
+  concentrationRisk: number | null;
+  /** @nullable */
+  effectiveRiskBets: number | null;
+  /** @nullable */
+  diversificationRatio: number | null;
+  /** @nullable */
+  diversificationScore: number | null;
+  riskContributions: RiskContributionDetail[];
+  decompositionBySector: RiskDecompositionBucket[];
+  cashWeight: number;
+  betas: BetaResult[];
+  warnings: RiskModelWarning[];
+  availableBenchmarks: string[];
+}
+
 export type PipelineStepStatus = typeof PipelineStepStatus[keyof typeof PipelineStepStatus];
 
 
@@ -806,6 +892,19 @@ export interface ArchiveCompareResult {
   realizedReturnNote: string | null;
   keyRationale: string[];
 }
+
+export type GetRiskModelParams = {
+covarianceModel?: GetRiskModelCovarianceModel;
+};
+
+export type GetRiskModelCovarianceModel = typeof GetRiskModelCovarianceModel[keyof typeof GetRiskModelCovarianceModel];
+
+
+export const GetRiskModelCovarianceModel = {
+  sample: 'sample',
+  ewma: 'ewma',
+  shrinkage: 'shrinkage',
+} as const;
 
 export type ListArchiveParams = {
 fromDate?: string;
