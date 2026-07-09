@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import {
   Activity,
+  Archive,
   BarChart2,
   BookOpen,
   Briefcase,
@@ -17,6 +18,7 @@ const navigation = [
   { name: "Results Dashboard", href: "/results", icon: BarChart2 },
   { name: "Portfolio Diagnostics", href: "/diagnostics", icon: Stethoscope },
   { name: "Backtesting", href: "/backtesting", icon: LineChart },
+  { name: "Historical Archive", href: "/archive", icon: Archive },
   { name: "Reports", href: "/reports", icon: FileText },
   { name: "Methodology", href: "/methodology", icon: BookOpen },
 ];

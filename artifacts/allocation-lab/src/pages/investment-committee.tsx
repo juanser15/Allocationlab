@@ -149,13 +149,13 @@ export default function InvestmentCommittee() {
     "Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)",
     "Committee report builder (editable one-page report, preview mode, polished PDF/PNG export, quality checklist)",
     "PM Decision Room with structured recommendation cards and an auditable Decision Log",
+    "Historical Archive workspace (browse prior rebalances, side-by-side comparison with turnover & realized return, filters, PDF/PNG/CSV export)",
   ];
   const iterationNext = [
-    "Historical regime trend chart (rolling composite over time)",
-    "Session comparison view (diff between two runs)",
     "Dollar & Rates components (add DXY, IEF/TLT to universe)",
+    "Live regime alerts & notification rules",
   ];
-  const CURRENT_ITERATION = 7;
+  const CURRENT_ITERATION = 8;
   const MAX_ITERATIONS = 10;
 
   const content = decisionLog?.content;

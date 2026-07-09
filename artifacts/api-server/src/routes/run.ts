@@ -22,7 +22,7 @@ import { getLatestPriceData } from "./prices";
 const router: IRouter = Router();
 
 const ITERATION_INFO = {
-  current: 7,
+  current: 8,
   max: 10,
   completed: [
     "Core UI scaffold & navigation",
@@ -38,11 +38,11 @@ const ITERATION_INFO = {
     "Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)",
     "Committee report builder (editable one-page report, preview mode, polished PDF/PNG export, quality checklist)",
     "PM Decision Room with structured recommendation cards and an auditable Decision Log",
+    "Historical Archive workspace (browse prior rebalances, side-by-side comparison with turnover & realized return, filters, PDF/PNG/CSV export)",
   ],
   next: [
-    "Historical regime trend chart (rolling composite over time)",
-    "Session comparison view (diff between two runs)",
     "Dollar & Rates components (add DXY, IEF/TLT to universe)",
+    "Live regime alerts & notification rules",
   ],
 };
 

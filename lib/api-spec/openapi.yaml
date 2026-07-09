@@ -366,6 +366,101 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /archive:
+    get:
+      operationId: listArchive
+      tags: [archive]
+      summary: List all completed rebalances as dated portfolio versions, with filters
+      parameters:
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: toDate
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: regime
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [draft, under_review, approved, none]
+        - name: portfolioName
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArchiveListResponse"
+
+  /archive/{sessionId}:
+    get:
+      operationId: getArchiveEntry
+      tags: [archive]
+      summary: Get the full archived detail for one saved rebalance
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArchiveEntry"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /archive/compare:
+    get:
+      operationId: compareArchive
+      tags: [archive]
+      summary: Compare two archived rebalances side by side, including turnover and realized return between them
+      parameters:
+        - name: a
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: b
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArchiveCompareResult"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /backtest:
     get:
       operationId: getBacktest
@@ -1193,3 +1288,138 @@ components:
         approvedBy:
           type: string
       required: [status]
+
+    ArchiveListItem:
+      type: object
+      properties:
+        sessionId:
+          type: integer
+        runAt:
+          type: string
+        label:
+          type: ["string", "null"]
+        portfolioVersion:
+          type: string
+        regimeLabel:
+          type: string
+        regimeComposite:
+          type: number
+        cashWeight:
+          type: number
+        activeEtfCount:
+          type: integer
+        decisionLogStatus:
+          type: string
+          enum: [draft, under_review, approved, none]
+        reportAvailable:
+          type: boolean
+        notes:
+          type: string
+      required: [sessionId, runAt, label, portfolioVersion, regimeLabel, regimeComposite, cashWeight, activeEtfCount, decisionLogStatus, reportAvailable, notes]
+
+    ArchiveListResponse:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArchiveListItem"
+        availableRegimes:
+          type: array
+          items:
+            type: string
+        availablePortfolioNames:
+          type: array
+          items:
+            type: string
+      required: [entries, availableRegimes, availablePortfolioNames]
+
+    ArchiveEntry:
+      type: object
+      properties:
+        sessionId:
+          type: integer
+        runAt:
+          type: string
+        label:
+          type: ["string", "null"]
+        portfolioVersion:
+          type: string
+        regime:
+          $ref: "#/components/schemas/RegimeScores"
+        allocations:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtfAllocation"
+        cashWeight:
+          type: number
+        cashChange:
+          type: number
+        activeEtfCount:
+          type: integer
+        diagnostics:
+          $ref: "#/components/schemas/PortfolioDiagnostics"
+        decisionLog:
+          oneOf:
+            - $ref: "#/components/schemas/DecisionLog"
+            - type: "null"
+        reportAvailable:
+          type: boolean
+        notes:
+          type: string
+      required: [sessionId, runAt, label, portfolioVersion, regime, allocations, cashWeight, cashChange, activeEtfCount, diagnostics, decisionLog, reportAvailable, notes]
+
+    ArchiveTickerChange:
+      type: object
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        sector:
+          type: string
+        weightA:
+          type: number
+        weightB:
+          type: number
+        deltaWeight:
+          type: number
+        factorScoreA:
+          type: ["number", "null"]
+        factorScoreB:
+          type: ["number", "null"]
+        factorScoreChange:
+          type: ["number", "null"]
+        action:
+          type: string
+          enum: [ADD, REMOVE, INCREASE, DECREASE, HOLD]
+      required: [ticker, name, sector, weightA, weightB, deltaWeight, factorScoreA, factorScoreB, factorScoreChange, action]
+
+    ArchiveCompareResult:
+      type: object
+      properties:
+        a:
+          $ref: "#/components/schemas/ArchiveEntry"
+        b:
+          $ref: "#/components/schemas/ArchiveEntry"
+        cashWeightChange:
+          type: number
+        regimeCompositeChange:
+          type: number
+        activeEtfCountChange:
+          type: integer
+        turnover:
+          type: number
+        tickerChanges:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArchiveTickerChange"
+        realizedReturn:
+          type: ["number", "null"]
+        realizedReturnNote:
+          type: ["string", "null"]
+        keyRationale:
+          type: array
+          items:
+            type: string
+      required: [a, b, cashWeightChange, regimeCompositeChange, activeEtfCountChange, turnover, tickerChanges, realizedReturn, realizedReturnNote, keyRationale]

@@ -979,3 +979,64 @@ function normalizeWeights(weights: Map<string, number>, budget: number): Map<str
 function clamp(v: number, min: number, max: number): number { return Math.min(max, Math.max(min, v)); }
 function round2(v: number): number { return Math.round(v * 100) / 100; }
 function round4(v: number): number { return Math.round(v * 10000) / 10000; }
+
+// ── Archive: cross-period diff helpers ───────────────────────────────────────
+
+export interface WeightedHolding {
+  ticker: string;
+  weight: number;
+}
+
+/**
+ * One-way turnover between two allocation snapshots: half the sum of absolute
+ * weight changes across all tickers held in either period. Matches the
+ * convention used by the backtesting workspace.
+ */
+export function computeTurnover(prev: WeightedHolding[], curr: WeightedHolding[]): number {
+  const prevWeights = new Map(prev.map((a) => [a.ticker, a.weight]));
+  const currWeights = new Map(curr.map((a) => [a.ticker, a.weight]));
+  const allTickers = new Set([...prevWeights.keys(), ...currWeights.keys()]);
+  let sumAbsDiff = 0;
+  for (const t of allTickers) {
+    sumAbsDiff += Math.abs((currWeights.get(t) ?? 0) - (prevWeights.get(t) ?? 0));
+  }
+  return round4(sumAbsDiff / 2);
+}
+
+/**
+ * Realized return of holding a fixed allocation (piecewise-constant weights,
+ * cash contributing 0%) from fromDate through toDate, using uploaded price
+ * history. Returns null with a reason if there isn't enough price coverage.
+ */
+export function computeRealizedReturn(
+  priceRows: PriceRow[],
+  allocations: WeightedHolding[],
+  fromDate: string,
+  toDate: string
+): { returnPct: number | null; reason: string | null } {
+  if (toDate <= fromDate) {
+    return { returnPct: null, reason: "The comparison period must move forward in time to compute a realized return." };
+  }
+
+  const inRange = priceRows.filter((r) => r.date >= fromDate && r.date <= toDate).sort((a, b) => a.date.localeCompare(b.date));
+  if (inRange.length < 2) {
+    return { returnPct: null, reason: "No uploaded price data covers this date range." };
+  }
+
+  let index = 100;
+  for (let i = 1; i < inRange.length; i++) {
+    const prevRow = inRange[i - 1];
+    const row = inRange[i];
+    let periodReturn = 0;
+    for (const alloc of allocations) {
+      const prevPrice = prevRow.prices[alloc.ticker];
+      const price = row.prices[alloc.ticker];
+      if (prevPrice && price && prevPrice > 0) {
+        periodReturn += alloc.weight * ((price - prevPrice) / prevPrice);
+      }
+    }
+    index *= 1 + periodReturn;
+  }
+
+  return { returnPct: round4(index / 100 - 1), reason: null };
+}

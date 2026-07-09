@@ -547,6 +547,119 @@ export interface DecisionLogStatusInput {
   approvedBy?: string;
 }
 
+export type ArchiveListItemDecisionLogStatus = typeof ArchiveListItemDecisionLogStatus[keyof typeof ArchiveListItemDecisionLogStatus];
+
+
+export const ArchiveListItemDecisionLogStatus = {
+  draft: 'draft',
+  under_review: 'under_review',
+  approved: 'approved',
+  none: 'none',
+} as const;
+
+export interface ArchiveListItem {
+  sessionId: number;
+  runAt: string;
+  /** @nullable */
+  label: string | null;
+  portfolioVersion: string;
+  regimeLabel: string;
+  regimeComposite: number;
+  cashWeight: number;
+  activeEtfCount: number;
+  decisionLogStatus: ArchiveListItemDecisionLogStatus;
+  reportAvailable: boolean;
+  notes: string;
+}
+
+export interface ArchiveListResponse {
+  entries: ArchiveListItem[];
+  availableRegimes: string[];
+  availablePortfolioNames: string[];
+}
+
+export interface ArchiveEntry {
+  sessionId: number;
+  runAt: string;
+  /** @nullable */
+  label: string | null;
+  portfolioVersion: string;
+  regime: RegimeScores;
+  allocations: EtfAllocation[];
+  cashWeight: number;
+  cashChange: number;
+  activeEtfCount: number;
+  diagnostics: PortfolioDiagnostics;
+  decisionLog: DecisionLog | null;
+  reportAvailable: boolean;
+  notes: string;
+}
+
+export type ArchiveTickerChangeAction = typeof ArchiveTickerChangeAction[keyof typeof ArchiveTickerChangeAction];
+
+
+export const ArchiveTickerChangeAction = {
+  ADD: 'ADD',
+  REMOVE: 'REMOVE',
+  INCREASE: 'INCREASE',
+  DECREASE: 'DECREASE',
+  HOLD: 'HOLD',
+} as const;
+
+export interface ArchiveTickerChange {
+  ticker: string;
+  name: string;
+  sector: string;
+  weightA: number;
+  weightB: number;
+  deltaWeight: number;
+  /** @nullable */
+  factorScoreA: number | null;
+  /** @nullable */
+  factorScoreB: number | null;
+  /** @nullable */
+  factorScoreChange: number | null;
+  action: ArchiveTickerChangeAction;
+}
+
+export interface ArchiveCompareResult {
+  a: ArchiveEntry;
+  b: ArchiveEntry;
+  cashWeightChange: number;
+  regimeCompositeChange: number;
+  activeEtfCountChange: number;
+  turnover: number;
+  tickerChanges: ArchiveTickerChange[];
+  /** @nullable */
+  realizedReturn: number | null;
+  /** @nullable */
+  realizedReturnNote: string | null;
+  keyRationale: string[];
+}
+
+export type ListArchiveParams = {
+fromDate?: string;
+toDate?: string;
+regime?: string;
+status?: ListArchiveStatus;
+portfolioName?: string;
+};
+
+export type ListArchiveStatus = typeof ListArchiveStatus[keyof typeof ListArchiveStatus];
+
+
+export const ListArchiveStatus = {
+  draft: 'draft',
+  under_review: 'under_review',
+  approved: 'approved',
+  none: 'none',
+} as const;
+
+export type CompareArchiveParams = {
+a: number;
+b: number;
+};
+
 export type GetBacktestParams = {
 benchmark?: string;
 };

@@ -699,6 +699,415 @@ export const UpdateDecisionLogStatusResponse = zod.object({
 
 
 /**
+ * @summary List all completed rebalances as dated portfolio versions, with filters
+ */
+export const ListArchiveQueryParams = zod.object({
+  "fromDate": zod.coerce.string().optional(),
+  "toDate": zod.coerce.string().optional(),
+  "regime": zod.coerce.string().optional(),
+  "status": zod.enum(['draft', 'under_review', 'approved', 'none']).optional(),
+  "portfolioName": zod.coerce.string().optional()
+})
+
+export const ListArchiveResponse = zod.object({
+  "entries": zod.array(zod.object({
+  "sessionId": zod.number(),
+  "runAt": zod.string(),
+  "label": zod.string().nullable(),
+  "portfolioVersion": zod.string(),
+  "regimeLabel": zod.string(),
+  "regimeComposite": zod.number(),
+  "cashWeight": zod.number(),
+  "activeEtfCount": zod.number(),
+  "decisionLogStatus": zod.enum(['draft', 'under_review', 'approved', 'none']),
+  "reportAvailable": zod.boolean(),
+  "notes": zod.string()
+})),
+  "availableRegimes": zod.array(zod.string()),
+  "availablePortfolioNames": zod.array(zod.string())
+})
+
+
+/**
+ * @summary Get the full archived detail for one saved rebalance
+ */
+export const GetArchiveEntryParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const GetArchiveEntryResponse = zod.object({
+  "sessionId": zod.number(),
+  "runAt": zod.string(),
+  "label": zod.string().nullable(),
+  "portfolioVersion": zod.string(),
+  "regime": zod.object({
+  "trend": zod.number(),
+  "breadth": zod.number(),
+  "volatility": zod.number(),
+  "liquidity": zod.number(),
+  "composite": zod.number(),
+  "label": zod.string(),
+  "components": zod.array(zod.object({
+  "key": zod.string(),
+  "label": zod.string(),
+  "score": zod.number().nullable(),
+  "method": zod.enum(['computed', 'proxy', 'unavailable']),
+  "description": zod.string()
+})),
+  "confidence": zod.number(),
+  "drivers": zod.string()
+}),
+  "allocations": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "weight": zod.number(),
+  "priorWeight": zod.number(),
+  "change": zod.number(),
+  "factorScores": zod.object({
+  "mom20": zod.number(),
+  "mom60": zod.number(),
+  "mom120": zod.number(),
+  "mom252": zod.number(),
+  "trendQuality": zod.number(),
+  "realizedVol60": zod.number(),
+  "drawdown": zod.number(),
+  "meanReversion": zod.number(),
+  "composite": zod.number()
+}),
+  "active": zod.boolean()
+})),
+  "cashWeight": zod.number(),
+  "cashChange": zod.number(),
+  "activeEtfCount": zod.number(),
+  "diagnostics": zod.object({
+  "expectedVolatility": zod.number().describe('Annualized portfolio volatility as decimal (e.g. 0.12 = 12%)'),
+  "hhi": zod.number().describe('Herfindahl-Hirschman Index of portfolio weights 0-1 (1 = fully concentrated)'),
+  "effectiveNumberOfBets": zod.number().describe('Effective number of independent bets (1\/HHI). Higher = more diversified.'),
+  "diversificationScore": zod.number().describe('Diversification score 0-100 based on average pairwise correlation'),
+  "riskContributions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "weight": zod.number().describe('Portfolio weight as decimal'),
+  "riskContributionPct": zod.number().describe('Percentage of total portfolio variance attributed to this position'),
+  "marginalVolContribution": zod.number().describe('Annualized vol contribution (marginal contribution to portfolio vol)')
+})),
+  "correlationMatrix": zod.array(zod.object({
+  "tickerA": zod.string(),
+  "tickerB": zod.string(),
+  "correlation": zod.number().describe('Pearson correlation coefficient -1 to 1')
+})).describe('Full N×N correlation matrix for active ETFs'),
+  "activeTickers": zod.array(zod.string()),
+  "trackingErrors": zod.array(zod.object({
+  "benchmarkTicker": zod.string(),
+  "trackingError": zod.number().describe('Annualized tracking error as decimal (e.g. 0.045 = 4.5%)')
+})),
+  "lookbackDays": zod.number().describe('Number of trading days used for covariance estimation'),
+  "insufficientDataReasons": zod.array(zod.string()).describe('Flags for any metrics that could not be fully computed')
+}),
+  "decisionLog": zod.union([zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number(),
+  "portfolioVersion": zod.string(),
+  "status": zod.enum(['draft', 'under_review', 'approved']),
+  "regimeLabel": zod.string(),
+  "regimeComposite": zod.number(),
+  "content": zod.object({
+  "marketView": zod.string(),
+  "keyRisks": zod.array(zod.string()),
+  "tradeList": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "action": zod.enum(['ADD', 'INCREASE', 'DECREASE', 'TRIM', 'REMOVE', 'HOLD']),
+  "fromWeight": zod.number(),
+  "toWeight": zod.number(),
+  "deltaWeight": zod.number(),
+  "compositeScore": zod.number(),
+  "rationale": zod.string()
+})),
+  "watchlist": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "compositeScore": zod.number(),
+  "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
+  "blockingFactor": zod.string(),
+  "improvement": zod.string()
+})),
+  "cashWeight": zod.number(),
+  "cashChange": zod.number(),
+  "activeEtfCount": zod.number()
+}),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "approvedAt": zod.string().nullable(),
+  "approvedBy": zod.string().nullable()
+}),zod.null()]),
+  "reportAvailable": zod.boolean(),
+  "notes": zod.string()
+})
+
+
+/**
+ * @summary Compare two archived rebalances side by side, including turnover and realized return between them
+ */
+export const CompareArchiveQueryParams = zod.object({
+  "a": zod.coerce.number(),
+  "b": zod.coerce.number()
+})
+
+export const CompareArchiveResponse = zod.object({
+  "a": zod.object({
+  "sessionId": zod.number(),
+  "runAt": zod.string(),
+  "label": zod.string().nullable(),
+  "portfolioVersion": zod.string(),
+  "regime": zod.object({
+  "trend": zod.number(),
+  "breadth": zod.number(),
+  "volatility": zod.number(),
+  "liquidity": zod.number(),
+  "composite": zod.number(),
+  "label": zod.string(),
+  "components": zod.array(zod.object({
+  "key": zod.string(),
+  "label": zod.string(),
+  "score": zod.number().nullable(),
+  "method": zod.enum(['computed', 'proxy', 'unavailable']),
+  "description": zod.string()
+})),
+  "confidence": zod.number(),
+  "drivers": zod.string()
+}),
+  "allocations": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "weight": zod.number(),
+  "priorWeight": zod.number(),
+  "change": zod.number(),
+  "factorScores": zod.object({
+  "mom20": zod.number(),
+  "mom60": zod.number(),
+  "mom120": zod.number(),
+  "mom252": zod.number(),
+  "trendQuality": zod.number(),
+  "realizedVol60": zod.number(),
+  "drawdown": zod.number(),
+  "meanReversion": zod.number(),
+  "composite": zod.number()
+}),
+  "active": zod.boolean()
+})),
+  "cashWeight": zod.number(),
+  "cashChange": zod.number(),
+  "activeEtfCount": zod.number(),
+  "diagnostics": zod.object({
+  "expectedVolatility": zod.number().describe('Annualized portfolio volatility as decimal (e.g. 0.12 = 12%)'),
+  "hhi": zod.number().describe('Herfindahl-Hirschman Index of portfolio weights 0-1 (1 = fully concentrated)'),
+  "effectiveNumberOfBets": zod.number().describe('Effective number of independent bets (1\/HHI). Higher = more diversified.'),
+  "diversificationScore": zod.number().describe('Diversification score 0-100 based on average pairwise correlation'),
+  "riskContributions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "weight": zod.number().describe('Portfolio weight as decimal'),
+  "riskContributionPct": zod.number().describe('Percentage of total portfolio variance attributed to this position'),
+  "marginalVolContribution": zod.number().describe('Annualized vol contribution (marginal contribution to portfolio vol)')
+})),
+  "correlationMatrix": zod.array(zod.object({
+  "tickerA": zod.string(),
+  "tickerB": zod.string(),
+  "correlation": zod.number().describe('Pearson correlation coefficient -1 to 1')
+})).describe('Full N×N correlation matrix for active ETFs'),
+  "activeTickers": zod.array(zod.string()),
+  "trackingErrors": zod.array(zod.object({
+  "benchmarkTicker": zod.string(),
+  "trackingError": zod.number().describe('Annualized tracking error as decimal (e.g. 0.045 = 4.5%)')
+})),
+  "lookbackDays": zod.number().describe('Number of trading days used for covariance estimation'),
+  "insufficientDataReasons": zod.array(zod.string()).describe('Flags for any metrics that could not be fully computed')
+}),
+  "decisionLog": zod.union([zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number(),
+  "portfolioVersion": zod.string(),
+  "status": zod.enum(['draft', 'under_review', 'approved']),
+  "regimeLabel": zod.string(),
+  "regimeComposite": zod.number(),
+  "content": zod.object({
+  "marketView": zod.string(),
+  "keyRisks": zod.array(zod.string()),
+  "tradeList": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "action": zod.enum(['ADD', 'INCREASE', 'DECREASE', 'TRIM', 'REMOVE', 'HOLD']),
+  "fromWeight": zod.number(),
+  "toWeight": zod.number(),
+  "deltaWeight": zod.number(),
+  "compositeScore": zod.number(),
+  "rationale": zod.string()
+})),
+  "watchlist": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "compositeScore": zod.number(),
+  "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
+  "blockingFactor": zod.string(),
+  "improvement": zod.string()
+})),
+  "cashWeight": zod.number(),
+  "cashChange": zod.number(),
+  "activeEtfCount": zod.number()
+}),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "approvedAt": zod.string().nullable(),
+  "approvedBy": zod.string().nullable()
+}),zod.null()]),
+  "reportAvailable": zod.boolean(),
+  "notes": zod.string()
+}),
+  "b": zod.object({
+  "sessionId": zod.number(),
+  "runAt": zod.string(),
+  "label": zod.string().nullable(),
+  "portfolioVersion": zod.string(),
+  "regime": zod.object({
+  "trend": zod.number(),
+  "breadth": zod.number(),
+  "volatility": zod.number(),
+  "liquidity": zod.number(),
+  "composite": zod.number(),
+  "label": zod.string(),
+  "components": zod.array(zod.object({
+  "key": zod.string(),
+  "label": zod.string(),
+  "score": zod.number().nullable(),
+  "method": zod.enum(['computed', 'proxy', 'unavailable']),
+  "description": zod.string()
+})),
+  "confidence": zod.number(),
+  "drivers": zod.string()
+}),
+  "allocations": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "weight": zod.number(),
+  "priorWeight": zod.number(),
+  "change": zod.number(),
+  "factorScores": zod.object({
+  "mom20": zod.number(),
+  "mom60": zod.number(),
+  "mom120": zod.number(),
+  "mom252": zod.number(),
+  "trendQuality": zod.number(),
+  "realizedVol60": zod.number(),
+  "drawdown": zod.number(),
+  "meanReversion": zod.number(),
+  "composite": zod.number()
+}),
+  "active": zod.boolean()
+})),
+  "cashWeight": zod.number(),
+  "cashChange": zod.number(),
+  "activeEtfCount": zod.number(),
+  "diagnostics": zod.object({
+  "expectedVolatility": zod.number().describe('Annualized portfolio volatility as decimal (e.g. 0.12 = 12%)'),
+  "hhi": zod.number().describe('Herfindahl-Hirschman Index of portfolio weights 0-1 (1 = fully concentrated)'),
+  "effectiveNumberOfBets": zod.number().describe('Effective number of independent bets (1\/HHI). Higher = more diversified.'),
+  "diversificationScore": zod.number().describe('Diversification score 0-100 based on average pairwise correlation'),
+  "riskContributions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "weight": zod.number().describe('Portfolio weight as decimal'),
+  "riskContributionPct": zod.number().describe('Percentage of total portfolio variance attributed to this position'),
+  "marginalVolContribution": zod.number().describe('Annualized vol contribution (marginal contribution to portfolio vol)')
+})),
+  "correlationMatrix": zod.array(zod.object({
+  "tickerA": zod.string(),
+  "tickerB": zod.string(),
+  "correlation": zod.number().describe('Pearson correlation coefficient -1 to 1')
+})).describe('Full N×N correlation matrix for active ETFs'),
+  "activeTickers": zod.array(zod.string()),
+  "trackingErrors": zod.array(zod.object({
+  "benchmarkTicker": zod.string(),
+  "trackingError": zod.number().describe('Annualized tracking error as decimal (e.g. 0.045 = 4.5%)')
+})),
+  "lookbackDays": zod.number().describe('Number of trading days used for covariance estimation'),
+  "insufficientDataReasons": zod.array(zod.string()).describe('Flags for any metrics that could not be fully computed')
+}),
+  "decisionLog": zod.union([zod.object({
+  "id": zod.number(),
+  "sessionId": zod.number(),
+  "portfolioVersion": zod.string(),
+  "status": zod.enum(['draft', 'under_review', 'approved']),
+  "regimeLabel": zod.string(),
+  "regimeComposite": zod.number(),
+  "content": zod.object({
+  "marketView": zod.string(),
+  "keyRisks": zod.array(zod.string()),
+  "tradeList": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "action": zod.enum(['ADD', 'INCREASE', 'DECREASE', 'TRIM', 'REMOVE', 'HOLD']),
+  "fromWeight": zod.number(),
+  "toWeight": zod.number(),
+  "deltaWeight": zod.number(),
+  "compositeScore": zod.number(),
+  "rationale": zod.string()
+})),
+  "watchlist": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "compositeScore": zod.number(),
+  "blockingReason": zod.enum(['score_below_threshold', 'rank_cutoff', 'no_price_data']),
+  "blockingFactor": zod.string(),
+  "improvement": zod.string()
+})),
+  "cashWeight": zod.number(),
+  "cashChange": zod.number(),
+  "activeEtfCount": zod.number()
+}),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "approvedAt": zod.string().nullable(),
+  "approvedBy": zod.string().nullable()
+}),zod.null()]),
+  "reportAvailable": zod.boolean(),
+  "notes": zod.string()
+}),
+  "cashWeightChange": zod.number(),
+  "regimeCompositeChange": zod.number(),
+  "activeEtfCountChange": zod.number(),
+  "turnover": zod.number(),
+  "tickerChanges": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "weightA": zod.number(),
+  "weightB": zod.number(),
+  "deltaWeight": zod.number(),
+  "factorScoreA": zod.number().nullable(),
+  "factorScoreB": zod.number().nullable(),
+  "factorScoreChange": zod.number().nullable(),
+  "action": zod.enum(['ADD', 'REMOVE', 'INCREASE', 'DECREASE', 'HOLD'])
+})),
+  "realizedReturn": zod.number().nullable(),
+  "realizedReturnNote": zod.string().nullable(),
+  "keyRationale": zod.array(zod.string())
+})
+
+
+/**
  * @summary Run a forward-chained rebalancing backtest across historical price data using stored allocation sessions
  */
 export const GetBacktestQueryParams = zod.object({

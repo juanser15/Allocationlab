@@ -6,10 +6,18 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './archiveCompareResult';
+export * from './archiveEntry';
+export * from './archiveListItem';
+export * from './archiveListItemDecisionLogStatus';
+export * from './archiveListResponse';
+export * from './archiveTickerChange';
+export * from './archiveTickerChangeAction';
 export * from './backtestEquityPoint';
 export * from './backtestMonthlyReturn';
 export * from './backtestPeriod';
 export * from './backtestResult';
+export * from './compareArchiveParams';
 export * from './constraints';
 export * from './constraintsInput';
 export * from './correlationCell';
@@ -30,6 +38,8 @@ export * from './getBacktestParams';
 export * from './healthStatus';
 export * from './icSummary';
 export * from './iterationInfo';
+export * from './listArchiveParams';
+export * from './listArchiveStatus';
 export * from './livePricesFetchInput';
 export * from './livePricesResult';
 export * from './livePricesTickerResult';

@@ -20,7 +20,11 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  ArchiveCompareResult,
+  ArchiveEntry,
+  ArchiveListResponse,
   BacktestResult,
+  CompareArchiveParams,
   Constraints,
   ConstraintsInput,
   DecisionLog,
@@ -29,6 +33,7 @@ import type {
   EtfDetail,
   GetBacktestParams,
   HealthStatus,
+  ListArchiveParams,
   LivePricesFetchInput,
   LivePricesResult,
   PricesStatus,
@@ -1329,6 +1334,251 @@ export const useUpdateDecisionLogStatus = <TError = ErrorType<ErrorResponse>,
       > => {
       return useMutation(getUpdateDecisionLogStatusMutationOptions(options));
     }
+
+export const getListArchiveUrl = (params?: ListArchiveParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/archive?${stringifiedParams}` : `/api/archive`
+}
+
+/**
+ * @summary List all completed rebalances as dated portfolio versions, with filters
+ */
+export const listArchive = async (params?: ListArchiveParams, options?: RequestInit): Promise<ArchiveListResponse> => {
+
+  return customFetch<ArchiveListResponse>(getListArchiveUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListArchiveQueryKey = (params?: ListArchiveParams,) => {
+    return [
+    `/api/archive`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListArchiveQueryOptions = <TData = Awaited<ReturnType<typeof listArchive>>, TError = ErrorType<unknown>>(params?: ListArchiveParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listArchive>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListArchiveQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listArchive>>> = ({ signal }) => listArchive(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listArchive>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListArchiveQueryResult = NonNullable<Awaited<ReturnType<typeof listArchive>>>
+export type ListArchiveQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all completed rebalances as dated portfolio versions, with filters
+ */
+
+export function useListArchive<TData = Awaited<ReturnType<typeof listArchive>>, TError = ErrorType<unknown>>(
+ params?: ListArchiveParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listArchive>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListArchiveQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetArchiveEntryUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/archive/${sessionId}`
+}
+
+/**
+ * @summary Get the full archived detail for one saved rebalance
+ */
+export const getArchiveEntry = async (sessionId: number, options?: RequestInit): Promise<ArchiveEntry> => {
+
+  return customFetch<ArchiveEntry>(getGetArchiveEntryUrl(sessionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetArchiveEntryQueryKey = (sessionId: number,) => {
+    return [
+    `/api/archive/${sessionId}`
+    ] as const;
+    }
+
+
+export const getGetArchiveEntryQueryOptions = <TData = Awaited<ReturnType<typeof getArchiveEntry>>, TError = ErrorType<ErrorResponse>>(sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getArchiveEntry>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetArchiveEntryQueryKey(sessionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getArchiveEntry>>> = ({ signal }) => getArchiveEntry(sessionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: sessionId !== null && sessionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getArchiveEntry>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetArchiveEntryQueryResult = NonNullable<Awaited<ReturnType<typeof getArchiveEntry>>>
+export type GetArchiveEntryQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get the full archived detail for one saved rebalance
+ */
+
+export function useGetArchiveEntry<TData = Awaited<ReturnType<typeof getArchiveEntry>>, TError = ErrorType<ErrorResponse>>(
+ sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getArchiveEntry>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetArchiveEntryQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCompareArchiveUrl = (params: CompareArchiveParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/archive/compare?${stringifiedParams}` : `/api/archive/compare`
+}
+
+/**
+ * @summary Compare two archived rebalances side by side, including turnover and realized return between them
+ */
+export const compareArchive = async (params: CompareArchiveParams, options?: RequestInit): Promise<ArchiveCompareResult> => {
+
+  return customFetch<ArchiveCompareResult>(getCompareArchiveUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getCompareArchiveQueryKey = (params?: CompareArchiveParams,) => {
+    return [
+    `/api/archive/compare`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getCompareArchiveQueryOptions = <TData = Awaited<ReturnType<typeof compareArchive>>, TError = ErrorType<ErrorResponse>>(params: CompareArchiveParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof compareArchive>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCompareArchiveQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof compareArchive>>> = ({ signal }) => compareArchive(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof compareArchive>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type CompareArchiveQueryResult = NonNullable<Awaited<ReturnType<typeof compareArchive>>>
+export type CompareArchiveQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Compare two archived rebalances side by side, including turnover and realized return between them
+ */
+
+export function useCompareArchive<TData = Awaited<ReturnType<typeof compareArchive>>, TError = ErrorType<ErrorResponse>>(
+ params: CompareArchiveParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof compareArchive>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getCompareArchiveQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getGetBacktestUrl = (params?: GetBacktestParams,) => {
   const normalizedParams = new URLSearchParams();

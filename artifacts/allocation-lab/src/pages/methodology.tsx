@@ -17,8 +17,11 @@ export default function Methodology() {
     { id: 11, label: "Backtesting workspace (equity curve, return/vol/Sharpe/drawdown/turnover, monthly returns, benchmark comparison, contribution summary)", done: true },
     { id: 12, label: "Committee report builder (editable one-page report, preview mode, polished PDF/PNG export, quality checklist)", done: true },
     { id: 13, label: "PM Decision Room with structured recommendation cards and an auditable Decision Log", done: true },
+    { id: 14, label: "Historical Archive workspace (browse prior rebalances, side-by-side comparison with turnover & realized return, filters, PDF/PNG/CSV export)", done: true },
+    { id: 15, label: "Dollar & Rates components (add DXY, IEF/TLT to universe)", done: false },
+    { id: 16, label: "Live regime alerts & notification rules", done: false },
   ];
-  const CURRENT_ITERATION = 7;
+  const CURRENT_ITERATION = 8;
   const MAX_ITERATIONS = 10;
 
   return (
