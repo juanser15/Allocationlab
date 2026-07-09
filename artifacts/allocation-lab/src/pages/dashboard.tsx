@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useLocation, Link } from "wouter";
+import { Link } from "wouter";
 import {
   useGetPricesStatus,
   useGetLatestResults,
@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import {
-  AlertCircle, Loader2, ArrowRight, DollarSign, Activity,
-  ShieldAlert, Eye, FileCheck2, ShieldCheck, ExternalLink, Gauge, ClipboardList, Compass,
+  AlertCircle, Loader2, DollarSign, Activity,
+  ShieldAlert, Eye, FileCheck2, ShieldCheck, ExternalLink, Gauge, Compass,
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useWorkflowStage } from "@/lib/workflow";
@@ -56,7 +56,6 @@ function startOfYear() {
 }
 
 export default function Dashboard() {
-  const [, setLocation] = useLocation();
   const { stage } = useWorkflowStage();
   const { data: pricesStatus, isLoading: loadingPrices } = useGetPricesStatus();
 
@@ -98,10 +97,10 @@ export default function Dashboard() {
   const hasData = pricesStatus?.hasData;
 
   const nextStep = useMemo(() => {
-    if (!hasData) return { label: "Upload price data", href: "/settings", desc: "No price history loaded yet — required before any run." };
-    if (!latestResult) return { label: "Run Rebalance", href: "/portfolio-lab", desc: "Generate the current allocation from the latest prices." };
-    if (!backtest?.hasSufficientData) return { label: "Review Backtester", href: "/research-lab", desc: "Validate the model historically before committee review." };
-    return { label: "Open Investment Committee", href: "/investment-committee", desc: "Generate the committee pack and route it for approval." };
+    if (!hasData) return { label: "Upload price data", desc: "No price history loaded yet — required before any run." };
+    if (!latestResult) return { label: "Run Rebalance", desc: "Generate the current allocation from the latest prices." };
+    if (!backtest?.hasSufficientData) return { label: "Review Backtester", desc: "Validate the model historically before committee review." };
+    return { label: "Open Investment Committee", desc: "Generate the committee pack and route it for approval." };
   }, [hasData, latestResult, backtest]);
 
   const topChanges = useMemo(() => {
@@ -137,27 +136,21 @@ export default function Dashboard() {
       {!loadingPrices && !hasData && (
         <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive-foreground">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="ml-2 flex items-center justify-between w-full flex-wrap gap-2">
-            <span>No price data loaded. You must upload price history before any rebalance can be run.</span>
-            <Link href="/settings" className="text-sm font-medium underline flex items-center">
-              Go to Settings <ArrowRight className="ml-1 h-3 w-3" />
-            </Link>
+          <AlertDescription className="ml-2">
+            No price data loaded. You must upload price history in Settings before any rebalance can be run.
           </AlertDescription>
         </Alert>
       )}
 
       <Card className="border-l-4 border-l-accent">
-        <CardContent className="py-4 flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <Compass className="h-5 w-5 text-accent shrink-0" />
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Next Recommended Step</p>
-              <p className="text-sm text-gray-700 mt-0.5">{nextStep.desc}</p>
-            </div>
+        <CardContent className="py-4 flex items-center gap-3">
+          <Compass className="h-5 w-5 text-accent shrink-0" />
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Next Recommended Step</p>
+            <p className="text-sm text-gray-700 mt-0.5">
+              <span className="font-medium text-gray-900">{nextStep.label}.</span> {nextStep.desc}
+            </p>
           </div>
-          <Button size="sm" asChild>
-            <Link href={nextStep.href}>{nextStep.label} <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
-          </Button>
         </CardContent>
       </Card>
 
@@ -271,7 +264,6 @@ export default function Dashboard() {
                 <p className="text-sm font-medium text-gray-900 mt-2">
                   {view ? "Available" : "Not generated"}
                 </p>
-                <Link href="/investment-committee" className="text-xs text-primary underline">Go to Investment Committee</Link>
               </CardContent>
             </Card>
           </div>
@@ -300,9 +292,6 @@ export default function Dashboard() {
                     </div>
                   ))}
                 </div>
-                <Button variant="outline" size="sm" className="w-full mt-4" asChild>
-                  <Link href="/portfolio-lab">Open Portfolio Lab <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
-                </Button>
               </CardContent>
             </Card>
 
@@ -370,7 +359,6 @@ export default function Dashboard() {
                 ) : (
                   <p className="text-sm text-muted-foreground mt-1">Insufficient data</p>
                 )}
-                <Link href="/research-lab" className="text-xs text-primary underline">View details</Link>
               </CardContent>
             </Card>
             <Card>

@@ -287,21 +287,19 @@ export default function ResearchLab() {
           actionHref="/settings"
         />
       ) : (
-        <Tabs defaultValue="explorer">
+        <Tabs defaultValue="overview">
           <TabsList className="flex-wrap h-auto">
-            <TabsTrigger value="explorer">ETF Explorer</TabsTrigger>
-            <TabsTrigger value="factors">Factor Explorer</TabsTrigger>
-            <TabsTrigger value="market-health">Market Health</TabsTrigger>
-            <TabsTrigger value="backtester">Backtester</TabsTrigger>
-            <TabsTrigger value="bias-audit">Bias Audit</TabsTrigger>
-            <TabsTrigger value="walk-forward">Walk-Forward</TabsTrigger>
-            <TabsTrigger value="sensitivity">Sensitivity</TabsTrigger>
-            <TabsTrigger value="scenario">Scenario/Stress Testing</TabsTrigger>
-            <TabsTrigger value="notes">Research Notes</TabsTrigger>
+            <TabsTrigger value="overview">1 · Overview</TabsTrigger>
+            <TabsTrigger value="explorer">2 · ETF &amp; Factor Explorer</TabsTrigger>
+            <TabsTrigger value="backtester">3 · Backtesting</TabsTrigger>
+            <TabsTrigger value="bias-audit">4 · Bias Audit</TabsTrigger>
+            <TabsTrigger value="walk-forward">5 · Walk-Forward &amp; Sensitivity</TabsTrigger>
+            <TabsTrigger value="scenario">6 · Scenario &amp; Stress Lab</TabsTrigger>
+            <TabsTrigger value="notes">7 · Research Notes</TabsTrigger>
           </TabsList>
 
-          {/* ── ETF Explorer ── */}
-          <TabsContent value="explorer" className="pt-4">
+          {/* ── 2. ETF & Factor Explorer ── */}
+          <TabsContent value="explorer" className="space-y-6 pt-4">
             <Card>
               <CardHeader>
                 <CardTitle>ETF Universe</CardTitle>
@@ -346,10 +344,7 @@ export default function ResearchLab() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* ── Factor Explorer ── */}
-          <TabsContent value="factors" className="pt-4">
             <Card>
               <CardHeader>
                 <CardTitle>Factor Score Heatmap</CardTitle>
@@ -363,8 +358,7 @@ export default function ResearchLab() {
                   <div className="py-8 flex justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
                 ) : !result ? (
                   <p className="text-sm text-muted-foreground py-6 text-center">
-                    No allocation run yet. Run a rebalance in{" "}
-                    <Link href="/portfolio-lab" className="underline font-medium text-primary">Portfolio Lab</Link>.
+                    No allocation run yet. Run a rebalance in Portfolio Lab.
                   </p>
                 ) : (
                   <Table>
@@ -411,13 +405,12 @@ export default function ResearchLab() {
             </Card>
           </TabsContent>
 
-          {/* ── Market Health ── */}
-          <TabsContent value="market-health" className="space-y-6 pt-4">
+          {/* ── 1. Overview / Research Status ── */}
+          <TabsContent value="overview" className="space-y-6 pt-4">
             {!result || !regime || !diag ? (
               <Card>
                 <CardContent className="py-12 text-center text-muted-foreground">
-                  No allocation run yet. Run a rebalance in{" "}
-                  <Link href="/portfolio-lab" className="underline font-medium text-primary">Portfolio Lab</Link>.
+                  No allocation run yet. Run a rebalance in Portfolio Lab to populate research status.
                 </CardContent>
               </Card>
             ) : (
@@ -578,7 +571,7 @@ export default function ResearchLab() {
             )}
           </TabsContent>
 
-          {/* ── Backtester ── */}
+          {/* ── 3. Backtesting ── */}
           <TabsContent value="backtester" className="space-y-6 pt-4">
             {/* Config Panel */}
             <Card>
@@ -1016,12 +1009,12 @@ export default function ResearchLab() {
             )}
           </TabsContent>
 
-          {/* ── Bias Audit ── */}
+          {/* ── 4. Bias Audit / Integrity Checks ── */}
           <TabsContent value="bias-audit" className="space-y-6 pt-4">
             {!bt || !bt.hasSufficientData ? (
               <Card>
                 <CardContent className="py-12 text-center text-muted-foreground">
-                  Run a backtest in the Backtester tab first to compute the integrity audit.
+                  Run a backtest in the Backtesting tab first to compute the integrity audit.
                 </CardContent>
               </Card>
             ) : (
@@ -1063,129 +1056,142 @@ export default function ResearchLab() {
             )}
           </TabsContent>
 
-          {/* ── Walk-Forward ── */}
+          {/* ── 5. Walk-Forward & Sensitivity ── */}
           <TabsContent value="walk-forward" className="space-y-6 pt-4">
             {!bt || !bt.hasSufficientData ? (
               <Card>
                 <CardContent className="py-12 text-center text-muted-foreground">
-                  Run a backtest in the Backtester tab first to compute walk-forward folds.
+                  Run a backtest in the Backtesting tab first to compute walk-forward folds and parameter sensitivity.
                 </CardContent>
               </Card>
             ) : (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">Walk-Forward Analysis</CardTitle>
-                  <CardDescription className="text-xs">{bt.walkForward.note}</CardDescription>
-                </CardHeader>
-                <CardContent className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b text-xs uppercase tracking-wider text-muted-foreground">
-                        <th className="text-left pb-2 font-semibold pr-4">Fold</th>
-                        <th className="text-left pb-2 font-semibold pr-4">Window</th>
-                        <th className="text-right pb-2 font-semibold pr-4">Days</th>
-                        <th className="text-right pb-2 font-semibold pr-4">Rebalances</th>
-                        <th className="text-right pb-2 font-semibold pr-4">Return</th>
-                        <th className="text-right pb-2 font-semibold pr-4">Ann. Return</th>
-                        <th className="text-right pb-2 font-semibold pr-4">Sharpe</th>
-                        <th className="text-right pb-2 font-semibold">Max DD</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {bt.walkForward.folds.map((f) => (
-                        <tr key={f.foldIndex} className="border-b border-gray-50">
-                          <td className="py-2 pr-4 text-gray-700">{f.foldIndex}</td>
-                          <td className="py-2 pr-4 text-gray-600 text-xs">{f.startDate} → {f.endDate}</td>
-                          <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.tradingDays}</td>
-                          <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.rebalanceCount}</td>
-                          <td className="py-2 pr-4 text-right tabular-nums">
-                            <span className={(f.cumulativeReturn ?? 0) >= 0 ? "text-green-700" : "text-red-600"}>{pct(f.cumulativeReturn)}</span>
-                          </td>
-                          <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.annualizedReturn !== null ? pct(f.annualizedReturn) : "N/A"}</td>
-                          <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.sharpeRatio !== null ? f.sharpeRatio.toFixed(2) : "N/A"}</td>
-                          <td className="py-2 text-right tabular-nums text-red-600">{pctPlain(f.maxDrawdown)}</td>
+              <>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">Walk-Forward Analysis</CardTitle>
+                    <CardDescription className="text-xs">{bt.walkForward.note}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-xs uppercase tracking-wider text-muted-foreground">
+                          <th className="text-left pb-2 font-semibold pr-4">Fold</th>
+                          <th className="text-left pb-2 font-semibold pr-4">Window</th>
+                          <th className="text-right pb-2 font-semibold pr-4">Days</th>
+                          <th className="text-right pb-2 font-semibold pr-4">Rebalances</th>
+                          <th className="text-right pb-2 font-semibold pr-4">Return</th>
+                          <th className="text-right pb-2 font-semibold pr-4">Ann. Return</th>
+                          <th className="text-right pb-2 font-semibold pr-4">Sharpe</th>
+                          <th className="text-right pb-2 font-semibold">Max DD</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </CardContent>
-              </Card>
+                      </thead>
+                      <tbody>
+                        {bt.walkForward.folds.map((f) => (
+                          <tr key={f.foldIndex} className="border-b border-gray-50">
+                            <td className="py-2 pr-4 text-gray-700">{f.foldIndex}</td>
+                            <td className="py-2 pr-4 text-gray-600 text-xs">{f.startDate} → {f.endDate}</td>
+                            <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.tradingDays}</td>
+                            <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.rebalanceCount}</td>
+                            <td className="py-2 pr-4 text-right tabular-nums">
+                              <span className={(f.cumulativeReturn ?? 0) >= 0 ? "text-green-700" : "text-red-600"}>{pct(f.cumulativeReturn)}</span>
+                            </td>
+                            <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.annualizedReturn !== null ? pct(f.annualizedReturn) : "N/A"}</td>
+                            <td className="py-2 pr-4 text-right tabular-nums text-gray-600">{f.sharpeRatio !== null ? f.sharpeRatio.toFixed(2) : "N/A"}</td>
+                            <td className="py-2 text-right tabular-nums text-red-600">{pctPlain(f.maxDrawdown)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      Parameter Sensitivity
+                      {bt.sensitivity.stabilityWarning && (
+                        <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 text-[10px]">Unstable</Badge>
+                      )}
+                    </CardTitle>
+                    <CardDescription className="text-xs">{bt.sensitivity.note}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-xs uppercase tracking-wider text-muted-foreground">
+                          <th className="text-left pb-2 font-semibold pr-4">Frequency</th>
+                          <th className="text-left pb-2 font-semibold pr-4">Timing</th>
+                          <th className="text-right pb-2 font-semibold pr-4">Cost (bps)</th>
+                          <th className="text-right pb-2 font-semibold pr-4">Cum. Return</th>
+                          <th className="text-right pb-2 font-semibold">Sharpe</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {bt.sensitivity.runs.map((r, i) => (
+                          <tr key={i} className="border-b border-gray-50">
+                            <td className="py-1.5 pr-4 text-gray-700 capitalize">{r.rebalanceFrequency}</td>
+                            <td className="py-1.5 pr-4 text-gray-600 text-xs">{r.executionTiming.replace("_", " ")}</td>
+                            <td className="py-1.5 pr-4 text-right tabular-nums text-gray-600">{r.transactionCostBps}</td>
+                            <td className="py-1.5 pr-4 text-right tabular-nums">
+                              {r.cumulativeReturn !== null ? (
+                                <span className={r.cumulativeReturn >= 0 ? "text-green-700" : "text-red-600"}>{pct(r.cumulativeReturn)}</span>
+                              ) : <span className="text-gray-400">N/A</span>}
+                            </td>
+                            <td className="py-1.5 text-right tabular-nums text-gray-600">{r.sharpeRatio !== null ? r.sharpeRatio.toFixed(2) : "N/A"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </CardContent>
+                </Card>
+              </>
             )}
           </TabsContent>
 
-          {/* ── Sensitivity ── */}
-          <TabsContent value="sensitivity" className="space-y-6 pt-4">
-            {!bt || !bt.hasSufficientData ? (
-              <Card>
-                <CardContent className="py-12 text-center text-muted-foreground">
-                  Run a backtest in the Backtester tab first to compute parameter sensitivity.
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    Parameter Sensitivity
-                    {bt.sensitivity.stabilityWarning && (
-                      <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 text-[10px]">Unstable</Badge>
-                    )}
-                  </CardTitle>
-                  <CardDescription className="text-xs">{bt.sensitivity.note}</CardDescription>
-                </CardHeader>
-                <CardContent className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b text-xs uppercase tracking-wider text-muted-foreground">
-                        <th className="text-left pb-2 font-semibold pr-4">Frequency</th>
-                        <th className="text-left pb-2 font-semibold pr-4">Timing</th>
-                        <th className="text-right pb-2 font-semibold pr-4">Cost (bps)</th>
-                        <th className="text-right pb-2 font-semibold pr-4">Cum. Return</th>
-                        <th className="text-right pb-2 font-semibold">Sharpe</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {bt.sensitivity.runs.map((r, i) => (
-                        <tr key={i} className="border-b border-gray-50">
-                          <td className="py-1.5 pr-4 text-gray-700 capitalize">{r.rebalanceFrequency}</td>
-                          <td className="py-1.5 pr-4 text-gray-600 text-xs">{r.executionTiming.replace("_", " ")}</td>
-                          <td className="py-1.5 pr-4 text-right tabular-nums text-gray-600">{r.transactionCostBps}</td>
-                          <td className="py-1.5 pr-4 text-right tabular-nums">
-                            {r.cumulativeReturn !== null ? (
-                              <span className={r.cumulativeReturn >= 0 ? "text-green-700" : "text-red-600"}>{pct(r.cumulativeReturn)}</span>
-                            ) : <span className="text-gray-400">N/A</span>}
-                          </td>
-                          <td className="py-1.5 text-right tabular-nums text-gray-600">{r.sharpeRatio !== null ? r.sharpeRatio.toFixed(2) : "N/A"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          {/* ── Scenario / Stress Testing ── */}
-          <TabsContent value="scenario" className="pt-4">
+          {/* ── 6. Scenario & Stress Lab ── */}
+          <TabsContent value="scenario" className="space-y-6 pt-4">
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Dices className="h-4 w-4 text-primary" /> Scenario &amp; Stress Testing
+                  <Dices className="h-4 w-4 text-primary" /> Scenario Analysis
                 </CardTitle>
-                <CardDescription>Simulate the current allocation against historical shock scenarios and Monte Carlo paths.</CardDescription>
+                <CardDescription>
+                  User-defined shocks — set your own moves in SPX, rates, USD, oil, volatility, and credit spreads to see the impact on the current allocation.
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
                   <Activity className="h-8 w-8 text-muted-foreground/50" />
                   <p className="text-sm font-medium text-gray-600">Not yet implemented — planned for a future build cycle.</p>
                   <p className="text-xs text-muted-foreground max-w-md">
-                    Scenario shocks (rate spikes, equity drawdowns, liquidity crunches) and Monte Carlo path simulation will appear here once built.
+                    Custom shock sliders for SPX, rates, USD, oil, volatility, and credit spreads will appear here once built.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <ShieldAlert className="h-4 w-4 text-primary" /> Stress Testing
+                </CardTitle>
+                <CardDescription>
+                  Historical, pre-defined episodes — COVID crash, 2022 rates shock, regional banking crisis, tech unwind, and custom date windows.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                  <Activity className="h-8 w-8 text-muted-foreground/50" />
+                  <p className="text-sm font-medium text-gray-600">Not yet implemented — planned for a future build cycle.</p>
+                  <p className="text-xs text-muted-foreground max-w-md">
+                    Pre-defined historical episodes (COVID, 2022 rates shock, regional banking crisis, tech unwind) plus custom window selection will appear here once built.
                   </p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* ── Research Notes ── */}
+          {/* ── 7. Research Notes / Export ── */}
           <TabsContent value="notes" className="pt-4">
             <ResearchNotesTab />
           </TabsContent>
