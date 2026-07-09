@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "fE2UId2GK9DvT3iDFj9s2"
+uri = "file://allocation-lab-overview.zip"
+type = "unspecified"
+title = "Allocation Lab v2 — Screenshots + Overview"
