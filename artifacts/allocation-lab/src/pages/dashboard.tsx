@@ -21,6 +21,8 @@ import {
   ShieldAlert, Eye, FileCheck2, ShieldCheck, ExternalLink, Gauge, ClipboardList,
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { useWorkflowStage } from "@/lib/workflow";
+import { WorkflowStatusBar } from "@/components/shared/WorkflowStatusBar";
 
 type Preset = "today" | "week" | "month" | "ytd" | "custom";
 
@@ -56,6 +58,7 @@ function startOfYear() {
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
+  const { stage } = useWorkflowStage();
   const { data: pricesStatus, isLoading: loadingPrices } = useGetPricesStatus();
   const runPipeline = useRunPipeline();
   const { toast } = { toast: (_: any) => {} };
@@ -102,7 +105,7 @@ export default function Dashboard() {
     );
   };
 
-  const handleRefreshData = () => setLocation("/configuration");
+  const handleRefreshData = () => setLocation("/settings");
 
   const hasData = pricesStatus?.hasData;
 
@@ -141,13 +144,19 @@ export default function Dashboard() {
         }
       />
 
+      <Card>
+        <CardContent className="py-3">
+          <WorkflowStatusBar stage={stage} />
+        </CardContent>
+      </Card>
+
       {!loadingPrices && !hasData && (
         <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive-foreground">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="ml-2 flex items-center justify-between w-full flex-wrap gap-2">
             <span>No price data loaded. You must upload price history before running the committee.</span>
-            <Link href="/configuration" className="text-sm font-medium underline flex items-center">
-              Go to Configuration <ArrowRight className="ml-1 h-3 w-3" />
+            <Link href="/settings" className="text-sm font-medium underline flex items-center">
+              Go to Settings <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </AlertDescription>
         </Alert>
@@ -263,7 +272,7 @@ export default function Dashboard() {
                 <p className="text-sm font-medium text-gray-900 mt-2">
                   {view ? "Available" : "Not generated"}
                 </p>
-                <Link href="/reports" className="text-xs text-primary underline">Go to Reports</Link>
+                <Link href="/investment-committee" className="text-xs text-primary underline">Go to Investment Committee</Link>
               </CardContent>
             </Card>
           </div>
@@ -362,7 +371,7 @@ export default function Dashboard() {
                 ) : (
                   <p className="text-sm text-muted-foreground mt-1">Insufficient data</p>
                 )}
-                <Link href="/market-intelligence" className="text-xs text-primary underline">View details</Link>
+                <Link href="/market-monitor" className="text-xs text-primary underline">View details</Link>
               </CardContent>
             </Card>
             <Card>

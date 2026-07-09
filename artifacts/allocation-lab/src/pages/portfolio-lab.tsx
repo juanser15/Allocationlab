@@ -70,7 +70,7 @@ export default function PortfolioLab() {
                   ETFs are ranked by composite factor score; the top-ranked names receive score-weighted allocations,
                   dampened 30% toward prior weights for continuity. Cash is dynamically adjusted by the regime composite.
                   Constraints (cash range, max weight, inclusion threshold, target active ETFs) are configured in{" "}
-                  <Link href="/configuration" className="underline font-medium text-primary">Configuration</Link>.
+                  <Link href="/settings" className="underline font-medium text-primary">Settings</Link>.
                 </span>
               </div>
             </CardContent>
@@ -252,7 +252,7 @@ export default function PortfolioLab() {
                 ) : (
                   <p className="text-xs text-muted-foreground">Insufficient data</p>
                 )}
-                <Link href="/market-intelligence" className="text-xs text-primary underline inline-flex items-center gap-1">
+                <Link href="/market-monitor" className="text-xs text-primary underline inline-flex items-center gap-1">
                   View Details <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
@@ -267,7 +267,7 @@ export default function PortfolioLab() {
                 ) : (
                   <p className="text-xs text-muted-foreground">Insufficient data</p>
                 )}
-                <Link href="/market-intelligence" className="text-xs text-primary underline inline-flex items-center gap-1">
+                <Link href="/market-monitor" className="text-xs text-primary underline inline-flex items-center gap-1">
                   View Details <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
@@ -286,7 +286,7 @@ export default function PortfolioLab() {
                 ) : (
                   <p className="text-xs text-muted-foreground">Insufficient data</p>
                 )}
-                <Link href="/market-intelligence" className="text-xs text-primary underline inline-flex items-center gap-1">
+                <Link href="/market-monitor" className="text-xs text-primary underline inline-flex items-center gap-1">
                   View Details <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>

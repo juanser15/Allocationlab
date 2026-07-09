@@ -1,24 +1,20 @@
 import { Link, useLocation } from "wouter";
 import {
   Activity,
-  Archive,
   Briefcase,
-  FileText,
+  FlaskConical,
   Gavel,
   LayoutDashboard,
   LineChart,
-  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Market Monitor", href: "/market-monitor", icon: LineChart },
   { name: "Portfolio Lab", href: "/portfolio-lab", icon: Briefcase },
-  { name: "Market Intelligence", href: "/market-intelligence", icon: LineChart },
-  { name: "Configuration", href: "/configuration", icon: Settings },
+  { name: "Research Lab", href: "/research-lab", icon: FlaskConical },
   { name: "Investment Committee", href: "/investment-committee", icon: Gavel },
-  { name: "Reports", href: "/reports", icon: FileText },
-  { name: "Archive", href: "/archive", icon: Archive },
 ];
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {

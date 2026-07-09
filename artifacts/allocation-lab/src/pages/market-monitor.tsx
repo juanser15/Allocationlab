@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { useGetLatestResults, useGetUniverse } from "@workspace/api-client-react";
+import { useGetLatestResults, useGetUniverse, useGetPricesStatus } from "@workspace/api-client-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ExternalLink, Info, AlertTriangle } from "lucide-react";
+import { Loader2, ExternalLink, Info, AlertTriangle, Activity } from "lucide-react";
 import { Link } from "wouter";
 import { PageHeader } from "@/components/layout/PageHeader";
-import Backtesting from "./backtesting";
+import { EmptyState } from "@/components/shared/EmptyState";
 
 function EtfLink({ ticker, className }: { ticker: string; className?: string }) {
   return (
@@ -74,10 +74,13 @@ function MetricTooltip({ children, tip }: { children: React.ReactNode; tip: stri
   );
 }
 
-export default function MarketIntelligence() {
+export default function MarketMonitor() {
+  const { data: pricesStatus, isLoading: loadingPrices } = useGetPricesStatus();
   const { data: universe, isLoading: loadingUniverse } = useGetUniverse();
   const { data: result, isLoading: loadingResult } = useGetLatestResults();
   const [selectedBenchmark, setSelectedBenchmark] = useState<string | null>(null);
+
+  const hasData = !!pricesStatus?.hasData;
 
   const scoreByTicker = new Map((result?.allocations ?? []).map((a) => [a.ticker, a.factorScores.composite]));
   const diag = result?.diagnostics;
@@ -89,17 +92,27 @@ export default function MarketIntelligence() {
   return (
     <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
       <PageHeader
-        section="3 · Market Intelligence"
-        title="Market Intelligence"
-        description="Explore individual ETFs and factors, review market health detail, and stress-test the model with bias-resistant backtesting, walk-forward analysis, sensitivity checks, and scenario testing."
+        section="Market Monitor"
+        title="Market Monitor"
+        description="Explore individual ETFs and factors, and review market health detail derived from the latest committee run."
       />
 
+      {loadingPrices ? (
+        <div className="py-12 flex justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+      ) : !hasData ? (
+        <EmptyState
+          icon={Activity}
+          title="No price data yet"
+          description="Upload or refresh price data in Settings, then run the Investment Committee to populate market health and factor scores."
+          actionLabel="Go to Settings"
+          actionHref="/settings"
+        />
+      ) : (
       <Tabs defaultValue="explorer">
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="explorer">ETF Explorer</TabsTrigger>
           <TabsTrigger value="factors">Factor Explorer</TabsTrigger>
           <TabsTrigger value="market-health">Market Health</TabsTrigger>
-          <TabsTrigger value="backtesting">Advanced Backtesting & Bias Audit</TabsTrigger>
         </TabsList>
 
         {/* ── ETF Explorer ── */}
@@ -367,12 +380,8 @@ export default function MarketIntelligence() {
             </>
           )}
         </TabsContent>
-
-        {/* ── Advanced Backtesting ── */}
-        <TabsContent value="backtesting" className="pt-0">
-          <Backtesting embedded />
-        </TabsContent>
       </Tabs>
+      )}
     </div>
   );
 }

@@ -1,16 +1,15 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Redirect, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Dashboard from "@/pages/dashboard";
+import MarketMonitor from "@/pages/market-monitor";
 import PortfolioLab from "@/pages/portfolio-lab";
-import MarketIntelligence from "@/pages/market-intelligence";
-import Configuration from "@/pages/configuration";
+import ResearchLab from "@/pages/research-lab";
 import InvestmentCommittee from "@/pages/investment-committee";
-import Reports from "@/pages/reports";
-import HistoricalArchive from "@/pages/historical-archive";
+import Settings from "@/pages/settings";
 import EtfDetail from "@/pages/etf-detail";
 
 const queryClient = new QueryClient({
@@ -27,13 +26,20 @@ function Router() {
     <AppLayout>
       <Switch>
         <Route path="/" component={Dashboard} />
+        <Route path="/market-monitor" component={MarketMonitor} />
         <Route path="/portfolio-lab" component={PortfolioLab} />
-        <Route path="/market-intelligence" component={MarketIntelligence} />
-        <Route path="/configuration" component={Configuration} />
-        <Route path="/etf/:ticker" component={EtfDetail} />
+        <Route path="/research-lab" component={ResearchLab} />
         <Route path="/investment-committee" component={InvestmentCommittee} />
-        <Route path="/reports" component={Reports} />
-        <Route path="/archive" component={HistoricalArchive} />
+        <Route path="/settings" component={Settings} />
+        <Route path="/etf/:ticker" component={EtfDetail} />
+
+        {/* Legacy path redirects */}
+        <Route path="/market-intelligence"><Redirect to="/market-monitor" /></Route>
+        <Route path="/configuration"><Redirect to="/settings" /></Route>
+        <Route path="/backtesting"><Redirect to="/research-lab" /></Route>
+        <Route path="/reports"><Redirect to="/investment-committee" /></Route>
+        <Route path="/archive"><Redirect to="/investment-committee" /></Route>
+
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

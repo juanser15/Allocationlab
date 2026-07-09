@@ -165,7 +165,7 @@ export default function EtfDetail() {
           <ArrowLeft className="h-3.5 w-3.5" /> Portfolio Lab
         </Link>
         <span>·</span>
-        <Link href="/market-intelligence" className="hover:text-primary transition-colors">Market Intelligence</Link>
+        <Link href="/market-monitor" className="hover:text-primary transition-colors">Market Monitor</Link>
         <span>·</span>
         <span className="text-gray-900 font-medium">{ticker}</span>
       </div>

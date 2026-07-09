@@ -14,7 +14,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Loader2, Save, Upload, CheckCircle2, AlertCircle, RefreshCw, WifiOff, ExternalLink, Info,
-  CheckSquare, Square,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
@@ -47,16 +46,16 @@ const cycles = [
   { id: 15, label: "Bias-resistant backtester (execution timing/costs/slippage, walk-forward testing, sensitivity checks, bias audit checklist, Integrity Score)", done: true },
   { id: 16, label: "AI Investment Committee reasoning layer (deterministic persona debate + CIO synthesis + exportable memo, zero fabrication)", done: true },
   { id: 17, label: "Navigation reorganized into a clear 7-section hierarchy with an interactive, as-of-date Dashboard", done: true },
-  { id: 18, label: "Risk Model Pro (factor risk model, stress-tested VaR, scenario-aware risk budgeting)", done: false },
+  { id: 18, label: "Reorganized into a strict 12-stage workflow dependency model (5 modules, gated empty-states, gear-icon Settings)", done: true },
   { id: 19, label: "Scenario & Stress Lab (historical and hypothetical macro shock scenarios)", done: false },
   { id: 20, label: "Trade Implementation (order staging, execution scheduling, broker-ready trade tickets)", done: false },
   { id: 21, label: "Attribution Engine (return decomposition by factor, sector, and selection vs. allocation)", done: false },
   { id: 22, label: "Production Governance (audit trails, approval workflows, role-based access controls)", done: false },
 ];
-const CURRENT_ITERATION = 12;
+const CURRENT_ITERATION = 13;
 const MAX_ITERATIONS = 15;
 
-export default function Configuration() {
+export default function Settings() {
   const { toast } = useToast();
 
   // Universe & prior weights
@@ -184,9 +183,9 @@ export default function Configuration() {
   return (
     <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-6">
       <PageHeader
-        section="4 · Configuration"
-        title="Configuration"
-        description="Define the ETF universe and prior weights, allocation constraints, price data source, benchmark, and cost assumptions that power every run."
+        section="Settings"
+        title="Settings"
+        description="Define the ETF universe and prior weights, allocation constraints, price data source, benchmark, and cost assumptions that power every run. This module sits outside the main workflow sequence."
       />
 
       <Tabs defaultValue="universe">
@@ -567,16 +566,16 @@ export default function Configuration() {
                   Benchmarks (SPY, QQQ, IWM, VTI, AGG, EFA, GLD) are auto-detected from ticker columns in your uploaded
                   price data — no separate benchmark selection is needed. Add one of these tickers to your CSV or live
                   fetch to unlock tracking error, shown in{" "}
-                  <Link href="/market-intelligence" className="underline font-medium text-primary">Market Intelligence</Link>.
+                  <Link href="/market-monitor" className="underline font-medium text-primary">Market Monitor</Link>.
                 </span>
               </div>
               <div className="flex items-start gap-2 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
                 <Info className="h-4 w-4 shrink-0 mt-0.5 text-gray-400" />
                 <span>
                   Execution timing, transaction cost (bps), and rebalance frequency assumptions used for backtest
-                  simulation are configured directly on the{" "}
-                  <Link href="/market-intelligence" className="underline font-medium text-primary">Advanced Backtesting</Link>{" "}
-                  tool in Market Intelligence, where you can immediately see their effect on returns and Sharpe ratio.
+                  simulation are configured directly in{" "}
+                  <Link href="/research-lab" className="underline font-medium text-primary">Research Lab</Link>,
+                  where you can immediately see their effect on returns and Sharpe ratio.
                 </span>
               </div>
             </CardContent>
@@ -616,94 +615,46 @@ export default function Configuration() {
               <Separator />
 
               <section className="space-y-4">
-                <h2 className="text-xl font-bold text-primary border-b pb-2">Market Health Framework</h2>
+                <h2 className="text-xl font-bold text-primary border-b pb-2">Workflow Dependency Model</h2>
                 <p className="text-sm text-gray-700">
-                  The regime model evaluates 10 components across three tiers. Only <strong>computed</strong> and <strong>proxy</strong> signals contribute to the composite; unavailable signals are clearly flagged.
+                  Every module is gated by the real backend state of the prior step, so outputs never appear before the
+                  run that generates them. Diagnostics specifically wait on their generating run — e.g. Backtest
+                  Diagnostics never renders until a backtest with sufficient data has actually completed.
                 </p>
-                <div className="space-y-4 text-sm">
-                  <div>
-                    <h3 className="font-semibold text-green-700 uppercase tracking-wide text-xs mb-2">Computed — derived directly from uploaded price data</h3>
-                    <div className="space-y-2 text-gray-700">
-                      <div><span className="font-semibold">Trend (25%):</span> Percentage of universe ETFs above their 50-day and 200-day moving averages, blended 60/40.</div>
-                      <div><span className="font-semibold">Breadth (20%):</span> Advance-decline ratio of the ETF universe over 20 trading days.</div>
-                      <div><span className="font-semibold">Volatility (20%):</span> Inverse of average 20-day realized volatility across the universe; mapped to 0–100.</div>
-                      <div><span className="font-semibold">Liquidity (10%):</span> Short-term cross-sectional return dispersion. Lower dispersion signals tighter conditions.</div>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-amber-700 uppercase tracking-wide text-xs mb-2">Proxy — ETF-derived estimates (partial signal strength)</h3>
-                    <div className="space-y-2 text-gray-700">
-                      <div><span className="font-semibold">Credit (10%):</span> XLF 20-day momentum relative to the universe median. Financials outperformance signals credit support.</div>
-                      <div><span className="font-semibold">Commodities (8%):</span> XLE + XLB average relative momentum vs. the universe. Signals inflation/growth demand.</div>
-                      <div><span className="font-semibold">Cross-Asset Confirmation (7%):</span> Average pairwise 20-day return correlation. Higher = broader participation and trend confirmation.</div>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-500 uppercase tracking-wide text-xs mb-2">Unavailable — require external data not in current upload</h3>
-                    <div className="space-y-2 text-gray-500">
-                      <div><span className="font-semibold">Dollar:</span> Requires DXY or currency ETF (UUP/FXE). Add to price upload to activate.</div>
-                      <div><span className="font-semibold">Rates:</span> Requires Treasury yield data via IEF or TLT. Add to price upload to activate.</div>
-                      <div><span className="font-semibold">Earnings Revision:</span> Requires external EPS consensus data. Cannot be derived from prices alone.</div>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-gray-50 rounded-md p-3 text-xs text-gray-600 border">
-                  <strong>Confidence score:</strong> Computed and proxy components each carry a weight (computed = 2 pts, proxy = 1 pt). Confidence = actual earned points / maximum possible (11 pts), scaled to 0–100%. A confidence below 60% means key macro dimensions are missing and external judgment should supplement the model.
-                </div>
-              </section>
-
-              <Separator />
-
-              <section className="space-y-4">
-                <h2 className="text-xl font-bold text-primary border-b pb-2">Allocation Algorithm</h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  Target weights are determined by a score-weighted approach with continuity constraints.
-                  ETFs are ranked by Composite factor score; the top N (per the target in Constraints) receive
-                  allocations proportional to their scores. Changes from prior month weights are dampened
-                  (30% continuity pull) to reduce turnover. Cash is dynamically adjusted: higher regime composite
-                  scores pull cash toward the lower bound; weaker conditions push it toward the upper bound.
-                </p>
-                <div className="bg-gray-50 rounded-md p-3 text-xs text-gray-600 border">
-                  <strong>Validation:</strong> All factor and regime scores are computed from real uploaded price data only.
-                  ETFs with fewer than 21 rows of price history are excluded. No synthetic or placeholder values are used.
-                  If fewer than the target active ETFs meet the inclusion threshold, the model does not fill positions artificially.
-                </div>
+                <ol className="text-sm text-gray-700 space-y-1 list-decimal list-inside">
+                  <li>No Data</li>
+                  <li>Data Loaded</li>
+                  <li>Committee Run</li>
+                  <li>Market Health</li>
+                  <li>Portfolio Construction</li>
+                  <li>Backtest Run</li>
+                  <li>Backtest Diagnostics</li>
+                  <li>Decision Draft</li>
+                  <li>AI Committee</li>
+                  <li>Approval</li>
+                  <li>Report</li>
+                  <li>Archived</li>
+                </ol>
               </section>
             </div>
 
-            <div className="md:col-span-1">
-              <Card className="sticky top-8 bg-gray-50">
+            <div className="space-y-4">
+              <Card>
                 <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">
-                      Build Progress
-                    </CardTitle>
-                    <span className="text-xs font-semibold text-primary bg-primary/10 rounded px-2 py-0.5">
-                      {CURRENT_ITERATION} / {MAX_ITERATIONS}
-                    </span>
-                  </div>
-                  <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary rounded-full transition-all"
-                      style={{ width: `${(CURRENT_ITERATION / MAX_ITERATIONS) * 100}%` }}
-                    />
-                  </div>
+                  <CardTitle className="text-base">Build Progress</CardTitle>
+                  <CardDescription>Iteration {CURRENT_ITERATION} of {MAX_ITERATIONS}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {cycles.map((cycle) => (
-                      <div key={cycle.id} className="flex items-start gap-1.5">
-                        {cycle.done ? (
-                          <CheckSquare className="h-3.5 w-3.5 text-green-600 mt-0.5 shrink-0" />
-                        ) : (
-                          <Square className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
-                        )}
-                        <span className={`text-xs leading-tight ${cycle.done ? "text-gray-400 line-through" : "text-gray-700 font-medium"}`}>
-                          {cycle.id}. {cycle.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                <CardContent className="space-y-2 max-h-[520px] overflow-y-auto">
+                  {cycles.map((c) => (
+                    <div key={c.id} className="flex items-start gap-2 text-sm">
+                      {c.done ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                      ) : (
+                        <div className="h-4 w-4 rounded-full border-2 border-gray-300 shrink-0 mt-0.5" />
+                      )}
+                      <span className={c.done ? "text-gray-800" : "text-gray-400"}>{c.label}</span>
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             </div>

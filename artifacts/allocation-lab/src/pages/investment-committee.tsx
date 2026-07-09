@@ -36,6 +36,8 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { PageHeader } from "@/components/layout/PageHeader";
+import Reports from "@/pages/reports";
+import HistoricalArchive from "@/pages/historical-archive";
 
 const ACTION_STYLES: Record<string, { icon: ReactElement; className: string }> = {
   ADD: { icon: <Plus className="h-3 w-3" />, className: "bg-green-50 text-green-700 border-green-200" },
@@ -161,6 +163,8 @@ export default function InvestmentCommittee() {
         <TabsList>
           <TabsTrigger value="decision-room">Decision Room</TabsTrigger>
           <TabsTrigger value="ai-committee">AI Committee Analysis</TabsTrigger>
+          <TabsTrigger value="report">Report</TabsTrigger>
+          <TabsTrigger value="archive">Archive</TabsTrigger>
         </TabsList>
 
         {/* ── Decision Room Tab ── */}
@@ -483,6 +487,20 @@ export default function InvestmentCommittee() {
               </div>
             </>
           )}
+        </TabsContent>
+
+        {/* ── Report Tab ── */}
+        <TabsContent value="report" className="pt-4">
+          <div className="-mx-4 sm:-mx-8 -mt-4">
+            <Reports />
+          </div>
+        </TabsContent>
+
+        {/* ── Archive Tab ── */}
+        <TabsContent value="archive" className="pt-4">
+          <div className="-mx-4 sm:-mx-8 -mt-4">
+            <HistoricalArchive />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

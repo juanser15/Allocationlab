@@ -1,1 +1,3 @@
-- [Allocation Lab nav structure](allocation-lab-nav.md) — 7-item sidebar (was 9) is a hard product constraint; use tabs within pages to merge sub-workflows, never add a new top-level item.
+- [Allocation Lab nav structure](allocation-lab-nav.md) — 5-item sidebar (Dashboard/Market Monitor/Portfolio Lab/Research Lab/Investment Committee); Settings is a top-right gear, not a sidebar tab; merge sub-workflows via tabs, never a new top-level item.
+- [Allocation Lab workflow-stage model](allocation-lab-workflow-stage.md) — 12-stage gating derived live from backend state, never inferred; drives EmptyStates and StatusBar so diagnostics never render before their generating run.
+- [Orval query hook options typing](orval-query-hook-options-typing.md) — generated `{ query: { enabled } }` options can fail TS (`queryKey` required) despite matching the documented shape; `as any` on that options object is the workaround.
