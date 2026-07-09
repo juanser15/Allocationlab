@@ -4,28 +4,34 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Download, Search } from "lucide-react";
+import { Loader2, Download, Search, FileText, FileSpreadsheet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+
+type DownloadFormat = "csv" | "pdf";
 
 export default function Reports() {
   const { toast } = useToast();
   const { data: sessions, isLoading } = useListSessions();
   const generateReport = useGenerateReport();
-  const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [downloading, setDownloading] = useState<{ id: number; fmt: DownloadFormat } | null>(null);
 
-  const handleDownload = (sessionId: number) => {
-    setDownloadingId(sessionId);
+  const handleDownload = (sessionId: number, fmt: DownloadFormat) => {
+    setDownloading({ id: sessionId, fmt });
     generateReport.mutate(
-      { data: { format: "csv", sessionId } },
+      { data: { format: fmt, sessionId } },
       {
         onSuccess: (result) => {
           window.open(`/api/reports/download/${result.downloadToken}`, "_blank");
-          setDownloadingId(null);
+          setDownloading(null);
         },
         onError: () => {
-          toast({ title: "Download failed", description: "Could not generate the report. Try again.", variant: "destructive" });
-          setDownloadingId(null);
+          toast({
+            title: "Download failed",
+            description: "Could not generate the report. Try again.",
+            variant: "destructive",
+          });
+          setDownloading(null);
         },
       }
     );
@@ -62,12 +68,15 @@ export default function Reports() {
                   <TableHead>Regime</TableHead>
                   <TableHead className="text-right">Cash %</TableHead>
                   <TableHead className="text-right">Active ETFs</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right">Download</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sessions.map((session) => {
-                  const isDownloading = downloadingId === session.id;
+                  const loadingCsv = downloading?.id === session.id && downloading.fmt === "csv";
+                  const loadingPdf = downloading?.id === session.id && downloading.fmt === "pdf";
+                  const anyLoading = downloading?.id === session.id;
+
                   return (
                     <TableRow key={session.id}>
                       <TableCell className="font-medium">
@@ -82,19 +91,36 @@ export default function Reports() {
                       <TableCell className="text-right">{(session.cashWeight * 100).toFixed(1)}%</TableCell>
                       <TableCell className="text-right">{session.activeEtfCount}</TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={isDownloading}
-                          onClick={() => handleDownload(session.id)}
-                        >
-                          {isDownloading ? (
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          ) : (
-                            <Download className="h-4 w-4 mr-2" />
-                          )}
-                          CSV
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={anyLoading}
+                            onClick={() => handleDownload(session.id, "csv")}
+                            title="Download CSV"
+                          >
+                            {loadingCsv ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <FileSpreadsheet className="h-4 w-4" />
+                            )}
+                            <span className="ml-1.5">CSV</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={anyLoading}
+                            onClick={() => handleDownload(session.id, "pdf")}
+                            title="Download PDF"
+                          >
+                            {loadingPdf ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <FileText className="h-4 w-4" />
+                            )}
+                            <span className="ml-1.5">PDF</span>
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
