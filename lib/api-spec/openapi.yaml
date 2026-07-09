@@ -684,6 +684,10 @@ components:
             type: string
         lookbackDays:
           type: integer
+        startDate:
+          type: string
+        endDate:
+          type: string
       required: []
 
     LivePricesTickerResult:

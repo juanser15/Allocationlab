@@ -18,6 +18,8 @@ router.post("/prices/live", async (req, res): Promise<void> => {
   }
 
   const lookbackDays = parsed.data.lookbackDays ?? 400;
+  const explicitStartDate = parsed.data.startDate ? new Date(parsed.data.startDate) : undefined;
+  const explicitEndDate = parsed.data.endDate ? new Date(parsed.data.endDate) : undefined;
 
   // Determine which tickers to fetch
   let tickers: string[];
@@ -35,10 +37,23 @@ router.post("/prices/live", async (req, res): Promise<void> => {
     return;
   }
 
-  req.log.info({ tickers, lookbackDays }, "Starting Yahoo Finance live fetch");
+  if (explicitStartDate && isNaN(explicitStartDate.getTime())) {
+    res.status(400).json({ error: "Invalid startDate." });
+    return;
+  }
+  if (explicitEndDate && isNaN(explicitEndDate.getTime())) {
+    res.status(400).json({ error: "Invalid endDate." });
+    return;
+  }
+  if (explicitStartDate && explicitEndDate && explicitStartDate >= explicitEndDate) {
+    res.status(400).json({ error: "startDate must be before endDate." });
+    return;
+  }
+
+  req.log.info({ tickers, lookbackDays, explicitStartDate, explicitEndDate }, "Starting Yahoo Finance live fetch");
 
   const fetchedAt = new Date().toISOString();
-  const results = await fetchLivePrices(tickers, lookbackDays);
+  const results = await fetchLivePrices(tickers, lookbackDays, explicitStartDate, explicitEndDate);
 
   const succeeded = results.filter((r) => r.success);
   const failed = results.filter((r) => !r.success);

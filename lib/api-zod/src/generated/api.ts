@@ -97,7 +97,9 @@ export const GetPricesStatusResponse = zod.object({
 
 export const FetchLivePricesBody = zod.object({
   "tickers": zod.array(zod.string()).optional(),
-  "lookbackDays": zod.number().optional()
+  "lookbackDays": zod.number().optional(),
+  "startDate": zod.string().optional(),
+  "endDate": zod.string().optional()
 })
 
 export const FetchLivePricesResponse = zod.object({

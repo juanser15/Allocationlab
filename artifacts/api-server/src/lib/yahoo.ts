@@ -105,11 +105,16 @@ async function fetchTickerWithRetry(
 
 export async function fetchLivePrices(
   tickers: string[],
-  lookbackDays = 400
+  lookbackDays = 400,
+  explicitStartDate?: Date,
+  explicitEndDate?: Date
 ): Promise<TickerFetchResult[]> {
-  const endDate = new Date();
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - lookbackDays);
+  const endDate = explicitEndDate ?? new Date();
+  const startDate = explicitStartDate ?? (() => {
+    const d = new Date(endDate);
+    d.setDate(d.getDate() - lookbackDays);
+    return d;
+  })();
 
   const results: TickerFetchResult[] = [];
 

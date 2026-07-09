@@ -79,6 +79,8 @@ export default function PortfolioConstruction() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [liveResult, setLiveResult] = useState<any>(null);
   const fetchLivePrices = useFetchLivePrices();
+  const [fetchStartDate, setFetchStartDate] = useState<string>("");
+  const [fetchEndDate, setFetchEndDate] = useState<string>("");
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -108,7 +110,13 @@ export default function PortfolioConstruction() {
   const handleRefreshMarketData = () => {
     setLiveResult(null);
     fetchLivePrices.mutate(
-      { data: { lookbackDays: 400 } },
+      {
+        data: {
+          ...(fetchStartDate ? { startDate: fetchStartDate } : {}),
+          ...(fetchEndDate ? { endDate: fetchEndDate } : {}),
+          ...(fetchStartDate || fetchEndDate ? {} : { lookbackDays: 400 }),
+        },
+      },
       {
         onSuccess: (data: any) => {
           setLiveResult(data);
@@ -346,8 +354,42 @@ export default function PortfolioConstruction() {
               <div>
                 <Label className="text-base">Refresh Market Data</Label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Downloads adjusted close prices for all enabled ETFs from Yahoo Finance (last 400 days).
+                  Downloads adjusted close prices for all enabled ETFs from Yahoo Finance
+                  {fetchStartDate || fetchEndDate ? " for the selected date range." : " (last 400 days by default)."}
                 </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">From</Label>
+                  <Input
+                    type="date"
+                    value={fetchStartDate}
+                    max={fetchEndDate || undefined}
+                    onChange={(e) => setFetchStartDate(e.target.value)}
+                    className="h-8 text-sm w-[150px]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">To</Label>
+                  <Input
+                    type="date"
+                    value={fetchEndDate}
+                    min={fetchStartDate || undefined}
+                    max={new Date().toISOString().slice(0, 10)}
+                    onChange={(e) => setFetchEndDate(e.target.value)}
+                    className="h-8 text-sm w-[150px]"
+                  />
+                </div>
+                {(fetchStartDate || fetchEndDate) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 text-xs text-muted-foreground self-end"
+                    onClick={() => { setFetchStartDate(""); setFetchEndDate(""); }}
+                  >
+                    Use default (last 400 days)
+                  </Button>
+                )}
               </div>
               <Button
                 onClick={handleRefreshMarketData}

@@ -5,3 +5,4 @@
 - [Report generate/download flow](report-generate-download-flow.md) — POST /reports/generate returns a JSON downloadToken, not the file; must GET /reports/download/:token to fetch actual PDF/CSV bytes.
 - [Backtest date-range filtering](backtest-date-range.md) — startDate/endDate query params on /api/backtest; endDate truncates priceRows, startDate skips early rebalances but keeps full history for warmup.
 - [Mobile layout pattern](mobile-layout-pattern.md) — AppLayout/Sidebar use useIsMobile + Sheet drawer instead of fixed w-64 sidebar; hamburger top bar only rendered on mobile.
+- [Explicit date-range params](explicit-date-range-params.md) — endpoints defaulting to a lookback window (e.g. lookbackDays) should accept optional explicit startDate/endDate that override the default, not replace it.

@@ -9,4 +9,6 @@
 export interface LivePricesFetchInput {
   tickers?: string[];
   lookbackDays?: number;
+  startDate?: string;
+  endDate?: string;
 }
