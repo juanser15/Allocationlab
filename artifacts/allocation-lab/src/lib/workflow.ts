@@ -6,6 +6,7 @@ import {
   useGetCommittee,
   useListArchive,
 } from "@workspace/api-client-react";
+import type { RailStep } from "@/components/shared/WorkflowRail";
 
 export const STAGE_LABELS = [
   "No Data",
@@ -79,4 +80,45 @@ export function useWorkflowStage() {
     decisionLog,
     isLoading: loadingPrices || loadingResult || loadingBacktest,
   };
+}
+
+export type WorkflowStageInfo = ReturnType<typeof useWorkflowStage>;
+
+/**
+ * Maps the granular 12-point workflow stage to the 6-step guided rail shown
+ * across the app: Data Ready -> Rebalance -> Validate -> Committee -> Report
+ * -> Archive. Never marks a step complete/current ahead of real backend
+ * state; steps whose prerequisites are missing are shown as "blocked" (not
+ * silently skipped) so users always know what's stopping them.
+ */
+export function toGuidedRailSteps(info: WorkflowStageInfo): RailStep[] {
+  const {
+    hasData, hasRun, hasBacktest, hasDecisionLog, hasCommittee, isApproved, isUnderReview, archiveCount,
+  } = info;
+
+  const dataStatus: RailStep["status"] = hasData ? "complete" : "current";
+  const rebalanceStatus: RailStep["status"] = hasRun ? "complete" : hasData ? "current" : "blocked";
+  const validateStatus: RailStep["status"] = hasBacktest ? "complete" : hasRun ? "current" : "blocked";
+  const committeeStatus: RailStep["status"] = hasCommittee
+    ? "complete"
+    : hasDecisionLog || hasBacktest
+    ? "current"
+    : "blocked";
+  const reportStatus: RailStep["status"] = isApproved
+    ? "complete"
+    : isUnderReview
+    ? "current"
+    : hasCommittee
+    ? "blocked"
+    : "blocked";
+  const archiveStatus: RailStep["status"] = archiveCount > 0 ? "complete" : isApproved ? "current" : "blocked";
+
+  return [
+    { key: "data", label: "Data Ready", status: dataStatus, detail: hasData ? "Price data loaded." : "Upload price data in Settings to begin." },
+    { key: "rebalance", label: "Rebalance", status: rebalanceStatus, detail: hasRun ? "Rebalance has been run." : "Run the rebalance in Portfolio Lab." },
+    { key: "validate", label: "Validate", status: validateStatus, detail: hasBacktest ? "Backtest validated." : "Run the backtester in Research Lab." },
+    { key: "committee", label: "Committee", status: committeeStatus, detail: hasCommittee ? "Committee pack generated." : "Generate the committee pack in Investment Committee." },
+    { key: "report", label: "Report", status: reportStatus, detail: isApproved ? "Decision approved." : "Awaiting committee approval." },
+    { key: "archive", label: "Archive", status: archiveStatus, detail: archiveCount > 0 ? `${archiveCount} archived session${archiveCount === 1 ? "" : "s"}.` : "Archive this session once approved." },
+  ];
 }

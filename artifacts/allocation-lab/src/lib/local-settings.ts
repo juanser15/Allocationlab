@@ -72,18 +72,29 @@ export const DEFAULT_GOVERNANCE_SETTINGS: GovernanceSettings = {
   governanceMode: "standard",
 };
 
+export interface UxChecklistState {
+  items: Record<string, boolean>;
+}
+
 const KEYS = {
   execution: "allocation-lab.settings.execution",
   benchmarks: "allocation-lab.settings.benchmarks",
   reporting: "allocation-lab.settings.reporting",
   governance: "allocation-lab.settings.governance",
+  demoMode: "allocation-lab.ux.demo-mode",
+  onboardingComplete: "allocation-lab.ux.onboarding-complete",
+  uxChecklist: "allocation-lab.ux.checklist",
 } as const;
 
 function load<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return fallback;
-    return { ...fallback, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    if (typeof fallback !== "object" || fallback === null || Array.isArray(fallback)) {
+      return parsed as T;
+    }
+    return { ...fallback, ...parsed };
   } catch {
     return fallback;
   }
@@ -105,6 +116,15 @@ export const localSettings = {
 
   getGovernanceSettings: () => load(KEYS.governance, DEFAULT_GOVERNANCE_SETTINGS),
   setGovernanceSettings: (v: GovernanceSettings) => save(KEYS.governance, v),
+
+  getDemoMode: () => load(KEYS.demoMode, false),
+  setDemoMode: (v: boolean) => save(KEYS.demoMode, v),
+
+  getOnboardingComplete: () => load(KEYS.onboardingComplete, false),
+  setOnboardingComplete: (v: boolean) => save(KEYS.onboardingComplete, v),
+
+  getUxChecklist: () => load<UxChecklistState>(KEYS.uxChecklist, { items: {} }),
+  setUxChecklist: (v: UxChecklistState) => save(KEYS.uxChecklist, v),
 
   resetAllLocalSettings: () => {
     Object.values(KEYS).forEach((k) => localStorage.removeItem(k));

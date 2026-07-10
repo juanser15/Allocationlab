@@ -11,6 +11,8 @@ import InvestmentCommittee from "@/pages/investment-committee";
 import EtfDetail from "@/pages/etf-detail";
 import { SettingsDrawerProvider } from "@/context/settings-drawer-context";
 import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
+import { UxPreferencesProvider } from "@/context/ux-preferences-context";
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,6 +27,7 @@ function Router() {
   return (
     <AppLayout>
       <SettingsDrawer />
+      <OnboardingTour />
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/portfolio-lab" component={PortfolioLab} />
@@ -52,10 +55,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <SettingsDrawerProvider>
-          <WouterRouter>
-            <Router />
-          </WouterRouter>
-          <Toaster />
+          <UxPreferencesProvider>
+            <WouterRouter>
+              <Router />
+            </WouterRouter>
+            <Toaster />
+          </UxPreferencesProvider>
         </SettingsDrawerProvider>
       </TooltipProvider>
     </QueryClientProvider>

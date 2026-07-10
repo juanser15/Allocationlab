@@ -9,7 +9,8 @@ export type SettingsSectionId =
   | "model-factors"
   | "benchmarks"
   | "reporting"
-  | "governance";
+  | "governance"
+  | "onboarding";
 
 export interface SectionStatus {
   dirty: boolean;

@@ -4,17 +4,43 @@ import { Sidebar } from "./Sidebar";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { DataBar } from "@/components/shared/DataBar";
+import { TopStatusBar } from "@/components/shared/TopStatusBar";
+import { WorkflowRail } from "@/components/shared/WorkflowRail";
 import { useSettingsDrawer } from "@/context/settings-drawer-context";
+import { useWorkflowStage, toGuidedRailSteps } from "@/lib/workflow";
+import { useLocation } from "wouter";
+import { DemoModeBanner } from "@/components/onboarding/DemoModeBanner";
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
+const RAIL_STEP_ROUTES: Record<string, string> = {
+  data: "__settings__",
+  rebalance: "/portfolio-lab",
+  validate: "/research-lab",
+  committee: "/investment-committee",
+  report: "/investment-committee",
+  archive: "/reports",
+};
+
 export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const { openSettings } = useSettingsDrawer();
+  const [, setLocation] = useLocation();
+  const stageInfo = useWorkflowStage();
+  const railSteps = toGuidedRailSteps(stageInfo);
+
+  const handleStepClick = (step: { key: string; status: string }) => {
+    if (step.status === "blocked") return;
+    const target = RAIL_STEP_ROUTES[step.key];
+    if (target === "__settings__") {
+      openSettings("data-sources");
+    } else if (target) {
+      setLocation(target);
+    }
+  };
 
   const SettingsButton = (
     <Button
@@ -57,7 +83,11 @@ export function AppLayout({ children }: AppLayoutProps) {
             {SettingsButton}
           </div>
         )}
-        <DataBar />
+        <DemoModeBanner />
+        <TopStatusBar />
+        <div className="px-4 py-2 border-b bg-white shrink-0">
+          <WorkflowRail steps={railSteps} onStepClick={handleStepClick} />
+        </div>
         <main className="flex-1 overflow-y-auto bg-gray-50">
           {children}
         </main>

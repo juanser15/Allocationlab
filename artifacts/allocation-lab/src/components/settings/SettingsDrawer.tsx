@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import {
   Database, ListTree, ShieldCheck, History, Timer, Sigma, LineChart, FileText, Landmark,
-  AlertTriangle, CheckCircle2, RotateCcw,
+  AlertTriangle, CheckCircle2, RotateCcw, Compass,
 } from "lucide-react";
 import { useSettingsDrawer, type SettingsSectionId } from "@/context/settings-drawer-context";
 import { DataSourcesSection } from "./sections/DataSourcesSection";
@@ -20,6 +20,7 @@ import { ModelFactorsSection } from "./sections/ModelFactorsSection";
 import { BenchmarksSection } from "./sections/BenchmarksSection";
 import { ReportingDefaultsSection } from "./sections/ReportingDefaultsSection";
 import { GovernanceSection } from "./sections/GovernanceSection";
+import { OnboardingSection } from "./sections/OnboardingSection";
 
 const SECTIONS: { id: SettingsSectionId; label: string; icon: any }[] = [
   { id: "data-sources", label: "Data Sources", icon: Database },
@@ -31,6 +32,7 @@ const SECTIONS: { id: SettingsSectionId; label: string; icon: any }[] = [
   { id: "benchmarks", label: "Benchmarks", icon: LineChart },
   { id: "reporting", label: "Reporting Defaults", icon: FileText },
   { id: "governance", label: "Governance & Advanced", icon: Landmark },
+  { id: "onboarding", label: "Onboarding & Demo", icon: Compass },
 ];
 
 function SectionContent({ id }: { id: SettingsSectionId }) {
@@ -44,6 +46,7 @@ function SectionContent({ id }: { id: SettingsSectionId }) {
     case "benchmarks": return <BenchmarksSection />;
     case "reporting": return <ReportingDefaultsSection />;
     case "governance": return <GovernanceSection />;
+    case "onboarding": return <OnboardingSection />;
   }
 }
 
