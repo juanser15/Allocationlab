@@ -13,13 +13,10 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { useSettingsDrawer } from "@/context/settings-drawer-context";
 import { useWorkflowStage } from "@/lib/workflow";
 import { OverviewTab } from "@/components/portfolio-lab/OverviewTab";
-import { FactorsTab } from "@/components/portfolio-lab/FactorsTab";
-import { RegimesTab } from "@/components/portfolio-lab/RegimesTab";
+import { FactorsRegimesTab } from "@/components/portfolio-lab/FactorsRegimesTab";
 import { ModelsTab } from "@/components/portfolio-lab/ModelsTab";
 import { BacktestTab } from "@/components/portfolio-lab/BacktestTab";
-import { RobustnessTab } from "@/components/portfolio-lab/RobustnessTab";
-import { ConstraintsTab } from "@/components/portfolio-lab/ConstraintsTab";
-import { FinalAllocationTab } from "@/components/portfolio-lab/FinalAllocationTab";
+import { AllocationTab } from "@/components/portfolio-lab/AllocationTab";
 
 export default function PortfolioLab() {
   const { openSettings } = useSettingsDrawer();
@@ -169,14 +166,11 @@ export default function PortfolioLab() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex-wrap h-auto gap-0.5 bg-gray-100/70 p-1">
-          <TabsTrigger value="overview" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">1 · Overview</TabsTrigger>
-          <TabsTrigger value="factors" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">2 · Factors</TabsTrigger>
-          <TabsTrigger value="regimes" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">3 · Regimes</TabsTrigger>
-          <TabsTrigger value="models" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">4 · Models</TabsTrigger>
-          <TabsTrigger value="backtest" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">5 · Backtest</TabsTrigger>
-          <TabsTrigger value="robustness" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">6 · Robustness</TabsTrigger>
-          <TabsTrigger value="constraints" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">7 · Constraints</TabsTrigger>
-          <TabsTrigger value="allocation" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">8 · Final Allocation</TabsTrigger>
+          <TabsTrigger value="overview"        className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">1 · Overview</TabsTrigger>
+          <TabsTrigger value="factors-regimes" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">2 · Factors &amp; Regimes</TabsTrigger>
+          <TabsTrigger value="models"          className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">3 · Models</TabsTrigger>
+          <TabsTrigger value="backtest"        className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">4 · Backtest</TabsTrigger>
+          <TabsTrigger value="allocation"      className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">5 · Allocation</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 pt-4">
@@ -186,16 +180,16 @@ export default function PortfolioLab() {
             hasData={hasData}
             validationRan={validationRequested && !!bt}
             bt={bt}
-            onNavigate={setActiveTab}
+            onNavigate={(tab) => {
+              if (tab === "regimes" || tab === "factors") setActiveTab("factors-regimes");
+              else if (tab === "constraints") setActiveTab("allocation");
+              else setActiveTab(tab);
+            }}
           />
         </TabsContent>
 
-        <TabsContent value="factors" className="space-y-6 pt-4">
-          <FactorsTab result={result} hasData={hasData} hasRun={hasRun} />
-        </TabsContent>
-
-        <TabsContent value="regimes" className="space-y-6 pt-4">
-          <RegimesTab result={result} hasData={hasData} hasRun={hasRun} />
+        <TabsContent value="factors-regimes" className="space-y-6 pt-4">
+          <FactorsRegimesTab result={result} hasData={hasData} hasRun={hasRun} />
         </TabsContent>
 
         <TabsContent value="models" className="space-y-6 pt-4">
@@ -221,21 +215,8 @@ export default function PortfolioLab() {
           />
         </TabsContent>
 
-        <TabsContent value="robustness" className="space-y-6 pt-4">
-          <RobustnessTab
-            bt={bt}
-            hasRun={hasRun}
-            validationRan={validationRequested && !!bt}
-            onRunValidation={handleRunValidation}
-          />
-        </TabsContent>
-
-        <TabsContent value="constraints" className="space-y-6 pt-4">
-          <ConstraintsTab result={result} constraints={constraints} hasRun={hasRun} hasData={hasData} />
-        </TabsContent>
-
         <TabsContent value="allocation" className="space-y-6 pt-4">
-          <FinalAllocationTab result={result} hasData={hasData} hasRun={hasRun} />
+          <AllocationTab result={result} constraints={constraints} hasData={hasData} hasRun={hasRun} />
         </TabsContent>
       </Tabs>
     </div>
