@@ -1,0 +1,695 @@
+Refactor and upgrade Allocation Lab into a professional PM-level institutional portfolio optimizer.
+
+The goal is not to simplify away the analytics. The goal is to preserve full quantitative transparency while imposing strict hierarchy, clean navigation, simple commands, and coherent workflow dependencies.
+
+NON-NEGOTIABLE PRODUCT PRINCIPLES
+
+1. Keep the four main modules unchanged:
+   - Dashboard
+   - Portfolio Lab
+   - Research Lab
+   - Investment Committee
+
+2. Keep Settings/Data as a global top-right utility drawer, not a main tab.
+
+3. Complexity should exist in the engine and analytical detail, but the interface must remain ordered and navigable.
+
+4. Show real formulas, factor calculations, charts, model diagnostics, backtests, stability tests, robustness metrics, and attribution.
+
+5. Never replace quantitative evidence with generic AI prose.
+
+6. Never show placeholder, fake, uniform, or mocked scores.
+
+7. Use explicit “insufficient data” or blocked states when calculations cannot be performed.
+
+8. Outputs must never appear before the inputs and calculations that generate them.
+
+9. Preserve the current institutional white/navy/gray visual system.
+
+10. Use progressive disclosure:
+    - executive summary first;
+    - detailed calculations inside internal tabs, drawers, accordions, and drilldowns.
+
+PORTFOLIO LAB — OPTIMIZER PRO
+
+Inside Portfolio Lab, create an Optimizer Pro workspace with these internal tabs in this exact order:
+
+1. Overview
+2. Factors
+3. Regimes
+4. Models
+5. Backtest & Out-of-Sample
+6. Stability & Robustness
+7. Constraints
+8. Final Allocation
+
+Use only two main commands:
+
+- Run Optimizer
+- Run Validation
+
+Run Optimizer generates the current recommended portfolio.
+
+Run Validation runs the official historical backtest, walk-forward validation, bias audit, and robustness tests.
+
+Do not scatter multiple Run buttons across the interface.
+
+--------------------------------------------------
+1. OVERVIEW
+--------------------------------------------------
+
+Show only the main PM outputs:
+
+- Recommended allocation
+- Cash allocation
+- Active ETF count
+- Current market regime
+- Regime confidence
+- Ensemble consensus
+- Expected annualized volatility
+- Expected tracking error
+- Turnover
+- Diversification score
+- Robustness score
+- Backtest integrity status
+- Constraint status
+- Data timestamp
+- Model version
+
+Include:
+
+- allocation donut;
+- current versus target summary;
+- top increases;
+- top reductions;
+- top risks;
+- main watchlist names.
+
+Do not show formulas or long diagnostics on the Overview page.
+
+Each summary metric should be clickable and open the relevant detailed tab or drawer.
+
+--------------------------------------------------
+2. FACTORS
+--------------------------------------------------
+
+Create a full multi-factor engine.
+
+Default factor groups:
+
+A. Momentum
+- 20D
+- 60D
+- 120D
+- 252D
+
+Example formula:
+
+Momentum_i(L) = P_i,t / P_i,t-L - 1
+
+B. Trend Quality
+- slope of log price;
+- R²;
+- trend persistence;
+- distance from 50D and 200D moving averages.
+
+C. Volatility
+- 20D realized volatility;
+- 60D realized volatility;
+- EWMA volatility;
+- downside volatility;
+- volatility of volatility when sufficient data exists.
+
+D. Drawdown / Risk Fit
+- current drawdown;
+- 252D maximum drawdown;
+- recovery speed;
+- downside deviation.
+
+E. Mean Reversion
+- 5D return z-score;
+- short-term reversal percentile.
+
+F. Relative Strength
+- versus SPY;
+- versus selected benchmark;
+- versus peer universe.
+
+G. Diversification / Correlation Benefit
+- correlation contribution;
+- marginal diversification benefit;
+- correlation stability.
+
+For every factor show:
+
+- definition;
+- exact formula;
+- data window;
+- normalization method;
+- cross-sectional percentile;
+- current raw value;
+- normalized score;
+- historical factor chart;
+- cross-sectional ranking chart;
+- contribution to composite score;
+- missing-data status.
+
+Normalization should be transparent.
+
+Example:
+
+Z_i = (x_i - mean_cross_section) / std_cross_section
+
+PercentileScore_i = percentile rank of x_i within the current universe
+
+Include a factor correlation matrix to identify redundant signals.
+
+Clicking a factor should open:
+
+- formula;
+- assumptions;
+- current calculation;
+- history;
+- ETF ranking;
+- contribution to portfolio selection.
+
+--------------------------------------------------
+3. REGIMES
+--------------------------------------------------
+
+Use three visible portfolio regimes:
+
+- Risk-On
+- Neutral
+- Risk-Off
+
+The underlying regime engine may use multiple components:
+
+- trend;
+- breadth;
+- volatility;
+- liquidity;
+- credit;
+- rates;
+- dollar;
+- commodities;
+- cross-asset confirmation.
+
+Show:
+
+- current regime;
+- regime probability or confidence;
+- component scores;
+- transition history;
+- regime persistence;
+- uncertainty;
+- prior regime;
+- regime-change date.
+
+The regime engine should modify factor weights explicitly.
+
+Display a table such as:
+
+Factor                Risk-On   Neutral   Risk-Off
+Momentum                 35%       25%        10%
+Trend                    30%       25%        15%
+Volatility               10%       20%        35%
+Drawdown / Risk Fit      10%       15%        25%
+Diversification          15%       15%        15%
+
+These weights must be editable in Settings/Data and versioned.
+
+Do not hide the adaptive weighting logic.
+
+--------------------------------------------------
+4. MODELS
+--------------------------------------------------
+
+Run exactly three default portfolio construction engines:
+
+A. Momentum / Trend Model
+
+Objective example:
+
+maximize:
+score' * w
+- lambda_risk * w' Sigma w
+- lambda_turnover * ||w - w_previous||_1
+- lambda_concentration * sum(w_i²)
+
+B. Minimum Variance Model
+
+Objective:
+
+minimize:
+w' Sigma w
+
+C. Risk Parity Model
+
+Objective:
+
+minimize:
+sum_i (RC_i - portfolio_volatility / N)²
+
+For every model show:
+
+- objective function;
+- input signals;
+- covariance methodology;
+- allocation;
+- cash;
+- expected volatility;
+- risk contribution;
+- turnover;
+- HHI;
+- effective number of bets;
+- binding constraints;
+- excluded assets;
+- model confidence.
+
+Covariance choices:
+
+- sample covariance;
+- EWMA covariance;
+- shrinkage covariance.
+
+Shrinkage or stabilized covariance should be the institutional default.
+
+Show model disagreement:
+
+- pairwise weight distance;
+- selected-asset overlap;
+- cash disagreement;
+- risk disagreement;
+- turnover disagreement.
+
+Clicking a model should open its complete allocation and methodology.
+
+--------------------------------------------------
+5. BACKTEST & OUT-OF-SAMPLE
+--------------------------------------------------
+
+Add the official portfolio-process backtester inside Optimizer Pro.
+
+This is not a static backtest using today’s weights.
+
+At every historical rebalance date, the engine must:
+
+1. Use only information available up to that date.
+2. Recompute all factors.
+3. Estimate the market regime.
+4. Apply regime-dependent factor weights.
+5. Run all three allocation models.
+6. Build the ensemble allocation.
+7. Apply constraints.
+8. Execute trades at the next available close or next open.
+9. Deduct transaction costs and slippage.
+10. Include cash yield or cash drag.
+11. Move to the next rebalance date.
+
+Prevent:
+
+- look-ahead bias;
+- data leakage;
+- execution timing errors;
+- using final-period parameters in earlier periods;
+- applying current weights retrospectively.
+
+Configuration:
+
+- start date;
+- end date;
+- benchmark;
+- monthly / weekly / custom rebalance frequency;
+- next-close or next-open execution;
+- transaction costs;
+- slippage;
+- cash yield;
+- warm-up period;
+- training window;
+- rolling or expanding window;
+- minimum data history;
+- universe treatment.
+
+Results:
+
+- net equity curve;
+- gross equity curve;
+- benchmark curve;
+- excess return;
+- CAGR;
+- annualized volatility;
+- Sharpe;
+- Sortino;
+- Calmar;
+- maximum drawdown;
+- turnover;
+- hit ratio;
+- information ratio;
+- monthly returns table;
+- rolling Sharpe;
+- rolling volatility;
+- rolling drawdown;
+- rolling beta;
+- regime-conditioned performance;
+- model-conditioned performance.
+
+Clearly separate:
+
+- In-Sample
+- Validation
+- True Out-of-Sample
+
+Add walk-forward testing:
+
+Train[t-L : t]
+Trade[t+1 : t+h]
+
+Show rolling out-of-sample results.
+
+Add attribution:
+
+- ETF contribution;
+- factor contribution;
+- model contribution;
+- regime contribution;
+- cash drag;
+- transaction costs;
+- slippage;
+- implementation shortfall.
+
+Backtest diagnostics must remain hidden until Run Validation has completed.
+
+Before execution show:
+
+“Validation has not been run. Configure assumptions and select Run Validation.”
+
+--------------------------------------------------
+6. STABILITY & ROBUSTNESS
+--------------------------------------------------
+
+Show a complete robustness framework.
+
+Tests:
+
+A. Parameter Perturbation
+- factor weights ±10%;
+- factor weights ±20%;
+- lookback changes;
+- turnover penalty changes;
+- cash range changes;
+- ETF cap changes.
+
+B. Bootstrap / Resampling
+- resampled returns;
+- resampled covariance;
+- portfolio weight dispersion;
+- asset-selection frequency.
+
+C. Covariance Sensitivity
+- sample;
+- EWMA;
+- shrinkage.
+
+D. Model Disagreement
+- weight distance;
+- asset overlap;
+- risk disagreement;
+- turnover disagreement.
+
+E. Turnover Sensitivity
+- different turnover penalties;
+- resulting turnover;
+- resulting score/risk changes.
+
+F. Rolling Out-of-Sample Stability
+- rolling Sharpe;
+- rolling drawdown;
+- rolling asset selection;
+- rolling regime fit.
+
+G. Constraint Sensitivity
+- identify which constraints materially change the solution.
+
+Metrics should include formulas.
+
+Example weight stability:
+
+WeightStability =
+1 - 0.5 * sum_i |w_i_base - w_i_perturbed|
+
+Example model agreement:
+
+ModelAgreement =
+1 - average_k ||w_k - mean(w)||_1
+
+Create a transparent robustness score:
+
+Robustness =
+0.25 * ParameterStability
++ 0.20 * BootstrapStability
++ 0.20 * CovarianceStability
++ 0.20 * ModelAgreement
++ 0.15 * OutOfSampleStability
+
+Display:
+
+- total score;
+- each component;
+- formula;
+- test results;
+- pass / warning / fail;
+- confidence intervals where available.
+
+Do not show only a generic 0–100 number.
+
+Clicking each robustness component should open the underlying calculation and charts.
+
+--------------------------------------------------
+7. CONSTRAINTS
+--------------------------------------------------
+
+Show and validate:
+
+- cash minimum;
+- cash maximum;
+- max ETF weight;
+- minimum inclusion threshold;
+- target active ETF count;
+- turnover penalty;
+- maximum turnover;
+- diversification requirement;
+- optional regional caps;
+- optional sector caps;
+- minimum trade size;
+- current holdings continuity;
+- benchmark-relative limits if enabled.
+
+Default institutional constraints:
+
+- cash between 50% and 60%;
+- max ETF weight 10%;
+- position is either 0% or at least 5%;
+- target 8 active ETFs.
+
+Show:
+
+- feasibility status;
+- binding constraints;
+- slack;
+- assets excluded by constraints;
+- difference between unconstrained and constrained allocation;
+- constraint impact on expected risk and score.
+
+Do not silently alter constraints.
+
+--------------------------------------------------
+8. FINAL ALLOCATION
+--------------------------------------------------
+
+Build one ensemble portfolio from the three models.
+
+Example:
+
+w_final =
+alpha_momentum * w_momentum
++ alpha_minvar * w_minvar
++ alpha_riskparity * w_riskparity
+
+Model weights should depend on:
+
+- regime fit;
+- out-of-sample quality;
+- robustness;
+- covariance stability;
+- model agreement.
+
+Show the exact alpha weights.
+
+Final output:
+
+- recommended weights;
+- cash;
+- current versus target;
+- changes versus prior month;
+- trade list;
+- expected volatility;
+- tracking error;
+- risk contribution;
+- factor contribution;
+- model support;
+- regime support;
+- robustness support;
+- binding constraints;
+- inclusion rationale;
+- exclusion rationale;
+- watchlist.
+
+For every ETF show:
+
+- raw factor values;
+- normalized scores;
+- rank;
+- support by each model;
+- regime fit;
+- expected risk contribution;
+- current weight;
+- target weight;
+- change;
+- final status.
+
+--------------------------------------------------
+COMMAND SIMPLICITY
+--------------------------------------------------
+
+Use only:
+
+1. Run Optimizer
+2. Run Validation
+
+Secondary actions must remain inside their relevant sub-tabs:
+
+- Compare Models;
+- Rerun Stability Tests;
+- Export Diagnostics;
+- Export Backtest;
+- Save Portfolio Version.
+
+Do not add duplicate Run buttons.
+
+--------------------------------------------------
+WORKFLOW GATING
+--------------------------------------------------
+
+Enforce this dependency order:
+
+Data Valid
+→ Factors Computed
+→ Regime Computed
+→ Models Run
+→ Backtest Configured
+→ Validation Run
+→ Robustness Available
+→ Constraints Audited
+→ Final Allocation Available
+→ Committee Pack Eligible
+
+No results before prerequisites.
+
+Explicit empty states:
+
+- “Valid price history is required.”
+- “Run Optimizer to generate model allocations.”
+- “Run Validation before viewing backtest diagnostics.”
+- “Robustness analysis requires completed model allocations and sufficient history.”
+- “Final Allocation is unavailable until constraints are feasible.”
+
+--------------------------------------------------
+RESEARCH LAB RELATIONSHIP
+--------------------------------------------------
+
+Research Lab remains available for exploratory work:
+
+- standalone factor experiments;
+- custom strategy backtests;
+- custom scenarios;
+- stress testing;
+- research notes;
+- exploratory sensitivity analysis.
+
+Optimizer Pro contains the official validation of the recommended portfolio process.
+
+Do not duplicate the full official optimizer backtest UI inside Research Lab.
+
+--------------------------------------------------
+UX AND INTERACTIVITY
+--------------------------------------------------
+
+Use:
+
+- internal sub-tabs;
+- collapsible methodology sections;
+- sticky section headers;
+- compact institutional tables;
+- sortable/filterable tables;
+- drilldown side drawers;
+- hover tooltips;
+- loading indicators;
+- progress status;
+- explicit blocked states;
+- restrained white/navy/gray styling.
+
+Interactive behavior:
+
+- click factor → formula, history, ranking, contribution;
+- click regime component → methodology and transition history;
+- click model → objective, inputs, allocation, risk;
+- click robustness component → underlying test;
+- click backtest metric → calculation and caveats;
+- click ETF → score breakdown, model support, risk contribution, trade rationale.
+
+Do not make the interface retail-like or overly colorful.
+
+Do not hide quantitative evidence behind generic prose.
+
+Do not create a giant unstructured page.
+
+--------------------------------------------------
+INTEGRATION
+--------------------------------------------------
+
+Surface only compact summaries outside Optimizer Pro:
+
+Dashboard:
+- recommended allocation summary;
+- regime;
+- robustness;
+- validation status;
+- expected risk.
+
+Research Lab:
+- exploratory tools only.
+
+Investment Committee:
+- final evidence package;
+- backtest integrity;
+- robustness;
+- risk;
+- dissent;
+- approval.
+
+Reports:
+- allocation;
+- factors;
+- regime;
+- models;
+- backtest;
+- robustness;
+- constraints;
+- methodology.
+
+Do not duplicate the full Optimizer Pro interface in other modules.
+
+Preserve all existing real-data validation, governance, audit, versioning, archive, attribution, trade implementation, scenario testing, and committee features.
+
+Implement this as a coherent institutional optimizer, not as a collection of disconnected widgets.
