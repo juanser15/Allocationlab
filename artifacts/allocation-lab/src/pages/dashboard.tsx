@@ -8,107 +8,72 @@ import {
   useGetRiskModel,
   useGetTradeImplementationMeta,
 } from "@workspace/api-client-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import {
-  Loader2, DollarSign, Activity, Eye, ShieldAlert,
-  FileCheck2, Compass, ShieldCheck, Gauge, ArrowLeftRight, PieChart as PieChartIcon
+  DollarSign, Activity, ShieldAlert, ShieldCheck, Gauge,
+  ArrowLeftRight, TrendingUp, TrendingDown, Compass,
 } from "lucide-react";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { AttributionSummaryCard } from "@/components/archive/AttributionSummaryCard";
 import { MetricTooltip } from "@/components/shared/MetricTooltip";
 import { DetailDrawer } from "@/components/shared/DetailDrawer";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 
-type Preset = "today" | "week" | "month" | "ytd" | "custom";
+const COLORS = [
+  "#1B2F5B", "#3B5284", "#6B84B5", "#9BB5E0", "#C1D2EE",
+  "#E2E8F4", "#A8BFD0", "#7A9AB0", "#4E6E8A", "#2D4E70",
+];
 
 function getRegimeBadgeStyle(label: string) {
   switch (label) {
-    case "Risk-On": return "bg-green-100 text-green-800 border-green-200";
+    case "Risk-On":      return "bg-green-100 text-green-800 border-green-200";
     case "Constructive": return "bg-emerald-50 text-emerald-800 border-emerald-200";
-    case "Neutral": return "bg-amber-50 text-amber-800 border-amber-200";
-    case "Cautious": return "bg-orange-50 text-orange-800 border-orange-200";
-    case "Risk-Off": return "bg-red-100 text-red-800 border-red-200";
-    default: return "bg-gray-100 text-gray-800 border-gray-200";
+    case "Neutral":      return "bg-amber-50 text-amber-800 border-amber-200";
+    case "Cautious":     return "bg-orange-50 text-orange-800 border-orange-200";
+    case "Risk-Off":     return "bg-red-100 text-red-800 border-red-200";
+    default:             return "bg-gray-100 text-gray-800 border-gray-200";
   }
 }
-
-function isoDaysAgo(days: number) {
-  const d = new Date();
-  d.setDate(d.getDate() - days);
-  return d.toISOString().slice(0, 10);
-}
-
-function startOfYear() {
-  return `${new Date().getFullYear()}-01-01`;
-}
-
-// Colors for the donut chart
-const COLORS = ["#1B2F5B", "#3B5284", "#6B84B5", "#9BB5E0", "#C1D2EE", "#E2E8F4"];
 
 export default function Dashboard() {
   const { data: pricesStatus, isLoading: loadingPrices } = useGetPricesStatus();
 
-  const [preset, setPreset] = useState<Preset>("today");
-  const [customFrom, setCustomFrom] = useState(isoDaysAgo(30));
-  const [customTo, setCustomTo] = useState(isoDaysAgo(0));
-
-  const range = useMemo(() => {
-    switch (preset) {
-      case "today": return { fromDate: isoDaysAgo(1), toDate: isoDaysAgo(0) };
-      case "week": return { fromDate: isoDaysAgo(7), toDate: isoDaysAgo(0) };
-      case "month": return { fromDate: isoDaysAgo(30), toDate: isoDaysAgo(0) };
-      case "ytd": return { fromDate: startOfYear(), toDate: isoDaysAgo(0) };
-      case "custom": return { fromDate: customFrom, toDate: customTo };
-    }
-  }, [preset, customFrom, customTo]);
-
-  const { data: archiveList } = useListArchive(range);
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const { data: archiveList } = useListArchive({ fromDate: "2019-01-01", toDate: today });
   const entries = archiveList?.entries ?? [];
 
   const [selectedSessionId, setSelectedSessionId] = useState<number | "latest" | null>(null);
-  const effectiveSessionId = selectedSessionId === "latest" || selectedSessionId === null
-    ? (entries[0]?.sessionId ?? null)
-    : selectedSessionId;
+  const effectiveSessionId =
+    selectedSessionId === "latest" || selectedSessionId === null
+      ? (entries[0]?.sessionId ?? null)
+      : selectedSessionId;
 
   const { data: latestResult, isLoading: loadingLatest } = useGetLatestResults();
-  const isViewingLatest = effectiveSessionId === null || effectiveSessionId === latestResult?.sessionId;
-  const { data: riskModel } = useGetRiskModel(undefined, { query: { enabled: isViewingLatest } as any });
+  const isViewingLatest =
+    effectiveSessionId === null || effectiveSessionId === latestResult?.sessionId;
 
+  const { data: riskModel } = useGetRiskModel(undefined, {
+    query: { enabled: isViewingLatest } as any,
+  });
   const { data: archiveEntry, isLoading: loadingArchiveEntry } = useGetArchiveEntry(
     effectiveSessionId ?? 0,
     { query: { enabled: !!effectiveSessionId && !isViewingLatest } as any }
   );
-
   const { data: backtest } = useGetBacktest();
   const { data: tradeImplMeta } = useGetTradeImplementationMeta();
 
   const view = isViewingLatest ? latestResult : archiveEntry;
   const isLoading = isViewingLatest ? loadingLatest : loadingArchiveEntry;
-
-  const hasData = pricesStatus?.hasData;
-
-  const nextStep = useMemo(() => {
-    if (!hasData) return { label: "Upload price data", desc: "Use the Upload action in the top status bar to load price history." };
-    if (!latestResult) return { label: "Run Rebalance", desc: "Navigate to Portfolio Lab to run the systematic rebalance." };
-    if (!backtest?.hasSufficientData) return { label: "Review Backtester", desc: "Validate the model historically before committee review in Research Lab." };
-    return { label: "Open Investment Committee", desc: "Generate the committee pack in the Investment Committee section." };
-  }, [hasData, latestResult, backtest]);
+  const hasData = !!pricesStatus?.hasData;
 
   const topChanges = useMemo(() => {
     if (!view) return [];
     return view.allocations
       .slice()
       .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
-      .slice(0, 5);
+      .slice(0, 6);
   }, [view]);
 
   const biggestRisks = useMemo(() => {
@@ -116,7 +81,7 @@ export default function Dashboard() {
     return view.diagnostics.riskContributions
       .slice()
       .sort((a, b) => b.riskContributionPct - a.riskContributionPct)
-      .slice(0, 3);
+      .slice(0, 4);
   }, [view]);
 
   const pieData = useMemo(() => {
@@ -128,290 +93,401 @@ export default function Dashboard() {
   }, [view]);
 
   const [drawerData, setDrawerData] = useState<{
-    type: "etf" | "risk" | "none";
+    open: boolean;
     title?: string;
-    ticker?: string;
     content?: React.ReactNode;
-  }>({ type: "none" });
+  }>({ open: false });
 
   const handleOpenEtfDrawer = (ticker: string) => {
     const alloc = view?.allocations.find((a) => a.ticker === ticker);
     setDrawerData({
-      type: "etf",
-      title: `${ticker} Analysis`,
-      ticker,
+      open: true,
+      title: `${ticker} — ${alloc?.name ?? ticker}`,
       content: (
-        <div className="space-y-6">
-          <div>
-            <h4 className="font-semibold text-sm mb-2">ETF Information</h4>
-            <p className="text-muted-foreground">{alloc?.name || ticker}</p>
-            <div className="flex gap-4 mt-4">
-              <div>
-                <p className="text-xs text-muted-foreground">Target Weight</p>
-                <p className="font-medium">{alloc ? (alloc.weight * 100).toFixed(1) : 0}%</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Change</p>
-                <p className={`font-medium ${alloc && alloc.change > 0 ? "text-green-600" : alloc && alloc.change < 0 ? "text-red-600" : ""}`}>
-                  {alloc && alloc.change > 0 ? "+" : ""}{alloc ? (alloc.change * 100).toFixed(1) : 0}pp
-                </p>
-              </div>
+        <div className="space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border rounded-lg p-4">
+              <p className="text-xs text-muted-foreground">Target Weight</p>
+              <p className="text-2xl font-bold text-primary mt-1">
+                {alloc ? (alloc.weight * 100).toFixed(1) : 0}%
+              </p>
+            </div>
+            <div className="border rounded-lg p-4">
+              <p className="text-xs text-muted-foreground">Change vs Prior</p>
+              <p
+                className={`text-2xl font-bold mt-1 ${
+                  alloc && alloc.change > 0
+                    ? "text-green-600"
+                    : alloc && alloc.change < 0
+                    ? "text-red-600"
+                    : "text-gray-400"
+                }`}
+              >
+                {alloc && alloc.change > 0 ? "+" : ""}
+                {alloc ? (alloc.change * 100).toFixed(1) : 0}pp
+              </p>
             </div>
           </div>
-          <div>
-            <h4 className="font-semibold text-sm mb-2">Rationale & Factor Scores</h4>
-            <div className="p-4 bg-gray-50 border rounded-md text-sm text-gray-700">
-              Factor breakdown and methodology rationale for this ETF's selection would be displayed here, based on the systematic strategy.
-            </div>
+          <div className="p-4 bg-gray-50 border rounded-lg text-sm text-gray-600 leading-relaxed">
+            Factor breakdown and methodology rationale for this ETF's selection are available in Portfolio Lab → Factors & Regimes.
           </div>
         </div>
-      )
+      ),
     });
   };
 
+  const sessionEntry = entries.find((e) => e.sessionId === effectiveSessionId);
+
   return (
     <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
-      <PageHeader
-        section="1 · Dashboard"
-        title="Dashboard"
-        description="Cockpit overview of the systematic strategy. Review daily allocation, market regimes, and risk concentrations."
-      />
 
-      <Card>
-        <CardContent className="pt-5 pb-4 flex flex-wrap items-end gap-3">
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Date Range</p>
-            <div className="flex gap-1.5 flex-wrap">
-              {([
-                ["today", "Today"], ["week", "Last Week"], ["month", "Last Month"], ["ytd", "YTD"], ["custom", "Custom"],
-              ] as [Preset, string][]).map(([key, label]) => (
-                <Button
-                  key={key}
-                  size="sm"
-                  variant={preset === key ? "default" : "outline"}
-                  onClick={() => { setPreset(key); setSelectedSessionId(null); }}
-                  className="h-8 text-xs"
-                >
-                  {label}
-                </Button>
+      {/* ── Header + As Of selector ── */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            1 · Dashboard
+          </p>
+          <h1 className="text-2xl font-bold text-gray-900 mt-0.5">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Cockpit overview of the current systematic allocation.
+          </p>
+        </div>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">Review session</span>
+          <Select
+            value={selectedSessionId === null ? "latest" : String(selectedSessionId)}
+            onValueChange={(v) =>
+              setSelectedSessionId(v === "latest" ? "latest" : Number(v))
+            }
+          >
+            <SelectTrigger className="h-9 text-xs w-[250px] bg-white shadow-sm">
+              <SelectValue placeholder="Latest session" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="latest">Latest (current)</SelectItem>
+              {entries.map((e) => (
+                <SelectItem key={e.sessionId} value={String(e.sessionId)}>
+                  {new Date(e.runAt).toLocaleDateString()} · {e.regimeLabel}
+                  {e.label ? ` · ${e.label}` : ""}
+                </SelectItem>
               ))}
-            </div>
-          </div>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-          {preset === "custom" && (
-            <div className="flex items-end gap-2">
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">From</p>
-                <Input type="date" className="h-8 text-xs w-[140px]" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">To</p>
-                <Input type="date" className="h-8 text-xs w-[140px]" value={customTo} onChange={(e) => setCustomTo(e.target.value)} />
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-1 ml-auto">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">As Of</p>
-            <Select
-              value={selectedSessionId === null ? "latest" : String(selectedSessionId)}
-              onValueChange={(v) => setSelectedSessionId(v === "latest" ? "latest" : Number(v))}
-            >
-              <SelectTrigger className="h-8 text-xs w-[260px]">
-                <SelectValue placeholder="Latest" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="latest">Latest (current)</SelectItem>
-                {entries.map((e) => (
-                  <SelectItem key={e.sessionId} value={String(e.sessionId)}>
-                    {new Date(e.runAt).toLocaleDateString()} {e.label ? `· ${e.label}` : ""} · {e.regimeLabel}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {entries.length === 0 && (
-              <p className="text-xs text-muted-foreground">No sessions in this range.</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
+      {/* ── Loading / empty states ── */}
       {loadingPrices || isLoading ? (
-        <div className="space-y-6 mt-6">
-          <Skeleton className="h-[120px] w-full" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Skeleton className="h-[100px] w-full" />
-            <Skeleton className="h-[100px] w-full" />
-            <Skeleton className="h-[100px] w-full" />
-            <Skeleton className="h-[100px] w-full" />
+        <div className="space-y-4">
+          <Skeleton className="h-24 w-full rounded-xl" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-24" />
+            ))}
           </div>
-          <Skeleton className="h-[300px] w-full" />
+          <Skeleton className="h-72" />
         </div>
       ) : !hasData ? (
         <EmptyState
-          icon={Loader2}
+          icon={Compass}
           title="Data Upload Required"
-          description="Price data must be uploaded before the dashboard can populate."
+          description="Upload price data in Settings before the dashboard can populate."
         />
       ) : !view ? (
         <EmptyState
           icon={Compass}
-          title="No Allocation Run"
-          description="A rebalance run must be executed to populate the dashboard metrics for this date range."
+          title="No Allocation Run Yet"
+          description="Run the optimizer in Portfolio Lab to populate the dashboard."
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="pt-5 pb-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  <MetricTooltip label="Market Health" explanation="Composite score combining multiple macro-economic indicators to determine the current market regime." />
+          {/* ── Regime hero banner ── */}
+          <div className="rounded-xl border bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 text-white px-6 py-5">
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/50">
+                  Market Regime
                 </p>
-                <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border mt-2 ${getRegimeBadgeStyle(view.regime.label)}`}>
-                  {view.regime.label}
+                <div className="flex items-center gap-3 mt-1.5">
+                  {view.regime.label === "Risk-On" || view.regime.label === "Constructive" ? (
+                    <TrendingUp className="h-5 w-5 text-green-400 shrink-0" />
+                  ) : view.regime.label === "Risk-Off" ? (
+                    <TrendingDown className="h-5 w-5 text-red-400 shrink-0" />
+                  ) : (
+                    <Activity className="h-5 w-5 text-amber-400 shrink-0" />
+                  )}
+                  <span className="text-xl font-bold tracking-tight">
+                    {view.regime.label}
+                  </span>
+                  <span className="text-2xl font-bold text-white/90">
+                    {view.regime.composite.toFixed(1)}
+                  </span>
+                  <span className="text-xs text-white/40">/100</span>
                 </div>
-                <p className="text-2xl font-bold text-primary mt-2">{view.regime.composite.toFixed(1)}</p>
+              </div>
+
+              <div className="hidden sm:block w-px h-10 bg-white/15" />
+
+              {(
+                [
+                  { label: "Trend",      value: view.regime.trend },
+                  { label: "Breadth",    value: view.regime.breadth },
+                  { label: "Volatility", value: view.regime.volatility },
+                  { label: "Liquidity",  value: view.regime.liquidity },
+                ] as const
+              ).map(({ label, value }) => (
+                <div key={label} className="text-center">
+                  <p className="text-[10px] text-white/50 uppercase tracking-wider">{label}</p>
+                  <p className="text-base font-bold mt-0.5">{(value as number).toFixed(0)}</p>
+                  <div className="mt-1 h-1 w-12 bg-white/20 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        (value as number) >= 65
+                          ? "bg-green-400"
+                          : (value as number) >= 45
+                          ? "bg-amber-400"
+                          : "bg-red-400"
+                      }`}
+                      style={{ width: `${value}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+
+              <div className="ml-auto text-right hidden md:block">
+                <p className="text-[10px] text-white/50 uppercase tracking-wider">Session</p>
+                <p className="text-sm font-semibold mt-0.5">
+                  {sessionEntry
+                    ? new Date(sessionEntry.runAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
+                    : "Latest"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* ── KPI strip ── */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Card className="border-l-4 border-l-primary/30">
+              <CardContent className="pt-4 pb-4">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                  <DollarSign className="h-3 w-3 text-primary/50" />
+                  <MetricTooltip label="Cash" explanation="Target cash weight in the current systematic allocation." />
+                </p>
+                <p className="text-2xl font-bold text-gray-900 mt-1.5">
+                  {(view.cashWeight * 100).toFixed(1)}%
+                </p>
+                <p
+                  className={`text-xs mt-1 font-medium ${
+                    view.cashChange > 0
+                      ? "text-green-600"
+                      : view.cashChange < 0
+                      ? "text-red-500"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {view.cashChange > 0 ? "+" : ""}
+                  {(view.cashChange * 100).toFixed(1)}pp vs prior
+                </p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="pt-5 pb-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                  <DollarSign className="h-3.5 w-3.5 text-primary/60" /> Cash Allocation
+
+            <Card className="border-l-4 border-l-primary/30">
+              <CardContent className="pt-4 pb-4">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                  <Activity className="h-3 w-3 text-primary/50" />
+                  <MetricTooltip label="Active ETFs" explanation="ETFs currently allocated a non-zero weight out of the full evaluated universe." />
                 </p>
-                <p className="text-2xl font-bold text-primary mt-2">{(view.cashWeight * 100).toFixed(1)}%</p>
-                <Badge variant="secondary" className={view.cashChange > 0 ? "bg-green-100 text-green-800" : view.cashChange < 0 ? "bg-red-100 text-red-800" : "bg-gray-100"}>
-                  {view.cashChange > 0 ? "+" : ""}{(view.cashChange * 100).toFixed(1)}pp vs prior
-                </Badge>
+                <p className="text-2xl font-bold text-gray-900 mt-1.5">
+                  {view.activeEtfCount}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  of {view.allocations.length} evaluated
+                </p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="pt-5 pb-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                  <Activity className="h-3.5 w-3.5 text-primary/60" /> 
-                  <MetricTooltip label="Active ETFs" explanation="Number of ETFs currently allocated a non-zero weight out of the total evaluated universe." />
+
+            <Card className="border-l-4 border-l-primary/30">
+              <CardContent className="pt-4 pb-4">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                  <Gauge className="h-3 w-3 text-primary/50" />
+                  <MetricTooltip label="Expected Vol" explanation="Annualized portfolio volatility estimated from the current covariance matrix." />
                 </p>
-                <p className="text-2xl font-bold text-primary mt-2">{view.activeEtfCount}</p>
-                <p className="text-xs text-muted-foreground">of {view.allocations.length} evaluated</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1.5">
+                  {(view.diagnostics.expectedVolatility * 100).toFixed(1)}%
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">Ann. volatility</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="pt-5 pb-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                  <FileCheck2 className="h-3.5 w-3.5 text-primary/60" /> Report Status
+
+            <Card className="border-l-4 border-l-primary/30">
+              <CardContent className="pt-4 pb-4">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                  <ShieldCheck className="h-3 w-3 text-primary/50" />
+                  <MetricTooltip label="Backtest Sharpe" explanation="Historical risk-adjusted return from the point-in-time backtest. Run Validate in Portfolio Lab to unlock." />
                 </p>
-                <p className="text-sm font-medium text-gray-900 mt-2">
-                  {view ? "Available" : "Not generated"}
-                </p>
+                {backtest?.hasSufficientData && backtest.sharpeRatio !== null ? (
+                  <>
+                    <p className="text-2xl font-bold text-gray-900 mt-1.5">
+                      {backtest.sharpeRatio.toFixed(2)}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Integrity {backtest.integrity.score}/100
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-2xl font-bold text-gray-300 mt-1.5">—</p>
+                    <p className="text-xs text-muted-foreground mt-1">Run 2 · Validate</p>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
 
+          {/* ── Main content: allocation + movers/watchlist ── */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Allocation card */}
             <Card className="lg:col-span-2">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <PieChartIcon className="h-4 w-4" /> Recommended Allocation
+                <CardTitle className="text-sm font-semibold">
+                  Recommended Allocation
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col md:flex-row items-center gap-6">
-                  <div className="w-full md:w-1/2 h-64">
+                <div className="flex flex-col md:flex-row items-start gap-4">
+                  {/* Donut */}
+                  <div className="w-full md:w-[200px] h-52 shrink-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={pieData}
                           cx="50%"
                           cy="50%"
-                          innerRadius={60}
-                          outerRadius={80}
+                          innerRadius={48}
+                          outerRadius={72}
                           paddingAngle={2}
                           dataKey="value"
-                          onClick={(data) => handleOpenEtfDrawer(data.name)}
+                          onClick={(d) => handleOpenEtfDrawer(d.name)}
                           className="cursor-pointer outline-none"
                         >
-                          {pieData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          {pieData.map((_, i) => (
+                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip 
-                          formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
-                          contentStyle={{ borderRadius: "8px", fontSize: "12px", border: "1px solid #e2e8f0" }}
+                        <Tooltip
+                          formatter={(v: number) => `${(v * 100).toFixed(1)}%`}
+                          contentStyle={{
+                            borderRadius: "8px",
+                            fontSize: "11px",
+                            border: "1px solid #e2e8f0",
+                          }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
-                    <p className="text-center text-xs text-muted-foreground mt-2">Click a slice for details</p>
                   </div>
-                  <div className="w-full md:w-1/2 space-y-3">
-                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Top Movers</h4>
-                    <div className="space-y-2">
-                      {topChanges.map((etf) => (
-                        <div 
-                          key={etf.ticker} 
-                          className="flex items-center justify-between border-b border-gray-100 pb-2 last:border-0 cursor-pointer hover:bg-gray-50 p-1 -mx-1 rounded"
-                          onClick={() => handleOpenEtfDrawer(etf.ticker)}
-                        >
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium text-primary hover:underline">{etf.ticker}</span>
-                            <span className="text-[10px] text-muted-foreground truncate w-32">{etf.name}</span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm font-medium tabular-nums">{(etf.weight * 100).toFixed(1)}%</span>
-                            <span className={`text-xs tabular-nums ${etf.change > 0 ? "text-green-600" : etf.change < 0 ? "text-red-600" : "text-gray-400"}`}>
-                              {etf.change > 0 ? "+" : ""}{(etf.change * 100).toFixed(1)}pp
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+
+                  {/* Legend */}
+                  <div className="flex-1 w-full space-y-1.5 py-1">
+                    {pieData.slice(0, 9).map((entry, i) => (
+                      <button
+                        key={entry.name}
+                        className="w-full flex items-center gap-2.5 text-left hover:bg-gray-50 px-2 py-1 -mx-2 rounded transition-colors"
+                        onClick={() => handleOpenEtfDrawer(entry.name)}
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-sm shrink-0"
+                          style={{ backgroundColor: COLORS[i % COLORS.length] }}
+                        />
+                        <span className="text-xs font-semibold text-primary w-12 shrink-0">
+                          {entry.name}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground flex-1 truncate">
+                          {entry.fullName}
+                        </span>
+                        <span className="text-xs font-medium tabular-nums text-gray-700 shrink-0">
+                          {(entry.value * 100).toFixed(1)}%
+                        </span>
+                      </button>
+                    ))}
+                    {pieData.length > 9 && (
+                      <p className="text-[10px] text-muted-foreground px-2">
+                        +{pieData.length - 9} more positions
+                      </p>
+                    )}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <div className="space-y-4">
-              <Card>
+            {/* Right column: Top movers + watchlist */}
+            <div className="flex flex-col gap-4">
+              <Card className="flex-1">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-1.5">
-                    <ShieldAlert className="h-4 w-4 text-amber-600" /> 
-                    <MetricTooltip label="Biggest Risks" explanation="Assets contributing the highest percentage to overall portfolio volatility." />
-                  </CardTitle>
+                  <CardTitle className="text-sm font-semibold">Top Movers</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {biggestRisks.length === 0 ? (
-                    <p className="text-xs text-muted-foreground">No risk data available.</p>
-                  ) : biggestRisks.map((r) => (
-                    <div 
-                      key={r.ticker} 
-                      className="flex items-center justify-between text-sm p-1 -mx-1 rounded hover:bg-gray-50 cursor-pointer"
-                      onClick={() => handleOpenEtfDrawer(r.ticker)}
+                  {topChanges.map((etf) => (
+                    <button
+                      key={etf.ticker}
+                      className="w-full flex items-center justify-between text-sm hover:bg-gray-50 px-1.5 py-1.5 -mx-1.5 rounded transition-colors"
+                      onClick={() => handleOpenEtfDrawer(etf.ticker)}
                     >
-                      <span className="font-medium text-primary hover:underline">{r.ticker}</span>
-                      <span className="text-xs tabular-nums text-gray-600">{r.riskContributionPct.toFixed(0)}% of risk</span>
-                    </div>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-semibold text-primary text-xs shrink-0">
+                          {etf.ticker}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground truncate">
+                          {(etf.weight * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                      <span
+                        className={`text-xs font-semibold tabular-nums shrink-0 ${
+                          etf.change > 0
+                            ? "text-green-600"
+                            : etf.change < 0
+                            ? "text-red-500"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {etf.change > 0 ? "+" : ""}
+                        {(etf.change * 100).toFixed(1)}pp
+                      </span>
+                    </button>
                   ))}
+                  {topChanges.length === 0 && (
+                    <p className="text-xs text-muted-foreground">No allocation data.</p>
+                  )}
                 </CardContent>
               </Card>
 
-              {isViewingLatest && latestResult && (
+              {isViewingLatest && latestResult && latestResult.watchlist.length > 0 && (
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-1.5">
-                      <Eye className="h-4 w-4 text-primary/70" /> 
-                      <MetricTooltip label="Watchlist" explanation="ETFs that narrowly missed inclusion in the current systematic model allocation." />
+                    <CardTitle className="text-sm font-semibold flex items-center gap-1">
+                      <MetricTooltip
+                        label="Near-Miss Watchlist"
+                        explanation="ETFs that narrowly missed inclusion in the current systematic allocation."
+                      />
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2">
-                    {latestResult.watchlist.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">No near-miss ETFs this cycle.</p>
-                    ) : latestResult.watchlist.slice(0, 3).map((w) => (
-                      <div 
-                        key={w.ticker} 
-                        className="flex items-center justify-between text-sm p-1 -mx-1 rounded hover:bg-gray-50 cursor-pointer"
+                  <CardContent className="space-y-1.5">
+                    {latestResult.watchlist.slice(0, 4).map((w) => (
+                      <button
+                        key={w.ticker}
+                        className="w-full flex items-center justify-between hover:bg-gray-50 px-1.5 py-1 -mx-1.5 rounded transition-colors"
                         onClick={() => handleOpenEtfDrawer(w.ticker)}
                       >
-                        <span className="font-medium text-primary hover:underline">{w.ticker}</span>
-                        <span className="text-xs tabular-nums text-gray-600">{w.compositeScore.toFixed(0)}</span>
-                      </div>
+                        <span className="text-xs font-semibold text-primary">
+                          {w.ticker}
+                        </span>
+                        <span className="text-[10px] tabular-nums text-gray-500">
+                          Score {w.compositeScore.toFixed(0)}
+                        </span>
+                      </button>
                     ))}
                   </CardContent>
                 </Card>
@@ -419,92 +495,181 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Deep dive sections using Accordion for progressive disclosure */}
-          <Accordion type="single" collapsible className="w-full bg-white rounded-lg border shadow-sm">
-            <AccordionItem value="diagnostics" className="border-b-0 px-4">
-              <AccordionTrigger className="text-sm font-semibold text-primary hover:no-underline">
-                Diagnostic & System Integrity
-              </AccordionTrigger>
-              <AccordionContent className="pt-2 pb-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-gray-50 rounded-md border">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                      <ShieldCheck className="h-3.5 w-3.5" /> 
-                      <MetricTooltip label="Backtest Integrity" explanation="A score representing the robustness and reliability of historical data used for model validation." />
-                    </p>
-                    {backtest?.hasSufficientData ? (
-                      <p className="text-sm font-medium text-gray-900 mt-2">
-                        {backtest.integrity.score}/100 ({backtest.integrity.grade}){backtest.integrity.hardFail ? " · Hard Fail" : ""}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground mt-2">Insufficient data</p>
-                    )}
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-md border">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                      <Gauge className="h-3.5 w-3.5" /> 
-                      <MetricTooltip label="Perf / Risk Summary" explanation="Expected annualized volatility and historical metrics based on the current allocation." />
-                    </p>
-                    {backtest?.hasSufficientData ? (
-                      <p className="text-sm font-medium text-gray-900 mt-2 leading-tight">
-                        {backtest.cumulativeReturn !== null ? `${(backtest.cumulativeReturn * 100).toFixed(1)}%` : "N/A"} cum.
-                        <br />Sharpe {backtest.sharpeRatio !== null ? backtest.sharpeRatio.toFixed(2) : "N/A"}
-                        <br />Vol {(view.diagnostics.expectedVolatility * 100).toFixed(1)}%
-                      </p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground mt-2">Vol {(view.diagnostics.expectedVolatility * 100).toFixed(1)}%</p>
-                    )}
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-md border">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                      <ShieldAlert className="h-3.5 w-3.5" /> 
-                      <MetricTooltip label="Risk Model Pro" explanation="Detailed risk factors, concentration risk, and diversification metrics." />
-                    </p>
-                    {!isViewingLatest ? (
-                      <p className="text-sm text-muted-foreground mt-2">Latest session only</p>
-                    ) : riskModel?.hasSufficientData ? (
-                      <div className="text-sm font-medium text-gray-900 mt-2 leading-tight">
-                        Ann. vol {(riskModel.annualizedVolatility! * 100).toFixed(1)}%
-                        <br />Concentration {riskModel.concentrationRisk!.toFixed(2)}
-                        <br />Div. score {riskModel.diversificationScore!.toFixed(0)}
+          {/* ── Bottom row: Risk · Performance · Implementation ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Risk contributions */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-1.5">
+                  <ShieldAlert className="h-4 w-4 text-amber-500" />
+                  <MetricTooltip
+                    label="Biggest Risks"
+                    explanation="Assets contributing the highest percentage to overall portfolio volatility."
+                  />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {biggestRisks.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No risk data available.</p>
+                ) : (
+                  biggestRisks.map((r) => (
+                    <button
+                      key={r.ticker}
+                      className="w-full flex items-center gap-3 hover:bg-gray-50 px-1 py-0.5 -mx-1 rounded transition-colors"
+                      onClick={() => handleOpenEtfDrawer(r.ticker)}
+                    >
+                      <span className="text-xs font-semibold text-primary w-10 shrink-0 text-left">
+                        {r.ticker}
+                      </span>
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-amber-400"
+                          style={{ width: `${Math.min(100, r.riskContributionPct)}%` }}
+                        />
                       </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {riskModel?.insufficientReason ?? "Loading…"}
-                      </p>
-                    )}
+                      <span className="text-xs tabular-nums text-gray-500 shrink-0 w-8 text-right">
+                        {r.riskContributionPct.toFixed(0)}%
+                      </span>
+                    </button>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Performance summary */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-1.5">
+                  <Gauge className="h-4 w-4 text-primary/60" />
+                  Performance Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {backtest?.hasSufficientData ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    {[
+                      {
+                        label: "CAGR",
+                        value:
+                          backtest.canAnnualize && backtest.annualizedReturn !== null
+                            ? `${backtest.annualizedReturn >= 0 ? "+" : ""}${(backtest.annualizedReturn * 100).toFixed(1)}%`
+                            : "N/A",
+                        green: backtest.annualizedReturn !== null && backtest.annualizedReturn > 0,
+                      },
+                      {
+                        label: "Sharpe",
+                        value:
+                          backtest.sharpeRatio !== null
+                            ? backtest.sharpeRatio.toFixed(2)
+                            : "N/A",
+                        green: backtest.sharpeRatio !== null && backtest.sharpeRatio > 0,
+                      },
+                      {
+                        label: "Max DD",
+                        value:
+                          backtest.maxDrawdown !== null
+                            ? `${(backtest.maxDrawdown * 100).toFixed(1)}%`
+                            : "N/A",
+                        green: false,
+                        red: true,
+                      },
+                      {
+                        label: "Integrity",
+                        value: `${backtest.integrity.score}/100`,
+                        green: backtest.integrity.score >= 70,
+                      },
+                    ].map(({ label, value, green, red }) => (
+                      <div key={label}>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          {label}
+                        </p>
+                        <p
+                          className={`text-xl font-bold mt-0.5 ${
+                            red
+                              ? "text-red-600"
+                              : green
+                              ? "text-green-600"
+                              : "text-gray-900"
+                          }`}
+                        >
+                          {value}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                  <div className="p-4 bg-gray-50 rounded-md border">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                      <ArrowLeftRight className="h-3.5 w-3.5" /> 
-                      <MetricTooltip label="Implementation" explanation="Status of trade lists and execution assumptions for the current allocation." />
+                ) : (
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Run <span className="font-semibold">2 · Validate</span> in Portfolio
+                    Lab to see historical performance metrics.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Implementation */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-1.5">
+                  <ArrowLeftRight className="h-4 w-4 text-primary/60" />
+                  Implementation
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {tradeImplMeta?.ready ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2.5 w-2.5 rounded-full bg-green-500 shrink-0" />
+                      <span className="text-sm font-semibold text-green-700">
+                        Ready to trade
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {tradeImplMeta.activeEtfCount} active ETFs · Trade list generated
                     </p>
-                    {tradeImplMeta?.ready ? (
-                      <p className="text-sm font-medium text-gray-900 mt-2">
-                        Ready · {tradeImplMeta.activeEtfCount} active ETFs
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2.5 w-2.5 rounded-full bg-gray-300 shrink-0" />
+                      <span className="text-sm text-gray-500">Not ready</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {tradeImplMeta?.reason ??
+                        "Run the optimizer to generate a trade list."}
+                    </p>
+                  </>
+                )}
+
+                {isViewingLatest && riskModel?.hasSufficientData && (
+                  <div className="pt-3 border-t grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <p className="text-muted-foreground">Div. score</p>
+                      <p className="font-semibold text-gray-700">
+                        {riskModel.diversificationScore?.toFixed(0) ?? "—"}
                       </p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {tradeImplMeta?.reason ?? "Loading…"}
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Concentration</p>
+                      <p className="font-semibold text-gray-700">
+                        {riskModel.concentrationRisk?.toFixed(2) ?? "—"}
                       </p>
-                    )}
+                    </div>
                   </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </>
       )}
 
-      <DetailDrawer 
-        open={drawerData.type !== "none"} 
-        onOpenChange={(open) => !open && setDrawerData({ type: "none" })}
+      <DetailDrawer
+        open={drawerData.open}
+        onOpenChange={(open) => !open && setDrawerData({ open: false })}
         title={drawerData.title}
-        description="Detailed analysis based on the current systematic run."
+        description="From the current systematic run."
       >
         {drawerData.content}
       </DetailDrawer>
-
     </div>
   );
 }

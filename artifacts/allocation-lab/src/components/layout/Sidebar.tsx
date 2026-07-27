@@ -2,7 +2,6 @@ import { Link, useLocation } from "wouter";
 import {
   Activity,
   Briefcase,
-  FlaskConical,
   Gavel,
   LayoutDashboard,
 } from "lucide-react";
@@ -11,7 +10,6 @@ import { cn } from "@/lib/utils";
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Portfolio Lab", href: "/portfolio-lab", icon: Briefcase },
-  { name: "Research Lab", href: "/research-lab", icon: FlaskConical },
   { name: "Investment Committee", href: "/investment-committee", icon: Gavel },
 ];
 

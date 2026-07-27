@@ -95,28 +95,28 @@ export default function PortfolioLab() {
       <PageHeader
         section="2 · Portfolio Lab"
         title="Optimizer Pro"
-        description="Systematic multi-factor portfolio optimizer. Run Optimizer generates the recommended allocation. Run Validation executes the historical backtest, walk-forward validation, and robustness framework."
+        description="Systematic multi-factor portfolio optimizer. 1 · Optimize generates the allocation. 2 · Validate runs the historical backtest, walk-forward, and robustness checks."
         actions={
           <div className="flex items-center gap-2 flex-wrap">
             <Button
               size="sm"
               variant="outline"
-              onClick={handleRunValidation}
-              disabled={!hasRun || isValidating}
-            >
-              {isValidating
-                ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Validating…</>
-                : <><FlaskConical className="mr-2 h-3.5 w-3.5" /> Run Validation</>
-              }
-            </Button>
-            <Button
-              size="sm"
               onClick={handleRunOptimizer}
               disabled={!hasData || isRunning}
             >
               {isRunning
                 ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Running…</>
-                : <><Play className="mr-2 h-3.5 w-3.5" /> Run Optimizer</>
+                : <><Play className="mr-2 h-3.5 w-3.5" /> 1 · Optimize</>
+              }
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleRunValidation}
+              disabled={!hasRun || isValidating}
+            >
+              {isValidating
+                ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Validating…</>
+                : <><FlaskConical className="mr-2 h-3.5 w-3.5" /> 2 · Validate</>
               }
             </Button>
           </div>

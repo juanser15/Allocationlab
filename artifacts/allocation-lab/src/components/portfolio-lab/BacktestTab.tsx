@@ -16,6 +16,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { DetailDrawer } from "@/components/shared/DetailDrawer";
 import { FlaskConical, CheckCircle2, XCircle, ShieldAlert, Info, Loader2, ShieldCheck, Lock } from "lucide-react";
 import type { BacktestResult } from "@workspace/api-client-react";
+import { ScenarioStressLab } from "@/components/research-lab/ScenarioStressLab";
 
 interface Props {
   bt: BacktestResult | undefined;
@@ -598,6 +599,15 @@ export function BacktestTab(props: Props) {
           );
         })}
       </div>
+
+      {/* ═══════════════════════════════════
+          SCENARIO & STRESS TESTING
+      ═══════════════════════════════════ */}
+      <SectionHeader
+        title="Scenario & Stress Testing"
+        description="Simulate portfolio behaviour under hypothetical market shocks and custom scenarios."
+      />
+      <ScenarioStressLab />
     </div>
   );
 }
