@@ -20,3 +20,10 @@ uri = "file://allocation-lab-agosto-2026.csv"
 type = "table"
 title = "Allocation Data CSV — Agosto 2026"
 description = "Datos completos de allocación, factores y watchlist para Agosto 2026"
+
+[[outputs]]
+id = "5_Nj4LSx5cgY90AebbYCI"
+uri = "file://allocation-lab-committee-report-agosto-2026-v2.pdf"
+type = "pdf"
+title = "Committee Report — Agosto 2026 (actualizado)"
+description = "Pie chart completo · Leyenda 2 columnas con todos los activos · Heatmap con los 8 ETFs"

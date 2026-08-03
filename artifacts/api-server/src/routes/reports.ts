@@ -367,40 +367,45 @@ function generatePdf(result: Record<string, unknown>, meta: ReportMeta): Promise
       ry += 4;
     }
 
-    // Allocation donut
+    // Allocation donut — full-width, all positions
     ry = sectionHeading("Allocation Mix", rightX, ry, rightW);
     const donutSlices = [
-      ...active.map((a) => ({ label: String(a.ticker), value: a.weight as number, color: NAVY })),
-      { label: "Cash", value: result.cashWeight as number, color: BORDER },
+      ...active.map((a) => ({ label: String(a.ticker), value: a.weight as number })),
+      { label: "Cash", value: result.cashWeight as number },
     ].filter((s) => s.value > 0.001);
 
-    const cxCenter = rightX + 34;
-    const cyCenter = ry + 34;
-    const rOuter = 32;
-    const rInner = 16;
+    const rOuter = 50;
+    const rInner = 22;
+    const cxCenter = rightX + rightW / 2;
+    const cyCenter = ry + rOuter + 4;
     let angleStart = -Math.PI / 2;
-    const palette = ["#1B2F5B", "#33456F", "#4C5D8A", "#7B8AB0", "#A8B4D1", "#C7D2E5", "#8DA0C4", "#5B6E96"];
+    const palette = ["#1B2F5B", "#2A4170", "#3B5284", "#4C6398", "#6B84B5", "#8DA4CC", "#A8B4D1", "#C1D2EE", "#D8E4F5"];
     donutSlices.forEach((s, i) => {
       const angleSweep = s.value * 2 * Math.PI;
-      const color = s.label === "Cash" ? BORDER : palette[i % palette.length];
+      const color = s.label === "Cash" ? "#CBD5E1" : palette[i % palette.length];
       doc.save();
       doc.path(donutArcPath(cxCenter, cyCenter, rOuter, rInner, angleStart, angleStart + angleSweep)).fill(color);
       doc.restore();
       angleStart += angleSweep;
     });
-    doc.fillColor(GRAY).font("Helvetica").fontSize(6).text("100%", cxCenter - 10, cyCenter - 3, { width: 20, align: "center" });
+    // Center label
+    doc.fillColor(GRAY).font("Helvetica-Bold").fontSize(7).text("100%", cxCenter - 14, cyCenter - 5, { width: 28, align: "center" });
+    ry = cyCenter + rOuter + 8;
 
-    // Legend beside donut (top holdings by weight)
-    const legendX = rightX + 78;
-    let legendY = ry;
-    const legendItems = [...donutSlices].sort((a, b) => b.value - a.value).slice(0, 6);
+    // Legend — all items, 2-column grid below the donut
+    const legendItems = [...donutSlices].sort((a, b) => b.value - a.value);
+    const legendColW = rightW / 2;
     legendItems.forEach((s, i) => {
-      const color = s.label === "Cash" ? GRAY : palette[donutSlices.indexOf(s) % palette.length];
-      doc.rect(legendX, legendY + 1, 6, 6).fill(color);
-      doc.fillColor(BLACK).font("Helvetica").fontSize(6.8).text(`${s.label}  ${(s.value * 100).toFixed(1)}%`, legendX + 10, legendY, { width: rightW - 78 - 10 });
-      legendY += 10;
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const lx = rightX + col * legendColW;
+      const ly = ry + row * 11;
+      const color = s.label === "Cash" ? "#94A3B8" : palette[donutSlices.findIndex((d) => d.label === s.label) % palette.length];
+      doc.rect(lx, ly + 2, 6, 6).fill(color);
+      doc.fillColor(BLACK).font("Helvetica").fontSize(6.5)
+        .text(`${s.label}  ${(s.value * 100).toFixed(1)}%`, lx + 9, ly, { width: legendColW - 12 });
     });
-    ry += 76;
+    ry += Math.ceil(legendItems.length / 2) * 11 + 8;
 
     // Factor heatmap (compact grid: top active tickers x key factors)
     ry = sectionHeading("Factor Heatmap", rightX, ry, rightW);
@@ -411,7 +416,7 @@ function generatePdf(result: Record<string, unknown>, meta: ReportMeta): Promise
       ["drawdown", "DD"],
       ["composite", "Comp"],
     ];
-    const heatTickers = active.slice(0, 6);
+    const heatTickers = active;
     const cellW = (rightW - 34) / heatmapFactors.length;
     const cellH = 12;
     // header row
