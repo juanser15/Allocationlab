@@ -27,3 +27,10 @@ uri = "file://allocation-lab-committee-report-agosto-2026-v2.pdf"
 type = "pdf"
 title = "Committee Report — Agosto 2026 (actualizado)"
 description = "Pie chart completo · Leyenda 2 columnas con todos los activos · Heatmap con los 8 ETFs"
+
+[[outputs]]
+id = "FZCpAVnrXfNlWHF2kjXxH"
+uri = "file://allocation-lab-committee-report-agosto-2026-v3.pdf"
+type = "pdf"
+title = "Committee Report — Agosto 2026 (precios al 03-ago)"
+description = "Sesión #17 · priceDataEnd: 2026-08-03 · Régimen Constructivo · 8 ETFs activos"
