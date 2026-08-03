@@ -6,3 +6,17 @@ id = "fE2UId2GK9DvT3iDFj9s2"
 uri = "file://allocation-lab-overview.zip"
 type = "unspecified"
 title = "Allocation Lab v2 — Screenshots + Overview"
+
+[[outputs]]
+id = "RnEV0AymEDLS24yoUcfl_"
+uri = "file://allocation-lab-committee-report-agosto-2026.pdf"
+type = "pdf"
+title = "Committee Report — Agosto 2026"
+description = "Investment Committee Report · Sesión #16 · 3 agosto 2026 · Régimen Constructivo"
+
+[[outputs]]
+id = "XHxSTmxuPTmcwUxoeJqRB"
+uri = "file://allocation-lab-agosto-2026.csv"
+type = "table"
+title = "Allocation Data CSV — Agosto 2026"
+description = "Datos completos de allocación, factores y watchlist para Agosto 2026"
