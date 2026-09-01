@@ -6,6 +6,7 @@ id = "fE2UId2GK9DvT3iDFj9s2"
 uri = "file://allocation-lab-overview.zip"
 type = "unspecified"
 title = "Allocation Lab v2 — Screenshots + Overview"
+logical_id = "d96ab43f-5e8d-42d2-b83a-3175df4d7dda"
 
 [[outputs]]
 id = "RnEV0AymEDLS24yoUcfl_"
@@ -13,6 +14,7 @@ uri = "file://allocation-lab-committee-report-agosto-2026.pdf"
 type = "pdf"
 title = "Committee Report — Agosto 2026"
 description = "Investment Committee Report · Sesión #16 · 3 agosto 2026 · Régimen Constructivo"
+logical_id = "d2f77690-41f6-4b32-9cb2-3615dc6ac4c9"
 
 [[outputs]]
 id = "XHxSTmxuPTmcwUxoeJqRB"
@@ -20,6 +22,7 @@ uri = "file://allocation-lab-agosto-2026.csv"
 type = "table"
 title = "Allocation Data CSV — Agosto 2026"
 description = "Datos completos de allocación, factores y watchlist para Agosto 2026"
+logical_id = "2feb00e9-70e8-4133-a4bd-a21e5d0180d2"
 
 [[outputs]]
 id = "5_Nj4LSx5cgY90AebbYCI"
@@ -27,6 +30,7 @@ uri = "file://allocation-lab-committee-report-agosto-2026-v2.pdf"
 type = "pdf"
 title = "Committee Report — Agosto 2026 (actualizado)"
 description = "Pie chart completo · Leyenda 2 columnas con todos los activos · Heatmap con los 8 ETFs"
+logical_id = "cdde1049-1f0b-43c4-bad2-738b088a2d80"
 
 [[outputs]]
 id = "FZCpAVnrXfNlWHF2kjXxH"
@@ -34,3 +38,32 @@ uri = "file://allocation-lab-committee-report-agosto-2026-v3.pdf"
 type = "pdf"
 title = "Committee Report — Agosto 2026 (precios al 03-ago)"
 description = "Sesión #17 · priceDataEnd: 2026-08-03 · Régimen Constructivo · 8 ETFs activos"
+logical_id = "2a0fcc45-0ffe-44c9-9a2c-76698c2ba6c1"
+
+[[outputs]]
+id = "KDDrliuMGnZ7cNExlnbxo"
+uri = "file://allocation-lab-committee-report-septiembre-2026.pdf"
+type = "pdf"
+title = "Committee Report — Septiembre 2026"
+description = "Sesión #18 · precios al 1 de septiembre de 2026 · pie chart y heatmap completos"
+logical_id = "1ae287bf-61b0-411b-978f-7edb5e7c1596"
+content_hash = "sha256:6146c1277a55425d6c9b919f6104bcbd87e7208ba167a877a7913f5d561ed832"
+size = 6737
+mtime_ms = 1788290577942
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/1ae287bf-61b0-411b-978f-7edb5e7c1596/580557a5-ddb4-41f6-ad82-25ec53907757"
+storage_version_token = "1788290583167240"
+content_type = "application/pdf"
+
+[[outputs]]
+id = "FcZzt2F0LHBfd05VSdq2g"
+uri = "file://allocation-lab-septiembre-2026.csv"
+type = "table"
+title = "Allocation Data CSV — Septiembre 2026"
+description = "Datos completos de asignación, factores y watchlist para septiembre de 2026"
+logical_id = "3da78ab9-675c-4c91-a82d-b0270943d8b4"
+content_hash = "sha256:6be353c147e3d70b6428debea5a8f91a61e8d5a12506b4ce4090ab42ab601324"
+size = 3211
+mtime_ms = 1788290578087
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/3da78ab9-675c-4c91-a82d-b0270943d8b4/a07dee1c-dd47-4705-8808-cf2cf690733a"
+storage_version_token = "1788290584026341"
+content_type = "text/csv"
