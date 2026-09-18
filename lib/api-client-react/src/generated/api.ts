@@ -40,6 +40,8 @@ import type {
   GetCommittee404,
   GetGovernanceAuditLogParams,
   GetRiskModelParams,
+  GetSignalsHistoryParams,
+  GetSignalsLatestParams,
   GetTradeImplementationParams,
   GovernanceActorInput,
   GovernanceAuditLogEntry,
@@ -64,6 +66,9 @@ import type {
   ScenarioStressRunInput,
   Session,
   SessionDetail,
+  SignalExportError,
+  SignalsCatalogResponse,
+  SignalsResponse,
   TradeImplementationMeta,
   TradeImplementationResult,
   Universe,
@@ -2909,6 +2914,251 @@ export function useGetCommittee<TData = Awaited<ReturnType<typeof getCommittee>>
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetCommitteeQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetSignalsCatalogUrl = () => {
+
+
+
+
+  return `/api/signals/catalog`
+}
+
+/**
+ * @summary Catalog of persisted signals and request-time-only analytical capabilities
+ */
+export const getSignalsCatalog = async ( options?: RequestInit): Promise<SignalsCatalogResponse> => {
+
+  return customFetch<SignalsCatalogResponse>(getGetSignalsCatalogUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSignalsCatalogQueryKey = () => {
+    return [
+    `/api/signals/catalog`
+    ] as const;
+    }
+
+
+export const getGetSignalsCatalogQueryOptions = <TData = Awaited<ReturnType<typeof getSignalsCatalog>>, TError = ErrorType<SignalExportError>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSignalsCatalog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSignalsCatalogQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSignalsCatalog>>> = ({ signal }) => getSignalsCatalog({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSignalsCatalog>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSignalsCatalogQueryResult = NonNullable<Awaited<ReturnType<typeof getSignalsCatalog>>>
+export type GetSignalsCatalogQueryError = ErrorType<SignalExportError>
+
+
+/**
+ * @summary Catalog of persisted signals and request-time-only analytical capabilities
+ */
+
+export function useGetSignalsCatalog<TData = Awaited<ReturnType<typeof getSignalsCatalog>>, TError = ErrorType<SignalExportError>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSignalsCatalog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSignalsCatalogQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetSignalsLatestUrl = (params?: GetSignalsLatestParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/signals/latest?${stringifiedParams}` : `/api/signals/latest`
+}
+
+/**
+ * @summary Latest persisted signal observations
+ */
+export const getSignalsLatest = async (params?: GetSignalsLatestParams, options?: RequestInit): Promise<SignalsResponse> => {
+
+  return customFetch<SignalsResponse>(getGetSignalsLatestUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSignalsLatestQueryKey = (params?: GetSignalsLatestParams,) => {
+    return [
+    `/api/signals/latest`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetSignalsLatestQueryOptions = <TData = Awaited<ReturnType<typeof getSignalsLatest>>, TError = ErrorType<SignalExportError>>(params?: GetSignalsLatestParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSignalsLatest>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSignalsLatestQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSignalsLatest>>> = ({ signal }) => getSignalsLatest(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSignalsLatest>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSignalsLatestQueryResult = NonNullable<Awaited<ReturnType<typeof getSignalsLatest>>>
+export type GetSignalsLatestQueryError = ErrorType<SignalExportError>
+
+
+/**
+ * @summary Latest persisted signal observations
+ */
+
+export function useGetSignalsLatest<TData = Awaited<ReturnType<typeof getSignalsLatest>>, TError = ErrorType<SignalExportError>>(
+ params?: GetSignalsLatestParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSignalsLatest>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSignalsLatestQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetSignalsHistoryUrl = (params?: GetSignalsHistoryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/signals/history?${stringifiedParams}` : `/api/signals/history`
+}
+
+/**
+ * @summary Persisted signal history without interpolation or request-time calculations
+ */
+export const getSignalsHistory = async (params?: GetSignalsHistoryParams, options?: RequestInit): Promise<SignalsResponse> => {
+
+  return customFetch<SignalsResponse>(getGetSignalsHistoryUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSignalsHistoryQueryKey = (params?: GetSignalsHistoryParams,) => {
+    return [
+    `/api/signals/history`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetSignalsHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getSignalsHistory>>, TError = ErrorType<SignalExportError>>(params?: GetSignalsHistoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSignalsHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSignalsHistoryQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSignalsHistory>>> = ({ signal }) => getSignalsHistory(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSignalsHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSignalsHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getSignalsHistory>>>
+export type GetSignalsHistoryQueryError = ErrorType<SignalExportError>
+
+
+/**
+ * @summary Persisted signal history without interpolation or request-time calculations
+ */
+
+export function useGetSignalsHistory<TData = Awaited<ReturnType<typeof getSignalsHistory>>, TError = ErrorType<SignalExportError>>(
+ params?: GetSignalsHistoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSignalsHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSignalsHistoryQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

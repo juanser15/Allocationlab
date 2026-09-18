@@ -5,6 +5,139 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+export interface SignalExportError {
+  error: string;
+  code: string;
+}
+
+export type SignalCatalogEntryAvailability = typeof SignalCatalogEntryAvailability[keyof typeof SignalCatalogEntryAvailability];
+
+
+export const SignalCatalogEntryAvailability = {
+  persisted_history: 'persisted_history',
+  latest_dataset_history: 'latest_dataset_history',
+  request_time_only: 'request_time_only',
+} as const;
+
+export type SignalCatalogEntryScope = typeof SignalCatalogEntryScope[keyof typeof SignalCatalogEntryScope];
+
+
+export const SignalCatalogEntryScope = {
+  global: 'global',
+  market: 'market',
+  asset: 'asset',
+  pair: 'pair',
+} as const;
+
+export type SignalCatalogEntryValueType = typeof SignalCatalogEntryValueType[keyof typeof SignalCatalogEntryValueType];
+
+
+export const SignalCatalogEntryValueType = {
+  number: 'number',
+  string: 'string',
+  boolean: 'boolean',
+  null: 'null',
+  mixed: 'mixed',
+} as const;
+
+export interface SignalCatalogEntry {
+  signalId: string;
+  originalPath: string;
+  category: string;
+  availability: SignalCatalogEntryAvailability;
+  scope: SignalCatalogEntryScope;
+  valueType: SignalCatalogEntryValueType;
+  /** @nullable */
+  unit: string | null;
+  historyAvailable: boolean;
+  description: string;
+}
+
+export interface SignalProvenance {
+  source: string;
+  /** @nullable */
+  sourceRecordId: string | null;
+  originalPath: string;
+  /** @nullable */
+  uploadedAt: string | null;
+  /** @nullable */
+  modelVersion: string | null;
+  /** @nullable */
+  parameterVersion: string | null;
+}
+
+export type SignalObservationAvailability = typeof SignalObservationAvailability[keyof typeof SignalObservationAvailability];
+
+
+export const SignalObservationAvailability = {
+  persisted_history: 'persisted_history',
+  latest_dataset_history: 'latest_dataset_history',
+} as const;
+
+export type SignalObservationScope = typeof SignalObservationScope[keyof typeof SignalObservationScope];
+
+
+export const SignalObservationScope = {
+  global: 'global',
+  market: 'market',
+  asset: 'asset',
+  pair: 'pair',
+} as const;
+
+export type SignalObservationQuality = typeof SignalObservationQuality[keyof typeof SignalObservationQuality];
+
+
+export const SignalObservationQuality = {
+  recorded: 'recorded',
+  source_null: 'source_null',
+  unavailable: 'unavailable',
+} as const;
+
+export interface SignalObservation {
+  signalId: string;
+  category: string;
+  availability: SignalObservationAvailability;
+  scope: SignalObservationScope;
+  /** @nullable */
+  asset: string | null;
+  /** @nullable */
+  dimension: string | null;
+  asOf: string;
+  /** @nullable */
+  value: number | string | boolean | null;
+  /** @nullable */
+  unit: string | null;
+  quality: SignalObservationQuality;
+  provenance: SignalProvenance;
+  /** @minimum 0 */
+  ageSeconds: number;
+}
+
+export interface SignalFilters {
+  /** @nullable */
+  signalId: string | null;
+  /** @nullable */
+  asset: string | null;
+  /** @nullable */
+  dateFrom: string | null;
+  /** @nullable */
+  dateTo: string | null;
+  limit: number;
+}
+
+export interface SignalsCatalogResponse {
+  generatedAt: string;
+  data: SignalCatalogEntry[];
+}
+
+export interface SignalsResponse {
+  generatedAt: string;
+  data: SignalObservation[];
+  count: number;
+  truncated: boolean;
+  filters: SignalFilters;
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -1451,6 +1584,31 @@ export interface ArchiveCompareResult {
   keyRationale: string[];
 }
 
+/**
+ * Exact signal identifier from the catalog.
+ */
+export type SignalIdFilterParameter = string;
+
+/**
+ * Exact asset/ticker filter. Input is normalized to uppercase.
+ */
+export type AssetFilterParameter = string;
+
+/**
+ * Inclusive ISO date or timestamp.
+ */
+export type SignalDateFromParameter = string;
+
+/**
+ * Inclusive ISO date or timestamp.
+ */
+export type SignalDateToParameter = string;
+
+/**
+ * Strict maximum number of observations returned.
+ */
+export type SignalLimitParameter = number;
+
 export type GetRiskModelParams = {
 covarianceModel?: GetRiskModelCovarianceModel;
 };
@@ -1568,5 +1726,71 @@ export const GetBacktestExecutionTiming = {
 
 export type GetCommittee404 = {
   error: string;
+};
+
+export type GetSignalsLatestParams = {
+/**
+ * Exact signal identifier from the catalog.
+ * @minLength 1
+ * @maxLength 160
+ */
+signalId?: SignalIdFilterParameter;
+/**
+ * Exact asset/ticker filter. Input is normalized to uppercase.
+ * @minLength 1
+ * @maxLength 64
+ */
+asset?: AssetFilterParameter;
+/**
+ * Inclusive ISO date or timestamp.
+ * @minLength 10
+ * @maxLength 40
+ */
+dateFrom?: SignalDateFromParameter;
+/**
+ * Inclusive ISO date or timestamp.
+ * @minLength 10
+ * @maxLength 40
+ */
+dateTo?: SignalDateToParameter;
+/**
+ * Strict maximum number of observations returned.
+ * @minimum 1
+ * @maximum 5000
+ */
+limit?: SignalLimitParameter;
+};
+
+export type GetSignalsHistoryParams = {
+/**
+ * Exact signal identifier from the catalog.
+ * @minLength 1
+ * @maxLength 160
+ */
+signalId?: SignalIdFilterParameter;
+/**
+ * Exact asset/ticker filter. Input is normalized to uppercase.
+ * @minLength 1
+ * @maxLength 64
+ */
+asset?: AssetFilterParameter;
+/**
+ * Inclusive ISO date or timestamp.
+ * @minLength 10
+ * @maxLength 40
+ */
+dateFrom?: SignalDateFromParameter;
+/**
+ * Inclusive ISO date or timestamp.
+ * @minLength 10
+ * @maxLength 40
+ */
+dateTo?: SignalDateToParameter;
+/**
+ * Strict maximum number of observations returned.
+ * @minimum 1
+ * @maximum 5000
+ */
+limit?: SignalLimitParameter;
 };
 

@@ -20,6 +20,7 @@ tags:
   - name: scenario-stress
   - name: trade-implementation
   - name: attribution
+  - name: signals
 
 paths:
   /healthz:
@@ -969,8 +970,312 @@ paths:
                     type: string
                 required: [error]
 
+  /signals/catalog:
+    get:
+      operationId: getSignalsCatalog
+      tags: [signals]
+      summary: Catalog of persisted signals and request-time-only analytical capabilities
+      security:
+        - signalExportBearer: []
+      responses:
+        "200":
+          description: Signal catalog
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalsCatalogResponse"
+        "401":
+          description: Missing or invalid server-to-server token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalExportError"
+        "403":
+          description: Browser-direct access is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalExportError"
+        "503":
+          description: Integration is not configured or its persisted sources are unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalExportError"
+
+  /signals/latest:
+    get:
+      operationId: getSignalsLatest
+      tags: [signals]
+      summary: Latest persisted signal observations
+      security:
+        - signalExportBearer: []
+      parameters:
+        - $ref: "#/components/parameters/SignalIdFilter"
+        - $ref: "#/components/parameters/AssetFilter"
+        - $ref: "#/components/parameters/SignalDateFrom"
+        - $ref: "#/components/parameters/SignalDateTo"
+        - $ref: "#/components/parameters/SignalLimit"
+      responses:
+        "200":
+          description: Latest observations matching the filters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalsResponse"
+        "400":
+          description: Invalid filter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalExportError"
+        "401":
+          description: Missing or invalid server-to-server token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalExportError"
+        "403":
+          description: Browser-direct access is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalExportError"
+        "503":
+          description: Integration is not configured or its persisted sources are unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalExportError"
+
+  /signals/history:
+    get:
+      operationId: getSignalsHistory
+      tags: [signals]
+      summary: Persisted signal history without interpolation or request-time calculations
+      security:
+        - signalExportBearer: []
+      parameters:
+        - $ref: "#/components/parameters/SignalIdFilter"
+        - $ref: "#/components/parameters/AssetFilter"
+        - $ref: "#/components/parameters/SignalDateFrom"
+        - $ref: "#/components/parameters/SignalDateTo"
+        - $ref: "#/components/parameters/SignalLimit"
+      responses:
+        "200":
+          description: Historical observations matching the filters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalsResponse"
+        "400":
+          description: Invalid filter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalExportError"
+        "401":
+          description: Missing or invalid server-to-server token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalExportError"
+        "403":
+          description: Browser-direct access is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalExportError"
+        "503":
+          description: Integration is not configured or its persisted sources are unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalExportError"
+
 components:
+  securitySchemes:
+    signalExportBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque-token
+      description: Server-to-server token held by the dashboard backend, never by browser code.
+  parameters:
+    SignalIdFilter:
+      name: signalId
+      in: query
+      required: false
+      description: Exact signal identifier from the catalog.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 160
+    AssetFilter:
+      name: asset
+      in: query
+      required: false
+      description: Exact asset/ticker filter. Input is normalized to uppercase.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 64
+    SignalDateFrom:
+      name: dateFrom
+      in: query
+      required: false
+      description: Inclusive ISO date or timestamp.
+      schema:
+        type: string
+        minLength: 10
+        maxLength: 40
+    SignalDateTo:
+      name: dateTo
+      in: query
+      required: false
+      description: Inclusive ISO date or timestamp.
+      schema:
+        type: string
+        minLength: 10
+        maxLength: 40
+    SignalLimit:
+      name: limit
+      in: query
+      required: false
+      description: Strict maximum number of observations returned.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 5000
+        default: 1000
   schemas:
+    SignalExportError:
+      type: object
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+      required: [error, code]
+
+    SignalCatalogEntry:
+      type: object
+      properties:
+        signalId:
+          type: string
+        originalPath:
+          type: string
+        category:
+          type: string
+        availability:
+          type: string
+          enum: [persisted_history, latest_dataset_history, request_time_only]
+        scope:
+          type: string
+          enum: [global, market, asset, pair]
+        valueType:
+          type: string
+          enum: [number, string, boolean, "null", mixed]
+        unit:
+          type: ["string", "null"]
+        historyAvailable:
+          type: boolean
+        description:
+          type: string
+      required: [signalId, originalPath, category, availability, scope, valueType, unit, historyAvailable, description]
+
+    SignalProvenance:
+      type: object
+      properties:
+        source:
+          type: string
+        sourceRecordId:
+          type: ["string", "null"]
+        originalPath:
+          type: string
+        uploadedAt:
+          type: ["string", "null"]
+        modelVersion:
+          type: ["string", "null"]
+        parameterVersion:
+          type: ["string", "null"]
+      required: [source, sourceRecordId, originalPath, uploadedAt, modelVersion, parameterVersion]
+
+    SignalObservation:
+      type: object
+      properties:
+        signalId:
+          type: string
+        category:
+          type: string
+        availability:
+          type: string
+          enum: [persisted_history, latest_dataset_history]
+        scope:
+          type: string
+          enum: [global, market, asset, pair]
+        asset:
+          type: ["string", "null"]
+        dimension:
+          type: ["string", "null"]
+        asOf:
+          type: string
+        value:
+          type: [number, string, boolean, "null"]
+        unit:
+          type: ["string", "null"]
+        quality:
+          type: string
+          enum: [recorded, source_null, unavailable]
+        provenance:
+          $ref: "#/components/schemas/SignalProvenance"
+        ageSeconds:
+          type: integer
+          minimum: 0
+      required: [signalId, category, availability, scope, asset, dimension, asOf, value, unit, quality, provenance, ageSeconds]
+
+    SignalFilters:
+      type: object
+      properties:
+        signalId:
+          type: ["string", "null"]
+        asset:
+          type: ["string", "null"]
+        dateFrom:
+          type: ["string", "null"]
+        dateTo:
+          type: ["string", "null"]
+        limit:
+          type: integer
+      required: [signalId, asset, dateFrom, dateTo, limit]
+
+    SignalsCatalogResponse:
+      type: object
+      properties:
+        generatedAt:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SignalCatalogEntry"
+      required: [generatedAt, data]
+
+    SignalsResponse:
+      type: object
+      properties:
+        generatedAt:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SignalObservation"
+        count:
+          type: integer
+        truncated:
+          type: boolean
+        filters:
+          $ref: "#/components/schemas/SignalFilters"
+      required: [generatedAt, data, count, truncated, filters]
+
     HealthStatus:
       type: object
       properties:

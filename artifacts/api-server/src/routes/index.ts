@@ -17,6 +17,7 @@ import scenarioStressRouter from "./scenarioStress";
 import tradeImplementationRouter from "./tradeImplementation";
 import attributionRouter from "./attribution";
 import governanceRouter from "./governance";
+import signalsRouter from "./signals";
 
 const router: IRouter = Router();
 
@@ -38,5 +39,6 @@ router.use(scenarioStressRouter);
 router.use(tradeImplementationRouter);
 router.use(attributionRouter);
 router.use(governanceRouter);
+router.use(signalsRouter);
 
 export default router;

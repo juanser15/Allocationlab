@@ -2080,3 +2080,152 @@ export const GetCommitteeResponse = zod.object({
 })
 
 
+/**
+ * @summary Catalog of persisted signals and request-time-only analytical capabilities
+ */
+export const GetSignalsCatalogResponse = zod.object({
+  "generatedAt": zod.string(),
+  "data": zod.array(zod.object({
+  "signalId": zod.string(),
+  "originalPath": zod.string(),
+  "category": zod.string(),
+  "availability": zod.enum(['persisted_history', 'latest_dataset_history', 'request_time_only']),
+  "scope": zod.enum(['global', 'market', 'asset', 'pair']),
+  "valueType": zod.enum(['number', 'string', 'boolean', 'null', 'mixed']),
+  "unit": zod.string().nullable(),
+  "historyAvailable": zod.boolean(),
+  "description": zod.string()
+}))
+})
+
+
+/**
+ * @summary Latest persisted signal observations
+ */
+export const getSignalsLatestQuerySignalIdMax = 160;
+
+export const getSignalsLatestQueryAssetMax = 64;
+
+export const getSignalsLatestQueryDateFromMin = 10;
+export const getSignalsLatestQueryDateFromMax = 40;
+
+export const getSignalsLatestQueryDateToMin = 10;
+export const getSignalsLatestQueryDateToMax = 40;
+
+export const getSignalsLatestQueryLimitDefault = 1000;
+export const getSignalsLatestQueryLimitMax = 5000;
+
+
+
+export const GetSignalsLatestQueryParams = zod.object({
+  "signalId": zod.coerce.string().min(1).max(getSignalsLatestQuerySignalIdMax).optional().describe('Exact signal identifier from the catalog.'),
+  "asset": zod.coerce.string().min(1).max(getSignalsLatestQueryAssetMax).optional().describe('Exact asset\/ticker filter. Input is normalized to uppercase.'),
+  "dateFrom": zod.coerce.string().min(getSignalsLatestQueryDateFromMin).max(getSignalsLatestQueryDateFromMax).optional().describe('Inclusive ISO date or timestamp.'),
+  "dateTo": zod.coerce.string().min(getSignalsLatestQueryDateToMin).max(getSignalsLatestQueryDateToMax).optional().describe('Inclusive ISO date or timestamp.'),
+  "limit": zod.coerce.number().min(1).max(getSignalsLatestQueryLimitMax).default(getSignalsLatestQueryLimitDefault).describe('Strict maximum number of observations returned.')
+})
+
+export const getSignalsLatestResponseDataItemAgeSecondsMin = 0;
+
+
+
+export const GetSignalsLatestResponse = zod.object({
+  "generatedAt": zod.string(),
+  "data": zod.array(zod.object({
+  "signalId": zod.string(),
+  "category": zod.string(),
+  "availability": zod.enum(['persisted_history', 'latest_dataset_history']),
+  "scope": zod.enum(['global', 'market', 'asset', 'pair']),
+  "asset": zod.string().nullable(),
+  "dimension": zod.string().nullable(),
+  "asOf": zod.string(),
+  "value": zod.union([zod.number(),zod.string(),zod.boolean()]).nullable(),
+  "unit": zod.string().nullable(),
+  "quality": zod.enum(['recorded', 'source_null', 'unavailable']),
+  "provenance": zod.object({
+  "source": zod.string(),
+  "sourceRecordId": zod.string().nullable(),
+  "originalPath": zod.string(),
+  "uploadedAt": zod.string().nullable(),
+  "modelVersion": zod.string().nullable(),
+  "parameterVersion": zod.string().nullable()
+}),
+  "ageSeconds": zod.number().min(getSignalsLatestResponseDataItemAgeSecondsMin)
+})),
+  "count": zod.number(),
+  "truncated": zod.boolean(),
+  "filters": zod.object({
+  "signalId": zod.string().nullable(),
+  "asset": zod.string().nullable(),
+  "dateFrom": zod.string().nullable(),
+  "dateTo": zod.string().nullable(),
+  "limit": zod.number()
+})
+})
+
+
+/**
+ * @summary Persisted signal history without interpolation or request-time calculations
+ */
+export const getSignalsHistoryQuerySignalIdMax = 160;
+
+export const getSignalsHistoryQueryAssetMax = 64;
+
+export const getSignalsHistoryQueryDateFromMin = 10;
+export const getSignalsHistoryQueryDateFromMax = 40;
+
+export const getSignalsHistoryQueryDateToMin = 10;
+export const getSignalsHistoryQueryDateToMax = 40;
+
+export const getSignalsHistoryQueryLimitDefault = 1000;
+export const getSignalsHistoryQueryLimitMax = 5000;
+
+
+
+export const GetSignalsHistoryQueryParams = zod.object({
+  "signalId": zod.coerce.string().min(1).max(getSignalsHistoryQuerySignalIdMax).optional().describe('Exact signal identifier from the catalog.'),
+  "asset": zod.coerce.string().min(1).max(getSignalsHistoryQueryAssetMax).optional().describe('Exact asset\/ticker filter. Input is normalized to uppercase.'),
+  "dateFrom": zod.coerce.string().min(getSignalsHistoryQueryDateFromMin).max(getSignalsHistoryQueryDateFromMax).optional().describe('Inclusive ISO date or timestamp.'),
+  "dateTo": zod.coerce.string().min(getSignalsHistoryQueryDateToMin).max(getSignalsHistoryQueryDateToMax).optional().describe('Inclusive ISO date or timestamp.'),
+  "limit": zod.coerce.number().min(1).max(getSignalsHistoryQueryLimitMax).default(getSignalsHistoryQueryLimitDefault).describe('Strict maximum number of observations returned.')
+})
+
+export const getSignalsHistoryResponseDataItemAgeSecondsMin = 0;
+
+
+
+export const GetSignalsHistoryResponse = zod.object({
+  "generatedAt": zod.string(),
+  "data": zod.array(zod.object({
+  "signalId": zod.string(),
+  "category": zod.string(),
+  "availability": zod.enum(['persisted_history', 'latest_dataset_history']),
+  "scope": zod.enum(['global', 'market', 'asset', 'pair']),
+  "asset": zod.string().nullable(),
+  "dimension": zod.string().nullable(),
+  "asOf": zod.string(),
+  "value": zod.union([zod.number(),zod.string(),zod.boolean()]).nullable(),
+  "unit": zod.string().nullable(),
+  "quality": zod.enum(['recorded', 'source_null', 'unavailable']),
+  "provenance": zod.object({
+  "source": zod.string(),
+  "sourceRecordId": zod.string().nullable(),
+  "originalPath": zod.string(),
+  "uploadedAt": zod.string().nullable(),
+  "modelVersion": zod.string().nullable(),
+  "parameterVersion": zod.string().nullable()
+}),
+  "ageSeconds": zod.number().min(getSignalsHistoryResponseDataItemAgeSecondsMin)
+})),
+  "count": zod.number(),
+  "truncated": zod.boolean(),
+  "filters": zod.object({
+  "signalId": zod.string().nullable(),
+  "asset": zod.string().nullable(),
+  "dateFrom": zod.string().nullable(),
+  "dateTo": zod.string().nullable(),
+  "limit": zod.number()
+})
+})
+
+
