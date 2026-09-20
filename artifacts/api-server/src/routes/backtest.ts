@@ -17,6 +17,7 @@ import {
 import { getLatestPriceData } from "./prices";
 import { getUniverseConfig } from "./universe";
 import { getConstraintsConfig } from "./constraints";
+import { getFactorSetSnapshot } from "../lib/factor-library";
 
 const router: IRouter = Router();
 
@@ -63,6 +64,7 @@ router.get("/backtest", async (req, res): Promise<void> => {
   const etfs = universe.etfs as EtfEntry[];
   const enabledTickers = etfs.filter((e) => e.enabled).map((e) => e.ticker);
   const constraints = (await getConstraintsConfig()) as Constraints;
+  const factorSet = await getFactorSetSnapshot();
 
   const empty = (reason: string, dataStartDate: string | null = null, dataEndDate: string | null = null) =>
     GetBacktestResponse.parse({
@@ -127,14 +129,14 @@ router.get("/backtest", async (req, res): Promise<void> => {
     }
   }
 
-  const engineResult = runBacktestEngine(priceRows, etfs, constraints, config, benchmarkParam);
+  const engineResult = runBacktestEngine(priceRows, etfs, constraints, config, benchmarkParam, factorSet);
   if (!engineResult.hasSufficientData) {
     res.json(empty(engineResult.insufficientReason ?? "Not enough data to run a backtest.", fullDataStartDate, fullDataEndDate));
     return;
   }
 
   const walkForward = runWalkForwardFolds(engineResult, 3);
-  const sensitivity = runSensitivityGrid(priceRows, etfs, constraints, config);
+  const sensitivity = runSensitivityGrid(priceRows, etfs, constraints, config, factorSet);
   const integrity = computeIntegrityAudit(engineResult, config, sensitivity, walkForward);
 
   const warnings: string[] = [

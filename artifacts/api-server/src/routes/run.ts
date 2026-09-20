@@ -18,6 +18,7 @@ import {
 import { getUniverseConfig } from "./universe";
 import { getConstraintsConfig } from "./constraints";
 import { getLatestPriceData } from "./prices";
+import { getFactorSetSnapshot } from "../lib/factor-library";
 
 const router: IRouter = Router();
 
@@ -113,6 +114,7 @@ router.post("/run", async (req, res): Promise<void> => {
 
   const universe = await getUniverseConfig();
   const constraints = await getConstraintsConfig();
+  const factorSet = await getFactorSetSnapshot();
   const enabledTickers = (universe.etfs as Array<{ ticker: string; enabled: boolean }>).filter((e) => e.enabled).map((e) => e.ticker);
   const availableTickers = JSON.parse(priceRow.tickers) as string[];
   const tickers = enabledTickers.filter((t) => availableTickers.includes(t));
@@ -122,20 +124,29 @@ router.post("/run", async (req, res): Promise<void> => {
     return;
   }
 
-  // Step 2: Compute factors
+  // Regime selection is independent of the configurable factor library and
+  // determines which explicitly configured regime weights apply.
+  let regime;
+  try {
+    regime = computeRegime(priceRows, tickers);
+  } catch (err: unknown) {
+    res.status(500).json({ error: `Regime estimation failed: ${err instanceof Error ? err.message : "error"}` });
+    return;
+  }
+
+  // Step 2: Compute only the active factor set.
   let factorData;
   try {
-    factorData = computeFactors(priceRows, tickers);
-    markStep("compute_factors", "done", `Factors computed for ${factorData.length} ETFs`);
+    factorData = computeFactors(priceRows, tickers, factorSet, regime.label);
+    const activeCount = factorSet.factors.filter((factor) => factor.enabled && factor.status === "active").length;
+    markStep("compute_factors", "done", `${activeCount} active factors computed for ${factorData.length} ETFs (${factorSet.version})`);
   } catch (err: unknown) {
     res.status(500).json({ error: `Factor computation failed: ${err instanceof Error ? err.message : "error"}` });
     return;
   }
 
   // Step 3: Estimate regime
-  let regime;
   try {
-    regime = computeRegime(priceRows, tickers);
     markStep("estimate_regime", "done", `Regime: ${regime.label} (composite: ${regime.composite}, confidence: ${regime.confidence}%)`);
   } catch (err: unknown) {
     res.status(500).json({ error: `Regime estimation failed: ${err instanceof Error ? err.message : "error"}` });
@@ -184,6 +195,8 @@ router.post("/run", async (req, res): Promise<void> => {
     icSummary,
     iterationInfo: ITERATION_INFO,
     diagnostics,
+    factorSetVersion: factorSet.version,
+    factorSet: factorSet.factors,
   };
 
   const [session] = await db.insert(sessionsTable).values({
@@ -217,6 +230,16 @@ router.get("/results/latest", async (req, res): Promise<void> => {
   // Back-fill fields added in Iterations 2 & 3 for old sessions
   const result = {
     ...stored,
+    allocations: Array.isArray(stored.allocations)
+      ? (stored.allocations as Array<Record<string, unknown>>).map((allocation) => ({
+          ...allocation,
+          factorScores: {
+            ...(allocation.factorScores as object),
+            dynamic: ((allocation.factorScores as Record<string, unknown> | undefined)?.dynamic as object | undefined) ?? {},
+          },
+          factorContributions: (allocation.factorContributions as unknown[]) ?? [],
+        }))
+      : [],
     watchlist: (stored.watchlist as unknown[]) ?? [],
     icSummary: (stored.icSummary as object | undefined) ?? {
       whatChanged: "Pre-Iteration-2 session. Re-run the pipeline to generate.",
@@ -224,6 +247,8 @@ router.get("/results/latest", async (req, res): Promise<void> => {
     },
     iterationInfo: ITERATION_INFO,
     diagnostics: (stored.diagnostics as object | undefined) ?? EMPTY_DIAGNOSTICS,
+    factorSetVersion: (stored.factorSetVersion as string | undefined) ?? "legacy",
+    factorSet: (stored.factorSet as unknown[]) ?? [],
     regime: {
       ...(stored.regime as object),
       components: ((stored.regime as Record<string, unknown>)?.components as unknown[]) ?? [],

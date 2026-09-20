@@ -34,6 +34,8 @@ import type {
   DecisionLogStatusInput,
   ErrorResponse,
   EtfDetail,
+  FactorLibrary,
+  FactorLibraryInput,
   GetAttributionMetaParams,
   GetAttributionParams,
   GetBacktestParams,
@@ -3170,4 +3172,221 @@ export function useGetSignalsHistory<TData = Awaited<ReturnType<typeof getSignal
 
 
 
+
+export const getGetFactorLibraryUrl = () => {
+
+
+
+
+  return `/api/factors/library`
+}
+
+/**
+ * @summary Get the current versioned factor library
+ */
+export const getFactorLibrary = async ( options?: RequestInit): Promise<FactorLibrary> => {
+
+  return customFetch<FactorLibrary>(getGetFactorLibraryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetFactorLibraryQueryKey = () => {
+    return [
+    `/api/factors/library`
+    ] as const;
+    }
+
+
+export const getGetFactorLibraryQueryOptions = <TData = Awaited<ReturnType<typeof getFactorLibrary>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFactorLibrary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetFactorLibraryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFactorLibrary>>> = ({ signal }) => getFactorLibrary({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getFactorLibrary>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetFactorLibraryQueryResult = NonNullable<Awaited<ReturnType<typeof getFactorLibrary>>>
+export type GetFactorLibraryQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the current versioned factor library
+ */
+
+export function useGetFactorLibrary<TData = Awaited<ReturnType<typeof getFactorLibrary>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFactorLibrary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetFactorLibraryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateFactorLibraryUrl = () => {
+
+
+
+
+  return `/api/factors/library`
+}
+
+/**
+ * @summary Save a new factor-library version
+ */
+export const updateFactorLibrary = async (factorLibraryInput: FactorLibraryInput, options?: RequestInit): Promise<FactorLibrary> => {
+
+  return customFetch<FactorLibrary>(getUpdateFactorLibraryUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(factorLibraryInput)
+  }
+);}
+
+
+
+
+export const getUpdateFactorLibraryMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateFactorLibrary>>, TError,{data: BodyType<FactorLibraryInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateFactorLibrary>>, TError,{data: BodyType<FactorLibraryInput>}, TContext> => {
+
+const mutationKey = ['updateFactorLibrary'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateFactorLibrary>>, {data: BodyType<FactorLibraryInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateFactorLibrary(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateFactorLibraryMutationResult = NonNullable<Awaited<ReturnType<typeof updateFactorLibrary>>>
+    export type UpdateFactorLibraryMutationBody = BodyType<FactorLibraryInput>
+    export type UpdateFactorLibraryMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Save a new factor-library version
+ */
+export const useUpdateFactorLibrary = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateFactorLibrary>>, TError,{data: BodyType<FactorLibraryInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateFactorLibrary>>,
+        TError,
+        {data: BodyType<FactorLibraryInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateFactorLibraryMutationOptions(options));
+    }
+
+export const getRestoreFactorLibraryUrl = (version: string,) => {
+
+
+
+
+  return `/api/factors/library/restore/${version}`
+}
+
+/**
+ * @summary Restore a historical factor set as a new version
+ */
+export const restoreFactorLibrary = async (version: string, options?: RequestInit): Promise<FactorLibrary> => {
+
+  return customFetch<FactorLibrary>(getRestoreFactorLibraryUrl(version),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRestoreFactorLibraryMutationOptions = <TError = ErrorType<SignalExportError | ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof restoreFactorLibrary>>, TError,{version: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof restoreFactorLibrary>>, TError,{version: string}, TContext> => {
+
+const mutationKey = ['restoreFactorLibrary'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof restoreFactorLibrary>>, {version: string}> = (props) => {
+          const {version} = props ?? {};
+
+          return  restoreFactorLibrary(version,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RestoreFactorLibraryMutationResult = NonNullable<Awaited<ReturnType<typeof restoreFactorLibrary>>>
+
+    export type RestoreFactorLibraryMutationError = ErrorType<SignalExportError | ErrorResponse>
+
+    /**
+ * @summary Restore a historical factor set as a new version
+ */
+export const useRestoreFactorLibrary = <TError = ErrorType<SignalExportError | ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof restoreFactorLibrary>>, TError,{version: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof restoreFactorLibrary>>,
+        TError,
+        {version: string},
+        TContext
+      > => {
+      return useMutation(getRestoreFactorLibraryMutationOptions(options));
+    }
 

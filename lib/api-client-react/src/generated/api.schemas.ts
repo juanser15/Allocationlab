@@ -5,6 +5,273 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+export interface FactorRegimeWeights {
+  /** @nullable */
+  riskOn: number | null;
+  /** @nullable */
+  neutral: number | null;
+  /** @nullable */
+  riskOff: number | null;
+}
+
+export type FactorDefinitionStatus = typeof FactorDefinitionStatus[keyof typeof FactorDefinitionStatus];
+
+
+export const FactorDefinitionStatus = {
+  active: 'active',
+  candidate: 'candidate',
+  disabled: 'disabled',
+} as const;
+
+export type FactorDefinitionCalculationType = typeof FactorDefinitionCalculationType[keyof typeof FactorDefinitionCalculationType];
+
+
+export const FactorDefinitionCalculationType = {
+  momentum: 'momentum',
+  trend_quality: 'trend_quality',
+  volatility: 'volatility',
+  drawdown: 'drawdown',
+  mean_reversion: 'mean_reversion',
+  relative_strength: 'relative_strength',
+  diversification_benefit: 'diversification_benefit',
+  return_over_volatility: 'return_over_volatility',
+  ma_distance: 'ma_distance',
+  downside_beta: 'downside_beta',
+  residual_momentum: 'residual_momentum',
+  correlation_stability: 'correlation_stability',
+  drawdown_recovery: 'drawdown_recovery',
+  unsupported: 'unsupported',
+} as const;
+
+export type FactorDefinitionDirection = typeof FactorDefinitionDirection[keyof typeof FactorDefinitionDirection];
+
+
+export const FactorDefinitionDirection = {
+  higher_is_better: 'higher_is_better',
+  lower_is_better: 'lower_is_better',
+} as const;
+
+export type FactorDefinitionNormalization = typeof FactorDefinitionNormalization[keyof typeof FactorDefinitionNormalization];
+
+
+export const FactorDefinitionNormalization = {
+  percentile_rank: 'percentile_rank',
+  z_score: 'z_score',
+  robust_z_score: 'robust_z_score',
+} as const;
+
+export type FactorDefinitionMissingDataTreatment = typeof FactorDefinitionMissingDataTreatment[keyof typeof FactorDefinitionMissingDataTreatment];
+
+
+export const FactorDefinitionMissingDataTreatment = {
+  exclude: 'exclude',
+  cross_sectional_median: 'cross_sectional_median',
+} as const;
+
+export type FactorDefinitionActiveRegimesItem = typeof FactorDefinitionActiveRegimesItem[keyof typeof FactorDefinitionActiveRegimesItem];
+
+
+export const FactorDefinitionActiveRegimesItem = {
+  risk_on: 'risk_on',
+  neutral: 'neutral',
+  risk_off: 'risk_off',
+} as const;
+
+export interface FactorDefinition {
+  id: string;
+  name: string;
+  description: string;
+  family: string;
+  enabled: boolean;
+  status: FactorDefinitionStatus;
+  inputSeries: string;
+  calculationType: FactorDefinitionCalculationType;
+  formula: string;
+  direction: FactorDefinitionDirection;
+  /**
+     * @minimum 2
+     * @maximum 1260
+     */
+  lookback: number;
+  /**
+     * @minimum 0
+     * @maximum 252
+     */
+  lag: number;
+  normalization: FactorDefinitionNormalization;
+  /**
+     * @minimum 0
+     * @maximum 0.49
+     */
+  winsorizationLower: number;
+  /**
+     * @minimum 0.51
+     * @maximum 1
+     */
+  winsorizationUpper: number;
+  missingDataTreatment: FactorDefinitionMissingDataTreatment;
+  /** @minimum 0 */
+  baseWeight: number;
+  regimeWeights: FactorRegimeWeights;
+  activeRegimes: FactorDefinitionActiveRegimesItem[];
+  dataSource: string;
+  /** @nullable */
+  benchmarkTicker: string | null;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  currentCoverage: number;
+  /** @nullable */
+  availabilityReason: string | null;
+  version: string;
+}
+
+export type FactorDefinitionInputStatus = typeof FactorDefinitionInputStatus[keyof typeof FactorDefinitionInputStatus];
+
+
+export const FactorDefinitionInputStatus = {
+  active: 'active',
+  candidate: 'candidate',
+  disabled: 'disabled',
+} as const;
+
+export type FactorDefinitionInputCalculationType = typeof FactorDefinitionInputCalculationType[keyof typeof FactorDefinitionInputCalculationType];
+
+
+export const FactorDefinitionInputCalculationType = {
+  momentum: 'momentum',
+  trend_quality: 'trend_quality',
+  volatility: 'volatility',
+  drawdown: 'drawdown',
+  mean_reversion: 'mean_reversion',
+  relative_strength: 'relative_strength',
+  diversification_benefit: 'diversification_benefit',
+  return_over_volatility: 'return_over_volatility',
+  ma_distance: 'ma_distance',
+  downside_beta: 'downside_beta',
+  residual_momentum: 'residual_momentum',
+  correlation_stability: 'correlation_stability',
+  drawdown_recovery: 'drawdown_recovery',
+  unsupported: 'unsupported',
+} as const;
+
+export type FactorDefinitionInputDirection = typeof FactorDefinitionInputDirection[keyof typeof FactorDefinitionInputDirection];
+
+
+export const FactorDefinitionInputDirection = {
+  higher_is_better: 'higher_is_better',
+  lower_is_better: 'lower_is_better',
+} as const;
+
+export type FactorDefinitionInputNormalization = typeof FactorDefinitionInputNormalization[keyof typeof FactorDefinitionInputNormalization];
+
+
+export const FactorDefinitionInputNormalization = {
+  percentile_rank: 'percentile_rank',
+  z_score: 'z_score',
+  robust_z_score: 'robust_z_score',
+} as const;
+
+export type FactorDefinitionInputMissingDataTreatment = typeof FactorDefinitionInputMissingDataTreatment[keyof typeof FactorDefinitionInputMissingDataTreatment];
+
+
+export const FactorDefinitionInputMissingDataTreatment = {
+  exclude: 'exclude',
+  cross_sectional_median: 'cross_sectional_median',
+} as const;
+
+export type FactorDefinitionInputActiveRegimesItem = typeof FactorDefinitionInputActiveRegimesItem[keyof typeof FactorDefinitionInputActiveRegimesItem];
+
+
+export const FactorDefinitionInputActiveRegimesItem = {
+  risk_on: 'risk_on',
+  neutral: 'neutral',
+  risk_off: 'risk_off',
+} as const;
+
+export interface FactorDefinitionInput {
+  id: string;
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 1 */
+  description: string;
+  /** @minLength 1 */
+  family: string;
+  enabled: boolean;
+  status: FactorDefinitionInputStatus;
+  /** @minLength 1 */
+  inputSeries: string;
+  calculationType: FactorDefinitionInputCalculationType;
+  /** @minLength 1 */
+  formula: string;
+  direction: FactorDefinitionInputDirection;
+  /**
+     * @minimum 2
+     * @maximum 1260
+     */
+  lookback: number;
+  /**
+     * @minimum 0
+     * @maximum 252
+     */
+  lag: number;
+  normalization: FactorDefinitionInputNormalization;
+  /**
+     * @minimum 0
+     * @maximum 0.49
+     */
+  winsorizationLower: number;
+  /**
+     * @minimum 0.51
+     * @maximum 1
+     */
+  winsorizationUpper: number;
+  missingDataTreatment: FactorDefinitionInputMissingDataTreatment;
+  /** @minimum 0 */
+  baseWeight: number;
+  regimeWeights: FactorRegimeWeights;
+  activeRegimes: FactorDefinitionInputActiveRegimesItem[];
+  dataSource: string;
+  /** @nullable */
+  benchmarkTicker: string | null;
+}
+
+export interface FactorLibraryInput {
+  /** @minItems 1 */
+  factors: FactorDefinitionInput[];
+}
+
+export interface FactorSetHistoryEntry {
+  version: string;
+  createdAt: string;
+  activeFactorCount: number;
+  factorCount: number;
+}
+
+export interface FactorLibrary {
+  version: string;
+  updatedAt: string;
+  factors: FactorDefinition[];
+  history: FactorSetHistoryEntry[];
+}
+
+export interface FactorContribution {
+  factorId: string;
+  factorName: string;
+  /** @nullable */
+  rawValue: number | null;
+  /** @nullable */
+  normalizedValue: number | null;
+  configuredWeight: number;
+  effectiveWeight: number;
+  /** @nullable */
+  weightedContribution: number | null;
+  available: boolean;
+  /** @nullable */
+  unavailableReason: string | null;
+}
+
 export interface SignalExportError {
   error: string;
   code: string;
@@ -237,6 +504,8 @@ export interface RunInput {
   overrideDiversification?: boolean | null;
 }
 
+export type FactorScoresDynamic = {[key: string]: number | null};
+
 export interface FactorScores {
   mom20: number;
   mom60: number;
@@ -247,6 +516,7 @@ export interface FactorScores {
   drawdown: number;
   meanReversion: number;
   composite: number;
+  dynamic: FactorScoresDynamic;
 }
 
 export interface EtfAllocation {
@@ -257,6 +527,7 @@ export interface EtfAllocation {
   priorWeight: number;
   change: number;
   factorScores: FactorScores;
+  factorContributions: FactorContribution[];
   active: boolean;
 }
 
@@ -1047,6 +1318,8 @@ export interface RunResult {
   icSummary: IcSummary;
   iterationInfo: IterationInfo;
   diagnostics: PortfolioDiagnostics;
+  factorSetVersion: string;
+  factorSet: FactorDefinition[];
 }
 
 export interface Session {

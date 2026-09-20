@@ -5,6 +5,7 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+import type { FactorContribution } from './factorContribution';
 import type { FactorScores } from './factorScores';
 
 export interface EtfAllocation {
@@ -15,5 +16,6 @@ export interface EtfAllocation {
   priorWeight: number;
   change: number;
   factorScores: FactorScores;
+  factorContributions: FactorContribution[];
   active: boolean;
 }

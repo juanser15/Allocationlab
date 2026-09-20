@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { EtfAllocation } from './etfAllocation';
+import type { FactorDefinition } from './factorDefinition';
 import type { IcSummary } from './icSummary';
 import type { IterationInfo } from './iterationInfo';
 import type { PipelineStep } from './pipelineStep';
@@ -31,4 +32,6 @@ export interface RunResult {
   icSummary: IcSummary;
   iterationInfo: IterationInfo;
   diagnostics: PortfolioDiagnostics;
+  factorSetVersion: string;
+  factorSet: FactorDefinition[];
 }

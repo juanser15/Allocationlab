@@ -144,6 +144,25 @@ export const RunPipelineBody = zod.object({
   "overrideDiversification": zod.boolean().nullish()
 })
 
+export const runPipelineResponseFactorSetItemLookbackMin = 2;
+export const runPipelineResponseFactorSetItemLookbackMax = 1260;
+
+export const runPipelineResponseFactorSetItemLagMin = 0;
+export const runPipelineResponseFactorSetItemLagMax = 252;
+
+export const runPipelineResponseFactorSetItemWinsorizationLowerMin = 0;
+export const runPipelineResponseFactorSetItemWinsorizationLowerMax = 0.49;
+
+export const runPipelineResponseFactorSetItemWinsorizationUpperMin = 0.51;
+export const runPipelineResponseFactorSetItemWinsorizationUpperMax = 1;
+
+export const runPipelineResponseFactorSetItemBaseWeightMin = 0;
+
+export const runPipelineResponseFactorSetItemCurrentCoverageMin = 0;
+export const runPipelineResponseFactorSetItemCurrentCoverageMax = 1;
+
+
+
 export const RunPipelineResponse = zod.object({
   "sessionId": zod.number(),
   "runAt": zod.string(),
@@ -181,8 +200,20 @@ export const RunPipelineResponse = zod.object({
   "realizedVol60": zod.number(),
   "drawdown": zod.number(),
   "meanReversion": zod.number(),
-  "composite": zod.number()
+  "composite": zod.number(),
+  "dynamic": zod.record(zod.string(), zod.number().nullable())
 }),
+  "factorContributions": zod.array(zod.object({
+  "factorId": zod.string(),
+  "factorName": zod.string(),
+  "rawValue": zod.number().nullable(),
+  "normalizedValue": zod.number().nullable(),
+  "configuredWeight": zod.number(),
+  "effectiveWeight": zod.number(),
+  "weightedContribution": zod.number().nullable(),
+  "available": zod.boolean(),
+  "unavailableReason": zod.string().nullable()
+})),
   "active": zod.boolean()
 })),
   "cashWeight": zod.number(),
@@ -243,8 +274,58 @@ export const RunPipelineResponse = zod.object({
 })),
   "lookbackDays": zod.number().describe('Number of trading days used for covariance estimation'),
   "insufficientDataReasons": zod.array(zod.string()).describe('Flags for any metrics that could not be fully computed')
+}),
+  "factorSetVersion": zod.string(),
+  "factorSet": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "family": zod.string(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['active', 'candidate', 'disabled']),
+  "inputSeries": zod.string(),
+  "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
+  "formula": zod.string(),
+  "direction": zod.enum(['higher_is_better', 'lower_is_better']),
+  "lookback": zod.number().min(runPipelineResponseFactorSetItemLookbackMin).max(runPipelineResponseFactorSetItemLookbackMax),
+  "lag": zod.number().min(runPipelineResponseFactorSetItemLagMin).max(runPipelineResponseFactorSetItemLagMax),
+  "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
+  "winsorizationLower": zod.number().min(runPipelineResponseFactorSetItemWinsorizationLowerMin).max(runPipelineResponseFactorSetItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(runPipelineResponseFactorSetItemWinsorizationUpperMin).max(runPipelineResponseFactorSetItemWinsorizationUpperMax),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
+  "baseWeight": zod.number().min(runPipelineResponseFactorSetItemBaseWeightMin),
+  "regimeWeights": zod.object({
+  "riskOn": zod.number().nullable(),
+  "neutral": zod.number().nullable(),
+  "riskOff": zod.number().nullable()
+}),
+  "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
+  "dataSource": zod.string(),
+  "benchmarkTicker": zod.string().nullable(),
+  "currentCoverage": zod.number().min(runPipelineResponseFactorSetItemCurrentCoverageMin).max(runPipelineResponseFactorSetItemCurrentCoverageMax),
+  "availabilityReason": zod.string().nullable(),
+  "version": zod.string()
+}))
 })
-})
+
+
+export const getLatestResultsResponseFactorSetItemLookbackMin = 2;
+export const getLatestResultsResponseFactorSetItemLookbackMax = 1260;
+
+export const getLatestResultsResponseFactorSetItemLagMin = 0;
+export const getLatestResultsResponseFactorSetItemLagMax = 252;
+
+export const getLatestResultsResponseFactorSetItemWinsorizationLowerMin = 0;
+export const getLatestResultsResponseFactorSetItemWinsorizationLowerMax = 0.49;
+
+export const getLatestResultsResponseFactorSetItemWinsorizationUpperMin = 0.51;
+export const getLatestResultsResponseFactorSetItemWinsorizationUpperMax = 1;
+
+export const getLatestResultsResponseFactorSetItemBaseWeightMin = 0;
+
+export const getLatestResultsResponseFactorSetItemCurrentCoverageMin = 0;
+export const getLatestResultsResponseFactorSetItemCurrentCoverageMax = 1;
+
 
 
 export const GetLatestResultsResponse = zod.object({
@@ -284,8 +365,20 @@ export const GetLatestResultsResponse = zod.object({
   "realizedVol60": zod.number(),
   "drawdown": zod.number(),
   "meanReversion": zod.number(),
-  "composite": zod.number()
+  "composite": zod.number(),
+  "dynamic": zod.record(zod.string(), zod.number().nullable())
 }),
+  "factorContributions": zod.array(zod.object({
+  "factorId": zod.string(),
+  "factorName": zod.string(),
+  "rawValue": zod.number().nullable(),
+  "normalizedValue": zod.number().nullable(),
+  "configuredWeight": zod.number(),
+  "effectiveWeight": zod.number(),
+  "weightedContribution": zod.number().nullable(),
+  "available": zod.boolean(),
+  "unavailableReason": zod.string().nullable()
+})),
   "active": zod.boolean()
 })),
   "cashWeight": zod.number(),
@@ -346,7 +439,38 @@ export const GetLatestResultsResponse = zod.object({
 })),
   "lookbackDays": zod.number().describe('Number of trading days used for covariance estimation'),
   "insufficientDataReasons": zod.array(zod.string()).describe('Flags for any metrics that could not be fully computed')
-})
+}),
+  "factorSetVersion": zod.string(),
+  "factorSet": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "family": zod.string(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['active', 'candidate', 'disabled']),
+  "inputSeries": zod.string(),
+  "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
+  "formula": zod.string(),
+  "direction": zod.enum(['higher_is_better', 'lower_is_better']),
+  "lookback": zod.number().min(getLatestResultsResponseFactorSetItemLookbackMin).max(getLatestResultsResponseFactorSetItemLookbackMax),
+  "lag": zod.number().min(getLatestResultsResponseFactorSetItemLagMin).max(getLatestResultsResponseFactorSetItemLagMax),
+  "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
+  "winsorizationLower": zod.number().min(getLatestResultsResponseFactorSetItemWinsorizationLowerMin).max(getLatestResultsResponseFactorSetItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(getLatestResultsResponseFactorSetItemWinsorizationUpperMin).max(getLatestResultsResponseFactorSetItemWinsorizationUpperMax),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
+  "baseWeight": zod.number().min(getLatestResultsResponseFactorSetItemBaseWeightMin),
+  "regimeWeights": zod.object({
+  "riskOn": zod.number().nullable(),
+  "neutral": zod.number().nullable(),
+  "riskOff": zod.number().nullable()
+}),
+  "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
+  "dataSource": zod.string(),
+  "benchmarkTicker": zod.string().nullable(),
+  "currentCoverage": zod.number().min(getLatestResultsResponseFactorSetItemCurrentCoverageMin).max(getLatestResultsResponseFactorSetItemCurrentCoverageMax),
+  "availabilityReason": zod.string().nullable(),
+  "version": zod.string()
+}))
 })
 
 
@@ -365,6 +489,25 @@ export const ListSessionsResponse = zod.array(ListSessionsResponseItem)
 export const GetSessionParams = zod.object({
   "sessionId": zod.coerce.number()
 })
+
+export const getSessionResponseResultFactorSetItemLookbackMin = 2;
+export const getSessionResponseResultFactorSetItemLookbackMax = 1260;
+
+export const getSessionResponseResultFactorSetItemLagMin = 0;
+export const getSessionResponseResultFactorSetItemLagMax = 252;
+
+export const getSessionResponseResultFactorSetItemWinsorizationLowerMin = 0;
+export const getSessionResponseResultFactorSetItemWinsorizationLowerMax = 0.49;
+
+export const getSessionResponseResultFactorSetItemWinsorizationUpperMin = 0.51;
+export const getSessionResponseResultFactorSetItemWinsorizationUpperMax = 1;
+
+export const getSessionResponseResultFactorSetItemBaseWeightMin = 0;
+
+export const getSessionResponseResultFactorSetItemCurrentCoverageMin = 0;
+export const getSessionResponseResultFactorSetItemCurrentCoverageMax = 1;
+
+
 
 export const GetSessionResponse = zod.object({
   "session": zod.object({
@@ -413,8 +556,20 @@ export const GetSessionResponse = zod.object({
   "realizedVol60": zod.number(),
   "drawdown": zod.number(),
   "meanReversion": zod.number(),
-  "composite": zod.number()
+  "composite": zod.number(),
+  "dynamic": zod.record(zod.string(), zod.number().nullable())
 }),
+  "factorContributions": zod.array(zod.object({
+  "factorId": zod.string(),
+  "factorName": zod.string(),
+  "rawValue": zod.number().nullable(),
+  "normalizedValue": zod.number().nullable(),
+  "configuredWeight": zod.number(),
+  "effectiveWeight": zod.number(),
+  "weightedContribution": zod.number().nullable(),
+  "available": zod.boolean(),
+  "unavailableReason": zod.string().nullable()
+})),
   "active": zod.boolean()
 })),
   "cashWeight": zod.number(),
@@ -475,7 +630,38 @@ export const GetSessionResponse = zod.object({
 })),
   "lookbackDays": zod.number().describe('Number of trading days used for covariance estimation'),
   "insufficientDataReasons": zod.array(zod.string()).describe('Flags for any metrics that could not be fully computed')
-})
+}),
+  "factorSetVersion": zod.string(),
+  "factorSet": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "family": zod.string(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['active', 'candidate', 'disabled']),
+  "inputSeries": zod.string(),
+  "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
+  "formula": zod.string(),
+  "direction": zod.enum(['higher_is_better', 'lower_is_better']),
+  "lookback": zod.number().min(getSessionResponseResultFactorSetItemLookbackMin).max(getSessionResponseResultFactorSetItemLookbackMax),
+  "lag": zod.number().min(getSessionResponseResultFactorSetItemLagMin).max(getSessionResponseResultFactorSetItemLagMax),
+  "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
+  "winsorizationLower": zod.number().min(getSessionResponseResultFactorSetItemWinsorizationLowerMin).max(getSessionResponseResultFactorSetItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(getSessionResponseResultFactorSetItemWinsorizationUpperMin).max(getSessionResponseResultFactorSetItemWinsorizationUpperMax),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
+  "baseWeight": zod.number().min(getSessionResponseResultFactorSetItemBaseWeightMin),
+  "regimeWeights": zod.object({
+  "riskOn": zod.number().nullable(),
+  "neutral": zod.number().nullable(),
+  "riskOff": zod.number().nullable()
+}),
+  "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
+  "dataSource": zod.string(),
+  "benchmarkTicker": zod.string().nullable(),
+  "currentCoverage": zod.number().min(getSessionResponseResultFactorSetItemCurrentCoverageMin).max(getSessionResponseResultFactorSetItemCurrentCoverageMax),
+  "availabilityReason": zod.string().nullable(),
+  "version": zod.string()
+}))
 })
 })
 
@@ -1360,7 +1546,8 @@ export const GetEtfDetailResponse = zod.object({
   "realizedVol60": zod.number(),
   "drawdown": zod.number(),
   "meanReversion": zod.number(),
-  "composite": zod.number()
+  "composite": zod.number(),
+  "dynamic": zod.record(zod.string(), zod.number().nullable())
 }),zod.null()]),
   "explanation": zod.string().describe('Human-readable narrative of inclusion\/exclusion decision'),
   "priceHistory": zod.array(zod.object({
@@ -1606,8 +1793,20 @@ export const GetArchiveEntryResponse = zod.object({
   "realizedVol60": zod.number(),
   "drawdown": zod.number(),
   "meanReversion": zod.number(),
-  "composite": zod.number()
+  "composite": zod.number(),
+  "dynamic": zod.record(zod.string(), zod.number().nullable())
 }),
+  "factorContributions": zod.array(zod.object({
+  "factorId": zod.string(),
+  "factorName": zod.string(),
+  "rawValue": zod.number().nullable(),
+  "normalizedValue": zod.number().nullable(),
+  "configuredWeight": zod.number(),
+  "effectiveWeight": zod.number(),
+  "weightedContribution": zod.number().nullable(),
+  "available": zod.boolean(),
+  "unavailableReason": zod.string().nullable()
+})),
   "active": zod.boolean()
 })),
   "cashWeight": zod.number(),
@@ -1730,8 +1929,20 @@ export const CompareArchiveResponse = zod.object({
   "realizedVol60": zod.number(),
   "drawdown": zod.number(),
   "meanReversion": zod.number(),
-  "composite": zod.number()
+  "composite": zod.number(),
+  "dynamic": zod.record(zod.string(), zod.number().nullable())
 }),
+  "factorContributions": zod.array(zod.object({
+  "factorId": zod.string(),
+  "factorName": zod.string(),
+  "rawValue": zod.number().nullable(),
+  "normalizedValue": zod.number().nullable(),
+  "configuredWeight": zod.number(),
+  "effectiveWeight": zod.number(),
+  "weightedContribution": zod.number().nullable(),
+  "available": zod.boolean(),
+  "unavailableReason": zod.string().nullable()
+})),
   "active": zod.boolean()
 })),
   "cashWeight": zod.number(),
@@ -1843,8 +2054,20 @@ export const CompareArchiveResponse = zod.object({
   "realizedVol60": zod.number(),
   "drawdown": zod.number(),
   "meanReversion": zod.number(),
-  "composite": zod.number()
+  "composite": zod.number(),
+  "dynamic": zod.record(zod.string(), zod.number().nullable())
 }),
+  "factorContributions": zod.array(zod.object({
+  "factorId": zod.string(),
+  "factorName": zod.string(),
+  "rawValue": zod.number().nullable(),
+  "normalizedValue": zod.number().nullable(),
+  "configuredWeight": zod.number(),
+  "effectiveWeight": zod.number(),
+  "weightedContribution": zod.number().nullable(),
+  "available": zod.boolean(),
+  "unavailableReason": zod.string().nullable()
+})),
   "active": zod.boolean()
 })),
   "cashWeight": zod.number(),
@@ -2226,6 +2449,254 @@ export const GetSignalsHistoryResponse = zod.object({
   "dateTo": zod.string().nullable(),
   "limit": zod.number()
 })
+})
+
+
+/**
+ * @summary Get the current versioned factor library
+ */
+export const getFactorLibraryResponseFactorsItemLookbackMin = 2;
+export const getFactorLibraryResponseFactorsItemLookbackMax = 1260;
+
+export const getFactorLibraryResponseFactorsItemLagMin = 0;
+export const getFactorLibraryResponseFactorsItemLagMax = 252;
+
+export const getFactorLibraryResponseFactorsItemWinsorizationLowerMin = 0;
+export const getFactorLibraryResponseFactorsItemWinsorizationLowerMax = 0.49;
+
+export const getFactorLibraryResponseFactorsItemWinsorizationUpperMin = 0.51;
+export const getFactorLibraryResponseFactorsItemWinsorizationUpperMax = 1;
+
+export const getFactorLibraryResponseFactorsItemBaseWeightMin = 0;
+
+export const getFactorLibraryResponseFactorsItemCurrentCoverageMin = 0;
+export const getFactorLibraryResponseFactorsItemCurrentCoverageMax = 1;
+
+
+
+export const GetFactorLibraryResponse = zod.object({
+  "version": zod.string(),
+  "updatedAt": zod.string(),
+  "factors": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "family": zod.string(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['active', 'candidate', 'disabled']),
+  "inputSeries": zod.string(),
+  "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
+  "formula": zod.string(),
+  "direction": zod.enum(['higher_is_better', 'lower_is_better']),
+  "lookback": zod.number().min(getFactorLibraryResponseFactorsItemLookbackMin).max(getFactorLibraryResponseFactorsItemLookbackMax),
+  "lag": zod.number().min(getFactorLibraryResponseFactorsItemLagMin).max(getFactorLibraryResponseFactorsItemLagMax),
+  "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
+  "winsorizationLower": zod.number().min(getFactorLibraryResponseFactorsItemWinsorizationLowerMin).max(getFactorLibraryResponseFactorsItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(getFactorLibraryResponseFactorsItemWinsorizationUpperMin).max(getFactorLibraryResponseFactorsItemWinsorizationUpperMax),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
+  "baseWeight": zod.number().min(getFactorLibraryResponseFactorsItemBaseWeightMin),
+  "regimeWeights": zod.object({
+  "riskOn": zod.number().nullable(),
+  "neutral": zod.number().nullable(),
+  "riskOff": zod.number().nullable()
+}),
+  "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
+  "dataSource": zod.string(),
+  "benchmarkTicker": zod.string().nullable(),
+  "currentCoverage": zod.number().min(getFactorLibraryResponseFactorsItemCurrentCoverageMin).max(getFactorLibraryResponseFactorsItemCurrentCoverageMax),
+  "availabilityReason": zod.string().nullable(),
+  "version": zod.string()
+})),
+  "history": zod.array(zod.object({
+  "version": zod.string(),
+  "createdAt": zod.string(),
+  "activeFactorCount": zod.number(),
+  "factorCount": zod.number()
+}))
+})
+
+
+/**
+ * @summary Save a new factor-library version
+ */
+
+
+
+
+
+export const updateFactorLibraryBodyFactorsItemLookbackMin = 2;
+export const updateFactorLibraryBodyFactorsItemLookbackMax = 1260;
+
+export const updateFactorLibraryBodyFactorsItemLagMin = 0;
+export const updateFactorLibraryBodyFactorsItemLagMax = 252;
+
+export const updateFactorLibraryBodyFactorsItemWinsorizationLowerMin = 0;
+export const updateFactorLibraryBodyFactorsItemWinsorizationLowerMax = 0.49;
+
+export const updateFactorLibraryBodyFactorsItemWinsorizationUpperMin = 0.51;
+export const updateFactorLibraryBodyFactorsItemWinsorizationUpperMax = 1;
+
+export const updateFactorLibraryBodyFactorsItemBaseWeightMin = 0;
+
+
+
+
+export const UpdateFactorLibraryBody = zod.object({
+  "factors": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string().min(1),
+  "description": zod.string().min(1),
+  "family": zod.string().min(1),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['active', 'candidate', 'disabled']),
+  "inputSeries": zod.string().min(1),
+  "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
+  "formula": zod.string().min(1),
+  "direction": zod.enum(['higher_is_better', 'lower_is_better']),
+  "lookback": zod.number().min(updateFactorLibraryBodyFactorsItemLookbackMin).max(updateFactorLibraryBodyFactorsItemLookbackMax),
+  "lag": zod.number().min(updateFactorLibraryBodyFactorsItemLagMin).max(updateFactorLibraryBodyFactorsItemLagMax),
+  "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
+  "winsorizationLower": zod.number().min(updateFactorLibraryBodyFactorsItemWinsorizationLowerMin).max(updateFactorLibraryBodyFactorsItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(updateFactorLibraryBodyFactorsItemWinsorizationUpperMin).max(updateFactorLibraryBodyFactorsItemWinsorizationUpperMax),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
+  "baseWeight": zod.number().min(updateFactorLibraryBodyFactorsItemBaseWeightMin),
+  "regimeWeights": zod.object({
+  "riskOn": zod.number().nullable(),
+  "neutral": zod.number().nullable(),
+  "riskOff": zod.number().nullable()
+}),
+  "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
+  "dataSource": zod.string(),
+  "benchmarkTicker": zod.string().nullable()
+})).min(1)
+})
+
+export const updateFactorLibraryResponseFactorsItemLookbackMin = 2;
+export const updateFactorLibraryResponseFactorsItemLookbackMax = 1260;
+
+export const updateFactorLibraryResponseFactorsItemLagMin = 0;
+export const updateFactorLibraryResponseFactorsItemLagMax = 252;
+
+export const updateFactorLibraryResponseFactorsItemWinsorizationLowerMin = 0;
+export const updateFactorLibraryResponseFactorsItemWinsorizationLowerMax = 0.49;
+
+export const updateFactorLibraryResponseFactorsItemWinsorizationUpperMin = 0.51;
+export const updateFactorLibraryResponseFactorsItemWinsorizationUpperMax = 1;
+
+export const updateFactorLibraryResponseFactorsItemBaseWeightMin = 0;
+
+export const updateFactorLibraryResponseFactorsItemCurrentCoverageMin = 0;
+export const updateFactorLibraryResponseFactorsItemCurrentCoverageMax = 1;
+
+
+
+export const UpdateFactorLibraryResponse = zod.object({
+  "version": zod.string(),
+  "updatedAt": zod.string(),
+  "factors": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "family": zod.string(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['active', 'candidate', 'disabled']),
+  "inputSeries": zod.string(),
+  "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
+  "formula": zod.string(),
+  "direction": zod.enum(['higher_is_better', 'lower_is_better']),
+  "lookback": zod.number().min(updateFactorLibraryResponseFactorsItemLookbackMin).max(updateFactorLibraryResponseFactorsItemLookbackMax),
+  "lag": zod.number().min(updateFactorLibraryResponseFactorsItemLagMin).max(updateFactorLibraryResponseFactorsItemLagMax),
+  "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
+  "winsorizationLower": zod.number().min(updateFactorLibraryResponseFactorsItemWinsorizationLowerMin).max(updateFactorLibraryResponseFactorsItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(updateFactorLibraryResponseFactorsItemWinsorizationUpperMin).max(updateFactorLibraryResponseFactorsItemWinsorizationUpperMax),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
+  "baseWeight": zod.number().min(updateFactorLibraryResponseFactorsItemBaseWeightMin),
+  "regimeWeights": zod.object({
+  "riskOn": zod.number().nullable(),
+  "neutral": zod.number().nullable(),
+  "riskOff": zod.number().nullable()
+}),
+  "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
+  "dataSource": zod.string(),
+  "benchmarkTicker": zod.string().nullable(),
+  "currentCoverage": zod.number().min(updateFactorLibraryResponseFactorsItemCurrentCoverageMin).max(updateFactorLibraryResponseFactorsItemCurrentCoverageMax),
+  "availabilityReason": zod.string().nullable(),
+  "version": zod.string()
+})),
+  "history": zod.array(zod.object({
+  "version": zod.string(),
+  "createdAt": zod.string(),
+  "activeFactorCount": zod.number(),
+  "factorCount": zod.number()
+}))
+})
+
+
+/**
+ * @summary Restore a historical factor set as a new version
+ */
+export const RestoreFactorLibraryParams = zod.object({
+  "version": zod.coerce.string()
+})
+
+export const restoreFactorLibraryResponseFactorsItemLookbackMin = 2;
+export const restoreFactorLibraryResponseFactorsItemLookbackMax = 1260;
+
+export const restoreFactorLibraryResponseFactorsItemLagMin = 0;
+export const restoreFactorLibraryResponseFactorsItemLagMax = 252;
+
+export const restoreFactorLibraryResponseFactorsItemWinsorizationLowerMin = 0;
+export const restoreFactorLibraryResponseFactorsItemWinsorizationLowerMax = 0.49;
+
+export const restoreFactorLibraryResponseFactorsItemWinsorizationUpperMin = 0.51;
+export const restoreFactorLibraryResponseFactorsItemWinsorizationUpperMax = 1;
+
+export const restoreFactorLibraryResponseFactorsItemBaseWeightMin = 0;
+
+export const restoreFactorLibraryResponseFactorsItemCurrentCoverageMin = 0;
+export const restoreFactorLibraryResponseFactorsItemCurrentCoverageMax = 1;
+
+
+
+export const RestoreFactorLibraryResponse = zod.object({
+  "version": zod.string(),
+  "updatedAt": zod.string(),
+  "factors": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "family": zod.string(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['active', 'candidate', 'disabled']),
+  "inputSeries": zod.string(),
+  "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
+  "formula": zod.string(),
+  "direction": zod.enum(['higher_is_better', 'lower_is_better']),
+  "lookback": zod.number().min(restoreFactorLibraryResponseFactorsItemLookbackMin).max(restoreFactorLibraryResponseFactorsItemLookbackMax),
+  "lag": zod.number().min(restoreFactorLibraryResponseFactorsItemLagMin).max(restoreFactorLibraryResponseFactorsItemLagMax),
+  "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
+  "winsorizationLower": zod.number().min(restoreFactorLibraryResponseFactorsItemWinsorizationLowerMin).max(restoreFactorLibraryResponseFactorsItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(restoreFactorLibraryResponseFactorsItemWinsorizationUpperMin).max(restoreFactorLibraryResponseFactorsItemWinsorizationUpperMax),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
+  "baseWeight": zod.number().min(restoreFactorLibraryResponseFactorsItemBaseWeightMin),
+  "regimeWeights": zod.object({
+  "riskOn": zod.number().nullable(),
+  "neutral": zod.number().nullable(),
+  "riskOff": zod.number().nullable()
+}),
+  "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
+  "dataSource": zod.string(),
+  "benchmarkTicker": zod.string().nullable(),
+  "currentCoverage": zod.number().min(restoreFactorLibraryResponseFactorsItemCurrentCoverageMin).max(restoreFactorLibraryResponseFactorsItemCurrentCoverageMax),
+  "availabilityReason": zod.string().nullable(),
+  "version": zod.string()
+})),
+  "history": zod.array(zod.object({
+  "version": zod.string(),
+  "createdAt": zod.string(),
+  "activeFactorCount": zod.number(),
+  "factorCount": zod.number()
+}))
 })
 
 

@@ -17,6 +17,7 @@ import {
 import { getUniverseConfig } from "./universe";
 import { getConstraintsConfig } from "./constraints";
 import { getLatestPriceData } from "./prices";
+import { getFactorSetSnapshot } from "../lib/factor-library";
 
 const router: IRouter = Router();
 
@@ -52,10 +53,11 @@ router.get("/committee", async (req, res): Promise<void> => {
       const universe = await getUniverseConfig();
       const etfs = universe.etfs as EtfEntry[];
       const config = defaultBacktestConfig();
-      const engineResult = runBacktestEngine(priceRows, etfs, constraints, config, null);
+      const factorSet = await getFactorSetSnapshot();
+      const engineResult = runBacktestEngine(priceRows, etfs, constraints, config, null, factorSet);
       if (engineResult.hasSufficientData) {
         const walkForward = runWalkForwardFolds(engineResult, 3);
-        const sensitivity = runSensitivityGrid(priceRows, etfs, constraints, config);
+        const sensitivity = runSensitivityGrid(priceRows, etfs, constraints, config, factorSet);
         backtestIntegrity = computeIntegrityAudit(engineResult, config, sensitivity, walkForward);
       }
     }

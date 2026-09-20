@@ -5,6 +5,7 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+import type { FactorScoresDynamic } from './factorScoresDynamic';
 
 export interface FactorScores {
   mom20: number;
@@ -16,4 +17,5 @@ export interface FactorScores {
   drawdown: number;
   meanReversion: number;
   composite: number;
+  dynamic: FactorScoresDynamic;
 }

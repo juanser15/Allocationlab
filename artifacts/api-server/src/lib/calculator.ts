@@ -15,6 +15,12 @@
  *   Risk Contribution by ETF, Correlation Matrix, Tracking Error
  */
 
+import {
+  configuredWeight,
+  regimeKey,
+  type FactorDefinition,
+} from "./factor-library";
+
 // ── Core Interfaces ──────────────────────────────────────────────────────────
 
 export interface PriceRow {
@@ -32,6 +38,19 @@ export interface FactorScores {
   drawdown: number;
   meanReversion: number;
   composite: number;
+  dynamic: Record<string, number | null>;
+}
+
+export interface FactorContribution {
+  factorId: string;
+  factorName: string;
+  rawValue: number | null;
+  normalizedValue: number | null;
+  configuredWeight: number;
+  effectiveWeight: number;
+  weightedContribution: number | null;
+  available: boolean;
+  unavailableReason: string | null;
 }
 
 export interface EtfFactorData {
@@ -45,6 +64,7 @@ export interface EtfFactorData {
   rawDrawdown: number;
   rawTrendQuality: number;
   rawMeanReversion: number;
+  factorContributions: FactorContribution[];
 }
 
 export interface RegimeComponent {
@@ -92,6 +112,7 @@ export interface AllocationResult {
   priorWeight: number;
   change: number;
   factorScores: FactorScores;
+  factorContributions: FactorContribution[];
   active: boolean;
 }
 
@@ -298,7 +319,12 @@ function pearsonCorr(a: number[], b: number[]): number {
 
 // ── Factor computation ───────────────────────────────────────────────────────
 
-export function computeFactors(rows: PriceRow[], tickers: string[]): EtfFactorData[] {
+export function computeFactors(
+  rows: PriceRow[],
+  tickers: string[],
+  factorSet?: { factors: FactorDefinition[] },
+  regimeLabel = "Neutral",
+): EtfFactorData[] {
   const pricesByTicker: Record<string, number[]> = {};
   for (const ticker of tickers) pricesByTicker[ticker] = [];
   for (const row of rows) {
@@ -307,67 +333,151 @@ export function computeFactors(rows: PriceRow[], tickers: string[]): EtfFactorDa
     }
   }
 
-  const rawMom20 = new Map<string, number>();
-  const rawMom60 = new Map<string, number>();
-  const rawMom120 = new Map<string, number>();
-  const rawMom252 = new Map<string, number>();
-  const rawVol60 = new Map<string, number>();
-  const rawDD = new Map<string, number>();
-  const rawTQ = new Map<string, number>();
-  const rawMR = new Map<string, number>();
+  const fallbackFactors: FactorDefinition[] = [
+    { id: "momentum_20", name: "Momentum 20D", calculationType: "momentum", lookback: 20, lag: 0, direction: "higher_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .2, regimeWeights: { riskOn: .2, neutral: .2, riskOff: .2 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "return(20)", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Momentum", description: "" },
+    { id: "momentum_60", name: "Momentum 60D", calculationType: "momentum", lookback: 60, lag: 0, direction: "higher_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .2, regimeWeights: { riskOn: .2, neutral: .2, riskOff: .2 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "return(60)", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Momentum", description: "" },
+    { id: "trend_quality", name: "Trend Quality", calculationType: "trend_quality", lookback: 120, lag: 0, direction: "higher_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .15, regimeWeights: { riskOn: .15, neutral: .15, riskOff: .15 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "trendQuality", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Trend", description: "" },
+    { id: "volatility", name: "Volatility", calculationType: "volatility", lookback: 60, lag: 0, direction: "lower_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .15, regimeWeights: { riskOn: .15, neutral: .15, riskOff: .15 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "volatility", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Risk", description: "" },
+    { id: "drawdown", name: "Drawdown", calculationType: "drawdown", lookback: 252, lag: 0, direction: "lower_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .15, regimeWeights: { riskOn: .15, neutral: .15, riskOff: .15 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "drawdown", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Risk", description: "" },
+    { id: "mean_reversion", name: "Mean Reversion", calculationType: "mean_reversion", lookback: 5, lag: 0, direction: "higher_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .15, regimeWeights: { riskOn: .15, neutral: .15, riskOff: .15 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "meanReversion", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Reversal", description: "" },
+  ];
+  const factors = (factorSet?.factors ?? fallbackFactors).filter((factor) => factor.enabled && factor.status === "active");
+  const rawByFactor = new Map<string, Map<string, number>>();
 
-  for (const ticker of tickers) {
-    const prices = pricesByTicker[ticker];
-    if (prices.length < 21) continue;
-    rawMom20.set(ticker, momentum(prices, 20));
-    rawMom60.set(ticker, momentum(prices, Math.min(60, prices.length - 1)));
-    rawMom120.set(ticker, momentum(prices, Math.min(120, prices.length - 1)));
-    rawMom252.set(ticker, momentum(prices, Math.min(252, prices.length - 1)));
-    rawVol60.set(ticker, realizedVolatility(prices, Math.min(60, prices.length - 1)));
-    rawDD.set(ticker, maxDrawdown(prices));
-    rawTQ.set(ticker, trendQuality(prices.slice(-Math.min(120, prices.length))));
-    rawMR.set(ticker, shortTermMeanReversion(prices));
+  const returnsFor = (ticker: string, lookback: number, lag: number) => {
+    const prices = pricesByTicker[ticker] ?? [];
+    const end = Math.max(0, prices.length - lag);
+    return momentum(prices.slice(0, end), lookback);
+  };
+  for (const factor of factors) {
+    const values = new Map<string, number>();
+    for (const ticker of tickers) {
+      const prices = pricesByTicker[ticker] ?? [];
+      const end = Math.max(0, prices.length - factor.lag);
+      const sample = prices.slice(Math.max(0, end - factor.lookback - 1), end);
+      let value = NaN;
+      switch (factor.calculationType) {
+        case "momentum": value = momentum(sample, factor.lookback); break;
+        case "trend_quality": value = trendQuality(sample); break;
+        case "volatility": value = realizedVolatility(sample, factor.lookback); break;
+        case "drawdown": value = -maxDrawdown(sample); break;
+        case "mean_reversion": value = -returnsFor(ticker, factor.lookback, factor.lag); break;
+        case "relative_strength":
+        case "residual_momentum": {
+          const benchmark = factor.benchmarkTicker ? returnsFor(factor.benchmarkTicker, factor.lookback, factor.lag) : NaN;
+          value = returnsFor(ticker, factor.lookback, factor.lag) - benchmark;
+          break;
+        }
+        case "return_over_volatility": {
+          const ret = returnsFor(ticker, factor.lookback, factor.lag);
+          const vol = realizedVolatility(sample, factor.lookback);
+          value = vol > 0 ? ret / vol : NaN;
+          break;
+        }
+        case "ma_distance": {
+          const avg = mean(sample);
+          value = avg > 0 && sample.length ? sample[sample.length - 1] / avg - 1 : NaN;
+          break;
+        }
+        case "diversification_benefit":
+        case "correlation_stability": {
+          const assetReturns = getReturns(sample);
+          const correlations = tickers.filter((peer) => peer !== ticker).map((peer) => {
+            const peerPrices = pricesByTicker[peer] ?? [];
+            const peerEnd = Math.max(0, peerPrices.length - factor.lag);
+            return pearsonCorr(assetReturns, getReturns(peerPrices.slice(Math.max(0, peerEnd - factor.lookback - 1), peerEnd)));
+          }).filter(Number.isFinite);
+          value = correlations.length ? 1 - mean(correlations) : NaN;
+          break;
+        }
+        case "drawdown_recovery": {
+          const dd = maxDrawdown(sample);
+          value = dd > 0 && sample.length ? (sample[sample.length - 1] / Math.min(...sample) - 1) / dd : NaN;
+          break;
+        }
+        case "downside_beta": {
+          const benchmarkPrices = factor.benchmarkTicker ? pricesByTicker[factor.benchmarkTicker] ?? [] : [];
+          const benchmarkReturns = getReturns(benchmarkPrices.slice(-sample.length));
+          const assetReturns = getReturns(sample);
+          const downsidePairs = benchmarkReturns.map((ret, index) => [ret, assetReturns[index]] as const).filter(([ret, asset]) => ret < 0 && Number.isFinite(asset));
+          const benchmarkDown = downsidePairs.map(([ret]) => ret);
+          const assetDown = downsidePairs.map(([, ret]) => ret);
+          const variance = std(benchmarkDown) ** 2;
+          value = variance > 0 ? pearsonCorr(assetDown, benchmarkDown) * std(assetDown) * std(benchmarkDown) / variance : NaN;
+          break;
+        }
+      }
+      if (factor.direction === "lower_is_better" && Number.isFinite(value)) value = -value;
+      if (Number.isFinite(value)) values.set(ticker, value);
+    }
+    rawByFactor.set(factor.id, values);
   }
 
-  const rankMom20 = crossSectionalRank(rawMom20);
-  const rankMom60 = crossSectionalRank(rawMom60);
-  const rankMom120 = crossSectionalRank(rawMom120);
-  const rankMom252 = crossSectionalRank(rawMom252);
-  const rankTQ = crossSectionalRank(rawTQ);
-
-  const invertedVol = new Map<string, number>();
-  for (const [k, v] of rawVol60) invertedVol.set(k, isNaN(v) ? NaN : -v);
-  const rankVol = crossSectionalRank(invertedVol);
-
-  const invertedDD = new Map<string, number>();
-  for (const [k, v] of rawDD) invertedDD.set(k, isNaN(v) ? NaN : -v);
-  const rankDD = crossSectionalRank(invertedDD);
-  const rankMR = crossSectionalRank(rawMR);
+  const normalizedByFactor = new Map<string, Map<string, number>>();
+  for (const factor of factors) {
+    const raw = rawByFactor.get(factor.id) ?? new Map();
+    if (factor.normalization === "percentile_rank") {
+      normalizedByFactor.set(factor.id, crossSectionalRank(raw));
+    } else {
+      const vals = [...raw.values()];
+      const center = factor.normalization === "robust_z_score"
+        ? [...vals].sort((a, b) => a - b)[Math.floor(vals.length / 2)] ?? 0
+        : mean(vals);
+      const scale = factor.normalization === "robust_z_score"
+        ? mean(vals.map((value) => Math.abs(value - center))) * 1.4826
+        : std(vals);
+      normalizedByFactor.set(factor.id, new Map([...raw].map(([ticker, value]) => [ticker, clamp(50 + (scale > 0 ? ((value - center) / scale) * 15 : 0), 0, 100)])));
+    }
+  }
+  const regime = regimeKey(regimeLabel);
+  const availableFactors = factors.filter((factor) => (normalizedByFactor.get(factor.id)?.size ?? 0) > 0 && configuredWeight(factor, regime) > 0);
+  const totalWeight = availableFactors.reduce((sum, factor) => sum + configuredWeight(factor, regime), 0);
 
   const results: EtfFactorData[] = [];
   for (const ticker of tickers) {
-    if (pricesByTicker[ticker].length < 21) continue;
-    const m20 = rankMom20.get(ticker) ?? 50;
-    const m60 = rankMom60.get(ticker) ?? 50;
-    const m120 = rankMom120.get(ticker) ?? 50;
-    const m252 = rankMom252.get(ticker) ?? 50;
-    const tq = rankTQ.get(ticker) ?? 50;
-    const v60 = rankVol.get(ticker) ?? 50;
-    const dd = rankDD.get(ticker) ?? 50;
-    const mr = rankMR.get(ticker) ?? 50;
-    const composite = 0.20 * m20 + 0.20 * m60 + 0.15 * m120 + 0.15 * m252 + 0.10 * tq + 0.10 * v60 + 0.05 * dd + 0.05 * mr;
+    if (pricesByTicker[ticker].length < 3) continue;
+    const dynamic: Record<string, number | null> = {};
+    const factorContributions: FactorContribution[] = factors.map((factor) => {
+      const raw = rawByFactor.get(factor.id)?.get(ticker) ?? null;
+      const normalized = normalizedByFactor.get(factor.id)?.get(ticker) ?? null;
+      const configured = configuredWeight(factor, regime);
+      const effective = totalWeight > 0 && availableFactors.some((item) => item.id === factor.id) ? configured / totalWeight : 0;
+      dynamic[factor.id] = normalized;
+      return {
+        factorId: factor.id,
+        factorName: factor.name,
+        rawValue: raw,
+        normalizedValue: normalized,
+        configuredWeight: configured,
+        effectiveWeight: effective,
+        weightedContribution: normalized === null ? null : normalized * effective,
+        available: normalized !== null,
+        unavailableReason: normalized === null ? "Factor unavailable: required input data is missing." : null,
+      };
+    });
+    const composite = factorContributions.reduce((sum, item) => sum + (item.weightedContribution ?? 0), 0);
+    const byType = (type: FactorDefinition["calculationType"], fallback = 50) => {
+      const factor = factors.find((item) => item.calculationType === type);
+      return factor ? dynamic[factor.id] ?? fallback : fallback;
+    };
+    const mom = byType("momentum");
+    const tq = byType("trend_quality");
+    const vol = byType("volatility");
+    const dd = byType("drawdown");
+    const mr = byType("mean_reversion");
 
     results.push({
       ticker,
-      factorScores: { mom20: round2(m20), mom60: round2(m60), mom120: round2(m120), mom252: round2(m252), trendQuality: round2(tq), realizedVol60: round2(v60), drawdown: round2(dd), meanReversion: round2(mr), composite: round2(composite) },
-      rawMom20: rawMom20.get(ticker) ?? NaN,
-      rawMom60: rawMom60.get(ticker) ?? NaN,
-      rawMom120: rawMom120.get(ticker) ?? NaN,
-      rawMom252: rawMom252.get(ticker) ?? NaN,
-      rawVol60: rawVol60.get(ticker) ?? NaN,
-      rawDrawdown: rawDD.get(ticker) ?? NaN,
-      rawTrendQuality: rawTQ.get(ticker) ?? NaN,
-      rawMeanReversion: rawMR.get(ticker) ?? NaN,
+      factorScores: { mom20: round2(mom), mom60: round2(mom), mom120: round2(mom), mom252: round2(mom), trendQuality: round2(tq), realizedVol60: round2(vol), drawdown: round2(dd), meanReversion: round2(mr), composite: round2(composite), dynamic },
+      rawMom20: rawByFactor.get(factors.find((item) => item.calculationType === "momentum")?.id ?? "")?.get(ticker) ?? NaN,
+      rawMom60: rawByFactor.get(factors.find((item) => item.calculationType === "momentum")?.id ?? "")?.get(ticker) ?? NaN,
+      rawMom120: rawByFactor.get(factors.find((item) => item.calculationType === "momentum")?.id ?? "")?.get(ticker) ?? NaN,
+      rawMom252: rawByFactor.get(factors.find((item) => item.calculationType === "momentum")?.id ?? "")?.get(ticker) ?? NaN,
+      rawVol60: rawByFactor.get(factors.find((item) => item.calculationType === "volatility")?.id ?? "")?.get(ticker) ?? NaN,
+      rawDrawdown: rawByFactor.get(factors.find((item) => item.calculationType === "drawdown")?.id ?? "")?.get(ticker) ?? NaN,
+      rawTrendQuality: rawByFactor.get(factors.find((item) => item.calculationType === "trend_quality")?.id ?? "")?.get(ticker) ?? NaN,
+      rawMeanReversion: rawByFactor.get(factors.find((item) => item.calculationType === "mean_reversion")?.id ?? "")?.get(ticker) ?? NaN,
+      factorContributions,
     });
   }
   return results;
@@ -539,7 +649,7 @@ export function constructAllocation(factorData: EtfFactorData[], etfs: EtfEntry[
     const etf = etfMap.get(f.ticker);
     if (!etf) continue;
     const weight = weights.get(f.ticker) ?? 0;
-    results.push({ ticker: f.ticker, name: etf.name, sector: etf.sector, weight: round4(weight), priorWeight: round4(etf.priorWeight), change: round4(weight - etf.priorWeight), factorScores: f.factorScores, active: weight > 0.001 });
+    results.push({ ticker: f.ticker, name: etf.name, sector: etf.sector, weight: round4(weight), priorWeight: round4(etf.priorWeight), change: round4(weight - etf.priorWeight), factorScores: f.factorScores, factorContributions: f.factorContributions, active: weight > 0.001 });
   }
   results.sort((a, b) => { if (a.active && !b.active) return -1; if (!a.active && b.active) return 1; return b.weight - a.weight; });
   return results;
@@ -1208,11 +1318,12 @@ export function computeSignalAsOf(
   rebalanceDate: string,
   tickers: string[],
   etfs: EtfEntry[],
-  constraints: Constraints
+  constraints: Constraints,
+  factorSet?: { factors: FactorDefinition[] },
 ): { factorData: EtfFactorData[]; regime: EnrichedRegimeScores; allocations: AllocationResult[]; lookbackDays: number } {
   const priorRows = priceRows.filter((r) => r.date < rebalanceDate);
-  const factorData = computeFactors(priorRows, tickers);
   const regime = computeRegime(priorRows, tickers);
+  const factorData = computeFactors(priorRows, tickers, factorSet, regime.label);
   const allocations = constructAllocation(factorData, etfs, constraints, regime);
   return { factorData, regime, allocations, lookbackDays: priorRows.length };
 }
@@ -1246,7 +1357,8 @@ export function runBacktestEngine(
   etfs: EtfEntry[],
   constraints: Constraints,
   config: BacktestConfig,
-  benchmarkTicker: string | null
+  benchmarkTicker: string | null,
+  factorSet?: { factors: FactorDefinition[] },
 ): BacktestEngineResult {
   const enabledTickers = etfs.filter((e) => e.enabled).map((e) => e.ticker);
   const empty = (reason: string): BacktestEngineResult => ({
@@ -1300,7 +1412,7 @@ export function runBacktestEngine(
     if (!executionDate) continue;
 
     const etfsForSignal = etfs.map((e) => ({ ...e, priorWeight: priorWeightMap.get(e.ticker) ?? e.priorWeight }));
-    const { regime, allocations, lookbackDays } = computeSignalAsOf(priceRows, rebalanceDate, enabledTickers, etfsForSignal, constraints);
+    const { regime, allocations, lookbackDays } = computeSignalAsOf(priceRows, rebalanceDate, enabledTickers, etfsForSignal, constraints, factorSet);
 
     const targetWeights = new Map<string, number>();
     for (const a of allocations) if (a.active) targetWeights.set(a.ticker, a.weight);
@@ -1576,7 +1688,13 @@ export function runWalkForwardFolds(engineResult: BacktestEngineResult, foldCoun
 }
 
 /** Re-runs the engine across a small grid of timing/cost assumptions to check result stability. */
-export function runSensitivityGrid(priceRows: PriceRow[], etfs: EtfEntry[], constraints: Constraints, baseConfig: BacktestConfig): SensitivityResult {
+export function runSensitivityGrid(
+  priceRows: PriceRow[],
+  etfs: EtfEntry[],
+  constraints: Constraints,
+  baseConfig: BacktestConfig,
+  factorSet?: { factors: FactorDefinition[] },
+): SensitivityResult {
   const frequencies: RebalanceFrequency[] = ["monthly", "quarterly"];
   const timings: ExecutionTiming[] = ["same_close", "next_close"];
   const costs = [0, baseConfig.transactionCostBps, baseConfig.transactionCostBps + 25];
@@ -1585,7 +1703,7 @@ export function runSensitivityGrid(priceRows: PriceRow[], etfs: EtfEntry[], cons
   for (const rebalanceFrequency of frequencies) {
     for (const executionTiming of timings) {
       for (const transactionCostBps of costs) {
-        const result = runBacktestEngine(priceRows, etfs, constraints, { ...baseConfig, rebalanceFrequency, executionTiming, transactionCostBps }, null);
+        const result = runBacktestEngine(priceRows, etfs, constraints, { ...baseConfig, rebalanceFrequency, executionTiming, transactionCostBps }, null, factorSet);
         runs.push({
           rebalanceFrequency,
           executionTiming,

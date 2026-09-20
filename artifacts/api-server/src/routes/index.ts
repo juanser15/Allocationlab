@@ -18,6 +18,7 @@ import tradeImplementationRouter from "./tradeImplementation";
 import attributionRouter from "./attribution";
 import governanceRouter from "./governance";
 import signalsRouter from "./signals";
+import factorsRouter from "./factors";
 
 const router: IRouter = Router();
 
@@ -40,5 +41,6 @@ router.use(tradeImplementationRouter);
 router.use(attributionRouter);
 router.use(governanceRouter);
 router.use(signalsRouter);
+router.use(factorsRouter);
 
 export default router;

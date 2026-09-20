@@ -32,6 +32,7 @@ import { computeReproducibilityHash, isDataStale, compareRerun, stableStringify 
 import { getUniverseConfig } from "./universe";
 import { getConstraintsConfig } from "./constraints";
 import { getLatestPriceData } from "./prices";
+import { getFactorSetSnapshot } from "../lib/factor-library";
 
 const router: IRouter = Router();
 
@@ -382,8 +383,9 @@ router.post("/governance/versions/:sessionId/rerun-check", async (req, res): Pro
       const enabledTickers = (currentUniverse.etfs as Array<{ ticker: string; enabled: boolean }>).filter((e) => e.enabled).map((e) => e.ticker);
       const availableTickers = JSON.parse(priceRow.tickers) as string[];
       const tickers = enabledTickers.filter((t) => availableTickers.includes(t));
-      const factorData = computeFactors(priceRows, tickers);
       const regime = computeRegime(priceRows, tickers);
+      const factorSet = await getFactorSetSnapshot();
+      const factorData = computeFactors(priceRows, tickers, factorSet, regime.label);
       const allocations = constructAllocation(factorData, currentUniverse.etfs, currentConstraints, regime);
       rerunHash = computeReproducibilityHash({
         universe: currentUniverse,
