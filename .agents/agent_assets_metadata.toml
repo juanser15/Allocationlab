@@ -67,3 +67,17 @@ mtime_ms = 1788290578087
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/3da78ab9-675c-4c91-a82d-b0270943d8b4/a07dee1c-dd47-4705-8808-cf2cf690733a"
 storage_version_token = "1788290584026341"
 content_type = "text/csv"
+
+[[outputs]]
+id = "csBCtJaMW0I62fytwGd_K"
+uri = "file://docs/estado-actual-backtesting-optimizacion.md"
+type = "text"
+title = "Diagnóstico de Allocation Lab v2 — backtesting y optimización"
+description = "Documento Markdown detallado para revisión de otro agente: estado actual, funciones, tabs, límites y propuestas, con referencias al código."
+logical_id = "80b17624-3b45-4da4-8c49-4e007f1eefc9"
+content_hash = "sha256:79a02711f51fdbdc9fd6069c505289dc0533503fef678fed4782022b6d6906c1"
+size = 47285
+mtime_ms = 1790225310481
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/80b17624-3b45-4da4-8c49-4e007f1eefc9/66a9ac43-923c-4678-b77f-f9d798c26685"
+storage_version_token = "1790225315169532"
+content_type = "text/markdown"
