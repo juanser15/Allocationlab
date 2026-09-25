@@ -6,6 +6,23 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './allocationCandidateBounds';
+export * from './allocationConstraints';
+export * from './allocationConstraintsAssetBounds';
+export * from './allocationConstraintsCandidateBounds';
+export * from './allocationGroupCap';
+export * from './allocationObjective';
+export * from './allocationObjectiveType';
+export * from './allocationReplay';
+export * from './allocationReplayReplayedResult';
+export * from './allocationReplayStatus';
+export * from './allocationRequest';
+export * from './allocationRequestRepresentation';
+export * from './allocationRequestReturnConvention';
+export * from './allocationVersion';
+export * from './allocationVersionRepresentation';
+export * from './allocationVersionResult';
+export * from './allocationVersionStatus';
 export * from './archiveCompareResult';
 export * from './archiveEntry';
 export * from './archiveListItem';

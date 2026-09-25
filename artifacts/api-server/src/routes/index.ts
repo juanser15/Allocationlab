@@ -20,6 +20,7 @@ import governanceRouter from "./governance";
 import signalsRouter from "./signals";
 import factorsRouter from "./factors";
 import preparedInputsRouter from "./prepared-inputs";
+import allocationsRouter from "./allocations";
 
 const router: IRouter = Router();
 
@@ -44,5 +45,6 @@ router.use(governanceRouter);
 router.use(signalsRouter);
 router.use(factorsRouter);
 router.use(preparedInputsRouter);
+router.use(allocationsRouter);
 
 export default router;

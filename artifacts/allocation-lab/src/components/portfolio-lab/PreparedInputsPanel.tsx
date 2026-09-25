@@ -39,6 +39,19 @@ type AlphaDefinition = {
 };
 
 type ApiItem = Record<string, any>;
+export type B2PreparedSelection = {
+  preparedInputId: number;
+  representation: Representation;
+  candidateIds: string[];
+  candidateNames: Record<string, string>;
+  informationCutoff: string;
+};
+
+type PreparedInputsPanelProps = {
+  b2Mode?: boolean;
+  onB2ModeChange?: (enabled: boolean) => void;
+  onPreparedSelectionChange?: (selection: B2PreparedSelection | null) => void;
+};
 
 const REPRESENTATIONS: { value: Representation; label: string }[] = [
   { value: "asset_returns", label: "Asset Returns" },
@@ -84,7 +97,7 @@ function technicalState(item: ApiItem): string {
   return typeof status === "string" ? status.toUpperCase() : "UNAVAILABLE";
 }
 
-export function PreparedInputsPanel() {
+export function PreparedInputsPanel({ b2Mode = false, onB2ModeChange, onPreparedSelectionChange }: PreparedInputsPanelProps) {
   const queryClient = useQueryClient();
   const { data: pricesStatus } = useGetPricesStatus();
   const { data: factorLibrary } = useGetFactorLibrary();
@@ -123,6 +136,32 @@ export function PreparedInputsPanel() {
   useEffect(() => {
     if (selectedVersionQuery.data) setActiveItem(selectedVersionQuery.data as unknown as ApiItem);
   }, [selectedVersionQuery.data]);
+
+  useEffect(() => {
+    if (!onPreparedSelectionChange) return;
+    const output = activeItem;
+    const id = output && responseId(output);
+    const snapshot = output?.snapshot;
+    const candidates = output ? findArray(output, ["candidates"]) : [];
+    const representation = output?.representation ?? snapshot?.representation;
+    if (!id || !Number.isSafeInteger(Number(id)) || !["asset_returns", "alpha_streams", "signals"].includes(representation)) {
+      onPreparedSelectionChange(null);
+      return;
+    }
+    const candidateNames: Record<string, string> = {};
+    const candidateIds = candidates.map(candidate => {
+      const candidateId = candidate.candidateId ?? candidate.id;
+      if (typeof candidateId === "string") candidateNames[candidateId] = candidate.name ?? candidateId;
+      return candidateId;
+    }).filter((candidateId): candidateId is string => typeof candidateId === "string");
+    onPreparedSelectionChange({
+      preparedInputId: Number(id),
+      representation,
+      candidateIds: Array.from(new Set(candidateIds)),
+      candidateNames,
+      informationCutoff: snapshot?.request?.cutoffDate ?? "",
+    });
+  }, [activeItem, onPreparedSelectionChange]);
 
   const toggle = (values: string[], setValues: (value: string[]) => void, value: string) => {
     setValues(values.includes(value) ? values.filter(item => item !== value) : [...values, value]);
@@ -164,7 +203,7 @@ export function PreparedInputsPanel() {
       return;
     }
     setError(null);
-    setActiveItem(null);
+    setActiveItem(item);
     setSelectedVersionId(Number(id));
   };
 
@@ -202,6 +241,11 @@ export function PreparedInputsPanel() {
                 {option.label}
               </Button>
             ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-2 border-t pt-3" role="group" aria-label="Optimization mode">
+            <span className="text-xs font-medium text-muted-foreground">Optimize with</span>
+            <Button type="button" size="sm" variant={!b2Mode ? "default" : "outline"} onClick={() => onB2ModeChange?.(false)} data-testid="select-optimization-mode-legacy">Legacy optimizer</Button>
+            <Button type="button" size="sm" variant={b2Mode ? "default" : "outline"} onClick={() => onB2ModeChange?.(true)} data-testid="select-optimization-mode-b2">B2 allocation</Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-5">

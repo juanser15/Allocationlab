@@ -3528,3 +3528,397 @@ export const ReplayPreparedInputResponse = zod.object({
 })
 
 
+/**
+ * @summary List immutable B2 allocation versions
+ */
+
+
+
+export const listAllocationsResponseRequestEstimationWindowMin = 2;
+
+export const listAllocationsResponseRequestMinObservationsMin = 2;
+
+export const listAllocationsResponseRequestExpectedReturnShrinkageMin = 0;
+export const listAllocationsResponseRequestExpectedReturnShrinkageMax = 1;
+
+export const listAllocationsResponseRequestCovarianceDiagonalShrinkageMin = 0;
+export const listAllocationsResponseRequestCovarianceDiagonalShrinkageMax = 1;
+
+export const listAllocationsResponseRequestObjectiveGammaExclusiveMin = 0;
+
+export const listAllocationsResponseRequestObjectiveEtaMin = 0;
+
+export const listAllocationsResponseRequestConstraintsCandidateBoundsMinMin = 0;
+export const listAllocationsResponseRequestConstraintsCandidateBoundsMinMax = 1;
+
+export const listAllocationsResponseRequestConstraintsCandidateBoundsMaxMin = 0;
+export const listAllocationsResponseRequestConstraintsCandidateBoundsMaxMax = 1;
+
+export const listAllocationsResponseRequestConstraintsTotalCashMinMin = 0;
+export const listAllocationsResponseRequestConstraintsTotalCashMinMax = 1;
+
+export const listAllocationsResponseRequestConstraintsTotalCashMaxMin = 0;
+export const listAllocationsResponseRequestConstraintsTotalCashMaxMax = 1;
+
+export const listAllocationsResponseRequestConstraintsAssetBoundsMinMin = 0;
+export const listAllocationsResponseRequestConstraintsAssetBoundsMinMax = 1;
+
+export const listAllocationsResponseRequestConstraintsAssetBoundsMaxMin = 0;
+export const listAllocationsResponseRequestConstraintsAssetBoundsMaxMax = 1;
+
+
+
+
+export const listAllocationsResponseRequestConstraintsGroupCapsItemMaxMin = 0;
+export const listAllocationsResponseRequestConstraintsGroupCapsItemMaxMax = 1;
+
+
+
+export const ListAllocationsResponseItem = zod.object({
+  "id": zod.number(),
+  "preparedInputId": zod.number(),
+  "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
+  "fingerprint": zod.string(),
+  "engineVersion": zod.string(),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "request": zod.object({
+  "preparedInputId": zod.number().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "informationCutoff": zod.string(),
+  "decisionTimestamp": zod.string(),
+  "estimationWindow": zod.number().min(listAllocationsResponseRequestEstimationWindowMin),
+  "minObservations": zod.number().min(listAllocationsResponseRequestMinObservationsMin),
+  "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
+  "returnConvention": zod.enum(['daily_decimal']),
+  "expectedReturnShrinkage": zod.number().min(listAllocationsResponseRequestExpectedReturnShrinkageMin).max(listAllocationsResponseRequestExpectedReturnShrinkageMax),
+  "covarianceDiagonalShrinkage": zod.number().min(listAllocationsResponseRequestCovarianceDiagonalShrinkageMin).max(listAllocationsResponseRequestCovarianceDiagonalShrinkageMax),
+  "dailyCashYield": zod.number(),
+  "objective": zod.object({
+  "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
+  "gamma": zod.number().gt(listAllocationsResponseRequestObjectiveGammaExclusiveMin),
+  "eta": zod.number().min(listAllocationsResponseRequestObjectiveEtaMin)
+}),
+  "constraints": zod.object({
+  "candidateBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(listAllocationsResponseRequestConstraintsCandidateBoundsMinMin).max(listAllocationsResponseRequestConstraintsCandidateBoundsMinMax).optional(),
+  "max": zod.number().min(listAllocationsResponseRequestConstraintsCandidateBoundsMaxMin).max(listAllocationsResponseRequestConstraintsCandidateBoundsMaxMax).optional()
+})).optional(),
+  "totalCash": zod.object({
+  "min": zod.number().min(listAllocationsResponseRequestConstraintsTotalCashMinMin).max(listAllocationsResponseRequestConstraintsTotalCashMinMax).optional(),
+  "max": zod.number().min(listAllocationsResponseRequestConstraintsTotalCashMaxMin).max(listAllocationsResponseRequestConstraintsTotalCashMaxMax).optional()
+}).optional(),
+  "assetBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(listAllocationsResponseRequestConstraintsAssetBoundsMinMin).max(listAllocationsResponseRequestConstraintsAssetBoundsMinMax).optional(),
+  "max": zod.number().min(listAllocationsResponseRequestConstraintsAssetBoundsMaxMin).max(listAllocationsResponseRequestConstraintsAssetBoundsMaxMax).optional()
+})).optional(),
+  "groupCaps": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "max": zod.number().min(listAllocationsResponseRequestConstraintsGroupCapsItemMaxMin).max(listAllocationsResponseRequestConstraintsGroupCapsItemMaxMax)
+})).optional(),
+  "unsupported": zod.array(zod.string()).optional()
+})
+}),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "createdAt": zod.coerce.date()
+})
+export const ListAllocationsResponse = zod.array(ListAllocationsResponseItem)
+
+
+/**
+ * @summary Solve and persist an immutable B2 allocation
+ */
+
+
+
+export const createAllocationBodyEstimationWindowMin = 2;
+
+export const createAllocationBodyMinObservationsMin = 2;
+
+export const createAllocationBodyExpectedReturnShrinkageMin = 0;
+export const createAllocationBodyExpectedReturnShrinkageMax = 1;
+
+export const createAllocationBodyCovarianceDiagonalShrinkageMin = 0;
+export const createAllocationBodyCovarianceDiagonalShrinkageMax = 1;
+
+export const createAllocationBodyObjectiveGammaExclusiveMin = 0;
+
+export const createAllocationBodyObjectiveEtaMin = 0;
+
+export const createAllocationBodyConstraintsCandidateBoundsMinMin = 0;
+export const createAllocationBodyConstraintsCandidateBoundsMinMax = 1;
+
+export const createAllocationBodyConstraintsCandidateBoundsMaxMin = 0;
+export const createAllocationBodyConstraintsCandidateBoundsMaxMax = 1;
+
+export const createAllocationBodyConstraintsTotalCashMinMin = 0;
+export const createAllocationBodyConstraintsTotalCashMinMax = 1;
+
+export const createAllocationBodyConstraintsTotalCashMaxMin = 0;
+export const createAllocationBodyConstraintsTotalCashMaxMax = 1;
+
+export const createAllocationBodyConstraintsAssetBoundsMinMin = 0;
+export const createAllocationBodyConstraintsAssetBoundsMinMax = 1;
+
+export const createAllocationBodyConstraintsAssetBoundsMaxMin = 0;
+export const createAllocationBodyConstraintsAssetBoundsMaxMax = 1;
+
+
+
+
+export const createAllocationBodyConstraintsGroupCapsItemMaxMin = 0;
+export const createAllocationBodyConstraintsGroupCapsItemMaxMax = 1;
+
+
+
+export const CreateAllocationBody = zod.object({
+  "preparedInputId": zod.number().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "informationCutoff": zod.string(),
+  "decisionTimestamp": zod.string(),
+  "estimationWindow": zod.number().min(createAllocationBodyEstimationWindowMin),
+  "minObservations": zod.number().min(createAllocationBodyMinObservationsMin),
+  "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
+  "returnConvention": zod.enum(['daily_decimal']),
+  "expectedReturnShrinkage": zod.number().min(createAllocationBodyExpectedReturnShrinkageMin).max(createAllocationBodyExpectedReturnShrinkageMax),
+  "covarianceDiagonalShrinkage": zod.number().min(createAllocationBodyCovarianceDiagonalShrinkageMin).max(createAllocationBodyCovarianceDiagonalShrinkageMax),
+  "dailyCashYield": zod.number(),
+  "objective": zod.object({
+  "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
+  "gamma": zod.number().gt(createAllocationBodyObjectiveGammaExclusiveMin),
+  "eta": zod.number().min(createAllocationBodyObjectiveEtaMin)
+}),
+  "constraints": zod.object({
+  "candidateBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(createAllocationBodyConstraintsCandidateBoundsMinMin).max(createAllocationBodyConstraintsCandidateBoundsMinMax).optional(),
+  "max": zod.number().min(createAllocationBodyConstraintsCandidateBoundsMaxMin).max(createAllocationBodyConstraintsCandidateBoundsMaxMax).optional()
+})).optional(),
+  "totalCash": zod.object({
+  "min": zod.number().min(createAllocationBodyConstraintsTotalCashMinMin).max(createAllocationBodyConstraintsTotalCashMinMax).optional(),
+  "max": zod.number().min(createAllocationBodyConstraintsTotalCashMaxMin).max(createAllocationBodyConstraintsTotalCashMaxMax).optional()
+}).optional(),
+  "assetBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(createAllocationBodyConstraintsAssetBoundsMinMin).max(createAllocationBodyConstraintsAssetBoundsMinMax).optional(),
+  "max": zod.number().min(createAllocationBodyConstraintsAssetBoundsMaxMin).max(createAllocationBodyConstraintsAssetBoundsMaxMax).optional()
+})).optional(),
+  "groupCaps": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "max": zod.number().min(createAllocationBodyConstraintsGroupCapsItemMaxMin).max(createAllocationBodyConstraintsGroupCapsItemMaxMax)
+})).optional(),
+  "unsupported": zod.array(zod.string()).optional()
+})
+})
+
+
+
+
+export const createAllocationResponseRequestEstimationWindowMin = 2;
+
+export const createAllocationResponseRequestMinObservationsMin = 2;
+
+export const createAllocationResponseRequestExpectedReturnShrinkageMin = 0;
+export const createAllocationResponseRequestExpectedReturnShrinkageMax = 1;
+
+export const createAllocationResponseRequestCovarianceDiagonalShrinkageMin = 0;
+export const createAllocationResponseRequestCovarianceDiagonalShrinkageMax = 1;
+
+export const createAllocationResponseRequestObjectiveGammaExclusiveMin = 0;
+
+export const createAllocationResponseRequestObjectiveEtaMin = 0;
+
+export const createAllocationResponseRequestConstraintsCandidateBoundsMinMin = 0;
+export const createAllocationResponseRequestConstraintsCandidateBoundsMinMax = 1;
+
+export const createAllocationResponseRequestConstraintsCandidateBoundsMaxMin = 0;
+export const createAllocationResponseRequestConstraintsCandidateBoundsMaxMax = 1;
+
+export const createAllocationResponseRequestConstraintsTotalCashMinMin = 0;
+export const createAllocationResponseRequestConstraintsTotalCashMinMax = 1;
+
+export const createAllocationResponseRequestConstraintsTotalCashMaxMin = 0;
+export const createAllocationResponseRequestConstraintsTotalCashMaxMax = 1;
+
+export const createAllocationResponseRequestConstraintsAssetBoundsMinMin = 0;
+export const createAllocationResponseRequestConstraintsAssetBoundsMinMax = 1;
+
+export const createAllocationResponseRequestConstraintsAssetBoundsMaxMin = 0;
+export const createAllocationResponseRequestConstraintsAssetBoundsMaxMax = 1;
+
+
+
+
+export const createAllocationResponseRequestConstraintsGroupCapsItemMaxMin = 0;
+export const createAllocationResponseRequestConstraintsGroupCapsItemMaxMax = 1;
+
+
+
+export const CreateAllocationResponse = zod.object({
+  "id": zod.number(),
+  "preparedInputId": zod.number(),
+  "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
+  "fingerprint": zod.string(),
+  "engineVersion": zod.string(),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "request": zod.object({
+  "preparedInputId": zod.number().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "informationCutoff": zod.string(),
+  "decisionTimestamp": zod.string(),
+  "estimationWindow": zod.number().min(createAllocationResponseRequestEstimationWindowMin),
+  "minObservations": zod.number().min(createAllocationResponseRequestMinObservationsMin),
+  "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
+  "returnConvention": zod.enum(['daily_decimal']),
+  "expectedReturnShrinkage": zod.number().min(createAllocationResponseRequestExpectedReturnShrinkageMin).max(createAllocationResponseRequestExpectedReturnShrinkageMax),
+  "covarianceDiagonalShrinkage": zod.number().min(createAllocationResponseRequestCovarianceDiagonalShrinkageMin).max(createAllocationResponseRequestCovarianceDiagonalShrinkageMax),
+  "dailyCashYield": zod.number(),
+  "objective": zod.object({
+  "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
+  "gamma": zod.number().gt(createAllocationResponseRequestObjectiveGammaExclusiveMin),
+  "eta": zod.number().min(createAllocationResponseRequestObjectiveEtaMin)
+}),
+  "constraints": zod.object({
+  "candidateBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(createAllocationResponseRequestConstraintsCandidateBoundsMinMin).max(createAllocationResponseRequestConstraintsCandidateBoundsMinMax).optional(),
+  "max": zod.number().min(createAllocationResponseRequestConstraintsCandidateBoundsMaxMin).max(createAllocationResponseRequestConstraintsCandidateBoundsMaxMax).optional()
+})).optional(),
+  "totalCash": zod.object({
+  "min": zod.number().min(createAllocationResponseRequestConstraintsTotalCashMinMin).max(createAllocationResponseRequestConstraintsTotalCashMinMax).optional(),
+  "max": zod.number().min(createAllocationResponseRequestConstraintsTotalCashMaxMin).max(createAllocationResponseRequestConstraintsTotalCashMaxMax).optional()
+}).optional(),
+  "assetBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(createAllocationResponseRequestConstraintsAssetBoundsMinMin).max(createAllocationResponseRequestConstraintsAssetBoundsMinMax).optional(),
+  "max": zod.number().min(createAllocationResponseRequestConstraintsAssetBoundsMaxMin).max(createAllocationResponseRequestConstraintsAssetBoundsMaxMax).optional()
+})).optional(),
+  "groupCaps": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "max": zod.number().min(createAllocationResponseRequestConstraintsGroupCapsItemMaxMin).max(createAllocationResponseRequestConstraintsGroupCapsItemMaxMax)
+})).optional(),
+  "unsupported": zod.array(zod.string()).optional()
+})
+}),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "createdAt": zod.coerce.date()
+})
+
+
+
+
+
+export const GetAllocationParams = zod.object({
+  "allocationId": zod.coerce.number().min(1)
+})
+
+
+
+
+export const getAllocationResponseRequestEstimationWindowMin = 2;
+
+export const getAllocationResponseRequestMinObservationsMin = 2;
+
+export const getAllocationResponseRequestExpectedReturnShrinkageMin = 0;
+export const getAllocationResponseRequestExpectedReturnShrinkageMax = 1;
+
+export const getAllocationResponseRequestCovarianceDiagonalShrinkageMin = 0;
+export const getAllocationResponseRequestCovarianceDiagonalShrinkageMax = 1;
+
+export const getAllocationResponseRequestObjectiveGammaExclusiveMin = 0;
+
+export const getAllocationResponseRequestObjectiveEtaMin = 0;
+
+export const getAllocationResponseRequestConstraintsCandidateBoundsMinMin = 0;
+export const getAllocationResponseRequestConstraintsCandidateBoundsMinMax = 1;
+
+export const getAllocationResponseRequestConstraintsCandidateBoundsMaxMin = 0;
+export const getAllocationResponseRequestConstraintsCandidateBoundsMaxMax = 1;
+
+export const getAllocationResponseRequestConstraintsTotalCashMinMin = 0;
+export const getAllocationResponseRequestConstraintsTotalCashMinMax = 1;
+
+export const getAllocationResponseRequestConstraintsTotalCashMaxMin = 0;
+export const getAllocationResponseRequestConstraintsTotalCashMaxMax = 1;
+
+export const getAllocationResponseRequestConstraintsAssetBoundsMinMin = 0;
+export const getAllocationResponseRequestConstraintsAssetBoundsMinMax = 1;
+
+export const getAllocationResponseRequestConstraintsAssetBoundsMaxMin = 0;
+export const getAllocationResponseRequestConstraintsAssetBoundsMaxMax = 1;
+
+
+
+
+export const getAllocationResponseRequestConstraintsGroupCapsItemMaxMin = 0;
+export const getAllocationResponseRequestConstraintsGroupCapsItemMaxMax = 1;
+
+
+
+export const GetAllocationResponse = zod.object({
+  "id": zod.number(),
+  "preparedInputId": zod.number(),
+  "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
+  "fingerprint": zod.string(),
+  "engineVersion": zod.string(),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "request": zod.object({
+  "preparedInputId": zod.number().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "informationCutoff": zod.string(),
+  "decisionTimestamp": zod.string(),
+  "estimationWindow": zod.number().min(getAllocationResponseRequestEstimationWindowMin),
+  "minObservations": zod.number().min(getAllocationResponseRequestMinObservationsMin),
+  "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
+  "returnConvention": zod.enum(['daily_decimal']),
+  "expectedReturnShrinkage": zod.number().min(getAllocationResponseRequestExpectedReturnShrinkageMin).max(getAllocationResponseRequestExpectedReturnShrinkageMax),
+  "covarianceDiagonalShrinkage": zod.number().min(getAllocationResponseRequestCovarianceDiagonalShrinkageMin).max(getAllocationResponseRequestCovarianceDiagonalShrinkageMax),
+  "dailyCashYield": zod.number(),
+  "objective": zod.object({
+  "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
+  "gamma": zod.number().gt(getAllocationResponseRequestObjectiveGammaExclusiveMin),
+  "eta": zod.number().min(getAllocationResponseRequestObjectiveEtaMin)
+}),
+  "constraints": zod.object({
+  "candidateBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(getAllocationResponseRequestConstraintsCandidateBoundsMinMin).max(getAllocationResponseRequestConstraintsCandidateBoundsMinMax).optional(),
+  "max": zod.number().min(getAllocationResponseRequestConstraintsCandidateBoundsMaxMin).max(getAllocationResponseRequestConstraintsCandidateBoundsMaxMax).optional()
+})).optional(),
+  "totalCash": zod.object({
+  "min": zod.number().min(getAllocationResponseRequestConstraintsTotalCashMinMin).max(getAllocationResponseRequestConstraintsTotalCashMinMax).optional(),
+  "max": zod.number().min(getAllocationResponseRequestConstraintsTotalCashMaxMin).max(getAllocationResponseRequestConstraintsTotalCashMaxMax).optional()
+}).optional(),
+  "assetBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(getAllocationResponseRequestConstraintsAssetBoundsMinMin).max(getAllocationResponseRequestConstraintsAssetBoundsMinMax).optional(),
+  "max": zod.number().min(getAllocationResponseRequestConstraintsAssetBoundsMaxMin).max(getAllocationResponseRequestConstraintsAssetBoundsMaxMax).optional()
+})).optional(),
+  "groupCaps": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "max": zod.number().min(getAllocationResponseRequestConstraintsGroupCapsItemMaxMin).max(getAllocationResponseRequestConstraintsGroupCapsItemMaxMax)
+})).optional(),
+  "unsupported": zod.array(zod.string()).optional()
+})
+}),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Replay the solver against the allocation's frozen B1 snapshot and request
+ */
+
+
+
+export const ReplayAllocationParams = zod.object({
+  "allocationId": zod.coerce.number().min(1)
+})
+
+export const ReplayAllocationResponse = zod.object({
+  "allocationId": zod.number(),
+  "status": zod.enum(['pass', 'fail', 'engine_mismatch']),
+  "fingerprint": zod.string(),
+  "differences": zod.array(zod.string()),
+  "replayedResult": zod.record(zod.string(), zod.unknown())
+})
+
+

@@ -1,0 +1,408 @@
+B2 — REAL ALLOCATION SOLVER FOR ASSETS AND ALPHA STREAMS
+
+CLOSED-SCOPE TASK
+
+B1 is closed. Stage A is closed.
+Preserve their behavior and regression tests.
+
+GOAL
+
+Implement one genuine allocation solver that consumes either:
+
+A. Asset-return inputs prepared in B1.
+B. Tradable alpha-stream inputs prepared in B1.
+
+The user chooses the representation, objective and supported constraints.
+
+Return optimized candidate weights and the resulting underlying
+asset/cash exposures for a specified decision timestamp.
+
+This task is an AS-OF ALLOCATION, not a historical performance study.
+
+DO NOT IMPLEMENT
+
+- predictive coefficient fitting for raw signals;
+- new factors or position mappings;
+- automatic alpha selection or parameter search;
+- PCA, automatic clustering, Risk Parity or ensembles;
+- a new backtester;
+- a navigation redesign.
+
+Do not revive the old June mandate as a universal requirement.
+
+--------------------------------------------------
+1. INPUT CONTRACT AND ESTIMATION
+--------------------------------------------------
+
+Consume an explicitly selected immutable B1 preparation version.
+
+Require:
+- selected canonical candidate IDs;
+- information cutoff and decision timestamp;
+- estimation window and minimum observations;
+- representation and return convention;
+- applicable B1 exposure mapping;
+- objective, parameters and constraints.
+
+Raw signal scores cannot enter a return covariance matrix as though
+they were tradable returns. Return UNSUPPORTED_REPRESENTATION for
+predictive signal optimization in B2.
+
+Use only observations permitted by the frozen information cutoff.
+Align complete observations on a common return interval and calendar.
+Report the actual dates and observation count.
+Do not fill missing returns with zeros.
+
+Selected candidates lacking required data must produce an explicit
+readiness error. Do not silently drop them or select alternatives.
+
+Use daily decimal returns consistently.
+
+For alpha streams, use gross daily economic returns from the B1 ledger:
+
+gross_return =
+(asset_P&L + cash_P&L) / beginning_NAV
+
+Retain net returns and cost components separately.
+Do not treat gross returns as a frictionless replay.
+
+Require compatible currency, calendar, capital and cash assumptions
+across the selected streams.
+
+Expected-return estimate:
+
+mu_j = (1 - s) * mean(gross_return_j) + s * r_cash
+
+where s is an explicit user-configured shrinkage strength in [0,1].
+Use the declared deterministic daily cash yield r_cash.
+Show the sample mean, s and resulting estimate.
+Do not estimate s by maximizing backtest performance.
+
+Covariance:
+
+Sigma = (1 - delta) * S + delta * diag(S)
+
+where S is sample covariance on the same aligned window and delta
+is explicit in [0,1].
+
+Call this DIAGONAL SHRINKAGE, not Ledoit-Wolf unless that exact
+estimator is actually implemented.
+
+Show and freeze s, delta, covariance formula, window and units.
+Do not add other estimators in B2.
+
+--------------------------------------------------
+2. TWO OBJECTIVES, ONE SOLVER
+--------------------------------------------------
+
+Let:
+b = candidate capital weights;
+c = unallocated master cash;
+mu = expected daily candidate returns;
+Sigma = daily candidate-return covariance.
+
+MINIMUM VARIANCE
+
+Minimize:
+
+    0.5 * b' Sigma b
+
+REGULARIZED MEAN-VARIANCE
+
+Minimize:
+
+    (gamma / 2) * b' Sigma b
+    + (eta / 2) * sum(b_j²)
+    - mu' b
+    - r_cash * c
+
+gamma > 0.
+eta >= 0.
+
+Expose the chosen parameters and each objective contribution.
+Do not auto-tune them.
+
+Use the same solver for both input representations.
+Do not substitute score ranking, inverse-volatility weights or
+post-hoc clipping for solving the stated objective.
+
+B2 optimizes a gross-return estimate.
+It does not optimize transaction costs or predict realized net returns.
+Do not label its output “net-return optimized”.
+
+--------------------------------------------------
+3. CAPITAL, UNDERLYING EXPOSURES AND CASH
+--------------------------------------------------
+
+For B2, support the existing long-only, unlevered capability:
+
+    b >= 0
+    c >= 0
+    sum(b) + c = 1
+
+This is an explicit supported capability, not a permanent product mandate.
+
+ASSET MODE
+
+    H = identity
+    d = zero
+
+ALPHA-STREAM MODE
+
+Use each stream's B1 target-exposure mapping available at the decision
+timestamp, with no future prices or future exposures.
+
+    H_ij = asset i target fraction per unit of capital in alpha j
+    d_j = residual cash fraction inside alpha j
+
+Require:
+
+    sum_i H_ij + d_j = 1
+
+Then:
+
+    asset_weights = H * b
+    total_cash = c + d' * b
+
+Show candidate capital weights and final asset weights separately.
+
+Internal alpha cash must be counted exactly once.
+Cash constraints apply to TOTAL CASH, not just c.
+
+These are target exposures, not executed trades.
+Do not overwrite actual holdings with target weights.
+
+Historical stream-covariance risk and current underlying-asset risk
+are different estimates. Label the former accurately; do not claim
+they must coincide.
+
+--------------------------------------------------
+4. USER-CONFIGURABLE CONSTRAINTS
+--------------------------------------------------
+
+Support continuous constraints:
+
+- per-candidate lower and upper weights;
+- total cash minimum and maximum;
+- per-underlying-asset lower and upper exposures;
+- optional caps on user-defined candidate groups.
+
+An unconditional lower weight bound means mandatory allocation.
+It is NOT a “zero or at least X%” inclusion rule.
+
+Apply asset and cash constraints INSIDE the optimization through H and d.
+
+Do not optimize first and clip/renormalize afterward.
+
+No automatic:
+- 50–60% cash;
+- 5% position floor;
+- 10% cap;
+- eight-position requirement.
+
+Preserve those settings in old snapshots only.
+
+If the user enables an unsupported constraint, return
+UNSUPPORTED_CONSTRAINT and identify it.
+
+In B2, unsupported cases include conditional minimum holdings,
+cardinality, signed alpha allocations and leverage.
+
+Do not silently ignore them or alter the legacy engine to support them.
+
+For supported but conflicting constraints, return INFEASIBLE.
+
+If minimum variance legitimately chooses all cash under the selected
+constraints, explain that outcome; do not force risky exposure.
+
+--------------------------------------------------
+5. CORRELATION, DUPLICATES AND NUMERICAL INTEGRITY
+--------------------------------------------------
+
+Preserve B1 canonical duplicate handling BEFORE estimating and solving.
+Aliases must not create additional variables or extra allocation budget.
+
+Distinct but correlated alphas remain eligible.
+Do not select the highest in-sample Sharpe or remove candidates
+because of correlation alone.
+
+Use the declared covariance shrinkage and optional group caps.
+Do not claim these guarantee out-of-sample stability.
+
+Validate:
+- finite, symmetric covariance;
+- positive semidefiniteness within a documented tolerance;
+- consistent dimensions and candidate ordering.
+
+Do not silently repair a materially invalid matrix.
+A legitimate zero-variance/cash-like stream is not automatically invalid.
+
+Use an established convex QP solver.
+Record its name, version, status, tolerances and residuals.
+
+Distinguish:
+- SOLVED
+- INFEASIBLE
+- INVALID_INPUT / INVALID_RISK_MODEL
+- UNSUPPORTED
+- NUMERICAL_FAILURE / LIMIT_REACHED
+
+A time limit or inaccurate solver result is not SOLVED.
+
+Verify constraints independently after solving.
+Round only for display.
+
+Do not substitute equal weights when optimization fails.
+
+--------------------------------------------------
+6. PERSISTENCE AND MINIMAL UI
+--------------------------------------------------
+
+Extend the existing A2 snapshot system.
+
+Persist:
+- B1 preparation ID;
+- canonical candidates and representation;
+- dataset identities and cutoff;
+- aligned estimation dates;
+- mu, Sigma, H and d;
+- objective and all parameter values;
+- constraints;
+- candidate and asset weights;
+- solver diagnostics;
+- engine and solver versions.
+
+Replay must use these frozen inputs, not current working settings.
+
+Use the existing Portfolio Lab input selector and Optimize action.
+
+Display:
+- representation;
+- objective and formula;
+- candidate weights;
+- underlying asset weights and total cash;
+- estimated gross return and volatility;
+- objective contributions;
+- constraint slack;
+- solver status;
+- preparation and optimization IDs.
+
+Changing working settings must not relabel old results as current.
+
+Mark successful new-mode output:
+
+“Allocation computed — historical validation pending.”
+
+Do not let Validate silently run the legacy constructor for this new
+allocation policy. Keep new-mode historical validation explicitly
+unavailable until integrated; preserve legacy validation unchanged.
+
+Do not manufacture Sharpe, OOS or robustness results in B2.
+
+--------------------------------------------------
+ACCEPTANCE TESTS
+--------------------------------------------------
+
+T1 — Known minimum-variance solution
+
+Use two candidates, no correlation, covariance diagonal (0.01, 0.04),
+no extra bounds and total cash fixed to zero.
+
+Expected allocation: (0.8, 0.2).
+Compare independently within 1e-8.
+
+T2 — Known regularized mean-variance solution
+
+Use a two-candidate fixture with cash fixed to zero and an interior
+analytical solution.
+
+Independently verify weights and all objective contributions.
+Demonstrate that changing expected returns changes the solution
+as predicted by the analytical calculation, not by a score ranking.
+
+T3 — Representation equivalence
+
+Represent the same assets as:
+A. direct asset returns;
+B. always-invested, zero-cost alpha streams with identical returns
+   and identity exposure mapping.
+
+With identical assumptions, both modes must produce the same
+underlying allocation within 1e-8.
+
+T4 — Underlying constraints and cash
+
+Use multiple alphas exposing the same asset plus an alpha with
+internal cash.
+
+Verify the aggregate asset cap and TOTAL cash constraint bind
+correctly inside the solve.
+
+Verify candidate weights, H*b and cash reconciliation.
+
+No inherited June mandate.
+
+T5 — Failure and numerical cases
+
+Verify:
+- conflicting supported bounds produce INFEASIBLE;
+- cardinality/signed requests produce UNSUPPORTED;
+- near-collinear valid returns are handled using the declared estimator;
+- materially invalid covariance is rejected;
+- solver failure cannot return a successful substitute portfolio.
+
+T6 — Thirty streams and alias invariance
+
+Optimize the thirty mapped streams from B1.
+
+Verify feasibility and objective calculations independently.
+Adding an alias of an existing definition must not change the
+effective dimension, objective or aggregate allocation.
+
+Correlated and weak-performing valid candidates remain eligible,
+even if the optimal weight is zero.
+
+T7 — Point-in-time isolation
+
+Change observations strictly after the cutoff.
+
+Earlier estimates, exposure mappings and optimized results must
+remain unchanged.
+
+T8 — Real UI/API persistence and replay
+
+Optimize through the actual UI/API flow.
+Change working inputs, reload and retrieve the saved optimization.
+Replay must reproduce financial outputs within 1e-8.
+
+Confirm the displayed representation and validation status are correct.
+
+For tests with known optima, check both feasibility and optimality.
+For the 30-stream case, report independently recomputed objective
+and solver optimality residuals, not merely that weights sum to one.
+
+Use a declared scaled optimality tolerance no weaker than 1e-6
+and a maximum weight/constraint violation of 1e-8.
+Do not loosen tolerances merely to pass.
+
+Run A1, A2, A2.1, A3 and B1 regressions plus typecheck.
+
+--------------------------------------------------
+DELIVERABLE AND STOP RULE
+--------------------------------------------------
+
+Return only:
+- objective and estimators implemented;
+- solver/version and convergence criteria;
+- supported constraint types;
+- worked asset/alpha equivalence example;
+- T1–T8 expected/observed results and PASS/FAIL;
+- actual regression/typecheck summary;
+- blocking limitation, if any.
+
+One implementation pass and at most one targeted repair pass.
+
+If all criteria pass: B2 CLOSED, then STOP.
+Otherwise: B2 BLOCKED, exact failing criterion, then STOP.
+
+Do not begin historical-policy validation automatically.

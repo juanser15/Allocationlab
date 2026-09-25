@@ -23,6 +23,7 @@ tags:
   - name: signals
   - name: factors
   - name: prepared-inputs
+  - name: allocations
 
 paths:
   /healthz:
@@ -1332,6 +1333,106 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/PreparedReplay" }
         "404": { description: Not found }
+
+  /allocations:
+    get:
+      operationId: listAllocations
+      tags: [allocations]
+      summary: List immutable B2 allocation versions
+      responses:
+        "200":
+          description: Saved allocation versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AllocationVersion" }
+    post:
+      operationId: createAllocation
+      tags: [allocations]
+      summary: Solve and persist an immutable B2 allocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AllocationRequest" }
+      responses:
+        "201":
+          description: Allocation result persisted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AllocationVersion" }
+        "400":
+          description: Invalid request or unsupported representation/constraint
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Prepared input version not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Selected B1 candidates are not ready or do not belong to the preparation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "422":
+          description: Allocation is infeasible or could not be solved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /allocations/{allocationId}:
+    get:
+      operationId: getAllocation
+      tags: [allocations]
+      parameters:
+        - name: allocationId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Frozen allocation version
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AllocationVersion" }
+        "400":
+          description: Invalid allocation ID
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /allocations/{allocationId}/replay:
+    post:
+      operationId: replayAllocation
+      tags: [allocations]
+      summary: Replay the solver against the allocation's frozen B1 snapshot and request
+      parameters:
+        - name: allocationId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Deterministic replay and saved-result integrity comparison
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AllocationReplay" }
+        "400":
+          description: Invalid allocation ID
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
 
 components:
   securitySchemes:
@@ -4138,3 +4239,122 @@ components:
           type: array
           items: { type: object, additionalProperties: true }
       required: [preparedInputId, status, fingerprint, differences, replayedCandidates]
+
+    AllocationCandidateBounds:
+      type: object
+      additionalProperties: false
+      properties:
+        min: { type: number, minimum: 0, maximum: 1 }
+        max: { type: number, minimum: 0, maximum: 1 }
+
+    AllocationGroupCap:
+      type: object
+      additionalProperties: false
+      properties:
+        name: { type: string, minLength: 1 }
+        candidateIds:
+          type: array
+          items: { type: string, minLength: 1 }
+          minItems: 1
+        max: { type: number, minimum: 0, maximum: 1 }
+      required: [name, candidateIds, max]
+
+    AllocationConstraints:
+      type: object
+      additionalProperties: false
+      properties:
+        candidateBounds:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/AllocationCandidateBounds" }
+        totalCash:
+          $ref: "#/components/schemas/AllocationCandidateBounds"
+        assetBounds:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/AllocationCandidateBounds" }
+        groupCaps:
+          type: array
+          items: { $ref: "#/components/schemas/AllocationGroupCap" }
+        unsupported:
+          type: array
+          items: { type: string }
+
+    AllocationObjective:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum: [minimum_variance, regularized_mean_variance]
+        gamma: { type: number, exclusiveMinimum: 0 }
+        eta: { type: number, minimum: 0 }
+      required: [type, gamma, eta]
+
+    AllocationRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        preparedInputId: { type: integer, minimum: 1 }
+        candidateIds:
+          type: array
+          items: { type: string, minLength: 1 }
+          minItems: 1
+          uniqueItems: true
+        informationCutoff: { type: string }
+        decisionTimestamp: { type: string }
+        estimationWindow: { type: integer, minimum: 2 }
+        minObservations: { type: integer, minimum: 2 }
+        representation:
+          type: string
+          enum: [asset_returns, alpha_streams, signals]
+        returnConvention:
+          type: string
+          enum: [daily_decimal]
+        expectedReturnShrinkage: { type: number, minimum: 0, maximum: 1 }
+        covarianceDiagonalShrinkage: { type: number, minimum: 0, maximum: 1 }
+        dailyCashYield: { type: number }
+        objective: { $ref: "#/components/schemas/AllocationObjective" }
+        constraints: { $ref: "#/components/schemas/AllocationConstraints" }
+      required:
+        - preparedInputId
+        - candidateIds
+        - informationCutoff
+        - decisionTimestamp
+        - estimationWindow
+        - minObservations
+        - representation
+        - returnConvention
+        - expectedReturnShrinkage
+        - covarianceDiagonalShrinkage
+        - dailyCashYield
+        - objective
+        - constraints
+
+    AllocationVersion:
+      type: object
+      properties:
+        id: { type: integer }
+        preparedInputId: { type: integer }
+        representation:
+          type: string
+          enum: [asset_returns, alpha_streams, signals]
+        fingerprint: { type: string }
+        engineVersion: { type: string }
+        status:
+          type: string
+          enum: [SOLVED, INFEASIBLE, INVALID_INPUT, INVALID_RISK_MODEL, UNSUPPORTED, UNSUPPORTED_REPRESENTATION, UNSUPPORTED_CONSTRAINT, NUMERICAL_FAILURE, LIMIT_REACHED]
+        request: { $ref: "#/components/schemas/AllocationRequest" }
+        result: { type: object, additionalProperties: true }
+        createdAt: { type: string, format: date-time }
+      required: [id, preparedInputId, representation, fingerprint, engineVersion, status, request, result, createdAt]
+
+    AllocationReplay:
+      type: object
+      properties:
+        allocationId: { type: integer }
+        status: { type: string, enum: [pass, fail, engine_mismatch] }
+        fingerprint: { type: string }
+        differences:
+          type: array
+          items: { type: string }
+        replayedResult: { type: object, additionalProperties: true }
+      required: [allocationId, status, fingerprint, differences, replayedResult]

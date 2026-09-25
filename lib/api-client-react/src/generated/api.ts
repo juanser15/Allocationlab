@@ -20,6 +20,9 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AllocationReplay,
+  AllocationRequest,
+  AllocationVersion,
   ArchiveCompareResult,
   ArchiveEntry,
   ArchiveListResponse,
@@ -4029,5 +4032,293 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getReplayPreparedInputMutationOptions(options));
+    }
+
+export const getListAllocationsUrl = () => {
+
+
+
+
+  return `/api/allocations`
+}
+
+/**
+ * @summary List immutable B2 allocation versions
+ */
+export const listAllocations = async ( options?: RequestInit): Promise<AllocationVersion[]> => {
+
+  return customFetch<AllocationVersion[]>(getListAllocationsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAllocationsQueryKey = () => {
+    return [
+    `/api/allocations`
+    ] as const;
+    }
+
+
+export const getListAllocationsQueryOptions = <TData = Awaited<ReturnType<typeof listAllocations>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllocations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAllocationsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAllocations>>> = ({ signal }) => listAllocations({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAllocations>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAllocationsQueryResult = NonNullable<Awaited<ReturnType<typeof listAllocations>>>
+export type ListAllocationsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List immutable B2 allocation versions
+ */
+
+export function useListAllocations<TData = Awaited<ReturnType<typeof listAllocations>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllocations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAllocationsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateAllocationUrl = () => {
+
+
+
+
+  return `/api/allocations`
+}
+
+/**
+ * @summary Solve and persist an immutable B2 allocation
+ */
+export const createAllocation = async (allocationRequest: AllocationRequest, options?: RequestInit): Promise<AllocationVersion> => {
+
+  return customFetch<AllocationVersion>(getCreateAllocationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(allocationRequest)
+  }
+);}
+
+
+
+
+export const getCreateAllocationMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAllocation>>, TError,{data: BodyType<AllocationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAllocation>>, TError,{data: BodyType<AllocationRequest>}, TContext> => {
+
+const mutationKey = ['createAllocation'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAllocation>>, {data: BodyType<AllocationRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAllocation(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAllocationMutationResult = NonNullable<Awaited<ReturnType<typeof createAllocation>>>
+    export type CreateAllocationMutationBody = BodyType<AllocationRequest>
+    export type CreateAllocationMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Solve and persist an immutable B2 allocation
+ */
+export const useCreateAllocation = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAllocation>>, TError,{data: BodyType<AllocationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAllocation>>,
+        TError,
+        {data: BodyType<AllocationRequest>},
+        TContext
+      > => {
+      return useMutation(getCreateAllocationMutationOptions(options));
+    }
+
+export const getGetAllocationUrl = (allocationId: number,) => {
+
+
+
+
+  return `/api/allocations/${allocationId}`
+}
+
+export const getAllocation = async (allocationId: number, options?: RequestInit): Promise<AllocationVersion> => {
+
+  return customFetch<AllocationVersion>(getGetAllocationUrl(allocationId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAllocationQueryKey = (allocationId: number,) => {
+    return [
+    `/api/allocations/${allocationId}`
+    ] as const;
+    }
+
+
+export const getGetAllocationQueryOptions = <TData = Awaited<ReturnType<typeof getAllocation>>, TError = ErrorType<ErrorResponse>>(allocationId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAllocation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAllocationQueryKey(allocationId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllocation>>> = ({ signal }) => getAllocation(allocationId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: allocationId !== null && allocationId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAllocation>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAllocationQueryResult = NonNullable<Awaited<ReturnType<typeof getAllocation>>>
+export type GetAllocationQueryError = ErrorType<ErrorResponse>
+
+
+
+export function useGetAllocation<TData = Awaited<ReturnType<typeof getAllocation>>, TError = ErrorType<ErrorResponse>>(
+ allocationId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAllocation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAllocationQueryOptions(allocationId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReplayAllocationUrl = (allocationId: number,) => {
+
+
+
+
+  return `/api/allocations/${allocationId}/replay`
+}
+
+/**
+ * @summary Replay the solver against the allocation's frozen B1 snapshot and request
+ */
+export const replayAllocation = async (allocationId: number, options?: RequestInit): Promise<AllocationReplay> => {
+
+  return customFetch<AllocationReplay>(getReplayAllocationUrl(allocationId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getReplayAllocationMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayAllocation>>, TError,{allocationId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replayAllocation>>, TError,{allocationId: number}, TContext> => {
+
+const mutationKey = ['replayAllocation'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replayAllocation>>, {allocationId: number}> = (props) => {
+          const {allocationId} = props ?? {};
+
+          return  replayAllocation(allocationId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplayAllocationMutationResult = NonNullable<Awaited<ReturnType<typeof replayAllocation>>>
+
+    export type ReplayAllocationMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Replay the solver against the allocation's frozen B1 snapshot and request
+ */
+export const useReplayAllocation = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayAllocation>>, TError,{allocationId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replayAllocation>>,
+        TError,
+        {allocationId: number},
+        TContext
+      > => {
+      return useMutation(getReplayAllocationMutationOptions(options));
     }
 

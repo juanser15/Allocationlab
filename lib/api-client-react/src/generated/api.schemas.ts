@@ -2226,6 +2226,166 @@ export interface PreparedReplay {
   replayedCandidates: PreparedReplayReplayedCandidatesItem[];
 }
 
+export interface AllocationCandidateBounds {
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  min?: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  max?: number;
+}
+
+export interface AllocationGroupCap {
+  /** @minLength 1 */
+  name: string;
+  /**
+     * @minItems 1
+     * @items.minLength 1
+     */
+  candidateIds: string[];
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  max: number;
+}
+
+export type AllocationConstraintsCandidateBounds = {[key: string]: AllocationCandidateBounds};
+
+export type AllocationConstraintsAssetBounds = {[key: string]: AllocationCandidateBounds};
+
+export interface AllocationConstraints {
+  candidateBounds?: AllocationConstraintsCandidateBounds;
+  totalCash?: AllocationCandidateBounds;
+  assetBounds?: AllocationConstraintsAssetBounds;
+  groupCaps?: AllocationGroupCap[];
+  unsupported?: string[];
+}
+
+export type AllocationObjectiveType = typeof AllocationObjectiveType[keyof typeof AllocationObjectiveType];
+
+
+export const AllocationObjectiveType = {
+  minimum_variance: 'minimum_variance',
+  regularized_mean_variance: 'regularized_mean_variance',
+} as const;
+
+export interface AllocationObjective {
+  type: AllocationObjectiveType;
+  /** @exclusiveMinimum 0 */
+  gamma: number;
+  /** @minimum 0 */
+  eta: number;
+}
+
+export type AllocationRequestRepresentation = typeof AllocationRequestRepresentation[keyof typeof AllocationRequestRepresentation];
+
+
+export const AllocationRequestRepresentation = {
+  asset_returns: 'asset_returns',
+  alpha_streams: 'alpha_streams',
+  signals: 'signals',
+} as const;
+
+export type AllocationRequestReturnConvention = typeof AllocationRequestReturnConvention[keyof typeof AllocationRequestReturnConvention];
+
+
+export const AllocationRequestReturnConvention = {
+  daily_decimal: 'daily_decimal',
+} as const;
+
+export interface AllocationRequest {
+  /** @minimum 1 */
+  preparedInputId: number;
+  /**
+     * @minItems 1
+     * @items.minLength 1
+     */
+  candidateIds: string[];
+  informationCutoff: string;
+  decisionTimestamp: string;
+  /** @minimum 2 */
+  estimationWindow: number;
+  /** @minimum 2 */
+  minObservations: number;
+  representation: AllocationRequestRepresentation;
+  returnConvention: AllocationRequestReturnConvention;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  expectedReturnShrinkage: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  covarianceDiagonalShrinkage: number;
+  dailyCashYield: number;
+  objective: AllocationObjective;
+  constraints: AllocationConstraints;
+}
+
+export type AllocationVersionRepresentation = typeof AllocationVersionRepresentation[keyof typeof AllocationVersionRepresentation];
+
+
+export const AllocationVersionRepresentation = {
+  asset_returns: 'asset_returns',
+  alpha_streams: 'alpha_streams',
+  signals: 'signals',
+} as const;
+
+export type AllocationVersionStatus = typeof AllocationVersionStatus[keyof typeof AllocationVersionStatus];
+
+
+export const AllocationVersionStatus = {
+  SOLVED: 'SOLVED',
+  INFEASIBLE: 'INFEASIBLE',
+  INVALID_INPUT: 'INVALID_INPUT',
+  INVALID_RISK_MODEL: 'INVALID_RISK_MODEL',
+  UNSUPPORTED: 'UNSUPPORTED',
+  UNSUPPORTED_REPRESENTATION: 'UNSUPPORTED_REPRESENTATION',
+  UNSUPPORTED_CONSTRAINT: 'UNSUPPORTED_CONSTRAINT',
+  NUMERICAL_FAILURE: 'NUMERICAL_FAILURE',
+  LIMIT_REACHED: 'LIMIT_REACHED',
+} as const;
+
+export type AllocationVersionResult = { [key: string]: unknown };
+
+export interface AllocationVersion {
+  id: number;
+  preparedInputId: number;
+  representation: AllocationVersionRepresentation;
+  fingerprint: string;
+  engineVersion: string;
+  status: AllocationVersionStatus;
+  request: AllocationRequest;
+  result: AllocationVersionResult;
+  createdAt: string;
+}
+
+export type AllocationReplayStatus = typeof AllocationReplayStatus[keyof typeof AllocationReplayStatus];
+
+
+export const AllocationReplayStatus = {
+  pass: 'pass',
+  fail: 'fail',
+  engine_mismatch: 'engine_mismatch',
+} as const;
+
+export type AllocationReplayReplayedResult = { [key: string]: unknown };
+
+export interface AllocationReplay {
+  allocationId: number;
+  status: AllocationReplayStatus;
+  fingerprint: string;
+  differences: string[];
+  replayedResult: AllocationReplayReplayedResult;
+}
+
 /**
  * Exact signal identifier from the catalog.
  */

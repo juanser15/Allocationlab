@@ -393,6 +393,9 @@ importers:
       pino-http:
         specifier: ^10.5.0
         version: 10.5.0
+      quadprog:
+        specifier: 2.0.0
+        version: 2.0.0
       yahoo-finance2:
         specifier: ^3.15.4
         version: 3.15.4
@@ -2836,6 +2839,10 @@ packages:
   qs@6.15.2:
     resolution: {integrity: sha512-Rzq0KEyX/w/tEybncDgdkZrJgVUsUMk3xjh3t5bv3S1HTAtg+uOYt72+ZfwiQwKdysThkTBdL/rTi6HDmX9Ddw==}
     engines: {node: '>=0.6'}
+
+  quadprog@2.0.0:
+    resolution: {integrity: sha512-+ol4iuOBpYnjRTiykjkvzt71GWk1CzWI6DjGBmkumm2tq3l96tNFhz/oMdWqNoHdo3Fx1uA2iRXFbTMLnnCzxQ==}
+    engines: {node: '>=24.x'}
 
   querystringify@2.2.0:
     resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
@@ -5609,6 +5616,8 @@ snapshots:
   qs@6.15.2:
     dependencies:
       side-channel: 1.1.1
+
+  quadprog@2.0.0: {}
 
   querystringify@2.2.0: {}
 

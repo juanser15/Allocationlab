@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   useGetLatestResults, useGetPricesStatus, useGetConstraints,
   useRunPipeline, useGetRiskModel, useCreateGovernanceSnapshot,
@@ -19,10 +19,21 @@ import { ModelsTab } from "@/components/portfolio-lab/ModelsTab";
 import { BacktestTab } from "@/components/portfolio-lab/BacktestTab";
 import { AllocationTab } from "@/components/portfolio-lab/AllocationTab";
 import { PreparedInputsPanel } from "@/components/portfolio-lab/PreparedInputsPanel";
+import { B2AllocationPanel } from "@/components/portfolio-lab/B2AllocationPanel";
+import type { B2PreparedSelection } from "@/components/portfolio-lab/PreparedInputsPanel";
 
 export default function PortfolioLab() {
   const { openSettings } = useSettingsDrawer();
   const [activeTab, setActiveTab] = useState("overview");
+  const [b2Mode, setB2Mode] = useState(() =>
+    typeof window !== "undefined" && window.localStorage.getItem("allocation-lab-optimization-mode") === "b2");
+  const [b2Prepared, setB2Prepared] = useState<B2PreparedSelection | null>(null);
+  const [b2RunToken, setB2RunToken] = useState(0);
+  const [b2Running, setB2Running] = useState(false);
+
+  useEffect(() => {
+    window.localStorage.setItem("allocation-lab-optimization-mode", b2Mode ? "b2" : "legacy");
+  }, [b2Mode]);
 
   const { data: pricesStatus, isLoading: loadingPrices } = useGetPricesStatus();
   const { data: result, isLoading: loadingResult, refetch: refetchResult } = useGetLatestResults();
@@ -70,7 +81,39 @@ export default function PortfolioLab() {
     setBtEndDate(a.endDate ?? "");
   }, [savedValidation?.validationRunId, savedValidation?.strategySnapshotId, result?.sessionId]);
 
+  const handleRunValidation = () => {
+    if (!result?.sessionId || b2Mode) return;
+    setValidationError(null);
+    setActiveTab("backtest");
+    createValidationRun.mutate({
+      data: {
+        sessionId: result.sessionId, benchmark: btBenchmark,
+        rebalanceFrequency: btFrequency, executionTiming: btTiming,
+        transactionCostBps: btTxnCostBps, slippageBps: btSlippageBps,
+        cashYieldAnnual: btCashYield / 100,
+        ...(btStartDate ? { startDate: btStartDate } : {}),
+        ...(btEndDate ? { endDate: btEndDate } : {}),
+      },
+    }, {
+      onSuccess: (saved) => {
+        setSelectedValidationRunId(saved.validationRunId);
+        refetchValidationRuns();
+      },
+      onError: (error) => setValidationError(error instanceof Error ? error.message : "Validation could not be saved."),
+    });
+  };
+
+  const isRunning = b2Mode ? b2Running : runPipeline.isPending;
+  const isValidating = createValidationRun.isPending;
+  const handleB2PreparedSelection = useCallback((selection: B2PreparedSelection | null) => {
+    setB2Prepared(selection);
+  }, []);
   const handleRunOptimizer = () => {
+    if (b2Mode) {
+      setActiveTab("allocation");
+      setB2RunToken(token => token + 1);
+      return;
+    }
     setSelectedValidationRunId(null);
     runPipeline.mutate(
       { data: { benchmarkTicker: localSettings.getBenchmarksSettings().defaultBenchmark } },
@@ -97,44 +140,21 @@ export default function PortfolioLab() {
     );
   };
 
-  const handleRunValidation = () => {
-    if (!result?.sessionId) return;
-    setValidationError(null);
-    setActiveTab("backtest");
-    createValidationRun.mutate({
-      data: {
-        sessionId: result.sessionId, benchmark: btBenchmark,
-        rebalanceFrequency: btFrequency, executionTiming: btTiming,
-        transactionCostBps: btTxnCostBps, slippageBps: btSlippageBps,
-        cashYieldAnnual: btCashYield / 100,
-        ...(btStartDate ? { startDate: btStartDate } : {}),
-        ...(btEndDate ? { endDate: btEndDate } : {}),
-      },
-    }, {
-      onSuccess: (saved) => {
-        setSelectedValidationRunId(saved.validationRunId);
-        refetchValidationRuns();
-      },
-      onError: (error) => setValidationError(error instanceof Error ? error.message : "Validation could not be saved."),
-    });
-  };
-
-  const isRunning = runPipeline.isPending;
-  const isValidating = createValidationRun.isPending;
-
   return (
     <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
       <PageHeader
         section="2 · Portfolio Lab"
         title="Optimizer Pro"
-        description="Systematic multi-factor portfolio optimizer. 1 · Optimize generates the allocation. 2 · Validate runs the historical backtest, walk-forward, and robustness checks."
+        description={b2Mode
+          ? "B2 computes an as-of allocation from the selected frozen preparation. Historical validation is explicitly unavailable for this allocation policy."
+          : "Systematic multi-factor portfolio optimizer. 1 · Optimize generates the allocation. 2 · Validate runs the historical backtest, walk-forward, and robustness checks."}
         actions={
           <div className="flex items-center gap-2 flex-wrap">
             <Button
               size="sm"
               variant="outline"
               onClick={handleRunOptimizer}
-              disabled={!hasData || isRunning}
+              disabled={b2Mode ? (!b2Prepared || b2Running) : (!hasData || isRunning)}
             >
               {isRunning
                 ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Running…</>
@@ -144,7 +164,7 @@ export default function PortfolioLab() {
             <Button
               size="sm"
               onClick={handleRunValidation}
-              disabled={!hasRun || isValidating}
+              disabled={b2Mode || !hasRun || isValidating}
             >
               {isValidating
                 ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Validating…</>
@@ -220,8 +240,8 @@ export default function PortfolioLab() {
           />
         </TabsContent>
 
-        <TabsContent value="factors-regimes" className="space-y-6 pt-4">
-          <PreparedInputsPanel />
+        <TabsContent value="factors-regimes" forceMount className="space-y-6 pt-4 data-[state=inactive]:hidden">
+          <PreparedInputsPanel b2Mode={b2Mode} onB2ModeChange={setB2Mode} onPreparedSelectionChange={handleB2PreparedSelection} />
           <FactorsRegimesTab result={result} hasData={hasData} hasRun={hasRun} />
         </TabsContent>
 
@@ -230,31 +250,35 @@ export default function PortfolioLab() {
         </TabsContent>
 
         <TabsContent value="backtest" className="space-y-6 pt-4">
-          <BacktestTab
-            bt={bt}
-            loading={loadingBt || isValidating}
-            hasData={hasData}
-            hasRun={hasRun}
-            validationRequested={validationRequested}
-            validationRun={savedValidation?.strategySnapshotId === result?.sessionId ? savedValidation : undefined}
-            validationRuns={validationRuns ?? []}
-            selectedValidationRunId={visibleValidationRunId}
-            onSelectValidationRun={(id) => setSelectedValidationRunId(id)}
-            validationError={validationError}
-            onRunValidation={handleRunValidation}
-            benchmark={btBenchmark} setBenchmark={setBtBenchmark}
-            frequency={btFrequency} setFrequency={setBtFrequency}
-            timing={btTiming} setTiming={setBtTiming}
-            txnCostBps={btTxnCostBps} setTxnCostBps={setBtTxnCostBps}
-            slippageBps={btSlippageBps} setSlippageBps={setBtSlippageBps}
-            cashYield={btCashYield} setCashYield={setBtCashYield}
-            startDate={btStartDate} setStartDate={setBtStartDate}
-            endDate={btEndDate} setEndDate={setBtEndDate}
-          />
+          {b2Mode
+            ? <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Historical validation is unavailable for B2 as-of allocations. No legacy backtest has been run for this allocation policy.</AlertDescription></Alert>
+            : <BacktestTab
+              bt={bt}
+              loading={loadingBt || isValidating}
+              hasData={hasData}
+              hasRun={hasRun}
+              validationRequested={validationRequested}
+              validationRun={savedValidation?.strategySnapshotId === result?.sessionId ? savedValidation : undefined}
+              validationRuns={validationRuns ?? []}
+              selectedValidationRunId={visibleValidationRunId}
+              onSelectValidationRun={(id) => setSelectedValidationRunId(id)}
+              validationError={validationError}
+              onRunValidation={handleRunValidation}
+              benchmark={btBenchmark} setBenchmark={setBtBenchmark}
+              frequency={btFrequency} setFrequency={setBtFrequency}
+              timing={btTiming} setTiming={setBtTiming}
+              txnCostBps={btTxnCostBps} setTxnCostBps={setBtTxnCostBps}
+              slippageBps={btSlippageBps} setSlippageBps={setBtSlippageBps}
+              cashYield={btCashYield} setCashYield={setBtCashYield}
+              startDate={btStartDate} setStartDate={setBtStartDate}
+              endDate={btEndDate} setEndDate={setBtEndDate}
+            />}
         </TabsContent>
 
-        <TabsContent value="allocation" className="space-y-6 pt-4">
-          <AllocationTab result={result} constraints={constraints} hasData={hasData} hasRun={hasRun} />
+        <TabsContent value="allocation" forceMount className="space-y-6 pt-4 data-[state=inactive]:hidden">
+          {b2Mode
+            ? <B2AllocationPanel prepared={b2Prepared} runToken={b2RunToken} onRunningChange={setB2Running} />
+            : <AllocationTab result={result} constraints={constraints} hasData={hasData} hasRun={hasRun} />}
         </TabsContent>
       </Tabs>
     </div>
