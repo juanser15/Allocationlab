@@ -22,7 +22,7 @@ import { getFactorSetSnapshot } from "../lib/factor-library";
 const router: IRouter = Router();
 
 const METHODOLOGY_NOTE =
-  "This is a point-in-time walk-forward backtest: at each rebalance date, the factor and regime signal is recomputed from scratch using only price data strictly before that date, then applied at the chosen execution timing. Cash and transaction cost/slippage assumptions are configurable below. Results are illustrative research output, not investment advice, and are never labeled production-grade if any integrity check fails.";
+  "Each signal uses price data strictly before its signal date. Same-close and next-close trades fill at the indicated close, AFTER the preceding close-to-close return; shares held at the previous close earn that return. Trades and costs affect NAV at the fill and new shares earn subsequent intervals. Next-open requires open-price data and is unavailable. Results are illustrative research output, not investment advice.";
 
 function parseFrequency(v: unknown): RebalanceFrequency {
   return v === "quarterly" ? "quarterly" : "monthly";
@@ -75,6 +75,7 @@ router.get("/backtest", async (req, res): Promise<void> => {
       tradingDays: 0,
       canAnnualize: false,
       equityCurve: [],
+      dailyLedger: [],
       cumulativeReturn: null,
       annualizedReturn: null,
       annualizedVolatility: null,
@@ -98,6 +99,11 @@ router.get("/backtest", async (req, res): Promise<void> => {
       warnings: [],
       methodologyNote: METHODOLOGY_NOTE,
     });
+
+  if (config.executionTiming === "next_open") {
+    res.json(empty("Next-open execution requires open-price data and is currently unavailable."));
+    return;
+  }
 
   const priceRow = await getLatestPriceData();
   if (!priceRow) {
@@ -143,9 +149,6 @@ router.get("/backtest", async (req, res): Promise<void> => {
     "Price history is fetched live from Yahoo Finance and reflects the ETF universe as configured today — ETFs that were delisted, merged, or renamed historically cannot be reconstructed (survivorship bias).",
     "Prices used are adjusted close, which bakes in dividend and split adjustments; a live execution's fills would not exactly match these adjusted values.",
   ];
-  if (config.executionTiming === "next_open") {
-    warnings.push("\"Next open\" execution is approximated using the next trading day's close because intraday open prices are not collected — treat next-open results as an approximation, not a true open-price fill.");
-  }
   if (integrity.hardFail) {
     warnings.push("This configuration fails at least one integrity check and should not be treated as research-grade until resolved (see the integrity checklist).");
   }

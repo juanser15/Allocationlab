@@ -2192,6 +2192,40 @@ export const GetBacktestResponse = zod.object({
   "benchmarkIndex": zod.number().nullable().describe('Benchmark value indexed to 100 at backtest start, null if no benchmark selected or unavailable'),
   "drawdownPct": zod.number().describe('Portfolio drawdown from running peak, as a decimal (negative or zero)')
 })),
+  "dailyLedger": zod.array(zod.object({
+  "date": zod.string(),
+  "intervalStart": zod.string(),
+  "signalDate": zod.string().nullable(),
+  "executionSignalDate": zod.string().nullable(),
+  "beginningNav": zod.number(),
+  "beginningCash": zod.number(),
+  "beginningPositions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "quantity": zod.number(),
+  "price": zod.number(),
+  "marketValue": zod.number(),
+  "weight": zod.number()
+})),
+  "etfPnl": zod.number(),
+  "cashPnl": zod.number(),
+  "transactionCosts": zod.number(),
+  "slippage": zod.number(),
+  "trades": zod.array(zod.object({
+  "ticker": zod.string(),
+  "quantity": zod.number(),
+  "notional": zod.number()
+})),
+  "netPnl": zod.number(),
+  "endingNav": zod.number(),
+  "endingCash": zod.number(),
+  "endingPositions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "quantity": zod.number(),
+  "price": zod.number(),
+  "marketValue": zod.number(),
+  "weight": zod.number()
+}))
+}).describe('Close-to-close P&L on positions held before this close, then fills at this close. NAV units start at 100.')),
   "cumulativeReturn": zod.number().nullable(),
   "annualizedReturn": zod.number().nullable(),
   "annualizedVolatility": zod.number().nullable(),

@@ -7,6 +7,7 @@
  */
 import type { BacktestConfigEcho } from './backtestConfigEcho';
 import type { BacktestEquityPoint } from './backtestEquityPoint';
+import type { BacktestLedgerEntry } from './backtestLedgerEntry';
 import type { BacktestMonthlyReturn } from './backtestMonthlyReturn';
 import type { BacktestRebalanceLogEntry } from './backtestRebalanceLogEntry';
 import type { IntegrityAudit } from './integrityAudit';
@@ -25,6 +26,7 @@ export interface BacktestResult {
   /** Whether the sample is long enough (>= 10 trading days) to trust annualized figures */
   canAnnualize: boolean;
   equityCurve: BacktestEquityPoint[];
+  dailyLedger: BacktestLedgerEntry[];
   /** @nullable */
   cumulativeReturn: number | null;
   /** @nullable */

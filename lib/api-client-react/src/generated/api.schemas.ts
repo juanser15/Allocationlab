@@ -1445,6 +1445,44 @@ export interface BacktestEquityPoint {
   drawdownPct: number;
 }
 
+export interface BacktestPosition {
+  ticker: string;
+  quantity: number;
+  price: number;
+  marketValue: number;
+  weight: number;
+}
+
+export interface BacktestLedgerTrade {
+  ticker: string;
+  quantity: number;
+  notional: number;
+}
+
+/**
+ * Close-to-close P&L on positions held before this close, then fills at this close. NAV units start at 100.
+ */
+export interface BacktestLedgerEntry {
+  date: string;
+  intervalStart: string;
+  /** @nullable */
+  signalDate: string | null;
+  /** @nullable */
+  executionSignalDate: string | null;
+  beginningNav: number;
+  beginningCash: number;
+  beginningPositions: BacktestPosition[];
+  etfPnl: number;
+  cashPnl: number;
+  transactionCosts: number;
+  slippage: number;
+  trades: BacktestLedgerTrade[];
+  netPnl: number;
+  endingNav: number;
+  endingCash: number;
+  endingPositions: BacktestPosition[];
+}
+
 export interface BacktestMonthlyReturn {
   /** YYYY-MM */
   month: string;
@@ -1601,6 +1639,7 @@ export interface BacktestResult {
   /** Whether the sample is long enough (>= 10 trading days) to trust annualized figures */
   canAnnualize: boolean;
   equityCurve: BacktestEquityPoint[];
+  dailyLedger: BacktestLedgerEntry[];
   /** @nullable */
   cumulativeReturn: number | null;
   /** @nullable */

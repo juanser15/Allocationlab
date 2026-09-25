@@ -7,7 +7,8 @@
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:a1": "esbuild src/lib/calculator.a1.test.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./src/lib/calculator.a1.db-shim.ts --outfile=dist/calculator.a1.test.mjs && node --test dist/calculator.a1.test.mjs"
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",

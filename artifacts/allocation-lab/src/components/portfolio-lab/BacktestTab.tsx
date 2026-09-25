@@ -193,7 +193,7 @@ export function BacktestTab(props: Props) {
         <CardHeader>
           <CardTitle className="text-sm font-semibold">Validation Configuration</CardTitle>
           <CardDescription>
-            Point-in-time backtester: at each rebalance date, all factors, regime, models, and constraints are recomputed using only data available up to that date. No look-ahead bias.
+            Signals use only closes before their signal date. Existing holdings earn the return through the execution close; new holdings become active after that close.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -226,10 +226,11 @@ export function BacktestTab(props: Props) {
                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="next_close">Next Close</SelectItem>
-                  <SelectItem value="next_open">Next Open</SelectItem>
+                  <SelectItem value="next_open" disabled>Next Open — unavailable</SelectItem>
                   <SelectItem value="same_close">Same Close</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-[11px] text-muted-foreground">Next-open execution requires open-price data and is currently unavailable.</p>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Transaction Costs (bps): {txnCostBps}</Label>

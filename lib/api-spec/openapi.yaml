@@ -3160,6 +3160,52 @@ components:
           description: Portfolio drawdown from running peak, as a decimal (negative or zero)
       required: [date, portfolioIndex, benchmarkIndex, drawdownPct]
 
+    BacktestPosition:
+      type: object
+      properties:
+        ticker: { type: string }
+        quantity: { type: number }
+        price: { type: number }
+        marketValue: { type: number }
+        weight: { type: number }
+      required: [ticker, quantity, price, marketValue, weight]
+
+    BacktestLedgerTrade:
+      type: object
+      properties:
+        ticker: { type: string }
+        quantity: { type: number }
+        notional: { type: number }
+      required: [ticker, quantity, notional]
+
+    BacktestLedgerEntry:
+      type: object
+      description: Close-to-close P&L on positions held before this close, then fills at this close. NAV units start at 100.
+      properties:
+        date: { type: string }
+        intervalStart: { type: string }
+        signalDate: { type: [string, "null"] }
+        executionSignalDate: { type: [string, "null"] }
+        beginningNav: { type: number }
+        beginningCash: { type: number }
+        beginningPositions:
+          type: array
+          items: { $ref: "#/components/schemas/BacktestPosition" }
+        etfPnl: { type: number }
+        cashPnl: { type: number }
+        transactionCosts: { type: number }
+        slippage: { type: number }
+        trades:
+          type: array
+          items: { $ref: "#/components/schemas/BacktestLedgerTrade" }
+        netPnl: { type: number }
+        endingNav: { type: number }
+        endingCash: { type: number }
+        endingPositions:
+          type: array
+          items: { $ref: "#/components/schemas/BacktestPosition" }
+      required: [date, intervalStart, signalDate, executionSignalDate, beginningNav, beginningCash, beginningPositions, etfPnl, cashPnl, transactionCosts, slippage, trades, netPnl, endingNav, endingCash, endingPositions]
+
     BacktestMonthlyReturn:
       type: object
       properties:
@@ -3344,6 +3390,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/BacktestEquityPoint"
+        dailyLedger:
+          type: array
+          items:
+            $ref: "#/components/schemas/BacktestLedgerEntry"
         cumulativeReturn:
           type: ["number", "null"]
         annualizedReturn:
@@ -3396,7 +3446,7 @@ components:
             type: string
         methodologyNote:
           type: string
-      required: [hasSufficientData, insufficientReason, startDate, endDate, tradingDays, canAnnualize, equityCurve, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown, avgTurnover, totalTransactionCostPct, monthlyReturns, rebalanceLog, benchmarkTicker, benchmarkCumulativeReturn, benchmarkAnnualizedReturn, benchmarkUnavailableReason, availableBenchmarkTickers, dataStartDate, dataEndDate, config, integrity, walkForward, sensitivity, warnings, methodologyNote]
+      required: [hasSufficientData, insufficientReason, startDate, endDate, tradingDays, canAnnualize, equityCurve, dailyLedger, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown, avgTurnover, totalTransactionCostPct, monthlyReturns, rebalanceLog, benchmarkTicker, benchmarkCumulativeReturn, benchmarkAnnualizedReturn, benchmarkUnavailableReason, availableBenchmarkTickers, dataStartDate, dataEndDate, config, integrity, walkForward, sensitivity, warnings, methodologyNote]
 
     CommitteeRecommendation:
       type: object
