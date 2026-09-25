@@ -85,9 +85,10 @@ import type {
   TradeImplementationResult,
   Universe,
   UniverseInput,
-  ValidationRun,
   ValidationRunInput,
-  ValidationRunSummary
+  ValidationRunListItem,
+  ValidationRunReplay,
+  ValidationRunResponse
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -2950,11 +2951,11 @@ export const getCreateValidationRunUrl = () => {
 }
 
 /**
- * @summary Execute and persist a new immutable validation for a saved Strategy Snapshot
+ * @summary Execute and persist a legacy Strategy Snapshot validation or a frozen B3 policy validation
  */
-export const createValidationRun = async (validationRunInput: ValidationRunInput, options?: RequestInit): Promise<ValidationRun> => {
+export const createValidationRun = async (validationRunInput: ValidationRunInput, options?: RequestInit): Promise<ValidationRunResponse> => {
 
-  return customFetch<ValidationRun>(getCreateValidationRunUrl(),
+  return customFetch<ValidationRunResponse>(getCreateValidationRunUrl(),
   {
     ...options,
     method: 'POST',
@@ -2998,7 +2999,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateValidationRunMutationError = ErrorType<ErrorResponse>
 
     /**
- * @summary Execute and persist a new immutable validation for a saved Strategy Snapshot
+ * @summary Execute and persist a legacy Strategy Snapshot validation or a frozen B3 policy validation
  */
 export const useCreateValidationRun = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createValidationRun>>, TError,{data: BodyType<ValidationRunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
@@ -3011,7 +3012,7 @@ export const useCreateValidationRun = <TError = ErrorType<ErrorResponse>,
       return useMutation(getCreateValidationRunMutationOptions(options));
     }
 
-export const getListValidationRunsUrl = (params: ListValidationRunsParams,) => {
+export const getListValidationRunsUrl = (params?: ListValidationRunsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -3026,9 +3027,9 @@ export const getListValidationRunsUrl = (params: ListValidationRunsParams,) => {
   return stringifiedParams.length > 0 ? `/api/validation-runs?${stringifiedParams}` : `/api/validation-runs`
 }
 
-export const listValidationRuns = async (params: ListValidationRunsParams, options?: RequestInit): Promise<ValidationRunSummary[]> => {
+export const listValidationRuns = async (params?: ListValidationRunsParams, options?: RequestInit): Promise<ValidationRunListItem[]> => {
 
-  return customFetch<ValidationRunSummary[]>(getListValidationRunsUrl(params),
+  return customFetch<ValidationRunListItem[]>(getListValidationRunsUrl(params),
   {
     ...options,
     method: 'GET'
@@ -3048,7 +3049,7 @@ export const getListValidationRunsQueryKey = (params?: ListValidationRunsParams,
     }
 
 
-export const getListValidationRunsQueryOptions = <TData = Awaited<ReturnType<typeof listValidationRuns>>, TError = ErrorType<unknown>>(params: ListValidationRunsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listValidationRuns>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getListValidationRunsQueryOptions = <TData = Awaited<ReturnType<typeof listValidationRuns>>, TError = ErrorType<unknown>>(params?: ListValidationRunsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listValidationRuns>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -3072,7 +3073,7 @@ export type ListValidationRunsQueryError = ErrorType<unknown>
 
 
 export function useListValidationRuns<TData = Awaited<ReturnType<typeof listValidationRuns>>, TError = ErrorType<unknown>>(
- params: ListValidationRunsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listValidationRuns>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: ListValidationRunsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listValidationRuns>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
@@ -3097,9 +3098,9 @@ export const getGetValidationRunUrl = (validationRunId: number,) => {
   return `/api/validation-runs/${validationRunId}`
 }
 
-export const getValidationRun = async (validationRunId: number, options?: RequestInit): Promise<ValidationRun> => {
+export const getValidationRun = async (validationRunId: number, options?: RequestInit): Promise<ValidationRunResponse> => {
 
-  return customFetch<ValidationRun>(getGetValidationRunUrl(validationRunId),
+  return customFetch<ValidationRunResponse>(getGetValidationRunUrl(validationRunId),
   {
     ...options,
     method: 'GET'
@@ -3119,7 +3120,7 @@ export const getGetValidationRunQueryKey = (validationRunId: number,) => {
     }
 
 
-export const getGetValidationRunQueryOptions = <TData = Awaited<ReturnType<typeof getValidationRun>>, TError = ErrorType<unknown>>(validationRunId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getValidationRun>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetValidationRunQueryOptions = <TData = Awaited<ReturnType<typeof getValidationRun>>, TError = ErrorType<ErrorResponse>>(validationRunId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getValidationRun>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -3138,11 +3139,11 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetValidationRunQueryResult = NonNullable<Awaited<ReturnType<typeof getValidationRun>>>
-export type GetValidationRunQueryError = ErrorType<unknown>
+export type GetValidationRunQueryError = ErrorType<ErrorResponse>
 
 
 
-export function useGetValidationRun<TData = Awaited<ReturnType<typeof getValidationRun>>, TError = ErrorType<unknown>>(
+export function useGetValidationRun<TData = Awaited<ReturnType<typeof getValidationRun>>, TError = ErrorType<ErrorResponse>>(
  validationRunId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getValidationRun>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -3159,6 +3160,76 @@ export function useGetValidationRun<TData = Awaited<ReturnType<typeof getValidat
 
 
 
+
+export const getReplayValidationRunUrl = (validationRunId: number,) => {
+
+
+
+
+  return `/api/validation-runs/${validationRunId}/replay`
+}
+
+/**
+ * @summary Replay a B3 validation using its frozen policy and validation snapshots
+ */
+export const replayValidationRun = async (validationRunId: number, options?: RequestInit): Promise<ValidationRunReplay> => {
+
+  return customFetch<ValidationRunReplay>(getReplayValidationRunUrl(validationRunId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getReplayValidationRunMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayValidationRun>>, TError,{validationRunId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replayValidationRun>>, TError,{validationRunId: number}, TContext> => {
+
+const mutationKey = ['replayValidationRun'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replayValidationRun>>, {validationRunId: number}> = (props) => {
+          const {validationRunId} = props ?? {};
+
+          return  replayValidationRun(validationRunId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplayValidationRunMutationResult = NonNullable<Awaited<ReturnType<typeof replayValidationRun>>>
+
+    export type ReplayValidationRunMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Replay a B3 validation using its frozen policy and validation snapshots
+ */
+export const useReplayValidationRun = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayValidationRun>>, TError,{validationRunId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replayValidationRun>>,
+        TError,
+        {validationRunId: number},
+        TContext
+      > => {
+      return useMutation(getReplayValidationRunMutationOptions(options));
+    }
 
 export const getGetCommitteeUrl = () => {
 

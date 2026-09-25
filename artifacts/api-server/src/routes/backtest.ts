@@ -23,6 +23,7 @@ import {
 } from "../lib/calculator";
 import { frozenValidationInputs, reproduceRun, resolveRunSnapshot } from "../lib/run-snapshot";
 import { getValidationRun, listValidationRuns, persistValidationRun } from "../lib/validation-run-store";
+import { listB3ValidationRuns, persistB3ValidationRun, replayB3ValidationRun } from "../lib/b3-validation-store";
 
 const router: IRouter = Router();
 
@@ -225,6 +226,19 @@ router.get("/backtest", async (req, res): Promise<void> => {
 router.post("/validation-runs", async (req, res): Promise<void> => {
   const parsed = CreateValidationRunBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+  if ("allocationId" in parsed.data) {
+    if (!Number.isSafeInteger(parsed.data.allocationId) || !Number.isSafeInteger(parsed.data.validationPreparedInputId)) {
+      res.status(400).json({ error: "allocationId and validationPreparedInputId must be positive safe integers." });
+      return;
+    }
+    const saved = await persistB3ValidationRun(parsed.data);
+    if ("error" in saved) {
+      res.status(typeof saved.status === "number" ? saved.status : 409).json({ error: saved.error });
+      return;
+    }
+    res.status(201).json(CreateValidationRunResponse.parse(saved.run));
+    return;
+  }
   try {
     const result = await computeBacktest(parsed.data);
     if (!result.hasSufficientData) {
@@ -236,11 +250,33 @@ router.post("/validation-runs", async (req, res): Promise<void> => {
 });
 
 router.get("/validation-runs", async (req, res): Promise<void> => {
-  const raw = req.query.sessionId;
-  if (typeof raw !== "string" || !/^[1-9]\d*$/.test(raw) || !Number.isSafeInteger(Number(raw))) {
-    res.status(400).json({ error: "Invalid session ID" }); return;
+  const rawSessionId = req.query.sessionId;
+  const rawAllocationId = req.query.allocationId;
+  const source = req.query.source;
+  if (rawSessionId !== undefined && rawAllocationId !== undefined ||
+      rawSessionId !== undefined && source !== undefined ||
+      rawAllocationId !== undefined && source !== undefined) {
+    res.status(400).json({ error: "Use only one of sessionId, allocationId, or source=b3." }); return;
   }
-  res.json(ListValidationRunsResponse.parse(await listValidationRuns(Number(raw))));
+  if (rawSessionId !== undefined) {
+    if (typeof rawSessionId !== "string" || !/^[1-9]\d*$/.test(rawSessionId) || !Number.isSafeInteger(Number(rawSessionId))) {
+      res.status(400).json({ error: "Invalid session ID" }); return;
+    }
+    res.json(ListValidationRunsResponse.parse(await listValidationRuns(Number(rawSessionId))));
+    return;
+  }
+  if (rawAllocationId !== undefined) {
+    if (typeof rawAllocationId !== "string" || !/^[1-9]\d*$/.test(rawAllocationId) || !Number.isSafeInteger(Number(rawAllocationId))) {
+      res.status(400).json({ error: "Invalid allocation ID" }); return;
+    }
+    res.json(ListValidationRunsResponse.parse(await listB3ValidationRuns(Number(rawAllocationId))));
+    return;
+  }
+  if (source === "b3") {
+    res.json(ListValidationRunsResponse.parse(await listB3ValidationRuns()));
+    return;
+  }
+  res.status(400).json({ error: "Specify sessionId, allocationId, or source=b3." });
 });
 
 router.get("/validation-runs/:validationRunId", async (req, res): Promise<void> => {
@@ -251,6 +287,16 @@ router.get("/validation-runs/:validationRunId", async (req, res): Promise<void> 
   const run = await getValidationRun(Number(raw));
   if (!run) { res.status(404).json({ error: "Validation Run not found." }); return; }
   res.json(GetValidationRunResponse.parse(run));
+});
+
+router.post("/validation-runs/:validationRunId/replay", async (req, res): Promise<void> => {
+  const raw = Array.isArray(req.params.validationRunId) ? req.params.validationRunId[0] : req.params.validationRunId;
+  if (!/^[1-9]\d*$/.test(raw) || !Number.isSafeInteger(Number(raw))) {
+    res.status(400).json({ error: "Invalid Validation Run ID" }); return;
+  }
+  const replay = await replayB3ValidationRun(Number(raw));
+  if (!replay) { res.status(404).json({ error: "Validation Run not found." }); return; }
+  res.json(replay);
 });
 
 export default router;

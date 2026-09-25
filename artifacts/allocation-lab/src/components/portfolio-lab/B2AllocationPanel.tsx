@@ -88,10 +88,12 @@ export function B2AllocationPanel({
   prepared,
   runToken,
   onRunningChange,
+  onAllocationSelectionChange,
 }: {
   prepared: B2PreparedSelection | null;
   runToken: number;
   onRunningChange?: (running: boolean) => void;
+  onAllocationSelectionChange?: (id: number | null) => void;
 }) {
   const [candidateIds, setCandidateIds] = useState<string[]>([]);
   const [informationCutoff, setInformationCutoff] = useState("");
@@ -129,8 +131,9 @@ export function B2AllocationPanel({
     setInformationCutoff(prepared.informationCutoff);
     setResult(null);
     setSelectedAllocationId(null);
+    onAllocationSelectionChange?.(null);
     setReplayStatus(null);
-  }, [prepared]);
+  }, [prepared, onAllocationSelectionChange]);
 
   async function requestJson(url: string, init?: RequestInit): Promise<unknown> {
     const headers = new Headers(init?.headers);
@@ -163,6 +166,7 @@ export function B2AllocationPanel({
     try {
       const payload = await requestJson(`/api/allocations/${id}`);
       setSelectedAllocationId(id);
+      onAllocationSelectionChange?.(id);
       setResult(asRecord(payload));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Saved allocation could not be loaded.");
@@ -238,6 +242,7 @@ export function B2AllocationPanel({
       const payload = await requestJson("/api/allocations", { method: "POST", body: JSON.stringify(request) });
       setResult(asRecord(payload));
       setSelectedAllocationId(idOf(payload));
+      onAllocationSelectionChange?.(idOf(payload));
       await refreshSaved();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Allocation request failed.");
@@ -264,6 +269,7 @@ export function B2AllocationPanel({
       const detail = asRecord(await requestJson(`/api/allocations/${id}`));
       setResult({ ...detail, replay });
       setSelectedAllocationId(id);
+      onAllocationSelectionChange?.(id);
       setReplayStatus(`Replay ${String(replay.status ?? "completed")}${Array.isArray(replay.differences) && replay.differences.length ? ` · ${replay.differences.join("; ")}` : ""}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Allocation replay failed.");

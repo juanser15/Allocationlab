@@ -989,7 +989,7 @@ paths:
     post:
       operationId: createValidationRun
       tags: [backtest]
-      summary: Execute and persist a new immutable validation for a saved Strategy Snapshot
+      summary: Execute and persist a legacy Strategy Snapshot validation or a frozen B3 policy validation
       requestBody:
         required: true
         content:
@@ -1002,7 +1002,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationRun"
+                $ref: "#/components/schemas/ValidationRunResponse"
         "422":
           description: Portfolio constraints are infeasible for a rebalance
           content:
@@ -1015,8 +1015,19 @@ paths:
       parameters:
         - name: sessionId
           in: query
-          required: true
+          required: false
+          description: Filter legacy validations by saved Strategy Snapshot; mutually exclusive with allocationId and source.
           schema: { type: integer }
+        - name: allocationId
+          in: query
+          required: false
+          description: Filter B3 validations for a frozen B2 allocation policy.
+          schema: { type: integer }
+        - name: source
+          in: query
+          required: false
+          description: Use b3 to list all B3 validations for side-by-side comparison.
+          schema: { type: string, enum: [b3] }
       responses:
         "200":
           description: Validation Runs for the selected Strategy Snapshot, newest first
@@ -1025,7 +1036,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ValidationRunSummary"
+                  $ref: "#/components/schemas/ValidationRunListItem"
 
   /validation-runs/{validationRunId}:
     get:
@@ -1042,7 +1053,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationRun"
+                $ref: "#/components/schemas/ValidationRunResponse"
+        "404":
+          description: Validation Run not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /validation-runs/{validationRunId}/replay:
+    post:
+      operationId: replayValidationRun
+      tags: [backtest]
+      summary: Replay a B3 validation using its frozen policy and validation snapshots
+      parameters:
+        - name: validationRunId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Replay comparison; numeric outputs are compared with 1e-8 tolerance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationRunReplay"
+        "404":
+          description: Validation Run not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /committee:
     get:
@@ -3590,7 +3631,13 @@ components:
       required: [rebalanceFrequency, executionTiming, transactionCostBps, slippageBps, maxTurnoverPerRebalance, cashYieldAnnual, warmupDays, startDate]
 
     ValidationRunInput:
+      oneOf:
+        - $ref: "#/components/schemas/LegacyValidationRunInput"
+        - $ref: "#/components/schemas/B3ValidationRunInput"
+
+    LegacyValidationRunInput:
       type: object
+      additionalProperties: false
       properties:
         sessionId: { type: integer }
         benchmark: { type: string }
@@ -3605,6 +3652,36 @@ components:
         warmupDays: { type: integer }
       required: [sessionId]
 
+    B3ValidationRunInput:
+      type: object
+      additionalProperties: false
+      description: Runs a B3 point-in-time backtest from explicitly selected immutable B2 policy and B1 validation snapshots. No working/latest dataset is selected implicitly.
+      properties:
+        allocationId: { type: integer, minimum: 1 }
+        validationPreparedInputId: { type: integer, minimum: 1 }
+        assumptions:
+          $ref: "#/components/schemas/B3ValidationAssumptions"
+      required: [allocationId, validationPreparedInputId, assumptions]
+
+    B3ValidationAssumptions:
+      type: object
+      description: Frozen evaluation and A1 execution settings applied to this validation.
+      properties:
+        evaluationStartDate: { type: string, pattern: "^\\d{4}-\\d{2}-\\d{2}$" }
+        evaluationEndDate: { type: string, pattern: "^\\d{4}-\\d{2}-\\d{2}$" }
+        decisionCalendar: { type: string, enum: [monthly, quarterly] }
+        executionTiming: { type: string, enum: [same_close, next_close] }
+        initialNav: { type: number, exclusiveMinimum: 0 }
+        initialHoldings:
+          type: object
+          additionalProperties: { type: number, minimum: 0 }
+        initialCash: { type: number, minimum: 0 }
+        transactionCostBps: { type: number, minimum: 0 }
+        slippageBps: { type: number, minimum: 0 }
+        dailyCashYield: { type: number }
+        benchmarkTicker: { type: string }
+      required: [evaluationStartDate, evaluationEndDate, decisionCalendar, executionTiming, initialNav, initialHoldings, initialCash, transactionCostBps, slippageBps, dailyCashYield]
+
     ValidationRunSummary:
       type: object
       properties:
@@ -3613,6 +3690,54 @@ components:
         validatedAt: { type: string }
         reproducibilityStatus: { type: string }
       required: [validationRunId, strategySnapshotId, validatedAt, reproducibilityStatus]
+
+    B3ValidationComparisonMetadata:
+      type: object
+      properties:
+        finalAssetConstraints:
+          $ref: "#/components/schemas/AllocationConstraints"
+        capitalBudget:
+          type: object
+          properties:
+            initialNav: { type: number }
+            initialCash: { type: number }
+            initialHoldings:
+              type: object
+              additionalProperties: { type: number }
+            initialRiskyCapital: { type: number }
+            policyTotalCashConstraint:
+              oneOf:
+                - $ref: "#/components/schemas/AllocationCandidateBounds"
+                - type: "null"
+          required: [initialNav, initialCash, initialHoldings, initialRiskyCapital, policyTotalCashConstraint]
+      required: [finalAssetConstraints, capitalBudget]
+
+    B3ValidationRunSummary:
+      type: object
+      properties:
+        validationRunId: { type: integer }
+        allocationId: { type: integer }
+        validationPreparedInputId: { type: integer }
+        representation: { type: string, enum: [asset_returns, alpha_streams, signals] }
+        status: { type: string }
+        validatedAt: { type: string }
+        reproducibilityStatus: { type: string }
+        result:
+          type: object
+          additionalProperties: true
+        comparisonMetadata:
+          $ref: "#/components/schemas/B3ValidationComparisonMetadata"
+      required: [validationRunId, allocationId, validationPreparedInputId, representation, status, validatedAt, reproducibilityStatus, result, comparisonMetadata]
+
+    ValidationRunListItem:
+      oneOf:
+        - $ref: "#/components/schemas/ValidationRunSummary"
+        - $ref: "#/components/schemas/B3ValidationRunSummary"
+
+    ValidationRunResponse:
+      oneOf:
+        - $ref: "#/components/schemas/ValidationRun"
+        - $ref: "#/components/schemas/B3ValidationRun"
 
     ValidationRun:
       type: object
@@ -3631,6 +3756,43 @@ components:
         result:
           $ref: "#/components/schemas/BacktestResult"
       required: [validationRunId, strategySnapshotId, datasetHash, factorSetVersion, engineVersion, validatedAt, assumptions, reconciliationStatus, reproducibilityStatus, validationInputHash, result]
+
+    B3ValidationRun:
+      type: object
+      properties:
+        validationRunId: { type: integer }
+        allocationId: { type: integer }
+        validationPreparedInputId: { type: integer }
+        representation: { type: string, enum: [asset_returns, alpha_streams, signals] }
+        datasetHash: { type: string }
+        engineVersion: { type: string }
+        validatedAt: { type: string }
+        assumptions:
+          $ref: "#/components/schemas/B3ValidationAssumptions"
+        reconciliationStatus: { type: string, enum: [pass, fail] }
+        reproducibilityStatus: { type: string, enum: [pass, fail] }
+        validationInputHash: { type: string }
+        status: { type: string, enum: [success, failed] }
+        result:
+          type: object
+          additionalProperties: true
+        comparisonMetadata:
+          $ref: "#/components/schemas/B3ValidationComparisonMetadata"
+      required: [validationRunId, allocationId, validationPreparedInputId, representation, datasetHash, engineVersion, validatedAt, assumptions, reconciliationStatus, reproducibilityStatus, validationInputHash, status, result, comparisonMetadata]
+
+    ValidationRunReplay:
+      type: object
+      properties:
+        validationRunId: { type: integer }
+        status: { type: string, enum: [pass, fail, engine_mismatch] }
+        validationInputHash: { type: string }
+        differences:
+          type: array
+          items: { type: string }
+        replayedResult:
+          type: object
+          additionalProperties: true
+      required: [validationRunId, status, validationInputHash, differences, replayedResult]
 
     BacktestRebalanceLogEntry:
       type: object

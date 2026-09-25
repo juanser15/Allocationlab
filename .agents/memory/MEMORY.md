@@ -6,3 +6,4 @@
 - [Dynamic factor-set contract](dynamic-factor-set.md) — optimizer and validation must consume only the persisted active factor set and snapshot its exact version, parameters, and effective weights.
 - [Run snapshot compatibility](run-snapshot-compatibility.md) — frozen run inputs are self-contained; engine-version changes block exact historical replay rather than substituting current settings.
 - [B2 as-of allocation boundary](b2-as-of-allocation.md) — B2 results remain separate from legacy validation sessions; replay freezes the selected B1 preparation, not current working inputs.
+- [B3 frozen policy validation](b3-frozen-policy-validation.md) — historical runs freeze both policy and evaluation preparations; map dataset-dependent candidate identities by definition, never by current settings.

@@ -5,19 +5,7 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
-import type { ValidationRunInputExecutionTiming } from './validationRunInputExecutionTiming';
-import type { ValidationRunInputRebalanceFrequency } from './validationRunInputRebalanceFrequency';
+import type { B3ValidationRunInput } from './b3ValidationRunInput';
+import type { LegacyValidationRunInput } from './legacyValidationRunInput';
 
-export interface ValidationRunInput {
-  sessionId: number;
-  benchmark?: string;
-  startDate?: string;
-  endDate?: string;
-  rebalanceFrequency?: ValidationRunInputRebalanceFrequency;
-  executionTiming?: ValidationRunInputExecutionTiming;
-  transactionCostBps?: number;
-  slippageBps?: number;
-  maxTurnoverPerRebalance?: number;
-  cashYieldAnnual?: number;
-  warmupDays?: number;
-}
+export type ValidationRunInput = LegacyValidationRunInput | B3ValidationRunInput;

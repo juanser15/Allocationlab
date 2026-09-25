@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ValidationRunInputExecutionTiming = typeof ValidationRunInputExecutionTiming[keyof typeof ValidationRunInputExecutionTiming];
+export type LegacyValidationRunInputExecutionTiming = typeof LegacyValidationRunInputExecutionTiming[keyof typeof LegacyValidationRunInputExecutionTiming];
 
 
-export const ValidationRunInputExecutionTiming = {
+export const LegacyValidationRunInputExecutionTiming = {
   same_close: 'same_close',
   next_close: 'next_close',
   next_open: 'next_open',

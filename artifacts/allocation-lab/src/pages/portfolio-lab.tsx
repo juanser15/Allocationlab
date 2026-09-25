@@ -3,6 +3,7 @@ import {
   useGetLatestResults, useGetPricesStatus, useGetConstraints,
   useRunPipeline, useGetRiskModel, useCreateGovernanceSnapshot,
   useCreateValidationRun, useGetValidationRun, useListValidationRuns,
+  type ValidationRun, type ValidationRunSummary,
 } from "@workspace/api-client-react";
 import { localSettings } from "@/lib/local-settings";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import { BacktestTab } from "@/components/portfolio-lab/BacktestTab";
 import { AllocationTab } from "@/components/portfolio-lab/AllocationTab";
 import { PreparedInputsPanel } from "@/components/portfolio-lab/PreparedInputsPanel";
 import { B2AllocationPanel } from "@/components/portfolio-lab/B2AllocationPanel";
+import { B3ValidationPanel } from "@/components/portfolio-lab/B3ValidationPanel";
 import type { B2PreparedSelection } from "@/components/portfolio-lab/PreparedInputsPanel";
 
 export default function PortfolioLab() {
@@ -30,6 +32,9 @@ export default function PortfolioLab() {
   const [b2Prepared, setB2Prepared] = useState<B2PreparedSelection | null>(null);
   const [b2RunToken, setB2RunToken] = useState(0);
   const [b2Running, setB2Running] = useState(false);
+  const [selectedB2AllocationId, setSelectedB2AllocationId] = useState<number | null>(null);
+  const [b3RunToken, setB3RunToken] = useState(0);
+  const [b3Running, setB3Running] = useState(false);
 
   useEffect(() => {
     window.localStorage.setItem("allocation-lab-optimization-mode", b2Mode ? "b2" : "legacy");
@@ -59,18 +64,20 @@ export default function PortfolioLab() {
     { sessionId: result?.sessionId ?? 0 },
     { query: { enabled: !!result?.sessionId } as any },
   );
-  const visibleValidationRunId = selectedValidationRunId ?? validationRuns?.[0]?.validationRunId ?? null;
+  const legacyRuns = (validationRuns ?? []).filter((run): run is ValidationRunSummary => "strategySnapshotId" in run);
+  const visibleValidationRunId = selectedValidationRunId ?? legacyRuns[0]?.validationRunId ?? null;
   const { data: savedValidation, isLoading: loadingBt } = useGetValidationRun(
     visibleValidationRunId ?? 0,
     { query: { enabled: !!visibleValidationRunId } as any },
   );
-  const bt = savedValidation && savedValidation.strategySnapshotId === result?.sessionId
-    ? savedValidation.result : undefined;
+  const legacyValidation: ValidationRun | undefined = savedValidation && "strategySnapshotId" in savedValidation && savedValidation.strategySnapshotId === result?.sessionId
+    ? savedValidation : undefined;
+  const bt = legacyValidation?.result;
   const validationRequested = !!visibleValidationRunId || createValidationRun.isPending;
 
   useEffect(() => {
-    if (!savedValidation || savedValidation.strategySnapshotId !== result?.sessionId) return;
-    const a = savedValidation.assumptions;
+    if (!legacyValidation) return;
+    const a = legacyValidation.assumptions;
     setBtBenchmark(a.benchmarkTicker ?? "none");
     setBtFrequency(a.rebalanceFrequency as "monthly" | "quarterly");
     setBtTiming(a.executionTiming as "same_close" | "next_close" | "next_open");
@@ -79,10 +86,15 @@ export default function PortfolioLab() {
     setBtCashYield(a.cashYieldAnnual * 100);
     setBtStartDate(a.startDate ?? "");
     setBtEndDate(a.endDate ?? "");
-  }, [savedValidation?.validationRunId, savedValidation?.strategySnapshotId, result?.sessionId]);
+  }, [legacyValidation?.validationRunId, result?.sessionId]);
 
   const handleRunValidation = () => {
-    if (!result?.sessionId || b2Mode) return;
+    if (b2Mode) {
+      setActiveTab("backtest");
+      setB3RunToken(token => token + 1);
+      return;
+    }
+    if (!result?.sessionId) return;
     setValidationError(null);
     setActiveTab("backtest");
     createValidationRun.mutate({
@@ -104,7 +116,7 @@ export default function PortfolioLab() {
   };
 
   const isRunning = b2Mode ? b2Running : runPipeline.isPending;
-  const isValidating = createValidationRun.isPending;
+  const isValidating = b2Mode ? b3Running : createValidationRun.isPending;
   const handleB2PreparedSelection = useCallback((selection: B2PreparedSelection | null) => {
     setB2Prepared(selection);
   }, []);
@@ -146,7 +158,7 @@ export default function PortfolioLab() {
         section="2 · Portfolio Lab"
         title="Optimizer Pro"
         description={b2Mode
-          ? "B2 computes an as-of allocation from the selected frozen preparation. Historical validation is explicitly unavailable for this allocation policy."
+          ? "B2 computes an as-of allocation. B3 validates the frozen policy through historical decisions and executed holdings; today's weights are not backtest inputs."
           : "Systematic multi-factor portfolio optimizer. 1 · Optimize generates the allocation. 2 · Validate runs the historical backtest, walk-forward, and robustness checks."}
         actions={
           <div className="flex items-center gap-2 flex-wrap">
@@ -164,7 +176,7 @@ export default function PortfolioLab() {
             <Button
               size="sm"
               onClick={handleRunValidation}
-              disabled={b2Mode || !hasRun || isValidating}
+               disabled={b2Mode ? (!selectedB2AllocationId || isValidating) : (!hasRun || isValidating)}
             >
               {isValidating
                 ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Validating…</>
@@ -176,7 +188,7 @@ export default function PortfolioLab() {
       />
 
       {/* Workflow gate banners */}
-      {!loadingPrices && !hasData && (
+       {!b2Mode && !loadingPrices && !hasData && (
         <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive-foreground">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="ml-2 flex items-center justify-between w-full flex-wrap gap-2">
@@ -189,7 +201,7 @@ export default function PortfolioLab() {
       )}
 
       {/* Stage badge */}
-      {hasData && (
+       {hasData && !b2Mode && (
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Pipeline:</span>
           {[
@@ -251,15 +263,15 @@ export default function PortfolioLab() {
 
         <TabsContent value="backtest" className="space-y-6 pt-4">
           {b2Mode
-            ? <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Historical validation is unavailable for B2 as-of allocations. No legacy backtest has been run for this allocation policy.</AlertDescription></Alert>
+             ? <B3ValidationPanel allocationId={selectedB2AllocationId} runToken={b3RunToken} onRunningChange={setB3Running} />
             : <BacktestTab
               bt={bt}
               loading={loadingBt || isValidating}
               hasData={hasData}
               hasRun={hasRun}
               validationRequested={validationRequested}
-              validationRun={savedValidation?.strategySnapshotId === result?.sessionId ? savedValidation : undefined}
-              validationRuns={validationRuns ?? []}
+               validationRun={legacyValidation}
+               validationRuns={legacyRuns}
               selectedValidationRunId={visibleValidationRunId}
               onSelectValidationRun={(id) => setSelectedValidationRunId(id)}
               validationError={validationError}
@@ -277,7 +289,7 @@ export default function PortfolioLab() {
 
         <TabsContent value="allocation" forceMount className="space-y-6 pt-4 data-[state=inactive]:hidden">
           {b2Mode
-            ? <B2AllocationPanel prepared={b2Prepared} runToken={b2RunToken} onRunningChange={setB2Running} />
+             ? <B2AllocationPanel prepared={b2Prepared} runToken={b2RunToken} onRunningChange={setB2Running} onAllocationSelectionChange={setSelectedB2AllocationId} />
             : <AllocationTab result={result} constraints={constraints} hasData={hasData} hasRun={hasRun} />}
         </TabsContent>
       </Tabs>

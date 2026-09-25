@@ -2455,9 +2455,25 @@ export const GetBacktestResponse = zod.object({
 
 
 /**
- * @summary Execute and persist a new immutable validation for a saved Strategy Snapshot
+ * @summary Execute and persist a legacy Strategy Snapshot validation or a frozen B3 policy validation
  */
-export const CreateValidationRunBody = zod.object({
+
+
+export const createValidationRunBodyTwoAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createValidationRunBodyTwoAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createValidationRunBodyTwoAssumptionsInitialNavExclusiveMin = 0;
+
+export const createValidationRunBodyTwoAssumptionsInitialHoldingsMinOne = 0;
+
+export const createValidationRunBodyTwoAssumptionsInitialCashMin = 0;
+
+export const createValidationRunBodyTwoAssumptionsTransactionCostBpsMin = 0;
+
+export const createValidationRunBodyTwoAssumptionsSlippageBpsMin = 0;
+
+
+
+export const CreateValidationRunBody = zod.union([zod.object({
   "sessionId": zod.number(),
   "benchmark": zod.string().optional(),
   "startDate": zod.string().optional(),
@@ -2469,28 +2485,86 @@ export const CreateValidationRunBody = zod.object({
   "maxTurnoverPerRebalance": zod.number().optional(),
   "cashYieldAnnual": zod.number().optional(),
   "warmupDays": zod.number().optional()
-})
+}),zod.object({
+  "allocationId": zod.number().min(1),
+  "validationPreparedInputId": zod.number().min(1),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(createValidationRunBodyTwoAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(createValidationRunBodyTwoAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close']),
+  "initialNav": zod.number().gt(createValidationRunBodyTwoAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(createValidationRunBodyTwoAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(createValidationRunBodyTwoAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(createValidationRunBodyTwoAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(createValidationRunBodyTwoAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).describe('Frozen evaluation and A1 execution settings applied to this validation.')
+}).describe('Runs a B3 point-in-time backtest from explicitly selected immutable B2 policy and B1 validation snapshots. No working\/latest dataset is selected implicitly.')])
 
-export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMin = 2;
-export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMax = 1260;
+export const createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLookbackMin = 2;
+export const createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLookbackMax = 1260;
 
-export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMin = 0;
-export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMax = 252;
+export const createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLagMin = 0;
+export const createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLagMax = 252;
 
-export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin = 0;
-export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax = 0.49;
+export const createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin = 0;
+export const createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax = 0.49;
 
-export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin = 0.51;
-export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax = 1;
+export const createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin = 0.51;
+export const createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax = 1;
 
-export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin = 0;
+export const createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin = 0;
 
-export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin = 0;
-export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax = 1;
+export const createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin = 0;
+export const createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax = 1;
+
+export const createValidationRunResponseTwoAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createValidationRunResponseTwoAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createValidationRunResponseTwoAssumptionsInitialNavExclusiveMin = 0;
+
+export const createValidationRunResponseTwoAssumptionsInitialHoldingsMinOne = 0;
+
+export const createValidationRunResponseTwoAssumptionsInitialCashMin = 0;
+
+export const createValidationRunResponseTwoAssumptionsTransactionCostBpsMin = 0;
+
+export const createValidationRunResponseTwoAssumptionsSlippageBpsMin = 0;
+
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMin = 0;
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMax = 1;
+
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMin = 0;
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMax = 1;
+
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMin = 0;
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMax = 1;
+
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMin = 0;
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMax = 1;
+
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMin = 0;
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMax = 1;
+
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMin = 0;
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMax = 1;
 
 
 
-export const CreateValidationRunResponse = zod.object({
+
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMin = 0;
+export const createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMax = 1;
+
+export const createValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMin = 0;
+export const createValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMax = 1;
+
+export const createValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMin = 0;
+export const createValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMax = 1;
+
+
+
+export const CreateValidationRunResponse = zod.union([zod.object({
   "validationRunId": zod.number(),
   "strategySnapshotId": zod.number(),
   "datasetHash": zod.string(),
@@ -2537,13 +2611,13 @@ export const CreateValidationRunResponse = zod.object({
   "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
   "formula": zod.string(),
   "direction": zod.enum(['higher_is_better', 'lower_is_better']),
-  "lookback": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMin).max(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMax),
-  "lag": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMin).max(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMax),
+  "lookback": zod.number().min(createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLookbackMin).max(createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLookbackMax),
+  "lag": zod.number().min(createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLagMin).max(createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLagMax),
   "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
-  "winsorizationLower": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin).max(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax),
-  "winsorizationUpper": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin).max(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax),
+  "winsorizationLower": zod.number().min(createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin).max(createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin).max(createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax),
   "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
-  "baseWeight": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin),
+  "baseWeight": zod.number().min(createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin),
   "regimeWeights": zod.object({
   "riskOn": zod.number().nullable(),
   "neutral": zod.number().nullable(),
@@ -2552,7 +2626,7 @@ export const CreateValidationRunResponse = zod.object({
   "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
   "dataSource": zod.string(),
   "benchmarkTicker": zod.string().nullable(),
-  "currentCoverage": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin).max(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax),
+  "currentCoverage": zod.number().min(createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin).max(createValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax),
   "availabilityReason": zod.string().nullable(),
   "version": zod.string()
 })),
@@ -2719,19 +2793,152 @@ export const CreateValidationRunResponse = zod.object({
   "warnings": zod.array(zod.string()),
   "methodologyNote": zod.string()
 })
+}),zod.object({
+  "validationRunId": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
+  "datasetHash": zod.string(),
+  "engineVersion": zod.string(),
+  "validatedAt": zod.string(),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(createValidationRunResponseTwoAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(createValidationRunResponseTwoAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close']),
+  "initialNav": zod.number().gt(createValidationRunResponseTwoAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(createValidationRunResponseTwoAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(createValidationRunResponseTwoAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(createValidationRunResponseTwoAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(createValidationRunResponseTwoAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).describe('Frozen evaluation and A1 execution settings applied to this validation.'),
+  "reconciliationStatus": zod.enum(['pass', 'fail']),
+  "reproducibilityStatus": zod.enum(['pass', 'fail']),
+  "validationInputHash": zod.string(),
+  "status": zod.enum(['success', 'failed']),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "comparisonMetadata": zod.object({
+  "finalAssetConstraints": zod.object({
+  "candidateBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMin).max(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMax).optional(),
+  "max": zod.number().min(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMin).max(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMax).optional()
+})).optional(),
+  "totalCash": zod.object({
+  "min": zod.number().min(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMin).max(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMax).optional(),
+  "max": zod.number().min(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMin).max(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMax).optional()
+}).optional(),
+  "assetBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMin).max(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMax).optional(),
+  "max": zod.number().min(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMin).max(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMax).optional()
+})).optional(),
+  "groupCaps": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "max": zod.number().min(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMin).max(createValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMax)
+})).optional(),
+  "unsupported": zod.array(zod.string()).optional()
+}),
+  "capitalBudget": zod.object({
+  "initialNav": zod.number(),
+  "initialCash": zod.number(),
+  "initialHoldings": zod.record(zod.string(), zod.number()),
+  "initialRiskyCapital": zod.number(),
+  "policyTotalCashConstraint": zod.union([zod.object({
+  "min": zod.number().min(createValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMin).max(createValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMax).optional(),
+  "max": zod.number().min(createValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMin).max(createValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMax).optional()
+}),zod.null()])
 })
+})
+})])
 
 
 export const ListValidationRunsQueryParams = zod.object({
-  "sessionId": zod.coerce.number()
+  "sessionId": zod.coerce.number().optional().describe('Filter legacy validations by saved Strategy Snapshot; mutually exclusive with allocationId and source.'),
+  "allocationId": zod.coerce.number().optional().describe('Filter B3 validations for a frozen B2 allocation policy.'),
+  "source": zod.enum(['b3']).optional().describe('Use b3 to list all B3 validations for side-by-side comparison.')
 })
 
-export const ListValidationRunsResponseItem = zod.object({
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMin = 0;
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMax = 1;
+
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMin = 0;
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMax = 1;
+
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMin = 0;
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMax = 1;
+
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMin = 0;
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMax = 1;
+
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMin = 0;
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMax = 1;
+
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMin = 0;
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMax = 1;
+
+
+
+
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMin = 0;
+export const listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMax = 1;
+
+export const listValidationRunsResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMin = 0;
+export const listValidationRunsResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMax = 1;
+
+export const listValidationRunsResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMin = 0;
+export const listValidationRunsResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMax = 1;
+
+
+
+export const ListValidationRunsResponseItem = zod.union([zod.object({
   "validationRunId": zod.number(),
   "strategySnapshotId": zod.number(),
   "validatedAt": zod.string(),
   "reproducibilityStatus": zod.string()
+}),zod.object({
+  "validationRunId": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
+  "status": zod.string(),
+  "validatedAt": zod.string(),
+  "reproducibilityStatus": zod.string(),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "comparisonMetadata": zod.object({
+  "finalAssetConstraints": zod.object({
+  "candidateBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMin).max(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMax).optional(),
+  "max": zod.number().min(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMin).max(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMax).optional()
+})).optional(),
+  "totalCash": zod.object({
+  "min": zod.number().min(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMin).max(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMax).optional(),
+  "max": zod.number().min(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMin).max(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMax).optional()
+}).optional(),
+  "assetBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMin).max(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMax).optional(),
+  "max": zod.number().min(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMin).max(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMax).optional()
+})).optional(),
+  "groupCaps": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "max": zod.number().min(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMin).max(listValidationRunsResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMax)
+})).optional(),
+  "unsupported": zod.array(zod.string()).optional()
+}),
+  "capitalBudget": zod.object({
+  "initialNav": zod.number(),
+  "initialCash": zod.number(),
+  "initialHoldings": zod.record(zod.string(), zod.number()),
+  "initialRiskyCapital": zod.number(),
+  "policyTotalCashConstraint": zod.union([zod.object({
+  "min": zod.number().min(listValidationRunsResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMin).max(listValidationRunsResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMax).optional(),
+  "max": zod.number().min(listValidationRunsResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMin).max(listValidationRunsResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMax).optional()
+}),zod.null()])
 })
+})
+})])
 export const ListValidationRunsResponse = zod.array(ListValidationRunsResponseItem)
 
 
@@ -2739,26 +2946,68 @@ export const GetValidationRunParams = zod.object({
   "validationRunId": zod.coerce.number()
 })
 
-export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMin = 2;
-export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMax = 1260;
+export const getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLookbackMin = 2;
+export const getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLookbackMax = 1260;
 
-export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMin = 0;
-export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMax = 252;
+export const getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLagMin = 0;
+export const getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLagMax = 252;
 
-export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin = 0;
-export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax = 0.49;
+export const getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin = 0;
+export const getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax = 0.49;
 
-export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin = 0.51;
-export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax = 1;
+export const getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin = 0.51;
+export const getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax = 1;
 
-export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin = 0;
+export const getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin = 0;
 
-export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin = 0;
-export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax = 1;
+export const getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin = 0;
+export const getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax = 1;
+
+export const getValidationRunResponseTwoAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getValidationRunResponseTwoAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getValidationRunResponseTwoAssumptionsInitialNavExclusiveMin = 0;
+
+export const getValidationRunResponseTwoAssumptionsInitialHoldingsMinOne = 0;
+
+export const getValidationRunResponseTwoAssumptionsInitialCashMin = 0;
+
+export const getValidationRunResponseTwoAssumptionsTransactionCostBpsMin = 0;
+
+export const getValidationRunResponseTwoAssumptionsSlippageBpsMin = 0;
+
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMin = 0;
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMax = 1;
+
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMin = 0;
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMax = 1;
+
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMin = 0;
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMax = 1;
+
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMin = 0;
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMax = 1;
+
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMin = 0;
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMax = 1;
+
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMin = 0;
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMax = 1;
 
 
 
-export const GetValidationRunResponse = zod.object({
+
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMin = 0;
+export const getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMax = 1;
+
+export const getValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMin = 0;
+export const getValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMax = 1;
+
+export const getValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMin = 0;
+export const getValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMax = 1;
+
+
+
+export const GetValidationRunResponse = zod.union([zod.object({
   "validationRunId": zod.number(),
   "strategySnapshotId": zod.number(),
   "datasetHash": zod.string(),
@@ -2805,13 +3054,13 @@ export const GetValidationRunResponse = zod.object({
   "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
   "formula": zod.string(),
   "direction": zod.enum(['higher_is_better', 'lower_is_better']),
-  "lookback": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMin).max(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMax),
-  "lag": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMin).max(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMax),
+  "lookback": zod.number().min(getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLookbackMin).max(getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLookbackMax),
+  "lag": zod.number().min(getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLagMin).max(getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemLagMax),
   "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
-  "winsorizationLower": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin).max(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax),
-  "winsorizationUpper": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin).max(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax),
+  "winsorizationLower": zod.number().min(getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin).max(getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin).max(getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax),
   "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
-  "baseWeight": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin),
+  "baseWeight": zod.number().min(getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin),
   "regimeWeights": zod.object({
   "riskOn": zod.number().nullable(),
   "neutral": zod.number().nullable(),
@@ -2820,7 +3069,7 @@ export const GetValidationRunResponse = zod.object({
   "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
   "dataSource": zod.string(),
   "benchmarkTicker": zod.string().nullable(),
-  "currentCoverage": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin).max(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax),
+  "currentCoverage": zod.number().min(getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin).max(getValidationRunResponseOneResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax),
   "availabilityReason": zod.string().nullable(),
   "version": zod.string()
 })),
@@ -2987,6 +3236,80 @@ export const GetValidationRunResponse = zod.object({
   "warnings": zod.array(zod.string()),
   "methodologyNote": zod.string()
 })
+}),zod.object({
+  "validationRunId": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
+  "datasetHash": zod.string(),
+  "engineVersion": zod.string(),
+  "validatedAt": zod.string(),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(getValidationRunResponseTwoAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(getValidationRunResponseTwoAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close']),
+  "initialNav": zod.number().gt(getValidationRunResponseTwoAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(getValidationRunResponseTwoAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(getValidationRunResponseTwoAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(getValidationRunResponseTwoAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(getValidationRunResponseTwoAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).describe('Frozen evaluation and A1 execution settings applied to this validation.'),
+  "reconciliationStatus": zod.enum(['pass', 'fail']),
+  "reproducibilityStatus": zod.enum(['pass', 'fail']),
+  "validationInputHash": zod.string(),
+  "status": zod.enum(['success', 'failed']),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "comparisonMetadata": zod.object({
+  "finalAssetConstraints": zod.object({
+  "candidateBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMin).max(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMinMax).optional(),
+  "max": zod.number().min(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMin).max(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsCandidateBoundsMaxMax).optional()
+})).optional(),
+  "totalCash": zod.object({
+  "min": zod.number().min(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMin).max(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMinMax).optional(),
+  "max": zod.number().min(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMin).max(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsTotalCashMaxMax).optional()
+}).optional(),
+  "assetBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().min(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMin).max(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMinMax).optional(),
+  "max": zod.number().min(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMin).max(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsAssetBoundsMaxMax).optional()
+})).optional(),
+  "groupCaps": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "max": zod.number().min(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMin).max(getValidationRunResponseTwoComparisonMetadataFinalAssetConstraintsGroupCapsItemMaxMax)
+})).optional(),
+  "unsupported": zod.array(zod.string()).optional()
+}),
+  "capitalBudget": zod.object({
+  "initialNav": zod.number(),
+  "initialCash": zod.number(),
+  "initialHoldings": zod.record(zod.string(), zod.number()),
+  "initialRiskyCapital": zod.number(),
+  "policyTotalCashConstraint": zod.union([zod.object({
+  "min": zod.number().min(getValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMin).max(getValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMinMax).optional(),
+  "max": zod.number().min(getValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMin).max(getValidationRunResponseTwoComparisonMetadataCapitalBudgetPolicyTotalCashConstraintOneMaxMax).optional()
+}),zod.null()])
+})
+})
+})])
+
+
+/**
+ * @summary Replay a B3 validation using its frozen policy and validation snapshots
+ */
+export const ReplayValidationRunParams = zod.object({
+  "validationRunId": zod.coerce.number()
+})
+
+export const ReplayValidationRunResponse = zod.object({
+  "validationRunId": zod.number(),
+  "status": zod.enum(['pass', 'fail', 'engine_mismatch']),
+  "validationInputHash": zod.string(),
+  "differences": zod.array(zod.string()),
+  "replayedResult": zod.record(zod.string(), zod.unknown())
 })
 
 

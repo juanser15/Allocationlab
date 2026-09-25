@@ -5,7 +5,19 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+import type { ListValidationRunsSource } from './listValidationRunsSource';
 
 export type ListValidationRunsParams = {
-sessionId: number;
+/**
+ * Filter legacy validations by saved Strategy Snapshot; mutually exclusive with allocationId and source.
+ */
+sessionId?: number;
+/**
+ * Filter B3 validations for a frozen B2 allocation policy.
+ */
+allocationId?: number;
+/**
+ * Use b3 to list all B3 validations for side-by-side comparison.
+ */
+source?: ListValidationRunsSource;
 };

@@ -1449,6 +1449,14 @@ export interface BacktestEngineResult {
   benchmarkUnavailableReason: null | string;
 }
 
+/** Optional starting book for a policy backtest. Omission preserves A1's index-100 cash start. */
+export interface BacktestInitialState {
+  initialNav: number;
+  initialCash: number;
+  initialHoldings: Record<string, number>;
+  dailyCashYield: number;
+}
+
 const TRADING_DAYS_PER_YEAR = 252;
 const MIN_DAYS_FOR_ANNUALIZATION = 10;
 
@@ -1535,6 +1543,7 @@ export function runBacktestEngine(
   benchmarkTicker: string | null,
   factorSet?: { factors: FactorDefinition[] },
   targetWeightsForSignal?: (signalDate: string, rows: PriceRow[]) => Record<string, number> | null,
+  initialState?: BacktestInitialState,
 ): BacktestEngineResult {
   const enabledTickers = etfs.filter((e) => e.enabled).map((e) => e.ticker);
   const empty = (reason: string): BacktestEngineResult => ({
@@ -1599,13 +1608,31 @@ export function runBacktestEngine(
   // Start one close before the first signal, in cash. Every entry is the interval
   // (previous close, current close] followed by any trade AT the current close.
   const simRows = priceRows.slice(firstSignalIndex - 1);
-  const dailyCashReturn = Math.pow(1 + config.cashYieldAnnual, 1 / TRADING_DAYS_PER_YEAR) - 1;
+  if (initialState) {
+    const { initialNav, initialCash, initialHoldings, dailyCashYield } = initialState;
+    if (!Number.isFinite(initialNav) || initialNav <= 0 || !Number.isFinite(initialCash) || initialCash < 0 ||
+        !Number.isFinite(dailyCashYield) || dailyCashYield <= -1 ||
+        !initialHoldings || typeof initialHoldings !== "object")
+      return empty("Invalid initial NAV, cash, holdings or daily cash yield.");
+    let initialAssets = 0;
+    for (const [ticker, quantity] of Object.entries(initialHoldings)) {
+      const price = simRows[0].prices[ticker];
+      if (!enabledTickers.includes(ticker) || !Number.isFinite(quantity) || quantity < 0 ||
+          !Number.isFinite(price) || price <= 0)
+        return empty(`Invalid initial holding or missing price for ${ticker} on ${simRows[0].date}.`);
+      initialAssets += quantity * price;
+    }
+    if (Math.abs(initialCash + initialAssets - initialNav) > 1e-8)
+      return empty(`Initial holdings and cash do not reconcile to NAV on ${simRows[0].date}.`);
+  }
+  const dailyCashReturn = initialState?.dailyCashYield ??
+    (Math.pow(1 + config.cashYieldAnnual, 1 / TRADING_DAYS_PER_YEAR) - 1);
   const dailyReturns: Array<{ date: string; portfolioReturn: number; benchmarkReturn: number | null }> = [];
   const dailyLedger: BacktestLedgerEntry[] = [];
   const rebalanceLog: RebalanceLogEntry[] = [];
-  let shares = new Map<string, number>();
-  let cash = 100;
-  let nav = 100;
+  let shares = new Map<string, number>(Object.entries(initialState?.initialHoldings ?? {}));
+  let cash = initialState?.initialCash ?? 100;
+  let nav = initialState?.initialNav ?? 100;
   let pending: { signalDate: string; executionDate: string; target: Map<string, number>; lookbackDays: number; regimeLabel: string; regimeComposite: number } | null = null;
   const positionSnapshot = (prices: Record<string, number>, value: number): BacktestPosition[] =>
     [...shares].filter(([, quantity]) => quantity > 0).map(([ticker, quantity]) => ({

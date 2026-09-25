@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { db, validationRunsTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import type { BacktestResult } from "@workspace/api-zod";
+import { toB3ValidationRun } from "./b3-validation-store";
 
 function stable(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(stable);
@@ -75,7 +76,7 @@ function toValidationRun(row: typeof validationRunsTable.$inferSelect) {
 
 export async function getValidationRun(id: number) {
   const [row] = await db.select().from(validationRunsTable).where(eq(validationRunsTable.id, id)).limit(1);
-  return row ? toValidationRun(row) : null;
+  return row ? row.allocationId !== null ? toB3ValidationRun(row) : toValidationRun(row) : null;
 }
 
 export async function listValidationRuns(strategySnapshotId: number) {

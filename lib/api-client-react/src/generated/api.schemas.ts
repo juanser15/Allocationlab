@@ -1607,30 +1607,30 @@ export interface BacktestConfigEcho {
   startDate: string | null;
 }
 
-export type ValidationRunInputRebalanceFrequency = typeof ValidationRunInputRebalanceFrequency[keyof typeof ValidationRunInputRebalanceFrequency];
+export type LegacyValidationRunInputRebalanceFrequency = typeof LegacyValidationRunInputRebalanceFrequency[keyof typeof LegacyValidationRunInputRebalanceFrequency];
 
 
-export const ValidationRunInputRebalanceFrequency = {
+export const LegacyValidationRunInputRebalanceFrequency = {
   monthly: 'monthly',
   quarterly: 'quarterly',
 } as const;
 
-export type ValidationRunInputExecutionTiming = typeof ValidationRunInputExecutionTiming[keyof typeof ValidationRunInputExecutionTiming];
+export type LegacyValidationRunInputExecutionTiming = typeof LegacyValidationRunInputExecutionTiming[keyof typeof LegacyValidationRunInputExecutionTiming];
 
 
-export const ValidationRunInputExecutionTiming = {
+export const LegacyValidationRunInputExecutionTiming = {
   same_close: 'same_close',
   next_close: 'next_close',
   next_open: 'next_open',
 } as const;
 
-export interface ValidationRunInput {
+export interface LegacyValidationRunInput {
   sessionId: number;
   benchmark?: string;
   startDate?: string;
   endDate?: string;
-  rebalanceFrequency?: ValidationRunInputRebalanceFrequency;
-  executionTiming?: ValidationRunInputExecutionTiming;
+  rebalanceFrequency?: LegacyValidationRunInputRebalanceFrequency;
+  executionTiming?: LegacyValidationRunInputExecutionTiming;
   transactionCostBps?: number;
   slippageBps?: number;
   maxTurnoverPerRebalance?: number;
@@ -1638,12 +1638,146 @@ export interface ValidationRunInput {
   warmupDays?: number;
 }
 
+export type B3ValidationAssumptionsDecisionCalendar = typeof B3ValidationAssumptionsDecisionCalendar[keyof typeof B3ValidationAssumptionsDecisionCalendar];
+
+
+export const B3ValidationAssumptionsDecisionCalendar = {
+  monthly: 'monthly',
+  quarterly: 'quarterly',
+} as const;
+
+export type B3ValidationAssumptionsExecutionTiming = typeof B3ValidationAssumptionsExecutionTiming[keyof typeof B3ValidationAssumptionsExecutionTiming];
+
+
+export const B3ValidationAssumptionsExecutionTiming = {
+  same_close: 'same_close',
+  next_close: 'next_close',
+} as const;
+
+export type B3ValidationAssumptionsInitialHoldings = {[key: string]: number};
+
+/**
+ * Frozen evaluation and A1 execution settings applied to this validation.
+ */
+export interface B3ValidationAssumptions {
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  evaluationStartDate: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  evaluationEndDate: string;
+  decisionCalendar: B3ValidationAssumptionsDecisionCalendar;
+  executionTiming: B3ValidationAssumptionsExecutionTiming;
+  /** @exclusiveMinimum 0 */
+  initialNav: number;
+  initialHoldings: B3ValidationAssumptionsInitialHoldings;
+  /** @minimum 0 */
+  initialCash: number;
+  /** @minimum 0 */
+  transactionCostBps: number;
+  /** @minimum 0 */
+  slippageBps: number;
+  dailyCashYield: number;
+  benchmarkTicker?: string;
+}
+
+/**
+ * Runs a B3 point-in-time backtest from explicitly selected immutable B2 policy and B1 validation snapshots. No working/latest dataset is selected implicitly.
+ */
+export interface B3ValidationRunInput {
+  /** @minimum 1 */
+  allocationId: number;
+  /** @minimum 1 */
+  validationPreparedInputId: number;
+  assumptions: B3ValidationAssumptions;
+}
+
+export type ValidationRunInput = LegacyValidationRunInput | B3ValidationRunInput;
+
 export interface ValidationRunSummary {
   validationRunId: number;
   strategySnapshotId: number;
   validatedAt: string;
   reproducibilityStatus: string;
 }
+
+export type B3ValidationComparisonMetadataCapitalBudgetInitialHoldings = {[key: string]: number};
+
+export interface AllocationCandidateBounds {
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  min?: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  max?: number;
+}
+
+export type B3ValidationComparisonMetadataCapitalBudget = {
+  initialNav: number;
+  initialCash: number;
+  initialHoldings: B3ValidationComparisonMetadataCapitalBudgetInitialHoldings;
+  initialRiskyCapital: number;
+  policyTotalCashConstraint: AllocationCandidateBounds | null;
+};
+
+export interface AllocationGroupCap {
+  /** @minLength 1 */
+  name: string;
+  /**
+     * @minItems 1
+     * @items.minLength 1
+     */
+  candidateIds: string[];
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  max: number;
+}
+
+export type AllocationConstraintsCandidateBounds = {[key: string]: AllocationCandidateBounds};
+
+export type AllocationConstraintsAssetBounds = {[key: string]: AllocationCandidateBounds};
+
+export interface AllocationConstraints {
+  candidateBounds?: AllocationConstraintsCandidateBounds;
+  totalCash?: AllocationCandidateBounds;
+  assetBounds?: AllocationConstraintsAssetBounds;
+  groupCaps?: AllocationGroupCap[];
+  unsupported?: string[];
+}
+
+export interface B3ValidationComparisonMetadata {
+  finalAssetConstraints: AllocationConstraints;
+  capitalBudget: B3ValidationComparisonMetadataCapitalBudget;
+}
+
+export type B3ValidationRunSummaryRepresentation = typeof B3ValidationRunSummaryRepresentation[keyof typeof B3ValidationRunSummaryRepresentation];
+
+
+export const B3ValidationRunSummaryRepresentation = {
+  asset_returns: 'asset_returns',
+  alpha_streams: 'alpha_streams',
+  signals: 'signals',
+} as const;
+
+export type B3ValidationRunSummaryResult = { [key: string]: unknown };
+
+export interface B3ValidationRunSummary {
+  validationRunId: number;
+  allocationId: number;
+  validationPreparedInputId: number;
+  representation: B3ValidationRunSummaryRepresentation;
+  status: string;
+  validatedAt: string;
+  reproducibilityStatus: string;
+  result: B3ValidationRunSummaryResult;
+  comparisonMetadata: B3ValidationComparisonMetadata;
+}
+
+export type ValidationRunListItem = ValidationRunSummary | B3ValidationRunSummary;
 
 export type ValidationRunReconciliationStatus = typeof ValidationRunReconciliationStatus[keyof typeof ValidationRunReconciliationStatus];
 
@@ -1837,6 +1971,79 @@ export interface ValidationRun {
   reproducibilityStatus: string;
   validationInputHash: string;
   result: BacktestResult;
+}
+
+export type B3ValidationRunRepresentation = typeof B3ValidationRunRepresentation[keyof typeof B3ValidationRunRepresentation];
+
+
+export const B3ValidationRunRepresentation = {
+  asset_returns: 'asset_returns',
+  alpha_streams: 'alpha_streams',
+  signals: 'signals',
+} as const;
+
+export type B3ValidationRunReconciliationStatus = typeof B3ValidationRunReconciliationStatus[keyof typeof B3ValidationRunReconciliationStatus];
+
+
+export const B3ValidationRunReconciliationStatus = {
+  pass: 'pass',
+  fail: 'fail',
+} as const;
+
+export type B3ValidationRunReproducibilityStatus = typeof B3ValidationRunReproducibilityStatus[keyof typeof B3ValidationRunReproducibilityStatus];
+
+
+export const B3ValidationRunReproducibilityStatus = {
+  pass: 'pass',
+  fail: 'fail',
+} as const;
+
+export type B3ValidationRunStatus = typeof B3ValidationRunStatus[keyof typeof B3ValidationRunStatus];
+
+
+export const B3ValidationRunStatus = {
+  success: 'success',
+  failed: 'failed',
+} as const;
+
+export type B3ValidationRunResult = { [key: string]: unknown };
+
+export interface B3ValidationRun {
+  validationRunId: number;
+  allocationId: number;
+  validationPreparedInputId: number;
+  representation: B3ValidationRunRepresentation;
+  datasetHash: string;
+  engineVersion: string;
+  validatedAt: string;
+  assumptions: B3ValidationAssumptions;
+  reconciliationStatus: B3ValidationRunReconciliationStatus;
+  reproducibilityStatus: B3ValidationRunReproducibilityStatus;
+  validationInputHash: string;
+  status: B3ValidationRunStatus;
+  result: B3ValidationRunResult;
+  comparisonMetadata: B3ValidationComparisonMetadata;
+}
+
+export type ValidationRunResponse = ValidationRun | B3ValidationRun;
+
+export type ValidationRunReplayStatus = typeof ValidationRunReplayStatus[keyof typeof ValidationRunReplayStatus];
+
+
+export const ValidationRunReplayStatus = {
+  pass: 'pass',
+  fail: 'fail',
+  engine_mismatch: 'engine_mismatch',
+} as const;
+
+export type ValidationRunReplayReplayedResult = { [key: string]: unknown };
+
+export interface ValidationRunReplay {
+  validationRunId: number;
+  status: ValidationRunReplayStatus;
+  validationInputHash: string;
+  differences: string[];
+  replayedResult: ValidationRunReplayReplayedResult;
 }
 
 export type CommitteeRecommendationPersonaId = typeof CommitteeRecommendationPersonaId[keyof typeof CommitteeRecommendationPersonaId];
@@ -2226,46 +2433,6 @@ export interface PreparedReplay {
   replayedCandidates: PreparedReplayReplayedCandidatesItem[];
 }
 
-export interface AllocationCandidateBounds {
-  /**
-     * @minimum 0
-     * @maximum 1
-     */
-  min?: number;
-  /**
-     * @minimum 0
-     * @maximum 1
-     */
-  max?: number;
-}
-
-export interface AllocationGroupCap {
-  /** @minLength 1 */
-  name: string;
-  /**
-     * @minItems 1
-     * @items.minLength 1
-     */
-  candidateIds: string[];
-  /**
-     * @minimum 0
-     * @maximum 1
-     */
-  max: number;
-}
-
-export type AllocationConstraintsCandidateBounds = {[key: string]: AllocationCandidateBounds};
-
-export type AllocationConstraintsAssetBounds = {[key: string]: AllocationCandidateBounds};
-
-export interface AllocationConstraints {
-  candidateBounds?: AllocationConstraintsCandidateBounds;
-  totalCash?: AllocationCandidateBounds;
-  assetBounds?: AllocationConstraintsAssetBounds;
-  groupCaps?: AllocationGroupCap[];
-  unsupported?: string[];
-}
-
 export type AllocationObjectiveType = typeof AllocationObjectiveType[keyof typeof AllocationObjectiveType];
 
 
@@ -2531,8 +2698,26 @@ export const GetBacktestExecutionTiming = {
 } as const;
 
 export type ListValidationRunsParams = {
-sessionId: number;
+/**
+ * Filter legacy validations by saved Strategy Snapshot; mutually exclusive with allocationId and source.
+ */
+sessionId?: number;
+/**
+ * Filter B3 validations for a frozen B2 allocation policy.
+ */
+allocationId?: number;
+/**
+ * Use b3 to list all B3 validations for side-by-side comparison.
+ */
+source?: ListValidationRunsSource;
 };
+
+export type ListValidationRunsSource = typeof ListValidationRunsSource[keyof typeof ListValidationRunsSource];
+
+
+export const ListValidationRunsSource = {
+  b3: 'b3',
+} as const;
 
 export type GetCommittee404 = {
   error: string;
