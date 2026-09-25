@@ -1159,6 +1159,8 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /alpha-contribution-experiments/{experimentId}/replay:
     post:
       operationId: replayAlphaContributionExperiment
       tags: [backtest]

@@ -3457,7 +3457,7 @@ export const getReplayAlphaContributionExperimentUrl = (experimentId: number,) =
 
 
 
-  return `/api/alpha-contribution-experiments/${experimentId}`
+  return `/api/alpha-contribution-experiments/${experimentId}/replay`
 }
 
 /**

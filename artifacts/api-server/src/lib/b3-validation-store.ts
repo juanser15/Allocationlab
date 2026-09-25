@@ -3,6 +3,7 @@ import { desc, eq, isNotNull, and } from "drizzle-orm";
 import {
   runB3Validation,
   type B3Assumptions,
+  type B3EstimationDatePlan,
   type B3Result,
 } from "./b3-policy";
 import type { AllocationRequest } from "./allocation-b2";
@@ -19,6 +20,7 @@ type B3ValidationEnvelope = {
   validationSnapshot: unknown;
   validationPreparedFingerprint: string;
   assumptions: B3Assumptions;
+  estimationDatePlan?: B3EstimationDatePlan;
   result: B3Result | { status: "failed"; diagnostic: string };
 };
 
@@ -52,10 +54,12 @@ function b3InputHash(input: {
   policyRequest: unknown;
   validationSnapshot: unknown;
   assumptions: unknown;
+  estimationDatePlan?: unknown;
   engineVersion: string;
   result: unknown;
 }): string {
-  return fingerprint(input);
+  const { estimationDatePlan, ...base } = input;
+  return fingerprint(estimationDatePlan === undefined ? base : { ...base, estimationDatePlan });
 }
 
 function envelope(row: typeof validationRunsTable.$inferSelect): B3ValidationEnvelope {
@@ -116,7 +120,7 @@ export async function persistB3ValidationRun(input: {
   allocationId: number;
   validationPreparedInputId: number;
   assumptions: B3ValidationAssumptions;
-}, internalPolicyRequestOverride?: AllocationRequest) {
+}, internalPolicyRequestOverride?: AllocationRequest, internalEstimationDatePlan?: B3EstimationDatePlan) {
   const [allocation] = await db.select().from(allocationsTable)
     .where(eq(allocationsTable.id, input.allocationId)).limit(1);
   if (!allocation) return { error: "Frozen allocation policy not found.", status: 404 } as const;
@@ -176,6 +180,7 @@ export async function persistB3ValidationRun(input: {
       policyRequest as Parameters<typeof runB3Validation>[1],
       validationSnapshot as Parameters<typeof runB3Validation>[2],
       frozenAssumptions,
+      internalEstimationDatePlan,
     );
   } catch (error) {
     result = {
@@ -192,6 +197,7 @@ export async function persistB3ValidationRun(input: {
     validationSnapshot,
     validationPreparedFingerprint: prepared.fingerprint,
     assumptions: frozenAssumptions,
+    ...(internalEstimationDatePlan ? { estimationDatePlan: structuredClone(internalEstimationDatePlan) } : {}),
     result: structuredClone(result),
   };
   const inputHash = b3InputHash({
@@ -201,6 +207,7 @@ export async function persistB3ValidationRun(input: {
     policyRequest,
     validationSnapshot,
     assumptions: frozenAssumptions,
+    ...(internalEstimationDatePlan ? { estimationDatePlan: internalEstimationDatePlan } : {}),
     engineVersion: version,
     result,
   });
@@ -332,6 +339,7 @@ export async function replayB3ValidationRun(id: number) {
     policyRequest: frozen.policyRequest,
     validationSnapshot: frozen.validationSnapshot,
     assumptions: frozen.assumptions,
+    ...(frozen.estimationDatePlan ? { estimationDatePlan: frozen.estimationDatePlan } : {}),
     engineVersion: row.engineVersion,
     result: frozen.result,
   });
@@ -350,6 +358,7 @@ export async function replayB3ValidationRun(id: number) {
       frozen.policyRequest as Parameters<typeof runB3Validation>[1],
       frozen.validationSnapshot as Parameters<typeof runB3Validation>[2],
       frozen.assumptions,
+      frozen.estimationDatePlan,
     );
   } catch (error) {
     replayed = { status: "failed", diagnostic: error instanceof Error ? error.message : "B3 replay failed." };

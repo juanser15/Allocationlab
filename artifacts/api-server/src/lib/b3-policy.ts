@@ -44,6 +44,23 @@ export interface B3Decision {
   constraintChecks: AllocationResult["constraintSlacks"];
 }
 
+export const C1_ESTIMATION_ALIGNMENT_RULE =
+  "At each strict prior-close cutoff, use the last min(estimationWindow, full-baseline complete-common daily row count) rows iff that count is at least minObservations; otherwise record a dated full-baseline failure. Every exclusion variant consumes exactly that frozen ordered date list.";
+
+export interface B3EstimationDatePlanEntry {
+  decisionDate: string;
+  informationCutoff: string;
+  estimationDates: string[];
+  observationCount: number;
+  failureReason?: string;
+}
+
+export interface B3EstimationDatePlan {
+  rule: typeof C1_ESTIMATION_ALIGNMENT_RULE;
+  referenceCandidateIds: string[];
+  decisions: B3EstimationDatePlanEntry[];
+}
+
 export interface B3DailyLedgerEntry {
   date: string;
   intervalStart: string;
@@ -199,6 +216,7 @@ export function runB3Validation(
   policyRequest: AllocationRequest,
   validationSnapshot: PreparedSnapshot,
   assumptions: B3Assumptions,
+  estimationDatePlan?: B3EstimationDatePlan,
 ): B3Result {
   const fail = (reason: string, date?: string, decisions: B3Decision[] = [],
     calendar: Array<{ decisionDate: string; executionDate: string }> = []) =>
@@ -294,6 +312,32 @@ export function runB3Validation(
     return fail("Evaluation start has no preceding close for a point-in-time information cutoff.", expectedCalendar[0].decisionDate);
 
   const dates = new Set(expectedCalendar.map((item) => item.decisionDate));
+  const alignmentByDate = new Map<string, B3EstimationDatePlanEntry>();
+  if (estimationDatePlan !== undefined) {
+    if (estimationDatePlan.rule !== C1_ESTIMATION_ALIGNMENT_RULE ||
+        !Array.isArray(estimationDatePlan.referenceCandidateIds) ||
+        !estimationDatePlan.referenceCandidateIds.length ||
+        new Set(estimationDatePlan.referenceCandidateIds).size !== estimationDatePlan.referenceCandidateIds.length ||
+        policyRequest.candidateIds.some((candidateId) =>
+          !estimationDatePlan.referenceCandidateIds.includes(candidateId)) ||
+        !Array.isArray(estimationDatePlan.decisions) ||
+        estimationDatePlan.decisions.length !== expectedCalendar.length)
+      return fail("Frozen C1 estimation-date alignment plan is invalid or incomplete.");
+    for (const [index, item] of estimationDatePlan.decisions.entries()) {
+      if (item.decisionDate !== expectedCalendar[index].decisionDate ||
+          !validDate(item.informationCutoff) ||
+          !Array.isArray(item.estimationDates) ||
+          item.observationCount !== item.estimationDates.length ||
+          (item.failureReason === undefined &&
+            (item.observationCount < policyRequest.minObservations ||
+             item.observationCount > policyRequest.estimationWindow)) ||
+          (item.failureReason !== undefined && item.observationCount !== 0) ||
+          alignmentByDate.has(item.decisionDate))
+        return fail(`Frozen C1 estimation-date alignment is malformed at ${item.decisionDate || "an unknown decision date"}.`,
+          item.decisionDate || undefined);
+      alignmentByDate.set(item.decisionDate, item);
+    }
+  }
   const decisions: B3Decision[] = [];
   let decisionFailure: { date: string; reason: string } | null = null;
   const readDecisionFailure = (): { date: string; reason: string } | null => decisionFailure;
@@ -317,6 +361,17 @@ export function runB3Validation(
     const informationCutoff = rows[rowIndex - 1]?.date;
     if (!informationCutoff) {
       decisionFailure = { date: decisionDate, reason: "No preceding close exists for the decision information cutoff." };
+      return null;
+    }
+    const alignment = alignmentByDate.get(decisionDate);
+    if (estimationDatePlan && (!alignment || alignment.informationCutoff !== informationCutoff)) {
+      decisionFailure = { date: decisionDate,
+        reason: `Frozen C1 estimation-date alignment cutoff mismatch at ${decisionDate}; expected ${alignment?.informationCutoff ?? "a plan entry"}, observed ${informationCutoff}.` };
+      return null;
+    }
+    if (alignment?.failureReason) {
+      decisionFailure = { date: decisionDate,
+        reason: `Full-baseline C1 estimation alignment failed at ${decisionDate}: ${alignment.failureReason}` };
       return null;
     }
     let historical: PreparedSnapshot;
@@ -381,7 +436,7 @@ export function runB3Validation(
         })),
       },
     };
-    const optimized = optimizePreparedSnapshot(historicalForB2, request);
+    const optimized = optimizePreparedSnapshot(historicalForB2, request, alignment?.estimationDates);
     if (optimized.status !== "SOLVED" || !optimized.model || !optimized.assetWeights || !optimized.candidateWeights) {
       const detail = optimized.reason ?? optimized.solver.message ?? "no valid solution";
       const detailDates = [...detail.matchAll(/\d{4}-\d{2}-\d{2}/g)].map((match) => match[0]);

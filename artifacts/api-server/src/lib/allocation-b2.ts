@@ -340,7 +340,8 @@ function scaledKktResidual(Hessian: number[][], linear: number[], x: number[],
  * The model uses complete common daily intervals, gross stream returns, daily decimal
  * units, sample covariance and explicit diagonal covariance shrinkage.
  */
-export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: AllocationRequest): AllocationResult {
+export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: AllocationRequest,
+  plannedEstimationDates?: readonly string[]): AllocationResult {
   if (request.representation === "signals")
     return failure("UNSUPPORTED", "UNSUPPORTED_REPRESENTATION: predictive signal optimization is not supported; select asset_returns or alpha_streams.");
   if (request.constraints?.unsupported?.length)
@@ -389,9 +390,25 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
   const streams = candidates.map((candidate) =>
     candidateReturns(candidate, request.representation, request.informationCutoff, request.decisionTimestamp));
   const common = [...streams[0].keys()].filter((date) => streams.every((stream) => stream.has(date))).sort();
-  if (common.length < request.minObservations)
-    return failure("INVALID_INPUT", `Only ${common.length} complete common observations are available; ${request.minObservations} are required.`);
-  const dates = common.slice(-request.estimationWindow);
+  let dates: string[];
+  if (plannedEstimationDates !== undefined) {
+    if (!Array.isArray(plannedEstimationDates) || plannedEstimationDates.some((date, index) =>
+      !validTimestamp(date) || date > request.informationCutoff ||
+      (index > 0 && plannedEstimationDates[index - 1] >= date)))
+      return failure("INVALID_INPUT", "Frozen estimation-date alignment must be strictly increasing valid dates no later than the information cutoff.");
+    if (plannedEstimationDates.length < request.minObservations)
+      return failure("INVALID_INPUT", `Frozen estimation-date alignment contains ${plannedEstimationDates.length} observations; ${request.minObservations} are required.`);
+    if (plannedEstimationDates.length > request.estimationWindow)
+      return failure("INVALID_INPUT", `Frozen estimation-date alignment contains ${plannedEstimationDates.length} observations; the configured lookback is ${request.estimationWindow}.`);
+    const unavailable = plannedEstimationDates.filter((date) => !common.includes(date));
+    if (unavailable.length)
+      return failure("INVALID_INPUT", `Frozen estimation-date alignment is unavailable in every selected candidate at ${unavailable.join(", ")}.`);
+    dates = [...plannedEstimationDates];
+  } else {
+    if (common.length < request.minObservations)
+      return failure("INVALID_INPUT", `Only ${common.length} complete common observations are available; ${request.minObservations} are required.`);
+    dates = common.slice(-request.estimationWindow);
+  }
   if (dates.length < request.minObservations)
     return failure("INVALID_INPUT", `Estimation window contains ${dates.length} common observations; ${request.minObservations} are required.`);
   const grossReturns = streams.map((stream) => dates.map((date) => stream.get(date)!.gross));

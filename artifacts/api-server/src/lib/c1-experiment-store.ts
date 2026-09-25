@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import {
   allocationsTable, c1ExperimentsTable, db, preparedInputsTable, validationRunsTable,
 } from "@workspace/db";
@@ -8,13 +8,25 @@ import {
   summarizeC1Experiment,
 } from "./c1-contribution";
 import type { AllocationRequest } from "./allocation-b2";
-import type { B3Assumptions, B3Result } from "./b3-policy";
+import {
+  C1_ESTIMATION_ALIGNMENT_RULE,
+  runB3Validation,
+  type B3Assumptions,
+  type B3EstimationDatePlan,
+  type B3Result,
+} from "./b3-policy";
 import { canonicalJson, fingerprint, type PreparedCandidate, type PreparedSnapshot } from "./prepared-inputs";
 import { hashDataset } from "./run-snapshot";
 import {
   persistB3ValidationRun,
   replayB3ValidationRun,
 } from "./b3-validation-store";
+import {
+  compareC1ReplayChildren,
+  differenceObjects,
+  formatC1IntegrityDifference,
+  recomputeAndCompareC1Summary,
+} from "./c1-replay-integrity";
 
 type C1Plan = {
   label: string;
@@ -49,6 +61,8 @@ type C1Manifest = {
   mode: C1ExperimentInput["mode"];
   exclusionSets: string[][];
   plans: C1Plan[];
+  // Absent only on immutable historical experiments created before T2 alignment.
+  alignmentPlan?: B3EstimationDatePlan;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -180,6 +194,20 @@ function response(row: typeof c1ExperimentsTable.$inferSelect) {
   };
 }
 
+function c1AlignmentMatches(result: B3Result, plan: B3EstimationDatePlan): boolean {
+  const expected = new Map(plan.decisions.map((decision) => [decision.decisionDate, decision]));
+  for (const decision of result.decisions) {
+    const aligned = expected.get(decision.decisionDate);
+    if (!aligned || aligned.failureReason || aligned.observationCount !== decision.estimationDates.length ||
+        !isSame(aligned.estimationDates, decision.estimationDates))
+      return false;
+  }
+  const firstFailure = plan.decisions.find((decision) => decision.failureReason);
+  if (firstFailure && result.failureDate && result.failureDate !== firstFailure.decisionDate)
+    return false;
+  return true;
+}
+
 export async function persistC1Experiment(input: C1ExperimentInput) {
   const [allocation] = await db.select().from(allocationsTable)
     .where(eq(allocationsTable.id, input.allocationId)).limit(1);
@@ -251,6 +279,51 @@ export async function persistC1Experiment(input: C1ExperimentInput) {
   if (uniqueVariants.size !== plans.length)
     return { error: "C1 planner returned duplicate exclusion policies.", status: 422 } as const;
 
+  let referenceResult: B3Result;
+  try {
+    referenceResult = runB3Validation(policySnapshot, basePolicyRequest, validationSnapshot, assumptions);
+  } catch (error) {
+    return { error: `Full-baseline C1 alignment preparation failed: ${error instanceof Error ? error.message : String(error)}`,
+      status: 422 } as const;
+  }
+  const referenceDecisions = new Map(referenceResult.decisions.map((decision) => [decision.decisionDate, decision]));
+  const referenceCalendar = referenceResult.decisionCalendar;
+  const firstUnsolvedIndex = referenceCalendar.findIndex((item) => !referenceDecisions.has(item.decisionDate));
+  const failureCalendarIndex = referenceResult.status === "failed"
+    ? firstUnsolvedIndex >= 0 ? firstUnsolvedIndex
+      : referenceCalendar.findIndex((item) => item.decisionDate >= (referenceResult.failureDate ?? ""))
+    : -1;
+  const referenceFailureDate = failureCalendarIndex >= 0
+    ? referenceCalendar[failureCalendarIndex].decisionDate : referenceResult.failureDate;
+  const referenceFailureReason = referenceResult.status === "failed"
+    ? referenceResult.reason ?? `Full-baseline B3 failed at ${referenceFailureDate ?? assumptions.evaluationStartDate}.`
+    : undefined;
+  const alignmentPlan: B3EstimationDatePlan = {
+    rule: C1_ESTIMATION_ALIGNMENT_RULE,
+    referenceCandidateIds: [...basePolicyRequest.candidateIds],
+    decisions: referenceCalendar.map((item, index) => {
+      const decision = failureCalendarIndex < 0 || index < failureCalendarIndex
+        ? referenceDecisions.get(item.decisionDate) : undefined;
+      if (decision) return {
+        decisionDate: item.decisionDate,
+        informationCutoff: decision.informationCutoff,
+        estimationDates: [...decision.estimationDates],
+        observationCount: decision.estimationDates.length,
+      };
+      const cutoff = validationSnapshot.dataset.csvContent.trimEnd().split(/\r?\n/)
+        .slice(1).map((line) => line.split(",")[0].replace(/^"|"$/g, ""))
+        .filter((date) => date < item.decisionDate).at(-1) ?? "";
+      return {
+        decisionDate: item.decisionDate,
+        informationCutoff: cutoff,
+        estimationDates: [],
+        observationCount: 0,
+        failureReason: referenceFailureReason ??
+          `Full-baseline reference did not produce a B2 estimate at ${item.decisionDate}.`,
+      };
+    }),
+  };
+
   const manifest: C1Manifest = {
     schemaVersion: 1,
     label: "Development comparison — no automatic selection.",
@@ -276,6 +349,7 @@ export async function persistC1Experiment(input: C1ExperimentInput) {
     mode: input.mode,
     exclusionSets: structuredClone(input.exclusionSets),
     plans: structuredClone(plans),
+    alignmentPlan: structuredClone(alignmentPlan),
   };
   const manifestHash = fingerprint(manifest);
   const inputHash = fingerprint({
@@ -317,7 +391,7 @@ export async function persistC1Experiment(input: C1ExperimentInput) {
         allocationId: allocation.id,
         validationPreparedInputId: prepared.id,
         assumptions,
-      }, plan.policyRequest);
+      }, plan.policyRequest, alignmentPlan);
       if ("error" in saved) {
         children.push({
           label: plan.label,
@@ -352,6 +426,8 @@ export async function persistC1Experiment(input: C1ExperimentInput) {
         result: child.result,
       }] : []);
     if (summaryChildren.length && summaryChildren.length === children.length &&
+        children.every((child) => resultAsB3Result(child.result) &&
+          c1AlignmentMatches(child.result, alignmentPlan)) &&
         summaryChildren[0].excludedCandidateIds.length === 0) {
       try {
         summary = summarizeC1Experiment(summaryChildren, baselineIds);
@@ -412,24 +488,51 @@ export async function replayC1Experiment(id: number) {
     };
   }
   const manifest = row.manifestJson as C1Manifest;
+  const addDifferences = (expected: unknown, observed: unknown, root: string) => {
+    differences.push(...differenceObjects(expected, observed, { root })
+      .map(formatC1IntegrityDifference));
+  };
   const actualManifestHash = fingerprint(manifest);
-  if (actualManifestHash !== row.manifestHash) differences.push("frozen C1 manifest fingerprint mismatch");
+  addDifferences(row.manifestHash, actualManifestHash, "manifestHash");
   const [allocation] = await db.select().from(allocationsTable)
     .where(eq(allocationsTable.id, row.allocationId)).limit(1);
   const [prepared] = await db.select().from(preparedInputsTable)
     .where(eq(preparedInputsTable.id, row.validationPreparedInputId)).limit(1);
-  if (!allocation || allocationFingerprint(allocation) !== manifest.allocationFingerprint ||
-      allocation.fingerprint !== manifest.allocationFingerprint)
-    differences.push("frozen B2 allocation reference or fingerprint mismatch");
-  if (!prepared || prepared.fingerprint !== manifest.validationPreparedFingerprint ||
-      preparedFingerprint(prepared.snapshot) !== manifest.validationPreparedFingerprint)
-    differences.push("frozen B1 validation preparation reference or fingerprint mismatch");
+  const allocationHash = allocation ? allocationFingerprint(allocation) : "";
+  addDifferences({
+    allocationId: row.allocationId,
+    allocationFingerprint: allocation?.fingerprint ?? null,
+    reconstructedAllocationFingerprint: allocationHash,
+    preparedInputId: allocation?.preparedInputId ?? null,
+  }, {
+    allocationId: manifest.allocationId,
+    allocationFingerprint: manifest.allocationFingerprint,
+    reconstructedAllocationFingerprint: manifest.allocationFingerprint,
+    preparedInputId: manifest.allocationPreparedInputId,
+  }, "manifest.allocationReference");
+  const currentPreparedFingerprint = prepared ? preparedFingerprint(prepared.snapshot) : "";
+  addDifferences({
+    validationPreparedInputId: row.validationPreparedInputId,
+    fingerprint: prepared?.fingerprint ?? null,
+    reconstructedFingerprint: currentPreparedFingerprint,
+  }, {
+    validationPreparedInputId: manifest.validationPreparedInputId,
+    fingerprint: manifest.validationPreparedFingerprint,
+    reconstructedFingerprint: manifest.validationPreparedFingerprint,
+  }, "manifest.validationPreparation");
   const currentDataset = prepared && isRecord(prepared.snapshot) && isRecord(prepared.snapshot.dataset)
     ? prepared.snapshot.dataset : null;
-  if (!currentDataset || typeof currentDataset.csvContent !== "string" ||
-      currentDataset.sha256 !== manifest.validationDatasetHash ||
-      hashDataset(currentDataset.csvContent) !== currentDataset.sha256)
-    differences.push("frozen C1 validation dataset content/hash mismatch");
+  const actualDatasetHash = currentDataset && typeof currentDataset.csvContent === "string"
+    ? hashDataset(currentDataset.csvContent) : null;
+  addDifferences({
+    manifestDatasetHash: manifest.validationDatasetHash,
+    preparedDatasetHash: currentDataset?.sha256 ?? null,
+    calculatedDatasetHash: actualDatasetHash,
+  }, {
+    manifestDatasetHash: manifest.validationDatasetHash,
+    preparedDatasetHash: manifest.validationDatasetHash,
+    calculatedDatasetHash: manifest.validationDatasetHash,
+  }, "manifest.validationDataset");
   const currentInputHash = fingerprint({
     manifestHash: actualManifestHash,
     allocationFingerprint: manifest.allocationFingerprint,
@@ -437,44 +540,271 @@ export async function replayC1Experiment(id: number) {
     policySnapshotHash: allocation ? fingerprint(allocation.frozenSnapshot) : "",
     validationDatasetHash: manifest.validationDatasetHash,
   });
-  if (currentInputHash !== row.inputHash) differences.push("persisted C1 input fingerprint mismatch");
+  addDifferences(row.inputHash, currentInputHash, "inputHash");
 
   const children = Array.isArray(row.childResultsJson) ? row.childResultsJson as ChildRecord[] : [];
   const ids = Array.isArray(row.childValidationRunIds) ? row.childValidationRunIds as number[] : [];
-  if (ids.length !== children.filter((child) => child.validationRunId !== null).length)
-    differences.push("persisted C1 child ID manifest mismatch");
+  const actualChildIds = children.flatMap((child) =>
+    child && child.validationRunId !== null ? [child.validationRunId] : []);
+  addDifferences(actualChildIds, ids, "childValidationRunIds");
   const manifestPlans = Array.isArray(manifest.plans) ? manifest.plans : [];
-  if (!Array.isArray(manifest.plans) || manifestPlans.length !== row.plannedPolicyCount)
-    differences.push("planned C1 policy count does not match the frozen manifest");
-  if (row.actualPolicyCount !== children.length)
-    differences.push("actual C1 policy count does not match the persisted child outcomes");
-  if (children.length > manifestPlans.length)
-    differences.push("persisted C1 child outcomes exceed the frozen policy manifest");
+  addDifferences(row.plannedPolicyCount, manifestPlans.length, "plannedPolicyCount");
+  addDifferences(row.actualPolicyCount, children.length, "actualPolicyCount");
+
+  if (!manifest.alignmentPlan)
+    differences.push("UNVERIFIED/NON-COMPARABLE: frozen C1 alignmentPlan is absent; legacy replay cannot be VERIFIED.");
+  if (manifest.alignmentPlan) {
+    addDifferences(C1_ESTIMATION_ALIGNMENT_RULE, manifest.alignmentPlan.rule, "manifest.alignmentPlan.rule");
+    addDifferences(manifest.candidateIds, manifest.alignmentPlan.referenceCandidateIds,
+      "manifest.alignmentPlan.referenceCandidateIds");
+  }
+
+  if (!allocation || !prepared || !isRecord(allocation.frozenSnapshot) ||
+      !isRecord(prepared.snapshot) || !isRecord(allocation.frozenRequest)) {
+    differences.push("Frozen allocation/preparation inputs are unavailable; canonical C1 plans cannot be reconstructed.");
+  } else {
+    const policySnapshot = allocation.frozenSnapshot as unknown as PreparedSnapshot;
+    const validationSnapshot = prepared.snapshot as unknown as PreparedSnapshot;
+    const basePolicyRequest = allocation.frozenRequest as unknown as AllocationRequest;
+    const baselineIds = [...basePolicyRequest.candidateIds];
+    const expectedValidationCandidateIds: Record<string, string> = {};
+    for (const candidateId of baselineIds) {
+      const policyCandidate = policySnapshot.candidates.find((candidate) => candidate.candidateId === candidateId);
+      const compatible = policyCandidate ? validationSnapshot.candidates.filter((candidate) =>
+        candidate.candidateId === candidate.canonicalFingerprint && !candidate.diagnostics.duplicateOf &&
+        compatibleCandidateDefinitions(policyCandidate, candidate)) : [];
+      if (compatible.length === 1) expectedValidationCandidateIds[candidateId] = compatible[0].candidateId;
+      addDifferences(1, compatible.length, `manifest.validationCandidateIds.${candidateId}.compatibleCandidateCount`);
+    }
+    addDifferences({
+      allocationId: row.allocationId,
+      allocationPreparedInputId: allocation.preparedInputId,
+      validationPreparedInputId: prepared.id,
+      candidateIds: baselineIds,
+      validationCandidateIds: expectedValidationCandidateIds,
+      candidateDefinitionsHash: fingerprint(baselineIds.map((candidateId) => {
+        const candidate = policySnapshot.candidates.find((item) => item.candidateId === candidateId);
+        return candidate ? { policyCandidateId: candidateId, definition: candidateDefinition(candidate) } : null;
+      })),
+      developmentPeriod: {
+        startDate: manifest.assumptions?.evaluationStartDate,
+        endDate: manifest.assumptions?.evaluationEndDate,
+      },
+      rowMode: row.mode,
+      holdoutConstraint: manifest.holdoutStartDate === undefined
+        ? null
+        : manifest.assumptions?.evaluationEndDate < manifest.holdoutStartDate,
+    }, {
+      allocationId: manifest.allocationId,
+      allocationPreparedInputId: manifest.allocationPreparedInputId,
+      validationPreparedInputId: manifest.validationPreparedInputId,
+      candidateIds: manifest.candidateIds,
+      validationCandidateIds: manifest.validationCandidateIds,
+      candidateDefinitionsHash: manifest.candidateDefinitionsHash,
+      developmentPeriod: manifest.developmentPeriod,
+      rowMode: manifest.mode,
+      holdoutConstraint: manifest.holdoutStartDate === undefined
+        ? null
+        : typeof manifest.holdoutStartDate === "string" &&
+          manifest.assumptions?.evaluationEndDate < manifest.holdoutStartDate,
+    }, "manifest");
+
+    let reconstructedPlans: C1Plan[] = [];
+    try {
+      reconstructedPlans = planC1Policies(policySnapshot, basePolicyRequest, manifest.assumptions, {
+        mode: manifest.mode,
+        exclusionSets: manifest.exclusionSets,
+        ...(manifest.holdoutStartDate ? { holdoutStartDate: manifest.holdoutStartDate } : {}),
+      }) as C1Plan[];
+    } catch (error) {
+      differences.push(`manifest.plans: expected canonical plans from frozen inputs; observed reconstruction error=${JSON.stringify(
+        error instanceof Error ? error.message : String(error))}`);
+    }
+    addDifferences(reconstructedPlans, manifestPlans, "manifest.plans");
+  }
+
+  if (manifest.assumptions) {
+    addDifferences({
+      startDate: manifest.assumptions.evaluationStartDate,
+      endDate: manifest.assumptions.evaluationEndDate,
+      holdoutStartDate: manifest.holdoutStartDate ?? null,
+    }, {
+      startDate: manifest.developmentPeriod?.startDate,
+      endDate: manifest.developmentPeriod?.endDate,
+      holdoutStartDate: manifest.holdoutStartDate ?? null,
+    }, "manifest.period");
+    if (manifest.holdoutStartDate &&
+        (!/^\d{4}-\d{2}-\d{2}$/.test(manifest.holdoutStartDate) ||
+         manifest.assumptions.evaluationEndDate >= manifest.holdoutStartDate))
+      differences.push(`manifest.holdoutStartDate: expected a valid date after development end ${JSON.stringify(manifest.assumptions.evaluationEndDate)}, observed=${JSON.stringify(manifest.holdoutStartDate)}`);
+  }
+
   const childReplays: unknown[] = [];
+  const verifiedSummaryChildren: Array<{ label: string; excludedCandidateIds: string[]; result: B3Result }> = [];
+  const planPolicySnapshot = allocation && isRecord(allocation.frozenSnapshot)
+    ? allocation.frozenSnapshot as unknown as PreparedSnapshot : null;
+  const basePolicyRequest = allocation && isRecord(allocation.frozenRequest)
+    ? allocation.frozenRequest as unknown as AllocationRequest : null;
+  const preparedSnapshot = prepared && isRecord(prepared.snapshot)
+    ? prepared.snapshot as unknown as PreparedSnapshot : null;
+  const baselineIds = basePolicyRequest?.candidateIds ?? manifest.candidateIds ?? [];
+  const alignmentDifferences = (result: B3Result, plan: B3EstimationDatePlan, root: string) => {
+    const findings: string[] = [];
+    const plannedDates = plan.decisions.map((item) => item.decisionDate);
+    const calendarDates = result.decisionCalendar.map((item) => item.decisionDate);
+    findings.push(...differenceObjects(plannedDates, calendarDates, {
+      root: `${root}.decisionCalendar`,
+    }).map(formatC1IntegrityDifference));
+    const resultDecisions = new Map(result.decisions.map((decision) => [decision.decisionDate, decision]));
+    for (const [decisionIndex, aligned] of plan.decisions.entries()) {
+      const actual = resultDecisions.get(aligned.decisionDate);
+      if (aligned.failureReason) {
+        if (actual)
+          findings.push(...differenceObjects(undefined, {
+            informationCutoff: actual.informationCutoff,
+            estimationDates: actual.estimationDates,
+          }, { root: `${root}.decisions[${decisionIndex}]` }).map(formatC1IntegrityDifference));
+      } else if (!actual) {
+        findings.push(...differenceObjects({
+          decisionDate: aligned.decisionDate,
+          informationCutoff: aligned.informationCutoff,
+          estimationDates: aligned.estimationDates,
+          observationCount: aligned.observationCount,
+        }, undefined, { root: `${root}.decisions[${decisionIndex}]` }).map(formatC1IntegrityDifference));
+      } else {
+        findings.push(...differenceObjects({
+          decisionDate: aligned.decisionDate,
+          informationCutoff: aligned.informationCutoff,
+          estimationDates: aligned.estimationDates,
+          observationCount: aligned.observationCount,
+        }, {
+          decisionDate: actual.decisionDate,
+          informationCutoff: actual.informationCutoff,
+          estimationDates: actual.estimationDates,
+          observationCount: actual.estimationDates.length,
+        }, { root: `${root}.decisions[${decisionIndex}]` }).map(formatC1IntegrityDifference));
+      }
+    }
+    const expectedAlignmentFailure = plan.decisions.find((item) => item.failureReason)?.decisionDate ?? null;
+    if (expectedAlignmentFailure !== null)
+      findings.push(...differenceObjects(expectedAlignmentFailure, result.failureDate ?? null, {
+        root: `${root}.failureDate`,
+      }).map(formatC1IntegrityDifference));
+    return findings;
+  };
+  if (children.length !== manifestPlans.length)
+    differences.push(`children.length: expected=${manifestPlans.length}, observed=${children.length}`);
   for (const [index, child] of children.entries()) {
     const planned = manifestPlans[index];
-    if (!planned || planned.label !== child.label ||
-        !isSame(planned.excludedCandidateIds, child.excludedCandidateIds) ||
-        !isSame(planned.policyRequest, child.policyRequest))
-      differences.push(`persisted C1 child ${index + 1} does not match the frozen policy plan`);
+    if (!isRecord(child)) {
+      differences.push(`children[${index}]: expected a C1 child record, observed=${JSON.stringify(child)}`);
+      childReplays.push({ validationRunId: null, status: "fail", differences: ["invalid child record"] });
+      continue;
+    }
+    addDifferences(planned ?? undefined, {
+      label: child.label,
+      excludedCandidateIds: child.excludedCandidateIds,
+      policyRequest: child.policyRequest,
+    }, `children[${index}].plan`);
     if (child.validationRunId === null) {
-      childReplays.push({ validationRunId: null, status: "fail", differences: ["child B3 Validation Run was not persisted"] });
+      const failure = isRecord(child.result) && child.result.status === "failed";
+      if (!failure)
+        differences.push(`children[${index}].result.status: expected="failed" when validationRunId is null, observed=${JSON.stringify(isRecord(child.result) ? child.result.status : child.result)}`);
+      childReplays.push({
+        validationRunId: null,
+        status: "fail",
+        differences: ["child B3 Validation Run was not persisted; recorded failed-child outcome preserved, but this chain cannot be VERIFIED."],
+      });
       continue;
     }
     const [run] = await db.select().from(validationRunsTable)
-      .where(and(eq(validationRunsTable.id, child.validationRunId), eq(validationRunsTable.allocationId, row.allocationId)))
+      .where(eq(validationRunsTable.id, child.validationRunId))
       .limit(1);
-    if (!run || run.validationPreparedInputId !== row.validationPreparedInputId) {
-      differences.push(`child Validation Run ${child.validationRunId} reference mismatch`);
-      childReplays.push({ validationRunId: child.validationRunId, status: "fail", differences: ["child reference mismatch"] });
+    if (!run) {
+      differences.push(`children[${index}].validationRunId: expected an existing original B3 run, observed=${child.validationRunId}`);
+      childReplays.push({ validationRunId: child.validationRunId, status: "fail", differences: ["child reference does not resolve to a saved B3 run"] });
       continue;
     }
     const envelope = isRecord(run.resultJson) ? run.resultJson : {};
-    if (!isSame(envelope.policyRequest, child.policyRequest))
-      differences.push(`child Validation Run ${child.validationRunId} frozen policy request mismatch`);
-    if (run.validationInputHash !== child.validationInputHash)
-      differences.push(`child Validation Run ${child.validationRunId} input hash mismatch`);
-    childReplays.push(await replayB3ValidationRun(child.validationRunId));
+    const childExpected = {
+      label: planned?.label,
+      excludedCandidateIds: planned?.excludedCandidateIds,
+      policyRequest: planned?.policyRequest,
+      validationRunId: run.id,
+      validationInputHash: run.validationInputHash,
+      result: envelope.result,
+    };
+    const childObserved = {
+      label: child.label,
+      excludedCandidateIds: child.excludedCandidateIds,
+      policyRequest: child.policyRequest,
+      validationRunId: child.validationRunId,
+      validationInputHash: child.validationInputHash,
+      result: child.result,
+    };
+    differences.push(...compareC1ReplayChildren([childExpected], [childObserved])
+      .map(formatC1IntegrityDifference));
+    addDifferences({
+      id: row.allocationId,
+      validationPreparedInputId: row.validationPreparedInputId,
+      datasetHash: manifest.validationDatasetHash,
+    }, {
+      id: run.allocationId,
+      validationPreparedInputId: run.validationPreparedInputId,
+      datasetHash: run.datasetHash,
+    }, `children[${index}].B3Reference`);
+    addDifferences({
+      kind: "b3",
+      policySnapshot: planPolicySnapshot,
+      policyRequest: planned?.policyRequest,
+      validationSnapshot: preparedSnapshot,
+      validationPreparedFingerprint: manifest.validationPreparedFingerprint,
+      assumptions: manifest.assumptions,
+      ...(manifest.alignmentPlan ? { estimationDatePlan: manifest.alignmentPlan } : {}),
+    }, envelope, `children[${index}].B3Envelope`);
+
+    const replay = await replayB3ValidationRun(child.validationRunId);
+    const replayDifferences: string[] = [];
+    if (!replay) {
+      replayDifferences.push("B3 replay returned no record for the original child reference.");
+    } else {
+      if (replay.status !== "pass")
+        replayDifferences.push(...replay.differences.map((item) => `B3 replay: ${item}`));
+      differences.push(...compareC1ReplayChildren(
+        [{ result: envelope.result as unknown }],
+        [{ result: replay.replayedResult as unknown }],
+      ).map(formatC1IntegrityDifference));
+      if (replay.status === "pass" && resultAsB3Result(replay.replayedResult)) {
+        if (manifest.alignmentPlan)
+          replayDifferences.push(...alignmentDifferences(
+            replay.replayedResult,
+            manifest.alignmentPlan,
+            `children[${index}].alignmentPlan`,
+          ));
+        if (!replayDifferences.length)
+          verifiedSummaryChildren.push({
+            label: child.label,
+            excludedCandidateIds: child.excludedCandidateIds,
+            result: replay.replayedResult,
+          });
+      }
+    }
+    if (replayDifferences.length) differences.push(...replayDifferences.map((item) =>
+      `children[${index}].replay: ${item}`));
+    childReplays.push(replay
+      ? { ...replay, differences: [...replay.differences, ...replayDifferences] }
+      : { validationRunId: child.validationRunId, status: "fail", differences: replayDifferences });
+  }
+  if (verifiedSummaryChildren.length === children.length && children.length > 0 &&
+      verifiedSummaryChildren[0].excludedCandidateIds.length === 0) {
+    const summaryIntegrity = recomputeAndCompareC1Summary(
+      verifiedSummaryChildren,
+      baselineIds,
+      row.summaryJson,
+    );
+    differences.push(...summaryIntegrity.differences.map(formatC1IntegrityDifference));
+  } else if (row.summaryJson !== null) {
+    differences.push(`summary: expected recomputation from every passing original B3 child; observed unavailable because only ${verifiedSummaryChildren.length}/${children.length} children verified.`);
   }
   const replayStatus = childReplays.some((child) => isRecord(child) && child.status === "engine_mismatch")
     ? "engine_mismatch" : differences.length || childReplays.some((child) => isRecord(child) && child.status !== "pass")

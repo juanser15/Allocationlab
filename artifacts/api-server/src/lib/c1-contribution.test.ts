@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { AllocationRequest } from "./allocation-b2";
-import { runB3Validation, type B3Assumptions, type B3Result } from "./b3-policy";
+import {
+  C1_ESTIMATION_ALIGNMENT_RULE,
+  runB3Validation,
+  type B3Assumptions,
+  type B3EstimationDatePlan,
+  type B3Result,
+} from "./b3-policy";
 import { planC1Policies, summarizeC1Experiment } from "./c1-contribution";
 import { prepareSnapshot, type PreparedSnapshot } from "./prepared-inputs";
 import type { FactorDefinition } from "./factor-library";
@@ -71,9 +77,207 @@ function execute(prepared: PreparedSnapshot, policy: AllocationRequest, assumpti
   return runB3Validation(prepared, policy, prepared, assumptionsValue);
 }
 
+function alignmentPlan(reference: B3Result, candidateIds: string[]): B3EstimationDatePlan {
+  const decisions = new Map(reference.decisions.map((decision) => [decision.decisionDate, decision]));
+  let blocked = false;
+  return {
+    rule: C1_ESTIMATION_ALIGNMENT_RULE,
+    referenceCandidateIds: candidateIds,
+    decisions: reference.decisionCalendar.map(({ decisionDate }) => {
+      const decision = decisions.get(decisionDate);
+      if (decision && !blocked) return {
+        decisionDate, informationCutoff: decision.informationCutoff,
+        estimationDates: decision.estimationDates, observationCount: decision.estimationDates.length,
+      };
+      blocked = true;
+      return {
+        decisionDate,
+        informationCutoff: new Date(Date.parse(`${decisionDate}T00:00:00Z`) - 86_400_000)
+          .toISOString().slice(0, 10),
+        estimationDates: [], observationCount: 0,
+        failureReason: reference.reason ?? `Full-baseline reference failed at ${reference.failureDate ?? decisionDate}.`,
+      };
+    }),
+  };
+}
+
 function close(actual: number, expected: number, tolerance = 1e-8) {
   assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} differs from ${expected}`);
 }
+
+function unequalWarmupSnapshot(): PreparedSnapshot {
+  const slowFactor: FactorDefinition = { ...factor, id: "c1_slow_momentum", lookback: 90 };
+  const definitions = [
+    { name: "fast alpha", factorId: factor.id, assetTickers: ["A"] },
+    { name: "slow alpha", factorId: slowFactor.id, assetTickers: ["B"] },
+  ].map((item, index) => ({
+    ...item, mapping: "single_asset_long_cash" as const, signalUnits: "oriented" as const,
+    threshold: -100, grossFraction: index === 0 ? 0.6 : 0.7,
+    rebalanceFrequency: "monthly" as const, executionTiming: "next_close" as const,
+    transactionCostBps: 0, slippageBps: 0, cashYieldAnnual: 0,
+  }));
+  return prepareSnapshot({
+    request: { representation: "alpha_streams", assetTickers: ["A", "B"], factorIds: [],
+      alphaDefinitions: definitions },
+    csvContent: csvFor(), factorVersion: factor.version, factors: [factor, slowFactor], datasetId: 91,
+  });
+}
+
+test("C1 T2 pre-change evidence: unequal alpha warmups alter shared estimation inputs", () => {
+  const prepared = unequalWarmupSnapshot();
+  const base = request(prepared, { candidateIds: prepared.candidates.map((candidate) => candidate.candidateId),
+    estimationWindow: 45, minObservations: 25 });
+  const period = assumptions(120, 160);
+  const full = execute(prepared, base, period);
+  const reducedRequest = {
+    ...base, candidateIds: [base.candidateIds[0]], constraints: {},
+  };
+  const reduced = execute(prepared, reducedRequest, period);
+  assert.equal(full.status, "completed", full.reason);
+  assert.equal(reduced.status, "completed", reduced.reason);
+  assert.deepEqual(full.decisions.map((item) => item.decisionDate), reduced.decisions.map((item) => item.decisionDate));
+  const fullFirst = full.decisions[0].optimizer.model!;
+  const reducedFirst = reduced.decisions[0].optimizer.model!;
+  const sharedFullIndex = fullFirst.candidateIds.indexOf(base.candidateIds[0]);
+  const fullReturns = fullFirst.grossReturns[sharedFullIndex];
+  const reducedReturns = reducedFirst.grossReturns[0];
+  const returnDifference = fullReturns.length === reducedReturns.length &&
+    fullReturns.every((value, index) => value === reducedReturns[index])
+    ? 0 : Math.max(...fullReturns.slice(-Math.min(fullReturns.length, reducedReturns.length))
+      .map((value, index) => Math.abs(value - reducedReturns[reducedReturns.length - Math.min(fullReturns.length, reducedReturns.length) + index])));
+  const sharedDate = fullFirst.dates[0];
+  const fullSharedReturn = fullReturns[0];
+  const reducedSharedReturn = reducedReturns[reducedFirst.dates.indexOf(sharedDate)];
+  console.log("C1 T2 pre-change unequal-warmup evidence", JSON.stringify({
+    decisionDate: fullFirst.decisionTimestamp,
+    fullDates: [fullFirst.dates[0], fullFirst.dates.at(-1)], fullCount: fullFirst.observationCount,
+    reducedDates: [reducedFirst.dates[0], reducedFirst.dates.at(-1)], reducedCount: reducedFirst.observationCount,
+    sharedCandidate: base.candidateIds[0],
+    sharedFirstReturn: { full: fullReturns[0], reduced: reducedReturns[0] },
+    firstSameDateReturn: { date: sharedDate, full: fullSharedReturn, reduced: reducedSharedReturn,
+      absoluteDifference: Math.abs(fullSharedReturn - reducedSharedReturn) },
+    sharedMean: { full: fullFirst.sampleMeans[sharedFullIndex], reduced: reducedFirst.sampleMeans[0] },
+    sharedMu: { full: fullFirst.mu[sharedFullIndex], reduced: reducedFirst.mu[0] },
+    sharedVariance: { full: fullFirst.sigma[sharedFullIndex][sharedFullIndex], reduced: reducedFirst.sigma[0][0] },
+    commonTailMaxReturnDifference: returnDifference,
+  }));
+  assert.ok(reducedFirst.observationCount > fullFirst.observationCount,
+    "Pre-change reduced policy should expose its longer natural estimation history.");
+  assert.notEqual(fullFirst.sampleMeans[sharedFullIndex], reducedFirst.sampleMeans[0]);
+  assert.notEqual(fullFirst.sigma[sharedFullIndex][sharedFullIndex], reducedFirst.sigma[0][0]);
+});
+
+test("C1 R1 aligns unequal alpha warmups on the full-baseline rows and inputs", () => {
+  const prepared = unequalWarmupSnapshot();
+  const base = request(prepared, { candidateIds: prepared.candidates.map((candidate) => candidate.candidateId),
+    estimationWindow: 45, minObservations: 25 });
+  const period = assumptions(120, 160);
+  const reducedRequest = { ...base, candidateIds: [base.candidateIds[0]], constraints: {} };
+  const reference = execute(prepared, base, period);
+  assert.equal(reference.status, "completed", reference.reason);
+  const plan = alignmentPlan(reference, base.candidateIds);
+  const alignedFull = runB3Validation(prepared, base, prepared, period, plan);
+  const alignedReduced = runB3Validation(prepared, reducedRequest, prepared, period, plan);
+  assert.equal(alignedFull.status, "completed", alignedFull.reason);
+  assert.equal(alignedReduced.status, "completed", alignedReduced.reason);
+  assert.deepEqual(alignedFull.decisions.map((decision) => decision.decisionDate),
+    alignedReduced.decisions.map((decision) => decision.decisionDate));
+  for (const [index, fullDecision] of alignedFull.decisions.entries()) {
+    const reducedDecision = alignedReduced.decisions[index];
+    const fullModel = fullDecision.optimizer.model!;
+    const reducedModel = reducedDecision.optimizer.model!;
+    assert.deepEqual(fullDecision.estimationDates, plan.decisions[index].estimationDates);
+    assert.deepEqual(reducedDecision.estimationDates, plan.decisions[index].estimationDates);
+    assert.equal(fullModel.observationCount, reducedModel.observationCount);
+    const fullCandidateIndex = fullModel.candidateIds.indexOf(base.candidateIds[0]);
+    assert.deepEqual(fullModel.grossReturns[fullCandidateIndex], reducedModel.grossReturns[0]);
+    assert.deepEqual(fullModel.netReturns[fullCandidateIndex], reducedModel.netReturns[0]);
+    assert.deepEqual(fullModel.costs.total[fullCandidateIndex], reducedModel.costs.total[0]);
+    close(fullModel.sampleMeans[fullCandidateIndex], reducedModel.sampleMeans[0], 0);
+    close(fullModel.mu[fullCandidateIndex], reducedModel.mu[0], 0);
+    close(fullModel.sigma[fullCandidateIndex][fullCandidateIndex], reducedModel.sigma[0][0], 0);
+  }
+  const fullFirstModel = alignedFull.decisions[0].optimizer.model!;
+  const reducedFirstModel = alignedReduced.decisions[0].optimizer.model!;
+  const alignedReturnDiff = Math.max(...fullFirstModel.grossReturns[0].map((value, row) =>
+    Math.abs(value - reducedFirstModel.grossReturns[0][row])));
+  console.log("C1 R1 aligned sample", JSON.stringify({
+    decisionDate: alignedFull.decisions[0].decisionDate,
+    estimationDates: fullFirstModel.dates,
+    observationCount: fullFirstModel.observationCount,
+    sharedCandidate: base.candidateIds[0],
+    sharedReturn: fullFirstModel.grossReturns[0][0],
+    maxSharedReturnDifference: alignedReturnDiff,
+    muDifference: Math.abs(fullFirstModel.mu[0] - reducedFirstModel.mu[0]),
+    retainedCovarianceDifference: Math.abs(fullFirstModel.sigma[0][0] - reducedFirstModel.sigma[0][0]),
+  }));
+  assert.deepEqual(alignedFull.decisions[0].estimationDates,
+    alignedReduced.decisions[0].estimationDates);
+  assert.equal(alignedFull.decisions[0].optimizer.model!.observationCount, 30);
+});
+
+test("C1 R2 blocks insufficient full-baseline history and preserves cutoff isolation", () => {
+  const insufficientPrepared = unequalWarmupSnapshot();
+  const slowFactor: FactorDefinition = { ...factor, id: "c1_slow_momentum", lookback: 110 };
+  const insufficientSnapshot = prepareSnapshot({
+    request: insufficientPrepared.request,
+    csvContent: csvFor(),
+    factorVersion: factor.version,
+    factors: [factor, slowFactor],
+    datasetId: 91,
+  });
+  const base = request(insufficientSnapshot, { candidateIds: insufficientSnapshot.candidates.map((candidate) => candidate.candidateId),
+    estimationWindow: 45, minObservations: 25 });
+  const period = assumptions(120, 160);
+  const reference = execute(insufficientSnapshot, base, period);
+  assert.equal(reference.status, "failed");
+  assert.equal(reference.failureDate, day(120));
+  assert.match(reference.reason ?? "", /complete common observations|alignment/i);
+  const plan = alignmentPlan(reference, base.candidateIds);
+  assert.equal(plan.decisions[0].decisionDate, reference.decisionCalendar[0].decisionDate);
+  assert.equal(plan.decisions[0].observationCount, 0);
+  assert.match(plan.decisions[0].failureReason ?? "", /observations|failed/i);
+  const reduced = runB3Validation(insufficientSnapshot,
+    { ...base, candidateIds: [base.candidateIds[0]], constraints: {} }, insufficientSnapshot, period, plan);
+  assert.equal(reduced.status, "failed");
+  assert.ok(plan.decisions.some((item) => item.decisionDate === reduced.failureDate && item.failureReason));
+  assert.match(reduced.reason ?? "", /Full-baseline C1 estimation alignment failed/);
+  assert.equal(reduced.assumptions.evaluationStartDate, period.evaluationStartDate);
+  assert.equal(reduced.assumptions.evaluationEndDate, period.evaluationEndDate);
+
+  const sufficient = unequalWarmupSnapshot();
+  const sufficientRequest = request(sufficient, { candidateIds: sufficient.candidates.map((candidate) => candidate.candidateId),
+    estimationWindow: 45, minObservations: 25 });
+  const sufficientReference = execute(sufficient, sufficientRequest, period);
+  assert.equal(sufficientReference.status, "completed", sufficientReference.reason);
+  const stablePlan = alignmentPlan(sufficientReference, sufficientRequest.candidateIds);
+  const futureChangedCsv = csvFor().split("\n").map((line, index) => index < 122
+    ? line : `${line.split(",")[0]},${Number(line.split(",")[1]) * 1.4},${line.split(",")[2]},${line.split(",")[3]}`).join("\n");
+  const futureChanged = prepareSnapshot({
+    request: sufficient.request, csvContent: futureChangedCsv, factorVersion: factor.version,
+    factors: [factor, { ...factor, id: "c1_slow_momentum", lookback: 90 }], datasetId: 91,
+  });
+  const before = runB3Validation(sufficient, sufficientRequest, sufficient, period, stablePlan);
+  const after = runB3Validation(sufficient, sufficientRequest, futureChanged, period, stablePlan);
+  assert.equal(before.status, "completed", before.reason);
+  assert.equal(after.status, "completed", after.reason);
+  const economics = (decision: B3Result["decisions"][number]) => ({
+    decisionDate: decision.decisionDate,
+    informationCutoff: decision.informationCutoff,
+    estimationDates: decision.estimationDates,
+    candidateTargetAssetExposures: decision.candidateTargetAssetExposures,
+    grossReturns: decision.optimizer.model!.grossReturns,
+    mu: decision.optimizer.model!.mu,
+    sigma: decision.optimizer.model!.sigma,
+    H: decision.optimizer.model!.H,
+    d: decision.optimizer.model!.d,
+    candidateWeights: sufficientRequest.candidateIds.map((id) => decision.candidateWeights[id]),
+    masterCash: decision.masterCash,
+    totalCash: decision.totalCash,
+    targetAssetWeights: decision.targetAssetWeights,
+  });
+  assert.deepEqual(economics(before.decisions[0]), economics(after.decisions[0]));
+});
 
 test("C1 T1 independently reoptimizes exclusions through B3", () => {
   const prepared = snapshot();
