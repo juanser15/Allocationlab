@@ -45,11 +45,15 @@ export interface FactorContribution {
   factorId: string;
   factorName: string;
   rawValue: number | null;
+  transformedValue: number | null;
+  winsorizedValue: number | null;
   normalizedValue: number | null;
   configuredWeight: number;
   effectiveWeight: number;
   weightedContribution: number | null;
   available: boolean;
+  calculationStatus: "available" | "imputed" | "unavailable";
+  missingDataTreatment: FactorDefinition["missingDataTreatment"];
   unavailableReason: string | null;
 }
 
@@ -99,9 +103,18 @@ export interface Constraints {
   cashMin: number;
   cashMax: number;
   maxEtfWeight: number;
+  /** Minimum final portfolio weight for any included ETF. Optional for legacy snapshots. */
+  minEtfWeight?: number;
   minInclusionThreshold: number;
   targetActiveEtfs: number;
   diversificationEnabled: boolean;
+}
+
+export class AllocationConstraintError extends Error {
+  constructor(public readonly reason: string) {
+    super(reason);
+    this.name = "AllocationConstraintError";
+  }
 }
 
 export interface AllocationResult {
@@ -258,21 +271,24 @@ function maxDrawdown(prices: number[]): number {
 }
 
 function trendQuality(prices: number[]): number {
-  if (prices.length < 5) return NaN;
+  if (prices.length < 5 || prices.some((price) => !Number.isFinite(price) || price <= 0)) return NaN;
   const n = prices.length;
   const xs = Array.from({ length: n }, (_, i) => i);
+  const logPrices = prices.map(Math.log);
   const mx = mean(xs);
-  const my = mean(prices);
+  const my = mean(logPrices);
   let ssxy = 0;
   let ssx = 0;
   let ssy = 0;
   for (let i = 0; i < n; i++) {
-    ssxy += (xs[i] - mx) * (prices[i] - my);
+    ssxy += (xs[i] - mx) * (logPrices[i] - my);
     ssx += (xs[i] - mx) ** 2;
-    ssy += (prices[i] - my) ** 2;
+    ssy += (logPrices[i] - my) ** 2;
   }
   if (ssx === 0 || ssy === 0) return 0;
-  return (ssxy / Math.sqrt(ssx * ssy)) ** 2;
+  const beta = ssxy / ssx;
+  const rSquared = (ssxy / Math.sqrt(ssx * ssy)) ** 2;
+  return Math.sign(beta) * rSquared;
 }
 
 function shortTermMeanReversion(prices: number[], shortWindow = 5, longWindow = 20): number {
@@ -292,10 +308,41 @@ function crossSectionalRank(values: Map<string, number>): Map<string, number> {
   if (valid.length === 0) return new Map();
   valid.sort((a, b) => a[1] - b[1]);
   const result = new Map<string, number>();
-  for (let i = 0; i < valid.length; i++) {
-    result.set(valid[i][0], valid.length === 1 ? 50 : (i / (valid.length - 1)) * 100);
+  for (let start = 0; start < valid.length;) {
+    let end = start + 1;
+    while (end < valid.length && valid[end][1] === valid[start][1]) end++;
+    const midrank = (start + end - 1) / 2;
+    const percentile = valid.length === 1 ? 50 : (midrank / (valid.length - 1)) * 100;
+    for (let i = start; i < end; i++) result.set(valid[i][0], percentile);
+    start = end;
   }
   return result;
+}
+
+function quantile(values: number[], probability: number): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  if (sorted.length === 0) return NaN;
+  const position = clamp(probability, 0, 1) * (sorted.length - 1);
+  const lower = Math.floor(position);
+  const upper = Math.ceil(position);
+  return sorted[lower] + (sorted[upper] - sorted[lower]) * (position - lower);
+}
+
+function median(values: number[]): number {
+  return quantile(values, 0.5);
+}
+
+function normalizeCrossSection(values: Map<string, number>, normalization: FactorDefinition["normalization"]): Map<string, number> {
+  if (normalization === "percentile_rank") return crossSectionalRank(values);
+  const sample = [...values.values()];
+  const center = normalization === "robust_z_score" ? median(sample) : mean(sample);
+  const scale = normalization === "robust_z_score"
+    ? 1.4826 * median(sample.map((value) => Math.abs(value - center)))
+    : std(sample);
+  return new Map([...values].map(([ticker, value]) => [
+    ticker,
+    clamp(50 + (scale > 0 ? ((value - center) / scale) * 15 : 0), 0, 100),
+  ]));
 }
 
 function pearsonCorr(a: number[], b: number[]): number {
@@ -338,11 +385,13 @@ export function computeFactors(
     { id: "momentum_60", name: "Momentum 60D", calculationType: "momentum", lookback: 60, lag: 0, direction: "higher_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .2, regimeWeights: { riskOn: .2, neutral: .2, riskOff: .2 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "return(60)", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Momentum", description: "" },
     { id: "trend_quality", name: "Trend Quality", calculationType: "trend_quality", lookback: 120, lag: 0, direction: "higher_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .15, regimeWeights: { riskOn: .15, neutral: .15, riskOff: .15 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "trendQuality", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Trend", description: "" },
     { id: "volatility", name: "Volatility", calculationType: "volatility", lookback: 60, lag: 0, direction: "lower_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .15, regimeWeights: { riskOn: .15, neutral: .15, riskOff: .15 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "volatility", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Risk", description: "" },
-    { id: "drawdown", name: "Drawdown", calculationType: "drawdown", lookback: 252, lag: 0, direction: "lower_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .15, regimeWeights: { riskOn: .15, neutral: .15, riskOff: .15 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "drawdown", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Risk", description: "" },
+    { id: "drawdown", name: "Drawdown", calculationType: "drawdown", lookback: 252, lag: 0, direction: "higher_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .15, regimeWeights: { riskOn: .15, neutral: .15, riskOff: .15 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "min(P(t) / running_max(P) - 1)", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Risk", description: "" },
     { id: "mean_reversion", name: "Mean Reversion", calculationType: "mean_reversion", lookback: 5, lag: 0, direction: "higher_is_better", normalization: "percentile_rank", winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude", baseWeight: .15, regimeWeights: { riskOn: .15, neutral: .15, riskOff: .15 }, activeRegimes: ["risk_on", "neutral", "risk_off"], enabled: true, status: "active", inputSeries: "price", formula: "meanReversion", dataSource: "price", benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "legacy", family: "Reversal", description: "" },
   ];
   const factors = (factorSet?.factors ?? fallbackFactors).filter((factor) => factor.enabled && factor.status === "active");
   const rawByFactor = new Map<string, Map<string, number>>();
+  const transformedByFactor = new Map<string, Map<string, number>>();
+  const winsorizedByFactor = new Map<string, Map<string, number>>();
 
   const returnsFor = (ticker: string, lookback: number, lag: number) => {
     const prices = pricesByTicker[ticker] ?? [];
@@ -350,7 +399,8 @@ export function computeFactors(
     return momentum(prices.slice(0, end), lookback);
   };
   for (const factor of factors) {
-    const values = new Map<string, number>();
+    const rawValues = new Map<string, number>();
+    const transformedValues = new Map<string, number>();
     for (const ticker of tickers) {
       const prices = pricesByTicker[ticker] ?? [];
       const end = Math.max(0, prices.length - factor.lag);
@@ -362,12 +412,16 @@ export function computeFactors(
         case "volatility": value = realizedVolatility(sample, factor.lookback); break;
         case "drawdown": value = -maxDrawdown(sample); break;
         case "mean_reversion": value = -returnsFor(ticker, factor.lookback, factor.lag); break;
-        case "relative_strength":
-        case "residual_momentum": {
+        case "relative_strength": {
           const benchmark = factor.benchmarkTicker ? returnsFor(factor.benchmarkTicker, factor.lookback, factor.lag) : NaN;
           value = returnsFor(ticker, factor.lookback, factor.lag) - benchmark;
           break;
         }
+        case "residual_momentum":
+        case "correlation_stability":
+        case "unsupported":
+          value = NaN;
+          break;
         case "return_over_volatility": {
           const ret = returnsFor(ticker, factor.lookback, factor.lag);
           const vol = realizedVolatility(sample, factor.lookback);
@@ -379,8 +433,7 @@ export function computeFactors(
           value = avg > 0 && sample.length ? sample[sample.length - 1] / avg - 1 : NaN;
           break;
         }
-        case "diversification_benefit":
-        case "correlation_stability": {
+        case "diversification_benefit": {
           const assetReturns = getReturns(sample);
           const correlations = tickers.filter((peer) => peer !== ticker).map((peer) => {
             const peerPrices = pricesByTicker[peer] ?? [];
@@ -407,52 +460,82 @@ export function computeFactors(
           break;
         }
       }
-      if (factor.direction === "lower_is_better" && Number.isFinite(value)) value = -value;
-      if (Number.isFinite(value)) values.set(ticker, value);
+      if (Number.isFinite(value)) {
+        rawValues.set(ticker, value);
+        transformedValues.set(ticker, factor.direction === "lower_is_better" ? -value : value);
+      }
     }
-    rawByFactor.set(factor.id, values);
+    rawByFactor.set(factor.id, rawValues);
+    const missingPolicyValues = [...transformedValues.values()];
+    if (factor.missingDataTreatment === "cross_sectional_median" && missingPolicyValues.length > 0 &&
+      factor.calculationType !== "unsupported" && factor.calculationType !== "residual_momentum" &&
+      factor.calculationType !== "correlation_stability") {
+      const imputationValue = median(missingPolicyValues);
+      for (const ticker of tickers) {
+        if (!transformedValues.has(ticker)) transformedValues.set(ticker, imputationValue);
+      }
+    }
+    transformedByFactor.set(factor.id, transformedValues);
+
+    const values = [...transformedValues.values()];
+    const lowerBound = quantile(values, factor.winsorizationLower);
+    const upperBound = quantile(values, factor.winsorizationUpper);
+    winsorizedByFactor.set(factor.id, new Map([...transformedValues].map(([ticker, value]) => [
+      ticker,
+      clamp(value, lowerBound, upperBound),
+    ])));
   }
 
   const normalizedByFactor = new Map<string, Map<string, number>>();
   for (const factor of factors) {
-    const raw = rawByFactor.get(factor.id) ?? new Map();
-    if (factor.normalization === "percentile_rank") {
-      normalizedByFactor.set(factor.id, crossSectionalRank(raw));
-    } else {
-      const vals = [...raw.values()];
-      const center = factor.normalization === "robust_z_score"
-        ? [...vals].sort((a, b) => a - b)[Math.floor(vals.length / 2)] ?? 0
-        : mean(vals);
-      const scale = factor.normalization === "robust_z_score"
-        ? mean(vals.map((value) => Math.abs(value - center))) * 1.4826
-        : std(vals);
-      normalizedByFactor.set(factor.id, new Map([...raw].map(([ticker, value]) => [ticker, clamp(50 + (scale > 0 ? ((value - center) / scale) * 15 : 0), 0, 100)])));
-    }
+    normalizedByFactor.set(factor.id, normalizeCrossSection(
+      winsorizedByFactor.get(factor.id) ?? new Map(),
+      factor.normalization,
+    ));
   }
   const regime = regimeKey(regimeLabel);
-  const availableFactors = factors.filter((factor) => (normalizedByFactor.get(factor.id)?.size ?? 0) > 0 && configuredWeight(factor, regime) > 0);
-  const totalWeight = availableFactors.reduce((sum, factor) => sum + configuredWeight(factor, regime), 0);
 
   const results: EtfFactorData[] = [];
   for (const ticker of tickers) {
     if (pricesByTicker[ticker].length < 3) continue;
     const dynamic: Record<string, number | null> = {};
+    const configuredWeights = new Map(factors.map((factor) => [factor.id, configuredWeight(factor, regime)]));
+    const effectiveWeightDenominator = factors.reduce((sum, factor) =>
+      sum + ((normalizedByFactor.get(factor.id)?.has(ticker) && configuredWeights.get(factor.id)! > 0)
+        ? configuredWeights.get(factor.id)! : 0), 0);
     const factorContributions: FactorContribution[] = factors.map((factor) => {
       const raw = rawByFactor.get(factor.id)?.get(ticker) ?? null;
+      const transformed = transformedByFactor.get(factor.id)?.get(ticker) ?? null;
+      const winsorized = winsorizedByFactor.get(factor.id)?.get(ticker) ?? null;
       const normalized = normalizedByFactor.get(factor.id)?.get(ticker) ?? null;
-      const configured = configuredWeight(factor, regime);
-      const effective = totalWeight > 0 && availableFactors.some((item) => item.id === factor.id) ? configured / totalWeight : 0;
+      const configured = configuredWeights.get(factor.id)!;
+      const hasScore = normalized !== null;
+      const effective = hasScore && configured > 0 && effectiveWeightDenominator > 0
+        ? configured / effectiveWeightDenominator : 0;
+      const imputed = raw === null && hasScore;
+      const unsupported = factor.calculationType === "unsupported" ||
+        factor.calculationType === "residual_momentum" ||
+        factor.calculationType === "correlation_stability";
+      const unavailableReason = hasScore
+        ? null
+        : unsupported
+          ? `Unsupported calculation type: ${factor.calculationType}.`
+          : "Factor unavailable: required input data is missing or insufficient.";
       dynamic[factor.id] = normalized;
       return {
         factorId: factor.id,
         factorName: factor.name,
         rawValue: raw,
+        transformedValue: transformed,
+        winsorizedValue: winsorized,
         normalizedValue: normalized,
         configuredWeight: configured,
         effectiveWeight: effective,
-        weightedContribution: normalized === null ? null : normalized * effective,
-        available: normalized !== null,
-        unavailableReason: normalized === null ? "Factor unavailable: required input data is missing." : null,
+        weightedContribution: hasScore ? normalized * effective : null,
+        available: hasScore,
+        calculationStatus: hasScore ? (imputed ? "imputed" : "available") : "unavailable",
+        missingDataTreatment: factor.missingDataTreatment,
+        unavailableReason,
       };
     });
     const composite = factorContributions.reduce((sum, item) => sum + (item.weightedContribution ?? 0), 0);
@@ -468,7 +551,7 @@ export function computeFactors(
 
     results.push({
       ticker,
-      factorScores: { mom20: round2(mom), mom60: round2(mom), mom120: round2(mom), mom252: round2(mom), trendQuality: round2(tq), realizedVol60: round2(vol), drawdown: round2(dd), meanReversion: round2(mr), composite: round2(composite), dynamic },
+      factorScores: { mom20: round2(mom), mom60: round2(mom), mom120: round2(mom), mom252: round2(mom), trendQuality: round2(tq), realizedVol60: round2(vol), drawdown: round2(dd), meanReversion: round2(mr), composite, dynamic },
       rawMom20: rawByFactor.get(factors.find((item) => item.calculationType === "momentum")?.id ?? "")?.get(ticker) ?? NaN,
       rawMom60: rawByFactor.get(factors.find((item) => item.calculationType === "momentum")?.id ?? "")?.get(ticker) ?? NaN,
       rawMom120: rawByFactor.get(factors.find((item) => item.calculationType === "momentum")?.id ?? "")?.get(ticker) ?? NaN,
@@ -626,6 +709,12 @@ function buildDriverNarrative(components: RegimeComponent[], composite: number, 
 
 export function constructAllocation(factorData: EtfFactorData[], etfs: EtfEntry[], constraints: Constraints, regime: EnrichedRegimeScores): AllocationResult[] {
   const { cashMin, cashMax, maxEtfWeight, minInclusionThreshold, targetActiveEtfs, diversificationEnabled } = constraints;
+  const minEtfWeight = constraints.minEtfWeight ?? 0;
+  if (![cashMin, cashMax, maxEtfWeight, minEtfWeight, minInclusionThreshold, targetActiveEtfs].every(Number.isFinite) ||
+    cashMin < 0 || cashMax > 1 || cashMin > cashMax || maxEtfWeight <= 0 ||
+    minEtfWeight < 0 || minEtfWeight > maxEtfWeight || targetActiveEtfs < 1) {
+    throw new AllocationConstraintError("Constraint set infeasible: one or more portfolio constraint values are invalid.");
+  }
   const etfMap = new Map<string, EtfEntry>();
   for (const e of etfs) etfMap.set(e.ticker, e);
 
@@ -634,22 +723,37 @@ export function constructAllocation(factorData: EtfFactorData[], etfs: EtfEntry[
 
   const eligible = factorData.filter(f => { const e = etfMap.get(f.ticker); return e && e.enabled && f.factorScores.composite >= minInclusionThreshold; });
   eligible.sort((a, b) => b.factorScores.composite - a.factorScores.composite);
+  if (eligible.length < targetActiveEtfs) {
+    throw new AllocationConstraintError(
+      `Constraint set infeasible: required ${targetActiveEtfs} active ETFs with current eligibility leaves only ${eligible.length} eligible assets.`,
+    );
+  }
   const topN = eligible.slice(0, targetActiveEtfs);
+  if (minEtfWeight * targetActiveEtfs > investedBudget + 1e-10 ||
+    maxEtfWeight * targetActiveEtfs < investedBudget - 1e-10) {
+    throw new AllocationConstraintError(
+      `Constraint set infeasible: ${targetActiveEtfs} active ETFs cannot invest ${(investedBudget * 100).toFixed(2)}% within the ${(minEtfWeight * 100).toFixed(2)}% minimum and ${(maxEtfWeight * 100).toFixed(2)}% maximum ETF weights.`,
+    );
+  }
 
   const totalScore = topN.reduce((s, f) => s + f.factorScores.composite, 0);
   let weights = new Map<string, number>();
   for (const f of topN) weights.set(f.ticker, totalScore > 0 ? (f.factorScores.composite / totalScore) * investedBudget : investedBudget / topN.length);
 
-  weights = enforceMaxWeight(weights, maxEtfWeight, investedBudget);
   if (diversificationEnabled) weights = blendWithPrior(weights, etfMap, investedBudget);
   weights = normalizeWeights(weights, investedBudget);
+  // A historical configuration can have a zero minimum, but its required
+  // active count still means each selected ETF must hold a positive weight.
+  const inclusionFloor = minEtfWeight > 0 ? minEtfWeight : Math.min(1e-10, investedBudget / (2 * targetActiveEtfs));
+  weights = applyFinalWeightConstraints(weights, inclusionFloor, maxEtfWeight, investedBudget);
+  validateFinalAllocation(weights, topN.map((f) => f.ticker), minEtfWeight, maxEtfWeight, investedBudget, targetActiveEtfs);
 
   const results: AllocationResult[] = [];
   for (const f of factorData) {
     const etf = etfMap.get(f.ticker);
     if (!etf) continue;
     const weight = weights.get(f.ticker) ?? 0;
-    results.push({ ticker: f.ticker, name: etf.name, sector: etf.sector, weight: round4(weight), priorWeight: round4(etf.priorWeight), change: round4(weight - etf.priorWeight), factorScores: f.factorScores, factorContributions: f.factorContributions, active: weight > 0.001 });
+    results.push({ ticker: f.ticker, name: etf.name, sector: etf.sector, weight, priorWeight: round4(etf.priorWeight), change: round4(weight - etf.priorWeight), factorScores: f.factorScores, factorContributions: f.factorContributions, active: weight > 0 });
   }
   results.sort((a, b) => { if (a.active && !b.active) return -1; if (!a.active && b.active) return 1; return b.weight - a.weight; });
   return results;
@@ -1053,20 +1157,6 @@ export function computePortfolioDiagnostics(
 
 // ── Allocation helpers ───────────────────────────────────────────────────────
 
-function enforceMaxWeight(weights: Map<string, number>, maxW: number, budget: number): Map<string, number> {
-  let excess = 0;
-  const result = new Map<string, number>();
-  const uncapped: string[] = [];
-  for (const [k, v] of weights) {
-    if (v > maxW) { result.set(k, maxW); excess += v - maxW; } else { result.set(k, v); uncapped.push(k); }
-  }
-  if (excess > 0 && uncapped.length > 0) {
-    const perUncapped = excess / uncapped.length;
-    for (const k of uncapped) result.set(k, Math.min(maxW, (result.get(k) ?? 0) + perUncapped));
-  }
-  return result;
-}
-
 function blendWithPrior(weights: Map<string, number>, etfMap: Map<string, EtfEntry>, budget: number): Map<string, number> {
   const result = new Map<string, number>();
   for (const [k, w] of weights) {
@@ -1082,6 +1172,72 @@ function normalizeWeights(weights: Map<string, number>, budget: number): Map<str
   const result = new Map<string, number>();
   for (const [k, v] of weights) result.set(k, (v / total) * budget);
   return result;
+}
+
+function applyFinalWeightConstraints(
+  weights: Map<string, number>,
+  minWeight: number,
+  maxWeight: number,
+  budget: number,
+): Map<string, number> {
+  const tickers = [...weights.keys()];
+  const result = new Map(tickers.map((ticker) => [ticker, minWeight]));
+  let remaining = budget - minWeight * tickers.length;
+  let uncapped = [...tickers];
+  const score = (ticker: string) => Math.max(0, weights.get(ticker) ?? 0);
+
+  while (remaining > 1e-12 && uncapped.length > 0) {
+    const totalScore = uncapped.reduce((sum, ticker) => sum + score(ticker), 0);
+    const shares = uncapped.map((ticker) => ({
+      ticker,
+      amount: remaining * (totalScore > 0 ? score(ticker) / totalScore : 1 / uncapped.length),
+      capacity: maxWeight - (result.get(ticker) ?? 0),
+    }));
+    const capped = shares.filter(({ amount, capacity }) => amount > capacity + 1e-12);
+    if (capped.length === 0) {
+      for (const { ticker, amount } of shares) result.set(ticker, (result.get(ticker) ?? 0) + amount);
+      remaining = 0;
+      break;
+    }
+    const cappedTickers = new Set(capped.map(({ ticker }) => ticker));
+    for (const { ticker, capacity } of capped) {
+      result.set(ticker, maxWeight);
+      remaining -= capacity;
+    }
+    uncapped = uncapped.filter((ticker) => !cappedTickers.has(ticker));
+  }
+
+  // Eliminate floating-point residue without violating a bound.
+  const residue = budget - [...result.values()].reduce((sum, weight) => sum + weight, 0);
+  if (Math.abs(residue) > 1e-12) {
+    const ticker = tickers.find((key) => {
+      const adjusted = (result.get(key) ?? 0) + residue;
+      return adjusted >= minWeight - 1e-12 && adjusted <= maxWeight + 1e-12;
+    });
+    if (ticker) result.set(ticker, (result.get(ticker) ?? 0) + residue);
+  }
+  return result;
+}
+
+function validateFinalAllocation(
+  weights: Map<string, number>,
+  activeTickers: string[],
+  minWeight: number,
+  maxWeight: number,
+  budget: number,
+  requiredCount: number,
+): void {
+  const tolerance = 1e-9;
+  const activeWeights = activeTickers.map((ticker) => weights.get(ticker) ?? 0);
+  const activeCount = activeWeights.filter((weight) => weight > 0).length;
+  const totalWeight = [...weights.values()].reduce((sum, weight) => sum + weight, 0);
+  if (activeCount !== requiredCount ||
+    activeWeights.some((weight) => weight < minWeight - tolerance || weight > maxWeight + tolerance) ||
+    Math.abs(totalWeight - budget) > tolerance) {
+    throw new AllocationConstraintError(
+      "Constraint set infeasible: final portfolio weights failed the configured minimum, maximum, active-count, or invested-budget check.",
+    );
+  }
 }
 
 // ── Utilities ────────────────────────────────────────────────────────────────

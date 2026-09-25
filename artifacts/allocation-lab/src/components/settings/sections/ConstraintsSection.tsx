@@ -45,7 +45,7 @@ export function ConstraintsSection() {
     if (draft.cashMax < 0 || draft.cashMax > 1) errs.push("Cash maximum must be between 0% and 100%.");
     if (draft.cashMin > draft.cashMax) errs.push("Cash minimum cannot exceed cash maximum.");
     if (draft.maxEtfWeight <= 0 || draft.maxEtfWeight > 1) errs.push("Max ETF weight must be between 0% and 100%.");
-    if (draft.targetActiveEtfs < 1) errs.push("Target active ETFs must be at least 1.");
+    if (draft.minEtfWeight < 0 || draft.minEtfWeight > draft.maxEtfWeight) errs.push("Minimum ETF weight must be between 0% and the maximum ETF weight.");
     if (draft.targetActiveEtfs < 8) errs.push("Target active ETFs must be at least 8 per firm policy.");
     return errs;
   }, [draft]);
@@ -100,6 +100,14 @@ export function ConstraintsSection() {
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
+          <Label>Minimum Included ETF Weight (%)</Label>
+          <span className="text-sm font-medium">{(draft.minEtfWeight * 100).toFixed(1)}%</span>
+        </div>
+        <Slider value={[draft.minEtfWeight * 100]} min={0} max={Math.max(1, Math.round(draft.maxEtfWeight * 100))} step={1} onValueChange={(v) => handleChange("minEtfWeight", v[0] / 100)} />
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
           <Label>Max Single ETF Weight (%)</Label>
           <span className="text-sm font-medium">{(draft.maxEtfWeight * 100).toFixed(1)}%</span>
         </div>
@@ -108,7 +116,7 @@ export function ConstraintsSection() {
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label>Min Inclusion Threshold (Score)</Label>
+          <Label>Minimum Factor Score for Eligibility</Label>
           <span className="text-sm font-medium">{draft.minInclusionThreshold} pts</span>
         </div>
         <Slider value={[draft.minInclusionThreshold]} min={0} max={50} step={1} onValueChange={(v) => handleChange("minInclusionThreshold", v[0])} />
@@ -116,10 +124,10 @@ export function ConstraintsSection() {
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label>Target Active ETFs</Label>
+          <Label>Required Active ETF Count</Label>
           <span className="text-sm font-medium">{draft.targetActiveEtfs}</span>
         </div>
-        <Slider value={[draft.targetActiveEtfs]} min={1} max={20} step={1} onValueChange={(v) => handleChange("targetActiveEtfs", v[0])} />
+        <Slider value={[draft.targetActiveEtfs]} min={8} max={20} step={1} onValueChange={(v) => handleChange("targetActiveEtfs", v[0])} />
       </div>
 
       <div className="flex items-center justify-between pt-4 border-t">

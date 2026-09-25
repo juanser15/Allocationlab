@@ -30,6 +30,12 @@ export function FactorDetailDrawer({ open, onOpenChange, factor, result, onSave,
 
   if (!draft) return null;
 
+  const normalizationDescription = draft.normalization === "percentile_rank"
+    ? "Midrank percentile across valid ETFs, scaled 0–100 (ties share their average rank)."
+    : draft.normalization === "z_score"
+      ? "50 + 15 × sample z-score, clipped to 0–100."
+      : "50 + 15 × robust z-score (1.4826 × MAD scale), clipped to 0–100.";
+
   const handleSave = () => {
     if (draft) {
       onSave(draft);
@@ -194,8 +200,24 @@ export function FactorDetailDrawer({ open, onOpenChange, factor, result, onSave,
                       <SelectItem value="robust_z_score">Robust Z-Score</SelectItem>
                     </SelectContent>
                   </Select>
+                    <p className="text-[10px] leading-relaxed text-muted-foreground">{normalizationDescription}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">Winsorization Lower Quantile</Label>
+                  <Input type="number" min={0} max={0.49} step={0.01} value={draft.winsorizationLower}
+                    onChange={(e) => setDraft({ ...draft, winsorizationLower: Number(e.target.value) })}
+                    className="h-8 text-sm" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">Winsorization Upper Quantile</Label>
+                  <Input type="number" min={0.51} max={1} step={0.01} value={draft.winsorizationUpper}
+                    onChange={(e) => setDraft({ ...draft, winsorizationUpper: Number(e.target.value) })}
+                    className="h-8 text-sm" />
                 </div>
               </div>
+              <p className="text-[10px] text-muted-foreground">
+                Direction is applied first; type-7 interpolated cross-sectional quantiles clip values before normalization.
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -272,7 +294,7 @@ export function FactorDetailDrawer({ open, onOpenChange, factor, result, onSave,
                 {evidenceInfo.isUnavailable && (
                   <div className="border border-red-200 bg-red-50 text-red-800 p-3 rounded text-sm flex items-start gap-2 font-medium">
                     <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                    <span>Factor unavailable: required input data is missing.</span>
+                    <span>{evidenceInfo.sample.unavailableReason ?? "Factor unavailable: required input data is missing."}</span>
                   </div>
                 )}
                 
@@ -285,13 +307,20 @@ export function FactorDetailDrawer({ open, onOpenChange, factor, result, onSave,
 
                 <div className="space-y-3 pt-2">
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b pb-2">Per-ETF Decomposition</h4>
+                  <p className="text-[10px] text-muted-foreground">
+                    Values are shown in order: raw → direction-transformed → winsorized → normalized. Effective weights renormalize over scored factors for each ETF.
+                  </p>
                   <div className="overflow-x-auto border rounded-md">
                     <table className="w-full text-xs text-left">
                       <thead className="bg-gray-50 border-b">
                         <tr>
                           <th className="p-2 font-medium">Ticker</th>
                           <th className="p-2 font-medium text-right">Raw</th>
+                          <th className="p-2 font-medium text-right">Transformed</th>
+                          <th className="p-2 font-medium text-right">Winsorized</th>
                           <th className="p-2 font-medium text-right">Normalized</th>
+                          <th className="p-2 font-medium text-right">Configured Wt.</th>
+                          <th className="p-2 font-medium text-right">Effective Wt.</th>
                           <th className="p-2 font-medium text-right">W. Contrib</th>
                           <th className="p-2 font-medium text-center">Status</th>
                         </tr>
@@ -303,17 +332,31 @@ export function FactorDetailDrawer({ open, onOpenChange, factor, result, onSave,
                             <td className="p-2 text-right text-muted-foreground tabular-nums">
                               {contrib.rawValue !== null ? contrib.rawValue.toFixed(4) : "—"}
                             </td>
+                            <td className="p-2 text-right text-muted-foreground tabular-nums">
+                              {contrib.transformedValue != null ? contrib.transformedValue.toFixed(4) : "—"}
+                            </td>
+                            <td className="p-2 text-right text-muted-foreground tabular-nums">
+                              {contrib.winsorizedValue != null ? contrib.winsorizedValue.toFixed(4) : "—"}
+                            </td>
                             <td className="p-2 text-right font-medium tabular-nums">
                               {contrib.normalizedValue !== null ? contrib.normalizedValue.toFixed(1) : "—"}
+                            </td>
+                            <td className="p-2 text-right text-muted-foreground tabular-nums">
+                              {(contrib.configuredWeight * 100).toFixed(1)}%
+                            </td>
+                            <td className="p-2 text-right text-muted-foreground tabular-nums">
+                              {(contrib.effectiveWeight * 100).toFixed(1)}%
                             </td>
                             <td className="p-2 text-right tabular-nums text-muted-foreground">
                               {contrib.weightedContribution !== null ? contrib.weightedContribution.toFixed(2) : "—"}
                             </td>
                             <td className="p-2 text-center">
-                              {contrib.available ? (
+                              {contrib.calculationStatus === "imputed" ? (
+                                <Badge title={contrib.unavailableReason ?? undefined} variant="outline" className="text-[9px] bg-amber-50 text-amber-700 border-amber-200 h-4">IMPUTED</Badge>
+                              ) : contrib.available ? (
                                 <Badge variant="outline" className="text-[9px] bg-green-50 text-green-700 border-green-200 h-4">OK</Badge>
                               ) : (
-                                <Badge variant="outline" className="text-[9px] bg-red-50 text-red-700 border-red-200 h-4">N/A</Badge>
+                                <Badge title={contrib.unavailableReason ?? undefined} variant="outline" className="text-[9px] bg-red-50 text-red-700 border-red-200 h-4">N/A</Badge>
                               )}
                             </td>
                           </tr>

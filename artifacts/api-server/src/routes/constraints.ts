@@ -12,6 +12,7 @@ const router: IRouter = Router();
 const DEFAULT_CONSTRAINTS = {
   cashMin: 0.50,
   cashMax: 0.60,
+  minEtfWeight: 0.05,
   maxEtfWeight: 0.10,
   minInclusionThreshold: 5,
   targetActiveEtfs: 8,
@@ -28,7 +29,7 @@ export async function getConstraintsConfig() {
   if (!row) return { ...DEFAULT_CONSTRAINTS, updatedAt: new Date().toISOString() };
 
   const parsed = JSON.parse(row.value);
-  return { ...parsed, updatedAt: row.updatedAt.toISOString() };
+  return { ...DEFAULT_CONSTRAINTS, ...parsed, updatedAt: row.updatedAt.toISOString() };
 }
 
 router.get("/constraints", async (req, res): Promise<void> => {

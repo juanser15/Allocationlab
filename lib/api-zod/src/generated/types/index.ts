@@ -69,6 +69,8 @@ export * from './factorAttributionResult';
 export * from './factorBucketResult';
 export * from './factorBucketResultKey';
 export * from './factorContribution';
+export * from './factorContributionCalculationStatus';
+export * from './factorContributionMissingDataTreatment';
 export * from './factorDefinition';
 export * from './factorDefinitionActiveRegimesItem';
 export * from './factorDefinitionCalculationType';

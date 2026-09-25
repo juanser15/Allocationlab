@@ -56,6 +56,7 @@ export const UpdateUniverseResponse = zod.object({
 export const GetConstraintsResponse = zod.object({
   "cashMin": zod.number(),
   "cashMax": zod.number(),
+  "minEtfWeight": zod.number(),
   "maxEtfWeight": zod.number(),
   "minInclusionThreshold": zod.number(),
   "targetActiveEtfs": zod.number(),
@@ -67,6 +68,7 @@ export const GetConstraintsResponse = zod.object({
 export const UpdateConstraintsBody = zod.object({
   "cashMin": zod.number(),
   "cashMax": zod.number(),
+  "minEtfWeight": zod.number(),
   "maxEtfWeight": zod.number(),
   "minInclusionThreshold": zod.number(),
   "targetActiveEtfs": zod.number(),
@@ -76,6 +78,7 @@ export const UpdateConstraintsBody = zod.object({
 export const UpdateConstraintsResponse = zod.object({
   "cashMin": zod.number(),
   "cashMax": zod.number(),
+  "minEtfWeight": zod.number(),
   "maxEtfWeight": zod.number(),
   "minInclusionThreshold": zod.number(),
   "targetActiveEtfs": zod.number(),
@@ -208,11 +211,15 @@ export const RunPipelineResponse = zod.object({
   "factorId": zod.string(),
   "factorName": zod.string(),
   "rawValue": zod.number().nullable(),
+  "transformedValue": zod.number().nullish(),
+  "winsorizedValue": zod.number().nullish(),
   "normalizedValue": zod.number().nullable(),
   "configuredWeight": zod.number(),
   "effectiveWeight": zod.number(),
   "weightedContribution": zod.number().nullable(),
   "available": zod.boolean(),
+  "calculationStatus": zod.enum(['available', 'imputed', 'unavailable']).optional(),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']).optional(),
   "unavailableReason": zod.string().nullable()
 })),
   "active": zod.boolean()
@@ -374,11 +381,15 @@ export const GetLatestResultsResponse = zod.object({
   "factorId": zod.string(),
   "factorName": zod.string(),
   "rawValue": zod.number().nullable(),
+  "transformedValue": zod.number().nullish(),
+  "winsorizedValue": zod.number().nullish(),
   "normalizedValue": zod.number().nullable(),
   "configuredWeight": zod.number(),
   "effectiveWeight": zod.number(),
   "weightedContribution": zod.number().nullable(),
   "available": zod.boolean(),
+  "calculationStatus": zod.enum(['available', 'imputed', 'unavailable']).optional(),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']).optional(),
   "unavailableReason": zod.string().nullable()
 })),
   "active": zod.boolean()
@@ -566,11 +577,15 @@ export const GetSessionResponse = zod.object({
   "factorId": zod.string(),
   "factorName": zod.string(),
   "rawValue": zod.number().nullable(),
+  "transformedValue": zod.number().nullish(),
+  "winsorizedValue": zod.number().nullish(),
   "normalizedValue": zod.number().nullable(),
   "configuredWeight": zod.number(),
   "effectiveWeight": zod.number(),
   "weightedContribution": zod.number().nullable(),
   "available": zod.boolean(),
+  "calculationStatus": zod.enum(['available', 'imputed', 'unavailable']).optional(),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']).optional(),
   "unavailableReason": zod.string().nullable()
 })),
   "active": zod.boolean()
@@ -1819,11 +1834,15 @@ export const GetArchiveEntryResponse = zod.object({
   "factorId": zod.string(),
   "factorName": zod.string(),
   "rawValue": zod.number().nullable(),
+  "transformedValue": zod.number().nullish(),
+  "winsorizedValue": zod.number().nullish(),
   "normalizedValue": zod.number().nullable(),
   "configuredWeight": zod.number(),
   "effectiveWeight": zod.number(),
   "weightedContribution": zod.number().nullable(),
   "available": zod.boolean(),
+  "calculationStatus": zod.enum(['available', 'imputed', 'unavailable']).optional(),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']).optional(),
   "unavailableReason": zod.string().nullable()
 })),
   "active": zod.boolean()
@@ -1955,11 +1974,15 @@ export const CompareArchiveResponse = zod.object({
   "factorId": zod.string(),
   "factorName": zod.string(),
   "rawValue": zod.number().nullable(),
+  "transformedValue": zod.number().nullish(),
+  "winsorizedValue": zod.number().nullish(),
   "normalizedValue": zod.number().nullable(),
   "configuredWeight": zod.number(),
   "effectiveWeight": zod.number(),
   "weightedContribution": zod.number().nullable(),
   "available": zod.boolean(),
+  "calculationStatus": zod.enum(['available', 'imputed', 'unavailable']).optional(),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']).optional(),
   "unavailableReason": zod.string().nullable()
 })),
   "active": zod.boolean()
@@ -2080,11 +2103,15 @@ export const CompareArchiveResponse = zod.object({
   "factorId": zod.string(),
   "factorName": zod.string(),
   "rawValue": zod.number().nullable(),
+  "transformedValue": zod.number().nullish(),
+  "winsorizedValue": zod.number().nullish(),
   "normalizedValue": zod.number().nullable(),
   "configuredWeight": zod.number(),
   "effectiveWeight": zod.number(),
   "weightedContribution": zod.number().nullable(),
   "available": zod.boolean(),
+  "calculationStatus": zod.enum(['available', 'imputed', 'unavailable']).optional(),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']).optional(),
   "unavailableReason": zod.string().nullable()
 })),
   "active": zod.boolean()
@@ -2265,6 +2292,7 @@ export const GetBacktestResponse = zod.object({
   "constraintsSnapshot": zod.object({
   "cashMin": zod.number(),
   "cashMax": zod.number(),
+  "minEtfWeight": zod.number(),
   "maxEtfWeight": zod.number(),
   "minInclusionThreshold": zod.number(),
   "targetActiveEtfs": zod.number(),
@@ -2531,6 +2559,7 @@ export const CreateValidationRunResponse = zod.object({
   "constraintsSnapshot": zod.object({
   "cashMin": zod.number(),
   "cashMax": zod.number(),
+  "minEtfWeight": zod.number(),
   "maxEtfWeight": zod.number(),
   "minInclusionThreshold": zod.number(),
   "targetActiveEtfs": zod.number(),
@@ -2798,6 +2827,7 @@ export const GetValidationRunResponse = zod.object({
   "constraintsSnapshot": zod.object({
   "cashMin": zod.number(),
   "cashMax": zod.number(),
+  "minEtfWeight": zod.number(),
   "maxEtfWeight": zod.number(),
   "minInclusionThreshold": zod.number(),
   "targetActiveEtfs": zod.number(),

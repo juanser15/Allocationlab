@@ -9,6 +9,7 @@
 export interface ConstraintsInput {
   cashMin: number;
   cashMax: number;
+  minEtfWeight: number;
   maxEtfWeight: number;
   minInclusionThreshold: number;
   targetActiveEtfs: number;

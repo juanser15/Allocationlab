@@ -69,10 +69,10 @@ const base = {
 
 export const DEFAULT_FACTORS: FactorDefinition[] = [
   { ...base, id: "momentum", name: "Momentum", description: "Medium-term total return over the configured lookback.", family: "Momentum", calculationType: "momentum", formula: "P(t-lag) / P(t-lag-lookback) - 1", direction: "higher_is_better", lookback: 120, baseWeight: 0.25, regimeWeights: { riskOn: 0.35, neutral: 0.25, riskOff: 0.10 }, benchmarkTicker: null },
-  { ...base, id: "trend_quality", name: "Trend Quality", description: "Stability and explanatory strength of the log-price trend.", family: "Trend", calculationType: "trend_quality", formula: "R²(log(P), time) × sign(slope)", direction: "higher_is_better", lookback: 120, baseWeight: 0.20, regimeWeights: { riskOn: 0.30, neutral: 0.25, riskOff: 0.15 }, benchmarkTicker: null },
+  { ...base, id: "trend_quality", name: "Trend Quality", description: "Direction-preserving goodness of fit for log price regressed on time.", family: "Trend", calculationType: "trend_quality", formula: "sign(beta) × R² where log(P_t) = alpha + beta × t + epsilon_t", direction: "higher_is_better", lookback: 120, baseWeight: 0.20, regimeWeights: { riskOn: 0.30, neutral: 0.25, riskOff: 0.15 }, benchmarkTicker: null },
   { ...base, id: "volatility", name: "Volatility", description: "Annualized realized volatility; lower values receive stronger normalized scores.", family: "Risk", calculationType: "volatility", formula: "stdev(daily returns, lookback) × √252", direction: "lower_is_better", lookback: 60, baseWeight: 0.15, regimeWeights: { riskOn: 0.10, neutral: 0.20, riskOff: 0.30 }, benchmarkTicker: null },
   { ...base, id: "drawdown_risk_fit", name: "Drawdown / Risk Fit", description: "Maximum peak-to-trough loss over the configured lookback.", family: "Risk", calculationType: "drawdown", formula: "min(P(t) / running_max(P) - 1)", direction: "higher_is_better", lookback: 252, baseWeight: 0.15, regimeWeights: { riskOn: 0.10, neutral: 0.15, riskOff: 0.30 }, benchmarkTicker: null },
-  { ...base, id: "mean_reversion", name: "Mean Reversion", description: "Short-term reversal measured from recent return relative to peers.", family: "Reversal", calculationType: "mean_reversion", formula: "-return(lookback)", direction: "higher_is_better", lookback: 5, baseWeight: 0.05, regimeWeights: { riskOn: 0.05, neutral: 0.05, riskOff: 0.05 }, benchmarkTicker: null },
+  { ...base, id: "mean_reversion", name: "Mean Reversion", description: "Short-term reversal measured as the negative configured-lookback total return.", family: "Reversal", calculationType: "mean_reversion", formula: "-return(lookback)", direction: "higher_is_better", lookback: 5, baseWeight: 0.05, regimeWeights: { riskOn: 0.05, neutral: 0.05, riskOff: 0.05 }, benchmarkTicker: null },
   { ...base, id: "relative_strength", name: "Relative Strength", description: "Return in excess of a configured benchmark over the same window.", family: "Relative Value", calculationType: "relative_strength", formula: "return(asset, lookback) - return(benchmark, lookback)", direction: "higher_is_better", lookback: 63, baseWeight: 0.10, regimeWeights: { riskOn: 0.05, neutral: 0.05, riskOff: 0.05 }, benchmarkTicker: "SPY" },
   { ...base, id: "diversification_benefit", name: "Diversification / Correlation Benefit", description: "Low average correlation to the rest of the investable universe.", family: "Diversification", calculationType: "diversification_benefit", formula: "1 - mean(correlation(asset, peers), lookback)", direction: "higher_is_better", lookback: 120, baseWeight: 0.10, regimeWeights: { riskOn: 0.05, neutral: 0.05, riskOff: 0.05 }, benchmarkTicker: null },
 ];
@@ -99,7 +99,10 @@ async function readStored(): Promise<StoredFactorLibrary> {
 }
 
 async function coverageFor(factor: FactorDefinition): Promise<{ coverage: number; reason: string | null }> {
-  if (factor.calculationType === "unsupported" || factor.inputSeries.toLowerCase().includes("fundamental")) {
+  if (["unsupported", "residual_momentum", "correlation_stability"].includes(factor.calculationType)) {
+    return { coverage: 0, reason: `Unsupported calculation type: ${factor.calculationType}.` };
+  }
+  if (factor.inputSeries.toLowerCase().includes("fundamental")) {
     return { coverage: 0, reason: "Factor unavailable: required input data is missing." };
   }
   const row = await db.select().from(priceDataTable).orderBy(desc(priceDataTable.uploadedAt)).limit(1).then((rows) => rows[0]);

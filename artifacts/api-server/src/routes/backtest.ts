@@ -19,6 +19,7 @@ import {
   type ExecutionTiming,
   type EtfEntry,
   type Constraints,
+  AllocationConstraintError,
 } from "../lib/calculator";
 import { frozenValidationInputs, reproduceRun, resolveRunSnapshot } from "../lib/run-snapshot";
 import { getValidationRun, listValidationRuns, persistValidationRun } from "../lib/validation-run-store";
@@ -205,6 +206,10 @@ async function computeBacktest(params: Record<string, unknown>): Promise<Backtes
 }
 
 function sendError(res: import("express").Response, error: unknown): void {
+  if (error instanceof AllocationConstraintError) {
+    res.status(422).json({ error: error.reason });
+    return;
+  }
   if (error instanceof BacktestRequestError) {
     res.status(error.status).json({ error: error.message });
   } else {

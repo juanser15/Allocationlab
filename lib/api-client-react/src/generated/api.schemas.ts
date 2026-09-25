@@ -256,11 +256,32 @@ export interface FactorLibrary {
   history: FactorSetHistoryEntry[];
 }
 
+export type FactorContributionCalculationStatus = typeof FactorContributionCalculationStatus[keyof typeof FactorContributionCalculationStatus];
+
+
+export const FactorContributionCalculationStatus = {
+  available: 'available',
+  imputed: 'imputed',
+  unavailable: 'unavailable',
+} as const;
+
+export type FactorContributionMissingDataTreatment = typeof FactorContributionMissingDataTreatment[keyof typeof FactorContributionMissingDataTreatment];
+
+
+export const FactorContributionMissingDataTreatment = {
+  exclude: 'exclude',
+  cross_sectional_median: 'cross_sectional_median',
+} as const;
+
 export interface FactorContribution {
   factorId: string;
   factorName: string;
   /** @nullable */
   rawValue: number | null;
+  /** @nullable */
+  transformedValue?: number | null;
+  /** @nullable */
+  winsorizedValue?: number | null;
   /** @nullable */
   normalizedValue: number | null;
   configuredWeight: number;
@@ -268,6 +289,8 @@ export interface FactorContribution {
   /** @nullable */
   weightedContribution: number | null;
   available: boolean;
+  calculationStatus?: FactorContributionCalculationStatus;
+  missingDataTreatment?: FactorContributionMissingDataTreatment;
   /** @nullable */
   unavailableReason: string | null;
 }
@@ -437,6 +460,7 @@ export interface UniverseInput {
 export interface Constraints {
   cashMin: number;
   cashMax: number;
+  minEtfWeight: number;
   maxEtfWeight: number;
   minInclusionThreshold: number;
   targetActiveEtfs: number;
@@ -447,6 +471,7 @@ export interface Constraints {
 export interface ConstraintsInput {
   cashMin: number;
   cashMax: number;
+  minEtfWeight: number;
   maxEtfWeight: number;
   minInclusionThreshold: number;
   targetActiveEtfs: number;

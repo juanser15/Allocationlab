@@ -5,6 +5,8 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+import type { FactorContributionCalculationStatus } from './factorContributionCalculationStatus';
+import type { FactorContributionMissingDataTreatment } from './factorContributionMissingDataTreatment';
 
 export interface FactorContribution {
   factorId: string;
@@ -12,12 +14,18 @@ export interface FactorContribution {
   /** @nullable */
   rawValue: number | null;
   /** @nullable */
+  transformedValue?: number | null;
+  /** @nullable */
+  winsorizedValue?: number | null;
+  /** @nullable */
   normalizedValue: number | null;
   configuredWeight: number;
   effectiveWeight: number;
   /** @nullable */
   weightedContribution: number | null;
   available: boolean;
+  calculationStatus?: FactorContributionCalculationStatus;
+  missingDataTreatment?: FactorContributionMissingDataTreatment;
   /** @nullable */
   unavailableReason: string | null;
 }

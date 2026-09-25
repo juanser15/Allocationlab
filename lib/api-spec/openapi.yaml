@@ -170,6 +170,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Portfolio constraints are infeasible for the eligible universe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /results/latest:
     get:
@@ -970,6 +976,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BacktestResult"
+        "422":
+          description: Portfolio constraints are infeasible for a rebalance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /validation-runs:
     post:
@@ -989,6 +1001,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationRun"
+        "422":
+          description: Portfolio constraints are infeasible for a rebalance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     get:
       operationId: listValidationRuns
       tags: [backtest]
@@ -1487,6 +1505,10 @@ components:
           type: string
         rawValue:
           type: ["number", "null"]
+        transformedValue:
+          type: ["number", "null"]
+        winsorizedValue:
+          type: ["number", "null"]
         normalizedValue:
           type: ["number", "null"]
         configuredWeight:
@@ -1497,8 +1519,16 @@ components:
           type: ["number", "null"]
         available:
           type: boolean
+        calculationStatus:
+          type: string
+          enum: [available, imputed, unavailable]
+        missingDataTreatment:
+          type: string
+          enum: [exclude, cross_sectional_median]
         unavailableReason:
           type: ["string", "null"]
+      # Audit fields introduced in A3 are present on new runs; older immutable
+      # Strategy Snapshots cannot be retroactively populated with them.
       required: [factorId, factorName, rawValue, normalizedValue, configuredWeight, effectiveWeight, weightedContribution, available, unavailableReason]
 
     SignalExportError:
@@ -1691,6 +1721,8 @@ components:
           type: number
         cashMax:
           type: number
+        minEtfWeight:
+          type: number
         maxEtfWeight:
           type: number
         minInclusionThreshold:
@@ -1701,7 +1733,7 @@ components:
           type: boolean
         updatedAt:
           type: string
-      required: [cashMin, cashMax, maxEtfWeight, minInclusionThreshold, targetActiveEtfs, diversificationEnabled, updatedAt]
+      required: [cashMin, cashMax, minEtfWeight, maxEtfWeight, minInclusionThreshold, targetActiveEtfs, diversificationEnabled, updatedAt]
 
     ConstraintsInput:
       type: object
@@ -1709,6 +1741,8 @@ components:
         cashMin:
           type: number
         cashMax:
+          type: number
+        minEtfWeight:
           type: number
         maxEtfWeight:
           type: number
@@ -1718,7 +1752,7 @@ components:
           type: integer
         diversificationEnabled:
           type: boolean
-      required: [cashMin, cashMax, maxEtfWeight, minInclusionThreshold, targetActiveEtfs, diversificationEnabled]
+      required: [cashMin, cashMax, minEtfWeight, maxEtfWeight, minInclusionThreshold, targetActiveEtfs, diversificationEnabled]
 
     PricesStatus:
       type: object

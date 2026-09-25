@@ -11,6 +11,7 @@ import {
   computeFactors,
   computeRegime,
   constructAllocation,
+  AllocationConstraintError,
   computeWatchlist,
   generateIcSummary,
   computePortfolioDiagnostics,
@@ -163,6 +164,10 @@ router.post("/run", async (req, res): Promise<void> => {
     allocations = constructAllocation(factorData, universe.etfs, constraints, regime);
     markStep("construct_allocation", "done", `${allocations.filter((a) => a.active).length} active ETFs allocated`);
   } catch (err: unknown) {
+    if (err instanceof AllocationConstraintError) {
+      res.status(422).json({ error: err.reason });
+      return;
+    }
     res.status(500).json({ error: `Allocation construction failed: ${err instanceof Error ? err.message : "error"}` });
     return;
   }
@@ -198,7 +203,7 @@ router.post("/run", async (req, res): Promise<void> => {
     label,
     regime,
     allocations,
-    cashWeight: Math.round(cashWeight * 10000) / 10000,
+    cashWeight: Math.round(cashWeight * 1e10) / 1e10,
     cashPriorWeight: universe.cashPriorWeight,
     cashChange: Math.round(cashChange * 10000) / 10000,
     activeEtfCount: activeEtfs.length,

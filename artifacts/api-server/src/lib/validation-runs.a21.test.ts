@@ -8,6 +8,15 @@ const base = "http://localhost:8080/api";
 const fixtureLabel = "A2.1 temporary acceptance fixture";
 let strategySnapshotId: number | null = null;
 
+function fixturePool() {
+  const requireFromDb = createRequire(new URL("../../../lib/db/package.json", import.meta.url));
+  const { Pool } = requireFromDb("pg") as { Pool: new (config: { connectionString: string | undefined }) => {
+    query: (sql: string, values?: unknown[]) => Promise<{ rows: Array<{ value: string; updated_at: Date }> }>;
+    end: () => Promise<void>;
+  } };
+  return new Pool({ connectionString: process.env.DATABASE_URL });
+}
+
 async function api<T = unknown>(path: string, body?: object): Promise<T> {
   const response = await fetch(base + path, body
     ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
@@ -31,20 +40,35 @@ const input = (transactionCostBps: number) => ({
 });
 
 before(async () => {
-  const session = await api<RunResult>("/run", { label: fixtureLabel });
-  strategySnapshotId = session.sessionId;
-  assert.ok(Number.isInteger(strategySnapshotId));
+  const pool = fixturePool();
+  const previous = (await pool.query("SELECT value, updated_at FROM config WHERE key = $1", ["constraints"])).rows[0];
+  // Keep this persistence fixture independent of the user's possibly infeasible
+  // mandate. Restore both the exact value and timestamp before running tests.
+  const feasible = JSON.stringify({
+    cashMin: 0.1, cashMax: 0.2, minEtfWeight: 0.005, maxEtfWeight: 0.3,
+    minInclusionThreshold: 0, targetActiveEtfs: 8, diversificationEnabled: true,
+  });
+  try {
+    if (previous) await pool.query("UPDATE config SET value = $1 WHERE key = $2", [feasible, "constraints"]);
+    else await pool.query("INSERT INTO config (key, value) VALUES ($1, $2)", ["constraints", feasible]);
+    const session = await api<RunResult>("/run", { label: fixtureLabel });
+    strategySnapshotId = session.sessionId;
+    assert.ok(Number.isInteger(strategySnapshotId));
+  } finally {
+    try {
+      if (previous) await pool.query("UPDATE config SET value = $1, updated_at = $2 WHERE key = $3",
+        [previous.value, previous.updated_at, "constraints"]);
+      else await pool.query("DELETE FROM config WHERE key = $1", ["constraints"]);
+    } finally {
+      await pool.end();
+    }
+  }
 });
 
 after(async () => {
   if (!strategySnapshotId) return;
   // Only the uniquely labeled fixtures created by this suite are removed.
-  const requireFromDb = createRequire(new URL("../../../lib/db/package.json", import.meta.url));
-  const { Pool } = requireFromDb("pg") as { Pool: new (config: { connectionString: string | undefined }) => {
-    query: (sql: string, values: unknown[]) => Promise<unknown>;
-    end: () => Promise<void>;
-  } };
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = fixturePool();
   try {
     await pool.query("DELETE FROM validation_runs WHERE strategy_snapshot_id = $1", [strategySnapshotId]);
     await pool.query("DELETE FROM sessions WHERE id = $1 AND label = $2", [strategySnapshotId, fixtureLabel]);

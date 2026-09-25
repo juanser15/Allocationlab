@@ -2889,7 +2889,7 @@ export const getGetBacktestQueryKey = (params?: GetBacktestParams,) => {
     }
 
 
-export const getGetBacktestQueryOptions = <TData = Awaited<ReturnType<typeof getBacktest>>, TError = ErrorType<unknown>>(params?: GetBacktestParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBacktest>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetBacktestQueryOptions = <TData = Awaited<ReturnType<typeof getBacktest>>, TError = ErrorType<ErrorResponse>>(params?: GetBacktestParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBacktest>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -2908,14 +2908,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetBacktestQueryResult = NonNullable<Awaited<ReturnType<typeof getBacktest>>>
-export type GetBacktestQueryError = ErrorType<unknown>
+export type GetBacktestQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Run a bias-resistant, point-in-time walk-forward backtest with configurable execution/cost assumptions and an integrity audit
  */
 
-export function useGetBacktest<TData = Awaited<ReturnType<typeof getBacktest>>, TError = ErrorType<unknown>>(
+export function useGetBacktest<TData = Awaited<ReturnType<typeof getBacktest>>, TError = ErrorType<ErrorResponse>>(
  params?: GetBacktestParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBacktest>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -2958,7 +2958,7 @@ export const createValidationRun = async (validationRunInput: ValidationRunInput
 
 
 
-export const getCreateValidationRunMutationOptions = <TError = ErrorType<unknown>,
+export const getCreateValidationRunMutationOptions = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createValidationRun>>, TError,{data: BodyType<ValidationRunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof createValidationRun>>, TError,{data: BodyType<ValidationRunInput>}, TContext> => {
 
@@ -2987,12 +2987,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type CreateValidationRunMutationResult = NonNullable<Awaited<ReturnType<typeof createValidationRun>>>
     export type CreateValidationRunMutationBody = BodyType<ValidationRunInput>
-    export type CreateValidationRunMutationError = ErrorType<unknown>
+    export type CreateValidationRunMutationError = ErrorType<ErrorResponse>
 
     /**
  * @summary Execute and persist a new immutable validation for a saved Strategy Snapshot
  */
-export const useCreateValidationRun = <TError = ErrorType<unknown>,
+export const useCreateValidationRun = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createValidationRun>>, TError,{data: BodyType<ValidationRunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createValidationRun>>,
