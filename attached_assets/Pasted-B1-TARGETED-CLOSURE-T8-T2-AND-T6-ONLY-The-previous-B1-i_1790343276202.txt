@@ -1,0 +1,129 @@
+B1 — TARGETED CLOSURE: T8, T2 AND T6 ONLY
+
+The previous B1 implementation stopped correctly with three acceptance
+criteria unresolved. This task authorizes one additional targeted
+correction pass, followed by one final verification run.
+
+Do not restart B1.
+Do not implement B2.
+Do not add solvers, factors, mappings, clustering, PCA or UI redesign.
+Preserve passing B1 behavior and Stage A semantics.
+
+Only address the three documented gaps below.
+
+1. T8 — FROZEN-INPUT REPLAY
+
+Reported defect:
+The saved candidate lineage contains the dataset ID, but replay
+recalculation does not receive it, producing:
+“candidate results differ on frozen-input replay”.
+
+First reproduce this failure and identify the differing fields.
+Do not assume the mismatch is metadata-only without comparing outputs.
+
+Pass the original frozen dataset identity and preparation context
+through the actual replay calculation, consistently with initial
+preparation.
+
+Replay must use the saved:
+- dataset ID, content and hash;
+- candidate definitions and mappings;
+- peer universes;
+- cutoff and execution assumptions.
+
+It must not consult current working inputs.
+
+Do NOT:
+- remove dataset lineage from the comparison;
+- weaken assertions or increase tolerance;
+- copy saved outputs instead of recalculating;
+- overwrite the original snapshot to match the replay.
+
+Acceptance:
+Prepare and save version P1 using D1.
+Change the working dataset to D2 and change candidate settings.
+Retrieve P1 through a fresh client and execute its real replay endpoint.
+
+Verify:
+- original dataset ID/hash and candidate definitions match exactly;
+- dates, identities and statuses match;
+- signals, positions, cash, costs, returns and NAV reproduce within 1e-8;
+- the original saved version remains unchanged.
+
+If mismatches remain, report the candidate, field, saved value and
+recomputed value. Do not silently suppress differences.
+
+2. T2 — THIRTY MAPPED ALPHA STREAMS
+
+Extend the existing five-asset fixture.
+
+Use six supported, explicitly configured transformations per asset
+to prepare thirty alpha streams through the real B1 preparation path.
+
+Each stream must have:
+- its own executable definition and lineage;
+- an explicit supported position mapping;
+- reference capital and cash assumptions;
+- target and executed positions;
+- nonempty daily ledger and return history after warmup.
+
+Use deterministic test data and predeclared parameters that exercise
+actual holdings, not thirty empty objects or thirty signal-only series.
+
+Check all thirty streams, not just their count.
+Verify their mapping and ledger reconciliation within 1e-8.
+
+Different definitions do not have to produce different returns on
+every fixture. Do not fabricate differences or duplicate one stream's
+outputs under thirty names.
+
+Keep the existing test of both supported mappings passing.
+Do not add a third mapping.
+
+3. T6 — MISSING PRICE WHILE HOLDING
+
+Start from a valid fixture where an alpha has an executed nonzero
+holding.
+
+Remove that asset's price on a later valuation date while retaining
+the date and the other assets' observations.
+
+Run the actual B1 stream-preparation path, not only an isolated A1 test.
+
+Acceptance:
+- the affected stream is explicitly invalid, not READY;
+- the missing asset and date are identifiable;
+- no successful full-period result is presented;
+- the missing return is not replaced with zero;
+- the asset/date is not silently dropped or forward-filled.
+
+Retain the existing checks that weak-performing and highly correlated
+but technically valid candidates are not rejected for performance.
+
+VERIFICATION AND DELIVERY
+
+Run:
+- the full B1 suite, mapped explicitly to T1–T8;
+- A1, A2, A2.1 and A3 regression suites;
+- typecheck.
+
+Use synthetic data only in tests.
+Do not modify financial logic or acceptance expectations merely
+to make tests pass.
+
+Return a concise closure report containing:
+- T8 root cause and actual correction;
+- replay mismatches before/after and maximum numeric difference;
+- T2 number of mapped streams with executed positions and ledgers;
+- T6 observed invalid status, asset and date;
+- T1–T8 individual PASS/FAIL;
+- actual regression and typecheck results;
+- remaining blocker, if any.
+
+STOP
+
+If T1–T8 and regression checks pass: report B1 CLOSED and stop.
+Do not begin B2 automatically.
+
+If any required check fails: report B1 BLOCKED, identify the exact
+failure, and stop. No additional autonomous repair loop.

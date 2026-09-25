@@ -141,9 +141,10 @@ function normalizePrices(rows: PriceRow[], tickers: string[]) {
     }
     if (observed.length > 1) {
       const first = observed[0], last = observed.at(-1)!;
-      const missingInside = rows.slice(first, last + 1).filter((row) =>
-        !Number.isFinite(row.prices[ticker]) || row.prices[ticker] <= 0).length;
-      if (missingInside) invalid.push(`${ticker} has ${missingInside} missing held-period price observations within its observed coverage.`);
+      const missingDates = rows.slice(first, last + 1).filter((row) =>
+        !Number.isFinite(row.prices[ticker]) || row.prices[ticker] <= 0).map((row) => row.date);
+      if (missingDates.length)
+        invalid.push(`${ticker} is missing held-period price observations on ${missingDates.join(", ")}.`);
     }
   }
   return invalid;
@@ -490,17 +491,46 @@ export function snapshotStatus(snapshot: PreparedSnapshot): PreparedStatus {
   return "READY";
 }
 
+function candidateDifferences(saved: unknown, recalculated: unknown): string[] {
+  const differences: string[] = [];
+  const format = (value: unknown) => {
+    const serialized = JSON.stringify(value);
+    return serialized === undefined ? "undefined" : serialized.slice(0, 160);
+  };
+  const visit = (left: unknown, right: unknown, path: string): void => {
+    if (Object.is(left, right) || differences.length >= 20) return;
+    if (Array.isArray(left) && Array.isArray(right)) {
+      if (left.length !== right.length)
+        differences.push(`${path}.length: saved=${left.length}, recalculated=${right.length}`);
+      for (let i = 0; i < Math.min(left.length, right.length); i++) visit(left[i], right[i], `${path}[${i}]`);
+      return;
+    }
+    if (left && right && typeof left === "object" && typeof right === "object" &&
+      !Array.isArray(left) && !Array.isArray(right)) {
+      const a = left as Record<string, unknown>, b = right as Record<string, unknown>;
+      for (const key of new Set([...Object.keys(a), ...Object.keys(b)]))
+        visit(a[key], b[key], `${path}.${key}`);
+      return;
+    }
+    differences.push(`${path}: saved=${format(left)}, recalculated=${format(right)}`);
+  };
+  visit(saved, recalculated, "candidates");
+  return differences;
+}
+
 export function replayPreparedSnapshot(snapshot: PreparedSnapshot) {
   if (snapshot.engineVersion !== PREPARED_INPUT_ENGINE_VERSION)
     return { status: "engine_mismatch" as const, fingerprint: fingerprint(snapshot.candidates), differences: [],
       replayedCandidates: [] };
   try {
     const replayed = prepareSnapshot({ request: snapshot.request, csvContent: snapshot.dataset.csvContent,
-      factorVersion: snapshot.factorSet.version, factors: snapshot.factorSet.factors });
+      factorVersion: snapshot.factorSet.version, factors: snapshot.factorSet.factors,
+      datasetId: snapshot.dataset.id ?? undefined });
     const originalFingerprint = fingerprint(snapshot.candidates);
     const replayFingerprint = fingerprint(replayed.candidates);
     return { status: originalFingerprint === replayFingerprint ? "pass" as const : "fail" as const,
-      fingerprint: originalFingerprint, differences: originalFingerprint === replayFingerprint ? [] : ["candidate results differ on frozen-input replay"],
+      fingerprint: originalFingerprint,
+      differences: originalFingerprint === replayFingerprint ? [] : candidateDifferences(snapshot.candidates, replayed.candidates),
       replayedCandidates: replayed.candidates };
   } catch (error) {
     return { status: "fail" as const, fingerprint: fingerprint(snapshot.candidates),
