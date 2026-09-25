@@ -5,7 +5,9 @@ import {
   ListSessionsResponse,
   GetSessionParams,
   GetSessionResponse,
+  ReproduceSessionResponse,
 } from "@workspace/api-zod";
+import { reproduceRun, resolveRunSnapshot } from "../lib/run-snapshot";
 
 const router: IRouter = Router();
 
@@ -72,9 +74,27 @@ router.get("/sessions/:sessionId", async (req, res): Promise<void> => {
   res.json(
     GetSessionResponse.parse({
       session: sessionSummary,
-      result: row.resultJson,
+      result: {
+        ...(row.resultJson as Record<string, unknown>),
+        reproducibilityStatus: resolveRunSnapshot(row.resultJson as Record<string, unknown>).status,
+      },
     })
   );
+});
+
+router.get("/sessions/:sessionId/reproduce", async (req, res): Promise<void> => {
+  const rawId = Array.isArray(req.params.sessionId) ? req.params.sessionId[0] : req.params.sessionId;
+  if (!/^[1-9]\d*$/.test(rawId) || !Number.isSafeInteger(Number(rawId))) {
+    res.status(400).json({ error: "Invalid session ID" });
+    return;
+  }
+  const [session] = await db.select().from(sessionsTable)
+    .where(eq(sessionsTable.id, Number(rawId))).limit(1);
+  if (!session) {
+    res.status(404).json({ error: "Session not found" });
+    return;
+  }
+  res.json(ReproduceSessionResponse.parse(reproduceRun(session.resultJson as Record<string, unknown>)));
 });
 
 export default router;

@@ -9,6 +9,10 @@ import type { GetBacktestExecutionTiming } from './getBacktestExecutionTiming';
 import type { GetBacktestRebalanceFrequency } from './getBacktestRebalanceFrequency';
 
 export type GetBacktestParams = {
+/**
+ * Saved optimization run to validate. Defaults to the latest saved run; never uses current working inputs.
+ */
+sessionId?: number;
 benchmark?: string;
 rebalanceFrequency?: GetBacktestRebalanceFrequency;
 executionTiming?: GetBacktestExecutionTiming;

@@ -4,3 +4,4 @@
 - [Recovering deleted files mid-session](deleted-file-recovery.md) — check HEAD via git show before assuming uncommitted deletes are unrecoverable
 - [Postgres JSONB key reordering](postgres-jsonb-key-order.md) — JSONB round-trip reorders keys; use stable/sorted stringify (not raw JSON.stringify) for config diffing/reproducibility checks.
 - [Dynamic factor-set contract](dynamic-factor-set.md) — optimizer and validation must consume only the persisted active factor set and snapshot its exact version, parameters, and effective weights.
+- [Run snapshot compatibility](run-snapshot-compatibility.md) — frozen run inputs are self-contained; engine-version changes block exact historical replay rather than substituting current settings.

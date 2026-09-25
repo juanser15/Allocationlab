@@ -61,7 +61,10 @@ export default function Dashboard() {
     effectiveSessionId ?? 0,
     { query: { enabled: !!effectiveSessionId && !isViewingLatest } as any }
   );
-  const { data: backtest } = useGetBacktest();
+  const { data: backtest } = useGetBacktest(
+    { sessionId: effectiveSessionId ?? latestResult?.sessionId },
+    { query: { enabled: !!(effectiveSessionId ?? latestResult?.sessionId) } as any },
+  );
   const { data: tradeImplMeta } = useGetTradeImplementationMeta();
 
   const view = isViewingLatest ? latestResult : archiveEntry;

@@ -141,7 +141,8 @@ export const UploadPricesResponse = zod.object({
 
 export const RunPipelineBody = zod.object({
   "label": zod.string().nullish(),
-  "overrideDiversification": zod.boolean().nullish()
+  "overrideDiversification": zod.boolean().nullish(),
+  "benchmarkTicker": zod.string().nullish().describe('Benchmark selected when the optimizer runs; recorded for validation defaults, not used by the optimizer.')
 })
 
 export const runPipelineResponseFactorSetItemLookbackMin = 2;
@@ -305,7 +306,8 @@ export const RunPipelineResponse = zod.object({
   "currentCoverage": zod.number().min(runPipelineResponseFactorSetItemCurrentCoverageMin).max(runPipelineResponseFactorSetItemCurrentCoverageMax),
   "availabilityReason": zod.string().nullable(),
   "version": zod.string()
-}))
+})),
+  "reproducibilityStatus": zod.enum(['ready', 'legacy', 'engine_mismatch', 'integrity_fail']).optional()
 })
 
 
@@ -470,7 +472,8 @@ export const GetLatestResultsResponse = zod.object({
   "currentCoverage": zod.number().min(getLatestResultsResponseFactorSetItemCurrentCoverageMin).max(getLatestResultsResponseFactorSetItemCurrentCoverageMax),
   "availabilityReason": zod.string().nullable(),
   "version": zod.string()
-}))
+})),
+  "reproducibilityStatus": zod.enum(['ready', 'legacy', 'engine_mismatch', 'integrity_fail']).optional()
 })
 
 
@@ -661,8 +664,24 @@ export const GetSessionResponse = zod.object({
   "currentCoverage": zod.number().min(getSessionResponseResultFactorSetItemCurrentCoverageMin).max(getSessionResponseResultFactorSetItemCurrentCoverageMax),
   "availabilityReason": zod.string().nullable(),
   "version": zod.string()
-}))
+})),
+  "reproducibilityStatus": zod.enum(['ready', 'legacy', 'engine_mismatch', 'integrity_fail']).optional()
 })
+})
+
+
+/**
+ * @summary Replay frozen optimization inputs using the recorded engine version
+ */
+export const ReproduceSessionParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const ReproduceSessionResponse = zod.object({
+  "status": zod.enum(['pass', 'fail', 'legacy', 'engine_mismatch']),
+  "message": zod.string(),
+  "differences": zod.array(zod.string()),
+  "tolerance": zod.number()
 })
 
 
@@ -2167,6 +2186,7 @@ export const CompareArchiveResponse = zod.object({
  * @summary Run a bias-resistant, point-in-time walk-forward backtest with configurable execution/cost assumptions and an integrity audit
  */
 export const GetBacktestQueryParams = zod.object({
+  "sessionId": zod.coerce.number().optional().describe('Saved optimization run to validate. Defaults to the latest saved run; never uses current working inputs.'),
   "benchmark": zod.coerce.string().optional(),
   "rebalanceFrequency": zod.enum(['monthly', 'quarterly']).optional(),
   "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']).optional(),
@@ -2179,7 +2199,102 @@ export const GetBacktestQueryParams = zod.object({
   "endDate": zod.coerce.string().optional().describe('Optional ISO date (YYYY-MM-DD). Truncates uploaded price history so the backtest simulates \"as of\" this date.')
 })
 
+export const getBacktestResponseValidationIdentityOneFactorSetSnapshotItemLookbackMin = 2;
+export const getBacktestResponseValidationIdentityOneFactorSetSnapshotItemLookbackMax = 1260;
+
+export const getBacktestResponseValidationIdentityOneFactorSetSnapshotItemLagMin = 0;
+export const getBacktestResponseValidationIdentityOneFactorSetSnapshotItemLagMax = 252;
+
+export const getBacktestResponseValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin = 0;
+export const getBacktestResponseValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax = 0.49;
+
+export const getBacktestResponseValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin = 0.51;
+export const getBacktestResponseValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax = 1;
+
+export const getBacktestResponseValidationIdentityOneFactorSetSnapshotItemBaseWeightMin = 0;
+
+export const getBacktestResponseValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin = 0;
+export const getBacktestResponseValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax = 1;
+
+
+
 export const GetBacktestResponse = zod.object({
+  "optimizationRunId": zod.number(),
+  "snapshotStatus": zod.enum(['ready', 'legacy', 'engine_mismatch', 'integrity_fail', 'reproducibility_fail']),
+  "reproducibility": zod.object({
+  "status": zod.enum(['pass', 'fail', 'legacy', 'engine_mismatch']),
+  "message": zod.string(),
+  "differences": zod.array(zod.string()),
+  "tolerance": zod.number()
+}),
+  "validationIdentity": zod.union([zod.object({
+  "optimizationRunId": zod.number(),
+  "datasetId": zod.number(),
+  "datasetHash": zod.string(),
+  "factorSetVersion": zod.string(),
+  "factorSetSnapshot": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "family": zod.string(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['active', 'candidate', 'disabled']),
+  "inputSeries": zod.string(),
+  "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
+  "formula": zod.string(),
+  "direction": zod.enum(['higher_is_better', 'lower_is_better']),
+  "lookback": zod.number().min(getBacktestResponseValidationIdentityOneFactorSetSnapshotItemLookbackMin).max(getBacktestResponseValidationIdentityOneFactorSetSnapshotItemLookbackMax),
+  "lag": zod.number().min(getBacktestResponseValidationIdentityOneFactorSetSnapshotItemLagMin).max(getBacktestResponseValidationIdentityOneFactorSetSnapshotItemLagMax),
+  "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
+  "winsorizationLower": zod.number().min(getBacktestResponseValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin).max(getBacktestResponseValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(getBacktestResponseValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin).max(getBacktestResponseValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
+  "baseWeight": zod.number().min(getBacktestResponseValidationIdentityOneFactorSetSnapshotItemBaseWeightMin),
+  "regimeWeights": zod.object({
+  "riskOn": zod.number().nullable(),
+  "neutral": zod.number().nullable(),
+  "riskOff": zod.number().nullable()
+}),
+  "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
+  "dataSource": zod.string(),
+  "benchmarkTicker": zod.string().nullable(),
+  "currentCoverage": zod.number().min(getBacktestResponseValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin).max(getBacktestResponseValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax),
+  "availabilityReason": zod.string().nullable(),
+  "version": zod.string()
+})),
+  "constraintsSnapshot": zod.object({
+  "cashMin": zod.number(),
+  "cashMax": zod.number(),
+  "maxEtfWeight": zod.number(),
+  "minInclusionThreshold": zod.number(),
+  "targetActiveEtfs": zod.number(),
+  "diversificationEnabled": zod.boolean()
+}),
+  "universeSnapshot": zod.object({
+  "etfs": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "priorWeight": zod.number(),
+  "enabled": zod.boolean()
+})),
+  "cashPriorWeight": zod.number()
+}),
+  "engineVersion": zod.string(),
+  "validationAssumptions": zod.object({
+  "rebalanceFrequency": zod.string(),
+  "executionTiming": zod.string(),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "maxTurnoverPerRebalance": zod.number(),
+  "cashYieldAnnual": zod.number(),
+  "warmupDays": zod.number(),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable()
+}),
+  "validatedAt": zod.string()
+}),zod.null()]),
   "hasSufficientData": zod.boolean(),
   "insufficientReason": zod.string().nullable(),
   "startDate": zod.string().nullable(),

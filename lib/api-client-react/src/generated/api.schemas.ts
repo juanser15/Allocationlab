@@ -502,6 +502,11 @@ export interface RunInput {
   label?: string | null;
   /** @nullable */
   overrideDiversification?: boolean | null;
+  /**
+     * Benchmark selected when the optimizer runs; recorded for validation defaults, not used by the optimizer.
+     * @nullable
+     */
+  benchmarkTicker?: string | null;
 }
 
 export type FactorScoresDynamic = {[key: string]: number | null};
@@ -1282,6 +1287,16 @@ export interface AttributionResult {
   methodologyNote: string;
 }
 
+export type RunResultReproducibilityStatus = typeof RunResultReproducibilityStatus[keyof typeof RunResultReproducibilityStatus];
+
+
+export const RunResultReproducibilityStatus = {
+  ready: 'ready',
+  legacy: 'legacy',
+  engine_mismatch: 'engine_mismatch',
+  integrity_fail: 'integrity_fail',
+} as const;
+
 export type PipelineStepStatus = typeof PipelineStepStatus[keyof typeof PipelineStepStatus];
 
 
@@ -1320,6 +1335,53 @@ export interface RunResult {
   diagnostics: PortfolioDiagnostics;
   factorSetVersion: string;
   factorSet: FactorDefinition[];
+  reproducibilityStatus?: RunResultReproducibilityStatus;
+}
+
+export type RunReproductionStatus = typeof RunReproductionStatus[keyof typeof RunReproductionStatus];
+
+
+export const RunReproductionStatus = {
+  pass: 'pass',
+  fail: 'fail',
+  legacy: 'legacy',
+  engine_mismatch: 'engine_mismatch',
+} as const;
+
+export interface RunReproduction {
+  status: RunReproductionStatus;
+  message: string;
+  differences: string[];
+  tolerance: number;
+}
+
+export type ValidationIdentityValidationAssumptions = {
+  rebalanceFrequency: string;
+  executionTiming: string;
+  transactionCostBps: number;
+  slippageBps: number;
+  maxTurnoverPerRebalance: number;
+  cashYieldAnnual: number;
+  warmupDays: number;
+  /** @nullable */
+  startDate: string | null;
+  /** @nullable */
+  endDate: string | null;
+  /** @nullable */
+  benchmarkTicker: string | null;
+};
+
+export interface ValidationIdentity {
+  optimizationRunId: number;
+  datasetId: number;
+  datasetHash: string;
+  factorSetVersion: string;
+  factorSetSnapshot: FactorDefinition[];
+  constraintsSnapshot: ConstraintsInput;
+  universeSnapshot: UniverseInput;
+  engineVersion: string;
+  validationAssumptions: ValidationIdentityValidationAssumptions;
+  validatedAt: string;
 }
 
 export interface Session {
@@ -1627,7 +1689,22 @@ export interface WalkForwardResult {
   note: string;
 }
 
+export type BacktestResultSnapshotStatus = typeof BacktestResultSnapshotStatus[keyof typeof BacktestResultSnapshotStatus];
+
+
+export const BacktestResultSnapshotStatus = {
+  ready: 'ready',
+  legacy: 'legacy',
+  engine_mismatch: 'engine_mismatch',
+  integrity_fail: 'integrity_fail',
+  reproducibility_fail: 'reproducibility_fail',
+} as const;
+
 export interface BacktestResult {
+  optimizationRunId: number;
+  snapshotStatus: BacktestResultSnapshotStatus;
+  reproducibility: RunReproduction;
+  validationIdentity: ValidationIdentity | null;
   hasSufficientData: boolean;
   /** @nullable */
   insufficientReason: string | null;
@@ -2001,6 +2078,10 @@ b: number;
 };
 
 export type GetBacktestParams = {
+/**
+ * Saved optimization run to validate. Defaults to the latest saved run; never uses current working inputs.
+ */
+sessionId?: number;
 benchmark?: string;
 rebalanceFrequency?: GetBacktestRebalanceFrequency;
 executionTiming?: GetBacktestExecutionTiming;

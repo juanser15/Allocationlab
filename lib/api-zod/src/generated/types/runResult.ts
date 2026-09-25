@@ -12,6 +12,7 @@ import type { IterationInfo } from './iterationInfo';
 import type { PipelineStep } from './pipelineStep';
 import type { PortfolioDiagnostics } from './portfolioDiagnostics';
 import type { RegimeScores } from './regimeScores';
+import type { RunResultReproducibilityStatus } from './runResultReproducibilityStatus';
 import type { WatchlistEntry } from './watchlistEntry';
 
 export interface RunResult {
@@ -34,4 +35,5 @@ export interface RunResult {
   diagnostics: PortfolioDiagnostics;
   factorSetVersion: string;
   factorSet: FactorDefinition[];
+  reproducibilityStatus?: RunResultReproducibilityStatus;
 }

@@ -43,7 +43,8 @@ export default function PortfolioLab() {
 
   const { data: bt, isLoading: loadingBt, refetch: refetchBt } = useGetBacktest(
     {
-      ...(btBenchmark !== "none" ? { benchmark: btBenchmark } : {}),
+      sessionId: result?.sessionId,
+      benchmark: btBenchmark,
       rebalanceFrequency: btFrequency,
       executionTiming: btTiming,
       transactionCostBps: btTxnCostBps,
@@ -52,12 +53,13 @@ export default function PortfolioLab() {
       ...(btStartDate ? { startDate: btStartDate } : {}),
       ...(btEndDate ? { endDate: btEndDate } : {}),
     },
-    { query: { enabled: hasData && validationRequested } as any },
+    { query: { enabled: !!result?.sessionId && validationRequested } as any },
   );
 
   const handleRunOptimizer = () => {
+    setValidationRequested(false);
     runPipeline.mutate(
-      { data: {} },
+      { data: { benchmarkTicker: localSettings.getBenchmarksSettings().defaultBenchmark } },
       {
         onSuccess: (data) => {
           refetchResult();

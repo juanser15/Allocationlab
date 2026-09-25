@@ -19,6 +19,7 @@ import { getUniverseConfig } from "./universe";
 import { getConstraintsConfig } from "./constraints";
 import { getLatestPriceData } from "./prices";
 import { getFactorSetSnapshot } from "../lib/factor-library";
+import { createRunSnapshot, hashDataset, resolveRunSnapshot } from "../lib/run-snapshot";
 
 const router: IRouter = Router();
 
@@ -177,10 +178,23 @@ router.post("/run", async (req, res): Promise<void> => {
   const watchlist = computeWatchlist(factorData, universe.etfs, constraints, allocations);
   const icSummary = generateIcSummary(regime, cashWeight, universe.cashPriorWeight, activeEtfs.length, allocations);
   const diagnostics = computePortfolioDiagnostics(allocations, etfMap, priceRows, availableTickers);
+  const runAt = new Date().toISOString();
+  const runSnapshot = createRunSnapshot({
+    optimizationTimestamp: runAt,
+    dataset: {
+      id: priceRow.id, sha256: hashDataset(priceRow.csvContent),
+      startDate: priceRow.startDate, endDate: priceRow.endDate,
+      tickers: availableTickers, csvContent: priceRow.csvContent,
+    },
+    universe: { etfs: universe.etfs, cashPriorWeight: universe.cashPriorWeight },
+    constraints, factorSet,
+    benchmarkConfiguration: { defaultTicker: parsed.data.benchmarkTicker ?? null },
+    outputs: { allocations, regime, factorData },
+  });
 
   const result = {
     sessionId: 0,
-    runAt: new Date().toISOString(),
+    runAt,
     label,
     regime,
     allocations,
@@ -197,22 +211,21 @@ router.post("/run", async (req, res): Promise<void> => {
     diagnostics,
     factorSetVersion: factorSet.version,
     factorSet: factorSet.factors,
+    runSnapshot,
+    reproducibilityStatus: "ready",
   };
 
-  const [session] = await db.insert(sessionsTable).values({
-    label,
-    activeEtfCount: activeEtfs.length,
-    cashWeight: result.cashWeight,
-    regimeLabel: regime.label,
-    regimeComposite: regime.composite,
-    resultJson: result,
-  }).returning();
-
-  markStep("generate_report", "done", "Results saved");
-  result.sessionId = session.id;
-  result.steps = steps;
-
-  await db.update(sessionsTable).set({ resultJson: result }).where(eq(sessionsTable.id, session.id));
+  // Neither the result nor its frozen inputs become visible until BOTH writes commit.
+  await db.transaction(async (tx) => {
+    const [session] = await tx.insert(sessionsTable).values({
+      runAt: new Date(runAt), label, activeEtfCount: activeEtfs.length,
+      cashWeight: result.cashWeight, regimeLabel: regime.label,
+      regimeComposite: regime.composite, resultJson: result,
+    }).returning({ id: sessionsTable.id });
+    markStep("generate_report", "done", "Results saved");
+    result.sessionId = session.id;
+    await tx.update(sessionsTable).set({ resultJson: result }).where(eq(sessionsTable.id, session.id));
+  });
 
   res.json(RunPipelineResponse.parse(result));
 });
@@ -249,6 +262,7 @@ router.get("/results/latest", async (req, res): Promise<void> => {
     diagnostics: (stored.diagnostics as object | undefined) ?? EMPTY_DIAGNOSTICS,
     factorSetVersion: (stored.factorSetVersion as string | undefined) ?? "legacy",
     factorSet: (stored.factorSet as unknown[]) ?? [],
+    reproducibilityStatus: resolveRunSnapshot(stored).status,
     regime: {
       ...(stored.regime as object),
       components: ((stored.regime as Record<string, unknown>)?.components as unknown[]) ?? [],

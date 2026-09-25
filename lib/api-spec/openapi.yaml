@@ -227,6 +227,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /sessions/{sessionId}/reproduce:
+    get:
+      operationId: reproduceSession
+      tags: [sessions]
+      summary: Replay frozen optimization inputs using the recorded engine version
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Reproduction status (including legacy or engine-version mismatch)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunReproduction"
+
   /risk-model:
     get:
       operationId: getRiskModel
@@ -886,6 +904,11 @@ paths:
       tags: [backtest]
       summary: Run a bias-resistant, point-in-time walk-forward backtest with configurable execution/cost assumptions and an integrity audit
       parameters:
+        - name: sessionId
+          in: query
+          required: false
+          description: Saved optimization run to validate. Defaults to the latest saved run; never uses current working inputs.
+          schema: { type: integer }
         - name: benchmark
           in: query
           required: false
@@ -1734,6 +1757,9 @@ components:
           type: ["string", "null"]
         overrideDiversification:
           type: ["boolean", "null"]
+        benchmarkTicker:
+          type: ["string", "null"]
+          description: Benchmark selected when the optimizer runs; recorded for validation defaults, not used by the optimizer.
       required: []
 
     FactorScores:
@@ -2983,7 +3009,54 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FactorDefinition"
+        reproducibilityStatus:
+          type: string
+          enum: [ready, legacy, engine_mismatch, integrity_fail]
       required: [sessionId, runAt, label, regime, allocations, cashWeight, cashPriorWeight, cashChange, activeEtfCount, investedSleeve, priceDataEnd, steps, watchlist, icSummary, iterationInfo, diagnostics, factorSetVersion, factorSet]
+
+    RunReproduction:
+      type: object
+      properties:
+        status: { type: string, enum: [pass, fail, legacy, engine_mismatch] }
+        message: { type: string }
+        differences:
+          type: array
+          items: { type: string }
+        tolerance: { type: number }
+      required: [status, message, differences, tolerance]
+
+    ValidationIdentity:
+      type: object
+      properties:
+        optimizationRunId: { type: integer }
+        datasetId: { type: integer }
+        datasetHash: { type: string }
+        factorSetVersion: { type: string }
+        factorSetSnapshot:
+          type: array
+          items:
+            $ref: "#/components/schemas/FactorDefinition"
+        constraintsSnapshot:
+          $ref: "#/components/schemas/ConstraintsInput"
+        universeSnapshot:
+          $ref: "#/components/schemas/UniverseInput"
+        engineVersion: { type: string }
+        validationAssumptions:
+          type: object
+          properties:
+            rebalanceFrequency: { type: string }
+            executionTiming: { type: string }
+            transactionCostBps: { type: number }
+            slippageBps: { type: number }
+            maxTurnoverPerRebalance: { type: number }
+            cashYieldAnnual: { type: number }
+            warmupDays: { type: integer }
+            startDate: { type: [string, "null"] }
+            endDate: { type: [string, "null"] }
+            benchmarkTicker: { type: [string, "null"] }
+          required: [rebalanceFrequency, executionTiming, transactionCostBps, slippageBps, maxTurnoverPerRebalance, cashYieldAnnual, warmupDays, startDate, endDate, benchmarkTicker]
+        validatedAt: { type: string }
+      required: [optimizationRunId, datasetId, datasetHash, factorSetVersion, factorSetSnapshot, constraintsSnapshot, universeSnapshot, engineVersion, validationAssumptions, validatedAt]
 
     PipelineStep:
       type: object
@@ -3373,6 +3446,14 @@ components:
     BacktestResult:
       type: object
       properties:
+        optimizationRunId: { type: integer }
+        snapshotStatus: { type: string, enum: [ready, legacy, engine_mismatch, integrity_fail, reproducibility_fail] }
+        reproducibility:
+          $ref: "#/components/schemas/RunReproduction"
+        validationIdentity:
+          oneOf:
+            - $ref: "#/components/schemas/ValidationIdentity"
+            - type: "null"
         hasSufficientData:
           type: boolean
         insufficientReason:
@@ -3446,7 +3527,7 @@ components:
             type: string
         methodologyNote:
           type: string
-      required: [hasSufficientData, insufficientReason, startDate, endDate, tradingDays, canAnnualize, equityCurve, dailyLedger, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown, avgTurnover, totalTransactionCostPct, monthlyReturns, rebalanceLog, benchmarkTicker, benchmarkCumulativeReturn, benchmarkAnnualizedReturn, benchmarkUnavailableReason, availableBenchmarkTickers, dataStartDate, dataEndDate, config, integrity, walkForward, sensitivity, warnings, methodologyNote]
+      required: [optimizationRunId, snapshotStatus, reproducibility, validationIdentity, hasSufficientData, insufficientReason, startDate, endDate, tradingDays, canAnnualize, equityCurve, dailyLedger, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown, avgTurnover, totalTransactionCostPct, monthlyReturns, rebalanceLog, benchmarkTicker, benchmarkCumulativeReturn, benchmarkAnnualizedReturn, benchmarkUnavailableReason, availableBenchmarkTickers, dataStartDate, dataEndDate, config, integrity, walkForward, sensitivity, warnings, methodologyNote]
 
     CommitteeRecommendation:
       type: object

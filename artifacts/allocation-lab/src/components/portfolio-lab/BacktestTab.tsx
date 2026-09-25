@@ -107,7 +107,7 @@ export function BacktestTab(props: Props) {
   const [metricDetail, setMetricDetail] = useState<{ title: string; content: string } | null>(null);
   const [openTest, setOpenTest] = useState<typeof ROBUSTNESS_TESTS[0] | null>(null);
 
-  if (!hasData) return <EmptyState icon={FlaskConical} title="Valid price history is required." description="Upload price data to configure and run the backtester." />;
+  if (!hasData && !hasRun) return <EmptyState icon={FlaskConical} title="Valid price history is required." description="Upload price data to configure and run the backtester." />;
   if (!hasRun)  return <EmptyState icon={FlaskConical} title="Run Optimizer to generate model allocations." description="The backtester simulates the official portfolio process historically. An optimizer run is required first." />;
 
   const hasBt = !!bt && bt.hasSufficientData;
@@ -272,6 +272,26 @@ export function BacktestTab(props: Props) {
             <div className="flex items-start gap-2 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-gray-400" />
               <span><strong>Validation has not been run.</strong> Configure assumptions above and click Run Validation.</span>
+            </div>
+          )}
+          {validationRequested && bt && (
+            <div className="text-[11px] text-muted-foreground">
+              <p>
+                Validating run #{bt.optimizationRunId} · Reproduction: {bt.reproducibility.status.toUpperCase()}
+                {bt.validationIdentity && (
+                  <> · Dataset SHA-256: {bt.validationIdentity.datasetHash} · Factor set: {bt.validationIdentity.factorSetVersion}
+                    {" "}· Engine: {bt.validationIdentity.engineVersion} · Validated: {bt.validationIdentity.validatedAt}</>
+                )}
+                {bt.reproducibility.differences.length > 0 && <> · {bt.reproducibility.differences.join("; ")}</>}
+              </p>
+              {bt.validationIdentity && (
+                <details className="mt-1">
+                  <summary className="cursor-pointer">View exact validation specification</summary>
+                  <pre className="mt-2 overflow-auto whitespace-pre-wrap rounded border bg-muted p-3 text-[10px]">
+                    {JSON.stringify(bt.validationIdentity, null, 2)}
+                  </pre>
+                </details>
+              )}
             </div>
           )}
         </CardContent>

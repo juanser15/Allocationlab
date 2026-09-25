@@ -11,4 +11,9 @@ export interface RunInput {
   label?: string | null;
   /** @nullable */
   overrideDiversification?: boolean | null;
+  /**
+     * Benchmark selected when the optimizer runs; recorded for validation defaults, not used by the optimizer.
+     * @nullable
+     */
+  benchmarkTicker?: string | null;
 }

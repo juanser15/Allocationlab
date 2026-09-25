@@ -10,11 +10,18 @@ import type { BacktestEquityPoint } from './backtestEquityPoint';
 import type { BacktestLedgerEntry } from './backtestLedgerEntry';
 import type { BacktestMonthlyReturn } from './backtestMonthlyReturn';
 import type { BacktestRebalanceLogEntry } from './backtestRebalanceLogEntry';
+import type { BacktestResultSnapshotStatus } from './backtestResultSnapshotStatus';
 import type { IntegrityAudit } from './integrityAudit';
+import type { RunReproduction } from './runReproduction';
 import type { SensitivityResult } from './sensitivityResult';
+import type { ValidationIdentity } from './validationIdentity';
 import type { WalkForwardResult } from './walkForwardResult';
 
 export interface BacktestResult {
+  optimizationRunId: number;
+  snapshotStatus: BacktestResultSnapshotStatus;
+  reproducibility: RunReproduction;
+  validationIdentity: ValidationIdentity | null;
   hasSufficientData: boolean;
   /** @nullable */
   insufficientReason: string | null;

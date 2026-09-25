@@ -62,6 +62,7 @@ import type {
   ReportResult,
   RiskModelResult,
   RunInput,
+  RunReproduction,
   RunResult,
   ScenarioStressMeta,
   ScenarioStressResult,
@@ -915,6 +916,83 @@ export function useGetSession<TData = Awaited<ReturnType<typeof getSession>>, TE
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetSessionQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReproduceSessionUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/sessions/${sessionId}/reproduce`
+}
+
+/**
+ * @summary Replay frozen optimization inputs using the recorded engine version
+ */
+export const reproduceSession = async (sessionId: number, options?: RequestInit): Promise<RunReproduction> => {
+
+  return customFetch<RunReproduction>(getReproduceSessionUrl(sessionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getReproduceSessionQueryKey = (sessionId: number,) => {
+    return [
+    `/api/sessions/${sessionId}/reproduce`
+    ] as const;
+    }
+
+
+export const getReproduceSessionQueryOptions = <TData = Awaited<ReturnType<typeof reproduceSession>>, TError = ErrorType<unknown>>(sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof reproduceSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getReproduceSessionQueryKey(sessionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof reproduceSession>>> = ({ signal }) => reproduceSession(sessionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: sessionId !== null && sessionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof reproduceSession>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ReproduceSessionQueryResult = NonNullable<Awaited<ReturnType<typeof reproduceSession>>>
+export type ReproduceSessionQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Replay frozen optimization inputs using the recorded engine version
+ */
+
+export function useReproduceSession<TData = Awaited<ReturnType<typeof reproduceSession>>, TError = ErrorType<unknown>>(
+ sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof reproduceSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getReproduceSessionQueryOptions(sessionId,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

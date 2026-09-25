@@ -255,7 +255,8 @@ export default function ResearchLab() {
 
   const { data: bt, isLoading, error } = useGetBacktest(
     {
-      ...(benchmark !== "none" ? { benchmark } : {}),
+      sessionId: result?.sessionId,
+      benchmark,
       rebalanceFrequency: frequency,
       executionTiming: timing,
       transactionCostBps: txnCostBps,
@@ -265,7 +266,7 @@ export default function ResearchLab() {
       ...(startDate ? { startDate } : {}),
       ...(endDate ? { endDate } : {}),
     },
-    { query: { enabled: hasData } as any },
+    { query: { enabled: hasData && !!result?.sessionId } as any },
   );
 
   const dataMin = bt?.dataStartDate ?? undefined;
