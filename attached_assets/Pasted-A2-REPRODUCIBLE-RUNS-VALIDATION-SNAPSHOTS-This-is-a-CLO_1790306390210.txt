@@ -1,0 +1,211 @@
+A2 — REPRODUCIBLE RUNS & VALIDATION SNAPSHOTS
+
+This is a CLOSED-SCOPE engineering task.
+
+Do not redesign the UI.
+Do not add models.
+Do not change factor formulas.
+Do not change portfolio construction logic.
+Do not change backtest accounting fixed in A1.
+Do not add attribution.
+Do not add new analytics.
+
+GOAL
+
+Make every optimization run reproducible and make Validate use the exact inputs that generated that run.
+
+CURRENT PROBLEM
+
+The optimization run is stored, but validation/backtesting can read the latest current dataset, factor configuration, universe, and constraints.
+
+Therefore a saved portfolio can later be validated using inputs different from those that originally generated it.
+
+This must stop.
+
+REQUIRED RUN SNAPSHOT
+
+Every successful optimization run must store an immutable snapshot containing at least:
+
+1. Dataset identity
+2. Dataset hash
+3. Dataset date range
+4. Dataset tickers
+5. Universe configuration
+6. Previous weights
+7. Portfolio constraints
+8. Full active factor definitions
+9. Factor-set version
+10. Factor parameters
+11. Regime-specific factor weights
+12. Benchmark configuration relevant to the run
+13. Model/engine version
+14. Optimization timestamp
+15. Resulting allocation
+16. Regime result
+17. Factor scores used
+
+The snapshot must represent exactly what was used in that run.
+
+DATASET IDENTITY
+
+Create a deterministic content hash for the exact price dataset used.
+
+Two identical datasets must produce the same hash.
+
+Changing any price observation must change the hash.
+
+Do not identify the dataset only by upload timestamp or filename.
+
+VALIDATION RULE
+
+Validate must validate a selected optimization run using that run's stored snapshot.
+
+It must NOT silently use:
+
+- the newest uploaded CSV;
+- the latest factor configuration;
+- the latest constraints;
+- the latest universe settings;
+- changed previous weights.
+
+If current working configuration differs from the selected run, this is allowed, but validation must still use the frozen run snapshot.
+
+RUN IMMUTABILITY
+
+Editing current settings must not mutate a previously saved run.
+
+A historical run remains unchanged.
+
+If the user changes factors, constraints, universe, or data and runs Optimize again, create a new run/version.
+
+Do not overwrite the old run.
+
+REPRODUCIBILITY
+
+Add an exact rerun capability for a saved run.
+
+Using the frozen inputs and the same engine version must reproduce the original optimization result within numerical tolerance.
+
+If it does not reproduce, mark:
+
+REPRODUCIBILITY FAIL
+
+and report which output differs.
+
+ENGINE VERSIONING
+
+Record an engine version with each run.
+
+If the code/engine version has changed and exact historical reproduction cannot be guaranteed, do not pretend the result is reproducible.
+
+Clearly report:
+
+“Historical inputs are preserved, but exact reproduction requires engine version X.”
+
+Do not silently recompute an old run using new logic and call it the same run.
+
+LEGACY RUNS
+
+Existing runs created before A2 may not contain complete snapshots.
+
+Do not reconstruct missing inputs using current configuration.
+
+Mark them explicitly:
+
+“Legacy run — exact input snapshot unavailable.”
+
+They may remain viewable, but cannot be labeled fully reproducible.
+
+VALIDATION RESULT IDENTITY
+
+Each validation result must record:
+
+- optimization run ID;
+- dataset hash;
+- factor-set version;
+- constraints version/snapshot;
+- universe snapshot;
+- engine version;
+- validation assumptions;
+- validation timestamp.
+
+The user must always be able to answer:
+
+“What exact portfolio specification did this backtest validate?”
+
+ATOMICITY
+
+The run result and its immutable input snapshot must be persisted together as one logical operation.
+
+Do not create a successful optimization result that can exist without its associated snapshot.
+
+If snapshot persistence fails, the run should not be considered successfully versioned.
+
+AUTOMATED ACCEPTANCE TESTS
+
+Add deterministic automated tests for exactly these cases:
+
+TEST 1 — Current factors change after run
+Create Run A.
+Change active factors.
+Validate Run A.
+Validation must still use Run A's original factor set.
+
+TEST 2 — Current constraints change after run
+Create Run A.
+Change constraints.
+Validate Run A.
+Validation must still use Run A's original constraints.
+
+TEST 3 — Dataset changes after run
+Create Run A.
+Modify/upload a different price dataset.
+Validate Run A.
+Validation must still use Run A's original dataset snapshot/hash.
+
+TEST 4 — Historical run immutability
+Create Run A.
+Change current settings and create Run B.
+Run A's stored snapshot and result must remain unchanged.
+
+TEST 5 — Exact rerun
+Recompute a saved run using its frozen inputs and same engine version.
+Allocation, regime, and factor outputs must match the original within documented numerical tolerance.
+
+TEST 6 — Dataset hash integrity
+Identical dataset content produces identical hash.
+Changing one price observation changes the hash.
+
+TEST 7 — Legacy run handling
+A run without a complete A2 snapshot must be identified as legacy and must NOT silently use current inputs for exact replay.
+
+All tests must report PASS/FAIL automatically.
+
+DELIVERABLE
+
+When finished, provide a concise A2 completion report containing only:
+
+- What was wrong.
+- What was changed.
+- Exact fields frozen per run.
+- Dataset hashing method.
+- Validation behavior now.
+- Reproduction tolerance.
+- Automated tests and PASS/FAIL.
+- Treatment of legacy runs.
+- Any remaining limitation specifically related to A2.
+
+Do not propose new features.
+
+STOP CONDITION
+
+A2 is COMPLETE when:
+
+- all seven acceptance tests pass;
+- Validate uses the selected run's frozen inputs;
+- changing current data/config cannot change historical validation inputs;
+- historical runs are immutable;
+- reproducibility status is explicit;
+- legacy runs are never falsely represented as exactly reproducible.
+
+Once all conditions pass, stop.
