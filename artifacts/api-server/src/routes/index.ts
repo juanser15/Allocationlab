@@ -21,6 +21,7 @@ import signalsRouter from "./signals";
 import factorsRouter from "./factors";
 import preparedInputsRouter from "./prepared-inputs";
 import allocationsRouter from "./allocations";
+import alphaContributionExperimentsRouter from "./alpha-contribution-experiments";
 
 const router: IRouter = Router();
 
@@ -46,5 +47,6 @@ router.use(signalsRouter);
 router.use(factorsRouter);
 router.use(preparedInputsRouter);
 router.use(allocationsRouter);
+router.use(alphaContributionExperimentsRouter);
 
 export default router;

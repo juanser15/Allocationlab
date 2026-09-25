@@ -1692,6 +1692,113 @@ export interface B3ValidationRunInput {
 
 export type ValidationRunInput = LegacyValidationRunInput | B3ValidationRunInput;
 
+export type C1ExperimentInputMode = typeof C1ExperimentInputMode[keyof typeof C1ExperimentInputMode];
+
+
+export const C1ExperimentInputMode = {
+  single: 'single',
+  group: 'group',
+  pair: 'pair',
+} as const;
+
+/**
+ * Runs a frozen B3 development-period comparison from a saved alpha-stream policy; no holdout metrics are generated.
+ */
+export interface C1ExperimentInput {
+  /** @minimum 1 */
+  allocationId: number;
+  /** @minimum 1 */
+  validationPreparedInputId: number;
+  assumptions: B3ValidationAssumptions;
+  mode: C1ExperimentInputMode;
+  /**
+     * @minItems 1
+     * @items.minItems 1
+     * @items.items.minLength 1
+     */
+  exclusionSets: string[][];
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  holdoutStartDate?: string;
+}
+
+export type C1ExperimentChildPolicyRequest = { [key: string]: unknown };
+
+export type C1ExperimentChildResult = { [key: string]: unknown };
+
+export interface C1ExperimentChild {
+  label: string;
+  excludedCandidateIds: string[];
+  /** @nullable */
+  validationRunId: number | null;
+  policyRequest: C1ExperimentChildPolicyRequest;
+  result: C1ExperimentChildResult;
+}
+
+export type C1ExperimentMode = typeof C1ExperimentMode[keyof typeof C1ExperimentMode];
+
+
+export const C1ExperimentMode = {
+  single: 'single',
+  group: 'group',
+  pair: 'pair',
+} as const;
+
+export type C1ExperimentManifest = { [key: string]: unknown };
+
+export type C1ExperimentStatus = typeof C1ExperimentStatus[keyof typeof C1ExperimentStatus];
+
+
+export const C1ExperimentStatus = {
+  running: 'running',
+  completed: 'completed',
+  partial: 'partial',
+  failed: 'failed',
+  cancelled: 'cancelled',
+} as const;
+
+/**
+ * @nullable
+ */
+export type C1ExperimentSummary = { [key: string]: unknown } | null;
+
+export interface C1Experiment {
+  id: number;
+  allocationId: number;
+  validationPreparedInputId: number;
+  mode: C1ExperimentMode;
+  manifestHash: string;
+  inputHash: string;
+  manifest: C1ExperimentManifest;
+  status: C1ExperimentStatus;
+  plannedPolicyCount: number;
+  actualPolicyCount: number;
+  children: C1ExperimentChild[];
+  /** @nullable */
+  summary: C1ExperimentSummary;
+  createdAt: string;
+  /** @nullable */
+  completedAt: string | null;
+}
+
+export type C1ExperimentReplayStatus = typeof C1ExperimentReplayStatus[keyof typeof C1ExperimentReplayStatus];
+
+
+export const C1ExperimentReplayStatus = {
+  pass: 'pass',
+  fail: 'fail',
+  engine_mismatch: 'engine_mismatch',
+} as const;
+
+export type C1ExperimentReplayChildReplaysItem = { [key: string]: unknown };
+
+export interface C1ExperimentReplay {
+  experimentId: number;
+  status: C1ExperimentReplayStatus;
+  inputHash: string;
+  differences: string[];
+  childReplays: C1ExperimentReplayChildReplaysItem[];
+}
+
 export interface ValidationRunSummary {
   validationRunId: number;
   strategySnapshotId: number;

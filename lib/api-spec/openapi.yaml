@@ -1085,6 +1085,106 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /alpha-contribution-experiments:
+    post:
+      operationId: createAlphaContributionExperiment
+      tags: [backtest]
+      summary: Reoptimize and persist a frozen C1 alpha contribution comparison
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/C1ExperimentInput" }
+      responses:
+        "201":
+          description: Saved experiment with immutable child B3 validation results
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/C1Experiment" }
+        "400":
+          description: Invalid experiment request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Selected allocation or prepared input was not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Frozen inputs failed fingerprint or policy consistency checks
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "422":
+          description: Experiment planning rejected a policy cap, holdout boundary, or invalid exclusion
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    get:
+      operationId: listAlphaContributionExperiments
+      tags: [backtest]
+      summary: List persisted C1 alpha contribution experiments without rerunning them
+      responses:
+        "200":
+          description: Saved experiments, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/C1Experiment" }
+
+  /alpha-contribution-experiments/{experimentId}:
+    get:
+      operationId: getAlphaContributionExperiment
+      tags: [backtest]
+      parameters:
+        - name: experimentId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Exact persisted C1 manifest, child results and summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/C1Experiment" }
+        "400":
+          description: Invalid experiment ID
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Experiment not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: replayAlphaContributionExperiment
+      tags: [backtest]
+      summary: Verify an experiment manifest and replay its immutable child B3 validations
+      parameters:
+        - name: experimentId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Manifest integrity and child B3 replay comparisons
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/C1ExperimentReplay" }
+        "400":
+          description: Invalid experiment ID
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Experiment not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
   /committee:
     get:
       operationId: getCommittee
@@ -3681,6 +3781,75 @@ components:
         dailyCashYield: { type: number }
         benchmarkTicker: { type: string }
       required: [evaluationStartDate, evaluationEndDate, decisionCalendar, executionTiming, initialNav, initialHoldings, initialCash, transactionCostBps, slippageBps, dailyCashYield]
+
+    C1ExperimentInput:
+      type: object
+      additionalProperties: false
+      description: Runs a frozen B3 development-period comparison from a saved alpha-stream policy; no holdout metrics are generated.
+      properties:
+        allocationId: { type: integer, minimum: 1 }
+        validationPreparedInputId: { type: integer, minimum: 1 }
+        assumptions: { $ref: "#/components/schemas/B3ValidationAssumptions" }
+        mode: { type: string, enum: [single, group, pair] }
+        exclusionSets:
+          type: array
+          minItems: 1
+          items:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items: { type: string, minLength: 1 }
+        holdoutStartDate: { type: string, pattern: "^\\d{4}-\\d{2}-\\d{2}$" }
+      required: [allocationId, validationPreparedInputId, assumptions, mode, exclusionSets]
+
+    C1ExperimentChild:
+      type: object
+      properties:
+        label: { type: string }
+        excludedCandidateIds:
+          type: array
+          items: { type: string }
+        validationRunId: { type: ["integer", "null"] }
+        policyRequest: { type: object, additionalProperties: true }
+        result: { type: object, additionalProperties: true }
+      required: [label, excludedCandidateIds, validationRunId, policyRequest, result]
+
+    C1Experiment:
+      type: object
+      properties:
+        id: { type: integer }
+        allocationId: { type: integer }
+        validationPreparedInputId: { type: integer }
+        mode: { type: string, enum: [single, group, pair] }
+        manifestHash: { type: string }
+        inputHash: { type: string }
+        manifest: { type: object, additionalProperties: true }
+        status: { type: string, enum: [running, completed, partial, failed, cancelled] }
+        plannedPolicyCount: { type: integer }
+        actualPolicyCount: { type: integer }
+        children:
+          type: array
+          items: { $ref: "#/components/schemas/C1ExperimentChild" }
+        summary:
+          type: ["object", "null"]
+          additionalProperties: true
+        createdAt: { type: string, format: date-time }
+        completedAt: { type: ["string", "null"], format: date-time }
+      required: [id, allocationId, validationPreparedInputId, mode, manifestHash, inputHash, manifest, status, plannedPolicyCount, actualPolicyCount, children, summary, createdAt, completedAt]
+
+    C1ExperimentReplay:
+      type: object
+      properties:
+        experimentId: { type: integer }
+        status: { type: string, enum: [pass, fail, engine_mismatch] }
+        inputHash: { type: string }
+        differences:
+          type: array
+          items: { type: string }
+        childReplays:
+          type: array
+          items: { type: object, additionalProperties: true }
+      required: [experimentId, status, inputHash, differences, childReplays]
 
     ValidationRunSummary:
       type: object

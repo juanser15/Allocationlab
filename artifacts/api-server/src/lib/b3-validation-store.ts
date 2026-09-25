@@ -5,6 +5,7 @@ import {
   type B3Assumptions,
   type B3Result,
 } from "./b3-policy";
+import type { AllocationRequest } from "./allocation-b2";
 import type { B3ValidationAssumptions } from "@workspace/api-zod";
 import { fingerprint } from "./prepared-inputs";
 import { hashDataset } from "./run-snapshot";
@@ -115,7 +116,7 @@ export async function persistB3ValidationRun(input: {
   allocationId: number;
   validationPreparedInputId: number;
   assumptions: B3ValidationAssumptions;
-}) {
+}, internalPolicyRequestOverride?: AllocationRequest) {
   const [allocation] = await db.select().from(allocationsTable)
     .where(eq(allocationsTable.id, input.allocationId)).limit(1);
   if (!allocation) return { error: "Frozen allocation policy not found.", status: 404 } as const;
@@ -124,14 +125,19 @@ export async function persistB3ValidationRun(input: {
   if (!prepared) return { error: "Frozen validation prepared input not found.", status: 404 } as const;
 
   const policySnapshot = structuredClone(allocation.frozenSnapshot);
-  const policyRequest = structuredClone(allocation.frozenRequest);
+  const basePolicyRequest = structuredClone(allocation.frozenRequest) as AllocationRequest;
+  const policyRequest = internalPolicyRequestOverride
+    ? structuredClone(internalPolicyRequestOverride)
+    : basePolicyRequest;
+  if (internalPolicyRequestOverride && !validInternalPolicyOverride(basePolicyRequest, policyRequest))
+    return { error: "Internal C1 policy request override is not a valid subset of the frozen allocation.", status: 409 } as const;
   const validationSnapshot = structuredClone(prepared.snapshot);
   const policySnapshotHash = fingerprint(policySnapshot);
   const expectedAllocationFingerprint = fingerprint({
     preparedInputId: allocation.preparedInputId,
     representation: allocation.representation,
     engineVersion: allocation.engineVersion,
-    request: policyRequest,
+    request: basePolicyRequest,
     snapshotHash: policySnapshotHash,
     result: allocation.frozenResult,
   });
@@ -214,6 +220,31 @@ export async function persistB3ValidationRun(input: {
     validationInputHash: inputHash,
   }).returning();
   return { run: toB3ValidationRun(row) } as const;
+}
+
+function validInternalPolicyOverride(base: AllocationRequest, override: AllocationRequest): boolean {
+  const baseIds = new Set(base.candidateIds);
+  if (!Array.isArray(override.candidateIds) || !override.candidateIds.length ||
+      new Set(override.candidateIds).size !== override.candidateIds.length ||
+      override.candidateIds.some((id) => !baseIds.has(id))) return false;
+  const baseConstraints = base.constraints;
+  const overrideConstraints = override.constraints;
+  if (!baseConstraints || !overrideConstraints) return false;
+  const same = (left: unknown, right: unknown) => fingerprint(left) === fingerprint(right);
+  const unchanged = { ...base, candidateIds: override.candidateIds, constraints: undefined };
+  const supplied = { ...override, constraints: undefined };
+  if (!same(unchanged, supplied)) return false;
+  const { candidateBounds: _baseBounds, groupCaps: _baseGroups, ...baseOther } = baseConstraints;
+  const { candidateBounds: _overrideBounds, groupCaps: _overrideGroups, ...overrideOther } = overrideConstraints;
+  if (!same(baseOther, overrideOther)) return false;
+  const expectedBounds = Object.fromEntries(Object.entries(baseConstraints.candidateBounds ?? {})
+    .filter(([candidateId, bound]) => override.candidateIds.includes(candidateId) || (bound.min ?? 0) > 0));
+  if (!same(expectedBounds, overrideConstraints.candidateBounds ?? {})) return false;
+  const expectedGroups = (baseConstraints.groupCaps ?? []).map((group) => ({
+    ...group,
+    candidateIds: group.candidateIds.filter((candidateId) => override.candidateIds.includes(candidateId)),
+  }));
+  return same(expectedGroups, overrideConstraints.groupCaps ?? []);
 }
 
 export async function listB3ValidationRuns(allocationId?: number) {

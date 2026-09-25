@@ -354,6 +354,16 @@ export function runB3Validation(
     }
     const historicalForB2 = { ...historical, candidates: pointInTimeCandidates };
     const pointInTimeIds = pointInTimeCandidates.map((candidate) => candidate.candidateId);
+    const excludedPositiveBound = Object.entries(policyRequest.constraints.candidateBounds ?? {})
+      .find(([id, bound]) => !policyRequest.candidateIds.includes(id) &&
+        typeof bound.min === "number" && Number.isFinite(bound.min) && bound.min > 0);
+    if (excludedPositiveBound) {
+      decisionFailure = {
+        date: decisionDate,
+        reason: `B2 INFEASIBLE at ${decisionDate}: excluded candidate ${excludedPositiveBound[0]} has a required positive lower bound (${excludedPositiveBound[1].min}).`,
+      };
+      return null;
+    }
     const translateRecord = <T>(record: Record<string, T> | undefined): Record<string, T> | undefined => record
       ? Object.fromEntries(policyRequest.candidateIds.flatMap((policyId, index) =>
         record[policyId] === undefined ? [] : [[pointInTimeIds[index], record[policyId]]]))

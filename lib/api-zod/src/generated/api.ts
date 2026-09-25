@@ -3314,6 +3314,152 @@ export const ReplayValidationRunResponse = zod.object({
 
 
 /**
+ * @summary Reoptimize and persist a frozen C1 alpha contribution comparison
+ */
+
+
+export const createAlphaContributionExperimentBodyAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAlphaContributionExperimentBodyAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAlphaContributionExperimentBodyAssumptionsInitialNavExclusiveMin = 0;
+
+export const createAlphaContributionExperimentBodyAssumptionsInitialHoldingsMinOne = 0;
+
+export const createAlphaContributionExperimentBodyAssumptionsInitialCashMin = 0;
+
+export const createAlphaContributionExperimentBodyAssumptionsTransactionCostBpsMin = 0;
+
+export const createAlphaContributionExperimentBodyAssumptionsSlippageBpsMin = 0;
+
+
+
+
+export const createAlphaContributionExperimentBodyHoldoutStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const CreateAlphaContributionExperimentBody = zod.object({
+  "allocationId": zod.number().min(1),
+  "validationPreparedInputId": zod.number().min(1),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(createAlphaContributionExperimentBodyAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(createAlphaContributionExperimentBodyAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close']),
+  "initialNav": zod.number().gt(createAlphaContributionExperimentBodyAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(createAlphaContributionExperimentBodyAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(createAlphaContributionExperimentBodyAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(createAlphaContributionExperimentBodyAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(createAlphaContributionExperimentBodyAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).describe('Frozen evaluation and A1 execution settings applied to this validation.'),
+  "mode": zod.enum(['single', 'group', 'pair']),
+  "exclusionSets": zod.array(zod.array(zod.string().min(1)).min(1)).min(1),
+  "holdoutStartDate": zod.string().regex(createAlphaContributionExperimentBodyHoldoutStartDateRegExp).optional()
+}).describe('Runs a frozen B3 development-period comparison from a saved alpha-stream policy; no holdout metrics are generated.')
+
+export const CreateAlphaContributionExperimentResponse = zod.object({
+  "id": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "mode": zod.enum(['single', 'group', 'pair']),
+  "manifestHash": zod.string(),
+  "inputHash": zod.string(),
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "status": zod.enum(['running', 'completed', 'partial', 'failed', 'cancelled']),
+  "plannedPolicyCount": zod.number(),
+  "actualPolicyCount": zod.number(),
+  "children": zod.array(zod.object({
+  "label": zod.string(),
+  "excludedCandidateIds": zod.array(zod.string()),
+  "validationRunId": zod.number().nullable(),
+  "policyRequest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown())
+})),
+  "summary": zod.record(zod.string(), zod.unknown()).nullable(),
+  "createdAt": zod.coerce.date(),
+  "completedAt": zod.coerce.date().nullable()
+})
+
+
+/**
+ * @summary List persisted C1 alpha contribution experiments without rerunning them
+ */
+export const ListAlphaContributionExperimentsResponseItem = zod.object({
+  "id": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "mode": zod.enum(['single', 'group', 'pair']),
+  "manifestHash": zod.string(),
+  "inputHash": zod.string(),
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "status": zod.enum(['running', 'completed', 'partial', 'failed', 'cancelled']),
+  "plannedPolicyCount": zod.number(),
+  "actualPolicyCount": zod.number(),
+  "children": zod.array(zod.object({
+  "label": zod.string(),
+  "excludedCandidateIds": zod.array(zod.string()),
+  "validationRunId": zod.number().nullable(),
+  "policyRequest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown())
+})),
+  "summary": zod.record(zod.string(), zod.unknown()).nullable(),
+  "createdAt": zod.coerce.date(),
+  "completedAt": zod.coerce.date().nullable()
+})
+export const ListAlphaContributionExperimentsResponse = zod.array(ListAlphaContributionExperimentsResponseItem)
+
+
+
+
+
+export const GetAlphaContributionExperimentParams = zod.object({
+  "experimentId": zod.coerce.number().min(1)
+})
+
+export const GetAlphaContributionExperimentResponse = zod.object({
+  "id": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "mode": zod.enum(['single', 'group', 'pair']),
+  "manifestHash": zod.string(),
+  "inputHash": zod.string(),
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "status": zod.enum(['running', 'completed', 'partial', 'failed', 'cancelled']),
+  "plannedPolicyCount": zod.number(),
+  "actualPolicyCount": zod.number(),
+  "children": zod.array(zod.object({
+  "label": zod.string(),
+  "excludedCandidateIds": zod.array(zod.string()),
+  "validationRunId": zod.number().nullable(),
+  "policyRequest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown())
+})),
+  "summary": zod.record(zod.string(), zod.unknown()).nullable(),
+  "createdAt": zod.coerce.date(),
+  "completedAt": zod.coerce.date().nullable()
+})
+
+
+/**
+ * @summary Verify an experiment manifest and replay its immutable child B3 validations
+ */
+
+
+
+export const ReplayAlphaContributionExperimentParams = zod.object({
+  "experimentId": zod.coerce.number().min(1)
+})
+
+export const ReplayAlphaContributionExperimentResponse = zod.object({
+  "experimentId": zod.number(),
+  "status": zod.enum(['pass', 'fail', 'engine_mismatch']),
+  "inputHash": zod.string(),
+  "differences": zod.array(zod.string()),
+  "childReplays": zod.array(zod.record(zod.string(), zod.unknown()))
+})
+
+
+/**
  * @summary Deterministic AI Investment Committee synthesis grounded strictly in already-computed session data
  */
 export const GetCommitteeResponse = zod.object({

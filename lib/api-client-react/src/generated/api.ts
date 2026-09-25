@@ -29,6 +29,9 @@ import type {
   AttributionMeta,
   AttributionResult,
   BacktestResult,
+  C1Experiment,
+  C1ExperimentInput,
+  C1ExperimentReplay,
   CommitteeResult,
   CompareArchiveParams,
   Constraints,
@@ -3229,6 +3232,294 @@ export const useReplayValidationRun = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getReplayValidationRunMutationOptions(options));
+    }
+
+export const getCreateAlphaContributionExperimentUrl = () => {
+
+
+
+
+  return `/api/alpha-contribution-experiments`
+}
+
+/**
+ * @summary Reoptimize and persist a frozen C1 alpha contribution comparison
+ */
+export const createAlphaContributionExperiment = async (c1ExperimentInput: C1ExperimentInput, options?: RequestInit): Promise<C1Experiment> => {
+
+  return customFetch<C1Experiment>(getCreateAlphaContributionExperimentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(c1ExperimentInput)
+  }
+);}
+
+
+
+
+export const getCreateAlphaContributionExperimentMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAlphaContributionExperiment>>, TError,{data: BodyType<C1ExperimentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAlphaContributionExperiment>>, TError,{data: BodyType<C1ExperimentInput>}, TContext> => {
+
+const mutationKey = ['createAlphaContributionExperiment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAlphaContributionExperiment>>, {data: BodyType<C1ExperimentInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAlphaContributionExperiment(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAlphaContributionExperimentMutationResult = NonNullable<Awaited<ReturnType<typeof createAlphaContributionExperiment>>>
+    export type CreateAlphaContributionExperimentMutationBody = BodyType<C1ExperimentInput>
+    export type CreateAlphaContributionExperimentMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Reoptimize and persist a frozen C1 alpha contribution comparison
+ */
+export const useCreateAlphaContributionExperiment = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAlphaContributionExperiment>>, TError,{data: BodyType<C1ExperimentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAlphaContributionExperiment>>,
+        TError,
+        {data: BodyType<C1ExperimentInput>},
+        TContext
+      > => {
+      return useMutation(getCreateAlphaContributionExperimentMutationOptions(options));
+    }
+
+export const getListAlphaContributionExperimentsUrl = () => {
+
+
+
+
+  return `/api/alpha-contribution-experiments`
+}
+
+/**
+ * @summary List persisted C1 alpha contribution experiments without rerunning them
+ */
+export const listAlphaContributionExperiments = async ( options?: RequestInit): Promise<C1Experiment[]> => {
+
+  return customFetch<C1Experiment[]>(getListAlphaContributionExperimentsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAlphaContributionExperimentsQueryKey = () => {
+    return [
+    `/api/alpha-contribution-experiments`
+    ] as const;
+    }
+
+
+export const getListAlphaContributionExperimentsQueryOptions = <TData = Awaited<ReturnType<typeof listAlphaContributionExperiments>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAlphaContributionExperiments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAlphaContributionExperimentsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAlphaContributionExperiments>>> = ({ signal }) => listAlphaContributionExperiments({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAlphaContributionExperiments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAlphaContributionExperimentsQueryResult = NonNullable<Awaited<ReturnType<typeof listAlphaContributionExperiments>>>
+export type ListAlphaContributionExperimentsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List persisted C1 alpha contribution experiments without rerunning them
+ */
+
+export function useListAlphaContributionExperiments<TData = Awaited<ReturnType<typeof listAlphaContributionExperiments>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAlphaContributionExperiments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAlphaContributionExperimentsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAlphaContributionExperimentUrl = (experimentId: number,) => {
+
+
+
+
+  return `/api/alpha-contribution-experiments/${experimentId}`
+}
+
+export const getAlphaContributionExperiment = async (experimentId: number, options?: RequestInit): Promise<C1Experiment> => {
+
+  return customFetch<C1Experiment>(getGetAlphaContributionExperimentUrl(experimentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAlphaContributionExperimentQueryKey = (experimentId: number,) => {
+    return [
+    `/api/alpha-contribution-experiments/${experimentId}`
+    ] as const;
+    }
+
+
+export const getGetAlphaContributionExperimentQueryOptions = <TData = Awaited<ReturnType<typeof getAlphaContributionExperiment>>, TError = ErrorType<ErrorResponse>>(experimentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAlphaContributionExperiment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAlphaContributionExperimentQueryKey(experimentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAlphaContributionExperiment>>> = ({ signal }) => getAlphaContributionExperiment(experimentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: experimentId !== null && experimentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAlphaContributionExperiment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAlphaContributionExperimentQueryResult = NonNullable<Awaited<ReturnType<typeof getAlphaContributionExperiment>>>
+export type GetAlphaContributionExperimentQueryError = ErrorType<ErrorResponse>
+
+
+
+export function useGetAlphaContributionExperiment<TData = Awaited<ReturnType<typeof getAlphaContributionExperiment>>, TError = ErrorType<ErrorResponse>>(
+ experimentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAlphaContributionExperiment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAlphaContributionExperimentQueryOptions(experimentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReplayAlphaContributionExperimentUrl = (experimentId: number,) => {
+
+
+
+
+  return `/api/alpha-contribution-experiments/${experimentId}`
+}
+
+/**
+ * @summary Verify an experiment manifest and replay its immutable child B3 validations
+ */
+export const replayAlphaContributionExperiment = async (experimentId: number, options?: RequestInit): Promise<C1ExperimentReplay> => {
+
+  return customFetch<C1ExperimentReplay>(getReplayAlphaContributionExperimentUrl(experimentId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getReplayAlphaContributionExperimentMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayAlphaContributionExperiment>>, TError,{experimentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replayAlphaContributionExperiment>>, TError,{experimentId: number}, TContext> => {
+
+const mutationKey = ['replayAlphaContributionExperiment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replayAlphaContributionExperiment>>, {experimentId: number}> = (props) => {
+          const {experimentId} = props ?? {};
+
+          return  replayAlphaContributionExperiment(experimentId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplayAlphaContributionExperimentMutationResult = NonNullable<Awaited<ReturnType<typeof replayAlphaContributionExperiment>>>
+
+    export type ReplayAlphaContributionExperimentMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Verify an experiment manifest and replay its immutable child B3 validations
+ */
+export const useReplayAlphaContributionExperiment = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayAlphaContributionExperiment>>, TError,{experimentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replayAlphaContributionExperiment>>,
+        TError,
+        {experimentId: number},
+        TContext
+      > => {
+      return useMutation(getReplayAlphaContributionExperimentMutationOptions(options));
     }
 
 export const getGetCommitteeUrl = () => {
