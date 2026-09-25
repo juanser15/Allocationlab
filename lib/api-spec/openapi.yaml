@@ -22,6 +22,7 @@ tags:
   - name: attribution
   - name: signals
   - name: factors
+  - name: prepared-inputs
 
 paths:
   /healthz:
@@ -1248,6 +1249,89 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SignalExportError"
+
+  /prepared-inputs:
+    get:
+      operationId: listPreparedInputs
+      tags: [prepared-inputs]
+      responses:
+        "200":
+          description: Immutable prepared input versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PreparedInput" }
+    post:
+      operationId: prepareInputs
+      tags: [prepared-inputs]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PreparedInputRequest" }
+      responses:
+        "201":
+          description: Prepared and persisted immutable inputs
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PreparedInput" }
+        "400": { description: Invalid request }
+        "422": { description: Inputs cannot be prepared from available data }
+  /prepared-inputs/{preparedInputId}:
+    get:
+      operationId: getPreparedInput
+      tags: [prepared-inputs]
+      parameters:
+        - name: preparedInputId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Frozen prepared input version
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PreparedInput" }
+        "404": { description: Not found }
+  /prepared-inputs/{preparedInputId}/compose:
+    post:
+      operationId: composePreparedInput
+      tags: [prepared-inputs]
+      parameters:
+        - name: preparedInputId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PreparedCompositionInput" }
+      responses:
+        "200":
+          description: User-specified alpha exposure mapping
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PreparedComposition" }
+        "400": { description: Invalid weights or unsupported signed/leverage request }
+        "404": { description: Not found }
+  /prepared-inputs/{preparedInputId}/replay:
+    post:
+      operationId: replayPreparedInput
+      tags: [prepared-inputs]
+      parameters:
+        - name: preparedInputId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Deterministic replay result from frozen inputs
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PreparedReplay" }
+        "404": { description: Not found }
 
 components:
   securitySchemes:
@@ -3945,3 +4029,112 @@ components:
           items:
             type: string
       required: [a, b, cashWeightChange, regimeCompositeChange, activeEtfCountChange, turnover, tickerChanges, realizedReturn, realizedReturnNote, keyRationale]
+
+    PreparedAlphaDefinition:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        factorId: { type: string, minLength: 1 }
+        assetTickers:
+          type: array
+          items: { type: string }
+          minItems: 1
+        mapping:
+          type: string
+          enum: [single_asset_long_cash, cross_sectional_long_only]
+        signalUnits:
+          type: string
+          enum: [raw, oriented, normalized]
+        threshold: { type: number }
+        grossFraction: { type: number }
+        rebalanceFrequency:
+          type: string
+          enum: [monthly, quarterly]
+        executionTiming:
+          type: string
+          enum: [next_close, same_close]
+        transactionCostBps: { type: number, minimum: 0, maximum: 500 }
+        slippageBps: { type: number, minimum: 0, maximum: 500 }
+        cashYieldAnnual: { type: number, minimum: 0, maximum: 0.2 }
+      required: [name, factorId, assetTickers, mapping, signalUnits, threshold, grossFraction, rebalanceFrequency, executionTiming, transactionCostBps, slippageBps, cashYieldAnnual]
+
+    PreparedInputRequest:
+      type: object
+      properties:
+        representation:
+          type: string
+          enum: [asset_returns, signals, alpha_streams]
+        assetTickers:
+          type: array
+          items: { type: string }
+          minItems: 1
+        factorIds:
+          type: array
+          items: { type: string }
+        alphaDefinitions:
+          type: array
+          items: { $ref: "#/components/schemas/PreparedAlphaDefinition" }
+        cutoffDate: { type: string, format: date }
+        suppliedWeights:
+          type: object
+          additionalProperties: { type: number }
+      required: [representation, assetTickers, factorIds, alphaDefinitions]
+
+    PreparedInput:
+      type: object
+      properties:
+        preparedInputId: { type: integer }
+        representation:
+          type: string
+          enum: [asset_returns, signals, alpha_streams]
+        status:
+          type: string
+          enum: [READY, INCOMPLETE, INSUFFICIENT_HISTORY, INVALID_DATA, UNSUPPORTED]
+        candidates:
+          type: array
+          items: { type: object, additionalProperties: true }
+        snapshot: { type: object, additionalProperties: true }
+        createdAt: { type: string, format: date-time }
+      required: [preparedInputId, representation, status, candidates, snapshot, createdAt]
+
+    PreparedCompositionInput:
+      type: object
+      properties:
+        suppliedWeights:
+          type: object
+          additionalProperties: { type: number }
+      required: [suppliedWeights]
+
+    PreparedComposition:
+      type: object
+      properties:
+        status: { type: string, enum: [USER-SPECIFIED] }
+        date: { type: ["string", "null"] }
+        suppliedWeights:
+          type: object
+          additionalProperties: { type: number }
+        targetAssetExposures:
+          type: object
+          additionalProperties: { type: number }
+        actualAssetExposures:
+          type: object
+          additionalProperties: { type: number }
+        streamResidualCash: { type: number }
+        masterUnallocatedCash: { type: number }
+        cashTotal: { type: number }
+        formula: { type: string }
+      required: [status, date, suppliedWeights, targetAssetExposures, actualAssetExposures, streamResidualCash, masterUnallocatedCash, cashTotal, formula]
+
+    PreparedReplay:
+      type: object
+      properties:
+        preparedInputId: { type: integer }
+        status: { type: string, enum: [pass, fail, engine_mismatch] }
+        fingerprint: { type: string }
+        differences:
+          type: array
+          items: { type: string }
+        replayedCandidates:
+          type: array
+          items: { type: object, additionalProperties: true }
+      required: [preparedInputId, status, fingerprint, differences, replayedCandidates]

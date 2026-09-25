@@ -18,6 +18,7 @@ import { FactorsRegimesTab } from "@/components/portfolio-lab/FactorsRegimesTab"
 import { ModelsTab } from "@/components/portfolio-lab/ModelsTab";
 import { BacktestTab } from "@/components/portfolio-lab/BacktestTab";
 import { AllocationTab } from "@/components/portfolio-lab/AllocationTab";
+import { PreparedInputsPanel } from "@/components/portfolio-lab/PreparedInputsPanel";
 
 export default function PortfolioLab() {
   const { openSettings } = useSettingsDrawer();
@@ -220,6 +221,7 @@ export default function PortfolioLab() {
         </TabsContent>
 
         <TabsContent value="factors-regimes" className="space-y-6 pt-4">
+          <PreparedInputsPanel />
           <FactorsRegimesTab result={result} hasData={hasData} hasRun={hasRun} />
         </TabsContent>
 

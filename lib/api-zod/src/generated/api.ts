@@ -3413,3 +3413,118 @@ export const RestoreFactorLibraryResponse = zod.object({
 })
 
 
+export const ListPreparedInputsResponseItem = zod.object({
+  "preparedInputId": zod.number(),
+  "representation": zod.enum(['asset_returns', 'signals', 'alpha_streams']),
+  "status": zod.enum(['READY', 'INCOMPLETE', 'INSUFFICIENT_HISTORY', 'INVALID_DATA', 'UNSUPPORTED']),
+  "candidates": zod.array(zod.record(zod.string(), zod.unknown())),
+  "snapshot": zod.record(zod.string(), zod.unknown()),
+  "createdAt": zod.coerce.date()
+})
+export const ListPreparedInputsResponse = zod.array(ListPreparedInputsResponseItem)
+
+
+
+
+
+
+export const prepareInputsBodyAlphaDefinitionsItemTransactionCostBpsMin = 0;
+export const prepareInputsBodyAlphaDefinitionsItemTransactionCostBpsMax = 500;
+
+export const prepareInputsBodyAlphaDefinitionsItemSlippageBpsMin = 0;
+export const prepareInputsBodyAlphaDefinitionsItemSlippageBpsMax = 500;
+
+export const prepareInputsBodyAlphaDefinitionsItemCashYieldAnnualMin = 0;
+export const prepareInputsBodyAlphaDefinitionsItemCashYieldAnnualMax = 0.2;
+
+
+
+export const PrepareInputsBody = zod.object({
+  "representation": zod.enum(['asset_returns', 'signals', 'alpha_streams']),
+  "assetTickers": zod.array(zod.string()).min(1),
+  "factorIds": zod.array(zod.string()),
+  "alphaDefinitions": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "factorId": zod.string().min(1),
+  "assetTickers": zod.array(zod.string()).min(1),
+  "mapping": zod.enum(['single_asset_long_cash', 'cross_sectional_long_only']),
+  "signalUnits": zod.enum(['raw', 'oriented', 'normalized']),
+  "threshold": zod.number(),
+  "grossFraction": zod.number(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['next_close', 'same_close']),
+  "transactionCostBps": zod.number().min(prepareInputsBodyAlphaDefinitionsItemTransactionCostBpsMin).max(prepareInputsBodyAlphaDefinitionsItemTransactionCostBpsMax),
+  "slippageBps": zod.number().min(prepareInputsBodyAlphaDefinitionsItemSlippageBpsMin).max(prepareInputsBodyAlphaDefinitionsItemSlippageBpsMax),
+  "cashYieldAnnual": zod.number().min(prepareInputsBodyAlphaDefinitionsItemCashYieldAnnualMin).max(prepareInputsBodyAlphaDefinitionsItemCashYieldAnnualMax)
+})),
+  "cutoffDate": zod.coerce.date().optional(),
+  "suppliedWeights": zod.record(zod.string(), zod.number()).optional()
+})
+
+export const PrepareInputsResponse = zod.object({
+  "preparedInputId": zod.number(),
+  "representation": zod.enum(['asset_returns', 'signals', 'alpha_streams']),
+  "status": zod.enum(['READY', 'INCOMPLETE', 'INSUFFICIENT_HISTORY', 'INVALID_DATA', 'UNSUPPORTED']),
+  "candidates": zod.array(zod.record(zod.string(), zod.unknown())),
+  "snapshot": zod.record(zod.string(), zod.unknown()),
+  "createdAt": zod.coerce.date()
+})
+
+
+
+
+
+export const GetPreparedInputParams = zod.object({
+  "preparedInputId": zod.coerce.number().min(1)
+})
+
+export const GetPreparedInputResponse = zod.object({
+  "preparedInputId": zod.number(),
+  "representation": zod.enum(['asset_returns', 'signals', 'alpha_streams']),
+  "status": zod.enum(['READY', 'INCOMPLETE', 'INSUFFICIENT_HISTORY', 'INVALID_DATA', 'UNSUPPORTED']),
+  "candidates": zod.array(zod.record(zod.string(), zod.unknown())),
+  "snapshot": zod.record(zod.string(), zod.unknown()),
+  "createdAt": zod.coerce.date()
+})
+
+
+
+
+
+export const ComposePreparedInputParams = zod.object({
+  "preparedInputId": zod.coerce.number().min(1)
+})
+
+export const ComposePreparedInputBody = zod.object({
+  "suppliedWeights": zod.record(zod.string(), zod.number())
+})
+
+export const ComposePreparedInputResponse = zod.object({
+  "status": zod.enum(['USER-SPECIFIED']),
+  "date": zod.string().nullable(),
+  "suppliedWeights": zod.record(zod.string(), zod.number()),
+  "targetAssetExposures": zod.record(zod.string(), zod.number()),
+  "actualAssetExposures": zod.record(zod.string(), zod.number()),
+  "streamResidualCash": zod.number(),
+  "masterUnallocatedCash": zod.number(),
+  "cashTotal": zod.number(),
+  "formula": zod.string()
+})
+
+
+
+
+
+export const ReplayPreparedInputParams = zod.object({
+  "preparedInputId": zod.coerce.number().min(1)
+})
+
+export const ReplayPreparedInputResponse = zod.object({
+  "preparedInputId": zod.number(),
+  "status": zod.enum(['pass', 'fail', 'engine_mismatch']),
+  "fingerprint": zod.string(),
+  "differences": zod.array(zod.string()),
+  "replayedCandidates": zod.array(zod.record(zod.string(), zod.unknown()))
+})
+
+

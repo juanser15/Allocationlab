@@ -1534,6 +1534,7 @@ export function runBacktestEngine(
   config: BacktestConfig,
   benchmarkTicker: string | null,
   factorSet?: { factors: FactorDefinition[] },
+  targetWeightsForSignal?: (signalDate: string, rows: PriceRow[]) => Record<string, number> | null,
 ): BacktestEngineResult {
   const enabledTickers = etfs.filter((e) => e.enabled).map((e) => e.ticker);
   const empty = (reason: string): BacktestEngineResult => ({
@@ -1640,12 +1641,23 @@ export function runBacktestEngine(
       const etfsForSignal = etfs.map((e) => ({
         ...e, priorWeight: rebalanceLog.length ? (priorWeights.get(e.ticker) ?? 0) : e.priorWeight,
       }));
-      const { regime, allocations, lookbackDays } = computeSignalAsOf(priceRows, row.date, enabledTickers, etfsForSignal, constraints, factorSet);
+       const signalInputs = targetWeightsForSignal
+         ? { regime: computeRegime(priceRows.filter((item) => item.date < row.date), enabledTickers),
+             allocations: [] as AllocationResult[], lookbackDays: priceRows.filter((item) => item.date < row.date).length }
+         : computeSignalAsOf(priceRows, row.date, enabledTickers, etfsForSignal, constraints, factorSet);
+       const { regime, allocations, lookbackDays } = signalInputs;
+       const explicitTarget = targetWeightsForSignal?.(row.date, priceRows);
+       if (targetWeightsForSignal && explicitTarget === null) {
+         pending = null;
+       } else {
       pending = {
         signalDate: row.date, executionDate: scheduled.get(row.date)!,
-        target: new Map(allocations.filter((a) => a.active).map((a) => [a.ticker, a.weight])),
+         target: new Map(targetWeightsForSignal
+           ? Object.entries(explicitTarget ?? {})
+           : allocations.filter((a) => a.active).map((a) => [a.ticker, a.weight])),
         lookbackDays, regimeLabel: regime.label, regimeComposite: regime.composite,
       };
+       }
     }
     let transactionCosts = 0;
     let slippage = 0;

@@ -57,6 +57,11 @@ import type {
   ListValidationRunsParams,
   LivePricesFetchInput,
   LivePricesResult,
+  PreparedComposition,
+  PreparedCompositionInput,
+  PreparedInput,
+  PreparedInputRequest,
+  PreparedReplay,
   PricesStatus,
   PricesUploadInput,
   ReportInput,
@@ -3689,5 +3694,340 @@ export const useRestoreFactorLibrary = <TError = ErrorType<SignalExportError | E
         TContext
       > => {
       return useMutation(getRestoreFactorLibraryMutationOptions(options));
+    }
+
+export const getListPreparedInputsUrl = () => {
+
+
+
+
+  return `/api/prepared-inputs`
+}
+
+export const listPreparedInputs = async ( options?: RequestInit): Promise<PreparedInput[]> => {
+
+  return customFetch<PreparedInput[]>(getListPreparedInputsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPreparedInputsQueryKey = () => {
+    return [
+    `/api/prepared-inputs`
+    ] as const;
+    }
+
+
+export const getListPreparedInputsQueryOptions = <TData = Awaited<ReturnType<typeof listPreparedInputs>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPreparedInputs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPreparedInputsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPreparedInputs>>> = ({ signal }) => listPreparedInputs({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPreparedInputs>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListPreparedInputsQueryResult = NonNullable<Awaited<ReturnType<typeof listPreparedInputs>>>
+export type ListPreparedInputsQueryError = ErrorType<unknown>
+
+
+
+export function useListPreparedInputs<TData = Awaited<ReturnType<typeof listPreparedInputs>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPreparedInputs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListPreparedInputsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getPrepareInputsUrl = () => {
+
+
+
+
+  return `/api/prepared-inputs`
+}
+
+export const prepareInputs = async (preparedInputRequest: PreparedInputRequest, options?: RequestInit): Promise<PreparedInput> => {
+
+  return customFetch<PreparedInput>(getPrepareInputsUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(preparedInputRequest)
+  }
+);}
+
+
+
+
+export const getPrepareInputsMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof prepareInputs>>, TError,{data: BodyType<PreparedInputRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof prepareInputs>>, TError,{data: BodyType<PreparedInputRequest>}, TContext> => {
+
+const mutationKey = ['prepareInputs'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof prepareInputs>>, {data: BodyType<PreparedInputRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  prepareInputs(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PrepareInputsMutationResult = NonNullable<Awaited<ReturnType<typeof prepareInputs>>>
+    export type PrepareInputsMutationBody = BodyType<PreparedInputRequest>
+    export type PrepareInputsMutationError = ErrorType<void>
+
+    export const usePrepareInputs = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof prepareInputs>>, TError,{data: BodyType<PreparedInputRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof prepareInputs>>,
+        TError,
+        {data: BodyType<PreparedInputRequest>},
+        TContext
+      > => {
+      return useMutation(getPrepareInputsMutationOptions(options));
+    }
+
+export const getGetPreparedInputUrl = (preparedInputId: number,) => {
+
+
+
+
+  return `/api/prepared-inputs/${preparedInputId}`
+}
+
+export const getPreparedInput = async (preparedInputId: number, options?: RequestInit): Promise<PreparedInput> => {
+
+  return customFetch<PreparedInput>(getGetPreparedInputUrl(preparedInputId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPreparedInputQueryKey = (preparedInputId: number,) => {
+    return [
+    `/api/prepared-inputs/${preparedInputId}`
+    ] as const;
+    }
+
+
+export const getGetPreparedInputQueryOptions = <TData = Awaited<ReturnType<typeof getPreparedInput>>, TError = ErrorType<void>>(preparedInputId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPreparedInput>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPreparedInputQueryKey(preparedInputId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPreparedInput>>> = ({ signal }) => getPreparedInput(preparedInputId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: preparedInputId !== null && preparedInputId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPreparedInput>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPreparedInputQueryResult = NonNullable<Awaited<ReturnType<typeof getPreparedInput>>>
+export type GetPreparedInputQueryError = ErrorType<void>
+
+
+
+export function useGetPreparedInput<TData = Awaited<ReturnType<typeof getPreparedInput>>, TError = ErrorType<void>>(
+ preparedInputId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPreparedInput>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPreparedInputQueryOptions(preparedInputId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getComposePreparedInputUrl = (preparedInputId: number,) => {
+
+
+
+
+  return `/api/prepared-inputs/${preparedInputId}/compose`
+}
+
+export const composePreparedInput = async (preparedInputId: number,
+    preparedCompositionInput: PreparedCompositionInput, options?: RequestInit): Promise<PreparedComposition> => {
+
+  return customFetch<PreparedComposition>(getComposePreparedInputUrl(preparedInputId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(preparedCompositionInput)
+  }
+);}
+
+
+
+
+export const getComposePreparedInputMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof composePreparedInput>>, TError,{preparedInputId: number;data: BodyType<PreparedCompositionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof composePreparedInput>>, TError,{preparedInputId: number;data: BodyType<PreparedCompositionInput>}, TContext> => {
+
+const mutationKey = ['composePreparedInput'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof composePreparedInput>>, {preparedInputId: number;data: BodyType<PreparedCompositionInput>}> = (props) => {
+          const {preparedInputId,data} = props ?? {};
+
+          return  composePreparedInput(preparedInputId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ComposePreparedInputMutationResult = NonNullable<Awaited<ReturnType<typeof composePreparedInput>>>
+    export type ComposePreparedInputMutationBody = BodyType<PreparedCompositionInput>
+    export type ComposePreparedInputMutationError = ErrorType<void>
+
+    export const useComposePreparedInput = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof composePreparedInput>>, TError,{preparedInputId: number;data: BodyType<PreparedCompositionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof composePreparedInput>>,
+        TError,
+        {preparedInputId: number;data: BodyType<PreparedCompositionInput>},
+        TContext
+      > => {
+      return useMutation(getComposePreparedInputMutationOptions(options));
+    }
+
+export const getReplayPreparedInputUrl = (preparedInputId: number,) => {
+
+
+
+
+  return `/api/prepared-inputs/${preparedInputId}/replay`
+}
+
+export const replayPreparedInput = async (preparedInputId: number, options?: RequestInit): Promise<PreparedReplay> => {
+
+  return customFetch<PreparedReplay>(getReplayPreparedInputUrl(preparedInputId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getReplayPreparedInputMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayPreparedInput>>, TError,{preparedInputId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replayPreparedInput>>, TError,{preparedInputId: number}, TContext> => {
+
+const mutationKey = ['replayPreparedInput'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replayPreparedInput>>, {preparedInputId: number}> = (props) => {
+          const {preparedInputId} = props ?? {};
+
+          return  replayPreparedInput(preparedInputId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplayPreparedInputMutationResult = NonNullable<Awaited<ReturnType<typeof replayPreparedInput>>>
+
+    export type ReplayPreparedInputMutationError = ErrorType<void>
+
+    export const useReplayPreparedInput = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayPreparedInput>>, TError,{preparedInputId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replayPreparedInput>>,
+        TError,
+        {preparedInputId: number},
+        TContext
+      > => {
+      return useMutation(getReplayPreparedInputMutationOptions(options));
     }
 

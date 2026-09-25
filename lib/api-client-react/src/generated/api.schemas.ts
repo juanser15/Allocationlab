@@ -2058,6 +2058,174 @@ export interface ArchiveCompareResult {
   keyRationale: string[];
 }
 
+export type PreparedAlphaDefinitionMapping = typeof PreparedAlphaDefinitionMapping[keyof typeof PreparedAlphaDefinitionMapping];
+
+
+export const PreparedAlphaDefinitionMapping = {
+  single_asset_long_cash: 'single_asset_long_cash',
+  cross_sectional_long_only: 'cross_sectional_long_only',
+} as const;
+
+export type PreparedAlphaDefinitionSignalUnits = typeof PreparedAlphaDefinitionSignalUnits[keyof typeof PreparedAlphaDefinitionSignalUnits];
+
+
+export const PreparedAlphaDefinitionSignalUnits = {
+  raw: 'raw',
+  oriented: 'oriented',
+  normalized: 'normalized',
+} as const;
+
+export type PreparedAlphaDefinitionRebalanceFrequency = typeof PreparedAlphaDefinitionRebalanceFrequency[keyof typeof PreparedAlphaDefinitionRebalanceFrequency];
+
+
+export const PreparedAlphaDefinitionRebalanceFrequency = {
+  monthly: 'monthly',
+  quarterly: 'quarterly',
+} as const;
+
+export type PreparedAlphaDefinitionExecutionTiming = typeof PreparedAlphaDefinitionExecutionTiming[keyof typeof PreparedAlphaDefinitionExecutionTiming];
+
+
+export const PreparedAlphaDefinitionExecutionTiming = {
+  next_close: 'next_close',
+  same_close: 'same_close',
+} as const;
+
+export interface PreparedAlphaDefinition {
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 1 */
+  factorId: string;
+  /** @minItems 1 */
+  assetTickers: string[];
+  mapping: PreparedAlphaDefinitionMapping;
+  signalUnits: PreparedAlphaDefinitionSignalUnits;
+  threshold: number;
+  grossFraction: number;
+  rebalanceFrequency: PreparedAlphaDefinitionRebalanceFrequency;
+  executionTiming: PreparedAlphaDefinitionExecutionTiming;
+  /**
+     * @minimum 0
+     * @maximum 500
+     */
+  transactionCostBps: number;
+  /**
+     * @minimum 0
+     * @maximum 500
+     */
+  slippageBps: number;
+  /**
+     * @minimum 0
+     * @maximum 0.2
+     */
+  cashYieldAnnual: number;
+}
+
+export type PreparedInputRequestRepresentation = typeof PreparedInputRequestRepresentation[keyof typeof PreparedInputRequestRepresentation];
+
+
+export const PreparedInputRequestRepresentation = {
+  asset_returns: 'asset_returns',
+  signals: 'signals',
+  alpha_streams: 'alpha_streams',
+} as const;
+
+export type PreparedInputRequestSuppliedWeights = {[key: string]: number};
+
+export interface PreparedInputRequest {
+  representation: PreparedInputRequestRepresentation;
+  /** @minItems 1 */
+  assetTickers: string[];
+  factorIds: string[];
+  alphaDefinitions: PreparedAlphaDefinition[];
+  cutoffDate?: string;
+  suppliedWeights?: PreparedInputRequestSuppliedWeights;
+}
+
+export type PreparedInputRepresentation = typeof PreparedInputRepresentation[keyof typeof PreparedInputRepresentation];
+
+
+export const PreparedInputRepresentation = {
+  asset_returns: 'asset_returns',
+  signals: 'signals',
+  alpha_streams: 'alpha_streams',
+} as const;
+
+export type PreparedInputStatus = typeof PreparedInputStatus[keyof typeof PreparedInputStatus];
+
+
+export const PreparedInputStatus = {
+  READY: 'READY',
+  INCOMPLETE: 'INCOMPLETE',
+  INSUFFICIENT_HISTORY: 'INSUFFICIENT_HISTORY',
+  INVALID_DATA: 'INVALID_DATA',
+  UNSUPPORTED: 'UNSUPPORTED',
+} as const;
+
+export type PreparedInputCandidatesItem = { [key: string]: unknown };
+
+export type PreparedInputSnapshot = { [key: string]: unknown };
+
+export interface PreparedInput {
+  preparedInputId: number;
+  representation: PreparedInputRepresentation;
+  status: PreparedInputStatus;
+  candidates: PreparedInputCandidatesItem[];
+  snapshot: PreparedInputSnapshot;
+  createdAt: string;
+}
+
+export type PreparedCompositionInputSuppliedWeights = {[key: string]: number};
+
+export interface PreparedCompositionInput {
+  suppliedWeights: PreparedCompositionInputSuppliedWeights;
+}
+
+export type PreparedCompositionStatus = typeof PreparedCompositionStatus[keyof typeof PreparedCompositionStatus];
+
+
+export const PreparedCompositionStatus = {
+  'USER-SPECIFIED': 'USER-SPECIFIED',
+} as const;
+
+export type PreparedCompositionSuppliedWeights = {[key: string]: number};
+
+export type PreparedCompositionTargetAssetExposures = {[key: string]: number};
+
+export type PreparedCompositionActualAssetExposures = {[key: string]: number};
+
+export interface PreparedComposition {
+  status: PreparedCompositionStatus;
+  /** @nullable */
+  date: string | null;
+  suppliedWeights: PreparedCompositionSuppliedWeights;
+  targetAssetExposures: PreparedCompositionTargetAssetExposures;
+  actualAssetExposures: PreparedCompositionActualAssetExposures;
+  streamResidualCash: number;
+  masterUnallocatedCash: number;
+  cashTotal: number;
+  formula: string;
+}
+
+export type PreparedReplayStatus = typeof PreparedReplayStatus[keyof typeof PreparedReplayStatus];
+
+
+export const PreparedReplayStatus = {
+  pass: 'pass',
+  fail: 'fail',
+  engine_mismatch: 'engine_mismatch',
+} as const;
+
+export type PreparedReplayReplayedCandidatesItem = { [key: string]: unknown };
+
+export interface PreparedReplay {
+  preparedInputId: number;
+  status: PreparedReplayStatus;
+  fingerprint: string;
+  differences: string[];
+  replayedCandidates: PreparedReplayReplayedCandidatesItem[];
+}
+
 /**
  * Exact signal identifier from the catalog.
  */
