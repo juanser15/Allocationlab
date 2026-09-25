@@ -3,7 +3,7 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import {
   getGetAllocationQueryKey, getGetAlphaContributionExperimentQueryKey,
   useCreateAlphaContributionExperiment, useGetAllocation, useGetAlphaContributionExperiment,
-  useListAlphaContributionExperiments, useListPreparedInputs, useReplayAlphaContributionExperiment,
+  useListAllocations, useListAlphaContributionExperiments, useListPreparedInputs, useReplayAlphaContributionExperiment,
   type B3ValidationAssumptions, type C1Experiment, type C1ExperimentInputMode,
 } from "@workspace/api-client-react";
 import { AlertCircle, Plus, RefreshCw, RotateCcw, X } from "lucide-react";
@@ -57,8 +57,9 @@ function DistanceView({ title, data }: { title: string; data?: Distance }) {
   </div>;
 }
 
-/** Deliberately lives within B3's comparison area, not in the portfolio navigation. */
-export function C1ContributionPanel({ allocationId }: { allocationId: number | null }) {
+/** Lives on the existing Backtest surface, independently of B3 validation state. */
+export function C1ContributionPanel() {
+  const [allocationId, setAllocationId] = useState<number | null>(null);
   const [preparedId, setPreparedId] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
@@ -80,6 +81,7 @@ export function C1ContributionPanel({ allocationId }: { allocationId: number | n
   const [benchmark, setBenchmark] = useState("");
 
   const allocation = useGetAllocation(allocationId ?? 0, { query: { enabled: !!allocationId, queryKey: getGetAllocationQueryKey(allocationId ?? 0) } });
+  const allocations = useListAllocations();
   const prepared = useListPreparedInputs();
   const saved = useListAlphaContributionExperiments();
   const detail = useGetAlphaContributionExperiment(selectedId ?? 0, { query: { enabled: !!selectedId, queryKey: getGetAlphaContributionExperimentQueryKey(selectedId ?? 0) } });
@@ -87,6 +89,7 @@ export function C1ContributionPanel({ allocationId }: { allocationId: number | n
   const replay = useReplayAlphaContributionExperiment();
   const candidates = allocation.data?.request.candidateIds ?? [];
   const isAlpha = allocation.data?.representation === "alpha_streams" && allocation.data.status === "SOLVED";
+  const eligibleAllocations = (allocations.data ?? []).filter(item => item.representation === "alpha_streams" && item.status === "SOLVED");
   const uniqueSets = useMemo(() => [...new Map(sets.map(set => [[...set].sort().join("\u0000"), [...set].sort()] as const)).values()], [sets]);
   const policyCount = 1 + (mode === "pair" ? (uniqueSets.length ? 3 : 0) : uniqueSets.length);
   const selected = detail.data as C1Experiment | undefined;
@@ -166,15 +169,19 @@ export function C1ContributionPanel({ allocationId }: { allocationId: number | n
       <CardDescription className="mt-1 max-w-2xl">Development comparison — no automatic selection. Exclusions reoptimize the complete frozen policy at each historical decision; they do not subtract a candidate's P&amp;L.</CardDescription></div>
       <Badge variant="outline">C1 · B3 comparison</Badge></div></CardHeader>
     <CardContent className="space-y-6">
-      {(formError || allocation.isError || prepared.isError || saved.isError || detail.isError) && <Alert variant="destructive" role="alert" data-testid="status-c1-error"><AlertCircle className="h-4 w-4" /><AlertDescription>{formError ?? errorText(allocation.error ?? prepared.error ?? saved.error ?? detail.error)}
-        <Button size="sm" variant="outline" className="ml-3" onClick={() => { setFormError(null); void allocation.refetch(); void prepared.refetch(); void saved.refetch(); if (selectedId) void detail.refetch(); }} data-testid="button-c1-retry">Retry loading</Button>
+      {(formError || allocation.isError || allocations.isError || prepared.isError || saved.isError || detail.isError) && <Alert variant="destructive" role="alert" data-testid="status-c1-error"><AlertCircle className="h-4 w-4" /><AlertDescription>{formError ?? errorText(allocation.error ?? allocations.error ?? prepared.error ?? saved.error ?? detail.error)}
+        <Button size="sm" variant="outline" className="ml-3" onClick={() => { setFormError(null); if (allocationId) void allocation.refetch(); void allocations.refetch(); void prepared.refetch(); void saved.refetch(); if (selectedId) void detail.refetch(); }} data-testid="button-c1-retry">Retry loading</Button>
       </AlertDescription></Alert>}
+      {!allocations.isLoading && !allocations.isError && !eligibleAllocations.length && <Alert data-testid="status-c1-creation-blocked"><AlertCircle className="h-4 w-4" /><AlertDescription>Creation blocked: no saved solved alpha-stream B2 allocation is available. Saved Alpha Contribution experiments remain accessible below.</AlertDescription></Alert>}
       <div className="space-y-3">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">01 / Frozen baseline &amp; development window</h3>
-        {allocation.isLoading || prepared.isLoading ? <div className="h-24 animate-pulse rounded-md bg-muted/60" aria-label="Loading frozen inputs" /> :
+        {allocation.isLoading || allocations.isLoading || prepared.isLoading ? <div className="h-24 animate-pulse rounded-md bg-muted/60" aria-label="Loading frozen inputs" /> :
           <div className="rounded-md border bg-muted/20 p-3 text-xs" data-testid="status-c1-baseline">Selected B2 allocation #{allocationId ?? "none"} · {readable(allocation.data?.representation)} · {readable(allocation.data?.status)} · source B1 #{readable(allocation.data?.preparedInputId)}.
             <p className="mt-1 text-muted-foreground">Only a solved alpha-stream policy can be compared. Candidate IDs below come from this immutable allocation, not the current workspace.</p>
           </div>}
+        <div className="max-w-lg space-y-1"><Label htmlFor="c1-allocation">Frozen B2 alpha-stream allocation</Label><select id="c1-allocation" className={field} value={allocationId ?? ""} onChange={e => { setAllocationId(e.target.value ? Number(e.target.value) : null); setDraft([]); setSets([]); setFormError(null); }} data-testid="select-c1-allocation"><option value="">Select explicitly</option>{eligibleAllocations.map(item => <option key={item.id} value={item.id}>#{item.id} · {item.representation} · {item.status} · {readable(item.createdAt)}</option>)}</select>
+          {!eligibleAllocations.length && !allocations.isLoading && <p className="text-xs text-amber-800">No eligible solved alpha_streams B2 allocation is available for creating an experiment.</p>}
+        </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-1"><Label htmlFor="c1-prepared">Frozen evaluation B1 preparation</Label><select id="c1-prepared" className={field} value={preparedId} onChange={e => setPreparedId(e.target.value)} data-testid="select-c1-prepared"><option value="">Select explicitly</option>{currentInputs.map(item => <option key={item.preparedInputId} value={item.preparedInputId}>#{item.preparedInputId} · {item.status} · {readable(item.createdAt)}</option>)}</select></div>
           <div className="space-y-1"><Label htmlFor="c1-start">Development start</Label><Input id="c1-start" type="date" value={start} onChange={e => setStart(e.target.value)} data-testid="input-c1-start" /></div>

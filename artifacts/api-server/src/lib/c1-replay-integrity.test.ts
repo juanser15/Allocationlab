@@ -42,9 +42,48 @@ const expectedChild = {
   label: "Baseline",
   excludedCandidateIds: [],
   validationRunId: 41,
+  validationInputHash: "baseline-input-hash",
   policyRequest: { candidateIds: ["candidate-a"], informationCutoff: "2024-01-01" },
   result: failedResult(),
 };
+
+function makeIntegrityFixture() {
+  const authoritativeChildren = [
+    structuredClone(expectedChild),
+    {
+      ...structuredClone(expectedChild),
+      label: "Exclude candidate-a",
+      excludedCandidateIds: ["candidate-a"],
+      validationRunId: 42,
+      validationInputHash: "variant-input-hash",
+    },
+  ];
+  const persistedChildren = structuredClone(authoritativeChildren);
+  const summaryChildren = authoritativeChildren.map((child) => ({
+    label: child.label,
+    excludedCandidateIds: child.excludedCandidateIds,
+    result: child.result,
+  }));
+  const savedSummary = recomputeAndCompareC1Summary(
+    summaryChildren,
+    ["candidate-a"],
+    undefined,
+  ).recomputedSummary;
+  return { authoritativeChildren, persistedChildren, summaryChildren, savedSummary };
+}
+
+function auditIntegrityFixture(fixture: ReturnType<typeof makeIntegrityFixture>) {
+  const childDifferences = compareC1ReplayChildren(
+    fixture.authoritativeChildren,
+    fixture.persistedChildren,
+  );
+  const summaryDifferences = recomputeAndCompareC1Summary(
+    fixture.summaryChildren,
+    ["candidate-a"],
+    fixture.savedSummary,
+  ).differences;
+  return [...childDifferences, ...summaryDifferences];
+}
 
 test("exactly compares identities, dates, exclusions, statuses and aligned plans", () => {
   const plan = {
@@ -117,6 +156,69 @@ test("R4(c): recomputed summary detects an altered saved delta", () => {
   assert.equal(integrity.differences.find((item) =>
     item.field === "summary.variants[0].deltaFullMinusVariant.cumulativeReturn.reason")?.expected,
   "Delta unavailable: recorded infeasibility");
+});
+
+test("R4 integrity controls each have passing isolated baselines before and after mutation", () => {
+  const controls: Array<{
+    name: string;
+    mutate: (fixture: ReturnType<typeof makeIntegrityFixture>) => void;
+    expectedField: string;
+  }> = [
+    {
+      name: "wrong child run reference",
+      mutate: (fixture) => { fixture.persistedChildren[0].validationRunId = 99; },
+      expectedField: "children[0].validationRunId",
+    },
+    {
+      name: "wrong child input reference hash",
+      mutate: (fixture) => { fixture.persistedChildren[0].validationInputHash = "wrong-input-hash"; },
+      expectedField: "children[0].validationInputHash",
+    },
+    {
+      name: "altered persisted child outcome",
+      mutate: (fixture) => {
+        (fixture.persistedChildren[0].result as B3Result).reason = "altered outcome";
+      },
+      expectedField: "children[0].result.reason",
+    },
+    {
+      name: "altered persisted child financial identity",
+      mutate: (fixture) => {
+        (fixture.persistedChildren[0].result as B3Result).policyIdentity.datasetHash = "altered-dataset";
+      },
+      expectedField: "children[0].result.policyIdentity.datasetHash",
+    },
+    {
+      name: "altered saved baseline summary",
+      mutate: (fixture) => { fixture.savedSummary.baseline.reason = "altered summary"; },
+      expectedField: "summary.baseline.reason",
+    },
+    {
+      name: "altered saved variant summary delta",
+      mutate: (fixture) => {
+        fixture.savedSummary.variants[0].deltaFullMinusVariant.cumulativeReturn.reason = "altered delta";
+      },
+      expectedField: "summary.variants[0].deltaFullMinusVariant.cumulativeReturn.reason",
+    },
+  ];
+
+  for (const control of controls) {
+    const isolatedFixture = makeIntegrityFixture();
+    assert.deepEqual(auditIntegrityFixture(isolatedFixture), [], `${control.name}: positive control before`);
+
+    control.mutate(isolatedFixture);
+    assert.deepEqual(
+      auditIntegrityFixture(isolatedFixture).map((difference) => difference.field),
+      [control.expectedField],
+      `${control.name}: only the specified field should fail`,
+    );
+
+    assert.deepEqual(
+      auditIntegrityFixture(makeIntegrityFixture()),
+      [],
+      `${control.name}: fresh positive control after`,
+    );
+  }
 });
 
 test("result copies accept numeric replay noise up to 1e-8 but not beyond", () => {

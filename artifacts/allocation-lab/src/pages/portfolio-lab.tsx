@@ -22,6 +22,7 @@ import { AllocationTab } from "@/components/portfolio-lab/AllocationTab";
 import { PreparedInputsPanel } from "@/components/portfolio-lab/PreparedInputsPanel";
 import { B2AllocationPanel } from "@/components/portfolio-lab/B2AllocationPanel";
 import { B3ValidationPanel } from "@/components/portfolio-lab/B3ValidationPanel";
+import { C1ContributionPanel } from "@/components/portfolio-lab/C1ContributionPanel";
 import type { B2PreparedSelection } from "@/components/portfolio-lab/PreparedInputsPanel";
 
 export default function PortfolioLab() {
@@ -285,6 +286,7 @@ export default function PortfolioLab() {
               startDate={btStartDate} setStartDate={setBtStartDate}
               endDate={btEndDate} setEndDate={setBtEndDate}
             />}
+          <C1ContributionPanel />
         </TabsContent>
 
         <TabsContent value="allocation" forceMount className="space-y-6 pt-4 data-[state=inactive]:hidden">

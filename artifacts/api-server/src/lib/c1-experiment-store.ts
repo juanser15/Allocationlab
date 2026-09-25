@@ -753,7 +753,7 @@ export async function replayC1Experiment(id: number) {
       validationPreparedInputId: run.validationPreparedInputId,
       datasetHash: run.datasetHash,
     }, `children[${index}].B3Reference`);
-    addDifferences({
+    const expectedB3InputMetadata = {
       kind: "b3",
       policySnapshot: planPolicySnapshot,
       policyRequest: planned?.policyRequest,
@@ -761,7 +761,18 @@ export async function replayC1Experiment(id: number) {
       validationPreparedFingerprint: manifest.validationPreparedFingerprint,
       assumptions: manifest.assumptions,
       ...(manifest.alignmentPlan ? { estimationDatePlan: manifest.alignmentPlan } : {}),
-    }, envelope, `children[${index}].B3Envelope`);
+    };
+    // Compare the frozen input metadata to the equivalent metadata fields in
+    // the persisted transport envelope. Its result is an independent financial
+    // payload, checked above against the C1 copy and below against fresh replay.
+    const observedB3InputMetadata = Object.fromEntries(
+      Object.keys(expectedB3InputMetadata).map((key) => [key, envelope[key]]),
+    );
+    addDifferences(
+      expectedB3InputMetadata,
+      observedB3InputMetadata,
+      `children[${index}].B3InputMetadata`,
+    );
 
     const replay = await replayB3ValidationRun(child.validationRunId);
     const replayDifferences: string[] = [];

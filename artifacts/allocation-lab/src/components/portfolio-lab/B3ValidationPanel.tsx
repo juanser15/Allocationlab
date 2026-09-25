@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { C1ContributionPanel } from "@/components/portfolio-lab/C1ContributionPanel";
 
 type Row = Record<string, unknown>;
 type Step = "configure" | "results" | "diagnostics";
@@ -251,7 +250,6 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
         <div className="space-y-1"><Label htmlFor="b3-compare">Compare with saved run</Label><select id="b3-compare" className="h-9 min-w-56 rounded-md border bg-background px-2 text-sm" value={comparisonId ?? ""} onChange={e => setComparisonId(e.target.value ? Number(e.target.value) : null)} data-testid="select-b3-comparison"><option value="">No comparison</option>{saved.filter(item => idOf(item, "validationRunId") !== selectedRunId).map(item => { const id = idOf(item, "validationRunId"); return id ? <option key={id} value={id}>#{id} · {text(item.representation)}</option> : null; })}</select></div>
         {!loading && !saved.length && <span className="text-xs text-muted-foreground">No saved B3 runs yet.</span>}
       </CardContent></Card>
-     <C1ContributionPanel allocationId={allocationId} />
      {run && <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-primary/20 bg-primary/5 px-4 py-3 text-xs" data-testid="status-b3-run">
         <div><strong>Validation #{text(run.validationRunId ?? selectedRunId)}</strong> · {status} · {text(a.evaluationStartDate)} → {text(a.evaluationEndDate)} · {getRepresentation(run)}
