@@ -8,7 +8,7 @@
 import type { ConstraintsInput } from './constraintsInput';
 import type { FactorDefinition } from './factorDefinition';
 import type { UniverseInput } from './universeInput';
-import type { ValidationIdentityValidationAssumptions } from './validationIdentityValidationAssumptions';
+import type { ValidationAssumptions } from './validationAssumptions';
 
 export interface ValidationIdentity {
   optimizationRunId: number;
@@ -19,6 +19,6 @@ export interface ValidationIdentity {
   constraintsSnapshot: ConstraintsInput;
   universeSnapshot: UniverseInput;
   engineVersion: string;
-  validationAssumptions: ValidationIdentityValidationAssumptions;
+  validationAssumptions: ValidationAssumptions;
   validatedAt: string;
 }

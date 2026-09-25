@@ -2427,6 +2427,540 @@ export const GetBacktestResponse = zod.object({
 
 
 /**
+ * @summary Execute and persist a new immutable validation for a saved Strategy Snapshot
+ */
+export const CreateValidationRunBody = zod.object({
+  "sessionId": zod.number(),
+  "benchmark": zod.string().optional(),
+  "startDate": zod.string().optional(),
+  "endDate": zod.string().optional(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']).optional(),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']).optional(),
+  "transactionCostBps": zod.number().optional(),
+  "slippageBps": zod.number().optional(),
+  "maxTurnoverPerRebalance": zod.number().optional(),
+  "cashYieldAnnual": zod.number().optional(),
+  "warmupDays": zod.number().optional()
+})
+
+export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMin = 2;
+export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMax = 1260;
+
+export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMin = 0;
+export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMax = 252;
+
+export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin = 0;
+export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax = 0.49;
+
+export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin = 0.51;
+export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax = 1;
+
+export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin = 0;
+
+export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin = 0;
+export const createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax = 1;
+
+
+
+export const CreateValidationRunResponse = zod.object({
+  "validationRunId": zod.number(),
+  "strategySnapshotId": zod.number(),
+  "datasetHash": zod.string(),
+  "factorSetVersion": zod.string(),
+  "engineVersion": zod.string(),
+  "validatedAt": zod.string(),
+  "assumptions": zod.object({
+  "rebalanceFrequency": zod.string(),
+  "executionTiming": zod.string(),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "maxTurnoverPerRebalance": zod.number(),
+  "cashYieldAnnual": zod.number(),
+  "warmupDays": zod.number(),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable()
+}),
+  "reconciliationStatus": zod.enum(['pass', 'fail']),
+  "reproducibilityStatus": zod.string(),
+  "validationInputHash": zod.string(),
+  "result": zod.object({
+  "optimizationRunId": zod.number(),
+  "snapshotStatus": zod.enum(['ready', 'legacy', 'engine_mismatch', 'integrity_fail', 'reproducibility_fail']),
+  "reproducibility": zod.object({
+  "status": zod.enum(['pass', 'fail', 'legacy', 'engine_mismatch']),
+  "message": zod.string(),
+  "differences": zod.array(zod.string()),
+  "tolerance": zod.number()
+}),
+  "validationIdentity": zod.union([zod.object({
+  "optimizationRunId": zod.number(),
+  "datasetId": zod.number(),
+  "datasetHash": zod.string(),
+  "factorSetVersion": zod.string(),
+  "factorSetSnapshot": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "family": zod.string(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['active', 'candidate', 'disabled']),
+  "inputSeries": zod.string(),
+  "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
+  "formula": zod.string(),
+  "direction": zod.enum(['higher_is_better', 'lower_is_better']),
+  "lookback": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMin).max(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMax),
+  "lag": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMin).max(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMax),
+  "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
+  "winsorizationLower": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin).max(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin).max(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
+  "baseWeight": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin),
+  "regimeWeights": zod.object({
+  "riskOn": zod.number().nullable(),
+  "neutral": zod.number().nullable(),
+  "riskOff": zod.number().nullable()
+}),
+  "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
+  "dataSource": zod.string(),
+  "benchmarkTicker": zod.string().nullable(),
+  "currentCoverage": zod.number().min(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin).max(createValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax),
+  "availabilityReason": zod.string().nullable(),
+  "version": zod.string()
+})),
+  "constraintsSnapshot": zod.object({
+  "cashMin": zod.number(),
+  "cashMax": zod.number(),
+  "maxEtfWeight": zod.number(),
+  "minInclusionThreshold": zod.number(),
+  "targetActiveEtfs": zod.number(),
+  "diversificationEnabled": zod.boolean()
+}),
+  "universeSnapshot": zod.object({
+  "etfs": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "priorWeight": zod.number(),
+  "enabled": zod.boolean()
+})),
+  "cashPriorWeight": zod.number()
+}),
+  "engineVersion": zod.string(),
+  "validationAssumptions": zod.object({
+  "rebalanceFrequency": zod.string(),
+  "executionTiming": zod.string(),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "maxTurnoverPerRebalance": zod.number(),
+  "cashYieldAnnual": zod.number(),
+  "warmupDays": zod.number(),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable()
+}),
+  "validatedAt": zod.string()
+}),zod.null()]),
+  "hasSufficientData": zod.boolean(),
+  "insufficientReason": zod.string().nullable(),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "tradingDays": zod.number(),
+  "canAnnualize": zod.boolean().describe('Whether the sample is long enough (>= 10 trading days) to trust annualized figures'),
+  "equityCurve": zod.array(zod.object({
+  "date": zod.string(),
+  "portfolioIndex": zod.number().describe('Portfolio value indexed to 100 at backtest start'),
+  "benchmarkIndex": zod.number().nullable().describe('Benchmark value indexed to 100 at backtest start, null if no benchmark selected or unavailable'),
+  "drawdownPct": zod.number().describe('Portfolio drawdown from running peak, as a decimal (negative or zero)')
+})),
+  "dailyLedger": zod.array(zod.object({
+  "date": zod.string(),
+  "intervalStart": zod.string(),
+  "signalDate": zod.string().nullable(),
+  "executionSignalDate": zod.string().nullable(),
+  "beginningNav": zod.number(),
+  "beginningCash": zod.number(),
+  "beginningPositions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "quantity": zod.number(),
+  "price": zod.number(),
+  "marketValue": zod.number(),
+  "weight": zod.number()
+})),
+  "etfPnl": zod.number(),
+  "cashPnl": zod.number(),
+  "transactionCosts": zod.number(),
+  "slippage": zod.number(),
+  "trades": zod.array(zod.object({
+  "ticker": zod.string(),
+  "quantity": zod.number(),
+  "notional": zod.number()
+})),
+  "netPnl": zod.number(),
+  "endingNav": zod.number(),
+  "endingCash": zod.number(),
+  "endingPositions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "quantity": zod.number(),
+  "price": zod.number(),
+  "marketValue": zod.number(),
+  "weight": zod.number()
+}))
+}).describe('Close-to-close P&L on positions held before this close, then fills at this close. NAV units start at 100.')),
+  "cumulativeReturn": zod.number().nullable(),
+  "annualizedReturn": zod.number().nullable(),
+  "annualizedVolatility": zod.number().nullable(),
+  "sharpeRatio": zod.number().nullable(),
+  "maxDrawdown": zod.number().nullable(),
+  "avgTurnover": zod.number().nullable(),
+  "totalTransactionCostPct": zod.number().nullable(),
+  "monthlyReturns": zod.array(zod.object({
+  "month": zod.string().describe('YYYY-MM'),
+  "portfolioReturn": zod.number(),
+  "benchmarkReturn": zod.number().nullable()
+})),
+  "rebalanceLog": zod.array(zod.object({
+  "rebalanceDate": zod.string().describe('Date the point-in-time signal was computed, using only price data strictly before this date'),
+  "executionDate": zod.string().nullable().describe('Date the resulting target weights actually take effect, per the chosen execution timing'),
+  "lookbackDays": zod.number(),
+  "regimeLabel": zod.string(),
+  "regimeComposite": zod.number(),
+  "cashWeight": zod.number(),
+  "activeEtfCount": zod.number(),
+  "topHoldings": zod.array(zod.string()),
+  "turnoverRequested": zod.number(),
+  "turnoverApplied": zod.number(),
+  "turnoverCapped": zod.boolean(),
+  "transactionCostPct": zod.number()
+})),
+  "benchmarkTicker": zod.string().nullable(),
+  "benchmarkCumulativeReturn": zod.number().nullable(),
+  "benchmarkAnnualizedReturn": zod.number().nullable(),
+  "benchmarkUnavailableReason": zod.string().nullable(),
+  "availableBenchmarkTickers": zod.array(zod.string()),
+  "dataStartDate": zod.string().nullable(),
+  "dataEndDate": zod.string().nullable(),
+  "config": zod.object({
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "maxTurnoverPerRebalance": zod.number(),
+  "cashYieldAnnual": zod.number(),
+  "warmupDays": zod.number(),
+  "startDate": zod.string().nullable()
+}),
+  "integrity": zod.object({
+  "score": zod.number(),
+  "grade": zod.enum(['research_grade', 'developmental', 'not_reliable']),
+  "hardFail": zod.boolean(),
+  "checklist": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "status": zod.enum(['pass', 'warn', 'fail']),
+  "detail": zod.string()
+}))
+}),
+  "walkForward": zod.object({
+  "folds": zod.array(zod.object({
+  "foldIndex": zod.number(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "tradingDays": zod.number(),
+  "rebalanceCount": zod.number(),
+  "cumulativeReturn": zod.number().nullable(),
+  "annualizedReturn": zod.number().nullable(),
+  "sharpeRatio": zod.number().nullable(),
+  "maxDrawdown": zod.number().nullable()
+})),
+  "note": zod.string()
+}),
+  "sensitivity": zod.object({
+  "runs": zod.array(zod.object({
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close']),
+  "transactionCostBps": zod.number(),
+  "cumulativeReturn": zod.number().nullable(),
+  "annualizedReturn": zod.number().nullable(),
+  "sharpeRatio": zod.number().nullable()
+})),
+  "stabilityWarning": zod.boolean(),
+  "note": zod.string()
+}),
+  "warnings": zod.array(zod.string()),
+  "methodologyNote": zod.string()
+})
+})
+
+
+export const ListValidationRunsQueryParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const ListValidationRunsResponseItem = zod.object({
+  "validationRunId": zod.number(),
+  "strategySnapshotId": zod.number(),
+  "validatedAt": zod.string(),
+  "reproducibilityStatus": zod.string()
+})
+export const ListValidationRunsResponse = zod.array(ListValidationRunsResponseItem)
+
+
+export const GetValidationRunParams = zod.object({
+  "validationRunId": zod.coerce.number()
+})
+
+export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMin = 2;
+export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMax = 1260;
+
+export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMin = 0;
+export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMax = 252;
+
+export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin = 0;
+export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax = 0.49;
+
+export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin = 0.51;
+export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax = 1;
+
+export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin = 0;
+
+export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin = 0;
+export const getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax = 1;
+
+
+
+export const GetValidationRunResponse = zod.object({
+  "validationRunId": zod.number(),
+  "strategySnapshotId": zod.number(),
+  "datasetHash": zod.string(),
+  "factorSetVersion": zod.string(),
+  "engineVersion": zod.string(),
+  "validatedAt": zod.string(),
+  "assumptions": zod.object({
+  "rebalanceFrequency": zod.string(),
+  "executionTiming": zod.string(),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "maxTurnoverPerRebalance": zod.number(),
+  "cashYieldAnnual": zod.number(),
+  "warmupDays": zod.number(),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable()
+}),
+  "reconciliationStatus": zod.enum(['pass', 'fail']),
+  "reproducibilityStatus": zod.string(),
+  "validationInputHash": zod.string(),
+  "result": zod.object({
+  "optimizationRunId": zod.number(),
+  "snapshotStatus": zod.enum(['ready', 'legacy', 'engine_mismatch', 'integrity_fail', 'reproducibility_fail']),
+  "reproducibility": zod.object({
+  "status": zod.enum(['pass', 'fail', 'legacy', 'engine_mismatch']),
+  "message": zod.string(),
+  "differences": zod.array(zod.string()),
+  "tolerance": zod.number()
+}),
+  "validationIdentity": zod.union([zod.object({
+  "optimizationRunId": zod.number(),
+  "datasetId": zod.number(),
+  "datasetHash": zod.string(),
+  "factorSetVersion": zod.string(),
+  "factorSetSnapshot": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "family": zod.string(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['active', 'candidate', 'disabled']),
+  "inputSeries": zod.string(),
+  "calculationType": zod.enum(['momentum', 'trend_quality', 'volatility', 'drawdown', 'mean_reversion', 'relative_strength', 'diversification_benefit', 'return_over_volatility', 'ma_distance', 'downside_beta', 'residual_momentum', 'correlation_stability', 'drawdown_recovery', 'unsupported']),
+  "formula": zod.string(),
+  "direction": zod.enum(['higher_is_better', 'lower_is_better']),
+  "lookback": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMin).max(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLookbackMax),
+  "lag": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMin).max(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemLagMax),
+  "normalization": zod.enum(['percentile_rank', 'z_score', 'robust_z_score']),
+  "winsorizationLower": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMin).max(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationLowerMax),
+  "winsorizationUpper": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMin).max(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemWinsorizationUpperMax),
+  "missingDataTreatment": zod.enum(['exclude', 'cross_sectional_median']),
+  "baseWeight": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemBaseWeightMin),
+  "regimeWeights": zod.object({
+  "riskOn": zod.number().nullable(),
+  "neutral": zod.number().nullable(),
+  "riskOff": zod.number().nullable()
+}),
+  "activeRegimes": zod.array(zod.enum(['risk_on', 'neutral', 'risk_off'])),
+  "dataSource": zod.string(),
+  "benchmarkTicker": zod.string().nullable(),
+  "currentCoverage": zod.number().min(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMin).max(getValidationRunResponseResultValidationIdentityOneFactorSetSnapshotItemCurrentCoverageMax),
+  "availabilityReason": zod.string().nullable(),
+  "version": zod.string()
+})),
+  "constraintsSnapshot": zod.object({
+  "cashMin": zod.number(),
+  "cashMax": zod.number(),
+  "maxEtfWeight": zod.number(),
+  "minInclusionThreshold": zod.number(),
+  "targetActiveEtfs": zod.number(),
+  "diversificationEnabled": zod.boolean()
+}),
+  "universeSnapshot": zod.object({
+  "etfs": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "sector": zod.string(),
+  "priorWeight": zod.number(),
+  "enabled": zod.boolean()
+})),
+  "cashPriorWeight": zod.number()
+}),
+  "engineVersion": zod.string(),
+  "validationAssumptions": zod.object({
+  "rebalanceFrequency": zod.string(),
+  "executionTiming": zod.string(),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "maxTurnoverPerRebalance": zod.number(),
+  "cashYieldAnnual": zod.number(),
+  "warmupDays": zod.number(),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "benchmarkTicker": zod.string().nullable()
+}),
+  "validatedAt": zod.string()
+}),zod.null()]),
+  "hasSufficientData": zod.boolean(),
+  "insufficientReason": zod.string().nullable(),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "tradingDays": zod.number(),
+  "canAnnualize": zod.boolean().describe('Whether the sample is long enough (>= 10 trading days) to trust annualized figures'),
+  "equityCurve": zod.array(zod.object({
+  "date": zod.string(),
+  "portfolioIndex": zod.number().describe('Portfolio value indexed to 100 at backtest start'),
+  "benchmarkIndex": zod.number().nullable().describe('Benchmark value indexed to 100 at backtest start, null if no benchmark selected or unavailable'),
+  "drawdownPct": zod.number().describe('Portfolio drawdown from running peak, as a decimal (negative or zero)')
+})),
+  "dailyLedger": zod.array(zod.object({
+  "date": zod.string(),
+  "intervalStart": zod.string(),
+  "signalDate": zod.string().nullable(),
+  "executionSignalDate": zod.string().nullable(),
+  "beginningNav": zod.number(),
+  "beginningCash": zod.number(),
+  "beginningPositions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "quantity": zod.number(),
+  "price": zod.number(),
+  "marketValue": zod.number(),
+  "weight": zod.number()
+})),
+  "etfPnl": zod.number(),
+  "cashPnl": zod.number(),
+  "transactionCosts": zod.number(),
+  "slippage": zod.number(),
+  "trades": zod.array(zod.object({
+  "ticker": zod.string(),
+  "quantity": zod.number(),
+  "notional": zod.number()
+})),
+  "netPnl": zod.number(),
+  "endingNav": zod.number(),
+  "endingCash": zod.number(),
+  "endingPositions": zod.array(zod.object({
+  "ticker": zod.string(),
+  "quantity": zod.number(),
+  "price": zod.number(),
+  "marketValue": zod.number(),
+  "weight": zod.number()
+}))
+}).describe('Close-to-close P&L on positions held before this close, then fills at this close. NAV units start at 100.')),
+  "cumulativeReturn": zod.number().nullable(),
+  "annualizedReturn": zod.number().nullable(),
+  "annualizedVolatility": zod.number().nullable(),
+  "sharpeRatio": zod.number().nullable(),
+  "maxDrawdown": zod.number().nullable(),
+  "avgTurnover": zod.number().nullable(),
+  "totalTransactionCostPct": zod.number().nullable(),
+  "monthlyReturns": zod.array(zod.object({
+  "month": zod.string().describe('YYYY-MM'),
+  "portfolioReturn": zod.number(),
+  "benchmarkReturn": zod.number().nullable()
+})),
+  "rebalanceLog": zod.array(zod.object({
+  "rebalanceDate": zod.string().describe('Date the point-in-time signal was computed, using only price data strictly before this date'),
+  "executionDate": zod.string().nullable().describe('Date the resulting target weights actually take effect, per the chosen execution timing'),
+  "lookbackDays": zod.number(),
+  "regimeLabel": zod.string(),
+  "regimeComposite": zod.number(),
+  "cashWeight": zod.number(),
+  "activeEtfCount": zod.number(),
+  "topHoldings": zod.array(zod.string()),
+  "turnoverRequested": zod.number(),
+  "turnoverApplied": zod.number(),
+  "turnoverCapped": zod.boolean(),
+  "transactionCostPct": zod.number()
+})),
+  "benchmarkTicker": zod.string().nullable(),
+  "benchmarkCumulativeReturn": zod.number().nullable(),
+  "benchmarkAnnualizedReturn": zod.number().nullable(),
+  "benchmarkUnavailableReason": zod.string().nullable(),
+  "availableBenchmarkTickers": zod.array(zod.string()),
+  "dataStartDate": zod.string().nullable(),
+  "dataEndDate": zod.string().nullable(),
+  "config": zod.object({
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']),
+  "transactionCostBps": zod.number(),
+  "slippageBps": zod.number(),
+  "maxTurnoverPerRebalance": zod.number(),
+  "cashYieldAnnual": zod.number(),
+  "warmupDays": zod.number(),
+  "startDate": zod.string().nullable()
+}),
+  "integrity": zod.object({
+  "score": zod.number(),
+  "grade": zod.enum(['research_grade', 'developmental', 'not_reliable']),
+  "hardFail": zod.boolean(),
+  "checklist": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "status": zod.enum(['pass', 'warn', 'fail']),
+  "detail": zod.string()
+}))
+}),
+  "walkForward": zod.object({
+  "folds": zod.array(zod.object({
+  "foldIndex": zod.number(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "tradingDays": zod.number(),
+  "rebalanceCount": zod.number(),
+  "cumulativeReturn": zod.number().nullable(),
+  "annualizedReturn": zod.number().nullable(),
+  "sharpeRatio": zod.number().nullable(),
+  "maxDrawdown": zod.number().nullable()
+})),
+  "note": zod.string()
+}),
+  "sensitivity": zod.object({
+  "runs": zod.array(zod.object({
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close']),
+  "transactionCostBps": zod.number(),
+  "cumulativeReturn": zod.number().nullable(),
+  "annualizedReturn": zod.number().nullable(),
+  "sharpeRatio": zod.number().nullable()
+})),
+  "stabilityWarning": zod.boolean(),
+  "note": zod.string()
+}),
+  "warnings": zod.array(zod.string()),
+  "methodologyNote": zod.string()
+})
+})
+
+
+/**
  * @summary Deterministic AI Investment Committee synthesis grounded strictly in already-computed session data
  */
 export const GetCommitteeResponse = zod.object({

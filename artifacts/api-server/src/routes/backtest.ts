@@ -1,5 +1,9 @@
 import { Router, type IRouter } from "express";
-import { GetBacktestResponse } from "@workspace/api-zod";
+import {
+  GetBacktestResponse, CreateValidationRunBody, CreateValidationRunResponse,
+  GetValidationRunResponse, ListValidationRunsResponse,
+  type BacktestResult,
+} from "@workspace/api-zod";
 import { db, sessionsTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import {
@@ -17,6 +21,7 @@ import {
   type Constraints,
 } from "../lib/calculator";
 import { frozenValidationInputs, reproduceRun, resolveRunSnapshot } from "../lib/run-snapshot";
+import { getValidationRun, listValidationRuns, persistValidationRun } from "../lib/validation-run-store";
 
 const router: IRouter = Router();
 
@@ -32,8 +37,8 @@ function parseTiming(v: unknown): ExecutionTiming {
 }
 
 function parseNumber(v: unknown, fallback: number, min: number, max: number): number {
-  const n = typeof v === "string" ? parseFloat(v) : NaN;
-  if (isNaN(n)) return fallback;
+  const n = typeof v === "number" ? v : typeof v === "string" ? parseFloat(v) : NaN;
+  if (!Number.isFinite(n)) return fallback;
   return Math.min(max, Math.max(min, n));
 }
 
@@ -43,42 +48,41 @@ function parseIsoDate(v: unknown): string | null {
   return typeof v === "string" && ISO_DATE_RE.test(v) ? v : null;
 }
 
-router.get("/backtest", async (req, res): Promise<void> => {
-  const requestedId = req.query.sessionId;
-  if (requestedId !== undefined && (typeof requestedId !== "string" || !/^[1-9]\d*$/.test(requestedId) || !Number.isSafeInteger(Number(requestedId)))) {
-    res.status(400).json({ error: "Invalid session ID" });
-    return;
-  }
+class BacktestRequestError extends Error {
+  constructor(message: string, public status: number) { super(message); }
+}
+
+async function computeBacktest(params: Record<string, unknown>): Promise<BacktestResult> {
+  const requestedId = params.sessionId;
+  if (requestedId !== undefined && !(/^[1-9]\d*$/.test(String(requestedId)) && Number.isSafeInteger(Number(requestedId))))
+    throw new BacktestRequestError("Invalid session ID", 400);
   const [session] = requestedId
     ? await db.select().from(sessionsTable).where(eq(sessionsTable.id, Number(requestedId))).limit(1)
     : await db.select().from(sessionsTable).orderBy(desc(sessionsTable.runAt), desc(sessionsTable.id)).limit(1);
-  if (!session) {
-    res.status(404).json({ error: "Optimization run not found." });
-    return;
-  }
+  if (!session) throw new BacktestRequestError("Optimization run not found.", 404);
   const stored = session.resultJson as Record<string, unknown>;
   const resolution = resolveRunSnapshot(stored);
   const reproduction = reproduceRun(stored);
   const snapshot = resolution.snapshot;
   const snapshotStatus = resolution.status === "ready" && reproduction.status === "fail"
     ? "reproducibility_fail" : resolution.status;
-  const benchmarkParam = typeof req.query.benchmark === "string"
-    ? req.query.benchmark.toLowerCase() === "none" ? null : req.query.benchmark.toUpperCase()
+  const benchmarkParam = typeof params.benchmark === "string"
+    ? params.benchmark.toLowerCase() === "none" ? null : params.benchmark.toUpperCase()
     : snapshot?.benchmarkConfiguration.defaultTicker ?? null;
   const validatedAt = new Date().toISOString();
 
   const defaults = defaultBacktestConfig();
   const config: BacktestConfig = {
-    rebalanceFrequency: parseFrequency(req.query.rebalanceFrequency),
-    executionTiming: parseTiming(req.query.executionTiming),
-    transactionCostBps: parseNumber(req.query.transactionCostBps, defaults.transactionCostBps, 0, 500),
-    slippageBps: parseNumber(req.query.slippageBps, defaults.slippageBps, 0, 500),
-    maxTurnoverPerRebalance: parseNumber(req.query.maxTurnoverPerRebalance, defaults.maxTurnoverPerRebalance, 0, 1),
-    cashYieldAnnual: parseNumber(req.query.cashYieldAnnual, defaults.cashYieldAnnual, 0, 0.2),
-    warmupDays: Math.round(parseNumber(req.query.warmupDays, defaults.warmupDays, 60, 756)),
-    startDate: parseIsoDate(req.query.startDate),
+    rebalanceFrequency: parseFrequency(params.rebalanceFrequency),
+    executionTiming: parseTiming(params.executionTiming),
+    transactionCostBps: parseNumber(params.transactionCostBps, defaults.transactionCostBps, 0, 500),
+    slippageBps: parseNumber(params.slippageBps, defaults.slippageBps, 0, 500),
+    maxTurnoverPerRebalance: parseNumber(params.maxTurnoverPerRebalance, defaults.maxTurnoverPerRebalance, 0, 1),
+    cashYieldAnnual: parseNumber(params.cashYieldAnnual, defaults.cashYieldAnnual, 0, 0.2),
+    warmupDays: Math.round(parseNumber(params.warmupDays, defaults.warmupDays, 60, 756)),
+    startDate: parseIsoDate(params.startDate),
   };
-  const endDate = parseIsoDate(req.query.endDate);
+  const endDate = parseIsoDate(params.endDate);
 
   const etfs = (snapshot?.universe.etfs ?? []) as EtfEntry[];
   const enabledTickers = etfs.filter((e) => e.enabled).map((e) => e.ticker);
@@ -90,7 +94,7 @@ router.get("/backtest", async (req, res): Promise<void> => {
     factorSetSnapshot: snapshot.factorSet.factors,
     constraintsSnapshot: snapshot.constraints, universeSnapshot: snapshot.universe,
     engineVersion: snapshot.engineVersion, validationAssumptions: {
-      ...config, benchmarkTicker: benchmarkParam, endDate: parseIsoDate(req.query.endDate),
+      ...config, benchmarkTicker: benchmarkParam, endDate,
     }, validatedAt,
   } : null;
 
@@ -130,44 +134,38 @@ router.get("/backtest", async (req, res): Promise<void> => {
     });
 
   if (snapshotStatus !== "ready") {
-    res.json(empty(reproduction.status === "fail"
+    return empty(reproduction.status === "fail"
       ? `REPRODUCIBILITY FAIL: ${reproduction.differences.join("; ")}`
-      : resolution.message));
-    return;
+      : resolution.message);
   }
   if (config.executionTiming === "next_open") {
-    res.json(empty("Next-open execution requires open-price data and is currently unavailable."));
-    return;
+    return empty("Next-open execution requires open-price data and is currently unavailable.");
   }
 
   let priceRows: PriceRow[];
   try {
     priceRows = frozenValidationInputs(stored)!.priceRows;
   } catch {
-    res.json(empty("Could not parse the run's frozen price data."));
-    return;
+    return empty("Could not parse the run's frozen price data.");
   }
 
   const fullDataStartDate = snapshot!.dataset.startDate;
   const fullDataEndDate = snapshot!.dataset.endDate;
 
   if (enabledTickers.length === 0) {
-    res.json(empty("No ETFs are enabled in the current universe. Enable at least one ETF in Portfolio Construction.", fullDataStartDate, fullDataEndDate));
-    return;
+    return empty("No ETFs are enabled in this run's frozen universe.", fullDataStartDate, fullDataEndDate);
   }
 
   if (endDate) {
     priceRows = priceRows.filter((r) => r.date <= endDate);
     if (priceRows.length === 0) {
-      res.json(empty("No price data available on or before the selected end date.", fullDataStartDate, fullDataEndDate));
-      return;
+      return empty("No price data available on or before the selected end date.", fullDataStartDate, fullDataEndDate);
     }
   }
 
   const engineResult = runBacktestEngine(priceRows, etfs, constraints, config, benchmarkParam, factorSet);
   if (!engineResult.hasSufficientData) {
-    res.json(empty(engineResult.insufficientReason ?? "Not enough data to run a backtest.", fullDataStartDate, fullDataEndDate));
-    return;
+    return empty(engineResult.insufficientReason ?? "Not enough data to run a backtest.", fullDataStartDate, fullDataEndDate);
   }
 
   const walkForward = runWalkForwardFolds(engineResult, 3);
@@ -190,8 +188,7 @@ router.get("/backtest", async (req, res): Promise<void> => {
         : `No price data available for ${benchmarkParam} over the backtest period.`
       : null);
 
-  res.json(
-    GetBacktestResponse.parse({
+  return GetBacktestResponse.parse({
       ...engineResult,
       optimizationRunId: session.id, snapshotStatus, reproducibility: reproduction, validationIdentity,
       benchmarkUnavailableReason,
@@ -204,8 +201,51 @@ router.get("/backtest", async (req, res): Promise<void> => {
       sensitivity,
       warnings,
       methodologyNote: METHODOLOGY_NOTE,
-    })
-  );
+    });
+}
+
+function sendError(res: import("express").Response, error: unknown): void {
+  if (error instanceof BacktestRequestError) {
+    res.status(error.status).json({ error: error.message });
+  } else {
+    throw error;
+  }
+}
+
+router.get("/backtest", async (req, res): Promise<void> => {
+  try { res.json(await computeBacktest(req.query)); }
+  catch (error) { sendError(res, error); }
+});
+
+router.post("/validation-runs", async (req, res): Promise<void> => {
+  const parsed = CreateValidationRunBody.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+  try {
+    const result = await computeBacktest(parsed.data);
+    if (!result.hasSufficientData) {
+      res.status(422).json({ error: result.insufficientReason ?? "Validation could not be completed." });
+      return;
+    }
+    res.status(201).json(CreateValidationRunResponse.parse(await persistValidationRun(result)));
+  } catch (error) { sendError(res, error); }
+});
+
+router.get("/validation-runs", async (req, res): Promise<void> => {
+  const raw = req.query.sessionId;
+  if (typeof raw !== "string" || !/^[1-9]\d*$/.test(raw) || !Number.isSafeInteger(Number(raw))) {
+    res.status(400).json({ error: "Invalid session ID" }); return;
+  }
+  res.json(ListValidationRunsResponse.parse(await listValidationRuns(Number(raw))));
+});
+
+router.get("/validation-runs/:validationRunId", async (req, res): Promise<void> => {
+  const raw = Array.isArray(req.params.validationRunId) ? req.params.validationRunId[0] : req.params.validationRunId;
+  if (!/^[1-9]\d*$/.test(raw) || !Number.isSafeInteger(Number(raw))) {
+    res.status(400).json({ error: "Invalid Validation Run ID" }); return;
+  }
+  const run = await getValidationRun(Number(raw));
+  if (!run) { res.status(404).json({ error: "Validation Run not found." }); return; }
+  res.json(GetValidationRunResponse.parse(run));
 });
 
 export default router;

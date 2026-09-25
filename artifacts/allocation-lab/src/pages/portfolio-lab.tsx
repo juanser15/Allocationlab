@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useGetLatestResults, useGetPricesStatus, useGetConstraints,
-  useRunPipeline, useGetBacktest, useGetRiskModel, useCreateGovernanceSnapshot,
+  useRunPipeline, useGetRiskModel, useCreateGovernanceSnapshot,
+  useCreateValidationRun, useGetValidationRun, useListValidationRuns,
 } from "@workspace/api-client-react";
 import { localSettings } from "@/lib/local-settings";
 import { Button } from "@/components/ui/button";
@@ -39,25 +40,37 @@ export default function PortfolioLab() {
   const [btCashYield, setBtCashYield] = useState(4);
   const [btStartDate, setBtStartDate] = useState("");
   const [btEndDate, setBtEndDate] = useState("");
-  const [validationRequested, setValidationRequested] = useState(false);
-
-  const { data: bt, isLoading: loadingBt, refetch: refetchBt } = useGetBacktest(
-    {
-      sessionId: result?.sessionId,
-      benchmark: btBenchmark,
-      rebalanceFrequency: btFrequency,
-      executionTiming: btTiming,
-      transactionCostBps: btTxnCostBps,
-      slippageBps: btSlippageBps,
-      cashYieldAnnual: btCashYield / 100,
-      ...(btStartDate ? { startDate: btStartDate } : {}),
-      ...(btEndDate ? { endDate: btEndDate } : {}),
-    },
-    { query: { enabled: !!result?.sessionId && validationRequested } as any },
+  const [selectedValidationRunId, setSelectedValidationRunId] = useState<number | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const createValidationRun = useCreateValidationRun();
+  const { data: validationRuns, refetch: refetchValidationRuns } = useListValidationRuns(
+    { sessionId: result?.sessionId ?? 0 },
+    { query: { enabled: !!result?.sessionId } as any },
   );
+  const visibleValidationRunId = selectedValidationRunId ?? validationRuns?.[0]?.validationRunId ?? null;
+  const { data: savedValidation, isLoading: loadingBt } = useGetValidationRun(
+    visibleValidationRunId ?? 0,
+    { query: { enabled: !!visibleValidationRunId } as any },
+  );
+  const bt = savedValidation && savedValidation.strategySnapshotId === result?.sessionId
+    ? savedValidation.result : undefined;
+  const validationRequested = !!visibleValidationRunId || createValidationRun.isPending;
+
+  useEffect(() => {
+    if (!savedValidation || savedValidation.strategySnapshotId !== result?.sessionId) return;
+    const a = savedValidation.assumptions;
+    setBtBenchmark(a.benchmarkTicker ?? "none");
+    setBtFrequency(a.rebalanceFrequency as "monthly" | "quarterly");
+    setBtTiming(a.executionTiming as "same_close" | "next_close" | "next_open");
+    setBtTxnCostBps(a.transactionCostBps);
+    setBtSlippageBps(a.slippageBps);
+    setBtCashYield(a.cashYieldAnnual * 100);
+    setBtStartDate(a.startDate ?? "");
+    setBtEndDate(a.endDate ?? "");
+  }, [savedValidation?.validationRunId, savedValidation?.strategySnapshotId, result?.sessionId]);
 
   const handleRunOptimizer = () => {
-    setValidationRequested(false);
+    setSelectedValidationRunId(null);
     runPipeline.mutate(
       { data: { benchmarkTicker: localSettings.getBenchmarksSettings().defaultBenchmark } },
       {
@@ -84,13 +97,29 @@ export default function PortfolioLab() {
   };
 
   const handleRunValidation = () => {
-    setValidationRequested(true);
+    if (!result?.sessionId) return;
+    setValidationError(null);
     setActiveTab("backtest");
-    refetchBt();
+    createValidationRun.mutate({
+      data: {
+        sessionId: result.sessionId, benchmark: btBenchmark,
+        rebalanceFrequency: btFrequency, executionTiming: btTiming,
+        transactionCostBps: btTxnCostBps, slippageBps: btSlippageBps,
+        cashYieldAnnual: btCashYield / 100,
+        ...(btStartDate ? { startDate: btStartDate } : {}),
+        ...(btEndDate ? { endDate: btEndDate } : {}),
+      },
+    }, {
+      onSuccess: (saved) => {
+        setSelectedValidationRunId(saved.validationRunId);
+        refetchValidationRuns();
+      },
+      onError: (error) => setValidationError(error instanceof Error ? error.message : "Validation could not be saved."),
+    });
   };
 
   const isRunning = runPipeline.isPending;
-  const isValidating = loadingBt && validationRequested;
+  const isValidating = createValidationRun.isPending;
 
   return (
     <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
@@ -201,10 +230,15 @@ export default function PortfolioLab() {
         <TabsContent value="backtest" className="space-y-6 pt-4">
           <BacktestTab
             bt={bt}
-            loading={loadingBt}
+            loading={loadingBt || isValidating}
             hasData={hasData}
             hasRun={hasRun}
             validationRequested={validationRequested}
+            validationRun={savedValidation?.strategySnapshotId === result?.sessionId ? savedValidation : undefined}
+            validationRuns={validationRuns ?? []}
+            selectedValidationRunId={visibleValidationRunId}
+            onSelectValidationRun={(id) => setSelectedValidationRunId(id)}
+            validationError={validationError}
             onRunValidation={handleRunValidation}
             benchmark={btBenchmark} setBenchmark={setBtBenchmark}
             frequency={btFrequency} setFrequency={setBtFrequency}

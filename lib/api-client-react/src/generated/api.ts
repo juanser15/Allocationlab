@@ -54,6 +54,7 @@ import type {
   GovernanceVersionSummary,
   HealthStatus,
   ListArchiveParams,
+  ListValidationRunsParams,
   LivePricesFetchInput,
   LivePricesResult,
   PricesStatus,
@@ -75,7 +76,10 @@ import type {
   TradeImplementationMeta,
   TradeImplementationResult,
   Universe,
-  UniverseInput
+  UniverseInput,
+  ValidationRun,
+  ValidationRunInput,
+  ValidationRunSummary
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -2917,6 +2921,225 @@ export function useGetBacktest<TData = Awaited<ReturnType<typeof getBacktest>>, 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetBacktestQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateValidationRunUrl = () => {
+
+
+
+
+  return `/api/validation-runs`
+}
+
+/**
+ * @summary Execute and persist a new immutable validation for a saved Strategy Snapshot
+ */
+export const createValidationRun = async (validationRunInput: ValidationRunInput, options?: RequestInit): Promise<ValidationRun> => {
+
+  return customFetch<ValidationRun>(getCreateValidationRunUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(validationRunInput)
+  }
+);}
+
+
+
+
+export const getCreateValidationRunMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createValidationRun>>, TError,{data: BodyType<ValidationRunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createValidationRun>>, TError,{data: BodyType<ValidationRunInput>}, TContext> => {
+
+const mutationKey = ['createValidationRun'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createValidationRun>>, {data: BodyType<ValidationRunInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createValidationRun(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateValidationRunMutationResult = NonNullable<Awaited<ReturnType<typeof createValidationRun>>>
+    export type CreateValidationRunMutationBody = BodyType<ValidationRunInput>
+    export type CreateValidationRunMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Execute and persist a new immutable validation for a saved Strategy Snapshot
+ */
+export const useCreateValidationRun = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createValidationRun>>, TError,{data: BodyType<ValidationRunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createValidationRun>>,
+        TError,
+        {data: BodyType<ValidationRunInput>},
+        TContext
+      > => {
+      return useMutation(getCreateValidationRunMutationOptions(options));
+    }
+
+export const getListValidationRunsUrl = (params: ListValidationRunsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/validation-runs?${stringifiedParams}` : `/api/validation-runs`
+}
+
+export const listValidationRuns = async (params: ListValidationRunsParams, options?: RequestInit): Promise<ValidationRunSummary[]> => {
+
+  return customFetch<ValidationRunSummary[]>(getListValidationRunsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListValidationRunsQueryKey = (params?: ListValidationRunsParams,) => {
+    return [
+    `/api/validation-runs`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListValidationRunsQueryOptions = <TData = Awaited<ReturnType<typeof listValidationRuns>>, TError = ErrorType<unknown>>(params: ListValidationRunsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listValidationRuns>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListValidationRunsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listValidationRuns>>> = ({ signal }) => listValidationRuns(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listValidationRuns>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListValidationRunsQueryResult = NonNullable<Awaited<ReturnType<typeof listValidationRuns>>>
+export type ListValidationRunsQueryError = ErrorType<unknown>
+
+
+
+export function useListValidationRuns<TData = Awaited<ReturnType<typeof listValidationRuns>>, TError = ErrorType<unknown>>(
+ params: ListValidationRunsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listValidationRuns>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListValidationRunsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetValidationRunUrl = (validationRunId: number,) => {
+
+
+
+
+  return `/api/validation-runs/${validationRunId}`
+}
+
+export const getValidationRun = async (validationRunId: number, options?: RequestInit): Promise<ValidationRun> => {
+
+  return customFetch<ValidationRun>(getGetValidationRunUrl(validationRunId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetValidationRunQueryKey = (validationRunId: number,) => {
+    return [
+    `/api/validation-runs/${validationRunId}`
+    ] as const;
+    }
+
+
+export const getGetValidationRunQueryOptions = <TData = Awaited<ReturnType<typeof getValidationRun>>, TError = ErrorType<unknown>>(validationRunId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getValidationRun>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetValidationRunQueryKey(validationRunId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getValidationRun>>> = ({ signal }) => getValidationRun(validationRunId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: validationRunId !== null && validationRunId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getValidationRun>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetValidationRunQueryResult = NonNullable<Awaited<ReturnType<typeof getValidationRun>>>
+export type GetValidationRunQueryError = ErrorType<unknown>
+
+
+
+export function useGetValidationRun<TData = Awaited<ReturnType<typeof getValidationRun>>, TError = ErrorType<unknown>>(
+ validationRunId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getValidationRun>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetValidationRunQueryOptions(validationRunId,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

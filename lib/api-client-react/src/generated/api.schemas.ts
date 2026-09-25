@@ -1355,7 +1355,7 @@ export interface RunReproduction {
   tolerance: number;
 }
 
-export type ValidationIdentityValidationAssumptions = {
+export interface ValidationAssumptions {
   rebalanceFrequency: string;
   executionTiming: string;
   transactionCostBps: number;
@@ -1369,7 +1369,7 @@ export type ValidationIdentityValidationAssumptions = {
   endDate: string | null;
   /** @nullable */
   benchmarkTicker: string | null;
-};
+}
 
 export interface ValidationIdentity {
   optimizationRunId: number;
@@ -1380,7 +1380,7 @@ export interface ValidationIdentity {
   constraintsSnapshot: ConstraintsInput;
   universeSnapshot: UniverseInput;
   engineVersion: string;
-  validationAssumptions: ValidationIdentityValidationAssumptions;
+  validationAssumptions: ValidationAssumptions;
   validatedAt: string;
 }
 
@@ -1582,6 +1582,63 @@ export interface BacktestConfigEcho {
   startDate: string | null;
 }
 
+export type ValidationRunInputRebalanceFrequency = typeof ValidationRunInputRebalanceFrequency[keyof typeof ValidationRunInputRebalanceFrequency];
+
+
+export const ValidationRunInputRebalanceFrequency = {
+  monthly: 'monthly',
+  quarterly: 'quarterly',
+} as const;
+
+export type ValidationRunInputExecutionTiming = typeof ValidationRunInputExecutionTiming[keyof typeof ValidationRunInputExecutionTiming];
+
+
+export const ValidationRunInputExecutionTiming = {
+  same_close: 'same_close',
+  next_close: 'next_close',
+  next_open: 'next_open',
+} as const;
+
+export interface ValidationRunInput {
+  sessionId: number;
+  benchmark?: string;
+  startDate?: string;
+  endDate?: string;
+  rebalanceFrequency?: ValidationRunInputRebalanceFrequency;
+  executionTiming?: ValidationRunInputExecutionTiming;
+  transactionCostBps?: number;
+  slippageBps?: number;
+  maxTurnoverPerRebalance?: number;
+  cashYieldAnnual?: number;
+  warmupDays?: number;
+}
+
+export interface ValidationRunSummary {
+  validationRunId: number;
+  strategySnapshotId: number;
+  validatedAt: string;
+  reproducibilityStatus: string;
+}
+
+export type ValidationRunReconciliationStatus = typeof ValidationRunReconciliationStatus[keyof typeof ValidationRunReconciliationStatus];
+
+
+export const ValidationRunReconciliationStatus = {
+  pass: 'pass',
+  fail: 'fail',
+} as const;
+
+export type BacktestResultSnapshotStatus = typeof BacktestResultSnapshotStatus[keyof typeof BacktestResultSnapshotStatus];
+
+
+export const BacktestResultSnapshotStatus = {
+  ready: 'ready',
+  legacy: 'legacy',
+  engine_mismatch: 'engine_mismatch',
+  integrity_fail: 'integrity_fail',
+  reproducibility_fail: 'reproducibility_fail',
+} as const;
+
 export interface BacktestRebalanceLogEntry {
   /** Date the point-in-time signal was computed, using only price data strictly before this date */
   rebalanceDate: string;
@@ -1602,6 +1659,15 @@ export interface BacktestRebalanceLogEntry {
   transactionCostPct: number;
 }
 
+export type IntegrityAuditGrade = typeof IntegrityAuditGrade[keyof typeof IntegrityAuditGrade];
+
+
+export const IntegrityAuditGrade = {
+  research_grade: 'research_grade',
+  developmental: 'developmental',
+  not_reliable: 'not_reliable',
+} as const;
+
 export type IntegrityCheckStatus = typeof IntegrityCheckStatus[keyof typeof IntegrityCheckStatus];
 
 
@@ -1618,20 +1684,32 @@ export interface IntegrityCheck {
   detail: string;
 }
 
-export type IntegrityAuditGrade = typeof IntegrityAuditGrade[keyof typeof IntegrityAuditGrade];
-
-
-export const IntegrityAuditGrade = {
-  research_grade: 'research_grade',
-  developmental: 'developmental',
-  not_reliable: 'not_reliable',
-} as const;
-
 export interface IntegrityAudit {
   score: number;
   grade: IntegrityAuditGrade;
   hardFail: boolean;
   checklist: IntegrityCheck[];
+}
+
+export interface WalkForwardFold {
+  foldIndex: number;
+  startDate: string;
+  endDate: string;
+  tradingDays: number;
+  rebalanceCount: number;
+  /** @nullable */
+  cumulativeReturn: number | null;
+  /** @nullable */
+  annualizedReturn: number | null;
+  /** @nullable */
+  sharpeRatio: number | null;
+  /** @nullable */
+  maxDrawdown: number | null;
+}
+
+export interface WalkForwardResult {
+  folds: WalkForwardFold[];
+  note: string;
 }
 
 export type SensitivityRunRebalanceFrequency = typeof SensitivityRunRebalanceFrequency[keyof typeof SensitivityRunRebalanceFrequency];
@@ -1667,38 +1745,6 @@ export interface SensitivityResult {
   stabilityWarning: boolean;
   note: string;
 }
-
-export interface WalkForwardFold {
-  foldIndex: number;
-  startDate: string;
-  endDate: string;
-  tradingDays: number;
-  rebalanceCount: number;
-  /** @nullable */
-  cumulativeReturn: number | null;
-  /** @nullable */
-  annualizedReturn: number | null;
-  /** @nullable */
-  sharpeRatio: number | null;
-  /** @nullable */
-  maxDrawdown: number | null;
-}
-
-export interface WalkForwardResult {
-  folds: WalkForwardFold[];
-  note: string;
-}
-
-export type BacktestResultSnapshotStatus = typeof BacktestResultSnapshotStatus[keyof typeof BacktestResultSnapshotStatus];
-
-
-export const BacktestResultSnapshotStatus = {
-  ready: 'ready',
-  legacy: 'legacy',
-  engine_mismatch: 'engine_mismatch',
-  integrity_fail: 'integrity_fail',
-  reproducibility_fail: 'reproducibility_fail',
-} as const;
 
 export interface BacktestResult {
   optimizationRunId: number;
@@ -1752,6 +1798,20 @@ export interface BacktestResult {
   sensitivity: SensitivityResult;
   warnings: string[];
   methodologyNote: string;
+}
+
+export interface ValidationRun {
+  validationRunId: number;
+  strategySnapshotId: number;
+  datasetHash: string;
+  factorSetVersion: string;
+  engineVersion: string;
+  validatedAt: string;
+  assumptions: ValidationAssumptions;
+  reconciliationStatus: ValidationRunReconciliationStatus;
+  reproducibilityStatus: string;
+  validationInputHash: string;
+  result: BacktestResult;
 }
 
 export type CommitteeRecommendationPersonaId = typeof CommitteeRecommendationPersonaId[keyof typeof CommitteeRecommendationPersonaId];
@@ -2116,6 +2176,10 @@ export const GetBacktestExecutionTiming = {
   next_close: 'next_close',
   next_open: 'next_open',
 } as const;
+
+export type ListValidationRunsParams = {
+sessionId: number;
+};
 
 export type GetCommittee404 = {
   error: string;

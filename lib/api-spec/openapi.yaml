@@ -971,6 +971,59 @@ paths:
               schema:
                 $ref: "#/components/schemas/BacktestResult"
 
+  /validation-runs:
+    post:
+      operationId: createValidationRun
+      tags: [backtest]
+      summary: Execute and persist a new immutable validation for a saved Strategy Snapshot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ValidationRunInput"
+      responses:
+        "201":
+          description: Saved validation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationRun"
+    get:
+      operationId: listValidationRuns
+      tags: [backtest]
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Validation Runs for the selected Strategy Snapshot, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ValidationRunSummary"
+
+  /validation-runs/{validationRunId}:
+    get:
+      operationId: getValidationRun
+      tags: [backtest]
+      parameters:
+        - name: validationRunId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Exact persisted result (never recalculated)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationRun"
+
   /committee:
     get:
       operationId: getCommittee
@@ -3042,21 +3095,24 @@ components:
           $ref: "#/components/schemas/UniverseInput"
         engineVersion: { type: string }
         validationAssumptions:
-          type: object
-          properties:
-            rebalanceFrequency: { type: string }
-            executionTiming: { type: string }
-            transactionCostBps: { type: number }
-            slippageBps: { type: number }
-            maxTurnoverPerRebalance: { type: number }
-            cashYieldAnnual: { type: number }
-            warmupDays: { type: integer }
-            startDate: { type: [string, "null"] }
-            endDate: { type: [string, "null"] }
-            benchmarkTicker: { type: [string, "null"] }
-          required: [rebalanceFrequency, executionTiming, transactionCostBps, slippageBps, maxTurnoverPerRebalance, cashYieldAnnual, warmupDays, startDate, endDate, benchmarkTicker]
+          $ref: "#/components/schemas/ValidationAssumptions"
         validatedAt: { type: string }
       required: [optimizationRunId, datasetId, datasetHash, factorSetVersion, factorSetSnapshot, constraintsSnapshot, universeSnapshot, engineVersion, validationAssumptions, validatedAt]
+
+    ValidationAssumptions:
+      type: object
+      properties:
+        rebalanceFrequency: { type: string }
+        executionTiming: { type: string }
+        transactionCostBps: { type: number }
+        slippageBps: { type: number }
+        maxTurnoverPerRebalance: { type: number }
+        cashYieldAnnual: { type: number }
+        warmupDays: { type: integer }
+        startDate: { type: [string, "null"] }
+        endDate: { type: [string, "null"] }
+        benchmarkTicker: { type: [string, "null"] }
+      required: [rebalanceFrequency, executionTiming, transactionCostBps, slippageBps, maxTurnoverPerRebalance, cashYieldAnnual, warmupDays, startDate, endDate, benchmarkTicker]
 
     PipelineStep:
       type: object
@@ -3313,6 +3369,49 @@ components:
         startDate:
           type: ["string", "null"]
       required: [rebalanceFrequency, executionTiming, transactionCostBps, slippageBps, maxTurnoverPerRebalance, cashYieldAnnual, warmupDays, startDate]
+
+    ValidationRunInput:
+      type: object
+      properties:
+        sessionId: { type: integer }
+        benchmark: { type: string }
+        startDate: { type: string }
+        endDate: { type: string }
+        rebalanceFrequency: { type: string, enum: [monthly, quarterly] }
+        executionTiming: { type: string, enum: [same_close, next_close, next_open] }
+        transactionCostBps: { type: number }
+        slippageBps: { type: number }
+        maxTurnoverPerRebalance: { type: number }
+        cashYieldAnnual: { type: number }
+        warmupDays: { type: integer }
+      required: [sessionId]
+
+    ValidationRunSummary:
+      type: object
+      properties:
+        validationRunId: { type: integer }
+        strategySnapshotId: { type: integer }
+        validatedAt: { type: string }
+        reproducibilityStatus: { type: string }
+      required: [validationRunId, strategySnapshotId, validatedAt, reproducibilityStatus]
+
+    ValidationRun:
+      type: object
+      properties:
+        validationRunId: { type: integer }
+        strategySnapshotId: { type: integer }
+        datasetHash: { type: string }
+        factorSetVersion: { type: string }
+        engineVersion: { type: string }
+        validatedAt: { type: string }
+        assumptions:
+          $ref: "#/components/schemas/ValidationAssumptions"
+        reconciliationStatus: { type: string, enum: [pass, fail] }
+        reproducibilityStatus: { type: string }
+        validationInputHash: { type: string }
+        result:
+          $ref: "#/components/schemas/BacktestResult"
+      required: [validationRunId, strategySnapshotId, datasetHash, factorSetVersion, engineVersion, validatedAt, assumptions, reconciliationStatus, reproducibilityStatus, validationInputHash, result]
 
     BacktestRebalanceLogEntry:
       type: object

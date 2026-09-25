@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ValidationIdentityValidationAssumptions = {
+export interface ValidationAssumptions {
   rebalanceFrequency: string;
   executionTiming: string;
   transactionCostBps: number;
@@ -20,4 +20,4 @@ export type ValidationIdentityValidationAssumptions = {
   endDate: string | null;
   /** @nullable */
   benchmarkTicker: string | null;
-};
+}

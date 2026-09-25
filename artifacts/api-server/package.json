@@ -9,7 +9,8 @@
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test:a1": "esbuild src/lib/calculator.a1.test.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./src/lib/calculator.a1.db-shim.ts --outfile=dist/calculator.a1.test.mjs && node --test dist/calculator.a1.test.mjs",
-    "test:a2": "esbuild src/lib/run-snapshot.a2.test.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./src/lib/calculator.a1.db-shim.ts --outfile=dist/run-snapshot.a2.test.mjs && node --test dist/run-snapshot.a2.test.mjs"
+    "test:a2": "esbuild src/lib/run-snapshot.a2.test.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./src/lib/calculator.a1.db-shim.ts --outfile=dist/run-snapshot.a2.test.mjs && node --test dist/run-snapshot.a2.test.mjs",
+    "test:a21": "esbuild src/lib/validation-runs.a21.test.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/validation-runs.a21.test.mjs && node --test dist/validation-runs.a21.test.mjs"
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",

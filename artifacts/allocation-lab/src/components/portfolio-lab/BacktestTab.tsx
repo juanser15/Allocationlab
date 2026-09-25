@@ -15,7 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { EmptyState } from "@/components/shared/EmptyState";
 import { DetailDrawer } from "@/components/shared/DetailDrawer";
 import { FlaskConical, CheckCircle2, XCircle, ShieldAlert, Info, Loader2, ShieldCheck, Lock } from "lucide-react";
-import type { BacktestResult } from "@workspace/api-client-react";
+import type { BacktestResult, ValidationRun, ValidationRunSummary } from "@workspace/api-client-react";
 import { ScenarioStressLab } from "@/components/research-lab/ScenarioStressLab";
 
 interface Props {
@@ -25,6 +25,11 @@ interface Props {
   hasRun: boolean;
   validationRequested: boolean;
   onRunValidation: () => void;
+  validationRun: ValidationRun | undefined;
+  validationRuns: ValidationRunSummary[];
+  selectedValidationRunId: number | null;
+  onSelectValidationRun: (id: number) => void;
+  validationError: string | null;
   benchmark: string; setBenchmark: (v: string) => void;
   frequency: "monthly" | "quarterly"; setFrequency: (v: "monthly" | "quarterly") => void;
   timing: "same_close" | "next_close" | "next_open"; setTiming: (v: "same_close" | "next_close" | "next_open") => void;
@@ -99,6 +104,7 @@ const ROBUSTNESS_TESTS = [
 export function BacktestTab(props: Props) {
   const {
     bt, loading, hasData, hasRun, validationRequested, onRunValidation,
+    validationRun, validationRuns, selectedValidationRunId, onSelectValidationRun, validationError,
     benchmark, setBenchmark, frequency, setFrequency, timing, setTiming,
     txnCostBps, setTxnCostBps, slippageBps, setSlippageBps,
     cashYield, setCashYield, startDate, setStartDate, endDate, setEndDate,
@@ -266,6 +272,20 @@ export function BacktestTab(props: Props) {
                 Data: {bt.dataStartDate ?? "—"} → {bt.dataEndDate ?? "—"} · {bt.tradingDays} trading days
               </span>
             )}
+            {validationRuns.length > 0 && selectedValidationRunId && (
+              <Select value={String(selectedValidationRunId)} onValueChange={(id) => onSelectValidationRun(Number(id))}>
+                <SelectTrigger aria-label="Saved Validation Run" className="h-8 w-56 text-xs">
+                  <SelectValue placeholder="Saved Validation Runs" />
+                </SelectTrigger>
+                <SelectContent>
+                  {validationRuns.map((run) => (
+                    <SelectItem key={run.validationRunId} value={String(run.validationRunId)}>
+                      Validation #{run.validationRunId} · {new Date(run.validatedAt).toLocaleString()}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {!validationRequested && (
@@ -277,10 +297,11 @@ export function BacktestTab(props: Props) {
           {validationRequested && bt && (
             <div className="text-[11px] text-muted-foreground">
               <p>
-                Validating run #{bt.optimizationRunId} · Reproduction: {bt.reproducibility.status.toUpperCase()}
+                Validation Run #{validationRun?.validationRunId} · Validated: {validationRun?.validatedAt}
+                {" "}· Strategy Snapshot #{validationRun?.strategySnapshotId} · Reproduction: {validationRun?.reproducibilityStatus.toUpperCase()}
                 {bt.validationIdentity && (
                   <> · Dataset SHA-256: {bt.validationIdentity.datasetHash} · Factor set: {bt.validationIdentity.factorSetVersion}
-                    {" "}· Engine: {bt.validationIdentity.engineVersion} · Validated: {bt.validationIdentity.validatedAt}</>
+                    {" "}· Engine: {bt.validationIdentity.engineVersion}</>
                 )}
                 {bt.reproducibility.differences.length > 0 && <> · {bt.reproducibility.differences.join("; ")}</>}
               </p>
@@ -293,6 +314,9 @@ export function BacktestTab(props: Props) {
                 </details>
               )}
             </div>
+          )}
+          {validationError && (
+            <p role="alert" className="text-xs text-red-700">{validationError}</p>
           )}
         </CardContent>
       </Card>
