@@ -1,0 +1,407 @@
+C2 — FIXTURE VALIDATION & FINAL END-TO-END CLOSURE
+
+CLOSED-SCOPE TASK.
+
+Current state:
+
+- C2 diagnostic logic T1–T7 passes.
+- Typecheck passes.
+- DB runner now loads correctly.
+- Database assertions execute.
+- DB suite currently fails 2 of 5 assertions because the synthetic
+  dependency fixtures do not produce the expected C1 states.
+- No application defect has yet been established.
+- No C3 work is authorized.
+
+GOAL
+
+Determine whether the two failing database assertions are caused by
+invalid synthetic fixtures or by an actual C1/C2 application defect.
+
+Then make ONLY the minimum necessary correction.
+
+Do not redesign C2.
+Do not change financial methodology unless a valid fixture proves
+the application behavior is wrong.
+
+--------------------------------------------------
+1. FIRST: DIAGNOSE THE TWO FAILURES
+--------------------------------------------------
+
+For each failing DB assertion, capture the complete dependency chain.
+
+FAILURE A
+
+Expected:
+C1 dependency status = completed
+
+Observed:
+C1 dependency status = failed
+
+Report:
+
+- generated B1 preparation ID;
+- generated B2 policy ID;
+- C1 experiment ID;
+- C1 child Validation Run IDs;
+- selected canonical alpha ID;
+- dataset ID/hash;
+- development dates;
+- estimation window;
+- objective and constraints;
+- C1 experiment status;
+- exact C1 failure reason;
+- exact B3 child failure reason/date if applicable;
+- whether the exclusion itself was feasible;
+- whether required history existed;
+- whether solver status was valid.
+
+Do not merely report “failed”.
+
+FAILURE B
+
+Expected:
+one alpha exact-reusable,
+one alpha unavailable/create-required
+
+Observed:
+both unavailable
+
+For BOTH alphas report:
+
+- canonical alpha ID;
+- expected compatibility state;
+- candidate C1 experiment IDs considered;
+- compatibility fingerprint for C2 request;
+- compatibility fingerprint for each candidate C1;
+- exact first mismatching field for rejected C1s;
+- dependency-plan result;
+- whether a successful exact-compatible C1 actually existed.
+
+The diagnosis must establish whether the test setup really created the
+preconditions that the assertion claims.
+
+--------------------------------------------------
+2. FIXTURE VALIDITY RULE
+--------------------------------------------------
+
+A fixture may only be used to test exact reuse if its C1 experiment:
+
+- completed successfully;
+- has successful B3 children;
+- uses the exact same frozen B1 preparation;
+- uses the exact same B2 policy;
+- has the same canonical candidate set before exclusion;
+- uses the same dataset/hash;
+- uses the same development dates;
+- uses identical estimation assumptions;
+- uses identical objective parameters;
+- uses identical constraints;
+- uses identical execution timing;
+- uses identical costs/slippage/cash assumptions;
+- has the expected alpha excluded and no other economic difference.
+
+If any of these conditions are not met, the fixture is INVALID_FOR_REUSE.
+
+Do not change the application to make an invalid fixture reusable.
+
+--------------------------------------------------
+3. BUILD ONE PROVEN FEASIBLE FIXTURE FAMILY
+--------------------------------------------------
+
+If the current fixtures are invalid, replace ONLY the test fixtures.
+
+Use one deterministic fixture family for R1–R5.
+
+It must produce:
+
+BASE PREPARATION P
+
+- valid B1 alpha-stream preparation;
+- at least three tradable alphas;
+- sufficient warmup and development history;
+- deterministic prices/returns;
+- no missing held prices.
+
+BASE B2 POLICY Q
+
+- valid frozen alpha-stream policy;
+- feasible continuous constraints;
+- positive risky allocation;
+- successful B2 solve.
+
+ALPHA A — EXACT REUSE CASE
+
+Create C1 experiment CA:
+
+Full policy
+vs
+Full policy without Alpha A
+
+Requirements:
+- completed;
+- all required B3 children completed;
+- replay/integrity PASS;
+- economically exact-compatible with the later C2 request.
+
+ALPHA B — INCOMPATIBLE HISTORY CASE
+
+Create C1 experiment CB_old:
+
+Full policy
+vs
+Full policy without Alpha B
+
+but change exactly ONE economically relevant field, preferably:
+
+transactionCostBps
+
+Requirements:
+- completed successfully;
+- intentionally incompatible with later C2;
+- exact mismatch is known and asserted.
+
+There must be NO exact-compatible Alpha B C1 before C2 runs.
+
+ALPHA C — FAILURE CASE
+
+Construct a separate exclusion that is intentionally infeasible
+under a clearly declared constraint.
+
+This is used only for R4.
+
+--------------------------------------------------
+4. REUSE THE SAME FIXTURE FACTORY EVERYWHERE
+--------------------------------------------------
+
+The DB-backed suite and browser R5 must use the SAME deterministic
+fixture-construction helper or equivalent single source of truth.
+
+Do not maintain separate DB and UI fixture semantics.
+
+Generated IDs must be captured dynamically.
+
+Do not hard-code historical IDs.
+
+For the browser scenario, DO NOT delete the fixture records before
+the browser uses them.
+
+Create a verification namespace/run identifier so the browser can
+find the exact generated fixtures.
+
+After the browser test, cleanup may occur.
+
+--------------------------------------------------
+5. IF AN ACTUAL APPLICATION DEFECT IS PROVEN
+--------------------------------------------------
+
+Only if a fixture satisfies all validity requirements and the application
+still produces incorrect dependency behavior:
+
+apply the smallest application-source correction necessary.
+
+Document:
+
+- expected behavior;
+- observed behavior;
+- exact application path causing the mismatch;
+- exact correction.
+
+Do NOT:
+- weaken fingerprints;
+- accept approximate C1 matches;
+- restore legacy fallback;
+- alter financial calculations unrelated to the proven defect.
+
+If no application defect is demonstrated:
+
+APPLICATION SOURCE MUST REMAIN UNCHANGED.
+
+--------------------------------------------------
+6. DATABASE ACCEPTANCE — R1 TO R4
+--------------------------------------------------
+
+R1 — EXACT REUSE
+
+Using Alpha A:
+
+PASS only if:
+- exact C1 CA exists and is completed;
+- resolver returns EXACT_REUSE;
+- dependency ID equals CA;
+- no duplicate C1 is created;
+- incremental metrics reconcile within 1e-8.
+
+R2 — CREATE MISSING EXACT DEPENDENCY
+
+Using Alpha B:
+
+Before C2:
+- incompatible CB_old exists;
+- exact-compatible C1 does not exist.
+
+PASS only if:
+- CB_old is rejected;
+- resolver returns CREATE_REQUIRED;
+- exactly one new exact-compatible C1 is created;
+- new C1 completes and replays successfully;
+- C2 references the new C1.
+
+R3 — INCOMPATIBLE C1 NEVER REUSED
+
+PASS only if:
+- CB_old ID is never used;
+- exact mismatch field is reported;
+- newly created exact-compatible C1 has a different ID;
+- resulting dependency fingerprint equals C2's frozen requirement.
+
+R4 — FAILURE INTEGRITY
+
+Using Alpha C:
+
+PASS only if:
+- required C1 creation fails for the intended deterministic reason;
+- no compatible or legacy fallback occurs;
+- dependency becomes unavailable;
+- incremental contribution is unavailable;
+- other independent C2 diagnostics remain available.
+
+--------------------------------------------------
+7. REAL UI R5
+--------------------------------------------------
+
+After R1–R4 pass, retain the valid fixture family.
+
+Use a fresh browser context.
+
+Through the actual UI:
+
+1. Open Alpha Diagnostics.
+2. Select generated B2 policy Q.
+3. Select generated B1 preparation P.
+4. Select Alpha A and Alpha B.
+5. Include multiple regimes.
+6. Include rolling diagnostics.
+7. Include incremental contribution.
+8. Inspect dependency plan.
+
+Required visible plan:
+
+Alpha A:
+Existing comparison reused
+C1 = CA
+
+Alpha B:
+New comparison will be generated
+CB_old must NOT appear as reusable.
+
+9. Run Alpha Diagnostics.
+10. Record:
+    - C2 experiment ID;
+    - reused Alpha A C1 ID;
+    - incompatible Alpha B C1 ID;
+    - newly created Alpha B C1 ID.
+11. Change draft settings.
+12. Open fresh browser context.
+13. Retrieve saved C2 experiment.
+14. Click rendered Replay.
+
+PASS only if:
+
+- replay request is POST;
+- HTTP 200;
+- status PASS;
+- unexpected differences = 0;
+- maximum numeric difference <= 1e-8;
+- saved dependency IDs unchanged;
+- CB_old was never substituted;
+- all referenced C1/B3 integrity checks pass;
+- UI visibly reports PASS.
+
+--------------------------------------------------
+8. C2 T8
+--------------------------------------------------
+
+The successful R5 scenario is also the required C2 T8 integration case
+if it contains:
+
+- at least two alphas;
+- more than one regime;
+- rolling diagnostics;
+- incremental contribution;
+- immutable persistence;
+- fresh-client retrieval;
+- successful replay.
+
+Do not create a second redundant browser scenario if R5 already proves T8.
+
+--------------------------------------------------
+9. FINAL VERIFICATION
+--------------------------------------------------
+
+On the final revision run once:
+
+- DB-backed R1–R4 suite;
+- R5 browser flow;
+- complete C2 T1–T8;
+- C2 persistence/integrity suite;
+- workspace typecheck.
+
+If application source was NOT changed:
+do not rerun all A1–C1 regressions again.
+
+If application source WAS changed:
+run A1, A2, A2.1, A3, B1, B2, B3 and C1 once.
+
+No repeated reruns until green.
+
+--------------------------------------------------
+DELIVERABLE
+--------------------------------------------------
+
+Return only:
+
+C2 FINAL CLOSURE REPORT
+
+- root cause of original two DB assertion failures;
+- whether fixtures or application logic were corrected;
+- whether application source changed;
+- generated B1 preparation ID;
+- generated B2 policy ID;
+- Alpha A exact-compatible C1 ID;
+- Alpha B incompatible C1 ID;
+- Alpha B newly created compatible C1 ID;
+- Alpha C failure reason;
+- R1 PASS/FAIL;
+- R2 PASS/FAIL;
+- R3 PASS/FAIL;
+- R4 PASS/FAIL;
+- R5 PASS/FAIL;
+- C2 T1–T8 PASS/FAIL;
+- persistence/integrity PASS/FAIL;
+- UI-created C2 experiment ID;
+- maximum replay numeric difference;
+- typecheck PASS/FAIL;
+- regressions, only if application source changed;
+- exact remaining blocker, if any.
+
+STOP CONDITION
+
+If:
+- R1–R5 pass;
+- C2 T1–T8 pass;
+- persistence/integrity passes;
+- replay passes;
+- typecheck passes;
+
+C2 CLOSED.
+STOP.
+
+Otherwise:
+
+C2 BLOCKED.
+Report exact unresolved gate.
+STOP.
+
+Do not begin C3.
+No autonomous repair loop.

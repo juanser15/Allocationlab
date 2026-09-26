@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
 import test, { after } from "node:test";
+import { writeFile } from "node:fs/promises";
 import { eq, inArray } from "drizzle-orm";
 import type { C2ExperimentInput } from "@workspace/api-zod";
-import type { PreparedCandidate, PreparedSnapshot } from "./prepared-inputs";
+import { prepareSnapshot, type PreparedSnapshot } from "./prepared-inputs";
 import type { AllocationRequest } from "./allocation-b2";
+import { optimizePreparedSnapshot } from "./allocation-b2";
+import type { FactorDefinition } from "./factor-library";
 
 const databaseAvailable = Boolean(process.env.DATABASE_URL);
 let dbModule: typeof import("@workspace/db") | undefined;
@@ -22,88 +25,31 @@ after(async () => {
 
 const dateAt = (index: number) => new Date(Date.UTC(2020, 0, 1 + index)).toISOString().slice(0, 10);
 
-function buildCandidate(id: string, datasetHash: string, count: number, phase: number): PreparedCandidate {
-  const returns = Array.from({ length: count - 1 }, (_, index) =>
-    0.0004 + Math.sin(index * 1.39 + phase) * 0.0012 + Math.cos(index * 0.31) * 0.0002);
-  const streamDates = returns.map((_, index) => dateAt(index + 1));
-  return {
-    candidateId: id,
-    canonicalFingerprint: id,
-    name: id,
-    kind: "alpha_streams",
-    status: "READY",
-    reasons: [],
-    factorId: "momentum",
-    assetTickers: ["A"],
-    mapping: "single_asset_long_cash",
-    signalUnits: "oriented",
-    targetAssetExposures: { A: 1 },
-    actualAssetExposures: { A: 1 },
-    targetHistory: streamDates.map((date, index) => ({
-      signalDate: date,
-      informationCutoff: dateAt(index),
-      executionDate: date,
-      targetPositions: { A: 1 },
-    })),
-    residualCash: 0,
-    signalSeries: [],
-    returnSeries: returns.map((value, index) => ({ date: streamDates[index], value })),
-    ledger: returns.map((value, index) => ({
-      date: streamDates[index],
-      beginningNav: 1,
-      netPnl: value,
-      transactionCosts: 0.00001,
-      grossReturn: value + 0.00001,
-      externalTradedNotional: index / 1000,
-      endingPositions: [{ ticker: "A", weight: 1 }],
-    })),
-    lineage: {
-      datasetHash,
-      definition: {
-        name: id,
-        factorId: "momentum",
-        assetTickers: ["A"],
-        mapping: "single_asset_long_cash",
-        signalUnits: "oriented",
-        threshold: 0.1 + phase,
-        cashYieldAnnual: 0.025,
-      },
-    },
-    diagnostics: { duplicateOf: null },
-  } as unknown as PreparedCandidate;
-}
+const verificationFactor: FactorDefinition = {
+  id: "c2_verification_momentum", name: "C2 verification momentum", description: "Deterministic verification fixture",
+  family: "Test", enabled: true, status: "active", inputSeries: "adjusted close",
+  calculationType: "momentum", formula: "P(t-lag)/P(t-lag-lookback)-1",
+  direction: "higher_is_better", lookback: 5, lag: 0, normalization: "percentile_rank",
+  winsorizationLower: 0, winsorizationUpper: 1, missingDataTreatment: "exclude",
+  baseWeight: 1, regimeWeights: { riskOn: 1, neutral: 1, riskOff: 1 },
+  activeRegimes: ["risk_on", "neutral", "risk_off"], dataSource: "C2 verification prices",
+  benchmarkTicker: null, currentCoverage: 1, availabilityReason: null, version: "c2-verification-v1",
+};
 
-function makeSnapshot(csvContent: string, datasetHash: string, count: number, candidateIds: [string, string]): PreparedSnapshot {
-  return {
-    schemaVersion: 1,
-    engineVersion: "b1-c2-persistence-test",
-    a1EngineVersion: "a1-c2-persistence-test",
-    representation: "alpha_streams",
-    dataset: {
-      id: null,
-      sha256: datasetHash,
-      csvContent,
-      startDate: dateAt(0),
-      endDate: dateAt(count - 1),
-      tickers: ["A", "B"],
-      priceConvention: "test adjusted close",
-    },
-    factorSet: { version: "fixture-factor-set-1", factors: [] },
+function makeSnapshot(csvContent: string): PreparedSnapshot {
+  return prepareSnapshot({
     request: {
-      representation: "alpha_streams",
-      assetTickers: ["A", "B"],
-      factorIds: ["momentum"],
-      alphaDefinitions: [],
+      representation: "alpha_streams", assetTickers: ["A", "B", "C"], factorIds: [],
+      alphaDefinitions: (["A", "B", "C"] as const).map((ticker, index) => ({
+        name: `C2 verification Alpha ${ticker}`, factorId: verificationFactor.id, assetTickers: [ticker],
+        mapping: "single_asset_long_cash" as const, signalUnits: "oriented" as const,
+        threshold: -100, grossFraction: [0.45, 0.7, 1][index],
+        rebalanceFrequency: "monthly" as const, executionTiming: "next_close" as const,
+        transactionCostBps: 0, slippageBps: 0, cashYieldAnnual: 0,
+      })),
     },
-    coverage: {},
-    candidates: [
-      buildCandidate(candidateIds[0], datasetHash, count, 0),
-      buildCandidate(candidateIds[1], datasetHash, count, 0.47),
-    ],
-    dependence: {},
-    suppliedWeights: {},
-    createdAt: "2020-01-01T00:00:00.000Z",
-  };
+    csvContent, factorVersion: verificationFactor.version, factors: [verificationFactor],
+  });
 }
 
 function preparedFingerprint(snapshot: PreparedSnapshot, fingerprint: (value: unknown) => string): string {
@@ -115,25 +61,27 @@ function preparedFingerprint(snapshot: PreparedSnapshot, fingerprint: (value: un
   });
 }
 
-async function makeDbFixture(options: { mismatchAllocationSnapshot?: boolean; validationStatus?: string } = {}) {
+async function makeDbFixture(options: { mismatchAllocationSnapshot?: boolean; validationStatus?: string; cashMax?: number } = {}) {
   const { db, allocationsTable, preparedInputsTable, fingerprint, hashDataset } = await (async () => {
     const database = await modules();
     const { fingerprint: fp } = await import("./prepared-inputs");
     const { hashDataset: hash } = await import("./run-snapshot");
     return { ...database, fingerprint: fp, hashDataset: hash };
   })();
-  const unique = ++fixtureSequence;
-  const alphaIds: [string, string] = [`c2-db-${unique}-alpha-a`, `c2-db-${unique}-alpha-b`];
-  const rows = ["date,A,B"];
-  const observationCount = 110;
+  ++fixtureSequence;
+  const rows = ["date,A,B,C"];
+  const observationCount = 180;
   for (let index = 0; index < observationCount; index++) {
-    const a = 100 + index * 0.21 + Math.sin(index * 0.19) * 1.7;
-    const b = 70 + index * 0.13 + Math.cos(index * 0.23) * 1.2;
-    rows.push(`${dateAt(index)},${a.toFixed(8)},${b.toFixed(8)}`);
+    const prices = [0, 1, 2].map(asset =>
+      (100 + (index + 1) * (asset + 1) * 0.17 + Math.sin(index * (asset + 1)) * 2).toFixed(8));
+    rows.push(`${dateAt(index)},${prices.join(",")}`);
   }
   const csvContent = rows.join("\n");
   const datasetHash = hashDataset(csvContent);
-  const snapshot = makeSnapshot(csvContent, datasetHash, observationCount, alphaIds);
+  const snapshot = makeSnapshot(csvContent);
+  assert.equal(snapshot.dataset.sha256, datasetHash);
+  const alphaIds = snapshot.candidates.map(candidate => candidate.candidateId) as [string, string, string];
+  assert.deepEqual(snapshot.candidates.map(candidate => candidate.status), ["READY", "READY", "READY"]);
   const policyRow = (await db.insert(preparedInputsTable).values({
     representation: "alpha_streams",
     fingerprint: preparedFingerprint(snapshot, fingerprint),
@@ -152,26 +100,24 @@ async function makeDbFixture(options: { mismatchAllocationSnapshot?: boolean; va
   const allocationRequest: AllocationRequest = {
     preparedInputId: policyRow.id,
     candidateIds: [...alphaIds],
-    informationCutoff: dateAt(90),
-    decisionTimestamp: dateAt(91),
-    estimationWindow: 60,
-    minObservations: 20,
+    informationCutoff: dateAt(89),
+    decisionTimestamp: dateAt(90),
+    estimationWindow: 45,
+    minObservations: 25,
     representation: "alpha_streams",
     returnConvention: "daily_decimal",
     expectedReturnShrinkage: 0,
     covarianceDiagonalShrinkage: 0,
     dailyCashYield: 0.0001,
     objective: { type: "minimum_variance", gamma: 1, eta: 0 },
-    constraints: {},
+    constraints: { totalCash: { max: options.cashMax ?? 0.4 } },
   };
   const frozenSnapshot = structuredClone(snapshot);
   if (options.mismatchAllocationSnapshot)
     frozenSnapshot.candidates[0].lineage.datasetHash = "deliberately-mutated-frozen-b2-source";
-  const frozenResult = {
-    status: "SOLVED",
-    candidateWeights: { [alphaIds[0]]: 0.5, [alphaIds[1]]: 0.5 },
-    assetWeights: { A: 1 },
-  };
+  const frozenResult = optimizePreparedSnapshot(snapshot, allocationRequest);
+  assert.equal(frozenResult.status, "SOLVED", frozenResult.reason ?? undefined);
+  assert.ok(frozenResult.totalCash !== null && frozenResult.totalCash < 1);
   const frozenSnapshotHash = fingerprint(frozenSnapshot);
   const allocationEngineVersion = "b2-c2-persistence-test";
   const allocationFp = fingerprint({
@@ -198,9 +144,9 @@ async function makeDbFixture(options: { mismatchAllocationSnapshot?: boolean; va
     allocationId: allocation.id,
     validationPreparedInputId: validationRow.id,
     c1ExperimentId: null,
-    alphaIds: [...alphaIds],
-    startDate: dateAt(1),
-    endDate: dateAt(observationCount - 1),
+    alphaIds: alphaIds.slice(0, 2),
+    startDate: dateAt(55),
+    endDate: dateAt(150),
     regimeSource: "frozen_b1_prefix",
     rollingWindow: 24,
     rollingStep: 12,
@@ -291,7 +237,27 @@ test("C2 resolves one exact C1 child and plans/creates the missing selected-alph
     });
     if (!("experiment" in c1) || !c1.experiment)
       throw new Error("Could not persist the real C1 compatibility fixture: " + ("error" in c1 ? c1.error : "missing response"));
-    assert.equal(c1.experiment.status, "completed");
+    if (c1.experiment.status !== "completed") {
+      const { db, c1ExperimentsTable } = await modules();
+      const [failed] = await db.select().from(c1ExperimentsTable)
+        .where(eq(c1ExperimentsTable.id, c1.experiment.id));
+      assert.fail(`C1 fixture failed: ${JSON.stringify({
+        b1: fixture.input.validationPreparedInputId, b2: fixture.input.allocationId,
+        c1: c1.experiment.id, alpha: fixture.alphaIds[0],
+        children: failed?.childResultsJson, manifest: failed?.manifestJson,
+      })}`);
+    }
+    const old = await persistC1Experiment({
+      allocationId: fixture.input.allocationId,
+      validationPreparedInputId: fixture.input.validationPreparedInputId,
+      assumptions: fixtureAssumptions(fixture.input, 12),
+      mode: "single", exclusionSets: [[fixture.alphaIds[1]]],
+    });
+    if (!("experiment" in old) || !old.experiment)
+      throw new Error("Cost-mismatched historical C1 fixture failed to persist.");
+    assert.equal(old.experiment.status, "completed");
+    assert.equal((await replayC1Experiment(old.experiment.id))?.status, "pass");
+    assert.notEqual(old.experiment.id, c1.experiment.id);
 
     const { planC2Dependencies, persistC2Experiment: persistC2 } = await modules();
     const planned = await planC2Dependencies({ ...fixture.input, c1ExperimentId: c1.experiment.id });
@@ -300,7 +266,9 @@ test("C2 resolves one exact C1 child and plans/creates the missing selected-alph
     assert.deepEqual(planned.plan.dependencies.map((item) => [item.alphaId, item.status, item.c1ExperimentId]), [
       [fixture.alphaIds[0], "REUSE", c1.experiment.id],
       [fixture.alphaIds[1], "WILL_CREATE", null],
-    ]);
+    ], JSON.stringify({
+      plan: planned.plan.dependencies, c1Replay: await replayC1Experiment(c1.experiment.id),
+    }));
     assert.equal(planned.plan.reusedCount, 1);
     assert.equal(planned.plan.toCreateCount, 1);
     assert.equal(planned.plan.newPolicyCount, 2);
@@ -315,6 +283,8 @@ test("C2 resolves one exact C1 child and plans/creates the missing selected-alph
     assert.equal(sources.dependencyPlan[1].status, "CREATED");
     const createdC1Id = sources.dependencyPlan[1].c1ExperimentId;
     assert.ok(Number.isSafeInteger(createdC1Id));
+    assert.notEqual(createdC1Id, old.experiment.id);
+    assert.equal((sources.c1ByAlpha[fixture.alphaIds[1]] as any).manifest.assumptions.transactionCostBps, 0);
     assert.ok(sources.c1ByAlpha[fixture.alphaIds[0]]);
     assert.ok(sources.c1ByAlpha[fixture.alphaIds[1]]);
     const replay = await replayC1Experiment(createdC1Id);
@@ -325,12 +295,52 @@ test("C2 resolves one exact C1 child and plans/creates the missing selected-alph
   }
 });
 
+test("C2 R5 retained verification fixtures (run only with C2_SEED_R5=1)", {
+  skip: !databaseAvailable || process.env.C2_SEED_R5 !== "1",
+}, async () => {
+  const fixture = await makeDbFixture();
+  const { persistC1Experiment, replayC1Experiment } = await import("./c1-experiment-store");
+  const create = async (alpha: string, cost: number) => {
+    const saved = await persistC1Experiment({
+      allocationId: fixture.input.allocationId,
+      validationPreparedInputId: fixture.input.validationPreparedInputId,
+      assumptions: fixtureAssumptions(fixture.input, cost),
+      mode: "single", exclusionSets: [[alpha]],
+    });
+    if (!("experiment" in saved) || !saved.experiment || saved.experiment.status !== "completed")
+      throw new Error(`Verification C1 ${alpha} at cost ${cost} did not complete: ${JSON.stringify(saved)}`);
+    const replay = await replayC1Experiment(saved.experiment.id);
+    assert.equal(replay?.status, "pass", replay?.differences.join("\n"));
+    return saved.experiment.id;
+  };
+  const exactC1Id = await create(fixture.alphaIds[0], 0);
+  const incompatibleC1Id = await create(fixture.alphaIds[1], 12);
+  const planned = await storeModule!.planC2Dependencies({ ...fixture.input, c1ExperimentId: exactC1Id });
+  assert.ok("plan" in planned && planned.plan);
+  assert.deepEqual(planned.plan.dependencies.map(d => [d.status, d.c1ExperimentId]),
+    [["REUSE", exactC1Id], ["WILL_CREATE", null]]);
+  const descriptor = {
+    namespace: `C2-verification-${fixture.input.allocationId}`,
+    b1Id: fixture.input.validationPreparedInputId, b2Id: fixture.input.allocationId,
+    alphaA: fixture.alphaIds[0], alphaB: fixture.alphaIds[1], alphaC: fixture.alphaIds[2],
+    exactC1Id, incompatibleC1Id,
+    startDate: fixture.input.startDate, endDate: fixture.input.endDate,
+    settings: { rollingWindow: fixture.input.rollingWindow, rollingStep: fixture.input.rollingStep,
+      contributionWindow: fixture.input.contributionWindow, contributionStep: fixture.input.contributionStep,
+      minRollingPaired: fixture.input.minRollingPaired, minRegimePaired: fixture.input.minRegimePaired,
+      minSharpeObservations: fixture.input.minSharpeObservations },
+    plan: planned.plan.dependencies,
+  };
+  await writeFile("/tmp/c2-r5-fixture.json", JSON.stringify(descriptor, null, 2));
+  assert.ok(exactC1Id !== incompatibleC1Id);
+});
+
 test("C2 freezes explicit B3 cost/date targets instead of reusing a different C1 template", {
   skip: !databaseAvailable,
 }, async () => {
   const fixture = await makeDbFixture();
   try {
-    const { persistC1Experiment } = await import("./c1-experiment-store");
+    const { persistC1Experiment, replayC1Experiment } = await import("./c1-experiment-store");
     const c1 = await persistC1Experiment({
       allocationId: fixture.input.allocationId,
       validationPreparedInputId: fixture.input.validationPreparedInputId,
@@ -361,54 +371,32 @@ test("C2 freezes explicit B3 cost/date targets instead of reusing a different C1
   }
 });
 
-test("C2 reuses successful siblings from a partial C1 and freezes the failed child's dated reason", {
+test("C2 preserves a genuine infeasible exclusion and reuses an independent successful sibling", {
   skip: !databaseAvailable,
 }, async () => {
-  const fixture = await makeDbFixture();
+  const fixture = await makeDbFixture({ cashMax: 0.2 });
   let experimentId: number | undefined;
   try {
-    const { db, c1ExperimentsTable, validationRunsTable } = await modules();
-    const { persistC1Experiment } = await import("./c1-experiment-store");
+    const { persistC1Experiment, replayC1Experiment } = await import("./c1-experiment-store");
     const c1 = await persistC1Experiment({
       allocationId: fixture.input.allocationId,
       validationPreparedInputId: fixture.input.validationPreparedInputId,
       assumptions: fixtureAssumptions(fixture.input),
       mode: "single",
-      exclusionSets: fixture.alphaIds.map((id) => [id]),
+      exclusionSets: [[fixture.alphaIds[2]], [fixture.alphaIds[1]]],
     });
     if (!("experiment" in c1) || !c1.experiment)
       throw new Error("Could not persist the mixed-success C1 fixture: " + ("error" in c1 ? c1.error : "missing response"));
-
-    const [row] = await db.select().from(c1ExperimentsTable)
-      .where(eq(c1ExperimentsTable.id, c1.experiment.id)).limit(1);
-    assert.ok(row);
-    const children = structuredClone(row.childResultsJson as any[]);
-    const failedChild = children.find((child) =>
-      JSON.stringify(child.excludedCandidateIds) === JSON.stringify([fixture.alphaIds[0]]));
-    assert.ok(failedChild);
-    const failedRunId = failedChild.validationRunId as number;
-    failedChild.validationRunId = null;
-    delete failedChild.validationInputHash;
-    failedChild.result = {
-      status: "failed",
-      failureDate: dateAt(57),
-      diagnostic: "Frozen fixture failure for the selected one-alpha exclusion.",
-    };
-    const remainingRunIds = (row.childValidationRunIds as number[]).filter((id) => id !== failedRunId);
-    await db.update(c1ExperimentsTable).set({
-      status: "partial",
-      childResultsJson: children,
-      childValidationRunIds: remainingRunIds,
-    }).where(eq(c1ExperimentsTable.id, row.id));
-    await db.delete(validationRunsTable).where(eq(validationRunsTable.id, failedRunId));
-
-    const input = { ...fixture.input, c1ExperimentId: c1.experiment.id };
+    const input = { ...fixture.input, alphaIds: [fixture.alphaIds[2], fixture.alphaIds[1]],
+      c1ExperimentId: c1.experiment.id };
     const planned = await storeModule!.planC2Dependencies(input);
     if (!("plan" in planned) || !planned.plan)
       throw new Error("C2 partial-source planning failed: " + ("error" in planned ? planned.error : "missing response"));
-    assert.deepEqual(planned.plan.dependencies.map((item) => item.status), ["UNAVAILABLE", "REUSE"]);
+    assert.deepEqual(planned.plan.dependencies.map((item) => item.status), ["UNAVAILABLE", "REUSE"],
+      JSON.stringify({ c1Id: c1.experiment.id, dependencies: planned.plan.dependencies,
+        c1Replay: await replayC1Experiment(c1.experiment.id) }));
     assert.equal(planned.plan.dependencies[0].c1ExperimentId, c1.experiment.id);
-    assert.match(planned.plan.dependencies[0].reason ?? "", /2020-02-27.*Frozen fixture failure.*C1 experiment #/);
+    assert.match(planned.plan.dependencies[0].reason ?? "", /B2 INFEASIBLE.*C1 experiment #/);
     assert.equal(planned.plan.dependencies[1].c1ExperimentId, c1.experiment.id);
 
     const saved = await storeModule!.persistC2Experiment(input);
@@ -417,9 +405,9 @@ test("C2 reuses successful siblings from a partial C1 and freezes the failed chi
     experimentId = saved.experiment.id;
     const sources = saved.experiment.manifest as any;
     assert.ok(sources.sources.c1ByAlpha[fixture.alphaIds[1]]);
-    assert.equal(sources.sources.c1ByAlpha[fixture.alphaIds[0]], undefined);
+    assert.equal(sources.sources.c1ByAlpha[fixture.alphaIds[2]], undefined);
     assert.equal(sources.sources.dependencyPlan[0].status, "UNAVAILABLE");
-    assert.match(sources.sources.dependencyPlan[0].reason, /B3 Validation Run not persisted/);
+    assert.match(sources.sources.dependencyPlan[0].reason, /B2 INFEASIBLE/);
     const replay = await storeModule!.replayC2Experiment(experimentId);
     assert.ok(replay);
     assert.equal(replay.status, "pass", replay.differences.join("\n"));

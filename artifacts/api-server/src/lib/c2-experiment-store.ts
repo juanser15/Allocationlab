@@ -1087,7 +1087,7 @@ export async function persistC2Experiment(raw: ApiC2ExperimentInput) {
   };
   let result: Awaited<ReturnType<typeof computeC2Diagnostics>>;
   try {
-    result = await computeC2Diagnostics(input, frozenSources);
+    result = await computeC2Diagnostics(manifestInput, frozenSources);
   } catch (error) {
     return {
       error: `C2 diagnostics could not be computed from the frozen sources: ${error instanceof Error ? error.message : String(error)}`,

@@ -121,11 +121,18 @@ export function planC1Policies(
     }
     return mapped;
   };
-  canonicalRequest.constraints.candidateBounds = remapBounds(policyRequest.constraints.candidateBounds);
-  canonicalRequest.constraints.groupCaps = policyRequest.constraints.groupCaps?.map((group) => ({
-    ...structuredClone(group),
-    candidateIds: [...new Set(group.candidateIds.map(resolve))],
-  }));
+  if (policyRequest.constraints.candidateBounds)
+    canonicalRequest.constraints.candidateBounds = remapBounds(policyRequest.constraints.candidateBounds);
+  else
+    delete canonicalRequest.constraints.candidateBounds;
+  if (policyRequest.constraints.groupCaps) {
+    canonicalRequest.constraints.groupCaps = policyRequest.constraints.groupCaps.map((group) => ({
+      ...structuredClone(group),
+      candidateIds: [...new Set(group.candidateIds.map(resolve))],
+    }));
+  } else {
+    delete canonicalRequest.constraints.groupCaps;
+  }
   for (const id of Object.keys(canonicalRequest.constraints.candidateBounds ?? {}))
     if (!baselineSet.has(id))
       throw new Error(`Candidate bounds reference ${id}, which is not in the baseline policy.`);
@@ -169,12 +176,14 @@ export function planC1Policies(
     const excludedSet = new Set(excluded);
     const remaining = baseline.filter((id) => !excludedSet.has(id));
     const constraints = structuredClone(canonicalRequest.constraints);
-    constraints.candidateBounds = Object.fromEntries(Object.entries(constraints.candidateBounds ?? {})
-      .filter(([id, bound]) => remaining.includes(id) || (bound.min ?? 0) > 0));
-    constraints.groupCaps = constraints.groupCaps?.map((group) => ({
-      ...group,
-      candidateIds: group.candidateIds.filter((id) => remaining.includes(id)),
-    }));
+    if (constraints.candidateBounds)
+      constraints.candidateBounds = Object.fromEntries(Object.entries(constraints.candidateBounds)
+        .filter(([id, bound]) => remaining.includes(id) || (bound.min ?? 0) > 0));
+    if (constraints.groupCaps)
+      constraints.groupCaps = constraints.groupCaps.map((group) => ({
+        ...group,
+        candidateIds: group.candidateIds.filter((id) => remaining.includes(id)),
+      }));
     return { ...structuredClone(canonicalRequest), candidateIds: remaining, constraints };
   };
   const plans: C1PolicyPlan[] = [{

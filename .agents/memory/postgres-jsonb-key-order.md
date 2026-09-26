@@ -7,4 +7,4 @@ Postgres normalizes JSONB column key order alphabetically on write. When you sto
 
 **Why:** Discovered while building a rerun-consistency / reproducibility check that snapshots universe & constraints config into a JSONB column and re-diffs them later — it flagged "changed" on every check even with zero actual changes.
 
-**How to apply:** Any diff/equality check against data that has passed through a JSONB column must use a stable stringify (recursively sort object keys before serializing) or a proper deep-equal, never raw `JSON.stringify` string comparison.
+**How to apply:** Any diff/equality check against data that has passed through a JSONB column must use a stable stringify (recursively sort object keys before serializing) or a proper deep-equal, never raw `JSON.stringify` string comparison. Also keep absent optional fields absent before fingerprinting: assigning `undefined` to an optional constraint creates an in-memory shape that JSONB drops, breaking frozen hashes and identity comparisons even with sorted keys.
