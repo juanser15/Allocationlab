@@ -3460,6 +3460,140 @@ export const ReplayAlphaContributionExperimentResponse = zod.object({
 
 
 /**
+ * @summary Compute and immutably persist C2 alpha diagnostics from frozen B1/B2 sources
+ */
+
+
+
+
+export const createAlphaDiagnosticExperimentBodyAlphaIdsMax = 5;
+
+export const createAlphaDiagnosticExperimentBodyStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAlphaDiagnosticExperimentBodyEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+export const createAlphaDiagnosticExperimentBodyRollingWindowDefault = 63;
+export const createAlphaDiagnosticExperimentBodyRollingWindowMin = 2;
+
+export const createAlphaDiagnosticExperimentBodyRollingStepDefault = 21;
+
+export const createAlphaDiagnosticExperimentBodyContributionWindowDefault = 252;
+export const createAlphaDiagnosticExperimentBodyContributionWindowMin = 2;
+
+export const createAlphaDiagnosticExperimentBodyContributionStepDefault = 63;
+
+export const createAlphaDiagnosticExperimentBodyMinRollingPairedDefault = 40;
+export const createAlphaDiagnosticExperimentBodyMinRollingPairedMin = 2;
+
+export const createAlphaDiagnosticExperimentBodyMinRegimePairedDefault = 30;
+export const createAlphaDiagnosticExperimentBodyMinRegimePairedMin = 2;
+
+export const createAlphaDiagnosticExperimentBodyMinSharpeObservationsDefault = 30;
+export const createAlphaDiagnosticExperimentBodyMinSharpeObservationsMin = 2;
+
+export const createAlphaDiagnosticExperimentBodyHighCorrelationThresholdDefault = 0.8;
+export const createAlphaDiagnosticExperimentBodyHighCorrelationThresholdMin = -1;
+export const createAlphaDiagnosticExperimentBodyHighCorrelationThresholdMax = 1;
+
+export const createAlphaDiagnosticExperimentBodyMaterialCorrelationGapDefault = 0.3;
+export const createAlphaDiagnosticExperimentBodyMaterialCorrelationGapMin = 0;
+export const createAlphaDiagnosticExperimentBodyMaterialCorrelationGapMax = 2;
+
+
+
+export const CreateAlphaDiagnosticExperimentBody = zod.object({
+  "allocationId": zod.number().min(1),
+  "validationPreparedInputId": zod.number().min(1),
+  "c1ExperimentId": zod.union([zod.number().min(1),zod.null()]),
+  "alphaIds": zod.array(zod.string().min(1)).min(1).max(createAlphaDiagnosticExperimentBodyAlphaIdsMax),
+  "startDate": zod.string().regex(createAlphaDiagnosticExperimentBodyStartDateRegExp),
+  "endDate": zod.string().regex(createAlphaDiagnosticExperimentBodyEndDateRegExp),
+  "regimeSource": zod.enum(['frozen_b1_prefix']),
+  "regimeMapping": zod.record(zod.string(), zod.string().min(1)).optional(),
+  "rollingWindow": zod.number().min(createAlphaDiagnosticExperimentBodyRollingWindowMin).default(createAlphaDiagnosticExperimentBodyRollingWindowDefault),
+  "rollingStep": zod.number().min(1).default(createAlphaDiagnosticExperimentBodyRollingStepDefault),
+  "contributionWindow": zod.number().min(createAlphaDiagnosticExperimentBodyContributionWindowMin).default(createAlphaDiagnosticExperimentBodyContributionWindowDefault),
+  "contributionStep": zod.number().min(1).default(createAlphaDiagnosticExperimentBodyContributionStepDefault),
+  "minRollingPaired": zod.number().min(createAlphaDiagnosticExperimentBodyMinRollingPairedMin).default(createAlphaDiagnosticExperimentBodyMinRollingPairedDefault),
+  "minRegimePaired": zod.number().min(createAlphaDiagnosticExperimentBodyMinRegimePairedMin).default(createAlphaDiagnosticExperimentBodyMinRegimePairedDefault),
+  "minSharpeObservations": zod.number().min(createAlphaDiagnosticExperimentBodyMinSharpeObservationsMin).default(createAlphaDiagnosticExperimentBodyMinSharpeObservationsDefault),
+  "highCorrelationThreshold": zod.number().min(createAlphaDiagnosticExperimentBodyHighCorrelationThresholdMin).max(createAlphaDiagnosticExperimentBodyHighCorrelationThresholdMax).default(createAlphaDiagnosticExperimentBodyHighCorrelationThresholdDefault),
+  "materialCorrelationGap": zod.number().min(createAlphaDiagnosticExperimentBodyMaterialCorrelationGapMin).max(createAlphaDiagnosticExperimentBodyMaterialCorrelationGapMax).default(createAlphaDiagnosticExperimentBodyMaterialCorrelationGapDefault)
+}).describe('Frozen C2 diagnostics configuration. A new configuration always creates a new experiment.')
+
+export const CreateAlphaDiagnosticExperimentResponse = zod.object({
+  "id": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "c1ExperimentId": zod.number().nullable(),
+  "manifestHash": zod.string(),
+  "inputHash": zod.string(),
+  "resultHash": zod.string(),
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List immutable C2 experiments without recomputing results
+ */
+export const ListAlphaDiagnosticExperimentsResponseItem = zod.object({
+  "id": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "c1ExperimentId": zod.number().nullable(),
+  "manifestHash": zod.string(),
+  "inputHash": zod.string(),
+  "resultHash": zod.string(),
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "createdAt": zod.coerce.date()
+})
+export const ListAlphaDiagnosticExperimentsResponse = zod.array(ListAlphaDiagnosticExperimentsResponseItem)
+
+
+
+
+
+export const GetAlphaDiagnosticExperimentParams = zod.object({
+  "experimentId": zod.coerce.number().min(1)
+})
+
+export const GetAlphaDiagnosticExperimentResponse = zod.object({
+  "id": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "c1ExperimentId": zod.number().nullable(),
+  "manifestHash": zod.string(),
+  "inputHash": zod.string(),
+  "resultHash": zod.string(),
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Recompute diagnostics exclusively from the experiment's frozen source manifest
+ */
+
+
+
+export const ReplayAlphaDiagnosticExperimentParams = zod.object({
+  "experimentId": zod.coerce.number().min(1)
+})
+
+export const ReplayAlphaDiagnosticExperimentResponse = zod.object({
+  "experimentId": zod.number(),
+  "status": zod.enum(['pass', 'fail']),
+  "inputHash": zod.string(),
+  "resultHash": zod.string(),
+  "maximumNumericDifference": zod.number(),
+  "differences": zod.array(zod.string())
+})
+
+
+/**
  * @summary Deterministic AI Investment Committee synthesis grounded strictly in already-computed session data
  */
 export const GetCommitteeResponse = zod.object({

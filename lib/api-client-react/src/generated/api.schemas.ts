@@ -1692,6 +1692,97 @@ export interface B3ValidationRunInput {
 
 export type ValidationRunInput = LegacyValidationRunInput | B3ValidationRunInput;
 
+export type C2ExperimentInputRegimeSource = typeof C2ExperimentInputRegimeSource[keyof typeof C2ExperimentInputRegimeSource];
+
+
+export const C2ExperimentInputRegimeSource = {
+  frozen_b1_prefix: 'frozen_b1_prefix',
+} as const;
+
+export type C2ExperimentInputRegimeMapping = {[key: string]: string};
+
+/**
+ * Frozen C2 diagnostics configuration. A new configuration always creates a new experiment.
+ */
+export interface C2ExperimentInput {
+  /** @minimum 1 */
+  allocationId: number;
+  /** @minimum 1 */
+  validationPreparedInputId: number;
+  c1ExperimentId: number | null;
+  /**
+     * @minItems 1
+     * @maxItems 5
+     * @items.minLength 1
+     */
+  alphaIds: string[];
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  startDate: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  endDate: string;
+  regimeSource: C2ExperimentInputRegimeSource;
+  regimeMapping?: C2ExperimentInputRegimeMapping;
+  /** @minimum 2 */
+  rollingWindow?: number;
+  /** @minimum 1 */
+  rollingStep?: number;
+  /** @minimum 2 */
+  contributionWindow?: number;
+  /** @minimum 1 */
+  contributionStep?: number;
+  /** @minimum 2 */
+  minRollingPaired?: number;
+  /** @minimum 2 */
+  minRegimePaired?: number;
+  /** @minimum 2 */
+  minSharpeObservations?: number;
+  /**
+     * @minimum -1
+     * @maximum 1
+     */
+  highCorrelationThreshold?: number;
+  /**
+     * @minimum 0
+     * @maximum 2
+     */
+  materialCorrelationGap?: number;
+}
+
+export type C2ExperimentManifest = { [key: string]: unknown };
+
+export type C2ExperimentResult = { [key: string]: unknown };
+
+export interface C2Experiment {
+  id: number;
+  allocationId: number;
+  validationPreparedInputId: number;
+  /** @nullable */
+  c1ExperimentId: number | null;
+  manifestHash: string;
+  inputHash: string;
+  resultHash: string;
+  manifest: C2ExperimentManifest;
+  result: C2ExperimentResult;
+  createdAt: string;
+}
+
+export type C2ExperimentReplayStatus = typeof C2ExperimentReplayStatus[keyof typeof C2ExperimentReplayStatus];
+
+
+export const C2ExperimentReplayStatus = {
+  pass: 'pass',
+  fail: 'fail',
+} as const;
+
+export interface C2ExperimentReplay {
+  experimentId: number;
+  status: C2ExperimentReplayStatus;
+  inputHash: string;
+  resultHash: string;
+  maximumNumericDifference: number;
+  differences: string[];
+}
+
 export type C1ExperimentInputMode = typeof C1ExperimentInputMode[keyof typeof C1ExperimentInputMode];
 
 

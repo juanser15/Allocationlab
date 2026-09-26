@@ -32,6 +32,9 @@ import type {
   C1Experiment,
   C1ExperimentInput,
   C1ExperimentReplay,
+  C2Experiment,
+  C2ExperimentInput,
+  C2ExperimentReplay,
   CommitteeResult,
   CompareArchiveParams,
   Constraints,
@@ -3520,6 +3523,294 @@ export const useReplayAlphaContributionExperiment = <TError = ErrorType<ErrorRes
         TContext
       > => {
       return useMutation(getReplayAlphaContributionExperimentMutationOptions(options));
+    }
+
+export const getCreateAlphaDiagnosticExperimentUrl = () => {
+
+
+
+
+  return `/api/alpha-diagnostics`
+}
+
+/**
+ * @summary Compute and immutably persist C2 alpha diagnostics from frozen B1/B2 sources
+ */
+export const createAlphaDiagnosticExperiment = async (c2ExperimentInput: C2ExperimentInput, options?: RequestInit): Promise<C2Experiment> => {
+
+  return customFetch<C2Experiment>(getCreateAlphaDiagnosticExperimentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(c2ExperimentInput)
+  }
+);}
+
+
+
+
+export const getCreateAlphaDiagnosticExperimentMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAlphaDiagnosticExperiment>>, TError,{data: BodyType<C2ExperimentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAlphaDiagnosticExperiment>>, TError,{data: BodyType<C2ExperimentInput>}, TContext> => {
+
+const mutationKey = ['createAlphaDiagnosticExperiment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAlphaDiagnosticExperiment>>, {data: BodyType<C2ExperimentInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAlphaDiagnosticExperiment(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAlphaDiagnosticExperimentMutationResult = NonNullable<Awaited<ReturnType<typeof createAlphaDiagnosticExperiment>>>
+    export type CreateAlphaDiagnosticExperimentMutationBody = BodyType<C2ExperimentInput>
+    export type CreateAlphaDiagnosticExperimentMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Compute and immutably persist C2 alpha diagnostics from frozen B1/B2 sources
+ */
+export const useCreateAlphaDiagnosticExperiment = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAlphaDiagnosticExperiment>>, TError,{data: BodyType<C2ExperimentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAlphaDiagnosticExperiment>>,
+        TError,
+        {data: BodyType<C2ExperimentInput>},
+        TContext
+      > => {
+      return useMutation(getCreateAlphaDiagnosticExperimentMutationOptions(options));
+    }
+
+export const getListAlphaDiagnosticExperimentsUrl = () => {
+
+
+
+
+  return `/api/alpha-diagnostics`
+}
+
+/**
+ * @summary List immutable C2 experiments without recomputing results
+ */
+export const listAlphaDiagnosticExperiments = async ( options?: RequestInit): Promise<C2Experiment[]> => {
+
+  return customFetch<C2Experiment[]>(getListAlphaDiagnosticExperimentsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAlphaDiagnosticExperimentsQueryKey = () => {
+    return [
+    `/api/alpha-diagnostics`
+    ] as const;
+    }
+
+
+export const getListAlphaDiagnosticExperimentsQueryOptions = <TData = Awaited<ReturnType<typeof listAlphaDiagnosticExperiments>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAlphaDiagnosticExperiments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAlphaDiagnosticExperimentsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAlphaDiagnosticExperiments>>> = ({ signal }) => listAlphaDiagnosticExperiments({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAlphaDiagnosticExperiments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAlphaDiagnosticExperimentsQueryResult = NonNullable<Awaited<ReturnType<typeof listAlphaDiagnosticExperiments>>>
+export type ListAlphaDiagnosticExperimentsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List immutable C2 experiments without recomputing results
+ */
+
+export function useListAlphaDiagnosticExperiments<TData = Awaited<ReturnType<typeof listAlphaDiagnosticExperiments>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAlphaDiagnosticExperiments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAlphaDiagnosticExperimentsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAlphaDiagnosticExperimentUrl = (experimentId: number,) => {
+
+
+
+
+  return `/api/alpha-diagnostics/${experimentId}`
+}
+
+export const getAlphaDiagnosticExperiment = async (experimentId: number, options?: RequestInit): Promise<C2Experiment> => {
+
+  return customFetch<C2Experiment>(getGetAlphaDiagnosticExperimentUrl(experimentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAlphaDiagnosticExperimentQueryKey = (experimentId: number,) => {
+    return [
+    `/api/alpha-diagnostics/${experimentId}`
+    ] as const;
+    }
+
+
+export const getGetAlphaDiagnosticExperimentQueryOptions = <TData = Awaited<ReturnType<typeof getAlphaDiagnosticExperiment>>, TError = ErrorType<ErrorResponse>>(experimentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAlphaDiagnosticExperiment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAlphaDiagnosticExperimentQueryKey(experimentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAlphaDiagnosticExperiment>>> = ({ signal }) => getAlphaDiagnosticExperiment(experimentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: experimentId !== null && experimentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAlphaDiagnosticExperiment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAlphaDiagnosticExperimentQueryResult = NonNullable<Awaited<ReturnType<typeof getAlphaDiagnosticExperiment>>>
+export type GetAlphaDiagnosticExperimentQueryError = ErrorType<ErrorResponse>
+
+
+
+export function useGetAlphaDiagnosticExperiment<TData = Awaited<ReturnType<typeof getAlphaDiagnosticExperiment>>, TError = ErrorType<ErrorResponse>>(
+ experimentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAlphaDiagnosticExperiment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAlphaDiagnosticExperimentQueryOptions(experimentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReplayAlphaDiagnosticExperimentUrl = (experimentId: number,) => {
+
+
+
+
+  return `/api/alpha-diagnostics/${experimentId}/replay`
+}
+
+/**
+ * @summary Recompute diagnostics exclusively from the experiment's frozen source manifest
+ */
+export const replayAlphaDiagnosticExperiment = async (experimentId: number, options?: RequestInit): Promise<C2ExperimentReplay> => {
+
+  return customFetch<C2ExperimentReplay>(getReplayAlphaDiagnosticExperimentUrl(experimentId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getReplayAlphaDiagnosticExperimentMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayAlphaDiagnosticExperiment>>, TError,{experimentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replayAlphaDiagnosticExperiment>>, TError,{experimentId: number}, TContext> => {
+
+const mutationKey = ['replayAlphaDiagnosticExperiment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replayAlphaDiagnosticExperiment>>, {experimentId: number}> = (props) => {
+          const {experimentId} = props ?? {};
+
+          return  replayAlphaDiagnosticExperiment(experimentId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplayAlphaDiagnosticExperimentMutationResult = NonNullable<Awaited<ReturnType<typeof replayAlphaDiagnosticExperiment>>>
+
+    export type ReplayAlphaDiagnosticExperimentMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Recompute diagnostics exclusively from the experiment's frozen source manifest
+ */
+export const useReplayAlphaDiagnosticExperiment = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayAlphaDiagnosticExperiment>>, TError,{experimentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replayAlphaDiagnosticExperiment>>,
+        TError,
+        {experimentId: number},
+        TContext
+      > => {
+      return useMutation(getReplayAlphaDiagnosticExperimentMutationOptions(options));
     }
 
 export const getGetCommitteeUrl = () => {
