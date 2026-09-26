@@ -3196,6 +3196,20 @@ export const AllocationRequestAllocationMode = {
   SIGNED_OVERLAY: 'SIGNED_OVERLAY',
 } as const;
 
+export type AllocationRobustnessConfigMethod = typeof AllocationRobustnessConfigMethod[keyof typeof AllocationRobustnessConfigMethod];
+
+
+export const AllocationRobustnessConfigMethod = {
+  NOMINAL: 'NOMINAL',
+  ROBUST_MEAN_UNCERTAINTY: 'ROBUST_MEAN_UNCERTAINTY',
+} as const;
+
+export interface AllocationRobustnessConfig {
+  method: AllocationRobustnessConfigMethod;
+  /** @minimum 0 */
+  kappa?: number;
+}
+
 export interface AllocationRequest {
   /** @minimum 1 */
   preparedInputId: number;
@@ -3224,6 +3238,7 @@ export interface AllocationRequest {
   covarianceDiagonalShrinkage: number;
   riskModel?: AllocationRiskModelSettings;
   forecastModel?: ForecastModelConfig;
+  robustness?: AllocationRobustnessConfig;
   allocationMode?: AllocationRequestAllocationMode;
   signedConstraints?: SignedAllocationConstraints;
   targetExcessReturn?: number;

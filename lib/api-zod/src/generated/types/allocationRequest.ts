@@ -11,6 +11,7 @@ import type { AllocationRequestAllocationMode } from './allocationRequestAllocat
 import type { AllocationRequestRepresentation } from './allocationRequestRepresentation';
 import type { AllocationRequestReturnConvention } from './allocationRequestReturnConvention';
 import type { AllocationRiskModelSettings } from './allocationRiskModelSettings';
+import type { AllocationRobustnessConfig } from './allocationRobustnessConfig';
 import type { ForecastModelConfig } from './forecastModelConfig';
 import type { SignedAllocationConstraints } from './signedAllocationConstraints';
 
@@ -42,6 +43,7 @@ export interface AllocationRequest {
   covarianceDiagonalShrinkage: number;
   riskModel?: AllocationRiskModelSettings;
   forecastModel?: ForecastModelConfig;
+  robustness?: AllocationRobustnessConfig;
   allocationMode?: AllocationRequestAllocationMode;
   signedConstraints?: SignedAllocationConstraints;
   targetExcessReturn?: number;

@@ -14,6 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getAllocation, getGetAllocationQueryKey, getListAllocationsQueryKey, useCreateAllocation, useGetAllocation, useListAllocations, useReplayAllocation } from "@workspace/api-client-react";
 import { SignedOverlayControls, SignedOverlayResult, initialSignedSettings } from "./SignedOverlaySection";
 import type { SignedSettings } from "./SignedOverlaySection";
+import { RobustnessPanel } from "./RobustnessPanel";
 
 type Representation = "asset_returns" | "alpha_streams" | "signals";
 type AllocationRequest = {
@@ -42,6 +43,7 @@ type AllocationRequest = {
   objective: { type: "minimum_variance" | "regularized_mean_variance"; gamma: number; eta: number };
   riskModel?: D1RiskModelRequest;
   forecastModel: ForecastModelConfig;
+  robustness?: { method: "NOMINAL" | "ROBUST_MEAN_UNCERTAINTY"; kappa: number };
   constraints: {
     candidateBounds?: Record<string, { min?: number; max?: number }>;
     totalCash?: { min?: number; max?: number };
@@ -159,6 +161,8 @@ export function B2AllocationPanel({
   const [estimationWindow, setEstimationWindow] = useState(252);
   const [minObservations, setMinObservations] = useState(60);
   const [forecastModel, setForecastModel] = useState<ForecastModelConfig>({ type: "SAMPLE_MEAN", displayZ: 1.96, shrinkage: 0, shrinkagePrior: { source: "DEFAULT" }, priorMean: { source: "SAMPLE_PRIOR" }, priorUncertainty: { type: "TAU_SIGMA" }, views: [] });
+  const [robustMethod, setRobustMethod] = useState<"NOMINAL" | "ROBUST_MEAN_UNCERTAINTY">("NOMINAL");
+  const [kappaText, setKappaText] = useState("1");
   const [covarianceDiagonalShrinkage, setCovarianceDiagonalShrinkage] = useState(0);
   const [dailyCashYield, setDailyCashYield] = useState(0);
   const [objectiveType, setObjectiveType] = useState<AllocationRequest["objective"]["type"]>("minimum_variance");
@@ -244,6 +248,15 @@ export function B2AllocationPanel({
     }
     if (allocationMode === "SIGNED_OVERLAY" && prepared.representation !== "alpha_streams") {
       setError("Signed alpha overlay requires a prepared alpha-stream representation.");
+      return;
+    }
+    const kappa = Number(kappaText);
+    if (!kappaText.trim() || !Number.isFinite(kappa) || kappa < 0) {
+      setError("Robustness κ must be a finite nonnegative number.");
+      return;
+    }
+    if (robustMethod === "ROBUST_MEAN_UNCERTAINTY" && objectiveType === "minimum_variance") {
+      setError("Robust forecast uncertainty is unavailable for minimum variance until its objective is defined.");
       return;
     }
     const knownObservations = prepared ? alignedObservationCount(prepared, candidateIds, informationCutoff) : null;
@@ -337,6 +350,7 @@ export function B2AllocationPanel({
         returnConvention: "daily_decimal",
          expectedReturnShrinkage: 0,
          forecastModel: submittedForecast,
+         robustness: { method: robustMethod, kappa },
         covarianceDiagonalShrinkage: prepared.representation === "alpha_streams"
           ? riskModel.type === "SAMPLE" ? 0 : covarianceDiagonalShrinkage
           : covarianceDiagonalShrinkage,
@@ -354,7 +368,8 @@ export function B2AllocationPanel({
         } : {}),
       };
       onRunningChange?.(true);
-      const payload = await createMutation.mutateAsync({ data: request });
+       // Generated request types may lag the frozen robustness contract.
+       const payload = await createMutation.mutateAsync({ data: request as Parameters<typeof createMutation.mutateAsync>[0]["data"] });
       setResult(asRecord(payload));
       setSelectedAllocationId(idOf(payload));
       onAllocationSelectionChange?.(idOf(payload));
@@ -445,11 +460,25 @@ export function B2AllocationPanel({
             <div className="space-y-1"><Label>Minimum observations</Label><Input type="number" min="2" value={minObservations} onChange={event => setMinObservations(Number(event.target.value))} data-testid="input-b2-min-observations" /></div>
             {(prepared?.representation !== "alpha_streams" || riskModel.type === "DIAGONAL_SHRINKAGE") && <div className="space-y-1"><Label>Diagonal covariance shrinkage δ [0,1]</Label><Input type="number" min="0" max="1" step="any" value={covarianceDiagonalShrinkage} onChange={event => setCovarianceDiagonalShrinkage(Number(event.target.value))} data-testid="input-b2-covariance-shrinkage" /></div>}
             <div className="space-y-1"><Label>Deterministic daily cash yield</Label><Input type="number" step="any" value={dailyCashYield} onChange={event => setDailyCashYield(Number(event.target.value))} data-testid="input-b2-daily-cash-yield" /></div>
-            <div className="space-y-1"><Label>Objective</Label><select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={objectiveType} onChange={event => setObjectiveType(event.target.value as AllocationRequest["objective"]["type"])} data-testid="select-b2-objective"><option value="minimum_variance">Minimum variance</option><option value="regularized_mean_variance">Regularized mean-variance</option></select></div>
+             <div className="space-y-1"><Label>Objective</Label><select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={objectiveType} onChange={event => { const next = event.target.value as AllocationRequest["objective"]["type"]; setObjectiveType(next); if (next === "minimum_variance") setRobustMethod("NOMINAL"); }} data-testid="select-b2-objective"><option value="minimum_variance">Minimum variance</option><option value="regularized_mean_variance">Regularized mean-variance</option></select></div>
             <div className="space-y-1"><Label>γ (must be positive)</Label><Input type="number" min="0.0000001" step="any" value={gamma} onChange={event => setGamma(Number(event.target.value))} data-testid="input-b2-gamma" /></div>
             <div className="space-y-1"><Label>η (nonnegative)</Label><Input type="number" min="0" step="any" value={eta} onChange={event => setEta(Number(event.target.value))} data-testid="input-b2-eta" /></div>
           </div>
            <ForecastModelPanel value={forecastModel} onChange={setForecastModel} candidateIds={candidateIds} cutoff={informationCutoff} observationCount={prepared ? alignedObservationCount(prepared, candidateIds, informationCutoff) : null} />
+           <fieldset className="rounded-lg border border-primary/20 bg-primary/[0.025] p-3" data-testid="fieldset-b2-robustness">
+             <legend className="px-1 text-[11px] font-semibold uppercase tracking-[0.13em] text-primary">Portfolio robustness</legend>
+             <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+               <div className="flex gap-1 rounded-md border bg-background p-1" role="radiogroup" aria-label="Portfolio robustness method">
+                 {([["NOMINAL", "Nominal"], ["ROBUST_MEAN_UNCERTAINTY", "Robust to Forecast Uncertainty"]] as const).map(([method, title]) =>
+                   <label key={method} className={`cursor-pointer rounded px-3 py-1.5 text-xs font-medium transition-colors ${robustMethod === method ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"} ${method !== "NOMINAL" && objectiveType === "minimum_variance" ? "cursor-not-allowed opacity-50" : ""}`}>
+                     <input className="sr-only" type="radio" name="b2-robust-method" checked={robustMethod === method} disabled={method !== "NOMINAL" && objectiveType === "minimum_variance"} onChange={() => setRobustMethod(method)} data-testid={`input-b2-robustness-${method.toLowerCase()}`} />{title}
+                   </label>)}
+               </div>
+               <div className="flex items-center gap-2"><Label htmlFor="b2-robust-kappa" className="whitespace-nowrap text-xs">κ</Label><Input id="b2-robust-kappa" className="h-8 w-24 font-mono text-xs" type="number" min="0" step="any" value={kappaText} onChange={event => setKappaText(event.target.value)} data-testid="input-b2-robustness-kappa" /></div>
+               <p className="max-w-md text-[11px] leading-relaxed text-muted-foreground">κ ≥ 0 · forecast uncertainty Vμ is separate from return risk Σ. No historical cost optimization.</p>
+             </div>
+             {objectiveType === "minimum_variance" && <p className="mt-2 text-xs text-amber-700">Robust mode is unavailable for minimum variance until its formula is defined. Select regularized mean-variance to enable it.</p>}
+           </fieldset>
            {allocationMode === "SIGNED_OVERLAY" && <SignedOverlayControls candidates={candidateIds} names={prepared?.candidateNames ?? {}} settings={signedSettings} onChange={setSignedSettings} objective={objectiveType} gamma={gamma} eta={eta} target={targetExcessReturn} onTargetChange={setTargetExcessReturn} />}
            {allocationMode === "CAPITAL_LONG_ONLY" && <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-1"><Label>Total cash bounds JSON</Label><Input value={cashBoundsText} onChange={event => setCashBoundsText(event.target.value)} placeholder='{"min":0,"max":1}' data-testid="input-b2-cash-bounds" /></div>
@@ -482,6 +511,7 @@ export function B2AllocationPanel({
         </CardContent>
       </Card>
 
+      {(result || detailQuery.data) && <RobustnessPanel result={allocation} request={frozenRequest} replay={response.replay} />}
       {(result || detailQuery.data) && <Card data-testid="card-b2-allocation-result">
         <CardHeader className="pb-3">
           <div className="flex flex-wrap items-start justify-between gap-2">

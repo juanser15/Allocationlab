@@ -5,6 +5,7 @@ import {
   buildStatisticalFactorRiskModel, decomposeStatisticalFactorRisk, type D1StatisticalFactorRiskModel,
 } from "./d1-factor-model";
 import { optimizeSignedOverlay } from "./signed-overlay-d2";
+import { D4_SOLVER_VERSION, solveRobustMeanUncertainty } from "./robust-solver-d4";
 import {
   estimateForecast, portfolioForecastUncertainty, type ForecastModelConfig, type ForecastResult,
   type PortfolioForecastUncertainty,
@@ -24,6 +25,20 @@ export interface SignedOverlayConstraints {
 export type AllocationObjective =
   | { type: "minimum_variance"; gamma: number; eta: number }
   | { type: "regularized_mean_variance"; gamma: number; eta: number };
+export interface AllocationRobustness {
+  method: "NOMINAL" | "ROBUST_MEAN_UNCERTAINTY";
+  kappa: number;
+}
+export interface RobustnessDiagnostics {
+  method: AllocationRobustness["method"];
+  kappa: number;
+  robustHaircut: number;
+  objectiveTotal: number;
+  solver: { name: string; version: string; optimalityTolerance: number; constraintTolerance: number };
+  nominalWeights?: Record<string, number>;
+  robustWeights?: Record<string, number>;
+  diagnostics?: Record<string, unknown>;
+}
 
 export interface AllocationRequest {
   preparedInputId: number;
@@ -36,6 +51,7 @@ export interface AllocationRequest {
   returnConvention: "daily_decimal";
   expectedReturnShrinkage: number;
   forecastModel?: ForecastModelConfig;
+  robustness?: AllocationRobustness;
   covarianceDiagonalShrinkage: number;
   allocationMode?: AllocationMode;
   signedConstraints?: SignedOverlayConstraints;
@@ -123,6 +139,7 @@ export interface AllocationResult {
     regularization: number;
     candidateReturn: number;
     masterCashReturn: number;
+    robustHaircut?: number;
     total: number;
   } | null;
   constraintSlacks: Array<{ name: string; value: number; minSlack: number | null; maxSlack: number | null }>;
@@ -175,6 +192,7 @@ export interface AllocationResult {
     config: ForecastModelConfig;
     portfolio?: PortfolioForecastUncertainty;
   };
+  robustness?: RobustnessDiagnostics;
 }
 
 const SOLVER_VERSION = "2.0.0";
@@ -464,6 +482,15 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
     !finite(request.objective.gamma) || request.objective.gamma <= 0 ||
     !finite(request.objective.eta) || request.objective.eta < 0)
     return failure("INVALID_INPUT", "Objective parameters require gamma > 0 and eta >= 0.");
+  if (request.robustness !== undefined &&
+    (!request.robustness || !["NOMINAL", "ROBUST_MEAN_UNCERTAINTY"].includes(request.robustness.method) ||
+      !finite(request.robustness.kappa) || request.robustness.kappa < 0))
+    return failure("INVALID_INPUT", "Robustness method must be NOMINAL or ROBUST_MEAN_UNCERTAINTY and kappa must be finite and nonnegative.");
+  const robustEnabled = request.robustness?.method === "ROBUST_MEAN_UNCERTAINTY" &&
+    request.robustness.kappa > 0;
+  if (robustEnabled && (!request.forecastModel || request.objective.type !== "regularized_mean_variance"))
+    return failure("INVALID_FORECAST_MODEL",
+      "Positive robust mean-uncertainty mode requires an explicit D3 forecastModel and regularized_mean_variance objective.");
   const chosen = request.candidateIds.map((id) => snapshot.candidates.find((candidate) =>
     candidate.candidateId === id && candidate.canonicalFingerprint === id));
   if (chosen.some((candidate) => !candidate))
@@ -654,6 +681,7 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
   const linear = [...(request.objective.type === "regularized_mean_variance" ? mu.map((value) => -value) : Array(n).fill(0)),
     request.objective.type === "regularized_mean_variance" ? -request.dailyCashYield : 0];
 
+  let robustSolve: ReturnType<typeof solveRobustMeanUncertainty> | undefined;
   // quadprog uses a strictly convex Cholesky factorization. Flat PSD directions
   // are numerically regularized only for candidate generation; an independent KKT
   // check against the unmodified objective below rejects a changed/nonoptimal result.
@@ -662,6 +690,14 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
   let solution: number[];
   let iterations: number | null = null;
   try {
+    if (robustEnabled) {
+      if (!forecast || forecast.status !== "OK")
+        return failure("INVALID_FORECAST_MODEL", "A valid D3 forecast with V_mu is required for robust optimization.", model);
+      robustSolve = solveRobustMeanUncertainty(Hessian, linear, forecast.V_mu, constraints,
+        request.robustness!.kappa, size);
+      solution = robustSolve.solution;
+      iterations = robustSolve.iterations;
+    } else {
     const constraintsForSolver = constraints.flatMap((constraint) => {
       const result: Array<{ coefficients: number[]; bound: number; equality: boolean }> = [];
       if (constraint.lower !== undefined && constraint.upper !== undefined &&
@@ -697,6 +733,7 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
     if (!solved.solution || solved.message) throw new Error(solved.message ?? "QP solver did not return a solution.");
     solution = solved.solution.slice(1);
     iterations = solved.iterations ? solved.iterations.slice(1).reduce((sum, value) => sum + value, 0) : null;
+    }
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     const infeasible = /infeasible|constraints are inconsistent/i.test(detail);
@@ -708,7 +745,7 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
   const x = solution!;
   const violation = Math.max(0, maxViolation(x, constraints));
   const primalResidual = Math.max(violation, Math.abs(x.reduce((sum, value) => sum + value, 0) - 1));
-  const optimalityResidual = scaledKktResidual(Hessian, linear, x, constraints);
+  const optimalityResidual = robustSolve?.stationarityResidual ?? scaledKktResidual(Hessian, linear, x, constraints);
   if (violation > CONSTRAINT_TOLERANCE)
     return failure("NUMERICAL_FAILURE", `Independent feasibility check failed (maximum violation ${violation}).`, model);
   if (!finite(optimalityResidual) || optimalityResidual > OPTIMALITY_TOLERANCE)
@@ -728,24 +765,43 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
   const candidateReturn = request.objective.type === "regularized_mean_variance" ? -dot(mu, weights) : 0;
   const masterCashReturn = request.objective.type === "regularized_mean_variance"
     ? -request.dailyCashYield * masterCash : 0;
-  const objectiveTotal = riskContribution + regularization + candidateReturn + masterCashReturn;
+  const robustHaircut = robustSolve?.robustHaircut ?? 0;
+  const objectiveTotal = riskContribution + regularization + candidateReturn + masterCashReturn + robustHaircut;
   const result: AllocationResult = {
     status: "SOLVED", model, candidateWeights: Object.fromEntries(model.candidateIds.map((id, i) => [id, weights[i]])),
     assetWeights, totalCash, masterCash, estimatedGrossReturn, estimatedVolatility,
-    objectiveContributions: { variance: riskContribution, regularization, candidateReturn, masterCashReturn, total: objectiveTotal },
+    objectiveContributions: { variance: riskContribution, regularization, candidateReturn, masterCashReturn,
+      ...(robustHaircut ? { robustHaircut } : {}), total: objectiveTotal },
     constraintSlacks: slacks(x, constraints),
-    solver: { name: "quadprog / Goldfarb-Idnani", version: SOLVER_VERSION, status: "SOLVED",
+    solver: { name: robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani",
+      version: robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION, status: "SOLVED",
       primalResidual, dualResidual: optimalityResidual, scaledOptimalityResidual: optimalityResidual,
       maxConstraintViolation: violation, psdTolerance: PSD_TOLERANCE, optimalityTolerance: OPTIMALITY_TOLERANCE,
       constraintTolerance: CONSTRAINT_TOLERANCE, iterations,
-      message: diagonalLift ? `PSD flat-direction candidate lift ${diagonalLift}; exact objective KKT independently verified.` :
-        "Exact objective KKT stationarity and independent primal feasibility checks passed." },
+      message: robustSolve
+        ? "Exact square-root robust objective KKT stationarity and independent primal feasibility checks passed."
+        : diagonalLift ? `PSD flat-direction candidate lift ${diagonalLift}; exact objective KKT independently verified.` :
+          "Exact objective KKT stationarity and independent primal feasibility checks passed." },
   };
   if (forecast) {
     const uncertainty = portfolioForecastUncertainty(forecast as ForecastResult, weights);
     if ("status" in uncertainty)
       return failure("INVALID_FORECAST_MODEL", uncertainty.reason, model);
     result.forecast = { ...forecast, portfolio: uncertainty };
+  }
+  if (request.robustness) {
+    const nominalWeights = robustSolve
+      ? Object.fromEntries(model.candidateIds.map((id, i) => [id, robustSolve!.nominalSolution[i]]))
+      : Object.fromEntries(model.candidateIds.map((id, i) => [id, weights[i]]));
+    result.robustness = {
+      method: request.robustness.method, kappa: request.robustness.kappa, robustHaircut,
+      objectiveTotal,
+      solver: { name: robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani",
+        version: robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION, optimalityTolerance: robustSolve ? 1e-8 : OPTIMALITY_TOLERANCE,
+        constraintTolerance: CONSTRAINT_TOLERANCE },
+      nominalWeights,
+      ...(robustSolve ? { robustWeights: Object.fromEntries(model.candidateIds.map((id, i) => [id, weights[i]])) } : {}),
+    };
   }
   if (riskModelSummary) {
     if (factorModel) {

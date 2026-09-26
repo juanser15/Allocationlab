@@ -6,6 +6,7 @@ import { optimizePreparedSnapshot, type AllocationRequest, type AllocationResult
 import {
   canonicalJson, prepareSnapshot, type PreparedCandidate, type PreparedSnapshot,
 } from "./prepared-inputs";
+import { computeD4Diagnostics } from "./d4-diagnostics";
 import { hashDataset } from "./run-snapshot";
 
 export interface B3Assumptions {
@@ -29,6 +30,16 @@ export interface B3Decision {
   estimationDates: string[];
   forecastStatus?: "AVAILABLE" | "UNAVAILABLE_HISTORICAL_VIEWS";
   forecast?: AllocationResult["forecast"];
+  d4Policy?: {
+    method: NonNullable<AllocationRequest["robustness"]>["method"];
+    kappa: number;
+    V_mu?: number[][];
+    nominalWeights?: Record<string, number>;
+    robustWeights?: Record<string, number>;
+    nominalTargetAssetWeights?: Record<string, number>;
+    robustTargetAssetWeights?: Record<string, number>;
+    diagnostics?: AllocationResult["robustness"];
+  };
   inputDatasetHash: string;
   policyCandidateIds: string[];
   validationCandidateIds: string[];
@@ -519,6 +530,13 @@ export function runB3Validation(
       request.forecastModel = forecastModel;
     }
     const optimized = optimizePreparedSnapshot(historicalForB2, request, alignment?.estimationDates);
+    if (request.robustness && optimized.status === "SOLVED" && optimized.robustness) {
+      optimized.robustness.diagnostics = computeD4Diagnostics(
+        request,
+        optimized,
+        (variant) => optimizePreparedSnapshot(historicalForB2, variant, alignment?.estimationDates),
+      ) as Record<string, unknown>;
+    }
     if (optimized.status === "UNAVAILABLE_HISTORICAL_VIEWS") {
       const forecast = optimized.forecast;
       if (!forecast) {
@@ -536,6 +554,13 @@ export function runB3Validation(
         decisionDate, informationCutoff, executionDate: planned.executionDate,
         estimationDates: [...forecast.dates], forecastStatus: "UNAVAILABLE_HISTORICAL_VIEWS",
         forecast, inputDatasetHash: historical.dataset.sha256,
+        ...(policyRequest.robustness ? {
+          d4Policy: {
+            method: policyRequest.robustness.method,
+            kappa: policyRequest.robustness.kappa,
+            V_mu: forecast.V_mu,
+          },
+        } : {}),
         policyCandidateIds: [...policyRequest.candidateIds],
         validationCandidateIds: definitions.map((candidate) => candidate.candidateId),
         pointInTimeCandidateIds: pointInTimeIds,
@@ -580,10 +605,60 @@ export function runB3Validation(
       candidateWeights,
       model: { ...optimized.model, candidateIds: [...policyRequest.candidateIds] },
     };
+    const remapPointInTimeWeights = (weights: Record<string, number> | undefined) => weights
+      ? Object.fromEntries(policyRequest.candidateIds.flatMap((id, index) => {
+        const value = weights[pointInTimeIds[index]];
+        return value === undefined ? [] : [[id, value] as [string, number]];
+      }))
+      : undefined;
+    const pointInTimeToPolicyId = new Map(pointInTimeIds.map((id, index) =>
+      [id, policyRequest.candidateIds[index]]));
+    const remapDiagnosticCandidateIds = (value: unknown): unknown => {
+      if (typeof value === "string") return pointInTimeToPolicyId.get(value) ?? value;
+      if (Array.isArray(value)) return value.map(remapDiagnosticCandidateIds);
+      if (value !== null && typeof value === "object")
+        return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, child]) => [
+          pointInTimeToPolicyId.get(key) ?? key, remapDiagnosticCandidateIds(child),
+        ]));
+      return value;
+    };
+    const remappedRobustness = optimized.robustness ? {
+      ...optimized.robustness,
+      ...(optimized.robustness.nominalWeights
+        ? { nominalWeights: remapPointInTimeWeights(optimized.robustness.nominalWeights)! } : {}),
+      ...(optimized.robustness.robustWeights
+        ? { robustWeights: remapPointInTimeWeights(optimized.robustness.robustWeights)! } : {}),
+      ...(optimized.robustness.diagnostics
+        ? { diagnostics: remapDiagnosticCandidateIds(optimized.robustness.diagnostics) as Record<string, unknown> }
+        : {}),
+    } : undefined;
+    if (remappedRobustness) optimizerWithPolicyIds.robustness = remappedRobustness;
+    const targetForCandidateWeights = (weights: Record<string, number> | undefined) => weights
+      ? Object.fromEntries(optimized.model!.assetTickers.map((ticker, assetIndex) => [
+        ticker,
+        optimized.model!.H[assetIndex].reduce((sum, exposure, candidateIndex) =>
+          sum + exposure * (weights[policyRequest.candidateIds[candidateIndex]] ?? 0), 0),
+      ]))
+      : undefined;
+    const nominalWeights = remappedRobustness?.nominalWeights;
+    const robustWeights = remappedRobustness?.robustWeights;
+    const d4Policy = policyRequest.robustness ? {
+      method: policyRequest.robustness.method,
+      kappa: policyRequest.robustness.kappa,
+      ...(optimized.forecast ? { V_mu: structuredClone(optimized.forecast.V_mu) } : {}),
+      ...(nominalWeights ? { nominalWeights: { ...nominalWeights } } : {}),
+      ...(robustWeights ? { robustWeights: { ...robustWeights } } : {}),
+      ...(nominalWeights
+        ? { nominalTargetAssetWeights: targetForCandidateWeights(nominalWeights)! } : {}),
+      ...(robustWeights
+        ? { robustTargetAssetWeights: targetForCandidateWeights(robustWeights)! } : {}),
+      ...(remappedRobustness ? { diagnostics: structuredClone(remappedRobustness) } : {}),
+    } : undefined;
     decisions.push({
       decisionDate, informationCutoff, executionDate: planned.executionDate,
       estimationDates: [...optimized.model.dates], inputDatasetHash: historical.dataset.sha256,
       ...(optimized.forecast ? { forecastStatus: "AVAILABLE" as const, forecast: optimized.forecast } : {}),
+      ...(d4Policy ? { d4Policy } : {}),
       policyCandidateIds: [...policyRequest.candidateIds],
       validationCandidateIds: definitions.map((candidate) => candidate.candidateId),
       pointInTimeCandidateIds: pointInTimeIds,

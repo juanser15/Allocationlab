@@ -5715,6 +5715,7 @@ components:
         covarianceDiagonalShrinkage: { type: number, minimum: 0, maximum: 1 }
         riskModel: { $ref: "#/components/schemas/AllocationRiskModelSettings" }
         forecastModel: { $ref: "#/components/schemas/ForecastModelConfig" }
+        robustness: { $ref: "#/components/schemas/AllocationRobustnessConfig" }
         allocationMode: { type: string, enum: [CAPITAL_LONG_ONLY, SIGNED_OVERLAY] }
         signedConstraints: { $ref: "#/components/schemas/SignedAllocationConstraints" }
         targetExcessReturn: { type: number }
@@ -5735,6 +5736,19 @@ components:
         - dailyCashYield
         - objective
         - constraints
+
+    AllocationRobustnessConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        method:
+          type: string
+          enum: [NOMINAL, ROBUST_MEAN_UNCERTAINTY]
+        kappa:
+          type: number
+          minimum: 0
+          default: 1
+      required: [method]
 
     AllocationVersion:
       type: object

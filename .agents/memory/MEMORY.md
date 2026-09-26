@@ -12,3 +12,4 @@
 - [Immutable history list payloads](immutable-history-list-payloads.md) — large frozen histories can stall browser selectors even when individual records load; use small projected summaries for pickers.
 - [Signed overlay economic boundary](signed-overlay-economics.md) — signed alpha coefficients are active exposure, not capital shares; excess returns and consolidated underlying execution prevent cash double-counting.
 - [Codegen and live Vite previews](codegen-live-vite.md) — generating API clients briefly removes files; pause browser verification until codegen ends and the web workflow serves again.
+- [Robust nullspace certification](robust-nullspace-certification.md) — exact square-root optimization needs joint active-constraint subgradient checks at zero uncertainty and scale-relative numerical thresholds.

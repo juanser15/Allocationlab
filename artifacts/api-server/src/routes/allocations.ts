@@ -11,14 +11,23 @@ import {
 import { fingerprint, type PreparedSnapshot } from "../lib/prepared-inputs";
 import { hashDataset } from "../lib/run-snapshot";
 import { maximumNumericDifference } from "../lib/replay-numeric-difference";
+import { computeD4Diagnostics } from "../lib/d4-diagnostics";
+import { D4_SOLVER_VERSION } from "../lib/robust-solver-d4";
 
 const router: IRouter = Router();
 const REPLAY_TOLERANCE = 1e-8;
 // Bump this when route-level frozen-input or replay semantics change.
 const B2_API_ENGINE_VERSION = "allocation-b2-api.1";
+const D4_API_ENGINE_VERSION = "allocation-d4-api.1";
 
-function engineVersion(result: AllocationResult): string {
-  return `${B2_API_ENGINE_VERSION}; ${result.solver.name}@${result.solver.version}`;
+function apiEngineVersion(request: AllocationRequest): string {
+  return request.robustness ? D4_API_ENGINE_VERSION : B2_API_ENGINE_VERSION;
+}
+
+function engineVersion(result: AllocationResult, request: AllocationRequest): string {
+  const d4Solver = result.robustness?.solver;
+  return `${apiEngineVersion(request)}; ${result.solver.name}@${result.solver.version}` +
+    (request.robustness ? `; D4 ${d4Solver?.name ?? "robust-solver"}@${d4Solver?.version ?? D4_SOLVER_VERSION}` : "");
 }
 
 function validPathId(params: { allocationId: number }): boolean {
@@ -55,11 +64,12 @@ function unexpectedAllocationFields(body: unknown): string[] {
     "preparedInputId", "candidateIds", "informationCutoff", "decisionTimestamp", "estimationWindow",
     "minObservations", "representation", "returnConvention", "expectedReturnShrinkage",
       "covarianceDiagonalShrinkage", "riskModel", "dailyCashYield", "objective", "constraints",
-      "allocationMode", "signedConstraints", "targetExcessReturn", "forecastModel",
+      "allocationMode", "signedConstraints", "targetExcessReturn", "forecastModel", "robustness",
   ], "request");
   if (!request) return differences;
   check(request.objective, ["type", "gamma", "eta"], "objective");
   check(request.riskModel, ["type", "factorCount", "specificRiskFloorFraction"], "riskModel");
+  check(request.robustness, ["method", "kappa"], "robustness");
   const forecast = check(request.forecastModel, [
     "type", "displayZ", "shrinkage", "shrinkagePrior", "priorMean", "priorUncertainty", "views",
   ], "forecastModel");
@@ -189,6 +199,10 @@ router.post("/allocations", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  if (parsed.data.robustness?.method === "ROBUST_MEAN_UNCERTAINTY" && !parsed.data.forecastModel) {
+    res.status(400).json({ error: "ROBUST_MEAN_UNCERTAINTY requires an explicit forecastModel." });
+    return;
+  }
   if (!Number.isSafeInteger(parsed.data.preparedInputId) || !Number.isSafeInteger(parsed.data.estimationWindow) ||
     !Number.isSafeInteger(parsed.data.minObservations)) {
     res.status(400).json({ error: "preparedInputId, estimationWindow and minObservations must be safe integers." });
@@ -259,10 +273,22 @@ router.post("/allocations", async (req, res): Promise<void> => {
       frozenRequest.riskModel.specificRiskFloorFraction === undefined &&
       typeof specificRiskFloorFraction === "number")
     frozenRequest.riskModel.specificRiskFloorFraction = specificRiskFloorFraction;
+  if (frozenRequest.robustness && result.status === "SOLVED" && result.robustness) {
+    try {
+      result.robustness.diagnostics = computeD4Diagnostics(
+        frozenRequest, result, (variant) => optimizePreparedSnapshot(snapshot, variant),
+      ) as Record<string, unknown>;
+    } catch (error) {
+      res.status(422).json({
+        error: error instanceof Error ? `D4 diagnostics failed: ${error.message}` : "D4 diagnostics failed.",
+      });
+      return;
+    }
+  }
   const frozenSnapshot = structuredClone(snapshot);
   const frozenResult = structuredClone(result);
   const frozenSnapshotHash = fingerprint(frozenSnapshot);
-  const version = engineVersion(result);
+  const version = engineVersion(result, request);
   const versionFingerprint = persistedFingerprint({
     preparedInputId: request.preparedInputId,
     representation: request.representation,
@@ -323,14 +349,15 @@ router.post("/allocations/:allocationId/replay", async (req, res): Promise<void>
   const request = row.frozenRequest as AllocationRequest;
   const savedResult = row.frozenResult as AllocationResult;
   const differences: string[] = [];
+  const expectedApiVersion = apiEngineVersion(request);
   const actualSnapshotHash = fingerprint(snapshot);
   if (actualSnapshotHash !== row.frozenSnapshotHash)
     differences.push("frozen prepared snapshot fingerprint mismatch");
   if (!snapshot || typeof snapshot !== "object" || !snapshot.dataset?.csvContent ||
     hashDataset(snapshot.dataset.csvContent) !== snapshot.dataset.sha256)
     differences.push("frozen dataset content/hash mismatch");
-  if (row.engineVersion.split("; ", 1)[0] !== B2_API_ENGINE_VERSION)
-    differences.push(`allocation engine version mismatch: saved=${row.engineVersion}, current=${B2_API_ENGINE_VERSION}`);
+  if (row.engineVersion.split("; ", 1)[0] !== expectedApiVersion)
+    differences.push(`allocation engine version mismatch: saved=${row.engineVersion}, current=${expectedApiVersion}`);
   const expectedFingerprint = persistedFingerprint({
     preparedInputId: row.preparedInputId,
     representation: row.representation,
@@ -345,7 +372,7 @@ router.post("/allocations/:allocationId/replay", async (req, res): Promise<void>
   if (differences.length) {
     res.json(ReplayAllocationResponse.parse({
       allocationId: row.id,
-      status: row.engineVersion.split("; ", 1)[0] !== B2_API_ENGINE_VERSION ? "engine_mismatch" : "fail",
+      status: row.engineVersion.split("; ", 1)[0] !== expectedApiVersion ? "engine_mismatch" : "fail",
       fingerprint: row.fingerprint,
       differences,
       replayedResult: {},
@@ -356,6 +383,11 @@ router.post("/allocations/:allocationId/replay", async (req, res): Promise<void>
   let replayedResult: AllocationResult;
   try {
     replayedResult = optimizePreparedSnapshot(snapshot, request);
+    if (request.robustness && replayedResult.status === "SOLVED" && replayedResult.robustness) {
+      replayedResult.robustness.diagnostics = computeD4Diagnostics(
+        request, replayedResult, (variant) => optimizePreparedSnapshot(snapshot, variant),
+      ) as Record<string, unknown>;
+    }
   } catch (error) {
     res.json(ReplayAllocationResponse.parse({
       allocationId: row.id,
@@ -366,9 +398,10 @@ router.post("/allocations/:allocationId/replay", async (req, res): Promise<void>
     }));
     return;
   }
-  const incompatibleEngine = engineVersion(replayedResult) !== row.engineVersion;
+  const replayedEngineVersion = engineVersion(replayedResult, request);
+  const incompatibleEngine = replayedEngineVersion !== row.engineVersion;
   if (incompatibleEngine)
-    differences.push(`solver/engine version mismatch: saved=${row.engineVersion}, replayed=${engineVersion(replayedResult)}`);
+    differences.push(`solver/engine version mismatch: saved=${row.engineVersion}, replayed=${replayedEngineVersion}`);
   differences.push(...resultDifferences(savedResult, replayedResult));
   res.json(ReplayAllocationResponse.parse({
     allocationId: row.id,

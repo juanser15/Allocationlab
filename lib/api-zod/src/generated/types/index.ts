@@ -31,6 +31,8 @@ export * from './allocationRequestRepresentation';
 export * from './allocationRequestReturnConvention';
 export * from './allocationRiskModelSettings';
 export * from './allocationRiskModelSettingsType';
+export * from './allocationRobustnessConfig';
+export * from './allocationRobustnessConfigMethod';
 export * from './allocationVersion';
 export * from './allocationVersionRepresentation';
 export * from './allocationVersionResult';

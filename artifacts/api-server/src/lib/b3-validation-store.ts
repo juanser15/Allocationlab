@@ -48,7 +48,12 @@ function resultStatus(result: unknown): "success" | "failed" {
   return result.status === "completed" && accounting && fullRun ? "success" : "failed";
 }
 
-function b3InputHash(input: {
+function jsonbRoundTrip(value: unknown): unknown {
+  const encoded = JSON.stringify(value);
+  return encoded === undefined ? undefined : JSON.parse(encoded);
+}
+
+type B3InputHashInput = {
   allocationId: number;
   validationPreparedInputId: number;
   policySnapshot: unknown;
@@ -58,9 +63,42 @@ function b3InputHash(input: {
   estimationDatePlan?: unknown;
   engineVersion: string;
   result: unknown;
-}): string {
+};
+
+function b3HashPayload(input: B3InputHashInput): unknown {
   const { estimationDatePlan, ...base } = input;
-  return fingerprint(estimationDatePlan === undefined ? base : { ...base, estimationDatePlan });
+  return estimationDatePlan === undefined ? base : { ...base, estimationDatePlan };
+}
+
+export function b3InputHash(input: B3InputHashInput): string {
+  // JSONB drops undefined object properties and converts non-JSON numeric
+  // values to null. Hash the same representation that is persisted so save
+  // and replay agree even when D4 diagnostics contain optional request fields.
+  return fingerprint(jsonbRoundTrip(b3HashPayload(input)));
+}
+
+function legacyB3InputHash(input: B3InputHashInput): string {
+  // Before JSONB normalization was applied, saved B3 hashes covered the
+  // in-memory result (including undefined properties later omitted by JSONB).
+  return fingerprint(b3HashPayload(input));
+}
+
+function jsonbValueHash(value: unknown): string {
+  return fingerprint(jsonbRoundTrip(value));
+}
+
+export function verifyLegacyB3ReplayFingerprint(
+  input: B3InputHashInput,
+  storedHash: string,
+  replayedResult: unknown,
+  engineVersionMatches: boolean,
+): boolean {
+  if (!engineVersionMatches ||
+      legacyB3InputHash({ ...input, result: replayedResult }) !== storedHash)
+    return false;
+  // Legacy fallback is stricter than the ordinary numeric replay tolerance:
+  // the persisted JSONB payload itself must be exactly the replayed payload.
+  return jsonbValueHash(input.result) === jsonbValueHash(replayedResult);
 }
 
 function envelope(row: typeof validationRunsTable.$inferSelect): B3ValidationEnvelope {
@@ -306,7 +344,7 @@ export async function listB3ValidationRuns(allocationId?: number) {
   });
 }
 
-function resultDifferences(saved: unknown, replayed: unknown): string[] {
+export function resultDifferences(saved: unknown, replayed: unknown): string[] {
   const differences: string[] = [];
   const visit = (left: unknown, right: unknown, path: string) => {
     if (differences.length >= 100) return;
@@ -331,7 +369,9 @@ function resultDifferences(saved: unknown, replayed: unknown): string[] {
     }
     differences.push(`${path}: saved=${JSON.stringify(left)}, replayed=${JSON.stringify(right)}`);
   };
-  visit(saved, replayed, "result");
+  // A result loaded from JSONB has undergone the same serialization
+  // normalization as the frozen hash; compare it to replay in that form.
+  visit(jsonbRoundTrip(saved), jsonbRoundTrip(replayed), "result");
   return differences;
 }
 
@@ -362,7 +402,7 @@ export async function replayB3ValidationRun(id: number) {
   if (!preparedFingerprint) differences.push("frozen validation prepared-input fingerprint cannot be reconstructed");
   else if (preparedFingerprint !== frozen.validationPreparedFingerprint)
     differences.push("frozen validation prepared-input fingerprint mismatch");
-  const expectedHash = b3InputHash({
+  const hashInput: B3InputHashInput = {
     allocationId: row.allocationId,
     validationPreparedInputId: row.validationPreparedInputId,
     policySnapshot: frozen.policySnapshot,
@@ -372,8 +412,8 @@ export async function replayB3ValidationRun(id: number) {
     ...(frozen.estimationDatePlan ? { estimationDatePlan: frozen.estimationDatePlan } : {}),
     engineVersion: row.engineVersion,
     result: frozen.result,
-  });
-  if (expectedHash !== row.validationInputHash) differences.push("persisted B3 validation fingerprint mismatch");
+  };
+  const expectedHash = b3InputHash(hashInput);
   if (differences.length) return {
     validationRunId: id,
     status: version !== row.engineVersion ? "engine_mismatch" as const : "fail" as const,
@@ -393,13 +433,17 @@ export async function replayB3ValidationRun(id: number) {
   } catch (error) {
     replayed = { status: "failed", diagnostic: error instanceof Error ? error.message : "B3 replay failed." };
   }
+  if (expectedHash !== row.validationInputHash &&
+      !verifyLegacyB3ReplayFingerprint(hashInput, row.validationInputHash, replayed,
+        version === row.engineVersion))
+    differences.push("persisted B3 validation fingerprint mismatch");
   differences.push(...resultDifferences(frozen.result, replayed));
   return {
     validationRunId: id,
     status: differences.length ? "fail" as const : "pass" as const,
     validationInputHash: row.validationInputHash,
     differences,
-    maximumNumericDifference: maximumNumericDifference(frozen.result, replayed),
+    maximumNumericDifference: maximumNumericDifference(jsonbRoundTrip(frozen.result), jsonbRoundTrip(replayed)),
     replayedResult: replayed,
   };
 }

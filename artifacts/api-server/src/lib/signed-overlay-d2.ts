@@ -12,6 +12,7 @@ import type {
 import {
   estimateForecast, portfolioForecastUncertainty, type ForecastResult,
 } from "./forecast-d3";
+import { D4_SOLVER_VERSION, solveRobustMeanUncertainty } from "./robust-solver-d4";
 
 const SOLVER_VERSION = "2.0.0";
 const TOL = 1e-8;
@@ -337,6 +338,15 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
     !finite(request.objective.gamma) || request.objective.gamma <= 0 ||
     !finite(request.objective.eta) || request.objective.eta < 0)
     return reject("INVALID_INPUT", "Return convention, shrinkage or objective parameters are invalid.");
+  if (request.robustness !== undefined &&
+    (!request.robustness || !["NOMINAL", "ROBUST_MEAN_UNCERTAINTY"].includes(request.robustness.method) ||
+      !finite(request.robustness.kappa) || request.robustness.kappa < 0))
+    return reject("INVALID_INPUT", "Robustness method must be NOMINAL or ROBUST_MEAN_UNCERTAINTY and kappa must be finite and nonnegative.");
+  const robustEnabled = request.robustness?.method === "ROBUST_MEAN_UNCERTAINTY" &&
+    request.robustness.kappa > 0;
+  if (robustEnabled && (!request.forecastModel || request.objective.type !== "regularized_mean_variance"))
+    return reject("INVALID_FORECAST_MODEL",
+      "Positive robust mean-uncertainty mode requires an explicit D3 forecastModel and regularized_mean_variance objective.");
   if (request.forecastModel !== undefined && request.expectedReturnShrinkage !== 0)
     return reject("INVALID_FORECAST_MODEL",
       "forecastModel cannot be combined with nonzero legacy expectedReturnShrinkage; set legacy shrinkage to zero.");
@@ -520,6 +530,7 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
   if (riskSummary) model.riskModel = riskSummary;
 
   let solution: number[], iterations: number | null = null;
+  let robustSolve: ReturnType<typeof solveRobustMeanUncertainty> | undefined;
   const converted = constraints.flatMap((c) => {
     const result: Array<{ coefficients: number[]; bound: number; equality: boolean }> = [];
     if (c.lower !== undefined && c.upper !== undefined && Math.abs(c.upper - c.lower) <= 1e-14)
@@ -539,6 +550,14 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
   const scale = Math.max(1, ...hessian.flat().map(Math.abs));
   let lift = 0;
   try {
+    if (robustEnabled) {
+      if (!forecast || forecast.status !== "OK")
+        return failure("INVALID_FORECAST_MODEL", "A valid D3 forecast with V_mu is required for robust optimization.", model);
+      robustSolve = solveRobustMeanUncertainty(hessian, linear, forecast.V_mu, constraints,
+        request.robustness!.kappa, total);
+      solution = robustSolve.solution;
+      iterations = robustSolve.iterations;
+    } else {
     const run = (matrix: number[][]) => solveQP(qpMatrix(matrix), qpVector(linear.map((value) => -value)),
       qpConstraints, qpVector(converted.map((item) => item.bound)), equalityCount) as
       { solution?: number[]; iterations?: number[]; message?: string };
@@ -551,6 +570,7 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
     if (!solved.solution || solved.message) throw new Error(solved.message ?? "QP solver returned no solution.");
     solution = solved.solution.slice(1);
     iterations = solved.iterations?.slice(1).reduce((sum, value) => sum + value, 0) ?? null;
+    }
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     if (/infeasible|constraints are inconsistent/i.test(detail))
@@ -560,7 +580,7 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
   if (solution.length !== total || solution.some((value) => !finite(value)))
     return failure("NUMERICAL_FAILURE", "QP solver returned an invalid signed solution.", model);
   const violation = Math.max(0, maxViolation(solution, constraints));
-  const residual = kktResidual(hessian, linear, solution, constraints);
+  const residual = robustSolve?.stationarityResidual ?? kktResidual(hessian, linear, solution, constraints);
   if (violation > TOL) return failure("NUMERICAL_FAILURE", `Independent feasibility check failed: ${violation}.`, model);
   if (!finite(residual) || residual > OPT_TOL)
     return failure("NUMERICAL_FAILURE", `Independent signed-objective KKT residual ${residual} exceeds ${OPT_TOL}.`, model);
@@ -574,19 +594,24 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
   const regularization = minimumVariance ? 0 : 0.5 * request.objective.eta * dot(weights, weights);
   const candidateReturn = minimumVariance ? 0 : -dot(mu, weights);
   const expectedExcess = dot(mu, weights);
+  const robustHaircut = robustSolve?.robustHaircut ?? 0;
   const result: AllocationResult = {
     status: "SOLVED", model, candidateWeights: Object.fromEntries(ids.map((id, i) => [id, weights[i]])),
     assetWeights, totalCash: cashTarget, masterCash: cashTarget,
     estimatedGrossReturn: mean(cashReturns) + expectedExcess, estimatedVolatility: Math.sqrt(variance),
     objectiveContributions: { variance: riskContribution, regularization, candidateReturn, masterCashReturn: 0,
-      total: riskContribution + regularization + candidateReturn },
+      ...(robustHaircut ? { robustHaircut } : {}),
+      total: riskContribution + regularization + candidateReturn + robustHaircut },
     constraintSlacks: constraintSlacks(solution, constraints),
-    solver: { name: "quadprog / Goldfarb-Idnani", version: SOLVER_VERSION, status: "SOLVED",
+    solver: { name: robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani",
+      version: robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION, status: "SOLVED",
       primalResidual: violation, dualResidual: residual, scaledOptimalityResidual: residual,
       maxConstraintViolation: violation, psdTolerance: PSD_TOL, optimalityTolerance: OPT_TOL,
       constraintTolerance: TOL, iterations,
-      message: lift ? `QP candidate regularization ${lift}; exact unmodified objective KKT and constraints independently verified.` :
-        "Exact objective KKT stationarity and independent primal feasibility checks passed." },
+      message: robustSolve
+        ? "Exact square-root robust objective KKT stationarity and independent primal feasibility checks passed."
+        : lift ? `QP candidate regularization ${lift}; exact unmodified objective KKT and constraints independently verified.` :
+          "Exact objective KKT stationarity and independent primal feasibility checks passed." },
     signedOverlay: {
       alphaGrossExposure: weights.reduce((sum, value) => sum + Math.abs(value), 0),
       netAlphaCoefficient: weights.reduce((sum, value) => sum + value, 0),
@@ -601,6 +626,17 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
     if ("status" in uncertainty)
       return failure("INVALID_FORECAST_MODEL", uncertainty.reason, model);
     result.forecast = { ...forecast, portfolio: uncertainty };
+  }
+  if (request.robustness) {
+    result.robustness = {
+      method: request.robustness.method, kappa: request.robustness.kappa, robustHaircut,
+      objectiveTotal: riskContribution + regularization + candidateReturn + robustHaircut,
+      solver: { name: robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani",
+        version: robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION, optimalityTolerance: robustSolve ? 1e-8 : OPT_TOL,
+        constraintTolerance: TOL },
+      nominalWeights: Object.fromEntries(ids.map((id, i) => [id, robustSolve?.nominalSolution[i] ?? weights[i]])),
+      ...(robustSolve ? { robustWeights: Object.fromEntries(ids.map((id, i) => [id, weights[i]])) } : {}),
+    };
   }
   if (riskSummary) {
     if (factorModel) {

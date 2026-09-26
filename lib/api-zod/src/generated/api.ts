@@ -4665,6 +4665,9 @@ export const listAllocationsResponseRequestForecastModelViewsItemVarianceExclusi
 
 export const listAllocationsResponseRequestForecastModelDisplayZExclusiveMin = 0;
 
+export const listAllocationsResponseRequestRobustnessKappaDefault = 1;
+export const listAllocationsResponseRequestRobustnessKappaMin = 0;
+
 export const listAllocationsResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -4754,6 +4757,10 @@ export const ListAllocationsResponseItem = zod.object({
   "availabilityTimestamp": zod.coerce.date()
 })).optional(),
   "displayZ": zod.number().gt(listAllocationsResponseRequestForecastModelDisplayZExclusiveMin).optional()
+}).optional(),
+  "robustness": zod.object({
+  "method": zod.enum(['NOMINAL', 'ROBUST_MEAN_UNCERTAINTY']),
+  "kappa": zod.number().min(listAllocationsResponseRequestRobustnessKappaMin).default(listAllocationsResponseRequestRobustnessKappaDefault)
 }).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
@@ -4846,6 +4853,9 @@ export const createAllocationBodyForecastModelViewsItemVarianceExclusiveMin = 0;
 
 export const createAllocationBodyForecastModelDisplayZExclusiveMin = 0;
 
+export const createAllocationBodyRobustnessKappaDefault = 1;
+export const createAllocationBodyRobustnessKappaMin = 0;
+
 export const createAllocationBodySignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -4929,6 +4939,10 @@ export const CreateAllocationBody = zod.object({
 })).optional(),
   "displayZ": zod.number().gt(createAllocationBodyForecastModelDisplayZExclusiveMin).optional()
 }).optional(),
+  "robustness": zod.object({
+  "method": zod.enum(['NOMINAL', 'ROBUST_MEAN_UNCERTAINTY']),
+  "kappa": zod.number().min(createAllocationBodyRobustnessKappaMin).default(createAllocationBodyRobustnessKappaDefault)
+}).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
   "alphaBounds": zod.record(zod.string(), zod.object({
@@ -5011,6 +5025,9 @@ export const createAllocationResponseRequestForecastModelPriorUncertaintyTauExcl
 export const createAllocationResponseRequestForecastModelViewsItemVarianceExclusiveMin = 0;
 
 export const createAllocationResponseRequestForecastModelDisplayZExclusiveMin = 0;
+
+export const createAllocationResponseRequestRobustnessKappaDefault = 1;
+export const createAllocationResponseRequestRobustnessKappaMin = 0;
 
 export const createAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
@@ -5101,6 +5118,10 @@ export const CreateAllocationResponse = zod.object({
   "availabilityTimestamp": zod.coerce.date()
 })).optional(),
   "displayZ": zod.number().gt(createAllocationResponseRequestForecastModelDisplayZExclusiveMin).optional()
+}).optional(),
+  "robustness": zod.object({
+  "method": zod.enum(['NOMINAL', 'ROBUST_MEAN_UNCERTAINTY']),
+  "kappa": zod.number().min(createAllocationResponseRequestRobustnessKappaMin).default(createAllocationResponseRequestRobustnessKappaDefault)
 }).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
@@ -5196,6 +5217,9 @@ export const getAllocationResponseRequestForecastModelViewsItemVarianceExclusive
 
 export const getAllocationResponseRequestForecastModelDisplayZExclusiveMin = 0;
 
+export const getAllocationResponseRequestRobustnessKappaDefault = 1;
+export const getAllocationResponseRequestRobustnessKappaMin = 0;
+
 export const getAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -5285,6 +5309,10 @@ export const GetAllocationResponse = zod.object({
   "availabilityTimestamp": zod.coerce.date()
 })).optional(),
   "displayZ": zod.number().gt(getAllocationResponseRequestForecastModelDisplayZExclusiveMin).optional()
+}).optional(),
+  "robustness": zod.object({
+  "method": zod.enum(['NOMINAL', 'ROBUST_MEAN_UNCERTAINTY']),
+  "kappa": zod.number().min(getAllocationResponseRequestRobustnessKappaMin).default(getAllocationResponseRequestRobustnessKappaDefault)
 }).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
