@@ -2865,6 +2865,39 @@ export interface PreparedReplay {
   replayedCandidates: PreparedReplayReplayedCandidatesItem[];
 }
 
+export interface SignedAllocationBounds {
+  min?: number;
+  max?: number;
+}
+
+export interface SignedAllocationGroupGrossCap {
+  /** @minLength 1 */
+  group: string;
+  /**
+     * @minItems 1
+     * @items.minLength 1
+     */
+  candidateIds: string[];
+  /** @minimum 0 */
+  max: number;
+}
+
+export type SignedAllocationConstraintsAlphaBounds = {[key: string]: SignedAllocationBounds};
+
+export type SignedAllocationConstraintsAssetBounds = {[key: string]: SignedAllocationBounds};
+
+export interface SignedAllocationConstraints {
+  alphaBounds?: SignedAllocationConstraintsAlphaBounds;
+  /** @minimum 0 */
+  grossAlphaMax?: number;
+  groupGrossCaps?: SignedAllocationGroupGrossCap[];
+  assetBounds?: SignedAllocationConstraintsAssetBounds;
+  /** @minimum 0 */
+  grossAssetMax?: number;
+  netAssetExposure?: SignedAllocationBounds;
+  cash?: SignedAllocationBounds;
+}
+
 export type AllocationObjectiveType = typeof AllocationObjectiveType[keyof typeof AllocationObjectiveType];
 
 
@@ -2899,6 +2932,52 @@ export interface AllocationRiskModelSettings {
   factorCount?: number;
   /** @minimum 0 */
   specificRiskFloorFraction?: number;
+}
+
+export interface AllocationModeComparisonIds {
+  /** @minimum 1 */
+  CAPITAL_LONG_ONLY: number;
+  /** @minimum 1 */
+  SIGNED_OVERLAY: number;
+}
+
+export interface AllocationModeComparisonInput {
+  allocationIds: AllocationModeComparisonIds;
+  validationRunIds: AllocationModeComparisonIds;
+}
+
+export interface AllocationModeComparisonSummary {
+  id: number;
+  manifestHash: string;
+  resultHash: string;
+  createdAt: string;
+}
+
+export type AllocationModeComparisonManifest = { [key: string]: unknown };
+
+export type AllocationModeComparisonResult = { [key: string]: unknown };
+
+export type AllocationModeComparison = AllocationModeComparisonSummary & {
+  manifest: AllocationModeComparisonManifest;
+  result: AllocationModeComparisonResult;
+};
+
+export type AllocationModeComparisonReplayStatus = typeof AllocationModeComparisonReplayStatus[keyof typeof AllocationModeComparisonReplayStatus];
+
+
+export const AllocationModeComparisonReplayStatus = {
+  pass: 'pass',
+  fail: 'fail',
+} as const;
+
+export type AllocationModeComparisonReplayResult = { [key: string]: unknown };
+
+export interface AllocationModeComparisonReplay {
+  comparisonId: number;
+  status: AllocationModeComparisonReplayStatus;
+  differences: string[];
+  maximumNumericDifference: number;
+  result: AllocationModeComparisonReplayResult;
 }
 
 export interface RiskModelComparisonIds {
@@ -2966,6 +3045,14 @@ export const AllocationRequestReturnConvention = {
   daily_decimal: 'daily_decimal',
 } as const;
 
+export type AllocationRequestAllocationMode = typeof AllocationRequestAllocationMode[keyof typeof AllocationRequestAllocationMode];
+
+
+export const AllocationRequestAllocationMode = {
+  CAPITAL_LONG_ONLY: 'CAPITAL_LONG_ONLY',
+  SIGNED_OVERLAY: 'SIGNED_OVERLAY',
+} as const;
+
 export interface AllocationRequest {
   /** @minimum 1 */
   preparedInputId: number;
@@ -2993,6 +3080,9 @@ export interface AllocationRequest {
      */
   covarianceDiagonalShrinkage: number;
   riskModel?: AllocationRiskModelSettings;
+  allocationMode?: AllocationRequestAllocationMode;
+  signedConstraints?: SignedAllocationConstraints;
+  targetExcessReturn?: number;
   dailyCashYield: number;
   objective: AllocationObjective;
   constraints: AllocationConstraints;
@@ -3013,6 +3103,8 @@ export type AllocationVersionStatus = typeof AllocationVersionStatus[keyof typeo
 export const AllocationVersionStatus = {
   SOLVED: 'SOLVED',
   INFEASIBLE: 'INFEASIBLE',
+  UNBOUNDED: 'UNBOUNDED',
+  MISSING_TARGET_EXCESS_RETURN: 'MISSING_TARGET_EXCESS_RETURN',
   INVALID_INPUT: 'INVALID_INPUT',
   INVALID_RISK_MODEL: 'INVALID_RISK_MODEL',
   INVALID_FACTOR_MODEL: 'INVALID_FACTOR_MODEL',
@@ -3295,5 +3387,9 @@ limit?: SignalLimitParameter;
 
 export type ListRiskModelComparisons200 = {
   comparisons: RiskModelComparisonSummary[];
+};
+
+export type ListAllocationModeComparisons200 = {
+  comparisons: AllocationModeComparisonSummary[];
 };
 

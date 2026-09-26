@@ -87,6 +87,9 @@ export interface B3Result {
   failureDate?: string;
   policyIdentity: {
     representation: AllocationRequest["representation"];
+    allocationMode?: AllocationRequest["allocationMode"];
+    signedConstraints?: AllocationRequest["signedConstraints"];
+    targetExcessReturn?: AllocationRequest["targetExcessReturn"];
     candidateIds: string[];
     validationCandidateIds: Record<string, string>;
     datasetHash: string;
@@ -194,6 +197,9 @@ function failureResult(
       validationCandidateIds: {},
       datasetHash: policySnapshot.dataset.sha256, validationDatasetHash: validationSnapshot.dataset.sha256,
       objective: policy.objective, estimationWindow: policy.estimationWindow, minObservations: policy.minObservations,
+      ...(policy.allocationMode ? { allocationMode: policy.allocationMode } : {}),
+      ...(policy.signedConstraints ? { signedConstraints: structuredClone(policy.signedConstraints) } : {}),
+      ...(policy.targetExcessReturn === undefined ? {} : { targetExcessReturn: policy.targetExcessReturn }),
       ...(policy.riskModel ? { riskModel: structuredClone(policy.riskModel) } : {}),
     },
     decisionCalendar, decisions, dailyLedger: [], metrics: null,
@@ -220,6 +226,10 @@ export function runB3Validation(
   assumptions: B3Assumptions,
   estimationDatePlan?: B3EstimationDatePlan,
 ): B3Result {
+  // Missing mode is intentionally the historical B2 capital-only contract.
+  // Signed execution is opt-in and is enabled only by a frozen B2 policy.
+  const signedOverlay = (policyRequest as AllocationRequest & { allocationMode?: string }).allocationMode ===
+    "SIGNED_OVERLAY";
   const fail = (reason: string, date?: string, decisions: B3Decision[] = [],
     calendar: Array<{ decisionDate: string; executionDate: string }> = []) =>
     failureResult(assumptions, policyRequest, policySnapshot, validationSnapshot, reason, date, decisions, calendar);
@@ -235,6 +245,8 @@ export function runB3Validation(
     return fail("Policy request and both frozen preparations must use the same supported representation.");
   if (policyRequest.representation === "signals")
     return fail("B2 does not support predictive signal optimization; B3 requires asset_returns or alpha_streams.");
+  if (signedOverlay && policyRequest.representation !== "alpha_streams")
+    return fail("SIGNED_OVERLAY B3 requires alpha_streams so signed coefficients map through the frozen underlying-exposure matrix.");
   if (!policyRequest.candidateIds.length || new Set(policyRequest.candidateIds).size !== policyRequest.candidateIds.length)
     return fail("Policy must freeze a nonempty unique set of canonical candidate IDs.");
   if (!validDate(assumptions.evaluationStartDate) || !validDate(assumptions.evaluationEndDate) ||
@@ -245,11 +257,13 @@ export function runB3Validation(
     return fail("B3 supports only monthly/quarterly calendars and A1 same_close/next_close execution.");
   if (![assumptions.initialNav, assumptions.initialCash, assumptions.transactionCostBps,
     assumptions.slippageBps, assumptions.dailyCashYield].every(isFiniteNumber) ||
-    assumptions.initialNav <= 0 || assumptions.initialCash < 0 || assumptions.transactionCostBps < 0 ||
+     assumptions.initialNav <= 0 || (!signedOverlay && assumptions.initialCash < 0) ||
+     assumptions.transactionCostBps < 0 ||
     assumptions.slippageBps < 0 || assumptions.dailyCashYield <= -1)
     return fail("Initial capital, costs, and cash-yield assumptions must be finite and in their valid ranges.");
-  if (Object.values(assumptions.initialHoldings ?? {}).some((quantity) => !isFiniteNumber(quantity) || quantity < 0))
-    return fail("Initial holdings must be finite nonnegative quantities.");
+  if (Object.values(assumptions.initialHoldings ?? {}).some((quantity) =>
+    !isFiniteNumber(quantity) || (!signedOverlay && quantity < 0)))
+    return fail(`Initial holdings must be finite${signedOverlay ? "" : " nonnegative"} quantities.`);
   if (policySnapshot.engineVersion !== validationSnapshot.engineVersion ||
     policySnapshot.a1EngineVersion !== validationSnapshot.a1EngineVersion)
     return fail("Policy and validation preparations use incompatible frozen B1/A1 engine versions.");
@@ -298,6 +312,16 @@ export function runB3Validation(
     return fail(`Selected benchmark ${assumptions.benchmarkTicker} is absent from the validation dataset.`);
   if (policyRequest.constraints?.unsupported?.length)
     return fail(`Policy contains unsupported constraints: ${policyRequest.constraints.unsupported.join(", ")}.`);
+  if (signedOverlay) {
+    const unselectedAlphaBounds = Object.keys(policyRequest.signedConstraints?.alphaBounds ?? {})
+      .filter((candidateId) => !policyRequest.candidateIds.includes(candidateId));
+    const unselectedGroupIds = (policyRequest.signedConstraints?.groupGrossCaps ?? [])
+      .flatMap((group) => group.candidateIds.filter((candidateId) =>
+        !policyRequest.candidateIds.includes(candidateId)));
+    if (unselectedAlphaBounds.length || unselectedGroupIds.length)
+      return fail(`Signed constraints reference unselected policy candidates: ${
+        [...new Set([...unselectedAlphaBounds, ...unselectedGroupIds])].join(", ")}.`);
+  }
 
   let rows: ReturnType<typeof parseCsv>;
   try {
@@ -433,6 +457,15 @@ export function runB3Validation(
       ...structuredClone(policyRequest),
       candidateIds: pointInTimeIds,
       informationCutoff, decisionTimestamp: decisionDate,
+      signedConstraints: policyRequest.signedConstraints ? {
+        ...structuredClone(policyRequest.signedConstraints),
+        alphaBounds: translateRecord(policyRequest.signedConstraints.alphaBounds),
+        groupGrossCaps: policyRequest.signedConstraints.groupGrossCaps?.map((group) => ({
+          ...group,
+          candidateIds: group.candidateIds.map((id) =>
+            pointInTimeIds[policyRequest.candidateIds.indexOf(id)]),
+        })),
+      } : undefined,
       constraints: {
         ...structuredClone(policyRequest.constraints),
         candidateBounds: translateRecord(policyRequest.constraints.candidateBounds),
@@ -509,6 +542,7 @@ export function runB3Validation(
     initialCash: assumptions.initialCash,
     initialHoldings: { ...assumptions.initialHoldings },
     dailyCashYield: assumptions.dailyCashYield,
+    ...(signedOverlay ? { allowShortPositions: true } : {}),
   };
   const engine = runBacktestEngine(
     evalRows, etfs, engineConstraints(), config, assumptions.benchmarkTicker ?? null,
@@ -605,6 +639,11 @@ export function runB3Validation(
       datasetHash: policySnapshot.dataset.sha256, validationDatasetHash: validationSnapshot.dataset.sha256,
       objective: policyRequest.objective, estimationWindow: policyRequest.estimationWindow,
       minObservations: policyRequest.minObservations,
+      ...(policyRequest.allocationMode ? { allocationMode: policyRequest.allocationMode } : {}),
+      ...(policyRequest.signedConstraints ?
+        { signedConstraints: structuredClone(policyRequest.signedConstraints) } : {}),
+      ...(policyRequest.targetExcessReturn === undefined ? {} :
+        { targetExcessReturn: policyRequest.targetExcessReturn }),
       ...(policyRequest.riskModel ? { riskModel: structuredClone(policyRequest.riskModel) } : {}),
     },
     decisionCalendar: expectedCalendar, decisions, dailyLedger: ledger,
@@ -628,6 +667,7 @@ export function runB3Validation(
         "Fixed-candidate-universe historical simulation; not an independent model-selection validation or proof of alpha efficacy.",
         "Input uses adjusted-close prices and does not model broker-level corporate actions.",
         "A1 applies declared fees and slippage to consolidated underlying-book one-way turnover (half the absolute target-weight-change sum), as implemented by its existing execution convention.",
+        ...(signedOverlay ? ["Borrow and financing frictions beyond the declared cash/cost model are not modeled."] : []),
       ],
     },
   };

@@ -10,3 +10,4 @@ export * from "./c1Experiments";
 export * from "./c2Experiments";
 export * from "./c3Experiments";
 export * from "./d1RiskComparisons";
+export * from "./d2AllocationModeComparisons";

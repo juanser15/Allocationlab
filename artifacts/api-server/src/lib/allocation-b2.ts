@@ -4,8 +4,19 @@ import type { PreparedCandidate, PreparedSnapshot } from "./prepared-inputs";
 import {
   buildStatisticalFactorRiskModel, decomposeStatisticalFactorRisk, type D1StatisticalFactorRiskModel,
 } from "./d1-factor-model";
+import { optimizeSignedOverlay } from "./signed-overlay-d2";
 
 export type AllocationRepresentation = "asset_returns" | "alpha_streams" | "signals";
+export type AllocationMode = "CAPITAL_LONG_ONLY" | "SIGNED_OVERLAY";
+export interface SignedOverlayConstraints {
+  alphaBounds?: Record<string, { min?: number; max?: number }>;
+  grossAlphaMax?: number;
+  groupGrossCaps?: Array<{ group: string; candidateIds: string[]; max: number }>;
+  assetBounds?: Record<string, { min?: number; max?: number }>;
+  grossAssetMax?: number;
+  netAssetExposure?: { min?: number; max?: number };
+  cash?: { min?: number; max?: number };
+}
 export type AllocationObjective =
   | { type: "minimum_variance"; gamma: number; eta: number }
   | { type: "regularized_mean_variance"; gamma: number; eta: number };
@@ -21,6 +32,9 @@ export interface AllocationRequest {
   returnConvention: "daily_decimal";
   expectedReturnShrinkage: number;
   covarianceDiagonalShrinkage: number;
+  allocationMode?: AllocationMode;
+  signedConstraints?: SignedOverlayConstraints;
+  targetExcessReturn?: number;
   riskModel?: {
     type: "SAMPLE" | "DIAGONAL_SHRINKAGE" | "STATISTICAL_FACTOR";
     factorCount?: number;
@@ -46,7 +60,9 @@ export type AllocationStatus =
   | "INVALID_FACTOR_MODEL"
   | "UNSUPPORTED"
   | "NUMERICAL_FAILURE"
-  | "LIMIT_REACHED";
+  | "LIMIT_REACHED"
+  | "UNBOUNDED"
+  | "MISSING_TARGET_EXCESS_RETURN";
 
 export interface AllocationModel {
   candidateIds: string[];
@@ -104,6 +120,17 @@ export interface AllocationResult {
   } | null;
   constraintSlacks: Array<{ name: string; value: number; minSlack: number | null; maxSlack: number | null }>;
   solver: SolverDiagnostics;
+  signedOverlay?: {
+    alphaGrossExposure: number;
+    netAlphaCoefficient: number;
+    longAssetExposure: number;
+    shortAssetExposure: number;
+    grossAssetExposure: number;
+    netAssetExposure: number;
+    cashTarget: number;
+    expectedExcessReturn: number;
+    allocationMode: "SIGNED_OVERLAY";
+  };
   riskModel?: {
     type: "SAMPLE" | "DIAGONAL_SHRINKAGE" | "STATISTICAL_FACTOR";
     factorCount?: number;
@@ -387,6 +414,8 @@ function scaledKktResidual(Hessian: number[][], linear: number[], x: number[],
  */
 export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: AllocationRequest,
   plannedEstimationDates?: readonly string[]): AllocationResult {
+  if (request.allocationMode === "SIGNED_OVERLAY")
+    return optimizeSignedOverlay(snapshot, request, plannedEstimationDates);
   if (request.representation === "signals")
     return failure("UNSUPPORTED", "UNSUPPORTED_REPRESENTATION: predictive signal optimization is not supported; select asset_returns or alpha_streams.");
   if (request.constraints?.unsupported?.length)

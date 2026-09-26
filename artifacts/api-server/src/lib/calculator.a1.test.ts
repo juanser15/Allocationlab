@@ -147,3 +147,48 @@ test("TEST 6 — every daily ledger entry and the compounded curve reconcile", (
   assert.equal(invalid.hasSufficientData, false);
   assert.match(invalid.insufficientReason ?? "", /Missing or invalid price for held asset AAA/);
 });
+
+test("A1 signed execution accounts for short proceeds, covers, P&L and one-time costs", () => {
+  const prices = rows([
+    ["2026-01-01", 100], ["2026-01-02", 100], ["2026-01-03", 100],
+    ["2026-01-04", 100], ["2026-01-05", 110],
+    ["2026-02-01", 110], ["2026-02-02", 100], ["2026-02-03", 100],
+    ["2026-03-01", 100], ["2026-03-02", 100],
+  ]);
+  const signedInitialState = {
+    initialNav: 100, initialCash: 100, initialHoldings: {}, dailyCashYield: 0,
+    allowShortPositions: true,
+  };
+  const result = runBacktestEngine(
+    prices, etfs, constraints,
+    config({ warmupDays: 3, transactionCostBps: 10, slippageBps: 5 }),
+    null, factorSet, (signalDate) => signalDate === "2026-01-04" ? { AAA: -0.2 } :
+      signalDate === "2026-02-01" ? { AAA: 0.1 } : null,
+    signedInitialState,
+  );
+  assert.equal(result.hasSufficientData, true, result.insufficientReason ?? "");
+  const shortFill = result.dailyLedger.find((entry) => entry.executionSignalDate === "2026-01-04")!;
+  assert.ok(shortFill.endingPositions.some((position) => position.quantity < 0));
+  near(shortFill.endingCash / shortFill.endingNav, 1.2, "short proceeds in cash");
+  near(shortFill.transactionCosts + shortFill.slippage,
+    shortFill.beginningNav * 0.1 * 15 / 10000, "short opening cost");
+  const heldShort = result.dailyLedger.find((entry) => entry.date === "2026-01-05")!;
+  near(heldShort.etfPnl, shortFill.endingPositions[0].quantity * 10, "short mark-to-market P&L");
+  assert.equal(heldShort.trades.length, 0);
+
+  const coverFill = result.dailyLedger.find((entry) => entry.executionSignalDate === "2026-02-01")!;
+  assert.ok(coverFill.trades.some((trade) => trade.quantity > 0), "cover trade consumes short quantity");
+  assert.ok(coverFill.endingPositions.every((position) => position.quantity > 0));
+  near(coverFill.endingCash / coverFill.endingNav, 0.9, "cash after partial cover and long position");
+  const coverPreTradeNav = coverFill.beginningNav + coverFill.etfPnl + coverFill.cashPnl;
+  const shortWeightBeforeCover = coverFill.beginningPositions[0].marketValue / coverPreTradeNav;
+  const coverTurnover = Math.abs(0.1 - shortWeightBeforeCover) / 2;
+  near(coverFill.transactionCosts + coverFill.slippage,
+    coverPreTradeNav * coverTurnover * 15 / 10000,
+    "cover and reversal charged once on consolidated turnover");
+  for (const entry of result.dailyLedger) {
+    near(entry.beginningNav + entry.netPnl, entry.endingNav, `${entry.date} NAV reconciliation`);
+    near(entry.endingCash + entry.endingPositions.reduce((sum, p) => sum + p.marketValue, 0),
+      entry.endingNav, `${entry.date} cash plus signed holdings`);
+  }
+});

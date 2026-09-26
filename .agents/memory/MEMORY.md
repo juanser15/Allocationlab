@@ -10,3 +10,4 @@
 - [Database test ESM runner](database-test-esm-runner.md) — externalize third-party packages while bundling the workspace DB entry; emit under the DB package for its dependency resolution.
 - [C3 development evidence boundary](c3-development-boundary.md) — keep the eight-alpha C2 source universe exact; preview verifies frozen hashes, while save/replay perform full source replay.
 - [Immutable history list payloads](immutable-history-list-payloads.md) — large frozen histories can stall browser selectors even when individual records load; use small projected summaries for pickers.
+- [Signed overlay economic boundary](signed-overlay-economics.md) — signed alpha coefficients are active exposure, not capital shares; excess returns and consolidated underlying execution prevent cash double-counting.

@@ -1455,6 +1455,8 @@ export interface BacktestInitialState {
   initialCash: number;
   initialHoldings: Record<string, number>;
   dailyCashYield: number;
+  /** Enables signed underlying quantities and negative cash for signed-overlay execution only. */
+  allowShortPositions?: boolean;
 }
 
 const TRADING_DAYS_PER_YEAR = 252;
@@ -1609,15 +1611,17 @@ export function runBacktestEngine(
   // (previous close, current close] followed by any trade AT the current close.
   const simRows = priceRows.slice(firstSignalIndex - 1);
   if (initialState) {
-    const { initialNav, initialCash, initialHoldings, dailyCashYield } = initialState;
-    if (!Number.isFinite(initialNav) || initialNav <= 0 || !Number.isFinite(initialCash) || initialCash < 0 ||
+    const { initialNav, initialCash, initialHoldings, dailyCashYield, allowShortPositions = false } = initialState;
+    if (!Number.isFinite(initialNav) || initialNav <= 0 || !Number.isFinite(initialCash) ||
+        (!allowShortPositions && initialCash < 0) ||
         !Number.isFinite(dailyCashYield) || dailyCashYield <= -1 ||
         !initialHoldings || typeof initialHoldings !== "object")
       return empty("Invalid initial NAV, cash, holdings or daily cash yield.");
     let initialAssets = 0;
     for (const [ticker, quantity] of Object.entries(initialHoldings)) {
       const price = simRows[0].prices[ticker];
-      if (!enabledTickers.includes(ticker) || !Number.isFinite(quantity) || quantity < 0 ||
+      if (!enabledTickers.includes(ticker) || !Number.isFinite(quantity) ||
+          (!allowShortPositions && quantity < 0) ||
           !Number.isFinite(price) || price <= 0)
         return empty(`Invalid initial holding or missing price for ${ticker} on ${simRows[0].date}.`);
       initialAssets += quantity * price;
@@ -1627,6 +1631,7 @@ export function runBacktestEngine(
   }
   const dailyCashReturn = initialState?.dailyCashYield ??
     (Math.pow(1 + config.cashYieldAnnual, 1 / TRADING_DAYS_PER_YEAR) - 1);
+  const allowShortPositions = initialState?.allowShortPositions ?? false;
   const dailyReturns: Array<{ date: string; portfolioReturn: number; benchmarkReturn: number | null }> = [];
   const dailyLedger: BacktestLedgerEntry[] = [];
   const rebalanceLog: RebalanceLogEntry[] = [];
@@ -1635,7 +1640,7 @@ export function runBacktestEngine(
   let nav = initialState?.initialNav ?? 100;
   let pending: { signalDate: string; executionDate: string; target: Map<string, number>; lookbackDays: number; regimeLabel: string; regimeComposite: number } | null = null;
   const positionSnapshot = (prices: Record<string, number>, value: number): BacktestPosition[] =>
-    [...shares].filter(([, quantity]) => quantity > 0).map(([ticker, quantity]) => ({
+    [...shares].filter(([, quantity]) => quantity !== 0).map(([ticker, quantity]) => ({
       ticker, quantity, price: prices[ticker], marketValue: quantity * prices[ticker],
       weight: value > 0 ? quantity * prices[ticker] / value : 0,
     }));
@@ -1648,7 +1653,7 @@ export function runBacktestEngine(
     const beginningPositions = positionSnapshot(prevRow.prices, beginningNav);
     let etfPnl = 0;
     for (const [ticker, quantity] of shares) {
-      if (quantity <= 0) continue;
+      if (quantity === 0) continue;
       const prevPrice = prevRow.prices[ticker];
       const price = row.prices[ticker];
       if (!Number.isFinite(prevPrice) || !Number.isFinite(price) || prevPrice <= 0 || price <= 0)
@@ -1664,7 +1669,7 @@ export function runBacktestEngine(
       const priorWeights = new Map(beginningPositions.map((p) => [p.ticker, p.weight]));
       // For NEXT_CLOSE the market has just closed; use currently drifted weights.
       for (const [ticker, quantity] of shares)
-        if (quantity > 0) priorWeights.set(ticker, quantity * row.prices[ticker] / nav);
+        if (quantity !== 0) priorWeights.set(ticker, quantity * row.prices[ticker] / nav);
       const etfsForSignal = etfs.map((e) => ({
         ...e, priorWeight: rebalanceLog.length ? (priorWeights.get(e.ticker) ?? 0) : e.priorWeight,
       }));
@@ -1692,18 +1697,27 @@ export function runBacktestEngine(
     const trades: BacktestLedgerEntry["trades"] = [];
     if (pending && pending.executionDate === row.date) {
       executionSignalDate = pending.signalDate;
-      const currentWeights = new Map([...shares].filter(([, q]) => q > 0).map(([ticker, quantity]) =>
+      const currentWeights = new Map([...shares].filter(([, q]) => q !== 0).map(([ticker, quantity]) =>
         [ticker, quantity * row.prices[ticker] / nav] as const));
       const allTickers = new Set([...currentWeights.keys(), ...pending.target.keys()]);
+      for (const [ticker, weight] of pending.target) {
+        if (!enabledTickers.includes(ticker) || !Number.isFinite(weight) ||
+            (!allowShortPositions && weight < 0))
+          return empty(`Invalid ${allowShortPositions ? "signed " : ""}target exposure for ${ticker} on ${row.date}.`);
+      }
       let requestedTurnover = 0;
       for (const ticker of allTickers)
         requestedTurnover += Math.abs((pending.target.get(ticker) ?? 0) - (currentWeights.get(ticker) ?? 0));
       requestedTurnover /= 2;
-      const cap = clamp(config.maxTurnoverPerRebalance, 0, 1);
+      // Signed B3 targets are the solved underlying book, not an instruction to
+      // incrementally approach it. Preserve the legacy turnover cap for all
+      // long-only execution paths.
+      const cap = allowShortPositions ? requestedTurnover : clamp(config.maxTurnoverPerRebalance, 0, 1);
       const scale = requestedTurnover > 0 ? Math.min(1, cap / requestedTurnover) : 1;
       const applied = new Map<string, number>();
       for (const ticker of allTickers)
-        applied.set(ticker, Math.max(0, (currentWeights.get(ticker) ?? 0) + ((pending.target.get(ticker) ?? 0) - (currentWeights.get(ticker) ?? 0)) * scale));
+        applied.set(ticker, (currentWeights.get(ticker) ?? 0) +
+          ((pending.target.get(ticker) ?? 0) - (currentWeights.get(ticker) ?? 0)) * scale);
       let turnoverApplied = 0;
       for (const ticker of allTickers)
         turnoverApplied += Math.abs((applied.get(ticker) ?? 0) - (currentWeights.get(ticker) ?? 0));
@@ -1716,7 +1730,7 @@ export function runBacktestEngine(
       const nextShares = new Map<string, number>();
       let invested = 0;
       for (const [ticker, weight] of applied) {
-        if (weight <= 0) continue;
+        if (allowShortPositions ? weight === 0 : weight <= 0) continue;
         const price = row.prices[ticker];
         if (!Number.isFinite(price) || price <= 0)
           return empty(`Missing or invalid execution price for ${ticker} on ${row.date}; cannot execute trade.`);
@@ -1735,7 +1749,7 @@ export function runBacktestEngine(
       rebalanceLog.push({
         rebalanceDate: pending.signalDate, executionDate: row.date, lookbackDays: pending.lookbackDays,
         regimeLabel: pending.regimeLabel, regimeComposite: pending.regimeComposite,
-        cashWeight: round4(cash / nav), activeEtfCount: [...applied.values()].filter((w) => w > 0.001).length,
+        cashWeight: round4(cash / nav), activeEtfCount: [...applied.values()].filter((w) => Math.abs(w) > 0.001).length,
         topHoldings, turnoverRequested: round4(requestedTurnover), turnoverApplied: round4(turnoverApplied),
         turnoverCapped: requestedTurnover > cap + 1e-9,
         transactionCostPct: round4((transactionCosts + slippage) / preTradeNav),

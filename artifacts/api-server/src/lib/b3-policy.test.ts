@@ -472,3 +472,128 @@ test("B3 rejects alpha schedules that differ from the declared allocator calenda
   assert.equal(result.failureDate, dateAt(60));
   assert.match(result.reason ?? "", /schedule\/execution incompatible/);
 });
+
+test("D2 T7 signed B3 re-solves point-in-time and A1 executes consolidated shorts", () => {
+  const snapshot = opposingAlphaSnapshot();
+  const [positiveAlphaId, negativeAlphaId] = snapshot.candidates.map((candidate) => candidate.candidateId);
+  const policy = allocationRequest(snapshot, {
+    candidateIds: [positiveAlphaId, negativeAlphaId],
+    allocationMode: "SIGNED_OVERLAY",
+    riskModel: { type: "STATISTICAL_FACTOR", factorCount: 1, specificRiskFloorFraction: 1e-6 },
+    objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.1 },
+    signedConstraints: {
+      alphaBounds: {
+        [positiveAlphaId]: { min: 0.2, max: 0.2 },
+        [negativeAlphaId]: { min: -0.8, max: -0.8 },
+      },
+    },
+    constraints: {},
+  });
+  const assumptionsForRun = assumptions(45, 120, {
+    dailyCashYield: 0, transactionCostBps: 10, slippageBps: 5,
+  });
+  const result = runB3Validation(snapshot, policy, snapshot, assumptionsForRun);
+  assert.equal(result.status, "completed", result.reason);
+  assert.ok(result.decisions.length >= 2, "must execute at least two historical decisions");
+  assert.ok(result.decisions.every((decision) => decision.candidateWeights[positiveAlphaId] > 0));
+  assert.ok(result.decisions.every((decision) => decision.candidateWeights[negativeAlphaId] < 0));
+  assert.ok(result.decisions.some((decision) =>
+    Object.values(decision.targetAssetWeights).some((exposure) => exposure < 0)),
+  "the consolidated underlying target must contain an actual short");
+  assert.ok(result.decisions.every((decision) =>
+    decision.optimizer.riskModel?.type === "STATISTICAL_FACTOR" &&
+    decision.optimizer.riskModel.provenance.informationCutoff === decision.informationCutoff &&
+    decision.optimizer.riskModel.provenance.dates.every((date) => date <= decision.informationCutoff)));
+
+  for (const decision of result.decisions) {
+    close(decision.targetAssetExposureSum + decision.totalCash, 1);
+    close(decision.optimizer.signedOverlay!.cashTarget, 1 - decision.targetAssetExposureSum);
+    close(Object.values(decision.candidateAssetContributions[positiveAlphaId]).reduce((a, b) => a + b, 0) +
+      Object.values(decision.candidateAssetContributions[negativeAlphaId]).reduce((a, b) => a + b, 0),
+    decision.targetAssetExposureSum);
+  }
+  const first = result.decisions[0];
+  const firstExecution = result.dailyLedger.find((entry) => entry.date === first.executionDate)!;
+  assert.ok(firstExecution.externalTrades.some((trade) => trade.quantity < 0),
+    "short sale should increase execution cash");
+  assert.equal(firstExecution.externalTrades.length, 1, "opposing alpha instructions must net by underlying asset");
+  close(firstExecution.transactionCosts, firstExecution.beginningNav * 0.35 * 10 / 10000);
+  close(firstExecution.slippage, firstExecution.beginningNav * 0.35 * 5 / 10000);
+  close(firstExecution.externalTradedNotional,
+    firstExecution.externalTrades.reduce((sum, trade) => sum + Math.abs(trade.notional), 0));
+  const laterExecutions = result.decisions.slice(1).map((decision) =>
+    result.dailyLedger.find((entry) => entry.date === decision.executionDate)!);
+  assert.ok(laterExecutions.some((entry) => entry.externalTrades.some((trade) => trade.quantity > 0)),
+    "later rebalance must cover part of the short");
+  const sourceRows = snapshot.dataset.csvContent.trimEnd().split(/\r?\n/);
+  for (const [index, execution] of laterExecutions.entries()) {
+    const decision = result.decisions[index + 1];
+    const executionPrice = Number(sourceRows.find((line) => line.slice(0, 10) === execution.date)!.split(",")[1]);
+    const preTradeNav = execution.beginningNav + execution.assetPnl + execution.cashPnl;
+    const currentWeight = (execution.beginningPositions.find((position) => position.ticker === "A")?.quantity ?? 0) *
+      executionPrice / preTradeNav;
+    const targetWeight = decision.targetAssetWeights.A ?? 0;
+    const turnover = Math.abs(targetWeight - currentWeight) / 2;
+    close(execution.transactionCosts, preTradeNav * turnover * 10 / 10000);
+    close(execution.slippage, preTradeNav * turnover * 5 / 10000);
+    assert.equal(execution.externalTrades.length, 1);
+  }
+  assert.ok(result.diagnostics.limitations.some((limitation) =>
+    limitation.includes("Borrow and financing frictions beyond the declared cash/cost model are not modeled.")));
+
+  for (const entry of result.dailyLedger) {
+    close(entry.beginningNav + entry.assetPnl + entry.cashPnl -
+      entry.transactionCosts - entry.slippage, entry.endingNav);
+    close(entry.endingCash + entry.endingPositions.reduce((sum, position) => sum + position.marketValue, 0),
+      entry.endingNav);
+    if (!result.decisionCalendar.some((decision) => decision.executionDate === entry.date)) {
+      const prior = result.dailyLedger[result.dailyLedger.indexOf(entry) - 1];
+      if (prior)
+        assert.deepEqual(entry.endingPositions.map(({ ticker, quantity }) => ({ ticker, quantity })),
+          prior.endingPositions.map(({ ticker, quantity }) => ({ ticker, quantity })));
+    }
+  }
+  for (const decision of result.decisions) {
+    const aligned = decision.optimizer.model!.dates;
+    assert.deepEqual(decision.estimationDates, aligned);
+    assert.ok(aligned.every((date) => date <= decision.informationCutoff));
+  }
+
+  const replay = runB3Validation(snapshot, structuredClone(policy), snapshot, structuredClone(assumptionsForRun));
+  assert.deepEqual(replay, result, replay.reason);
+
+  const cutoff = result.decisions[0].informationCutoff;
+  const mutatedCsv = snapshot.dataset.csvContent.split("\n").map((line, index) => {
+    if (index === 0 || line.slice(0, 10) <= cutoff) return line;
+    const [date, price] = line.split(",");
+    return `${date},${(Number(price) * 1.7).toFixed(10)}`;
+  }).join("\n");
+  const mutatedValidation = prepareSnapshot({
+    request: structuredClone(snapshot.request), csvContent: mutatedCsv,
+    factorVersion: snapshot.factorSet.version, factors: snapshot.factorSet.factors,
+    datasetId: snapshot.dataset.id ?? undefined,
+  });
+  const firstEnd = snapshot.dataset.csvContent.split(/\r?\n/).slice(1)
+    .map((line) => line.slice(0, 10)).filter((date) => date > first.executionDate)[1];
+  assert.ok(firstEnd);
+  const changed = runB3Validation(snapshot, policy, mutatedValidation,
+    { ...assumptionsForRun, evaluationEndDate: firstEnd });
+  const oneDecisionBaseline = runB3Validation(snapshot, policy, snapshot,
+    { ...assumptionsForRun, evaluationEndDate: firstEnd });
+  assert.equal(changed.status, "completed", changed.reason);
+  assert.equal(oneDecisionBaseline.status, "completed", oneDecisionBaseline.reason);
+  const decisionInputsAndSolution = (decision: (typeof changed.decisions)[number]) => ({
+    decisionDate: decision.decisionDate,
+    informationCutoff: decision.informationCutoff,
+    estimationDates: decision.estimationDates,
+    candidateWeights: decision.candidateWeights,
+    targetAssetWeights: decision.targetAssetWeights,
+    mu: decision.optimizer.model!.mu,
+    sigma: decision.optimizer.model!.sigma,
+    H: decision.optimizer.model!.H,
+    factorRiskCovariance: decision.optimizer.riskModel!.covariance,
+  });
+  assert.deepEqual(decisionInputsAndSolution(changed.decisions[0]),
+    decisionInputsAndSolution(oneDecisionBaseline.decisions[0]),
+    "future-price mutation must not alter the first point-in-time solve");
+});

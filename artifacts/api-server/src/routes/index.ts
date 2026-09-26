@@ -25,6 +25,7 @@ import alphaContributionExperimentsRouter from "./alpha-contribution-experiments
 import alphaDiagnosticsRouter from "./alpha-diagnostics";
 import selectionPoliciesRouter from "./selection-policies";
 import d1RiskComparisonsRouter from "./d1-risk-comparisons";
+import d2AllocationModeComparisonsRouter from "./d2-allocation-mode-comparisons";
 
 const router: IRouter = Router();
 
@@ -54,5 +55,6 @@ router.use(alphaContributionExperimentsRouter);
 router.use(alphaDiagnosticsRouter);
 router.use(selectionPoliciesRouter);
 router.use(d1RiskComparisonsRouter);
+router.use(d2AllocationModeComparisonsRouter);
 
 export default router;

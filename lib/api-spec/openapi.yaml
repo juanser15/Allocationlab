@@ -1906,6 +1906,95 @@ paths:
                     items: { $ref: "#/components/schemas/RiskModelComparisonSummary" }
                 required: [comparisons]
 
+  /allocation-mode-comparisons:
+    post:
+      operationId: createAllocationModeComparison
+      tags: [allocations]
+      summary: Save an explicitly non-controlled comparison of long-only and signed-overlay policies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AllocationModeComparisonInput" }
+      responses:
+        "201":
+          description: Immutable comparison
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AllocationModeComparison" }
+        "400":
+          description: Invalid or economically mismatched policies
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Source not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Frozen source failed integrity checks
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    get:
+      operationId: listAllocationModeComparisons
+      tags: [allocations]
+      responses:
+        "200":
+          description: Saved mode comparisons
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comparisons:
+                    type: array
+                    items: { $ref: "#/components/schemas/AllocationModeComparisonSummary" }
+                required: [comparisons]
+
+  /allocation-mode-comparisons/{comparisonId}:
+    get:
+      operationId: getAllocationModeComparison
+      tags: [allocations]
+      parameters:
+        - name: comparisonId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Frozen mode comparison
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AllocationModeComparison" }
+        "404":
+          description: Comparison not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /allocation-mode-comparisons/{comparisonId}/replay:
+    post:
+      operationId: replayAllocationModeComparison
+      tags: [allocations]
+      parameters:
+        - name: comparisonId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Frozen child B2/B3 and comparison replay
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AllocationModeComparisonReplay" }
+        "404":
+          description: Comparison not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
   /risk-model-comparisons/{comparisonId}:
     get:
       operationId: getRiskModelComparison
@@ -5248,6 +5337,43 @@ components:
           type: array
           items: { type: string }
 
+    SignedAllocationBounds:
+      type: object
+      additionalProperties: false
+      properties:
+        min: { type: number }
+        max: { type: number }
+
+    SignedAllocationGroupGrossCap:
+      type: object
+      additionalProperties: false
+      properties:
+        group: { type: string, minLength: 1 }
+        candidateIds:
+          type: array
+          items: { type: string, minLength: 1 }
+          minItems: 1
+        max: { type: number, minimum: 0 }
+      required: [group, candidateIds, max]
+
+    SignedAllocationConstraints:
+      type: object
+      additionalProperties: false
+      properties:
+        alphaBounds:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/SignedAllocationBounds" }
+        grossAlphaMax: { type: number, minimum: 0 }
+        groupGrossCaps:
+          type: array
+          items: { $ref: "#/components/schemas/SignedAllocationGroupGrossCap" }
+        assetBounds:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/SignedAllocationBounds" }
+        grossAssetMax: { type: number, minimum: 0 }
+        netAssetExposure: { $ref: "#/components/schemas/SignedAllocationBounds" }
+        cash: { $ref: "#/components/schemas/SignedAllocationBounds" }
+
     AllocationObjective:
       type: object
       additionalProperties: false
@@ -5270,6 +5396,52 @@ components:
         factorCount: { type: integer, minimum: 1 }
         specificRiskFloorFraction: { type: number, minimum: 0 }
       required: [type]
+
+    AllocationModeComparisonIds:
+      type: object
+      additionalProperties: false
+      properties:
+        CAPITAL_LONG_ONLY: { type: integer, minimum: 1 }
+        SIGNED_OVERLAY: { type: integer, minimum: 1 }
+      required: [CAPITAL_LONG_ONLY, SIGNED_OVERLAY]
+
+    AllocationModeComparisonInput:
+      type: object
+      additionalProperties: false
+      properties:
+        allocationIds: { $ref: "#/components/schemas/AllocationModeComparisonIds" }
+        validationRunIds: { $ref: "#/components/schemas/AllocationModeComparisonIds" }
+      required: [allocationIds, validationRunIds]
+
+    AllocationModeComparisonSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        manifestHash: { type: string }
+        resultHash: { type: string }
+        createdAt: { type: string, format: date-time }
+      required: [id, manifestHash, resultHash, createdAt]
+
+    AllocationModeComparison:
+      allOf:
+        - { $ref: "#/components/schemas/AllocationModeComparisonSummary" }
+        - type: object
+          properties:
+            manifest: { type: object, additionalProperties: true }
+            result: { type: object, additionalProperties: true }
+          required: [manifest, result]
+
+    AllocationModeComparisonReplay:
+      type: object
+      properties:
+        comparisonId: { type: integer }
+        status: { type: string, enum: [pass, fail] }
+        differences:
+          type: array
+          items: { type: string }
+        maximumNumericDifference: { type: number }
+        result: { type: object, additionalProperties: true }
+      required: [comparisonId, status, differences, maximumNumericDifference, result]
 
     RiskModelComparisonIds:
       type: object
@@ -5341,6 +5513,9 @@ components:
         expectedReturnShrinkage: { type: number, minimum: 0, maximum: 1 }
         covarianceDiagonalShrinkage: { type: number, minimum: 0, maximum: 1 }
         riskModel: { $ref: "#/components/schemas/AllocationRiskModelSettings" }
+        allocationMode: { type: string, enum: [CAPITAL_LONG_ONLY, SIGNED_OVERLAY] }
+        signedConstraints: { $ref: "#/components/schemas/SignedAllocationConstraints" }
+        targetExcessReturn: { type: number }
         dailyCashYield: { type: number }
         objective: { $ref: "#/components/schemas/AllocationObjective" }
         constraints: { $ref: "#/components/schemas/AllocationConstraints" }
@@ -5371,7 +5546,7 @@ components:
         engineVersion: { type: string }
         status:
           type: string
-          enum: [SOLVED, INFEASIBLE, INVALID_INPUT, INVALID_RISK_MODEL, INVALID_FACTOR_MODEL, INSUFFICIENT_HISTORY_OR_DIMENSION, UNSUPPORTED, UNSUPPORTED_REPRESENTATION, UNSUPPORTED_CONSTRAINT, NUMERICAL_FAILURE, LIMIT_REACHED]
+          enum: [SOLVED, INFEASIBLE, UNBOUNDED, MISSING_TARGET_EXCESS_RETURN, INVALID_INPUT, INVALID_RISK_MODEL, INVALID_FACTOR_MODEL, INSUFFICIENT_HISTORY_OR_DIMENSION, UNSUPPORTED, UNSUPPORTED_REPRESENTATION, UNSUPPORTED_CONSTRAINT, NUMERICAL_FAILURE, LIMIT_REACHED]
         request: { $ref: "#/components/schemas/AllocationRequest" }
         result: { type: object, additionalProperties: true }
         createdAt: { type: string, format: date-time }

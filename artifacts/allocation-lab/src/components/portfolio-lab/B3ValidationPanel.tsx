@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getGetAllocationQueryKey, useGetAllocation } from "@workspace/api-client-react";
+import { getAllocation, getGetAllocationQueryKey, getValidationRun, useCreateValidationRun, useGetAllocation, useReplayValidationRun } from "@workspace/api-client-react";
+import { AllocationModeComparisonPanel } from "./AllocationModeComparisonPanel";
 
 type Row = Record<string, unknown>;
 type Step = "configure" | "results" | "diagnostics";
@@ -54,12 +55,6 @@ const meanDecisionDistance = (left: Row[], right: Row[], key: "candidateWeights"
   });
   return distances.length ? distances.reduce((sum, distance) => sum + distance, 0) / distances.length : null;
 };
-async function api(path: string, init?: RequestInit): Promise<unknown> {
-  const response = await fetch(`/api${path}`, { credentials: "include", ...init, headers: { "Content-Type": "application/json", ...init?.headers } });
-  const data: unknown = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(text(record(data).error ?? record(data).message ?? `Request failed (${response.status})`));
-  return data;
-}
 const list = (value: unknown, key: string): Row[] => Array.isArray(value) ? rows(value) : rows(record(value)[key]);
 const getResult = (run: Row) => record(run.result ?? run.results);
 const getAssumptions = (run: Row) => record(run.assumptions);
@@ -110,11 +105,21 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
   const [replay, setReplay] = useState<Row | null>(null);
   const [step, setStep] = useState<Step>("configure");
   const previousToken = useRef(0);
+  const createValidation = useCreateValidationRun();
+  const replayValidation = useReplayValidationRun();
 
   const refresh = useCallback(async () => {
     setError(null);
     try {
-      const [inputs, runs] = await Promise.all([api("/prepared-inputs?summary=1"), api("/validation-runs?source=b3&summary=1")]);
+      // The full B1 history contains immutable CSV snapshots. B3's picker only
+      // needs IDs and representations; transferring every snapshot can stall it.
+      const [inputsResponse, runsResponse] = await Promise.all([
+        fetch("/api/prepared-inputs?summary=1"),
+        fetch("/api/validation-runs?source=b3&summary=1"),
+      ]);
+      if (!inputsResponse.ok) throw new Error(`Saved preparation summaries could not be loaded (${inputsResponse.status}).`);
+      if (!runsResponse.ok) throw new Error(`Saved B3 summaries could not be loaded (${runsResponse.status}).`);
+      const [inputs, runs]: [unknown, unknown] = await Promise.all([inputsResponse.json(), runsResponse.json()]);
       setPrepared(list(inputs, "preparedInputs"));
       setSaved(list(runs, "validationRuns"));
     } catch (err) { setError(err instanceof Error ? err.message : "Saved B3 records could not be loaded."); }
@@ -124,7 +129,7 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
   useEffect(() => {
     if (!allocationId) { setPolicy(null); return; }
     let active = true;
-    void api(`/allocations/${allocationId}`).then(data => { if (active) setPolicy(record(data)); })
+    void getAllocation(allocationId).then(data => { if (active) setPolicy(record(data)); })
       .catch(err => { if (active) setError(err instanceof Error ? err.message : "Policy could not be loaded."); });
     return () => { active = false; };
   }, [allocationId]);
@@ -132,14 +137,14 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
     if (selectedRunId === null) { setRun(null); return; }
     let active = true;
     setError(null);
-    void api(`/validation-runs/${selectedRunId}`).then(data => { if (active) { setRun(record(data)); setStep("results"); } })
+    void getValidationRun(selectedRunId).then(data => { if (active) { setRun(record(data)); setStep("results"); } })
       .catch(err => { if (active) setError(err instanceof Error ? err.message : "Saved run could not be retrieved."); });
     return () => { active = false; };
   }, [selectedRunId]);
   useEffect(() => {
     if (comparisonId === null) { setComparison(null); return; }
     let active = true;
-    void api(`/validation-runs/${comparisonId}`).then(data => { if (active) setComparison(record(data)); })
+    void getValidationRun(comparisonId).then(data => { if (active) setComparison(record(data)); })
       .catch(err => { if (active) setError(err instanceof Error ? err.message : "Comparison could not be retrieved."); });
     return () => { active = false; };
   }, [comparisonId]);
@@ -158,27 +163,28 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
     if (policyResult.status && policyResult.status !== "SOLVED") { setError("Only a solved B2 allocation policy can be validated."); setStep("configure"); return; }
     if (!preparedId) { setError("Choose an explicit frozen B1 validation preparation. No latest dataset is substituted."); setStep("configure"); return; }
     if (!start || !end || start > end) { setError("Specify a valid evaluation start and end date."); setStep("configure"); return; }
-    if (![initialNav, initialCash, cost, slippage, yieldDaily].every(Number.isFinite) || initialNav <= 0 || initialCash < 0 || cost < 0 || slippage < 0) {
-      setError("Provide a positive initial NAV and finite, nonnegative cash and costs."); setStep("configure"); return;
+    const isSigned = policyRequest.allocationMode === "SIGNED_OVERLAY";
+    if (![initialNav, initialCash, cost, slippage, yieldDaily].every(Number.isFinite) ||
+      initialNav <= 0 || (!isSigned && initialCash < 0) || cost < 0 || slippage < 0) {
+      setError(`Provide a positive initial NAV, finite cash and nonnegative costs${isSigned ? "" : " (cash cannot be negative in capital long-only mode)"}.`); setStep("configure"); return;
     }
     let holdings: Record<string, number>;
     try {
       const parsed = JSON.parse(holdingsText) as unknown;
-      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || Object.values(parsed).some(v => typeof v !== "number" || !Number.isFinite(v) || v < 0)) throw new Error();
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) ||
+        Object.values(parsed).some(v => typeof v !== "number" || !Number.isFinite(v) || (!isSigned && v < 0))) throw new Error();
       holdings = parsed as Record<string, number>;
-    } catch { setError("Initial holdings must be a JSON object of tickers to nonnegative finite quantities."); setStep("configure"); return; }
+    } catch { setError(`Initial holdings must be a JSON object of tickers to finite ${isSigned ? "signed" : "nonnegative"} quantities.`); setStep("configure"); return; }
     setBusy(true); onRunningChange?.(true); setReplay(null);
     try {
-      const created = record(await api("/validation-runs", {
-        method: "POST", body: JSON.stringify({
+      const created = record(await createValidation.mutateAsync({ data: {
           allocationId, validationPreparedInputId: Number(preparedId),
           assumptions: {
             evaluationStartDate: start, evaluationEndDate: end, decisionCalendar: calendar, executionTiming: timing,
             initialNav, initialHoldings: holdings, initialCash, transactionCostBps: cost, slippageBps: slippage,
             dailyCashYield: yieldDaily, ...(benchmark.trim() ? { benchmarkTicker: benchmark.trim().toUpperCase() } : {}),
           },
-        }),
-      }));
+        } }));
       const id = idOf(created, "validationRunId");
       if (!id) throw new Error("Validation response did not include a saved run ID.");
       await refresh();
@@ -197,7 +203,7 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
   async function replayRun() {
     if (!selectedRunId) return;
     setError(null); setBusy(true);
-    try { setReplay(record(await api(`/validation-runs/${selectedRunId}/replay`, { method: "POST", body: "{}" }))); }
+    try { setReplay(record(await replayValidation.mutateAsync({ validationRunId: selectedRunId }))); }
     catch (err) { setError(err instanceof Error ? err.message : "Replay failed."); }
     finally { setBusy(false); }
   }
@@ -246,7 +252,11 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
   const comparisonMetadata = record(run?.comparisonMetadata);
   const otherComparisonMetadata = record(comparison?.comparisonMetadata);
   const comparableKeys = ["evaluationStartDate", "evaluationEndDate", "initialNav", "initialCash", "decisionCalendar", "executionTiming", "transactionCostBps", "slippageBps", "dailyCashYield"];
-  const policyComparisonKeys = ["preparedInputId", "informationCutoff", "decisionTimestamp", "estimationWindow", "minObservations", "representation", "returnConvention", "expectedReturnShrinkage", "dailyCashYield", "objective", "constraints"];
+  const policyComparisonKeys = ["preparedInputId", "informationCutoff", "decisionTimestamp", "estimationWindow", "minObservations", "representation", "returnConvention", "expectedReturnShrinkage", "dailyCashYield", "objective", "constraints", "allocationMode", "signedConstraints", "targetExcessReturn"];
+  const signedPolicy = policyRequest.allocationMode === "SIGNED_OVERLAY";
+  const runSignedPolicy = runPolicyRequest.allocationMode === "SIGNED_OVERLAY";
+  const comparisonSignedPolicy = comparisonPolicyRequest.allocationMode === "SIGNED_OVERLAY";
+  const differentCapitalStructures = Boolean(comparison) && runSignedPolicy !== comparisonSignedPolicy;
   const policyMismatches = comparison && !comparisonPolicyQuery.isLoading
     ? !Object.keys(comparisonPolicyRequest).length || !Object.keys(runPolicyRequest).length
       ? ["frozen B2 policy request unavailable"]
@@ -292,7 +302,8 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
     {step === "configure" && <Card><CardHeader><CardTitle className="text-sm">Frozen inputs & execution assumptions</CardTitle>
       <CardDescription>Choose a saved B1 preparation with evaluation and warmup coverage. The working or latest price dataset is never substituted.</CardDescription></CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded border bg-muted/30 p-3 text-xs">Selected B2 policy #{allocationId ?? "none"} · {policyRepresentationLabel} · original preparation #{sourceId ?? "unavailable"} · candidates {json(policyRequest.candidateIds)}. A new validation creates a separate immutable run.
+        <div className="rounded border bg-muted/30 p-3 text-xs">Selected B2 policy #{allocationId ?? "none"} · {signedPolicy ? "Signed alpha overlay" : "Capital long-only"} · {policyRepresentationLabel} · original preparation #{sourceId ?? "unavailable"} · candidates {json(policyRequest.candidateIds)}. A new validation creates a separate immutable run.
+          {signedPolicy && <p className="mt-2 border-t pt-2">Frozen signed limits: {json(policyRequest.signedConstraints)} · target excess: {text(policyRequest.targetExcessReturn)}. Validation must execute the frozen signed policy, not the current B2 form. Short borrow and financing frictions are not modeled unless explicitly supplied by the execution engine.</p>}
           <p className="mt-2 border-t pt-2" data-testid="b3-frozen-risk-model">Frozen B2 risk model: <strong>{selectedRiskModelLabel}</strong>
             {selectedRiskModel.type === "STATISTICAL_FACTOR" ? ` · F=${text(selectedRiskModel.factorCount)} · specific-risk floor=${text(selectedRiskModel.specificRiskFloorFraction)}` : ""}.
             {selectedRiskModel.type === "STATISTICAL_FACTOR" ? " B3 must recompute Gamma and loadings independently at each point-in-time decision." : ""}
@@ -306,7 +317,7 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
           <div className="space-y-1"><Label htmlFor="b3-timing">Execution</Label><select id="b3-timing" className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={timing} onChange={e => setTiming(e.target.value as typeof timing)} data-testid="select-b3-timing"><option value="next_close">Next close</option><option value="same_close">Same close</option></select></div>
           <div className="space-y-1"><Label htmlFor="b3-benchmark">Benchmark ticker (optional)</Label><Input id="b3-benchmark" value={benchmark} onChange={e => setBenchmark(e.target.value)} placeholder="Ticker" data-testid="input-b3-benchmark" /></div>
           <div className="space-y-1"><Label htmlFor="b3-nav">Initial NAV</Label><Input id="b3-nav" type="number" min="0.01" step="any" value={initialNav} onChange={e => setInitialNav(Number(e.target.value))} data-testid="input-b3-nav" /></div>
-          <div className="space-y-1"><Label htmlFor="b3-cash">Initial cash</Label><Input id="b3-cash" type="number" min="0" step="any" value={initialCash} onChange={e => setInitialCash(Number(e.target.value))} data-testid="input-b3-cash" /></div>
+          <div className="space-y-1"><Label htmlFor="b3-cash">Initial cash</Label><Input id="b3-cash" type="number" min={signedPolicy ? undefined : "0"} step="any" value={initialCash} onChange={e => setInitialCash(Number(e.target.value))} data-testid="input-b3-cash" /></div>
           <div className="space-y-1"><Label htmlFor="b3-holdings">Initial holdings (ticker → quantity JSON)</Label><Input id="b3-holdings" value={holdingsText} onChange={e => setHoldingsText(e.target.value)} data-testid="input-b3-holdings" /></div>
           <div className="space-y-1"><Label htmlFor="b3-cost">Transaction cost (bps)</Label><Input id="b3-cost" type="number" min="0" step="any" value={cost} onChange={e => setCost(Number(e.target.value))} data-testid="input-b3-cost" /></div>
           <div className="space-y-1"><Label htmlFor="b3-slippage">Slippage (bps)</Label><Input id="b3-slippage" type="number" min="0" step="any" value={slippage} onChange={e => setSlippage(Number(e.target.value))} data-testid="input-b3-slippage" /></div>
@@ -317,11 +328,12 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
       </CardContent></Card>}
     <Card><CardHeader className="pb-3"><CardTitle className="text-sm">Saved B3 validation runs</CardTitle><CardDescription>Persistent results can be retrieved by ID after reload, independent of the current working data.</CardDescription></CardHeader>
       <CardContent className="flex flex-wrap gap-3 items-end">
-        <div className="space-y-1"><Label htmlFor="b3-saved">Inspect saved run</Label><select id="b3-saved" className="h-9 min-w-56 rounded-md border bg-background px-2 text-sm" value={selectedRunId ?? ""} onChange={e => setSelectedRunId(e.target.value ? Number(e.target.value) : null)} data-testid="select-b3-saved"><option value="">Select run</option>{saved.map(item => { const id = idOf(item, "validationRunId"); return id ? <option key={id} value={id}>#{id} · {text(item.representation)} · {text(item.status)} · {text(item.validatedAt ?? item.createdAt)}</option> : null; })}</select></div>
+        <div className="space-y-1"><Label htmlFor="b3-saved">Inspect saved run</Label><select id="b3-saved" className="h-9 min-w-56 rounded-md border bg-background px-2 text-sm" value={selectedRunId ?? ""} onChange={e => setSelectedRunId(e.target.value ? Number(e.target.value) : null)} data-testid="select-b3-saved"><option value="">Select run</option>{saved.map(item => { const id = idOf(item, "validationRunId"); return id ? <option key={id} value={id}>#{id} · allocation #{text(item.allocationId)} · {text(item.reconciliationStatus ?? item.status)} · {text(item.validatedAt ?? item.createdAt)}</option> : null; })}</select></div>
         <div className="space-y-1"><Label htmlFor="b3-compare">Compare with saved run</Label><select id="b3-compare" className="h-9 min-w-56 rounded-md border bg-background px-2 text-sm" value={comparisonId ?? ""} onChange={e => setComparisonId(e.target.value ? Number(e.target.value) : null)} data-testid="select-b3-comparison"><option value="">No comparison</option>{saved.filter(item => idOf(item, "validationRunId") !== selectedRunId).map(item => { const id = idOf(item, "validationRunId"); return id ? <option key={id} value={id}>#{id} · {text(item.representation)}</option> : null; })}</select></div>
         {!loading && !saved.length && <span className="text-xs text-muted-foreground">No saved B3 runs yet.</span>}
       </CardContent></Card>
-     {run && <div className="space-y-5">
+      <AllocationModeComparisonPanel validationRuns={saved} />
+      {run && <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-primary/20 bg-primary/5 px-4 py-3 text-xs" data-testid="status-b3-run">
         <div><strong>Validation #{text(run.validationRunId ?? selectedRunId)}</strong> · {status} · {text(a.evaluationStartDate)} → {text(a.evaluationEndDate)} · {getRepresentation(run)}
           <p className="mt-1 text-muted-foreground">{isSuccessful ? "Historical simulation completed; accounting checks passed. This does not prove alpha efficacy or independent out-of-sample profitability." : `Run is not marked complete${output.failureDate ? `; failure at ${text(output.failureDate)}` : ""}. ${text(output.reason ?? output.diagnostic ?? "A partial diagnostic ledger is not a successful full-period backtest.")}`}</p></div>
@@ -357,6 +369,8 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
       </CardContent></Card>
       {comparison && <Card><CardHeader className="pb-3"><CardTitle className="text-sm">Saved-run comparison · #{text(run.validationRunId)} vs #{text(comparison.validationRunId)}</CardTitle><CardDescription>Asset and alpha policies are compared without retroactive rescaling or a declared winner.</CardDescription></CardHeader><CardContent className="space-y-3 text-xs">
         <Badge variant="outline" className={mismatches.length || comparisonPolicyQuery.isLoading ? "border-amber-300 bg-amber-50 text-amber-800" : "border-green-300 bg-green-50 text-green-800"}>{comparisonPolicyQuery.isLoading ? "Checking frozen B2 settings…" : mismatches.length ? `Unmatched configuration · ${mismatches.join(", ")}` : "Matched non-risk settings · frozen risk model may differ · no winner inferred"}</Badge>
+        {differentCapitalStructures && <p className="rounded border border-amber-300 bg-amber-50 p-2 text-amber-900">Capital long-only and signed overlays use different capital structures and objective/constraint semantics. This is not a controlled comparison; no winner is inferred. Compare only with matched alpha universe, data, dates, estimator, applicable risk model and execution/cost assumptions.</p>}
+        {(runSignedPolicy || comparisonSignedPolicy) && <div className="grid gap-2 rounded border bg-muted/20 p-3 sm:grid-cols-2"><div><strong>Policy #{text(runAllocationId)}</strong><p>{runSignedPolicy ? "Signed alpha overlay" : "Capital long-only"} · {text(runPolicyRequest.objective && record(runPolicyRequest.objective).type)}</p><pre className="whitespace-pre-wrap break-words">{json(runPolicyRequest.signedConstraints)}</pre></div><div><strong>Policy #{text(comparisonAllocationId)}</strong><p>{comparisonSignedPolicy ? "Signed alpha overlay" : "Capital long-only"} · {text(record(comparisonPolicyRequest.objective).type)}</p><pre className="whitespace-pre-wrap break-words">{json(comparisonPolicyRequest.signedConstraints)}</pre></div></div>}
         <p className="text-muted-foreground">Comparison uses frozen run metadata, not current working settings. Different realized turnover and risk remain legitimate outcomes; matching configuration does not establish equivalent policies or alpha efficacy.</p>
         {!comparisonPolicyQuery.isLoading && !mismatches.length && <div className="grid gap-2 rounded border bg-muted/20 p-3 sm:grid-cols-2">
           <p>Risk model: {runRiskModelLabel} (F={text(runRiskModel.factorCount)}, floor={text(runRiskModel.specificRiskFloorFraction)})</p>
@@ -388,7 +402,7 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
           <div className="rounded border p-3"><strong>Reconciliation</strong><pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap">{json(output.diagnostics ?? output.reconciliation ?? output.accountingChecks)}</pre></div>
           <div className="rounded border p-3"><strong>Warnings / failure</strong><pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap">{json(output.diagnostic ?? output.warnings ?? run.failure ?? output.failure ?? output.reason)}</pre></div>
         </CardContent></Card>
-        <DataTable title="Historical decisions" description="At each cutoff: completed estimation intervals, μ, Σ, contemporaneous H and d, candidate weights b, targets, constraint checks and solver status." data={decisions} columns={[{ key: "decisionDate", label: "Decision date" }, { key: "informationCutoff", label: "Cutoff" }, { key: "executionDate", label: "Executed" }, { key: "solverStatus", label: "Solver", render: r => text(record(r.optimizer).status) }, { key: "candidateWeights", label: "Alpha capital b", render: r => json(r.candidateWeights) }, { key: "targetAssetWeights", label: "Asset targets", render: r => json(r.targetAssetWeights) }, { key: "totalCash", label: "Target cash" }, { key: "executedAssetWeights", label: "Executed weights", render: r => json(r.executedAssetWeights) }]} />
+        <DataTable title="Historical decisions" description={runSignedPolicy ? "Each cutoff freezes signed alpha coefficients, aggregated underlying targets, execution weights, cash and exposure checks." : "At each cutoff: completed estimation intervals, μ, Σ, contemporaneous H and d, candidate weights b, targets, constraint checks and solver status."} data={decisions} columns={[{ key: "decisionDate", label: "Decision date" }, { key: "informationCutoff", label: "Cutoff" }, { key: "executionDate", label: "Executed" }, { key: "solverStatus", label: "Solver", render: r => text(record(r.optimizer).status) }, { key: "candidateWeights", label: runSignedPolicy ? "Signed alpha a" : "Alpha capital b", render: r => json(r.candidateWeights) }, { key: "targetAssetWeights", label: "Asset targets", render: r => json(r.targetAssetWeights) }, { key: "totalCash", label: "Target cash" }, { key: "executedAssetWeights", label: "Executed weights", render: r => json(r.executedAssetWeights) }, ...(runSignedPolicy ? [{ key: "signedOverlay", label: "Gross / net exposure", render: (r: Row) => json(record(r.optimizer).signedOverlay ?? r.signedOverlay) }] : [])]} />
         <details className="rounded border bg-muted/20 p-4 text-xs"><summary className="cursor-pointer font-semibold">Inspect complete decision inputs, estimates, mapping and checks</summary><pre className="mt-3 max-h-96 overflow-auto whitespace-pre-wrap">{json(decisions)}</pre></details>
         <DataTable title="Execution ledger" description="Monetary asset/cash P&L, fees, slippage and external traded notional; sum of cost percentages is not compounded performance drag." data={ledger} columns={[{ key: "date", label: "Date" }, { key: "assetPnl", label: "Asset P&L", render: r => money(r.assetPnl) }, { key: "cashPnl", label: "Cash P&L", render: r => money(r.cashPnl) }, { key: "transactionCosts", label: "Fees", render: r => money(r.transactionCosts) }, { key: "slippage", label: "Slippage", render: r => money(r.slippage) }, { key: "externalTradedNotional", label: "External traded", render: r => money(r.externalTradedNotional) }, { key: "dailyNetReturn", label: "Daily net", render: r => percent(r.dailyNetReturn) }, { key: "reconciliationDifference", label: "Reconcile", render: r => money(r.reconciliationDifference) }]} />
       </>}

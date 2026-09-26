@@ -20,6 +20,9 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AllocationModeComparison,
+  AllocationModeComparisonInput,
+  AllocationModeComparisonReplay,
   AllocationReplay,
   AllocationRequest,
   AllocationVersion,
@@ -69,6 +72,7 @@ import type {
   GovernanceVersionDetail,
   GovernanceVersionSummary,
   HealthStatus,
+  ListAllocationModeComparisons200,
   ListArchiveParams,
   ListRiskModelComparisons200,
   ListValidationRunsParams,
@@ -5631,6 +5635,282 @@ export function useListRiskModelComparisons<TData = Awaited<ReturnType<typeof li
 
 
 
+
+export const getCreateAllocationModeComparisonUrl = () => {
+
+
+
+
+  return `/api/allocation-mode-comparisons`
+}
+
+/**
+ * @summary Save an explicitly non-controlled comparison of long-only and signed-overlay policies
+ */
+export const createAllocationModeComparison = async (allocationModeComparisonInput: AllocationModeComparisonInput, options?: RequestInit): Promise<AllocationModeComparison> => {
+
+  return customFetch<AllocationModeComparison>(getCreateAllocationModeComparisonUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(allocationModeComparisonInput)
+  }
+);}
+
+
+
+
+export const getCreateAllocationModeComparisonMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAllocationModeComparison>>, TError,{data: BodyType<AllocationModeComparisonInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAllocationModeComparison>>, TError,{data: BodyType<AllocationModeComparisonInput>}, TContext> => {
+
+const mutationKey = ['createAllocationModeComparison'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAllocationModeComparison>>, {data: BodyType<AllocationModeComparisonInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAllocationModeComparison(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAllocationModeComparisonMutationResult = NonNullable<Awaited<ReturnType<typeof createAllocationModeComparison>>>
+    export type CreateAllocationModeComparisonMutationBody = BodyType<AllocationModeComparisonInput>
+    export type CreateAllocationModeComparisonMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Save an explicitly non-controlled comparison of long-only and signed-overlay policies
+ */
+export const useCreateAllocationModeComparison = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAllocationModeComparison>>, TError,{data: BodyType<AllocationModeComparisonInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAllocationModeComparison>>,
+        TError,
+        {data: BodyType<AllocationModeComparisonInput>},
+        TContext
+      > => {
+      return useMutation(getCreateAllocationModeComparisonMutationOptions(options));
+    }
+
+export const getListAllocationModeComparisonsUrl = () => {
+
+
+
+
+  return `/api/allocation-mode-comparisons`
+}
+
+export const listAllocationModeComparisons = async ( options?: RequestInit): Promise<ListAllocationModeComparisons200> => {
+
+  return customFetch<ListAllocationModeComparisons200>(getListAllocationModeComparisonsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAllocationModeComparisonsQueryKey = () => {
+    return [
+    `/api/allocation-mode-comparisons`
+    ] as const;
+    }
+
+
+export const getListAllocationModeComparisonsQueryOptions = <TData = Awaited<ReturnType<typeof listAllocationModeComparisons>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllocationModeComparisons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAllocationModeComparisonsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAllocationModeComparisons>>> = ({ signal }) => listAllocationModeComparisons({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAllocationModeComparisons>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAllocationModeComparisonsQueryResult = NonNullable<Awaited<ReturnType<typeof listAllocationModeComparisons>>>
+export type ListAllocationModeComparisonsQueryError = ErrorType<unknown>
+
+
+
+export function useListAllocationModeComparisons<TData = Awaited<ReturnType<typeof listAllocationModeComparisons>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllocationModeComparisons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAllocationModeComparisonsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAllocationModeComparisonUrl = (comparisonId: number,) => {
+
+
+
+
+  return `/api/allocation-mode-comparisons/${comparisonId}`
+}
+
+export const getAllocationModeComparison = async (comparisonId: number, options?: RequestInit): Promise<AllocationModeComparison> => {
+
+  return customFetch<AllocationModeComparison>(getGetAllocationModeComparisonUrl(comparisonId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAllocationModeComparisonQueryKey = (comparisonId: number,) => {
+    return [
+    `/api/allocation-mode-comparisons/${comparisonId}`
+    ] as const;
+    }
+
+
+export const getGetAllocationModeComparisonQueryOptions = <TData = Awaited<ReturnType<typeof getAllocationModeComparison>>, TError = ErrorType<ErrorResponse>>(comparisonId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAllocationModeComparison>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAllocationModeComparisonQueryKey(comparisonId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllocationModeComparison>>> = ({ signal }) => getAllocationModeComparison(comparisonId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: comparisonId !== null && comparisonId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAllocationModeComparison>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAllocationModeComparisonQueryResult = NonNullable<Awaited<ReturnType<typeof getAllocationModeComparison>>>
+export type GetAllocationModeComparisonQueryError = ErrorType<ErrorResponse>
+
+
+
+export function useGetAllocationModeComparison<TData = Awaited<ReturnType<typeof getAllocationModeComparison>>, TError = ErrorType<ErrorResponse>>(
+ comparisonId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAllocationModeComparison>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAllocationModeComparisonQueryOptions(comparisonId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReplayAllocationModeComparisonUrl = (comparisonId: number,) => {
+
+
+
+
+  return `/api/allocation-mode-comparisons/${comparisonId}/replay`
+}
+
+export const replayAllocationModeComparison = async (comparisonId: number, options?: RequestInit): Promise<AllocationModeComparisonReplay> => {
+
+  return customFetch<AllocationModeComparisonReplay>(getReplayAllocationModeComparisonUrl(comparisonId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getReplayAllocationModeComparisonMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayAllocationModeComparison>>, TError,{comparisonId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replayAllocationModeComparison>>, TError,{comparisonId: number}, TContext> => {
+
+const mutationKey = ['replayAllocationModeComparison'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replayAllocationModeComparison>>, {comparisonId: number}> = (props) => {
+          const {comparisonId} = props ?? {};
+
+          return  replayAllocationModeComparison(comparisonId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplayAllocationModeComparisonMutationResult = NonNullable<Awaited<ReturnType<typeof replayAllocationModeComparison>>>
+
+    export type ReplayAllocationModeComparisonMutationError = ErrorType<ErrorResponse>
+
+    export const useReplayAllocationModeComparison = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayAllocationModeComparison>>, TError,{comparisonId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replayAllocationModeComparison>>,
+        TError,
+        {comparisonId: number},
+        TContext
+      > => {
+      return useMutation(getReplayAllocationModeComparisonMutationOptions(options));
+    }
 
 export const getGetRiskModelComparisonUrl = (comparisonId: number,) => {
 

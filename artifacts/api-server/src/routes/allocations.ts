@@ -54,6 +54,7 @@ function unexpectedAllocationFields(body: unknown): string[] {
     "preparedInputId", "candidateIds", "informationCutoff", "decisionTimestamp", "estimationWindow",
     "minObservations", "representation", "returnConvention", "expectedReturnShrinkage",
       "covarianceDiagonalShrinkage", "riskModel", "dailyCashYield", "objective", "constraints",
+      "allocationMode", "signedConstraints", "targetExcessReturn",
   ], "request");
   if (!request) return differences;
   check(request.objective, ["type", "gamma", "eta"], "objective");
@@ -72,6 +73,19 @@ function unexpectedAllocationFields(body: unknown): string[] {
     checkBounds(constraints.assetBounds, "constraints.assetBounds");
     if (Array.isArray(constraints.groupCaps))
       constraints.groupCaps.forEach((cap, index) => check(cap, ["name", "candidateIds", "max"], `constraints.groupCaps[${index}]`));
+  }
+  const signed = check(request.signedConstraints, [
+    "alphaBounds", "grossAlphaMax", "groupGrossCaps", "assetBounds",
+    "grossAssetMax", "netAssetExposure", "cash",
+  ], "signedConstraints");
+  if (signed) {
+    checkBounds(signed.alphaBounds, "signedConstraints.alphaBounds");
+    checkBounds(signed.assetBounds, "signedConstraints.assetBounds");
+    check(signed.netAssetExposure, ["min", "max"], "signedConstraints.netAssetExposure");
+    check(signed.cash, ["min", "max"], "signedConstraints.cash");
+    if (Array.isArray(signed.groupGrossCaps))
+      signed.groupGrossCaps.forEach((cap, index) =>
+        check(cap, ["group", "candidateIds", "max"], `signedConstraints.groupGrossCaps[${index}]`));
   }
   return differences;
 }

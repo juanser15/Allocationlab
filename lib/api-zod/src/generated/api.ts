@@ -4648,6 +4648,15 @@ export const listAllocationsResponseRequestCovarianceDiagonalShrinkageMax = 1;
 
 export const listAllocationsResponseRequestRiskModelSpecificRiskFloorFractionMin = 0;
 
+export const listAllocationsResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
+
+
+
+
+export const listAllocationsResponseRequestSignedConstraintsGroupGrossCapsItemMaxMin = 0;
+
+export const listAllocationsResponseRequestSignedConstraintsGrossAssetMaxMin = 0;
+
 export const listAllocationsResponseRequestObjectiveGammaExclusiveMin = 0;
 
 export const listAllocationsResponseRequestObjectiveEtaMin = 0;
@@ -4684,7 +4693,7 @@ export const ListAllocationsResponseItem = zod.object({
   "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
   "fingerprint": zod.string(),
   "engineVersion": zod.string(),
-  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'UNBOUNDED', 'MISSING_TARGET_EXCESS_RETURN', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
   "request": zod.object({
   "preparedInputId": zod.number().min(1),
   "candidateIds": zod.array(zod.string().min(1)).min(1),
@@ -4701,6 +4710,33 @@ export const ListAllocationsResponseItem = zod.object({
   "factorCount": zod.number().min(1).optional(),
   "specificRiskFloorFraction": zod.number().min(listAllocationsResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
+  "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
+  "signedConstraints": zod.object({
+  "alphaBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+})).optional(),
+  "grossAlphaMax": zod.number().min(listAllocationsResponseRequestSignedConstraintsGrossAlphaMaxMin).optional(),
+  "groupGrossCaps": zod.array(zod.object({
+  "group": zod.string().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "max": zod.number().min(listAllocationsResponseRequestSignedConstraintsGroupGrossCapsItemMaxMin)
+})).optional(),
+  "assetBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+})).optional(),
+  "grossAssetMax": zod.number().min(listAllocationsResponseRequestSignedConstraintsGrossAssetMaxMin).optional(),
+  "netAssetExposure": zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+}).optional(),
+  "cash": zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+}).optional()
+}).optional(),
+  "targetExcessReturn": zod.number().optional(),
   "dailyCashYield": zod.number(),
   "objective": zod.object({
   "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
@@ -4753,6 +4789,15 @@ export const createAllocationBodyCovarianceDiagonalShrinkageMax = 1;
 
 export const createAllocationBodyRiskModelSpecificRiskFloorFractionMin = 0;
 
+export const createAllocationBodySignedConstraintsGrossAlphaMaxMin = 0;
+
+
+
+
+export const createAllocationBodySignedConstraintsGroupGrossCapsItemMaxMin = 0;
+
+export const createAllocationBodySignedConstraintsGrossAssetMaxMin = 0;
+
 export const createAllocationBodyObjectiveGammaExclusiveMin = 0;
 
 export const createAllocationBodyObjectiveEtaMin = 0;
@@ -4799,6 +4844,33 @@ export const CreateAllocationBody = zod.object({
   "factorCount": zod.number().min(1).optional(),
   "specificRiskFloorFraction": zod.number().min(createAllocationBodyRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
+  "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
+  "signedConstraints": zod.object({
+  "alphaBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+})).optional(),
+  "grossAlphaMax": zod.number().min(createAllocationBodySignedConstraintsGrossAlphaMaxMin).optional(),
+  "groupGrossCaps": zod.array(zod.object({
+  "group": zod.string().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "max": zod.number().min(createAllocationBodySignedConstraintsGroupGrossCapsItemMaxMin)
+})).optional(),
+  "assetBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+})).optional(),
+  "grossAssetMax": zod.number().min(createAllocationBodySignedConstraintsGrossAssetMaxMin).optional(),
+  "netAssetExposure": zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+}).optional(),
+  "cash": zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+}).optional()
+}).optional(),
+  "targetExcessReturn": zod.number().optional(),
   "dailyCashYield": zod.number(),
   "objective": zod.object({
   "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
@@ -4843,6 +4915,15 @@ export const createAllocationResponseRequestCovarianceDiagonalShrinkageMax = 1;
 
 export const createAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin = 0;
 
+export const createAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
+
+
+
+
+export const createAllocationResponseRequestSignedConstraintsGroupGrossCapsItemMaxMin = 0;
+
+export const createAllocationResponseRequestSignedConstraintsGrossAssetMaxMin = 0;
+
 export const createAllocationResponseRequestObjectiveGammaExclusiveMin = 0;
 
 export const createAllocationResponseRequestObjectiveEtaMin = 0;
@@ -4879,7 +4960,7 @@ export const CreateAllocationResponse = zod.object({
   "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
   "fingerprint": zod.string(),
   "engineVersion": zod.string(),
-  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'UNBOUNDED', 'MISSING_TARGET_EXCESS_RETURN', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
   "request": zod.object({
   "preparedInputId": zod.number().min(1),
   "candidateIds": zod.array(zod.string().min(1)).min(1),
@@ -4896,6 +4977,33 @@ export const CreateAllocationResponse = zod.object({
   "factorCount": zod.number().min(1).optional(),
   "specificRiskFloorFraction": zod.number().min(createAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
+  "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
+  "signedConstraints": zod.object({
+  "alphaBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+})).optional(),
+  "grossAlphaMax": zod.number().min(createAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin).optional(),
+  "groupGrossCaps": zod.array(zod.object({
+  "group": zod.string().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "max": zod.number().min(createAllocationResponseRequestSignedConstraintsGroupGrossCapsItemMaxMin)
+})).optional(),
+  "assetBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+})).optional(),
+  "grossAssetMax": zod.number().min(createAllocationResponseRequestSignedConstraintsGrossAssetMaxMin).optional(),
+  "netAssetExposure": zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+}).optional(),
+  "cash": zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+}).optional()
+}).optional(),
+  "targetExcessReturn": zod.number().optional(),
   "dailyCashYield": zod.number(),
   "objective": zod.object({
   "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
@@ -4951,6 +5059,15 @@ export const getAllocationResponseRequestCovarianceDiagonalShrinkageMax = 1;
 
 export const getAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin = 0;
 
+export const getAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
+
+
+
+
+export const getAllocationResponseRequestSignedConstraintsGroupGrossCapsItemMaxMin = 0;
+
+export const getAllocationResponseRequestSignedConstraintsGrossAssetMaxMin = 0;
+
 export const getAllocationResponseRequestObjectiveGammaExclusiveMin = 0;
 
 export const getAllocationResponseRequestObjectiveEtaMin = 0;
@@ -4987,7 +5104,7 @@ export const GetAllocationResponse = zod.object({
   "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
   "fingerprint": zod.string(),
   "engineVersion": zod.string(),
-  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'UNBOUNDED', 'MISSING_TARGET_EXCESS_RETURN', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
   "request": zod.object({
   "preparedInputId": zod.number().min(1),
   "candidateIds": zod.array(zod.string().min(1)).min(1),
@@ -5004,6 +5121,33 @@ export const GetAllocationResponse = zod.object({
   "factorCount": zod.number().min(1).optional(),
   "specificRiskFloorFraction": zod.number().min(getAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
+  "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
+  "signedConstraints": zod.object({
+  "alphaBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+})).optional(),
+  "grossAlphaMax": zod.number().min(getAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin).optional(),
+  "groupGrossCaps": zod.array(zod.object({
+  "group": zod.string().min(1),
+  "candidateIds": zod.array(zod.string().min(1)).min(1),
+  "max": zod.number().min(getAllocationResponseRequestSignedConstraintsGroupGrossCapsItemMaxMin)
+})).optional(),
+  "assetBounds": zod.record(zod.string(), zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+})).optional(),
+  "grossAssetMax": zod.number().min(getAllocationResponseRequestSignedConstraintsGrossAssetMaxMin).optional(),
+  "netAssetExposure": zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+}).optional(),
+  "cash": zod.object({
+  "min": zod.number().optional(),
+  "max": zod.number().optional()
+}).optional()
+}).optional(),
+  "targetExcessReturn": zod.number().optional(),
   "dailyCashYield": zod.number(),
   "objective": zod.object({
   "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
@@ -5097,6 +5241,81 @@ export const ListRiskModelComparisonsResponse = zod.object({
   "resultHash": zod.string(),
   "createdAt": zod.coerce.date()
 }))
+})
+
+
+/**
+ * @summary Save an explicitly non-controlled comparison of long-only and signed-overlay policies
+ */
+
+
+
+
+
+
+export const CreateAllocationModeComparisonBody = zod.object({
+  "allocationIds": zod.object({
+  "CAPITAL_LONG_ONLY": zod.number().min(1),
+  "SIGNED_OVERLAY": zod.number().min(1)
+}),
+  "validationRunIds": zod.object({
+  "CAPITAL_LONG_ONLY": zod.number().min(1),
+  "SIGNED_OVERLAY": zod.number().min(1)
+})
+})
+
+export const CreateAllocationModeComparisonResponse = zod.object({
+  "id": zod.number(),
+  "manifestHash": zod.string(),
+  "resultHash": zod.string(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown())
+}))
+
+
+export const ListAllocationModeComparisonsResponse = zod.object({
+  "comparisons": zod.array(zod.object({
+  "id": zod.number(),
+  "manifestHash": zod.string(),
+  "resultHash": zod.string(),
+  "createdAt": zod.coerce.date()
+}))
+})
+
+
+
+
+
+export const GetAllocationModeComparisonParams = zod.object({
+  "comparisonId": zod.coerce.number().min(1)
+})
+
+export const GetAllocationModeComparisonResponse = zod.object({
+  "id": zod.number(),
+  "manifestHash": zod.string(),
+  "resultHash": zod.string(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown())
+}))
+
+
+
+
+
+export const ReplayAllocationModeComparisonParams = zod.object({
+  "comparisonId": zod.coerce.number().min(1)
+})
+
+export const ReplayAllocationModeComparisonResponse = zod.object({
+  "comparisonId": zod.number(),
+  "status": zod.enum(['pass', 'fail']),
+  "differences": zod.array(zod.string()),
+  "maximumNumericDifference": zod.number(),
+  "result": zod.record(zod.string(), zod.unknown())
 })
 
 
