@@ -1709,7 +1709,8 @@ export interface C2ExperimentInput {
   allocationId: number;
   /** @minimum 1 */
   validationPreparedInputId: number;
-  c1ExperimentId: number | null;
+  c1ExperimentId?: number | null;
+  assumptions?: B3ValidationAssumptions;
   /**
      * @minItems 1
      * @maxItems 5
@@ -1746,6 +1747,41 @@ export interface C2ExperimentInput {
      * @maximum 2
      */
   materialCorrelationGap?: number;
+}
+
+export type C2DependencyPlanDependenciesItemStatus = typeof C2DependencyPlanDependenciesItemStatus[keyof typeof C2DependencyPlanDependenciesItemStatus];
+
+
+export const C2DependencyPlanDependenciesItemStatus = {
+  REUSE: 'REUSE',
+  WILL_CREATE: 'WILL_CREATE',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
+
+export type C2DependencyPlanDependenciesItem = {
+  alphaId: string;
+  status: C2DependencyPlanDependenciesItemStatus;
+  /** @nullable */
+  c1ExperimentId: number | null;
+  fingerprint: string;
+  /** @nullable */
+  reason: string | null;
+  /** @minimum 0 */
+  childPolicyCount: number;
+};
+
+export interface C2DependencyPlan {
+  dependencies: C2DependencyPlanDependenciesItem[];
+  /** @minimum 0 */
+  reusedCount: number;
+  /** @minimum 0 */
+  toCreateCount: number;
+  /** @minimum 0 */
+  unavailableCount: number;
+  /** @minimum 0 */
+  newPolicyCount: number;
+  /** @minimum 0 */
+  estimatedTotalChildPolicies: number;
 }
 
 export type C2ExperimentManifest = { [key: string]: unknown };

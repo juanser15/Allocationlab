@@ -32,6 +32,10 @@ export interface C2Sources {
   policy: PreparedSnapshot;
   allocationRequest: AllocationRequest;
   c1?: { manifest: any; children: any[]; summary: any };
+  c1ByAlpha?: Record<string, { id: number; manifest: any; children: any[]; summary: any }>;
+  validationCandidateIds?: Record<string, string>;
+  dependencyPlan?: Array<{ alphaId: string; status: "REUSED" | "CREATED" | "UNAVAILABLE";
+    c1ExperimentId: number | null; fingerprint: string; reason: string | null; childPolicyCount: number }>;
 }
 
 type Metric = number | null;
@@ -280,8 +284,8 @@ function makeWindowAlignmentPlan(
   };
 }
 
-function runWindowPair(sources: C2Sources, input: C2Input, from: string, to: string, alphaId: string) {
-  const c1 = sources.c1;
+function runWindowPair(sources: C2Sources, input: C2Input, from: string, to: string, alphaId: string,
+  c1 = sources.c1ByAlpha?.[alphaId] ?? sources.c1) {
   if (!c1?.manifest?.plans || !c1.manifest.assumptions || !c1.manifest.developmentPeriod)
     return { error: "INSUFFICIENT_HISTORY: frozen C1 development period and plans are required for rolling comparisons." };
   const development = c1.manifest.developmentPeriod;
@@ -319,17 +323,52 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
       input.highCorrelationThreshold > 1 || !Number.isFinite(input.materialCorrelationGap) ||
       input.materialCorrelationGap < 0 || input.materialCorrelationGap > 2)
     throw new Error("C2 correlation thresholds must be finite; high-correlation threshold is [-1, 1] and material gap is [0, 2].");
-  const validationId = (id: string) => sources.c1?.manifest?.validationCandidateIds?.[id] ?? id;
-  const candidates = input.alphaIds.map((id) => getCandidate(sources.validation, validationId(id)));
+  const planFor = (id: string) => sources.dependencyPlan?.find((item) => item.alphaId === id);
+  const sourceFor = (id: string) => sources.dependencyPlan?.some((item) => item.alphaId === id)
+    ? sources.c1ByAlpha?.[id] : sources.c1ByAlpha?.[id] ?? sources.c1;
+  const dependencyInputs = input.alphaIds.map((id) => {
+    const c1 = sourceFor(id);
+    const plan = planFor(id);
+    const frozenValidationId = sources.validationCandidateIds?.[id];
+    const c1ValidationId = c1?.manifest?.validationCandidateIds?.[id];
+    if (frozenValidationId && c1ValidationId && frozenValidationId !== c1ValidationId)
+      throw new Error(`C2 validation candidate mapping for ${id} does not match its referenced C1 manifest.`);
+    const validationId = frozenValidationId ?? c1ValidationId ?? id;
+    const candidate = getCandidate(sources.validation, validationId);
+    const policyIds = c1?.manifest?.candidateIds ?? sources.allocationRequest.candidateIds;
+    const validationToPolicy = Object.fromEntries(Object.entries(c1?.manifest?.validationCandidateIds ?? {})
+      .map(([policyId, b1Id]: [string, any]) => [b1Id, policyId]));
+    const resolvedPolicyId = policyIds.includes(id) ? id : validationToPolicy[candidate.candidateId] ?? id;
+    const fullChild = c1?.children?.find((child: any) => !(child.excludedCandidateIds ?? []).length);
+    const exclusionChild = c1?.children?.find((child: any) =>
+      (child.excludedCandidateIds ?? []).length === 1 &&
+      (child.excludedCandidateIds ?? []).includes(resolvedPolicyId));
+    const childResultsSuccessful = fullChild?.result?.status === "completed" &&
+      exclusionChild?.result?.status === "completed";
+    const failedResult = [exclusionChild?.result, fullChild?.result]
+      .find((result: any) => result && result.status !== "completed");
+    const childFailure = failedResult?.reason ?? failedResult?.diagnostic;
+    const datedChildFailure = childFailure && failedResult?.failureDate &&
+      !String(childFailure).includes(failedResult.failureDate)
+      ? `${childFailure} (failure date: ${failedResult.failureDate})` : childFailure;
+    const usable = Boolean(c1?.manifest?.plans && c1.manifest.assumptions &&
+      c1.manifest.developmentPeriod && childResultsSuccessful);
+    const status = !usable ? "UNAVAILABLE" : plan?.status ?? "REUSED";
+    const reason = status === "UNAVAILABLE"
+      ? plan?.reason ?? datedChildFailure ??
+        (!c1 ? "No successful compatible C1 dependency is available for this alpha."
+          : "C1 dependency does not contain successful full and exact single-alpha exclusion children.")
+      : null;
+    return { candidate, c1, plan, fullChild, exclusionChild,
+      policyId: resolvedPolicyId, dependencyId: plan?.c1ExperimentId ?? (c1 as any)?.id ??
+        (sources.c1 ? input.c1ExperimentId : null), dependencyStatus: status, dependencyReason: reason,
+      usable: usable && status !== "UNAVAILABLE" };
+  });
+  const candidates = dependencyInputs.map((item) => item.candidate);
   if (candidates.some((candidate) => candidate.kind !== "alpha_streams"))
     throw new Error("C2 diagnostics require tradable B1 alpha_streams candidates.");
-  const manifestIds = sources.c1?.manifest?.candidateIds ?? sources.allocationRequest.candidateIds;
-  const validationToPolicy = Object.fromEntries(Object.entries(sources.c1?.manifest?.validationCandidateIds ?? {})
-    .map(([policyId, b1Id]: [string, any]) => [b1Id, policyId]));
-  const policyId = (requestedId: string, resolvedB1Id: string) =>
-    manifestIds.includes(requestedId) ? requestedId : validationToPolicy[resolvedB1Id] ?? requestedId;
-  const selected = candidates.map((candidate, index) => ({ candidate,
-    series: alignedSeries(candidate, input), policyId: policyId(input.alphaIds[index], candidate.candidateId) }));
+  const selected = dependencyInputs.map(({ candidate, ...dependency }) => ({ candidate,
+    series: alignedSeries(candidate, input), ...dependency }));
   if (new Set(selected.map((item) => item.candidate.candidateId)).size !== selected.length)
     throw new Error("Selected C2 IDs must resolve to unique canonical validation B1 candidates.");
   const dates = [...new Set(selected.flatMap(({ series }) => series.map((point) => point.date)))].sort();
@@ -458,7 +497,11 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
             .every((point) => point.value! >= input.highCorrelationThreshold) &&
           exposureByRegime.every((row) => row.meanSimilarity !== null && row.meanSimilarity >= input.highCorrelationThreshold)
           ? "PERSISTENTLY_SIMILAR" : "INSUFFICIENT_REGIME_EVIDENCE";
-    const policyWeights = sources.c1?.children?.[0]?.result?.decisions ?? [];
+    const leftWeights = left.usable ? left.fullChild?.result?.decisions ?? [] : [];
+    const rightWeights = right.usable ? right.fullChild?.result?.decisions ?? [] : [];
+    const leftWeightsByDate = new Map(leftWeights.map((decision: any) => [decision.decisionDate, decision]));
+    const rightWeightsByDate = new Map(rightWeights.map((decision: any) => [decision.decisionDate, decision]));
+    const weightDates = [...new Set([...leftWeightsByDate.keys(), ...rightWeightsByDate.keys()])].sort();
     dependence.push({ alphaA: left.candidate.candidateId, alphaB: right.candidate.candidateId,
       fullSample: { correlation: pairs.length >= input.minRegimePaired ? fullCorr : null,
         startDate: pairs[0]?.date ?? null, endDate: pairs.at(-1)?.date ?? null, pairedObservations: pairs.length,
@@ -466,9 +509,14 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
         units: "dimensionless correlation; aligned B1 alpha-stream daily simple returns in decimal units." },
       rollingCorrelation: { ...rolling, summary: summarize(rolling.series.flatMap((point) => point.value === null ? [] : [point.value])) },
       regimeCorrelation: conditionalCorr, exposureDistance: exposureSeries, exposureSimilarityByRegime: exposureByRegime,
-      optimizedCapitalWeights: policyWeights.map((decision: any) => ({ date: decision.decisionDate,
-        weightA: decision.candidateWeights?.[left.policyId] ?? null,
-        weightB: decision.candidateWeights?.[right.policyId] ?? null })),
+      optimizedCapitalWeights: weightDates.map((date) => {
+        const leftDecision: any = leftWeightsByDate.get(date), rightDecision: any = rightWeightsByDate.get(date);
+        return { date,
+          weightA: leftDecision?.candidateWeights?.[left.policyId] ?? null,
+          weightB: rightDecision?.candidateWeights?.[right.policyId] ?? null,
+          c1ExperimentIdA: left.dependencyId, c1DependencyStatusA: left.dependencyStatus,
+          c1ExperimentIdB: right.dependencyId, c1DependencyStatusB: right.dependencyStatus };
+      }),
       flag, flagVersion: "c2-descriptive-thresholds-v1",
       flagNote: "Descriptive only; no candidate selection, deletion, merge, or reweighting.",
     });
@@ -477,13 +525,18 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
     units: { netReturn: "decimal", sharpe: "annualized ratio", volatility: "annualized decimal",
       cost: "B3 native currency units", allocationDistance: "half-L1 normalized weight distance" },
     conditional: [], rolling: [] };
-  if (sources.c1?.children?.length) {
-    const fullChild = sources.c1.children.find((child: any) => !(child.excludedCandidateIds ?? []).length);
-    for (const child of sources.c1.children.filter((item: any) => (item.excludedCandidateIds ?? []).length)) {
-      const variantId = child.excludedCandidateIds[0];
-      if (!selected.some((item) => item.policyId === variantId)) continue;
-      const variant = child.result as B3Result, full = fullChild?.result as B3Result | undefined;
-      const rows = regimeNames.map((regime) => {
+  for (const item of selected) {
+    const child = item.exclusionChild;
+    const full = item.usable ? item.fullChild?.result as B3Result | undefined : undefined;
+    const variant = item.usable ? child?.result as B3Result | undefined : undefined;
+    const rows = regimeNames.map((regime) => {
+        if (!item.usable || !full || !variant) return {
+          alphaId: item.candidate.candidateId, regime, observations: 0, dailyDates: [],
+          full: null, without: null, deltas: null, matchedDecisionDates: [], allocationDistances: [],
+          status: "UNAVAILABLE", c1ExperimentId: item.dependencyId,
+          c1DependencyStatus: item.dependencyStatus,
+          reason: item.dependencyReason ?? "C1 dependency evidence is unavailable.",
+        };
         const common = new Set(regimeInfo.series.filter((item: any) => item.label === regime).map((item: any) => item.date));
         const dailyDates = [...common].filter((date) => full?.dailyLedger.some((entry) => entry.date === date) &&
           variant?.dailyLedger.some((entry) => entry.date === date));
@@ -493,44 +546,73 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
         const fullDecisions = full?.decisions.map((decision) => decision.decisionDate) ?? [];
         const variantDecisions = new Set(variant?.decisions.map((decision) => decision.decisionDate) ?? []);
         const decisionDates = fullDecisions.filter((date) => variantDecisions.has(date) && common.has(date));
-        const fullPolicyIds = full?.policyIdentity.candidateIds ??
-          sources.c1?.manifest?.candidateIds ?? sources.allocationRequest.candidateIds;
+        const fullPolicyIds = full.policyIdentity.candidateIds ??
+          item.c1?.manifest?.candidateIds ?? sources.allocationRequest.candidateIds;
         const allocationDistances = full && variant
           ? decisionDates.flatMap((date) => {
             const value = decisionDistances(full, variant, date, fullPolicyIds);
             return value ? [value] : [];
           }) : [];
-        return { alphaId: variantId, regime, observations: dailyDates.length,
+        return { alphaId: item.candidate.candidateId, regime, observations: dailyDates.length,
           dailyDates, full: fullStats, without: withoutStats,
           deltas: fullStats && withoutStats ? { meanReturn: fullStats.mean === null || withoutStats.mean === null ? null : fullStats.mean - withoutStats.mean,
             volatility: fullStats.volatility === null || withoutStats.volatility === null ? null : fullStats.volatility - withoutStats.volatility,
             sharpe: fullStats.sharpe === null || withoutStats.sharpe === null ? null : fullStats.sharpe - withoutStats.sharpe,
             cost: fullStats.totalCosts === null || withoutStats.totalCosts === null ? null : fullStats.totalCosts - withoutStats.totalCosts } : null,
           matchedDecisionDates: decisionDates, allocationDistances,
-          status: dailyDates.length < input.minSharpeObservations ? "INSUFFICIENT_HISTORY" : "AVAILABLE" };
+          status: dailyDates.length < input.minSharpeObservations ? "INSUFFICIENT_HISTORY" : "AVAILABLE",
+          c1ExperimentId: item.dependencyId, c1DependencyStatus: item.dependencyStatus, reason: null };
       });
-      incrementalContribution.conditional.push(...rows);
-    }
+    incrementalContribution.conditional.push(...rows);
   }
-  const developmentPeriod = sources.c1?.manifest?.developmentPeriod;
-  const holdoutStartDate = sources.c1?.manifest?.holdoutStartDate;
-  const orderedDates = developmentPeriod ? dates.filter((date) => date >= developmentPeriod.startDate &&
-    date <= developmentPeriod.endDate && (!holdoutStartDate || date < holdoutStartDate)) : [];
-  const rollingWindows: Array<{ startDate: string; endDate: string }> = [];
-  for (let end = input.contributionWindow; end <= orderedDates.length; end += input.contributionStep)
-    rollingWindows.push({ startDate: orderedDates[end - input.contributionWindow], endDate: orderedDates[end - 1] });
+  const commonDevelopment = selected.find((item) => item.usable)?.c1?.manifest?.developmentPeriod;
+  const commonHoldout = selected.find((item) => item.usable)?.c1?.manifest?.holdoutStartDate;
+  const orderedDates = commonDevelopment ? dates.filter((date) => date >= commonDevelopment.startDate &&
+    date <= commonDevelopment.endDate && (!commonHoldout || date < commonHoldout)) : [];
+  const rollingWindowsFor = (item: typeof selected[number]) => {
+    const development = item.usable ? item.c1?.manifest?.developmentPeriod : null;
+    const holdout = item.usable ? item.c1?.manifest?.holdoutStartDate : null;
+    const availableDates = development ? dates.filter((date) => date >= development.startDate &&
+      date <= development.endDate && (!holdout || date < holdout)) : [];
+    const windows: Array<{ startDate: string; endDate: string }> = [];
+    for (let end = input.contributionWindow; end <= availableDates.length; end += input.contributionStep)
+      windows.push({ startDate: availableDates[end - input.contributionWindow], endDate: availableDates[end - 1] });
+    return { development, holdout, availableDates, windows };
+  };
+  const legacyWindows: Array<{ startDate: string; endDate: string }> = rollingWindowsFor(
+    selected.find((item) => item.usable) ?? selected[0]!).windows;
   incrementalContribution.rollingConfiguration = {
     period: orderedDates.length
       ? { startDate: orderedDates[0], endDate: orderedDates.at(-1) }
       : { startDate: null, endDate: null },
-    c1DevelopmentPeriod: developmentPeriod ?? null, holdoutStartDate: holdoutStartDate ?? null,
+    c1DevelopmentPeriod: commonDevelopment ?? null, holdoutStartDate: commonHoldout ?? null,
     windowObservations: input.contributionWindow, stepObservations: input.contributionStep,
-    selectedAlphaIds: [...input.alphaIds], maximumCandidates: 5, predeclaredWindows: rollingWindows,
+    selectedAlphaIds: [...input.alphaIds], maximumCandidates: 5, predeclaredWindows: legacyWindows,
+    perAlpha: Object.fromEntries(selected.map((item) => [item.candidate.candidateId, {
+      c1ExperimentId: item.dependencyId, c1DependencyStatus: item.dependencyStatus,
+      developmentPeriod: rollingWindowsFor(item).development ?? null,
+      holdoutStartDate: rollingWindowsFor(item).holdout ?? null,
+      predeclaredWindows: rollingWindowsFor(item).windows,
+    }])),
   };
-  incrementalContribution.rollingStatus = rollingWindows.length && sources.c1?.manifest?.plans
-    ? "AVAILABLE" : "INSUFFICIENT_HISTORY";
-  for (const selectedAlpha of selected) for (const window of rollingWindows) {
-    const rerun = runWindowPair(sources, input, window.startDate, window.endDate, selectedAlpha.policyId);
+  incrementalContribution.rollingStatus = selected.some((item) => rollingWindowsFor(item).windows.length)
+    ? selected.some((item) => !item.usable) ? "PARTIAL" : "AVAILABLE"
+    : selected.some((item) => !item.usable) ? "UNAVAILABLE" : "INSUFFICIENT_HISTORY";
+  for (const selectedAlpha of selected) {
+    const alphaWindows = rollingWindowsFor(selectedAlpha).windows;
+    if (!selectedAlpha.usable || !alphaWindows.length) {
+      if (!selectedAlpha.usable) incrementalContribution.rolling.push({
+        alphaId: selectedAlpha.candidate.candidateId, policyCandidateId: selectedAlpha.policyId,
+        startDate: null, endDate: null, alignment: null, metrics: null, allocationDistances: [],
+        status: "UNAVAILABLE", c1ExperimentId: selectedAlpha.dependencyId,
+        c1DependencyStatus: selectedAlpha.dependencyStatus,
+        reason: selectedAlpha.dependencyReason ?? "C1 dependency evidence is unavailable.",
+      });
+      continue;
+    }
+    for (const window of alphaWindows) {
+    const rerun = runWindowPair(sources, input, window.startDate, window.endDate, selectedAlpha.policyId,
+      selectedAlpha.c1);
     const base = rerun && "baseline" in rerun ? rerun.baseline : null;
     const without = rerun && "excluded" in rerun ? rerun.excluded : null;
     const sameDecisionDates = base && without &&
@@ -548,7 +630,7 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
       sameDecisionDates && sameLedgerDates && sameEstimationHistory;
     const metrics = (result: B3Result | null | undefined) => result?.metrics ?? null;
     const fullMetrics = metrics(base), withoutMetrics = metrics(without);
-    const fullPolicyIds = base?.policyIdentity.candidateIds ?? sources.c1?.manifest?.candidateIds ??
+    const fullPolicyIds = base?.policyIdentity.candidateIds ?? selectedAlpha.c1?.manifest?.candidateIds ??
       sources.allocationRequest.candidateIds;
     const windowDecisionDistances = comparable ? base!.decisions.flatMap((decision) => {
       const result = decisionDistances(base!, without!, decision.decisionDate, fullPolicyIds);
@@ -574,8 +656,18 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
           ? fullMetrics!.totalTransactionCosts! - withoutMetrics!.totalTransactionCosts! : null,
       } : null, allocationDistances: windowDecisionDistances, status: comparable ? "AVAILABLE" :
         rerun && "error" in rerun ? "INSUFFICIENT_HISTORY" : "INSUFFICIENT_HISTORY",
-      reason: comparable ? null : "INSUFFICIENT_HISTORY: independent full/exclusion B3 reruns require at least two valid decisions and complete shared ledgers." });
+      c1ExperimentId: selectedAlpha.dependencyId, c1DependencyStatus: selectedAlpha.dependencyStatus,
+      reason: comparable ? null : rerun && "error" in rerun ? rerun.error :
+        "INSUFFICIENT_HISTORY: independent full/exclusion B3 reruns require at least two valid decisions and complete shared ledgers." });
+    }
   }
+  const dependencySummary = selected.map((item) => ({
+    alphaId: item.candidate.candidateId, status: item.dependencyStatus,
+    c1ExperimentId: item.dependencyId, fingerprint: item.plan?.fingerprint ?? "",
+    reason: item.dependencyReason,
+    childPolicyCount: item.plan?.childPolicyCount ?? item.c1?.children?.length ?? 0,
+  }));
+  incrementalContribution.dependencies = structuredClone(dependencySummary);
   return {
     engineVersion: C2_ENGINE_VERSION,
     source: { allocationId: input.allocationId, validationPreparedInputId: input.validationPreparedInputId,
@@ -583,6 +675,7 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
       regimeVersion: regimeInfo.version, policyDatasetHash: sources.policy.dataset.sha256,
       validationDatasetHash: sources.validation.dataset.sha256, policyEngineVersion: sources.policy.engineVersion,
       validationEngineVersion: sources.validation.engineVersion, selectedAlphaIds: input.alphaIds,
+      c1Dependencies: structuredClone(dependencySummary),
       b1AlphaIds: candidates.map((candidate) => candidate.candidateId),
       validationCandidateIds: Object.fromEntries(input.alphaIds.map((id, index) => [id, candidates[index].candidateId])),
       policyCandidateIds: Object.fromEntries(selected.map((item) => [item.candidate.candidateId, item.policyId])),
@@ -590,9 +683,10 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
         candidateIds: [...sources.allocationRequest.candidateIds], estimationWindow: sources.allocationRequest.estimationWindow,
         minObservations: sources.allocationRequest.minObservations, objective: structuredClone(sources.allocationRequest.objective),
         returnConvention: sources.allocationRequest.returnConvention },
-      b3EngineVersions: [...new Set((sources.c1?.children ?? []).map((child: any) =>
-        child.result?.diagnostics?.engineVersion).filter(Boolean))],
-      c1ManifestSchemaVersion: sources.c1?.manifest?.schemaVersion ?? null },
+      b3EngineVersions: [...new Set(selected.flatMap((item) => (item.c1?.children ?? []).map((child: any) =>
+        child.result?.diagnostics?.engineVersion).filter(Boolean)))],
+      c1ManifestSchemaVersion: sources.c1?.manifest?.schemaVersion ??
+        selected.find((item) => item.c1)?.c1?.manifest?.schemaVersion ?? null },
     configuration: structuredClone(input),
     thresholds: { version: "c2-descriptive-thresholds-v1", tolerance: TOLERANCE,
       minRollingPaired: input.minRollingPaired, minRegimePaired: input.minRegimePaired,
@@ -605,6 +699,7 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
       units: { returns: "daily decimal", volatility: "annualized decimal", sharpe: "annualized ratio" } },
     dependence: { method: "Separate alpha-return correlation, rolling Pearson correlation, conditional correlation, normalized exposure L1 distance, and optimized capital weights.", pairs: dependence },
     incrementalContribution,
+    dependencySummary,
     methodology: { numericTolerance: TOLERANCE, undefinedMetrics: "null with explicit reason/status; no zero fill or interpolation.",
       selection: "Evidence only: no automatic ranking, selection, merging, deletion, reweighting, or promotion.",
       quantities: { stability: "B1 tradable alpha-stream returns and ledger", dependence: "B1 daily alpha-stream returns / B1 target underlying exposures / B3 optimized capital weights",
@@ -621,5 +716,6 @@ export interface C2Output {
   regimes: any;
   dependence: any;
   incrementalContribution: any;
+  dependencySummary: any[];
   methodology: Record<string, unknown>;
 }

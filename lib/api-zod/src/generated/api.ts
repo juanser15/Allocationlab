@@ -3465,6 +3465,18 @@ export const ReplayAlphaContributionExperimentResponse = zod.object({
 
 
 
+export const createAlphaDiagnosticExperimentBodyAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAlphaDiagnosticExperimentBodyAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAlphaDiagnosticExperimentBodyAssumptionsInitialNavExclusiveMin = 0;
+
+export const createAlphaDiagnosticExperimentBodyAssumptionsInitialHoldingsMinOne = 0;
+
+export const createAlphaDiagnosticExperimentBodyAssumptionsInitialCashMin = 0;
+
+export const createAlphaDiagnosticExperimentBodyAssumptionsTransactionCostBpsMin = 0;
+
+export const createAlphaDiagnosticExperimentBodyAssumptionsSlippageBpsMin = 0;
+
 
 export const createAlphaDiagnosticExperimentBodyAlphaIdsMax = 5;
 
@@ -3503,7 +3515,20 @@ export const createAlphaDiagnosticExperimentBodyMaterialCorrelationGapMax = 2;
 export const CreateAlphaDiagnosticExperimentBody = zod.object({
   "allocationId": zod.number().min(1),
   "validationPreparedInputId": zod.number().min(1),
-  "c1ExperimentId": zod.union([zod.number().min(1),zod.null()]),
+  "c1ExperimentId": zod.union([zod.number().min(1),zod.null()]).optional(),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(createAlphaDiagnosticExperimentBodyAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(createAlphaDiagnosticExperimentBodyAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close']),
+  "initialNav": zod.number().gt(createAlphaDiagnosticExperimentBodyAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(createAlphaDiagnosticExperimentBodyAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(createAlphaDiagnosticExperimentBodyAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(createAlphaDiagnosticExperimentBodyAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(createAlphaDiagnosticExperimentBodyAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).optional().describe('Frozen evaluation and A1 execution settings applied to this validation.'),
   "alphaIds": zod.array(zod.string().min(1)).min(1).max(createAlphaDiagnosticExperimentBodyAlphaIdsMax),
   "startDate": zod.string().regex(createAlphaDiagnosticExperimentBodyStartDateRegExp),
   "endDate": zod.string().regex(createAlphaDiagnosticExperimentBodyEndDateRegExp),
@@ -3550,6 +3575,123 @@ export const ListAlphaDiagnosticExperimentsResponseItem = zod.object({
   "createdAt": zod.coerce.date()
 })
 export const ListAlphaDiagnosticExperimentsResponse = zod.array(ListAlphaDiagnosticExperimentsResponseItem)
+
+
+/**
+ * @summary Preflight exact C1 dependencies for a C2 request without running diagnostics
+ */
+
+
+
+export const createAlphaDiagnosticDependencyPlanBodyAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAlphaDiagnosticDependencyPlanBodyAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAlphaDiagnosticDependencyPlanBodyAssumptionsInitialNavExclusiveMin = 0;
+
+export const createAlphaDiagnosticDependencyPlanBodyAssumptionsInitialHoldingsMinOne = 0;
+
+export const createAlphaDiagnosticDependencyPlanBodyAssumptionsInitialCashMin = 0;
+
+export const createAlphaDiagnosticDependencyPlanBodyAssumptionsTransactionCostBpsMin = 0;
+
+export const createAlphaDiagnosticDependencyPlanBodyAssumptionsSlippageBpsMin = 0;
+
+
+export const createAlphaDiagnosticDependencyPlanBodyAlphaIdsMax = 5;
+
+export const createAlphaDiagnosticDependencyPlanBodyStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAlphaDiagnosticDependencyPlanBodyEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+export const createAlphaDiagnosticDependencyPlanBodyRollingWindowDefault = 63;
+export const createAlphaDiagnosticDependencyPlanBodyRollingWindowMin = 2;
+
+export const createAlphaDiagnosticDependencyPlanBodyRollingStepDefault = 21;
+
+export const createAlphaDiagnosticDependencyPlanBodyContributionWindowDefault = 252;
+export const createAlphaDiagnosticDependencyPlanBodyContributionWindowMin = 2;
+
+export const createAlphaDiagnosticDependencyPlanBodyContributionStepDefault = 63;
+
+export const createAlphaDiagnosticDependencyPlanBodyMinRollingPairedDefault = 40;
+export const createAlphaDiagnosticDependencyPlanBodyMinRollingPairedMin = 2;
+
+export const createAlphaDiagnosticDependencyPlanBodyMinRegimePairedDefault = 30;
+export const createAlphaDiagnosticDependencyPlanBodyMinRegimePairedMin = 2;
+
+export const createAlphaDiagnosticDependencyPlanBodyMinSharpeObservationsDefault = 30;
+export const createAlphaDiagnosticDependencyPlanBodyMinSharpeObservationsMin = 2;
+
+export const createAlphaDiagnosticDependencyPlanBodyHighCorrelationThresholdDefault = 0.8;
+export const createAlphaDiagnosticDependencyPlanBodyHighCorrelationThresholdMin = -1;
+export const createAlphaDiagnosticDependencyPlanBodyHighCorrelationThresholdMax = 1;
+
+export const createAlphaDiagnosticDependencyPlanBodyMaterialCorrelationGapDefault = 0.3;
+export const createAlphaDiagnosticDependencyPlanBodyMaterialCorrelationGapMin = 0;
+export const createAlphaDiagnosticDependencyPlanBodyMaterialCorrelationGapMax = 2;
+
+
+
+export const CreateAlphaDiagnosticDependencyPlanBody = zod.object({
+  "allocationId": zod.number().min(1),
+  "validationPreparedInputId": zod.number().min(1),
+  "c1ExperimentId": zod.union([zod.number().min(1),zod.null()]).optional(),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(createAlphaDiagnosticDependencyPlanBodyAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(createAlphaDiagnosticDependencyPlanBodyAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close']),
+  "initialNav": zod.number().gt(createAlphaDiagnosticDependencyPlanBodyAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(createAlphaDiagnosticDependencyPlanBodyAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(createAlphaDiagnosticDependencyPlanBodyAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(createAlphaDiagnosticDependencyPlanBodyAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(createAlphaDiagnosticDependencyPlanBodyAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).optional().describe('Frozen evaluation and A1 execution settings applied to this validation.'),
+  "alphaIds": zod.array(zod.string().min(1)).min(1).max(createAlphaDiagnosticDependencyPlanBodyAlphaIdsMax),
+  "startDate": zod.string().regex(createAlphaDiagnosticDependencyPlanBodyStartDateRegExp),
+  "endDate": zod.string().regex(createAlphaDiagnosticDependencyPlanBodyEndDateRegExp),
+  "regimeSource": zod.enum(['frozen_b1_prefix']),
+  "regimeMapping": zod.record(zod.string(), zod.string().min(1)).optional(),
+  "rollingWindow": zod.number().min(createAlphaDiagnosticDependencyPlanBodyRollingWindowMin).default(createAlphaDiagnosticDependencyPlanBodyRollingWindowDefault),
+  "rollingStep": zod.number().min(1).default(createAlphaDiagnosticDependencyPlanBodyRollingStepDefault),
+  "contributionWindow": zod.number().min(createAlphaDiagnosticDependencyPlanBodyContributionWindowMin).default(createAlphaDiagnosticDependencyPlanBodyContributionWindowDefault),
+  "contributionStep": zod.number().min(1).default(createAlphaDiagnosticDependencyPlanBodyContributionStepDefault),
+  "minRollingPaired": zod.number().min(createAlphaDiagnosticDependencyPlanBodyMinRollingPairedMin).default(createAlphaDiagnosticDependencyPlanBodyMinRollingPairedDefault),
+  "minRegimePaired": zod.number().min(createAlphaDiagnosticDependencyPlanBodyMinRegimePairedMin).default(createAlphaDiagnosticDependencyPlanBodyMinRegimePairedDefault),
+  "minSharpeObservations": zod.number().min(createAlphaDiagnosticDependencyPlanBodyMinSharpeObservationsMin).default(createAlphaDiagnosticDependencyPlanBodyMinSharpeObservationsDefault),
+  "highCorrelationThreshold": zod.number().min(createAlphaDiagnosticDependencyPlanBodyHighCorrelationThresholdMin).max(createAlphaDiagnosticDependencyPlanBodyHighCorrelationThresholdMax).default(createAlphaDiagnosticDependencyPlanBodyHighCorrelationThresholdDefault),
+  "materialCorrelationGap": zod.number().min(createAlphaDiagnosticDependencyPlanBodyMaterialCorrelationGapMin).max(createAlphaDiagnosticDependencyPlanBodyMaterialCorrelationGapMax).default(createAlphaDiagnosticDependencyPlanBodyMaterialCorrelationGapDefault)
+}).describe('Frozen C2 diagnostics configuration. A new configuration always creates a new experiment.')
+
+export const createAlphaDiagnosticDependencyPlanResponseDependenciesItemChildPolicyCountMin = 0;
+
+export const createAlphaDiagnosticDependencyPlanResponseReusedCountMin = 0;
+
+export const createAlphaDiagnosticDependencyPlanResponseToCreateCountMin = 0;
+
+export const createAlphaDiagnosticDependencyPlanResponseUnavailableCountMin = 0;
+
+export const createAlphaDiagnosticDependencyPlanResponseNewPolicyCountMin = 0;
+
+export const createAlphaDiagnosticDependencyPlanResponseEstimatedTotalChildPoliciesMin = 0;
+
+
+
+export const CreateAlphaDiagnosticDependencyPlanResponse = zod.object({
+  "dependencies": zod.array(zod.object({
+  "alphaId": zod.string(),
+  "status": zod.enum(['REUSE', 'WILL_CREATE', 'UNAVAILABLE']),
+  "c1ExperimentId": zod.number().nullable(),
+  "fingerprint": zod.string(),
+  "reason": zod.string().nullable(),
+  "childPolicyCount": zod.number().min(createAlphaDiagnosticDependencyPlanResponseDependenciesItemChildPolicyCountMin)
+})),
+  "reusedCount": zod.number().min(createAlphaDiagnosticDependencyPlanResponseReusedCountMin),
+  "toCreateCount": zod.number().min(createAlphaDiagnosticDependencyPlanResponseToCreateCountMin),
+  "unavailableCount": zod.number().min(createAlphaDiagnosticDependencyPlanResponseUnavailableCountMin),
+  "newPolicyCount": zod.number().min(createAlphaDiagnosticDependencyPlanResponseNewPolicyCountMin),
+  "estimatedTotalChildPolicies": zod.number().min(createAlphaDiagnosticDependencyPlanResponseEstimatedTotalChildPoliciesMin)
+})
 
 
 

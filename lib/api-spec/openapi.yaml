@@ -1237,6 +1237,38 @@ paths:
                 type: array
                 items: { $ref: "#/components/schemas/C2Experiment" }
 
+  /alpha-diagnostics/dependency-plan:
+    post:
+      operationId: createAlphaDiagnosticDependencyPlan
+      tags: [alpha-diagnostics]
+      summary: Preflight exact C1 dependencies for a C2 request without running diagnostics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/C2ExperimentInput" }
+      responses:
+        "200":
+          description: Exact reusable, createable, and unavailable C1 dependencies
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/C2DependencyPlan" }
+        "400":
+          description: Invalid C2 request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Frozen allocation or preparation not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Frozen source identity or hash mismatch
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
   /alpha-diagnostics/{experimentId}:
     get:
       operationId: getAlphaDiagnosticExperiment
@@ -3899,6 +3931,8 @@ components:
             - type: integer
               minimum: 1
             - type: "null"
+        assumptions:
+          $ref: "#/components/schemas/B3ValidationAssumptions"
         alphaIds:
           type: array
           minItems: 1
@@ -3920,7 +3954,29 @@ components:
         minSharpeObservations: { type: integer, minimum: 2, default: 30 }
         highCorrelationThreshold: { type: number, minimum: -1, maximum: 1, default: 0.8 }
         materialCorrelationGap: { type: number, minimum: 0, maximum: 2, default: 0.3 }
-      required: [allocationId, validationPreparedInputId, c1ExperimentId, alphaIds, startDate, endDate, regimeSource]
+      required: [allocationId, validationPreparedInputId, alphaIds, startDate, endDate, regimeSource]
+
+    C2DependencyPlan:
+      type: object
+      properties:
+        dependencies:
+          type: array
+          items:
+            type: object
+            properties:
+              alphaId: { type: string }
+              status: { type: string, enum: [REUSE, WILL_CREATE, UNAVAILABLE] }
+              c1ExperimentId: { type: ["integer", "null"] }
+              fingerprint: { type: string }
+              reason: { type: ["string", "null"] }
+              childPolicyCount: { type: integer, minimum: 0 }
+            required: [alphaId, status, c1ExperimentId, fingerprint, reason, childPolicyCount]
+        reusedCount: { type: integer, minimum: 0 }
+        toCreateCount: { type: integer, minimum: 0 }
+        unavailableCount: { type: integer, minimum: 0 }
+        newPolicyCount: { type: integer, minimum: 0 }
+        estimatedTotalChildPolicies: { type: integer, minimum: 0 }
+      required: [dependencies, reusedCount, toCreateCount, unavailableCount, newPolicyCount, estimatedTotalChildPolicies]
 
     C2Experiment:
       type: object

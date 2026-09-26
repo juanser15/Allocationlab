@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import {
   CreateAlphaDiagnosticExperimentBody,
   CreateAlphaDiagnosticExperimentResponse,
+  CreateAlphaDiagnosticDependencyPlanResponse,
   GetAlphaDiagnosticExperimentParams,
   GetAlphaDiagnosticExperimentResponse,
   ListAlphaDiagnosticExperimentsResponse,
@@ -11,13 +12,14 @@ import {
 import {
   getC2Experiment,
   listC2Experiments,
+  planC2Dependencies,
   persistC2Experiment,
   replayC2Experiment,
 } from "../lib/c2-experiment-store";
 
 const router: IRouter = Router();
 const INPUT_KEYS = new Set([
-  "allocationId", "validationPreparedInputId", "c1ExperimentId", "alphaIds", "startDate", "endDate",
+  "allocationId", "validationPreparedInputId", "c1ExperimentId", "assumptions", "alphaIds", "startDate", "endDate",
   "regimeSource", "regimeMapping", "rollingWindow", "rollingStep", "contributionWindow",
   "contributionStep", "minRollingPaired", "minRegimePaired", "minSharpeObservations",
   "highCorrelationThreshold", "materialCorrelationGap",
@@ -26,6 +28,25 @@ const INPUT_KEYS = new Set([
 function validId(raw: string): boolean {
   return /^[1-9]\d*$/.test(raw) && Number.isSafeInteger(Number(raw));
 }
+
+router.post("/alpha-diagnostics/dependency-plan", async (req, res): Promise<void> => {
+  if (!req.body || typeof req.body !== "object" || Array.isArray(req.body) ||
+      Object.keys(req.body).some((key) => !INPUT_KEYS.has(key))) {
+    res.status(400).json({ error: "C2 request must be an object containing only supported fields." });
+    return;
+  }
+  const parsed = CreateAlphaDiagnosticExperimentBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const planned = await planC2Dependencies(parsed.data);
+  if ("error" in planned) {
+    res.status(typeof planned.status === "number" ? planned.status : 409).json({ error: planned.error });
+    return;
+  }
+  res.json(CreateAlphaDiagnosticDependencyPlanResponse.parse(planned.plan));
+});
 
 router.post("/alpha-diagnostics", async (req, res): Promise<void> => {
   if (!req.body || typeof req.body !== "object" || Array.isArray(req.body) ||
@@ -40,7 +61,7 @@ router.post("/alpha-diagnostics", async (req, res): Promise<void> => {
   }
   if (!Number.isSafeInteger(parsed.data.allocationId) || parsed.data.allocationId < 1 ||
       !Number.isSafeInteger(parsed.data.validationPreparedInputId) || parsed.data.validationPreparedInputId < 1 ||
-      (parsed.data.c1ExperimentId !== null &&
+      (parsed.data.c1ExperimentId != null &&
        (!Number.isSafeInteger(parsed.data.c1ExperimentId) || parsed.data.c1ExperimentId < 1))) {
     res.status(400).json({ error: "allocationId, validationPreparedInputId, and c1ExperimentId must be positive safe integer IDs (or null for C1)." });
     return;

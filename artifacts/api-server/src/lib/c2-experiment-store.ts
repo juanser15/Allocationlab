@@ -9,6 +9,10 @@ import type { C2Input, C2Sources } from "./c2-diagnostics";
 import { parseCsv } from "./calculator";
 import { canonicalJson, fingerprint, type PreparedCandidate, type PreparedSnapshot } from "./prepared-inputs";
 import { hashDataset } from "./run-snapshot";
+import { persistC1Experiment } from "./c1-experiment-store";
+import type { B3Assumptions } from "./b3-policy";
+import { replayB3ValidationRun } from "./b3-validation-store";
+import { planC1Policies } from "./c1-contribution";
 
 const REPLAY_TOLERANCE = 1e-8;
 
@@ -21,15 +25,33 @@ type C1Child = {
   result: unknown;
 };
 
-type FrozenC1 = { manifest: any; children: C1Child[]; summary: any };
+type FrozenC1 = {
+  status: string;
+  manifest: any;
+  children: C1Child[];
+  summary: any;
+  successfulValidationRunIds: number[];
+};
 
 type C2Manifest = {
   schemaVersion: 1;
-  input: C2Input;
+  input: C2StoreInput;
   engineVersion: string;
   sourceIdentities: Record<string, unknown>;
   sourceHashes: Record<string, unknown>;
   sources: C2Sources;
+};
+
+type C2StoreInput = C2Input & { assumptions?: B3Assumptions };
+
+type DependencyPlanItem = {
+  alphaId: string;
+  status: "REUSE" | "WILL_CREATE" | "UNAVAILABLE";
+  c1ExperimentId: number | null;
+  fingerprint: string;
+  reason: string | null;
+  childPolicyCount: number;
+  spec: Record<string, unknown>;
 };
 
 function isRecord(value: unknown): value is Record<string, any> {
@@ -142,14 +164,15 @@ function validateCandidateReturns(
   return null;
 }
 
-function normalizeInput(raw: ApiC2ExperimentInput): C2Input {
+function normalizeInput(raw: ApiC2ExperimentInput): C2StoreInput {
   const toDate = (value: unknown): string => value instanceof Date
     ? value.toISOString().slice(0, 10)
     : typeof value === "string" ? value.slice(0, 10) : "";
   return {
     allocationId: raw.allocationId,
     validationPreparedInputId: raw.validationPreparedInputId,
-    c1ExperimentId: raw.c1ExperimentId,
+    c1ExperimentId: raw.c1ExperimentId ?? null,
+    ...(raw.assumptions ? { assumptions: structuredClone(raw.assumptions) as B3Assumptions } : {}),
     alphaIds: [...raw.alphaIds],
     startDate: toDate(raw.startDate),
     endDate: toDate(raw.endDate),
@@ -167,7 +190,7 @@ function normalizeInput(raw: ApiC2ExperimentInput): C2Input {
   };
 }
 
-function validateNormalizedInput(input: C2Input): string | null {
+function validateNormalizedInput(input: C2StoreInput): string | null {
   const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) &&
     !Number.isNaN(Date.parse(`${value}T00:00:00Z`)) &&
     new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
@@ -182,6 +205,36 @@ function validateNormalizedInput(input: C2Input): string | null {
     return "alphaIds must contain one to five unique, explicit canonical alpha IDs.";
   if (!validDate(input.startDate) || !validDate(input.endDate) || input.startDate > input.endDate)
     return "startDate and endDate must be valid ISO dates with startDate not after endDate.";
+  if (input.assumptions) {
+    const assumptions = input.assumptions;
+    const allowedAssumptionKeys = new Set([
+      "evaluationStartDate", "evaluationEndDate", "decisionCalendar", "executionTiming",
+      "initialNav", "initialHoldings", "initialCash", "transactionCostBps", "slippageBps",
+      "dailyCashYield", "benchmarkTicker",
+    ]);
+    if (Object.keys(assumptions).some((key) => !allowedAssumptionKeys.has(key)))
+      return "B3 assumptions contain unsupported fields.";
+    if (assumptions.evaluationStartDate !== input.startDate ||
+        assumptions.evaluationEndDate !== input.endDate)
+      return "B3 assumptions evaluation dates must exactly match the C2 startDate and endDate.";
+    if (!validDate(assumptions.evaluationStartDate) || !validDate(assumptions.evaluationEndDate) ||
+        assumptions.evaluationStartDate >= assumptions.evaluationEndDate)
+      return "B3 assumption evaluation dates must be valid ISO dates with start before end.";
+    if (!["monthly", "quarterly"].includes(assumptions.decisionCalendar) ||
+        !["same_close", "next_close"].includes(assumptions.executionTiming) ||
+        !Number.isFinite(assumptions.initialNav) || assumptions.initialNav <= 0 ||
+        !Number.isFinite(assumptions.initialCash) || assumptions.initialCash < 0 ||
+        !Number.isFinite(assumptions.transactionCostBps) || assumptions.transactionCostBps < 0 ||
+        !Number.isFinite(assumptions.slippageBps) || assumptions.slippageBps < 0 ||
+        !Number.isFinite(assumptions.dailyCashYield) || assumptions.dailyCashYield <= -1 ||
+        !isRecord(assumptions.initialHoldings) ||
+        Object.keys(assumptions.initialHoldings).some((ticker) => !ticker.trim()) ||
+        Object.values(assumptions.initialHoldings).some((weight) =>
+          typeof weight !== "number" || !Number.isFinite(weight) || weight < 0) ||
+        (assumptions.benchmarkTicker !== undefined &&
+          (typeof assumptions.benchmarkTicker !== "string" || !assumptions.benchmarkTicker.trim())))
+      return "B3 assumptions contain an unsupported calendar/execution setting or invalid initial state/cost values.";
+  }
   if (input.regimeSource !== "frozen_b1_prefix") return "Unsupported C2 regime source.";
   for (const [key, value] of Object.entries({
     rollingWindow: input.rollingWindow, rollingStep: input.rollingStep,
@@ -221,7 +274,8 @@ async function c1SourceHashCheck(
     policySnapshotHash: fingerprint(policySnapshot),
     validationDatasetHash: manifest.validationDatasetHash,
   });
-  if (row.status !== "completed" || row.manifestHash !== manifestHash || row.inputHash !== expectedInputHash ||
+  if (!["completed", "partial", "failed"].includes(row.status) ||
+      row.manifestHash !== manifestHash || row.inputHash !== expectedInputHash ||
       manifest.allocationId !== row.allocationId || manifest.validationPreparedInputId !== row.validationPreparedInputId ||
       manifest.allocationFingerprint !== allocationFp || manifest.validationPreparedFingerprint !== validationFp ||
       manifest.validationDatasetHash !== validationSnapshot.dataset.sha256)
@@ -231,31 +285,62 @@ async function c1SourceHashCheck(
       !Array.isArray(manifest.candidateIds) ||
       canonicalJson(manifest.candidateIds) !== canonicalJson(allocationRequest.candidateIds))
     return "Referenced C1 experiment does not identify the selected full baseline policy.";
-  const baseline = children.find((child) => child?.excludedCandidateIds?.length === 0);
-  const baselineResult = baseline?.result as Record<string, any> | undefined;
-  if (!baseline || baseline.validationRunId === null || baselineResult?.status !== "completed")
-    return "Referenced C1 experiment is missing its original successful full-policy baseline.";
+  const expectedDefinitionsHash = fingerprint((manifest.candidateIds as string[]).map((id) => {
+    const candidate = policySnapshot.candidates.find((item) => item.candidateId === id);
+    return candidate ? { policyCandidateId: id, definition: candidateDefinition(candidate) } : null;
+  }));
+  if (manifest.candidateDefinitionsHash !== expectedDefinitionsHash ||
+      manifest.developmentPeriod?.startDate !== manifest.assumptions?.evaluationStartDate ||
+      manifest.developmentPeriod?.endDate !== manifest.assumptions?.evaluationEndDate)
+    return "Referenced C1 candidate-definition hash or dated B3 assumption manifest is inconsistent.";
+  const baselineChildren = children.filter((child) => Array.isArray(child?.excludedCandidateIds) &&
+    child.excludedCandidateIds.length === 0);
+  if (baselineChildren.length !== 1)
+    return "Referenced C1 experiment must contain exactly one original full-policy baseline child.";
+  const baseline = baselineChildren[0];
   if (!isRecord(baseline.policyRequest) ||
-      fingerprint(baseline.policyRequest) !== fingerprint(allocationRequest) ||
-      !isRecord(baselineResult?.policyIdentity) ||
-      canonicalJson(baselineResult.policyIdentity.candidateIds) !== canonicalJson(allocationRequest.candidateIds))
+      fingerprint(baseline.policyRequest) !== fingerprint(allocationRequest))
     return "Referenced C1 full child is not the unchanged original B2 baseline policy.";
-  const runIds = children.flatMap((child) => child?.validationRunId === null ? [] : [child?.validationRunId]);
-  if (runIds.length !== children.length || new Set(runIds).size !== runIds.length)
-    return "Referenced C1 experiment does not contain one unique immutable B3 Validation Run per policy child.";
+  if (children.some((child) => !child || !Array.isArray(child.excludedCandidateIds) ||
+      !isRecord(child.policyRequest) || !isRecord(child.result) ||
+      !["completed", "failed"].includes(child.result.status as string)))
+    return "Referenced C1 contains a child with an invalid frozen policy, exclusion, or result status.";
+  const runIds = children.flatMap((child) =>
+    typeof child.validationRunId === "number" ? [child.validationRunId] : []);
+  if (new Set(runIds).size !== runIds.length)
+    return "Referenced C1 experiment contains duplicate immutable B3 Validation Run references.";
+  const listedRunIds = Array.isArray(row.childValidationRunIds) ? row.childValidationRunIds : [];
+  if (canonicalJson(runIds) !== canonicalJson(listedRunIds))
+    return "Referenced C1 child B3 Validation Run references differ from the C1 row's immutable run list.";
   const runRows = await db.select().from(validationRunsTable).where(inArray(validationRunsTable.id, runIds));
   const runsById = new Map(runRows.map((run) => [run.id, run]));
   const b3RunIdentities = [];
+  const successfulValidationRunIds: number[] = [];
   for (const child of children) {
-    const run = runsById.get(child.validationRunId!);
+    const childResult = child.result as Record<string, any>;
+    if (child.validationRunId === null) {
+      if (childResult.status !== "failed" ||
+          !(typeof childResult.diagnostic === "string" || typeof childResult.reason === "string"))
+        return "Referenced C1 child without a B3 run does not preserve an explicit frozen failure diagnostic.";
+      continue;
+    }
+    const run = runsById.get(child.validationRunId);
+    const validRunState = run &&
+      ((run.reconciliationStatus === "pass" && run.reproducibilityStatus === "pass" &&
+        childResult.status === "completed") ||
+       (run.reconciliationStatus === "fail" && run.reproducibilityStatus === "fail" &&
+        ["completed", "failed"].includes(childResult.status)));
     if (!run || run.allocationId !== row.allocationId ||
         run.validationPreparedInputId !== row.validationPreparedInputId ||
         run.datasetHash !== validationSnapshot.dataset.sha256 ||
         run.validationInputHash !== child.validationInputHash ||
-        run.reconciliationStatus !== "pass" || run.reproducibilityStatus !== "pass" ||
-        !isRecord(run.resultJson) || fingerprint(run.resultJson.result) !== fingerprint(child.result) ||
-        fingerprint(run.resultJson.policyRequest) !== fingerprint(child.policyRequest))
-      return `Referenced B3 Validation Run ${child.validationRunId} is missing or differs from the frozen C1 child.`;
+        !validRunState || !isRecord(run.resultJson) ||
+        fingerprint(run.resultJson.result) !== fingerprint(child.result) ||
+        fingerprint(run.resultJson.policyRequest) !== fingerprint(child.policyRequest) ||
+        fingerprint(run.assumptions) !== fingerprint(manifest.assumptions))
+      return `Referenced B3 Validation Run ${child.validationRunId} is missing or differs from its frozen C1 child.`;
+    if (run.reconciliationStatus === "pass" && run.reproducibilityStatus === "pass")
+      successfulValidationRunIds.push(run.id);
     b3RunIdentities.push({
       id: run.id,
       allocationId: run.allocationId,
@@ -268,6 +353,14 @@ async function c1SourceHashCheck(
       resultHash: fingerprint(run.resultJson),
     });
   }
+  if (row.status === "completed" && successfulValidationRunIds.length !== children.length)
+    return "Completed C1 experiment contains an unsuccessful B3 child.";
+  if (row.status === "partial" &&
+      (!successfulValidationRunIds.length || successfulValidationRunIds.length === children.length))
+    return "Partial C1 experiment does not contain a genuine mix of successful and failed B3 children.";
+  if (row.status === "failed" && successfulValidationRunIds.length > 0 &&
+      children.length === successfulValidationRunIds.length)
+    return "Failed C1 experiment has no persisted failed child explaining its status.";
 
   const policyDates = new Set(parseCsv(policySnapshot.dataset.csvContent).map((item) => item.date));
   const validationDates = new Set(parseCsv(validationSnapshot.dataset.csvContent).map((item) => item.date));
@@ -277,20 +370,30 @@ async function c1SourceHashCheck(
       item.candidateId === item.canonicalFingerprint && !item.diagnostics.duplicateOf &&
       policyCandidate && compatibleCandidateDefinitions(policyCandidate, item));
     if (!policyCandidate || policyCandidate.canonicalFingerprint !== alphaId ||
-        policyCandidate.diagnostics.duplicateOf || matchingValidation.length !== 1)
+        policyCandidate.diagnostics.duplicateOf || matchingValidation.length !== 1 ||
+        manifest.validationCandidateIds?.[alphaId] !== matchingValidation[0]?.candidateId)
       return `C1 baseline alpha ${alphaId} no longer maps to exactly one compatible canonical B1 validation candidate.`;
     const policyReturnError = validateCandidateReturns(policyCandidate, policySnapshot.dataset.sha256, policyDates);
     const validationReturnError = validateCandidateReturns(matchingValidation[0], validationSnapshot.dataset.sha256, validationDates);
     if (policyReturnError || validationReturnError)
       return policyReturnError ?? validationReturnError!;
   }
+  const baselineResult = baseline.result as Record<string, any>;
+  if (baselineResult.status === "completed" &&
+      (!isRecord(baselineResult.policyIdentity) ||
+       canonicalJson(baselineResult.policyIdentity.candidateIds) !== canonicalJson(allocationRequest.candidateIds)))
+    return "Referenced C1 full child is not the unchanged original B2 baseline policy.";
   const childrenForHash = children.map((child) => ({
     validationRunId: child.validationRunId,
     validationInputHash: child.validationInputHash ?? null,
     resultHash: fingerprint(child.result),
   }));
   return {
-    source: { manifest: structuredClone(manifest), children: structuredClone(children), summary: row.summaryJson },
+    source: {
+      status: row.status,
+      manifest: structuredClone(manifest), children: structuredClone(children), summary: row.summaryJson,
+      successfulValidationRunIds,
+    },
     identities: {
       id: row.id,
       allocationId: row.allocationId,
@@ -310,7 +413,30 @@ async function c1SourceHashCheck(
   };
 }
 
-async function loadSources(input: C2Input): Promise<
+async function replayC1ChildRuns(children: C1Child[]): Promise<string[]> {
+  const differences: string[] = [];
+  for (const child of children) {
+    if (child.validationRunId === null) {
+      const result = child.result as Record<string, unknown>;
+      if (result?.status !== "failed" ||
+          !(typeof result.diagnostic === "string" || typeof result.reason === "string"))
+        differences.push("C1 child without a B3 Validation Run does not preserve an explicit frozen failure diagnostic.");
+      continue;
+    }
+    const replay = await replayB3ValidationRun(child.validationRunId);
+    if (!replay) {
+      differences.push(`B3 Validation Run ${child.validationRunId} could not be replayed.`);
+      continue;
+    }
+    if (replay.status !== "pass")
+      differences.push(`B3 Validation Run ${child.validationRunId} replay failed: ${replay.differences.join("; ")}`);
+    if (replay.validationInputHash !== child.validationInputHash)
+      differences.push(`B3 Validation Run ${child.validationRunId} input hash differs from the frozen C1 child.`);
+  }
+  return differences;
+}
+
+async function loadSources(input: C2StoreInput): Promise<
   { sources: C2Sources; sourceIdentities: Record<string, unknown>; sourceHashes: Record<string, unknown> } |
   { error: string; status: number }
 > {
@@ -335,6 +461,10 @@ async function loadSources(input: C2Input): Promise<
     return { error: "Frozen validation B1 fingerprint or dataset content hash mismatch.", status: 409 };
   if (!policyFp || policyFp !== policy.fingerprint || !validDataset(policySnapshot))
     return { error: "Frozen policy B1 fingerprint or dataset content hash mismatch.", status: 409 };
+  if (input.assumptions &&
+      (input.assumptions.evaluationStartDate < validationSnapshot.dataset.startDate ||
+       input.assumptions.evaluationEndDate > validationSnapshot.dataset.endDate))
+    return { error: `B3 assumption period ${input.assumptions.evaluationStartDate} through ${input.assumptions.evaluationEndDate} is outside the selected frozen B1 validation dataset dates.`, status: 422 };
   if (!isRecord(allocation.frozenSnapshot) ||
       fingerprint(allocation.frozenSnapshot) !== allocation.frozenSnapshotHash ||
       fingerprint(allocation.frozenSnapshot) !== fingerprint(policySnapshot))
@@ -350,6 +480,7 @@ async function loadSources(input: C2Input): Promise<
   const policyById = new Map(policySnapshot.candidates.map((candidate) => [candidate.candidateId, candidate]));
   const policyDates = new Set(parseCsv(policySnapshot.dataset.csvContent).map((row) => row.date));
   const validationDates = new Set(parseCsv(validationSnapshot.dataset.csvContent).map((row) => row.date));
+  const validationCandidateIds: Record<string, string> = {};
   for (const alphaId of input.alphaIds) {
     const policyCandidate = policyById.get(alphaId);
     const validationCandidates = validationSnapshot.candidates.filter((candidate) =>
@@ -365,41 +496,16 @@ async function loadSources(input: C2Input): Promise<
     const policyReturnError = validateCandidateReturns(policyCandidate, policySnapshot.dataset.sha256, policyDates);
     if (policyReturnError) return { error: policyReturnError, status: 409 };
     const validationCandidate = validationCandidates[0];
+    validationCandidateIds[alphaId] = validationCandidate.candidateId;
     const validationReturnError = validateCandidateReturns(validationCandidate, validationSnapshot.dataset.sha256, validationDates);
     if (validationReturnError) return { error: validationReturnError, status: 409 };
-  }
-
-  let c1: FrozenC1 | undefined;
-  let c1Identities: Record<string, unknown> | null = null;
-  let c1Hashes: Record<string, unknown> | null = null;
-  if (input.c1ExperimentId !== null) {
-    const [c1Row] = await db.select().from(c1ExperimentsTable)
-      .where(eq(c1ExperimentsTable.id, input.c1ExperimentId)).limit(1);
-    if (!c1Row) return { error: "Referenced C1 experiment not found.", status: 404 };
-    if (c1Row.allocationId !== input.allocationId ||
-        c1Row.validationPreparedInputId !== input.validationPreparedInputId)
-      return { error: "Referenced C1 experiment does not use the requested original B2 allocation and B1 evaluation preparation.", status: 409 };
-    const checked = await c1SourceHashCheck(c1Row, allocationFp, validationFp, policySnapshot, validationSnapshot, allocationRequest);
-    if (typeof checked === "string") return { error: checked, status: 409 };
-    c1 = checked.source;
-    c1Identities = checked.identities;
-    c1Hashes = checked.hashes;
-    for (const alphaId of input.alphaIds) {
-      if (!(checked.source.manifest.candidateIds as string[]).includes(alphaId))
-        return { error: `Selected alpha ${alphaId} is not eligible in the referenced C1 full-baseline policy.`, status: 422 };
-      const hasExclusion = checked.source.children.some((child) =>
-        child.excludedCandidateIds.includes(alphaId) &&
-        (child.result as Record<string, unknown>)?.status === "completed");
-      if (!hasExclusion)
-        return { error: `Referenced C1 experiment has no successful original exclusion child for selected alpha ${alphaId}; C2 will not synthesize one.`, status: 422 };
-    }
   }
 
   const sources: C2Sources = {
     validation: validationSnapshot,
     policy: policySnapshot,
     allocationRequest,
-    ...(c1 ? { c1 } : {}),
+    validationCandidateIds,
   };
   return {
     sources,
@@ -410,7 +516,7 @@ async function loadSources(input: C2Input): Promise<
         id: allocation.id, fingerprint: allocation.fingerprint, preparedInputId: allocation.preparedInputId,
         representation: allocation.representation, engineVersion: allocation.engineVersion,
       },
-      ...(c1Identities ? { c1: c1Identities } : { c1: null }),
+      c1: null,
     },
     sourceHashes: {
       b1Validation: {
@@ -425,8 +531,520 @@ async function loadSources(input: C2Input): Promise<
         allocationFingerprint: allocationFp, frozenSnapshotHash: allocation.frozenSnapshotHash,
         policyRequestHash: fingerprint(allocationRequest), frozenResultHash: fingerprint(allocation.frozenResult),
       },
-      ...(c1Hashes ? { c1: c1Hashes } : { c1: null }),
+      c1: null,
     },
+  };
+}
+
+function childSucceeded(source: FrozenC1, child: C1Child | undefined): child is C1Child {
+  return source.status !== "failed" && Boolean(child) &&
+    child!.validationRunId !== null &&
+    source.successfulValidationRunIds.includes(child!.validationRunId);
+}
+
+function childForExclusion(source: FrozenC1, alphaId: string): C1Child | undefined {
+  const baseline = source.children.find((child) => child.excludedCandidateIds.length === 0);
+  if (!childSucceeded(source, baseline)) return undefined;
+  return source.children.find((child) =>
+    Array.isArray(child?.excludedCandidateIds) &&
+    canonicalJson(child.excludedCandidateIds) === canonicalJson([alphaId]) &&
+    (child.result as Record<string, unknown> | undefined)?.status === "completed" &&
+    childSucceeded(source, child));
+}
+
+function manifestTemplateMatches(
+  manifest: Record<string, any>,
+  input: C2Input,
+  allocationFp: string,
+  validationFp: string,
+  policySnapshot: PreparedSnapshot,
+  validationSnapshot: PreparedSnapshot,
+  allocationRequest: AllocationRequest,
+): boolean {
+  const expectedDefinitionsHash = fingerprint(allocationRequest.candidateIds.map((id) => {
+    const candidate = policySnapshot.candidates.find((item) => item.candidateId === id);
+    return candidate ? { policyCandidateId: id, definition: candidateDefinition(candidate) } : null;
+  }));
+  return manifest.allocationId === input.allocationId &&
+    manifest.allocationFingerprint === allocationFp &&
+    manifest.allocationPreparedInputId === allocationRequest.preparedInputId &&
+    manifest.validationPreparedInputId === input.validationPreparedInputId &&
+    manifest.validationPreparedFingerprint === validationFp &&
+    manifest.validationDatasetHash === validationSnapshot.dataset.sha256 &&
+    canonicalJson(manifest.candidateIds) === canonicalJson(allocationRequest.candidateIds) &&
+    manifest.candidateDefinitionsHash === expectedDefinitionsHash &&
+    isRecord(manifest.assumptions) &&
+    manifest.assumptions.evaluationStartDate === input.startDate &&
+    manifest.assumptions.evaluationEndDate === input.endDate &&
+    manifest.developmentPeriod?.startDate === input.startDate &&
+    manifest.developmentPeriod?.endDate === input.endDate;
+}
+
+function exactDependencySpec(
+  alphaId: string,
+  input: C2Input,
+  assumptions: B3Assumptions,
+  holdoutStartDate: string | null,
+  allocationFp: string,
+  validationFp: string,
+  policySnapshot: PreparedSnapshot,
+  validationSnapshot: PreparedSnapshot,
+  allocation: typeof allocationsTable.$inferSelect,
+  allocationRequest: AllocationRequest,
+): Record<string, unknown> {
+  const plans = planC1Policies(policySnapshot, allocationRequest, assumptions, {
+    mode: "single",
+    exclusionSets: [[alphaId]],
+    ...(holdoutStartDate ? { holdoutStartDate } : {}),
+  }) as Array<{ excludedCandidateIds: string[]; policyRequest: AllocationRequest }>;
+  const exclusion = plans.find((plan) =>
+    canonicalJson(plan.excludedCandidateIds) === canonicalJson([alphaId]));
+  const baseline = plans.find((plan) => plan.excludedCandidateIds.length === 0);
+  return {
+    allocationFingerprint: allocationFp,
+    validationPreparedFingerprint: validationFp,
+    validationDatasetHash: validationSnapshot.dataset.sha256,
+    candidateIds: [...allocationRequest.candidateIds],
+    candidateDefinitionsHash: fingerprint(allocationRequest.candidateIds.map((id) => {
+      const candidate = policySnapshot.candidates.find((item) => item.candidateId === id);
+      return candidate ? { policyCandidateId: id, definition: candidateDefinition(candidate) } : null;
+    })),
+    developmentPeriod: { startDate: input.startDate, endDate: input.endDate },
+    holdoutStartDate,
+    assumptions,
+    mode: "single",
+    exclusionSet: [alphaId],
+    baselinePolicyRequest: baseline?.policyRequest ?? null,
+    exclusionPolicyRequest: exclusion?.policyRequest ?? null,
+    policyEngineVersions: {
+      b1Policy: policySnapshot.engineVersion,
+      a1Policy: policySnapshot.a1EngineVersion ?? null,
+      b1Validation: validationSnapshot.engineVersion,
+      a1Validation: validationSnapshot.a1EngineVersion ?? null,
+      b2: allocation.engineVersion,
+    },
+    b3EngineVersion: `b3-validation-api.1; ${validationSnapshot.engineVersion}`,
+  };
+}
+
+async function planDependencies(input: C2StoreInput, loaded: Awaited<ReturnType<typeof loadSources>>) {
+  if ("error" in loaded) return loaded;
+  const [allocation] = await db.select().from(allocationsTable)
+    .where(eq(allocationsTable.id, input.allocationId)).limit(1);
+  const [validation] = await db.select().from(preparedInputsTable)
+    .where(eq(preparedInputsTable.id, input.validationPreparedInputId)).limit(1);
+  if (!allocation || !validation) return { error: "Frozen C2 sources disappeared during dependency planning.", status: 404 };
+  const policySnapshot = loaded.sources.policy;
+  const validationSnapshot = loaded.sources.validation;
+  const allocationRequest = loaded.sources.allocationRequest;
+  const allocationFp = allocationFingerprint(allocation);
+  const validationFp = preparedFingerprint(validationSnapshot);
+  const c1Rows = await db.select().from(c1ExperimentsTable)
+    .where(eq(c1ExperimentsTable.allocationId, input.allocationId))
+    .orderBy(desc(c1ExperimentsTable.id));
+  const checkedRows: Array<{
+    row: typeof c1ExperimentsTable.$inferSelect;
+    source: FrozenC1;
+    hashes: Record<string, unknown>;
+  }> = [];
+  for (const row of c1Rows) {
+    if (row.validationPreparedInputId !== input.validationPreparedInputId) continue;
+    const checked = await c1SourceHashCheck(
+      row, allocationFp, validationFp, policySnapshot, validationSnapshot, allocationRequest,
+    );
+    if (typeof checked !== "string")
+      checkedRows.push({ row, source: checked.source, hashes: checked.hashes });
+  }
+
+  let hintedRow: typeof c1ExperimentsTable.$inferSelect | undefined;
+  if (input.c1ExperimentId !== null) {
+    hintedRow = c1Rows.find((row) => row.id === input.c1ExperimentId);
+    if (!hintedRow) {
+      const [hint] = await db.select().from(c1ExperimentsTable)
+        .where(eq(c1ExperimentsTable.id, input.c1ExperimentId)).limit(1);
+      if (!hint) return { error: "Referenced C1 template was not found.", status: 404 };
+      if (hint.allocationId !== input.allocationId ||
+          hint.validationPreparedInputId !== input.validationPreparedInputId)
+        return { error: "Referenced C1 template does not use the requested original B2 allocation and B1 evaluation preparation.", status: 409 };
+      hintedRow = hint;
+    }
+  }
+  const hintedEntry = hintedRow
+    ? checkedRows.find((item) => item.row.id === hintedRow!.id)
+    : undefined;
+  const hintedSource = hintedEntry?.source;
+
+  let targetAssumptions: B3Assumptions | undefined = input.assumptions
+    ? structuredClone(input.assumptions)
+    : undefined;
+  let targetHoldoutStartDate: string | null = null;
+  let templateRow: typeof c1ExperimentsTable.$inferSelect | undefined;
+  let assumptionsUnavailableReason: string | null = null;
+
+  if (input.assumptions) {
+    if (hintedSource &&
+        fingerprint(hintedSource.manifest.assumptions) === fingerprint(input.assumptions) &&
+        manifestTemplateMatches(hintedSource.manifest, input, allocationFp, validationFp,
+          policySnapshot, validationSnapshot, allocationRequest)) {
+      targetHoldoutStartDate = hintedSource.manifest.holdoutStartDate ?? null;
+      templateRow = hintedRow;
+    }
+  } else if (input.c1ExperimentId !== null) {
+    if (!hintedSource) {
+      assumptionsUnavailableReason = "The explicitly selected C1 assumption template failed frozen C1/B3 integrity checks.";
+    } else if (!manifestTemplateMatches(hintedSource.manifest, input, allocationFp, validationFp,
+      policySnapshot, validationSnapshot, allocationRequest)) {
+      assumptionsUnavailableReason = `The explicitly selected C1 template does not freeze B3 assumptions for ${input.startDate} through ${input.endDate}.`;
+    } else {
+      targetAssumptions = structuredClone(hintedSource.manifest.assumptions) as B3Assumptions;
+      targetHoldoutStartDate = hintedSource.manifest.holdoutStartDate ?? null;
+      templateRow = hintedRow;
+    }
+  } else {
+    const matchingRows = checkedRows.filter(({ source }) =>
+      source.status !== "failed" &&
+      manifestTemplateMatches(source.manifest, input, allocationFp, validationFp,
+        policySnapshot, validationSnapshot, allocationRequest));
+    const distinctTargets = new Map(matchingRows.map(({ source }) => {
+      const assumptions = structuredClone(source.manifest.assumptions) as B3Assumptions;
+      const holdoutStartDate = source.manifest.holdoutStartDate ?? null;
+      return [fingerprint({ assumptions, holdoutStartDate }), { assumptions, holdoutStartDate }] as const;
+    }));
+    if (distinctTargets.size === 1) {
+      const [{ assumptions, holdoutStartDate }] = [...distinctTargets.values()];
+      targetAssumptions = assumptions;
+      targetHoldoutStartDate = holdoutStartDate;
+      templateRow = matchingRows[0]?.row;
+    } else if (distinctTargets.size > 1) {
+      assumptionsUnavailableReason = "Multiple frozen B3 assumption templates match this C2 period but differ in economically relevant settings; supply explicit assumptions or select a C1 template.";
+    } else {
+      assumptionsUnavailableReason = `No explicit or unambiguous frozen B3 assumption template matches ${input.startDate} through ${input.endDate}; supply B3 assumptions or select a C1 template.`;
+    }
+  }
+
+  if (targetAssumptions) {
+    const assumptionsError = validateNormalizedInput({ ...input, assumptions: targetAssumptions });
+    if (assumptionsError) {
+      targetAssumptions = undefined;
+      assumptionsUnavailableReason = `Frozen B3 assumption template is invalid for this C2 request: ${assumptionsError}`;
+      templateRow = undefined;
+    } else if (targetAssumptions.evaluationStartDate < validationSnapshot.dataset.startDate ||
+        targetAssumptions.evaluationEndDate > validationSnapshot.dataset.endDate) {
+      targetAssumptions = undefined;
+      assumptionsUnavailableReason = `B3 assumption period ${input.startDate} through ${input.endDate} is outside the selected frozen B1 validation dataset dates.`;
+      templateRow = undefined;
+    }
+  }
+
+  const dependencies: DependencyPlanItem[] = [];
+  for (const alphaId of input.alphaIds) {
+    let planningFailure = assumptionsUnavailableReason;
+    let spec: Record<string, unknown>;
+    try {
+      if (!targetAssumptions) throw new Error(planningFailure ?? "No target B3 assumptions are available.");
+      spec = exactDependencySpec(alphaId, input, targetAssumptions, targetHoldoutStartDate,
+        allocationFp, validationFp, policySnapshot, validationSnapshot, allocation, allocationRequest);
+    } catch (error) {
+      planningFailure ??= `C1 policy planning failed: ${error instanceof Error ? error.message : String(error)}`;
+      spec = {
+        alphaId, allocationFingerprint: allocationFp, validationPreparedFingerprint: validationFp,
+        startDate: input.startDate, endDate: input.endDate,
+        assumptions: targetAssumptions ?? null, planningFailure,
+      };
+    }
+    const desiredFingerprint = fingerprint(spec);
+    let match: { row: typeof c1ExperimentsTable.$inferSelect; source: FrozenC1 } | undefined;
+    let failedMatch: {
+      row: typeof c1ExperimentsTable.$inferSelect;
+      child: C1Child;
+      hashes: Record<string, unknown>;
+    } | undefined;
+    for (const { row, source, hashes } of checkedRows) {
+      const manifest = source.manifest;
+      const child = childForExclusion(source, alphaId);
+      const frozenChild = source.children.find((item) =>
+        canonicalJson(item.excludedCandidateIds) === canonicalJson([alphaId]));
+      const baselineChild = source.children.find((item) => item.excludedCandidateIds.length === 0);
+      if (!frozenChild || !targetAssumptions || planningFailure ||
+          canonicalJson(manifest.candidateIds) !== canonicalJson(allocationRequest.candidateIds) ||
+          manifest.candidateDefinitionsHash !== (spec as any).candidateDefinitionsHash ||
+          canonicalJson(manifest.developmentPeriod) !== canonicalJson((spec as any).developmentPeriod) ||
+          canonicalJson(manifest.assumptions) !== canonicalJson(targetAssumptions) ||
+          (manifest.holdoutStartDate ?? null) !== targetHoldoutStartDate ||
+          manifest.mode !== "single" ||
+          fingerprint(frozenChild.policyRequest) !== fingerprint((spec as any).exclusionPolicyRequest) ||
+          !baselineChild || !childSucceeded(source, baselineChild) ||
+          fingerprint(baselineChild.policyRequest) !== fingerprint((spec as any).baselinePolicyRequest) ||
+          canonicalJson((baselineChild.result as any)?.policyIdentity?.candidateIds) !==
+            canonicalJson((spec as any).baselinePolicyRequest?.candidateIds) ||
+          fingerprint((baselineChild.result as any)?.assumptions) !== fingerprint(targetAssumptions))
+        continue;
+      if ((frozenChild.result as any)?.status === "completed" &&
+          (canonicalJson((frozenChild.result as any)?.policyIdentity?.candidateIds) !==
+             canonicalJson((spec as any).exclusionPolicyRequest?.candidateIds) ||
+           fingerprint((frozenChild.result as any)?.assumptions) !== fingerprint(targetAssumptions)))
+        continue;
+      if (child && (canonicalJson((child.result as any)?.policyIdentity?.candidateIds) !==
+          canonicalJson((spec as any).exclusionPolicyRequest?.candidateIds) ||
+          fingerprint((child.result as any)?.assumptions) !== fingerprint(targetAssumptions)))
+        continue;
+      const expectedB3EngineVersion = (spec as any).b3EngineVersion;
+      const requiredRunIds = [frozenChild.validationRunId, baselineChild.validationRunId]
+        .filter((id): id is number => typeof id === "number");
+      const requiredRuns = requiredRunIds.length
+        ? await db.select().from(validationRunsTable).where(inArray(validationRunsTable.id, requiredRunIds))
+        : [];
+      if (requiredRuns.length !== requiredRunIds.length ||
+          requiredRuns.some((run) => run.engineVersion !== expectedB3EngineVersion)) continue;
+      if (child) {
+        match = { row, source };
+        break;
+      }
+      failedMatch = { row, child: frozenChild, hashes };
+      break;
+    }
+    if (match) {
+      dependencies.push({
+        alphaId, status: "REUSE", c1ExperimentId: match.row.id,
+        fingerprint: desiredFingerprint, reason: null,
+        childPolicyCount: match.row.actualPolicyCount, spec,
+      });
+    } else if (failedMatch) {
+      const result = failedMatch.child.result as Record<string, any>;
+      const exactDate = typeof result.failureDate === "string" ? result.failureDate : input.startDate;
+      const failedRun = failedMatch.child.validationRunId === null
+        ? undefined
+        : (failedMatch.hashes.b3ValidationRuns as Array<Record<string, any>>).find(
+          (run) => run.id === failedMatch!.child.validationRunId,
+        );
+      const diagnostic = result.reason ?? result.diagnostic ??
+        (failedRun
+          ? `B3 Validation Run saved reconciliationStatus=${failedRun.reconciliationStatus}, reproducibilityStatus=${failedRun.reproducibilityStatus}.`
+          : null) ??
+        `The frozen child is not successful (status=${String(result.status)}).`;
+      dependencies.push({
+        alphaId, status: "UNAVAILABLE", c1ExperimentId: failedMatch.row.id,
+        fingerprint: desiredFingerprint,
+        reason: `${exactDate}: ${diagnostic} (C1 experiment #${failedMatch.row.id}, B3 Validation Run ${failedMatch.child.validationRunId === null ? "not persisted" : `#${failedMatch.child.validationRunId}`}.)`,
+        childPolicyCount: failedMatch.row.actualPolicyCount, spec,
+      });
+    } else if (targetAssumptions && !planningFailure) {
+      dependencies.push({
+        alphaId, status: "WILL_CREATE", c1ExperimentId: null,
+        fingerprint: desiredFingerprint, reason: null, childPolicyCount: 2, spec,
+      });
+    } else {
+      dependencies.push({
+        alphaId, status: "UNAVAILABLE", c1ExperimentId: null,
+        fingerprint: desiredFingerprint,
+        reason: `${input.startDate} through ${input.endDate}: ${planningFailure ?? "No exact B3 assumption template is available."}`,
+        childPolicyCount: 0, spec,
+      });
+    }
+  }
+  return {
+    dependencies, template: templateRow, assumptions: targetAssumptions,
+    holdoutStartDate: targetHoldoutStartDate, sources: loaded.sources,
+  } as const;
+}
+
+function publicDependencyPlan(plan: Exclude<Awaited<ReturnType<typeof planDependencies>>, { error: string }>) {
+  const dependencies = plan.dependencies.map(({ spec: _spec, ...item }) => item);
+  const reusedCount = dependencies.filter((item) => item.status === "REUSE").length;
+  const toCreateCount = dependencies.filter((item) => item.status === "WILL_CREATE").length;
+  const unavailableCount = dependencies.filter((item) => item.status === "UNAVAILABLE").length;
+  const newPolicyCount = toCreateCount ? toCreateCount + 1 : 0;
+  const reusedC1Ids = new Set(dependencies.flatMap((item) =>
+    item.status === "REUSE" && item.c1ExperimentId !== null ? [item.c1ExperimentId] : []));
+  const reusedChildPolicies = [...reusedC1Ids].reduce((sum, id) =>
+    sum + (plan.dependencies.find((item) => item.c1ExperimentId === id)?.childPolicyCount ?? 0), 0);
+  const estimatedTotalChildPolicies = reusedChildPolicies + (toCreateCount ? toCreateCount + 1 : 0);
+  return { dependencies, reusedCount, toCreateCount, unavailableCount, newPolicyCount, estimatedTotalChildPolicies };
+}
+
+export async function planC2Dependencies(raw: ApiC2ExperimentInput) {
+  const input = normalizeInput(raw);
+  const inputError = validateNormalizedInput(input);
+  if (inputError) return { error: inputError, status: 400 } as const;
+  const loaded = await loadSources(input);
+  if ("error" in loaded) return loaded;
+  const plan = await planDependencies(input, loaded);
+  if ("error" in plan) return plan;
+  return { plan: publicDependencyPlan(plan) } as const;
+}
+
+async function resolveDependencies(input: C2Input, planned: Exclude<
+  Awaited<ReturnType<typeof planDependencies>>, { error: string }
+>) {
+  const dependencyByAlpha: Record<string, { id: number; manifest: any; children: any[]; summary: any }> = {};
+  const dependencyIdentities: Record<string, unknown> = {};
+  const dependencyHashes: Record<string, unknown> = {};
+  const frozenPlan: Array<{
+    alphaId: string;
+    status: "REUSED" | "CREATED" | "UNAVAILABLE";
+    c1ExperimentId: number | null;
+    fingerprint: string;
+    reason: string | null;
+    childPolicyCount: number;
+  }> = [];
+  const missing = planned.dependencies.filter((item) => item.status === "WILL_CREATE");
+  let createdC1Id: number | null = null;
+  let createFailure: string | null = null;
+  if (missing.length && planned.assumptions) {
+    const beforeRows = await db.select({ id: c1ExperimentsTable.id }).from(c1ExperimentsTable)
+      .where(eq(c1ExperimentsTable.allocationId, input.allocationId));
+    const beforeIds = new Set(beforeRows.map((row) => row.id));
+    const assumptions = structuredClone(planned.assumptions);
+    try {
+      const saved = await persistC1Experiment({
+        allocationId: input.allocationId,
+        validationPreparedInputId: input.validationPreparedInputId,
+        assumptions,
+        ...(planned.holdoutStartDate ? { holdoutStartDate: planned.holdoutStartDate } : {}),
+        mode: "single",
+        exclusionSets: missing.map((item) => [item.alphaId]),
+      });
+      if ("experiment" in saved && saved.experiment) createdC1Id = saved.experiment.id;
+      else createFailure = `${input.startDate} through ${input.endDate}: C1 dependency creation failed: ${saved.error}`;
+    } catch (error) {
+      createFailure = `${input.startDate} through ${input.endDate}: C1 dependency creation failed: ${error instanceof Error ? error.message : String(error)}`;
+    }
+    if (createdC1Id === null) {
+      const afterRows = await db.select().from(c1ExperimentsTable)
+        .where(eq(c1ExperimentsTable.allocationId, input.allocationId))
+        .orderBy(desc(c1ExperimentsTable.id));
+      const persisted = afterRows.find((row) => {
+        if (beforeIds.has(row.id) || row.validationPreparedInputId !== input.validationPreparedInputId ||
+            !isRecord(row.manifestJson)) return false;
+        const manifest = row.manifestJson;
+        return manifest.mode === "single" &&
+          canonicalJson(manifest.exclusionSets) === canonicalJson(missing.map((item) => [item.alphaId])) &&
+          canonicalJson(manifest.assumptions) === canonicalJson(assumptions) &&
+          (manifest.holdoutStartDate ?? null) === planned.holdoutStartDate &&
+          canonicalJson(manifest.developmentPeriod) === canonicalJson({
+            startDate: input.startDate, endDate: input.endDate,
+          });
+      });
+      if (persisted) createdC1Id = persisted.id;
+    }
+  }
+
+  const [allocation] = await db.select().from(allocationsTable)
+    .where(eq(allocationsTable.id, input.allocationId)).limit(1);
+  const [validation] = await db.select().from(preparedInputsTable)
+    .where(eq(preparedInputsTable.id, input.validationPreparedInputId)).limit(1);
+  if (!allocation || !validation) {
+    createFailure ??= `${input.startDate} through ${input.endDate}: frozen B1/B2 sources disappeared during C1 resolution.`;
+  } else {
+    const allocationFp = allocationFingerprint(allocation);
+    const validationFp = preparedFingerprint(validation.snapshot);
+    const policySnapshot = planned.sources.policy;
+    const validationSnapshot = planned.sources.validation;
+    for (const dependency of planned.dependencies) {
+      let row: typeof c1ExperimentsTable.$inferSelect | undefined;
+      let status: "REUSED" | "CREATED" | "UNAVAILABLE" = "UNAVAILABLE";
+      let reason = dependency.reason;
+      if (dependency.status === "REUSE" && dependency.c1ExperimentId !== null) {
+        [row] = await db.select().from(c1ExperimentsTable)
+          .where(eq(c1ExperimentsTable.id, dependency.c1ExperimentId)).limit(1);
+        status = "REUSED";
+      } else if (dependency.status === "WILL_CREATE" && createdC1Id !== null) {
+        [row] = await db.select().from(c1ExperimentsTable)
+          .where(eq(c1ExperimentsTable.id, createdC1Id)).limit(1);
+        status = "CREATED";
+      } else if (dependency.status === "UNAVAILABLE" && dependency.c1ExperimentId !== null) {
+        [row] = await db.select().from(c1ExperimentsTable)
+          .where(eq(c1ExperimentsTable.id, dependency.c1ExperimentId)).limit(1);
+      }
+      let checked: Awaited<ReturnType<typeof c1SourceHashCheck>> | undefined;
+      if (row && allocation && validation) {
+        checked = await c1SourceHashCheck(
+          row, allocationFp, validationFp, policySnapshot, validationSnapshot, planned.sources.allocationRequest,
+        );
+      }
+      const selectedChild = checked && typeof checked !== "string"
+        ? childForExclusion(checked.source, dependency.alphaId) : undefined;
+      const persistedChildren = row && Array.isArray(row.childResultsJson)
+        ? row.childResultsJson as C1Child[] : [];
+      const persistedChild = persistedChildren.find((child) =>
+        canonicalJson(child?.excludedCandidateIds) === canonicalJson([dependency.alphaId]));
+      if (!row || !checked || typeof checked === "string" || !selectedChild) {
+        status = "UNAVAILABLE";
+        const result = (selectedChild ?? persistedChild)?.result as Record<string, any> | undefined;
+        const exactDate = typeof result?.failureDate === "string" ? result.failureDate : input.startDate;
+        const persistedRunId = persistedChild?.validationRunId ?? null;
+        const failedRun = persistedRunId !== null && checked && typeof checked !== "string"
+          ? (checked.hashes.b3ValidationRuns as Array<Record<string, any>>).find((run) => run.id === persistedRunId)
+          : undefined;
+        const diagnostic = result?.reason ?? result?.diagnostic ??
+          (failedRun
+            ? `B3 Validation Run saved reconciliationStatus=${failedRun.reconciliationStatus}, reproducibilityStatus=${failedRun.reproducibilityStatus}.`
+            : null) ??
+          (typeof checked === "string" ? checked : createFailure) ??
+          "C1/B3 dependency did not produce the exact successful one-alpha exclusion child.";
+        const runId = persistedRunId;
+        reason = dependency.reason ??
+          `${exactDate}: ${diagnostic} (C1 experiment ${row ? `#${row.id}` : "not persisted"}, B3 Validation Run ${runId === null ? "not persisted" : `#${runId}`}.)`;
+      } else {
+        dependencyByAlpha[dependency.alphaId] = {
+          id: row.id,
+          manifest: checked.source.manifest,
+          children: checked.source.children,
+          summary: checked.source.summary,
+        };
+        dependencyIdentities[dependency.alphaId] = checked.identities;
+        dependencyHashes[dependency.alphaId] = checked.hashes;
+      }
+      if (row && status === "UNAVAILABLE") {
+        dependencyIdentities[dependency.alphaId] = {
+          id: row.id, allocationId: row.allocationId,
+          validationPreparedInputId: row.validationPreparedInputId,
+          status: row.status, manifestHash: row.manifestHash, inputHash: row.inputHash,
+          childValidationRunIds: row.childValidationRunIds,
+        };
+        dependencyHashes[dependency.alphaId] = {
+          manifestHash: fingerprint(row.manifestJson),
+          childResultsHash: fingerprint(row.childResultsJson),
+          summaryHash: fingerprint(row.summaryJson),
+          childValidationRunIds: row.childValidationRunIds,
+          childReferences: persistedChildren.map((child) => ({
+            excludedCandidateIds: child.excludedCandidateIds,
+            validationRunId: child.validationRunId,
+            validationInputHash: child.validationInputHash ?? null,
+            resultHash: fingerprint(child.result),
+          })),
+          failedChild: persistedChild ?? null,
+        };
+      }
+      frozenPlan.push({
+        alphaId: dependency.alphaId,
+        status,
+        c1ExperimentId: row?.id ?? null,
+        fingerprint: dependency.fingerprint,
+        reason,
+        childPolicyCount: row?.actualPolicyCount ?? dependency.childPolicyCount,
+      });
+    }
+  }
+  const templateReference = planned.template ? {
+    identity: {
+      id: planned.template.id,
+      allocationId: planned.template.allocationId,
+      validationPreparedInputId: planned.template.validationPreparedInputId,
+      status: planned.template.status,
+      manifestHash: planned.template.manifestHash,
+      inputHash: planned.template.inputHash,
+      childValidationRunIds: planned.template.childValidationRunIds,
+    },
+    hashes: {
+      manifestHash: fingerprint(planned.template.manifestJson),
+      childResultsHash: fingerprint(planned.template.childResultsJson),
+      summaryHash: fingerprint(planned.template.summaryJson),
+    },
+  } : null;
+  return {
+    dependencyByAlpha, dependencyPlan: frozenPlan,
+    dependencyIdentities, dependencyHashes, templateReference,
   };
 }
 
@@ -451,9 +1069,25 @@ export async function persistC2Experiment(raw: ApiC2ExperimentInput) {
   if (inputError) return { error: inputError, status: 400 } as const;
   const loaded = await loadSources(input);
   if ("error" in loaded) return loaded;
+  const dependencyResolution = await planDependencies(input, loaded);
+  if ("error" in dependencyResolution) return dependencyResolution;
+  const resolved = await resolveDependencies(input, dependencyResolution);
+  const frozenSources = {
+    ...loaded.sources,
+    ...(Object.keys(resolved.dependencyByAlpha).length
+      ? { c1ByAlpha: resolved.dependencyByAlpha }
+      : {}),
+    dependencyPlan: resolved.dependencyPlan,
+  } as unknown as C2Sources;
+  const manifestInput: C2StoreInput = {
+    ...input,
+    ...(dependencyResolution.assumptions
+      ? { assumptions: structuredClone(dependencyResolution.assumptions) }
+      : {}),
+  };
   let result: Awaited<ReturnType<typeof computeC2Diagnostics>>;
   try {
-    result = await computeC2Diagnostics(input, loaded.sources);
+    result = await computeC2Diagnostics(input, frozenSources);
   } catch (error) {
     return {
       error: `C2 diagnostics could not be computed from the frozen sources: ${error instanceof Error ? error.message : String(error)}`,
@@ -462,18 +1096,24 @@ export async function persistC2Experiment(raw: ApiC2ExperimentInput) {
   }
   const manifest: C2Manifest = {
     schemaVersion: 1,
-    input,
+    input: manifestInput,
     engineVersion: C2_ENGINE_VERSION,
     sourceIdentities: {
       ...loaded.sourceIdentities,
+      c1Dependencies: resolved.dependencyIdentities,
+      c1Template: resolved.templateReference?.identity ?? null,
       regimeClassification: {
         source: result.regimes.source,
         version: result.regimes.version,
         status: result.regimes.status,
       },
     },
-    sourceHashes: loaded.sourceHashes,
-    sources: loaded.sources,
+    sourceHashes: {
+      ...loaded.sourceHashes,
+      c1Dependencies: resolved.dependencyHashes,
+      c1Template: resolved.templateReference?.hashes ?? null,
+    },
+    sources: frozenSources,
   };
   const manifestHash = fingerprint(manifest);
   const inputHash = fingerprint({ manifestHash, sourceHashes: manifest.sourceHashes, engineVersion: manifest.engineVersion });
@@ -577,6 +1217,12 @@ export async function replayC2Experiment(id: number) {
       manifest.input?.validationPreparedInputId !== row.validationPreparedInputId ||
       manifest.input?.c1ExperimentId !== row.c1ExperimentId)
     differences.push("Frozen C2 input identity does not match the persisted experiment identity.");
+  try {
+    const inputError = validateNormalizedInput(manifest.input);
+    if (inputError) differences.push(`Frozen C2 request is invalid: ${inputError}`);
+  } catch {
+    differences.push("Frozen C2 request does not contain a valid normalized input shape.");
+  }
 
   const [allocation] = await db.select().from(allocationsTable)
     .where(eq(allocationsTable.id, row.allocationId)).limit(1);
@@ -631,6 +1277,11 @@ export async function replayC2Experiment(id: number) {
     const frozenValidation = source.validation as PreparedSnapshot;
     const policyDates = new Set(parseCsv(frozenPolicy.dataset.csvContent).map((item) => item.date));
     const validationDates = new Set(parseCsv(frozenValidation.dataset.csvContent).map((item) => item.date));
+    const validationCandidateIds = source.validationCandidateIds;
+    if (!isRecord(validationCandidateIds) ||
+        canonicalJson(Object.keys(validationCandidateIds).sort()) !==
+          canonicalJson([...manifest.input.alphaIds].sort()))
+      differences.push("Frozen policy-to-validation candidate identity map does not cover exactly the selected C2 alpha IDs.");
     for (const alphaId of manifest.input.alphaIds) {
       const policyCandidate = frozenPolicy.candidates.find((candidate) => candidate.candidateId === alphaId);
       const validationCandidates = frozenValidation.candidates.filter((candidate) =>
@@ -638,7 +1289,8 @@ export async function replayC2Experiment(id: number) {
         policyCandidate && compatibleCandidateDefinitions(policyCandidate, candidate));
       if (!policyCandidate || policyCandidate.canonicalFingerprint !== alphaId ||
           policyCandidate.diagnostics.duplicateOf || validationCandidates.length !== 1 ||
-          validationCandidates[0].status !== "READY") {
+          validationCandidates[0].status !== "READY" ||
+          validationCandidateIds?.[alphaId] !== validationCandidates[0]?.candidateId) {
         differences.push(`Frozen selected B1 candidate ${alphaId} is not a unique READY canonical validation candidate.`);
         continue;
       }
@@ -657,44 +1309,148 @@ export async function replayC2Experiment(id: number) {
       savedRegimes.version !== frozenRegime.version || savedRegimes.status !== frozenRegime.status)
     differences.push("Frozen regime source/version does not exactly match the original persisted diagnostic result.");
 
-  if (row.c1ExperimentId !== null) {
+  const frozenPerAlpha = (source as any)?.c1ByAlpha as Record<string, any> | undefined;
+  const frozenDependencyPlan = (source as any)?.dependencyPlan as Array<Record<string, any>> | undefined;
+  if (frozenPerAlpha || frozenDependencyPlan) {
+    const dependencies = Array.isArray(frozenDependencyPlan) ? frozenDependencyPlan : [];
+    if (dependencies.length !== manifest.input?.alphaIds?.length ||
+        new Set(dependencies.map((item) => item.alphaId)).size !== dependencies.length ||
+        dependencies.some((item) => !manifest.input?.alphaIds?.includes(item.alphaId) ||
+          !["REUSED", "CREATED", "UNAVAILABLE"].includes(item.status)))
+      differences.push("Frozen per-alpha dependency plan does not match the unique selected C2 alpha IDs.");
+    for (const dependency of dependencies) {
+      const alphaId = String(dependency.alphaId);
+      const frozenC1 = frozenPerAlpha?.[alphaId];
+      const dependencyId = dependency.c1ExperimentId;
+      if (dependency.status === "UNAVAILABLE") {
+        if (frozenC1) differences.push(`dependencyPlan.${alphaId}: unavailable dependency unexpectedly has successful C1 source data.`);
+        if (typeof dependencyId === "number") {
+          const [failedRow] = await db.select().from(c1ExperimentsTable)
+            .where(eq(c1ExperimentsTable.id, dependencyId)).limit(1);
+          const expected = (sourceIds?.c1Dependencies ?? {})[alphaId];
+          const observed = failedRow ? {
+            id: failedRow.id, allocationId: failedRow.allocationId,
+            validationPreparedInputId: failedRow.validationPreparedInputId,
+            status: failedRow.status, manifestHash: failedRow.manifestHash,
+            inputHash: failedRow.inputHash, childValidationRunIds: failedRow.childValidationRunIds,
+          } : null;
+          differences.push(...compareValues(expected, observed).differences
+            .map((item) => `sourceIdentity.c1Dependencies.${alphaId}.${item}`));
+          if (failedRow && (
+            fingerprint(failedRow.manifestJson) !== sourceHashes?.c1Dependencies?.[alphaId]?.manifestHash ||
+            fingerprint(failedRow.childResultsJson) !== sourceHashes?.c1Dependencies?.[alphaId]?.childResultsHash ||
+            fingerprint(failedRow.summaryJson) !== sourceHashes?.c1Dependencies?.[alphaId]?.summaryHash ||
+            fingerprint(failedRow.childValidationRunIds) !==
+              fingerprint(sourceHashes?.c1Dependencies?.[alphaId]?.childValidationRunIds) ||
+            fingerprint((failedRow.childResultsJson as C1Child[]).map((child) => ({
+              excludedCandidateIds: child.excludedCandidateIds,
+              validationRunId: child.validationRunId,
+              validationInputHash: child.validationInputHash ?? null,
+              resultHash: fingerprint(child.result),
+            }))) !== fingerprint(sourceHashes?.c1Dependencies?.[alphaId]?.childReferences)
+          )) differences.push(`dependencyPlan.${alphaId}: persisted failed C1 record differs from frozen failure reference.`);
+          if (failedRow) {
+            const frozenFailureChild = (failedRow.childResultsJson as C1Child[]).find((child) =>
+              canonicalJson(child.excludedCandidateIds) === canonicalJson([alphaId]));
+            differences.push(...compareValues(
+              sourceHashes?.c1Dependencies?.[alphaId]?.failedChild ?? null,
+              frozenFailureChild ?? null,
+            ).differences.map((item) => `sourceHashes.c1Dependencies.${alphaId}.failedChild.${item}`));
+          }
+          if (failedRow && allocation && validation && policy) {
+            const failedChecked = await c1SourceHashCheck(
+              failedRow, actualAllocationFp, actualValidationFp,
+              policy.snapshot as PreparedSnapshot, validation.snapshot as PreparedSnapshot,
+              allocation.frozenRequest as AllocationRequest,
+            );
+            if (typeof failedChecked === "string") {
+              differences.push(`dependencyPlan.${alphaId}: failed C1 source integrity failed: ${failedChecked}`);
+            } else {
+              differences.push(...(await replayC1ChildRuns(failedChecked.source.children))
+                .map((item) => `dependencyPlan.${alphaId}: ${item}`));
+            }
+          }
+        }
+        continue;
+      }
+      if (!frozenC1 || typeof dependencyId !== "number" || frozenC1.id !== dependencyId) {
+        differences.push(`dependencyPlan.${alphaId}: frozen successful C1 reference is absent or differs from its plan.`);
+        continue;
+      }
+      const [c1Row] = await db.select().from(c1ExperimentsTable)
+        .where(eq(c1ExperimentsTable.id, dependencyId)).limit(1);
+      if (!c1Row || !allocation || !validation || !policy) {
+        differences.push(`dependencyPlan.${alphaId}: referenced frozen C1/B1/B2 source is unavailable.`);
+        continue;
+      }
+      const checked = await c1SourceHashCheck(
+        c1Row, actualAllocationFp, actualValidationFp,
+        policy.snapshot as PreparedSnapshot, validation.snapshot as PreparedSnapshot,
+        allocation.frozenRequest as AllocationRequest,
+      );
+      if (typeof checked === "string") {
+        differences.push(`dependencyPlan.${alphaId}: ${checked}`);
+        continue;
+      }
+      differences.push(...compareValues({
+        id: frozenC1.id, manifest: frozenC1.manifest, children: frozenC1.children, summary: frozenC1.summary,
+      }, {
+        id: c1Row.id, manifest: checked.source.manifest, children: checked.source.children, summary: checked.source.summary,
+      }).differences.map((item) => `dependencyPlan.${alphaId}.source.${item}`));
+      differences.push(...compareValues(
+        sourceIds?.c1Dependencies?.[alphaId], checked.identities,
+      ).differences.map((item) => `sourceIdentity.c1Dependencies.${alphaId}.${item}`));
+      differences.push(...compareValues(
+        sourceHashes?.c1Dependencies?.[alphaId], checked.hashes,
+      ).differences.map((item) => `sourceHashes.c1Dependencies.${alphaId}.${item}`));
+      differences.push(...(await replayC1ChildRuns(checked.source.children))
+        .map((item) => `dependencyPlan.${alphaId}: ${item}`));
+    }
+    if (frozenPerAlpha && Object.keys(frozenPerAlpha).some((alphaId) =>
+      !dependencies.some((dependency) => dependency.alphaId === alphaId &&
+        (dependency.status === "REUSED" || dependency.status === "CREATED"))))
+      differences.push("Frozen per-alpha C1 sources contain a dependency absent from the immutable dependency plan.");
+    const templateIdentity = sourceIds?.c1Template;
+    if (templateIdentity && typeof templateIdentity.id === "number") {
+      const [templateRow] = await db.select().from(c1ExperimentsTable)
+        .where(eq(c1ExperimentsTable.id, templateIdentity.id)).limit(1);
+      if (!templateRow || !allocation || !validation || !policy) {
+        differences.push("Frozen C1/B3 assumption template reference is unavailable.");
+      } else {
+        differences.push(...compareValues(templateIdentity, {
+          id: templateRow.id, allocationId: templateRow.allocationId,
+          validationPreparedInputId: templateRow.validationPreparedInputId,
+          status: templateRow.status, manifestHash: templateRow.manifestHash,
+          inputHash: templateRow.inputHash, childValidationRunIds: templateRow.childValidationRunIds,
+        }).differences.map((item) => `sourceIdentity.c1Template.${item}`));
+        const templateChecked = await c1SourceHashCheck(
+          templateRow, actualAllocationFp, actualValidationFp,
+          policy.snapshot as PreparedSnapshot, validation.snapshot as PreparedSnapshot,
+          allocation.frozenRequest as AllocationRequest,
+        );
+        if (typeof templateChecked === "string") {
+          differences.push(`C1/B3 assumption template integrity failed: ${templateChecked}`);
+        } else {
+          differences.push(...compareValues(sourceHashes?.c1Template, {
+            manifestHash: fingerprint(templateRow.manifestJson),
+            childResultsHash: fingerprint(templateRow.childResultsJson),
+            summaryHash: fingerprint(templateRow.summaryJson),
+          }).differences.map((item) => `sourceHashes.c1Template.${item}`));
+          differences.push(...(await replayC1ChildRuns(templateChecked.source.children))
+            .map((item) => `C1/B3 assumption template child replay failed: ${item}`));
+        }
+      }
+    } else if (sourceHashes?.c1Template !== null) {
+      differences.push("Frozen C1/B3 assumption template identity is inconsistent.");
+    }
+  } else if (row.c1ExperimentId !== null && !Array.isArray(source?.dependencyPlan)) {
+    // Historical C2 rows retain their original singular C1 source contract.
     const [c1Row] = await db.select().from(c1ExperimentsTable)
       .where(eq(c1ExperimentsTable.id, row.c1ExperimentId)).limit(1);
-    const expectedC1Identity = sourceIds?.c1;
-    const observedC1Identity = c1Row ? {
-      id: c1Row.id, allocationId: c1Row.allocationId, validationPreparedInputId: c1Row.validationPreparedInputId,
-      status: c1Row.status, manifestHash: c1Row.manifestHash, inputHash: c1Row.inputHash,
-      childValidationRunIds: c1Row.childValidationRunIds,
-    } : null;
-    const c1IdentityDifferences = compareValues(expectedC1Identity, observedC1Identity);
-    differences.push(...c1IdentityDifferences.differences.map((item) => `sourceIdentity.c1.${item}`));
     if (!c1Row || fingerprint(c1Row.manifestJson) !== sourceHashes?.c1?.manifestHash ||
         fingerprint(c1Row.summaryJson) !== sourceHashes?.c1?.summaryHash ||
         fingerprint(c1Row.childResultsJson) !== fingerprint(source.c1?.children))
-      differences.push("Referenced C1 manifest, summary, or B3 children differ from the frozen manifest.");
-    const expectedB3Runs = Array.isArray(sourceHashes?.c1?.b3ValidationRuns)
-      ? sourceHashes.c1.b3ValidationRuns as Array<Record<string, unknown>> : [];
-    const runIds = expectedB3Runs.flatMap((run) => typeof run.id === "number" ? [run.id] : []);
-    const currentRuns = runIds.length
-      ? await db.select().from(validationRunsTable).where(inArray(validationRunsTable.id, runIds))
-      : [];
-    const observedB3Runs = currentRuns.map((run) => ({
-      id: run.id,
-      allocationId: run.allocationId,
-      validationPreparedInputId: run.validationPreparedInputId,
-      datasetHash: run.datasetHash,
-      engineVersion: run.engineVersion,
-      reconciliationStatus: run.reconciliationStatus,
-      reproducibilityStatus: run.reproducibilityStatus,
-      validationInputHash: run.validationInputHash,
-      resultHash: fingerprint(run.resultJson),
-    })).sort((left, right) => left.id - right.id);
-    const expectedB3RunsSorted = [...expectedB3Runs].sort((left, right) =>
-      Number(left.id) - Number(right.id));
-    const b3RunDifferences = compareValues(expectedB3RunsSorted, observedB3Runs);
-    differences.push(...b3RunDifferences.differences.map((item) => `sourceIdentity.b3ValidationRuns.${item}`));
-  } else if (sourceIds?.c1 !== null || manifest.input?.c1ExperimentId !== null) {
-    differences.push("C1 source identity is inconsistent with the frozen C2 input.");
+      differences.push("Referenced legacy C1 manifest, summary, or B3 children differ from the frozen manifest.");
   }
 
   let replayed: unknown;

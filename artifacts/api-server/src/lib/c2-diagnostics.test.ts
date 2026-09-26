@@ -382,3 +382,165 @@ test("T7: sparse and missing prefix regimes remain explicitly insufficient", asy
     item.status === "INSUFFICIENT_HISTORY" && item.sharpe === null && item.meanDailyExcessReturn === null));
   assert.ok(result.regimes.series.some((item: any) => item.label === null));
 });
+
+test("R1: per-alpha adapter reuses only the selected alpha dependency and reports its immutable ID", async () => {
+  const fixture = createB3Fixture();
+  const aligned = independentlyAlignedPair(fixture.prepared, fixture.fullRequest,
+    fixture.withoutRequest, fixture.assumptions);
+  fixture.c1.children = [
+    { excludedCandidateIds: [], result: aligned.full },
+    { excludedCandidateIds: [fixture.ids[1]], result: aligned.without },
+  ];
+  const config = input({ allocationId: 17, validationPreparedInputId: 17,
+    c1ExperimentId: null, alphaIds: [fixture.ids[1]],
+    startDate: fixture.assumptions.evaluationStartDate, endDate: fixture.assumptions.evaluationEndDate,
+    minSharpeObservations: 2 });
+  const legacy = await computeC2Diagnostics(config, {
+    validation: fixture.prepared, policy: fixture.prepared,
+    allocationRequest: fixture.fullRequest, c1: fixture.c1,
+  });
+  const adapted = await computeC2Diagnostics(config, {
+    validation: fixture.prepared, policy: fixture.prepared,
+    allocationRequest: fixture.fullRequest,
+    c1ByAlpha: { [fixture.ids[1]]: { id: 804, ...fixture.c1 } },
+    dependencyPlan: [{ alphaId: fixture.ids[1], status: "REUSED", c1ExperimentId: 804,
+      fingerprint: "exact-spec-fingerprint", reason: null, childPolicyCount: 2 }],
+  });
+  assert.deepEqual(adapted.incrementalContribution.conditional, legacy.incrementalContribution.conditional.map(
+    (row: any) => ({ ...row, c1ExperimentId: 804, c1DependencyStatus: "REUSED" })));
+  assert.ok(adapted.incrementalContribution.conditional.every((row: any) =>
+    row.c1ExperimentId === 804 && row.c1DependencyStatus === "REUSED"));
+  assert.deepEqual(adapted.dependencySummary, [{ alphaId: fixture.ids[1], status: "REUSED",
+    c1ExperimentId: 804, fingerprint: "exact-spec-fingerprint", reason: null, childPolicyCount: 2 }]);
+});
+
+test("R2: each selected alpha consumes its own dependency, including a newly-created source", async () => {
+  const fixture = createB3Fixture();
+  const forB = independentlyAlignedPair(fixture.prepared, fixture.fullRequest,
+    fixture.withoutRequest, fixture.assumptions);
+  const withoutARequest = { ...fixture.fullRequest, candidateIds: [fixture.ids[1]] };
+  const forA = independentlyAlignedPair(fixture.prepared, fixture.fullRequest,
+    withoutARequest, fixture.assumptions);
+  const source = (id: number, excludedId: string, variantResult: B3Result) => ({
+    id, manifest: { ...fixture.c1.manifest, plans: [
+      fixture.c1.manifest.plans[0],
+      { excludedCandidateIds: [excludedId], policyRequest: withoutARequest },
+    ] },
+    children: [{ excludedCandidateIds: [], result: forB.full },
+      { excludedCandidateIds: [excludedId], result: variantResult }],
+    summary: {},
+  });
+  const config = input({ allocationId: 17, validationPreparedInputId: 17, c1ExperimentId: null,
+    alphaIds: [fixture.ids[1], fixture.ids[0]], startDate: fixture.assumptions.evaluationStartDate,
+    endDate: fixture.assumptions.evaluationEndDate, contributionWindow: 65, contributionStep: 10,
+    minSharpeObservations: 2 });
+  const output = await computeC2Diagnostics(config, {
+    validation: fixture.prepared, policy: fixture.prepared, allocationRequest: fixture.fullRequest,
+    c1ByAlpha: {
+      [fixture.ids[1]]: source(811, fixture.ids[1], forB.without),
+      [fixture.ids[0]]: source(812, fixture.ids[0], forA.without),
+    },
+    dependencyPlan: [
+      { alphaId: fixture.ids[1], status: "REUSED", c1ExperimentId: 811, fingerprint: "fp-b",
+        reason: null, childPolicyCount: 2 },
+      { alphaId: fixture.ids[0], status: "CREATED", c1ExperimentId: 812, fingerprint: "fp-a",
+        reason: null, childPolicyCount: 2 },
+    ],
+  });
+  for (const [alphaId, c1Id, status] of [[fixture.ids[1], 811, "REUSED"], [fixture.ids[0], 812, "CREATED"]] as const) {
+    const conditional = output.incrementalContribution.conditional.filter((row: any) => row.alphaId === alphaId);
+    const rolling = output.incrementalContribution.rolling.filter((row: any) => row.alphaId === alphaId);
+    assert.ok(conditional.some((row: any) => row.status === "AVAILABLE"));
+    assert.ok(conditional.every((row: any) => row.c1ExperimentId === c1Id && row.c1DependencyStatus === status));
+    assert.ok(rolling.length > 0);
+    assert.ok(rolling.every((row: any) => row.c1ExperimentId === c1Id && row.c1DependencyStatus === status));
+  }
+  assert.equal(output.dependencySummary.find((row: any) => row.alphaId === fixture.ids[0]).status, "CREATED");
+  assert.equal(output.stability.alphas.length, 2);
+  assert.equal(output.regimes.conditionalPerformance.length, 2);
+});
+
+test("R3: an unavailable exact-spec dependency does not fall back to legacy C1 evidence", async () => {
+  const fixture = createB3Fixture();
+  const aligned = independentlyAlignedPair(fixture.prepared, fixture.fullRequest,
+    fixture.withoutRequest, fixture.assumptions);
+  fixture.c1.children = [
+    { excludedCandidateIds: [], result: aligned.full },
+    { excludedCandidateIds: [fixture.ids[1]], result: aligned.without },
+  ];
+  const output = await computeC2Diagnostics(input({ allocationId: 17, validationPreparedInputId: 17,
+    c1ExperimentId: 900, alphaIds: [fixture.ids[1]], startDate: fixture.assumptions.evaluationStartDate,
+    endDate: fixture.assumptions.evaluationEndDate }), {
+    validation: fixture.prepared, policy: fixture.prepared, allocationRequest: fixture.fullRequest,
+    c1: { ...fixture.c1, id: 900 },
+    dependencyPlan: [{ alphaId: fixture.ids[1], status: "UNAVAILABLE", c1ExperimentId: null,
+      fingerprint: "requested-fingerprint", reason: "NOT_COMPATIBLE: frozen transaction costs differ.",
+      childPolicyCount: 0 }],
+  });
+  assert.equal(output.incrementalContribution.conditional[0].status, "UNAVAILABLE");
+  assert.equal(output.incrementalContribution.conditional[0].deltas, null);
+  assert.equal(output.incrementalContribution.conditional[0].c1ExperimentId, null);
+  assert.match(output.incrementalContribution.conditional[0].reason, /NOT_COMPATIBLE/);
+  assert.equal(output.dependencySummary[0].status, "UNAVAILABLE");
+  assert.equal(output.stability.alphas.length, 1);
+  assert.equal(output.regimes.conditionalPerformance.length, 1);
+});
+
+test("R4: failed dependency evidence stays unavailable while independent diagnostics remain", async () => {
+  const fixture = createB3Fixture();
+  const failure = "C1 exclusion infeasible at 2021-04-12: candidate bounds cannot be satisfied.";
+  const output = await computeC2Diagnostics(input({ allocationId: 17, validationPreparedInputId: 17,
+    c1ExperimentId: null, alphaIds: [fixture.ids[1]] }), {
+    validation: fixture.prepared, policy: fixture.prepared, allocationRequest: fixture.fullRequest,
+    dependencyPlan: [{ alphaId: fixture.ids[1], status: "UNAVAILABLE", c1ExperimentId: 933,
+      fingerprint: "failed-dependency-fingerprint", reason: failure, childPolicyCount: 2 }],
+  });
+  assert.equal(output.incrementalContribution.conditional.length > 0, true);
+  assert.ok(output.incrementalContribution.conditional.every((row: any) =>
+    row.status === "UNAVAILABLE" && row.deltas === null && row.reason === failure &&
+    row.c1ExperimentId === 933 && row.c1DependencyStatus === "UNAVAILABLE"));
+  assert.ok(output.incrementalContribution.rolling.some((row: any) =>
+    row.status === "UNAVAILABLE" && row.reason === failure && row.c1ExperimentId === 933));
+  assert.equal(output.stability.alphas.length, 1);
+  assert.equal(output.regimes.conditionalPerformance.length, 1);
+  assert.equal(output.dependencySummary[0].reason, failure);
+});
+
+test("partial evidence: frozen policy-to-validation mapping survives an unavailable C1 dependency", async () => {
+  const fixture = createB3Fixture();
+  const renamedCandidates = fixture.prepared.candidates.map((candidate, index) => ({
+    ...candidate,
+    candidateId: `validation-alpha-${index}`,
+    canonicalFingerprint: `validation-alpha-${index}`,
+  }));
+  const renamedValidation = { ...fixture.prepared, candidates: renamedCandidates } as PreparedSnapshot;
+  const policyId = fixture.ids[1];
+  const validationId = "validation-alpha-1";
+  const reason = "C1 exclusion failed at 2021-04-12: frozen policy is infeasible.";
+  const output = await computeC2Diagnostics(input({ allocationId: 17, validationPreparedInputId: 17,
+    c1ExperimentId: null, alphaIds: [policyId] }), {
+    validation: renamedValidation, policy: fixture.prepared, allocationRequest: fixture.fullRequest,
+    validationCandidateIds: { [policyId]: validationId },
+    dependencyPlan: [{ alphaId: policyId, status: "UNAVAILABLE", c1ExperimentId: 944,
+      fingerprint: "failed-exclusion-fingerprint", reason, childPolicyCount: 2 }],
+  });
+  assert.deepEqual(output.source.validationCandidateIds, { [policyId]: validationId });
+  assert.deepEqual(output.source.b1AlphaIds, [validationId]);
+  assert.equal(output.stability.alphas[0].alphaId, validationId);
+  assert.equal(output.regimes.conditionalPerformance[0].alphaId, validationId);
+  assert.ok(output.stability.alphas[0].rolling.length > 0);
+  assert.equal(output.incrementalContribution.conditional[0].status, "UNAVAILABLE");
+  assert.equal(output.incrementalContribution.conditional[0].deltas, null);
+  assert.equal(output.incrementalContribution.conditional[0].reason, reason);
+  assert.equal(output.dependencySummary[0].c1ExperimentId, 944);
+  const inconsistentC1 = structuredClone(fixture.c1);
+  inconsistentC1.manifest.validationCandidateIds[policyId] = "different-validation-id";
+  await assert.rejects(computeC2Diagnostics(input({ allocationId: 17, validationPreparedInputId: 17,
+    c1ExperimentId: null, alphaIds: [policyId] }), {
+    validation: renamedValidation, policy: fixture.prepared, allocationRequest: fixture.fullRequest,
+    validationCandidateIds: { [policyId]: validationId },
+    c1ByAlpha: { [policyId]: { id: 945, ...inconsistentC1 } },
+    dependencyPlan: [{ alphaId: policyId, status: "REUSED", c1ExperimentId: 945,
+      fingerprint: "inconsistent-map", reason: null, childPolicyCount: 2 }],
+  }), /does not match its referenced C1 manifest/);
+});

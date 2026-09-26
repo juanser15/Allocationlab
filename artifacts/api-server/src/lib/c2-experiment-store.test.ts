@@ -216,11 +216,33 @@ async function makeDbFixture(options: { mismatchAllocationSnapshot?: boolean; va
     input,
     alphaIds,
     cleanup: async (experimentId?: number) => {
-      const { c2ExperimentsTable } = await modules();
+      const { c2ExperimentsTable, c1ExperimentsTable, validationRunsTable } = await modules();
       if (experimentId) await db.delete(c2ExperimentsTable).where(eq(c2ExperimentsTable.id, experimentId));
+      const c1Rows = await db.select().from(c1ExperimentsTable)
+        .where(eq(c1ExperimentsTable.allocationId, allocation.id));
+      const runIds = c1Rows.flatMap((row) => Array.isArray(row.childValidationRunIds)
+        ? row.childValidationRunIds as number[] : []);
+      if (c1Rows.length)
+        await db.delete(c1ExperimentsTable).where(inArray(c1ExperimentsTable.id, c1Rows.map((row) => row.id)));
+      if (runIds.length) await db.delete(validationRunsTable).where(inArray(validationRunsTable.id, runIds));
       await db.delete(allocationsTable).where(eq(allocationsTable.id, allocation.id));
       await db.delete(preparedInputsTable).where(inArray(preparedInputsTable.id, [policyRow.id, validationRow.id]));
     },
+  };
+}
+
+function fixtureAssumptions(input: C2ExperimentInput, transactionCostBps = 0) {
+  return {
+    evaluationStartDate: input.startDate,
+    evaluationEndDate: input.endDate,
+    decisionCalendar: "monthly" as const,
+    executionTiming: "next_close" as const,
+    initialNav: 1,
+    initialHoldings: {},
+    initialCash: 1,
+    transactionCostBps,
+    slippageBps: 0,
+    dailyCashYield: 0.0001,
   };
 }
 
@@ -248,6 +270,159 @@ test("C2 immutable persistence creates, reloads, and replays from frozen source 
     assert.equal(replay.status, "pass", replay.differences.join("\n"));
     assert.deepEqual(replay.differences, []);
     assert.ok(replay.maximumNumericDifference <= 1e-8);
+  } finally {
+    await fixture.cleanup(experimentId);
+  }
+});
+
+test("C2 resolves one exact C1 child and plans/creates the missing selected-alpha dependency", {
+  skip: !databaseAvailable,
+}, async () => {
+  const fixture = await makeDbFixture();
+  let experimentId: number | undefined;
+  try {
+    const { persistC1Experiment, replayC1Experiment } = await import("./c1-experiment-store");
+    const c1 = await persistC1Experiment({
+      allocationId: fixture.input.allocationId,
+      validationPreparedInputId: fixture.input.validationPreparedInputId,
+      assumptions: fixtureAssumptions(fixture.input),
+      mode: "single",
+      exclusionSets: [[fixture.alphaIds[0]]],
+    });
+    if (!("experiment" in c1) || !c1.experiment)
+      throw new Error("Could not persist the real C1 compatibility fixture: " + ("error" in c1 ? c1.error : "missing response"));
+    assert.equal(c1.experiment.status, "completed");
+
+    const { planC2Dependencies, persistC2Experiment: persistC2 } = await modules();
+    const planned = await planC2Dependencies({ ...fixture.input, c1ExperimentId: c1.experiment.id });
+    if (!("plan" in planned) || !planned.plan)
+      throw new Error("C2 dependency planning failed: " + ("error" in planned ? planned.error : "missing response"));
+    assert.deepEqual(planned.plan.dependencies.map((item) => [item.alphaId, item.status, item.c1ExperimentId]), [
+      [fixture.alphaIds[0], "REUSE", c1.experiment.id],
+      [fixture.alphaIds[1], "WILL_CREATE", null],
+    ]);
+    assert.equal(planned.plan.reusedCount, 1);
+    assert.equal(planned.plan.toCreateCount, 1);
+    assert.equal(planned.plan.newPolicyCount, 2);
+
+    const saved = await persistC2({ ...fixture.input, c1ExperimentId: c1.experiment.id });
+    if (!("experiment" in saved) || !saved.experiment)
+      throw new Error("C2 dependency orchestration failed: " + ("error" in saved ? saved.error : "missing response"));
+    experimentId = saved.experiment.id;
+    const sources = (saved.experiment.manifest as any).sources;
+    assert.equal(sources.dependencyPlan[0].status, "REUSED");
+    assert.equal(sources.dependencyPlan[0].c1ExperimentId, c1.experiment.id);
+    assert.equal(sources.dependencyPlan[1].status, "CREATED");
+    const createdC1Id = sources.dependencyPlan[1].c1ExperimentId;
+    assert.ok(Number.isSafeInteger(createdC1Id));
+    assert.ok(sources.c1ByAlpha[fixture.alphaIds[0]]);
+    assert.ok(sources.c1ByAlpha[fixture.alphaIds[1]]);
+    const replay = await replayC1Experiment(createdC1Id);
+    assert.ok(replay);
+    assert.equal(replay.status, "pass", replay.differences.join("\n"));
+  } finally {
+    await fixture.cleanup(experimentId);
+  }
+});
+
+test("C2 freezes explicit B3 cost/date targets instead of reusing a different C1 template", {
+  skip: !databaseAvailable,
+}, async () => {
+  const fixture = await makeDbFixture();
+  try {
+    const { persistC1Experiment } = await import("./c1-experiment-store");
+    const c1 = await persistC1Experiment({
+      allocationId: fixture.input.allocationId,
+      validationPreparedInputId: fixture.input.validationPreparedInputId,
+      assumptions: fixtureAssumptions(fixture.input, 0),
+      mode: "single",
+      exclusionSets: [[fixture.alphaIds[0]]],
+    });
+    if (!("experiment" in c1) || !c1.experiment)
+      throw new Error("Could not persist the cost-mismatch C1 fixture: " + ("error" in c1 ? c1.error : "missing response"));
+
+    const targetInput = { ...fixture.input, assumptions: fixtureAssumptions(fixture.input, 12) };
+    const planned = await storeModule!.planC2Dependencies(targetInput);
+    if (!("plan" in planned) || !planned.plan)
+      throw new Error("C2 explicit assumptions planning failed: " + ("error" in planned ? planned.error : "missing response"));
+    assert.deepEqual(planned.plan.dependencies.map((item) => item.status), ["WILL_CREATE", "WILL_CREATE"]);
+    assert.ok(planned.plan.dependencies.every((item) => item.c1ExperimentId === null));
+
+    const wrongPeriod = {
+      ...targetInput,
+      assumptions: { ...targetInput.assumptions, evaluationStartDate: dateAt(2) },
+    };
+    const rejected = await storeModule!.planC2Dependencies(wrongPeriod);
+    assert.ok("error" in rejected);
+    if ("error" in rejected && rejected.error)
+      assert.match(rejected.error, /must exactly match the C2 startDate and endDate/i);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test("C2 reuses successful siblings from a partial C1 and freezes the failed child's dated reason", {
+  skip: !databaseAvailable,
+}, async () => {
+  const fixture = await makeDbFixture();
+  let experimentId: number | undefined;
+  try {
+    const { db, c1ExperimentsTable, validationRunsTable } = await modules();
+    const { persistC1Experiment } = await import("./c1-experiment-store");
+    const c1 = await persistC1Experiment({
+      allocationId: fixture.input.allocationId,
+      validationPreparedInputId: fixture.input.validationPreparedInputId,
+      assumptions: fixtureAssumptions(fixture.input),
+      mode: "single",
+      exclusionSets: fixture.alphaIds.map((id) => [id]),
+    });
+    if (!("experiment" in c1) || !c1.experiment)
+      throw new Error("Could not persist the mixed-success C1 fixture: " + ("error" in c1 ? c1.error : "missing response"));
+
+    const [row] = await db.select().from(c1ExperimentsTable)
+      .where(eq(c1ExperimentsTable.id, c1.experiment.id)).limit(1);
+    assert.ok(row);
+    const children = structuredClone(row.childResultsJson as any[]);
+    const failedChild = children.find((child) =>
+      JSON.stringify(child.excludedCandidateIds) === JSON.stringify([fixture.alphaIds[0]]));
+    assert.ok(failedChild);
+    const failedRunId = failedChild.validationRunId as number;
+    failedChild.validationRunId = null;
+    delete failedChild.validationInputHash;
+    failedChild.result = {
+      status: "failed",
+      failureDate: dateAt(57),
+      diagnostic: "Frozen fixture failure for the selected one-alpha exclusion.",
+    };
+    const remainingRunIds = (row.childValidationRunIds as number[]).filter((id) => id !== failedRunId);
+    await db.update(c1ExperimentsTable).set({
+      status: "partial",
+      childResultsJson: children,
+      childValidationRunIds: remainingRunIds,
+    }).where(eq(c1ExperimentsTable.id, row.id));
+    await db.delete(validationRunsTable).where(eq(validationRunsTable.id, failedRunId));
+
+    const input = { ...fixture.input, c1ExperimentId: c1.experiment.id };
+    const planned = await storeModule!.planC2Dependencies(input);
+    if (!("plan" in planned) || !planned.plan)
+      throw new Error("C2 partial-source planning failed: " + ("error" in planned ? planned.error : "missing response"));
+    assert.deepEqual(planned.plan.dependencies.map((item) => item.status), ["UNAVAILABLE", "REUSE"]);
+    assert.equal(planned.plan.dependencies[0].c1ExperimentId, c1.experiment.id);
+    assert.match(planned.plan.dependencies[0].reason ?? "", /2020-02-27.*Frozen fixture failure.*C1 experiment #/);
+    assert.equal(planned.plan.dependencies[1].c1ExperimentId, c1.experiment.id);
+
+    const saved = await storeModule!.persistC2Experiment(input);
+    if (!("experiment" in saved) || !saved.experiment)
+      throw new Error("C2 partial dependency persistence failed: " + ("error" in saved ? saved.error : "missing response"));
+    experimentId = saved.experiment.id;
+    const sources = saved.experiment.manifest as any;
+    assert.ok(sources.sources.c1ByAlpha[fixture.alphaIds[1]]);
+    assert.equal(sources.sources.c1ByAlpha[fixture.alphaIds[0]], undefined);
+    assert.equal(sources.sources.dependencyPlan[0].status, "UNAVAILABLE");
+    assert.match(sources.sources.dependencyPlan[0].reason, /B3 Validation Run not persisted/);
+    const replay = await storeModule!.replayC2Experiment(experimentId);
+    assert.ok(replay);
+    assert.equal(replay.status, "pass", replay.differences.join("\n"));
   } finally {
     await fixture.cleanup(experimentId);
   }

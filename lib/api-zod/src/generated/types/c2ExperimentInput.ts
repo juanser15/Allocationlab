@@ -5,6 +5,7 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+import type { B3ValidationAssumptions } from './b3ValidationAssumptions';
 import type { C2ExperimentInputRegimeMapping } from './c2ExperimentInputRegimeMapping';
 import type { C2ExperimentInputRegimeSource } from './c2ExperimentInputRegimeSource';
 
@@ -16,7 +17,8 @@ export interface C2ExperimentInput {
   allocationId: number;
   /** @minimum 1 */
   validationPreparedInputId: number;
-  c1ExperimentId: number | null;
+  c1ExperimentId?: number | null;
+  assumptions?: B3ValidationAssumptions;
   /**
      * @minItems 1
      * @maxItems 5

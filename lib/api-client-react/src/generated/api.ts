@@ -32,6 +32,7 @@ import type {
   C1Experiment,
   C1ExperimentInput,
   C1ExperimentReplay,
+  C2DependencyPlan,
   C2Experiment,
   C2ExperimentInput,
   C2ExperimentReplay,
@@ -3671,6 +3672,76 @@ export function useListAlphaDiagnosticExperiments<TData = Awaited<ReturnType<typ
 
 
 
+
+export const getCreateAlphaDiagnosticDependencyPlanUrl = () => {
+
+
+
+
+  return `/api/alpha-diagnostics/dependency-plan`
+}
+
+/**
+ * @summary Preflight exact C1 dependencies for a C2 request without running diagnostics
+ */
+export const createAlphaDiagnosticDependencyPlan = async (c2ExperimentInput: C2ExperimentInput, options?: RequestInit): Promise<C2DependencyPlan> => {
+
+  return customFetch<C2DependencyPlan>(getCreateAlphaDiagnosticDependencyPlanUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(c2ExperimentInput)
+  }
+);}
+
+
+
+
+export const getCreateAlphaDiagnosticDependencyPlanMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAlphaDiagnosticDependencyPlan>>, TError,{data: BodyType<C2ExperimentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAlphaDiagnosticDependencyPlan>>, TError,{data: BodyType<C2ExperimentInput>}, TContext> => {
+
+const mutationKey = ['createAlphaDiagnosticDependencyPlan'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAlphaDiagnosticDependencyPlan>>, {data: BodyType<C2ExperimentInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAlphaDiagnosticDependencyPlan(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAlphaDiagnosticDependencyPlanMutationResult = NonNullable<Awaited<ReturnType<typeof createAlphaDiagnosticDependencyPlan>>>
+    export type CreateAlphaDiagnosticDependencyPlanMutationBody = BodyType<C2ExperimentInput>
+    export type CreateAlphaDiagnosticDependencyPlanMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Preflight exact C1 dependencies for a C2 request without running diagnostics
+ */
+export const useCreateAlphaDiagnosticDependencyPlan = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAlphaDiagnosticDependencyPlan>>, TError,{data: BodyType<C2ExperimentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAlphaDiagnosticDependencyPlan>>,
+        TError,
+        {data: BodyType<C2ExperimentInput>},
+        TContext
+      > => {
+      return useMutation(getCreateAlphaDiagnosticDependencyPlanMutationOptions(options));
+    }
 
 export const getGetAlphaDiagnosticExperimentUrl = (experimentId: number,) => {
 
