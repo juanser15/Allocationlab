@@ -324,8 +324,13 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
       input.materialCorrelationGap < 0 || input.materialCorrelationGap > 2)
     throw new Error("C2 correlation thresholds must be finite; high-correlation threshold is [-1, 1] and material gap is [0, 2].");
   const planFor = (id: string) => sources.dependencyPlan?.find((item) => item.alphaId === id);
-  const sourceFor = (id: string) => sources.dependencyPlan?.some((item) => item.alphaId === id)
-    ? sources.c1ByAlpha?.[id] : sources.c1ByAlpha?.[id] ?? sources.c1;
+  const sourceFor = (id: string) => {
+    if (!sources.dependencyPlan) return sources.c1ByAlpha?.[id] ?? sources.c1;
+    const plan = planFor(id);
+    const source = sources.c1ByAlpha?.[id];
+    return plan && plan.status !== "UNAVAILABLE" && source?.id === plan.c1ExperimentId
+      ? source : undefined;
+  };
   const dependencyInputs = input.alphaIds.map((id) => {
     const c1 = sourceFor(id);
     const plan = planFor(id);
@@ -360,8 +365,10 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
           : "C1 dependency does not contain successful full and exact single-alpha exclusion children.")
       : null;
     return { candidate, c1, plan, fullChild, exclusionChild,
-      policyId: resolvedPolicyId, dependencyId: plan?.c1ExperimentId ?? (c1 as any)?.id ??
-        (sources.c1 ? input.c1ExperimentId : null), dependencyStatus: status, dependencyReason: reason,
+      policyId: resolvedPolicyId, dependencyId: sources.dependencyPlan
+        ? plan?.c1ExperimentId ?? null
+        : (c1 as any)?.id ?? (sources.c1 ? input.c1ExperimentId : null),
+      dependencyStatus: status, dependencyReason: reason,
       usable: usable && status !== "UNAVAILABLE" };
   });
   const candidates = dependencyInputs.map((item) => item.candidate);
@@ -685,8 +692,7 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
         returnConvention: sources.allocationRequest.returnConvention },
       b3EngineVersions: [...new Set(selected.flatMap((item) => (item.c1?.children ?? []).map((child: any) =>
         child.result?.diagnostics?.engineVersion).filter(Boolean)))],
-      c1ManifestSchemaVersion: sources.c1?.manifest?.schemaVersion ??
-        selected.find((item) => item.c1)?.c1?.manifest?.schemaVersion ?? null },
+      c1ManifestSchemaVersion: selected.find((item) => item.c1)?.c1?.manifest?.schemaVersion ?? null },
     configuration: structuredClone(input),
     thresholds: { version: "c2-descriptive-thresholds-v1", tolerance: TOLERANCE,
       minRollingPaired: input.minRollingPaired, minRegimePaired: input.minRegimePaired,

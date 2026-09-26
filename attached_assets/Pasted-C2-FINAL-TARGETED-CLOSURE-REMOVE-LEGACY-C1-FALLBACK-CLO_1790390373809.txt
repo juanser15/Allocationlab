@@ -1,0 +1,371 @@
+C2 — FINAL TARGETED CLOSURE: REMOVE LEGACY C1 FALLBACK
+
+CLOSED-SCOPE TASK
+
+C2 T1–T7 already pass.
+
+The current blocker is R3:
+
+When no EXACT compatible C1 dependency exists, the C2 dependency
+resolver still falls back to legacy C1 evidence.
+
+Observed failure:
+
+Expected:
+no reusable dependency ID
+
+Observed:
+dependency ID = 900
+
+This behavior is incorrect.
+
+Fix ONLY the C1 dependency-resolution semantics and complete final
+verification.
+
+Do not modify:
+- C2 statistical calculations;
+- regime methodology;
+- B1/B2/B3 financial logic;
+- C1 financial calculations;
+- rolling windows;
+- correlation calculations;
+- factor definitions;
+- optimization objectives;
+- UI architecture.
+
+Do not begin C3.
+
+--------------------------------------------------
+1. AUTHORITATIVE DEPENDENCY RULE
+--------------------------------------------------
+
+For each selected alpha requiring incremental-contribution evidence:
+
+CASE A — EXACT COMPATIBLE C1 EXISTS
+
+Reuse it.
+
+Status:
+REUSE
+
+CASE B — NO EXACT COMPATIBLE C1 EXISTS
+
+Do NOT use:
+- legacy C1;
+- approximately matching C1;
+- same-alpha but different settings;
+- same dates but different policy;
+- same B2 policy but different costs;
+- manually linked historical evidence.
+
+Instead:
+
+Create a NEW compatible C1 comparison using the existing C1 engine.
+
+Status before execution:
+WILL_CREATE
+
+CASE C — NEW C1 CANNOT VALIDLY COMPLETE
+
+Return:
+
+UNAVAILABLE_C1_DEPENDENCY
+
+with the exact C1/B3 failure reason.
+
+Do not attach another historical C1 ID.
+
+Under no circumstance may legacy or incompatible evidence satisfy the
+dependency.
+
+--------------------------------------------------
+2. REMOVE FALLBACK AT THE SOURCE
+--------------------------------------------------
+
+Identify the actual resolver path that currently returns legacy C1 ID 900.
+
+Remove the fallback behavior from the dependency resolver itself.
+
+Do NOT fix R3 by:
+- changing the test expectation;
+- returning null only in test mode;
+- filtering ID 900 in the response;
+- hiding the dependency in UI;
+- weakening fingerprint comparison.
+
+The resolver must have exactly these outputs:
+
+EXACT_REUSE
+CREATE_REQUIRED
+UNAVAILABLE_AFTER_CREATE_FAILURE
+
+There is no LEGACY_REUSE state for C2 incremental evidence.
+
+Legacy C1 records may remain viewable historically elsewhere in the
+application, but they are NOT valid dependencies for C2.
+
+--------------------------------------------------
+3. EXACT COMPATIBILITY REMAINS STRICT
+--------------------------------------------------
+
+Do not loosen the compatibility fingerprint.
+
+Compatibility must continue to include all economically relevant fields
+already defined for C2 dependency resolution, including:
+
+- B1 preparation;
+- B2 policy;
+- canonical candidate set;
+- dataset identity/hash;
+- development dates;
+- estimation windows;
+- objective;
+- expected-return shrinkage;
+- covariance shrinkage;
+- gamma/eta where applicable;
+- constraints;
+- decision calendar;
+- execution timing;
+- transaction costs;
+- slippage;
+- cash yield;
+- initial capital/holdings;
+- relevant engine versions.
+
+One difference means:
+
+NOT COMPATIBLE
+
+and therefore:
+CREATE_REQUIRED.
+
+--------------------------------------------------
+4. PRESERVE HISTORICAL RECORDS
+--------------------------------------------------
+
+Do not mutate or delete legacy C1 records.
+
+Do not rewrite old fingerprints.
+
+Do not convert old C1 experiments into exact-compatible records.
+
+Historical evidence remains historical.
+
+New C2 diagnostics requiring exact evidence must generate a new C1
+dependency when necessary.
+
+--------------------------------------------------
+5. UI DEPENDENCY PLAN
+--------------------------------------------------
+
+Before RUN ALPHA DIAGNOSTICS, the UI must display only:
+
+Existing comparison reused
+New comparison will be generated
+Comparison unavailable
+
+Never display a legacy C1 experiment as reusable when its fingerprint
+is incompatible.
+
+After execution show the exact persisted C1 dependency ID used.
+
+--------------------------------------------------
+TARGETED ACCEPTANCE TESTS
+--------------------------------------------------
+
+R1 — EXACT REUSE
+
+Create a truly exact-compatible C1 dependency.
+
+Run C2.
+
+PASS only if:
+- resolver returns EXACT_REUSE;
+- exact dependency ID is reused;
+- no duplicate C1 experiment is created;
+- C2 incremental values match C1 within 1e-8.
+
+R2 — MISSING DEPENDENCY CREATION
+
+Alpha A:
+exact-compatible C1 exists.
+
+Alpha B:
+no compatible C1 exists.
+
+Run C2.
+
+PASS only if:
+- A reuses its exact C1;
+- B creates exactly one new compatible C1;
+- no legacy fallback occurs;
+- both dependency fingerprints match the C2 specification;
+- both incremental diagnostics become available.
+
+R3 — INCOMPATIBLE / LEGACY C1 MUST NOT BE REUSED
+
+Create or identify a legacy/incompatible C1 record for alpha B.
+
+Ensure no exact-compatible C1 exists.
+
+Run dependency planning.
+
+PASS only if:
+
+- legacy C1 ID is NOT returned;
+- resolver returns CREATE_REQUIRED;
+- legacy ID 900 or any equivalent historical ID is never used;
+- a newly created exact-compatible C1 is used if creation succeeds.
+
+Also test an economically relevant mismatch such as different costs.
+
+Same alpha + different costs must be CREATE_REQUIRED.
+
+R4 — CREATION FAILURE
+
+Force the required new C1 exclusion to be infeasible.
+
+PASS only if:
+- no legacy/incompatible C1 is substituted;
+- dependency becomes UNAVAILABLE_AFTER_CREATE_FAILURE;
+- exact failure reason/date is preserved;
+- unrelated C2 diagnostics remain viewable.
+
+R5 — REAL UI / PERSISTENCE / REPLAY
+
+Through the actual UI:
+
+1. Select two alphas.
+2. Give alpha A one exact-compatible C1.
+3. Give alpha B only an incompatible/legacy C1.
+4. Confirm dependency plan shows:
+   A = Existing comparison reused
+   B = New comparison will be generated
+5. Run Alpha Diagnostics.
+6. Confirm:
+   - A reused exact C1;
+   - B generated a new C1;
+   - legacy B dependency was not used.
+7. Persist C2 experiment.
+8. Change working settings.
+9. Reload in fresh client.
+10. Retrieve original C2 experiment.
+11. Replay.
+
+PASS only if:
+
+- C2 experiment persists;
+- dependency IDs are unchanged;
+- dependency fingerprints are unchanged;
+- referenced C1 replays/integrity checks pass;
+- C2 replay returns PASS;
+- unexpected differing fields = 0;
+- maximum numeric difference <= 1e-8;
+- UI visibly reports successful replay.
+
+--------------------------------------------------
+DATABASE-BACKED INTEGRITY SUITE
+--------------------------------------------------
+
+The previous database-backed C2 integrity suite failed before assertions
+because of a database-module loading error.
+
+Do NOT modify financial/application logic to address this unless an
+actual application defect is demonstrated.
+
+Run the DB-backed suite in an isolated process using the same workspace,
+environment, module-loading convention and database initialization
+pattern used by the currently passing persistence suites.
+
+If the suite reaches assertions:
+report its normal PASS/FAIL result.
+
+If it again fails BEFORE assertions due solely to tooling/module loading:
+report:
+
+TEST_INFRASTRUCTURE_BLOCKER
+
+including:
+- exact command;
+- exact module/load error;
+- whether application code executed;
+- whether any assertions executed.
+
+Do not count a pre-assertion runner failure as PASS.
+
+Do not start speculative application repairs for an environment loader
+failure.
+
+--------------------------------------------------
+FINAL VERIFICATION
+--------------------------------------------------
+
+On the final application revision, run once:
+
+- R1–R5;
+- complete C2 T1–T8;
+- C2 database-backed persistence/integrity suite;
+- A1;
+- A2;
+- A2.1;
+- A3 calculation;
+- A3 constraints;
+- B1;
+- B2;
+- B3;
+- C1 contribution;
+- C1 replay integrity;
+- workspace typecheck.
+
+Independent suites should still run even if another suite fails.
+
+Do not repeatedly rerun suites until green.
+
+--------------------------------------------------
+DELIVERABLE
+--------------------------------------------------
+
+Return only:
+
+C2 final closure report
+
+- R3 root cause;
+- exact fallback behavior removed;
+- R1 PASS/FAIL;
+- R2 PASS/FAIL;
+- R3 PASS/FAIL;
+- R4 PASS/FAIL;
+- R5 PASS/FAIL;
+- C2 T1–T8 PASS/FAIL;
+- DB-backed integrity suite result;
+- all regression results;
+- typecheck result;
+- UI-created C2 experiment ID;
+- exact reused C1 ID;
+- exact newly created C1 ID;
+- confirmation that no legacy C1 was reused;
+- maximum numerical replay difference;
+- remaining blocker, if any.
+
+STOP CONDITION
+
+If:
+- R1–R5 pass;
+- C2 T1–T8 pass;
+- DB-backed integrity suite executes and passes;
+- all regressions pass;
+- typecheck passes;
+
+then:
+
+C2 CLOSED.
+STOP.
+
+Otherwise:
+
+C2 BLOCKED.
+Report the exact unresolved gate.
+STOP.
+
+No additional autonomous repair loop.
+Do not begin C3.
