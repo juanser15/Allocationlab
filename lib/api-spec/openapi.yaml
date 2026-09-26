@@ -1995,6 +1995,95 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /forecast-comparisons:
+    post:
+      operationId: createForecastComparison
+      tags: [allocations]
+      summary: Save a controlled comparison of the three frozen D3 expected-return estimators
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ForecastComparisonInput" }
+      responses:
+        "201":
+          description: Frozen controlled forecast comparison
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ForecastComparison" }
+        "400":
+          description: Incompatible estimators or unmatched inputs
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Source not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Source failed frozen integrity or replay
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    get:
+      operationId: listForecastComparisons
+      tags: [allocations]
+      responses:
+        "200":
+          description: Saved controlled forecast comparisons
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comparisons:
+                    type: array
+                    items: { $ref: "#/components/schemas/ForecastComparisonSummary" }
+                required: [comparisons]
+
+  /forecast-comparisons/{comparisonId}:
+    get:
+      operationId: getForecastComparison
+      tags: [allocations]
+      parameters:
+        - name: comparisonId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Frozen controlled forecast comparison
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ForecastComparison" }
+        "404":
+          description: Comparison not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /forecast-comparisons/{comparisonId}/replay:
+    post:
+      operationId: replayForecastComparison
+      tags: [allocations]
+      parameters:
+        - name: comparisonId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Frozen forecast comparison and child B2/B3 replay
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ForecastComparisonReplay" }
+        "404":
+          description: Comparison not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
   /risk-model-comparisons/{comparisonId}:
     get:
       operationId: getRiskModelComparison
@@ -4686,6 +4775,7 @@ components:
         differences:
           type: array
           items: { type: string }
+        maximumNumericDifference: { type: number, minimum: 0 }
         replayedResult:
           type: object
           additionalProperties: true
@@ -5397,6 +5487,117 @@ components:
         specificRiskFloorFraction: { type: number, minimum: 0 }
       required: [type]
 
+    ForecastPriorVector:
+      type: object
+      additionalProperties: false
+      properties:
+        source: { type: string, enum: [DEFAULT, USER_DEFINED] }
+        values:
+          type: object
+          additionalProperties: { type: number }
+      required: [source]
+
+    ForecastPriorMean:
+      type: object
+      additionalProperties: false
+      properties:
+        source: { type: string, enum: [SAMPLE_PRIOR, SHRUNK_PRIOR, USER_DEFINED_PRIOR] }
+        values:
+          type: object
+          additionalProperties: { type: number }
+      required: [source]
+
+    ForecastPriorUncertainty:
+      type: object
+      additionalProperties: false
+      properties:
+        type: { type: string, enum: [TAU_SIGMA, USER_DEFINED] }
+        tau: { type: number, exclusiveMinimum: 0 }
+        candidateIds:
+          type: array
+          items: { type: string, minLength: 1 }
+        matrix:
+          type: array
+          items:
+            type: array
+            items: { type: number }
+      required: [type]
+
+    ForecastView:
+      type: object
+      additionalProperties: false
+      properties:
+        type: { type: string, enum: [ABSOLUTE, RELATIVE] }
+        candidateId: { type: string, minLength: 1 }
+        relativeCandidateId: { type: string, minLength: 1 }
+        q: { type: number }
+        variance: { type: number, exclusiveMinimum: 0 }
+        effectiveTimestamp: { type: string, format: date-time }
+        availabilityTimestamp: { type: string, format: date-time }
+      required: [type, candidateId, q, variance, effectiveTimestamp, availabilityTimestamp]
+
+    ForecastModelConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        type: { type: string, enum: [SAMPLE_MEAN, SHRUNK_MEAN, BAYESIAN_VIEWS] }
+        shrinkage: { type: number, minimum: 0, maximum: 1 }
+        shrinkagePrior: { $ref: "#/components/schemas/ForecastPriorVector" }
+        priorMean: { $ref: "#/components/schemas/ForecastPriorMean" }
+        priorUncertainty: { $ref: "#/components/schemas/ForecastPriorUncertainty" }
+        views:
+          type: array
+          items: { $ref: "#/components/schemas/ForecastView" }
+        displayZ: { type: number, exclusiveMinimum: 0 }
+      required: [type]
+
+    ForecastComparisonIds:
+      type: object
+      additionalProperties: false
+      properties:
+        SAMPLE_MEAN: { type: integer, minimum: 1 }
+        SHRUNK_MEAN: { type: integer, minimum: 1 }
+        BAYESIAN_VIEWS: { type: integer, minimum: 1 }
+      required: [SAMPLE_MEAN, SHRUNK_MEAN, BAYESIAN_VIEWS]
+
+    ForecastComparisonInput:
+      type: object
+      additionalProperties: false
+      properties:
+        allocationIds: { $ref: "#/components/schemas/ForecastComparisonIds" }
+        validationRunIds: { $ref: "#/components/schemas/ForecastComparisonIds" }
+      required: [allocationIds]
+
+    ForecastComparisonSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        manifestHash: { type: string }
+        resultHash: { type: string }
+        createdAt: { type: string, format: date-time }
+      required: [id, manifestHash, resultHash, createdAt]
+
+    ForecastComparison:
+      allOf:
+        - { $ref: "#/components/schemas/ForecastComparisonSummary" }
+        - type: object
+          properties:
+            manifest: { type: object, additionalProperties: true }
+            result: { type: object, additionalProperties: true }
+          required: [manifest, result]
+
+    ForecastComparisonReplay:
+      type: object
+      properties:
+        comparisonId: { type: integer }
+        status: { type: string, enum: [pass, fail] }
+        differences:
+          type: array
+          items: { type: string }
+        maximumNumericDifference: { type: number }
+        result: { type: object, additionalProperties: true }
+      required: [comparisonId, status, differences, maximumNumericDifference, result]
+
     AllocationModeComparisonIds:
       type: object
       additionalProperties: false
@@ -5513,6 +5714,7 @@ components:
         expectedReturnShrinkage: { type: number, minimum: 0, maximum: 1 }
         covarianceDiagonalShrinkage: { type: number, minimum: 0, maximum: 1 }
         riskModel: { $ref: "#/components/schemas/AllocationRiskModelSettings" }
+        forecastModel: { $ref: "#/components/schemas/ForecastModelConfig" }
         allocationMode: { type: string, enum: [CAPITAL_LONG_ONLY, SIGNED_OVERLAY] }
         signedConstraints: { $ref: "#/components/schemas/SignedAllocationConstraints" }
         targetExcessReturn: { type: number }
@@ -5546,7 +5748,7 @@ components:
         engineVersion: { type: string }
         status:
           type: string
-          enum: [SOLVED, INFEASIBLE, UNBOUNDED, MISSING_TARGET_EXCESS_RETURN, INVALID_INPUT, INVALID_RISK_MODEL, INVALID_FACTOR_MODEL, INSUFFICIENT_HISTORY_OR_DIMENSION, UNSUPPORTED, UNSUPPORTED_REPRESENTATION, UNSUPPORTED_CONSTRAINT, NUMERICAL_FAILURE, LIMIT_REACHED]
+          enum: [SOLVED, INFEASIBLE, UNBOUNDED, MISSING_TARGET_EXCESS_RETURN, INVALID_INPUT, INVALID_FORECAST_MODEL, UNAVAILABLE_HISTORICAL_VIEWS, INVALID_RISK_MODEL, INVALID_FACTOR_MODEL, INSUFFICIENT_HISTORY_OR_DIMENSION, UNSUPPORTED, UNSUPPORTED_REPRESENTATION, UNSUPPORTED_CONSTRAINT, NUMERICAL_FAILURE, LIMIT_REACHED]
         request: { $ref: "#/components/schemas/AllocationRequest" }
         result: { type: object, additionalProperties: true }
         createdAt: { type: string, format: date-time }
@@ -5561,5 +5763,6 @@ components:
         differences:
           type: array
           items: { type: string }
+        maximumNumericDifference: { type: number, minimum: 0 }
         replayedResult: { type: object, additionalProperties: true }
       required: [allocationId, status, fingerprint, differences, replayedResult]

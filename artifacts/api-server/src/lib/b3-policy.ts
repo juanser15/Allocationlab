@@ -27,6 +27,8 @@ export interface B3Decision {
   informationCutoff: string;
   executionDate: string;
   estimationDates: string[];
+  forecastStatus?: "AVAILABLE" | "UNAVAILABLE_HISTORICAL_VIEWS";
+  forecast?: AllocationResult["forecast"];
   inputDatasetHash: string;
   policyCandidateIds: string[];
   validationCandidateIds: string[];
@@ -96,6 +98,7 @@ export interface B3Result {
     validationDatasetHash: string;
     objective: AllocationRequest["objective"];
     riskModel?: AllocationRequest["riskModel"];
+    forecastModel?: AllocationRequest["forecastModel"];
     estimationWindow: number;
     minObservations: number;
   };
@@ -201,6 +204,7 @@ function failureResult(
       ...(policy.signedConstraints ? { signedConstraints: structuredClone(policy.signedConstraints) } : {}),
       ...(policy.targetExcessReturn === undefined ? {} : { targetExcessReturn: policy.targetExcessReturn }),
       ...(policy.riskModel ? { riskModel: structuredClone(policy.riskModel) } : {}),
+      ...(policy.forecastModel ? { forecastModel: structuredClone(policy.forecastModel) } : {}),
     },
     decisionCalendar, decisions, dailyLedger: [], metrics: null,
     diagnostics: {
@@ -369,6 +373,7 @@ export function runB3Validation(
     }
   }
   const decisions: B3Decision[] = [];
+  const unavailableForecastDates: string[] = [];
   let decisionFailure: { date: string; reason: string } | null = null;
   const readDecisionFailure = (): { date: string; reason: string } | null => decisionFailure;
   const historicalPreparation = (decisionDate: string): PreparedSnapshot => {
@@ -475,7 +480,72 @@ export function runB3Validation(
         })),
       },
     };
+    if (policyRequest.forecastModel) {
+      const forecastModel = structuredClone(policyRequest.forecastModel);
+      const translateForecastVector = (values: Record<string, number> | undefined) => values
+        ? Object.fromEntries(Object.entries(values).map(([id, value]) => {
+          const index = policyRequest.candidateIds.indexOf(id);
+          return [index < 0 ? id : pointInTimeIds[index], value];
+        }))
+        : undefined;
+      if (forecastModel.type === "SHRUNK_MEAN" || forecastModel.type === "BAYESIAN_VIEWS") {
+        if (forecastModel.shrinkagePrior?.source === "USER_DEFINED")
+          forecastModel.shrinkagePrior.values =
+            translateForecastVector(forecastModel.shrinkagePrior.values);
+      }
+      if (forecastModel.type === "BAYESIAN_VIEWS") {
+        if (forecastModel.priorMean?.source === "USER_DEFINED_PRIOR")
+          forecastModel.priorMean.values = translateForecastVector(forecastModel.priorMean.values);
+        if (forecastModel.priorUncertainty?.type === "USER_DEFINED" &&
+            forecastModel.priorUncertainty.candidateIds) {
+          forecastModel.priorUncertainty.candidateIds = forecastModel.priorUncertainty.candidateIds.map((id) => {
+            const index = policyRequest.candidateIds.indexOf(id);
+            return index < 0 ? id : pointInTimeIds[index];
+          });
+        }
+        // Retain and remap every frozen view so D3 can persist its point-in-time
+        // eligibility diagnostics. The forecast engine conditions only on
+        // views effective and available by this cutoff.
+        forecastModel.views = forecastModel.views?.map((view) => ({
+          ...view,
+          candidateId: pointInTimeIds[policyRequest.candidateIds.indexOf(view.candidateId)] ?? view.candidateId,
+          ...(view.relativeCandidateId === undefined ? {} : {
+            relativeCandidateId:
+              pointInTimeIds[policyRequest.candidateIds.indexOf(view.relativeCandidateId)] ??
+              view.relativeCandidateId,
+          }),
+        }));
+      }
+      request.forecastModel = forecastModel;
+    }
     const optimized = optimizePreparedSnapshot(historicalForB2, request, alignment?.estimationDates);
+    if (optimized.status === "UNAVAILABLE_HISTORICAL_VIEWS") {
+      const forecast = optimized.forecast;
+      if (!forecast) {
+        decisionFailure = {
+          date: decisionDate,
+          reason: `B2 reported unavailable historical views at ${decisionDate} without preserving D3 forecast provenance.`,
+        };
+        return null;
+      }
+      unavailableForecastDates.push(decisionDate);
+      const planned = expectedCalendar.find((item) => item.decisionDate === decisionDate)!;
+      // No forecast means no new target. Returning null to A1 cancels a pending
+      // rebalance while leaving drifted/current holdings unchanged.
+      decisions.push({
+        decisionDate, informationCutoff, executionDate: planned.executionDate,
+        estimationDates: [...forecast.dates], forecastStatus: "UNAVAILABLE_HISTORICAL_VIEWS",
+        forecast, inputDatasetHash: historical.dataset.sha256,
+        policyCandidateIds: [...policyRequest.candidateIds],
+        validationCandidateIds: definitions.map((candidate) => candidate.candidateId),
+        pointInTimeCandidateIds: pointInTimeIds,
+        candidateTargetAssetExposures: {}, optimizer: optimized,
+        candidateWeights: {}, masterCash: 0, totalCash: 0, targetAssetWeights: {},
+        targetAssetExposureSum: 0, candidateAssetContributions: {},
+        constraintChecks: [],
+      });
+      return null;
+    }
     if (optimized.status !== "SOLVED" || !optimized.model || !optimized.assetWeights || !optimized.candidateWeights) {
       const detail = optimized.reason ?? optimized.solver.message ?? "no valid solution";
       const detailDates = [...detail.matchAll(/\d{4}-\d{2}-\d{2}/g)].map((match) => match[0]);
@@ -513,6 +583,7 @@ export function runB3Validation(
     decisions.push({
       decisionDate, informationCutoff, executionDate: planned.executionDate,
       estimationDates: [...optimized.model.dates], inputDatasetHash: historical.dataset.sha256,
+      ...(optimized.forecast ? { forecastStatus: "AVAILABLE" as const, forecast: optimized.forecast } : {}),
       policyCandidateIds: [...policyRequest.candidateIds],
       validationCandidateIds: definitions.map((candidate) => candidate.candidateId),
       pointInTimeCandidateIds: pointInTimeIds,
@@ -589,6 +660,7 @@ export function runB3Validation(
     return fail(`A1 daily ledger reconciliation exceeded ${TOLERANCE}: ${maximumReconciliationDifference}.`,
       ledger.find((entry) => Math.abs(entry.reconciliationDifference) > TOLERANCE)?.date, decisions, expectedCalendar);
   for (const decision of decisions) {
+    if (decision.forecastStatus === "UNAVAILABLE_HISTORICAL_VIEWS") continue;
     const execution = ledger.find((entry) => entry.date === decision.executionDate);
     if (!execution) continue;
     const tickers = new Set([...Object.keys(decision.targetAssetWeights),
@@ -632,7 +704,12 @@ export function runB3Validation(
       values.at(-1)!.date < (rows.filter((row) => row.date.slice(0, 7) === month).at(-1)?.date ?? values.at(-1)!.date),
   }));
   return {
-    status: "completed", assumptions,
+    status: unavailableForecastDates.length ? "failed" : "completed",
+    ...(unavailableForecastDates.length ? {
+      reason: `HISTORICAL_FORECAST_UNAVAILABLE: no eligible dated Bayesian views at ${
+        unavailableForecastDates.join(", ")}; those decisions carried existing holdings without trading.`,
+    } : {}),
+    assumptions,
     policyIdentity: {
       representation: policyRequest.representation, candidateIds: [...policyRequest.candidateIds],
       validationCandidateIds: policyToValidationId,
@@ -645,6 +722,7 @@ export function runB3Validation(
       ...(policyRequest.targetExcessReturn === undefined ? {} :
         { targetExcessReturn: policyRequest.targetExcessReturn }),
       ...(policyRequest.riskModel ? { riskModel: structuredClone(policyRequest.riskModel) } : {}),
+      ...(policyRequest.forecastModel ? { forecastModel: structuredClone(policyRequest.forecastModel) } : {}),
     },
     decisionCalendar: expectedCalendar, decisions, dailyLedger: ledger,
     metrics: {

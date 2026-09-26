@@ -3304,11 +3304,16 @@ export const ReplayValidationRunParams = zod.object({
   "validationRunId": zod.coerce.number()
 })
 
+export const replayValidationRunResponseMaximumNumericDifferenceMin = 0;
+
+
+
 export const ReplayValidationRunResponse = zod.object({
   "validationRunId": zod.number(),
   "status": zod.enum(['pass', 'fail', 'engine_mismatch']),
   "validationInputHash": zod.string(),
   "differences": zod.array(zod.string()),
+  "maximumNumericDifference": zod.number().min(replayValidationRunResponseMaximumNumericDifferenceMin).optional(),
   "replayedResult": zod.record(zod.string(), zod.unknown())
 })
 
@@ -4648,6 +4653,18 @@ export const listAllocationsResponseRequestCovarianceDiagonalShrinkageMax = 1;
 
 export const listAllocationsResponseRequestRiskModelSpecificRiskFloorFractionMin = 0;
 
+export const listAllocationsResponseRequestForecastModelShrinkageMin = 0;
+export const listAllocationsResponseRequestForecastModelShrinkageMax = 1;
+
+export const listAllocationsResponseRequestForecastModelPriorUncertaintyTauExclusiveMin = 0;
+
+
+
+
+export const listAllocationsResponseRequestForecastModelViewsItemVarianceExclusiveMin = 0;
+
+export const listAllocationsResponseRequestForecastModelDisplayZExclusiveMin = 0;
+
 export const listAllocationsResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -4693,7 +4710,7 @@ export const ListAllocationsResponseItem = zod.object({
   "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
   "fingerprint": zod.string(),
   "engineVersion": zod.string(),
-  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'UNBOUNDED', 'MISSING_TARGET_EXCESS_RETURN', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'UNBOUNDED', 'MISSING_TARGET_EXCESS_RETURN', 'INVALID_INPUT', 'INVALID_FORECAST_MODEL', 'UNAVAILABLE_HISTORICAL_VIEWS', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
   "request": zod.object({
   "preparedInputId": zod.number().min(1),
   "candidateIds": zod.array(zod.string().min(1)).min(1),
@@ -4710,6 +4727,34 @@ export const ListAllocationsResponseItem = zod.object({
   "factorCount": zod.number().min(1).optional(),
   "specificRiskFloorFraction": zod.number().min(listAllocationsResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
+  "forecastModel": zod.object({
+  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS']),
+  "shrinkage": zod.number().min(listAllocationsResponseRequestForecastModelShrinkageMin).max(listAllocationsResponseRequestForecastModelShrinkageMax).optional(),
+  "shrinkagePrior": zod.object({
+  "source": zod.enum(['DEFAULT', 'USER_DEFINED']),
+  "values": zod.record(zod.string(), zod.number()).optional()
+}).optional(),
+  "priorMean": zod.object({
+  "source": zod.enum(['SAMPLE_PRIOR', 'SHRUNK_PRIOR', 'USER_DEFINED_PRIOR']),
+  "values": zod.record(zod.string(), zod.number()).optional()
+}).optional(),
+  "priorUncertainty": zod.object({
+  "type": zod.enum(['TAU_SIGMA', 'USER_DEFINED']),
+  "tau": zod.number().gt(listAllocationsResponseRequestForecastModelPriorUncertaintyTauExclusiveMin).optional(),
+  "candidateIds": zod.array(zod.string().min(1)).optional(),
+  "matrix": zod.array(zod.array(zod.number())).optional()
+}).optional(),
+  "views": zod.array(zod.object({
+  "type": zod.enum(['ABSOLUTE', 'RELATIVE']),
+  "candidateId": zod.string().min(1),
+  "relativeCandidateId": zod.string().min(1).optional(),
+  "q": zod.number(),
+  "variance": zod.number().gt(listAllocationsResponseRequestForecastModelViewsItemVarianceExclusiveMin),
+  "effectiveTimestamp": zod.coerce.date(),
+  "availabilityTimestamp": zod.coerce.date()
+})).optional(),
+  "displayZ": zod.number().gt(listAllocationsResponseRequestForecastModelDisplayZExclusiveMin).optional()
+}).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
   "alphaBounds": zod.record(zod.string(), zod.object({
@@ -4789,6 +4834,18 @@ export const createAllocationBodyCovarianceDiagonalShrinkageMax = 1;
 
 export const createAllocationBodyRiskModelSpecificRiskFloorFractionMin = 0;
 
+export const createAllocationBodyForecastModelShrinkageMin = 0;
+export const createAllocationBodyForecastModelShrinkageMax = 1;
+
+export const createAllocationBodyForecastModelPriorUncertaintyTauExclusiveMin = 0;
+
+
+
+
+export const createAllocationBodyForecastModelViewsItemVarianceExclusiveMin = 0;
+
+export const createAllocationBodyForecastModelDisplayZExclusiveMin = 0;
+
 export const createAllocationBodySignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -4844,6 +4901,34 @@ export const CreateAllocationBody = zod.object({
   "factorCount": zod.number().min(1).optional(),
   "specificRiskFloorFraction": zod.number().min(createAllocationBodyRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
+  "forecastModel": zod.object({
+  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS']),
+  "shrinkage": zod.number().min(createAllocationBodyForecastModelShrinkageMin).max(createAllocationBodyForecastModelShrinkageMax).optional(),
+  "shrinkagePrior": zod.object({
+  "source": zod.enum(['DEFAULT', 'USER_DEFINED']),
+  "values": zod.record(zod.string(), zod.number()).optional()
+}).optional(),
+  "priorMean": zod.object({
+  "source": zod.enum(['SAMPLE_PRIOR', 'SHRUNK_PRIOR', 'USER_DEFINED_PRIOR']),
+  "values": zod.record(zod.string(), zod.number()).optional()
+}).optional(),
+  "priorUncertainty": zod.object({
+  "type": zod.enum(['TAU_SIGMA', 'USER_DEFINED']),
+  "tau": zod.number().gt(createAllocationBodyForecastModelPriorUncertaintyTauExclusiveMin).optional(),
+  "candidateIds": zod.array(zod.string().min(1)).optional(),
+  "matrix": zod.array(zod.array(zod.number())).optional()
+}).optional(),
+  "views": zod.array(zod.object({
+  "type": zod.enum(['ABSOLUTE', 'RELATIVE']),
+  "candidateId": zod.string().min(1),
+  "relativeCandidateId": zod.string().min(1).optional(),
+  "q": zod.number(),
+  "variance": zod.number().gt(createAllocationBodyForecastModelViewsItemVarianceExclusiveMin),
+  "effectiveTimestamp": zod.coerce.date(),
+  "availabilityTimestamp": zod.coerce.date()
+})).optional(),
+  "displayZ": zod.number().gt(createAllocationBodyForecastModelDisplayZExclusiveMin).optional()
+}).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
   "alphaBounds": zod.record(zod.string(), zod.object({
@@ -4915,6 +5000,18 @@ export const createAllocationResponseRequestCovarianceDiagonalShrinkageMax = 1;
 
 export const createAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin = 0;
 
+export const createAllocationResponseRequestForecastModelShrinkageMin = 0;
+export const createAllocationResponseRequestForecastModelShrinkageMax = 1;
+
+export const createAllocationResponseRequestForecastModelPriorUncertaintyTauExclusiveMin = 0;
+
+
+
+
+export const createAllocationResponseRequestForecastModelViewsItemVarianceExclusiveMin = 0;
+
+export const createAllocationResponseRequestForecastModelDisplayZExclusiveMin = 0;
+
 export const createAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -4960,7 +5057,7 @@ export const CreateAllocationResponse = zod.object({
   "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
   "fingerprint": zod.string(),
   "engineVersion": zod.string(),
-  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'UNBOUNDED', 'MISSING_TARGET_EXCESS_RETURN', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'UNBOUNDED', 'MISSING_TARGET_EXCESS_RETURN', 'INVALID_INPUT', 'INVALID_FORECAST_MODEL', 'UNAVAILABLE_HISTORICAL_VIEWS', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
   "request": zod.object({
   "preparedInputId": zod.number().min(1),
   "candidateIds": zod.array(zod.string().min(1)).min(1),
@@ -4977,6 +5074,34 @@ export const CreateAllocationResponse = zod.object({
   "factorCount": zod.number().min(1).optional(),
   "specificRiskFloorFraction": zod.number().min(createAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
+  "forecastModel": zod.object({
+  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS']),
+  "shrinkage": zod.number().min(createAllocationResponseRequestForecastModelShrinkageMin).max(createAllocationResponseRequestForecastModelShrinkageMax).optional(),
+  "shrinkagePrior": zod.object({
+  "source": zod.enum(['DEFAULT', 'USER_DEFINED']),
+  "values": zod.record(zod.string(), zod.number()).optional()
+}).optional(),
+  "priorMean": zod.object({
+  "source": zod.enum(['SAMPLE_PRIOR', 'SHRUNK_PRIOR', 'USER_DEFINED_PRIOR']),
+  "values": zod.record(zod.string(), zod.number()).optional()
+}).optional(),
+  "priorUncertainty": zod.object({
+  "type": zod.enum(['TAU_SIGMA', 'USER_DEFINED']),
+  "tau": zod.number().gt(createAllocationResponseRequestForecastModelPriorUncertaintyTauExclusiveMin).optional(),
+  "candidateIds": zod.array(zod.string().min(1)).optional(),
+  "matrix": zod.array(zod.array(zod.number())).optional()
+}).optional(),
+  "views": zod.array(zod.object({
+  "type": zod.enum(['ABSOLUTE', 'RELATIVE']),
+  "candidateId": zod.string().min(1),
+  "relativeCandidateId": zod.string().min(1).optional(),
+  "q": zod.number(),
+  "variance": zod.number().gt(createAllocationResponseRequestForecastModelViewsItemVarianceExclusiveMin),
+  "effectiveTimestamp": zod.coerce.date(),
+  "availabilityTimestamp": zod.coerce.date()
+})).optional(),
+  "displayZ": zod.number().gt(createAllocationResponseRequestForecastModelDisplayZExclusiveMin).optional()
+}).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
   "alphaBounds": zod.record(zod.string(), zod.object({
@@ -5059,6 +5184,18 @@ export const getAllocationResponseRequestCovarianceDiagonalShrinkageMax = 1;
 
 export const getAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin = 0;
 
+export const getAllocationResponseRequestForecastModelShrinkageMin = 0;
+export const getAllocationResponseRequestForecastModelShrinkageMax = 1;
+
+export const getAllocationResponseRequestForecastModelPriorUncertaintyTauExclusiveMin = 0;
+
+
+
+
+export const getAllocationResponseRequestForecastModelViewsItemVarianceExclusiveMin = 0;
+
+export const getAllocationResponseRequestForecastModelDisplayZExclusiveMin = 0;
+
 export const getAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -5104,7 +5241,7 @@ export const GetAllocationResponse = zod.object({
   "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
   "fingerprint": zod.string(),
   "engineVersion": zod.string(),
-  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'UNBOUNDED', 'MISSING_TARGET_EXCESS_RETURN', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'UNBOUNDED', 'MISSING_TARGET_EXCESS_RETURN', 'INVALID_INPUT', 'INVALID_FORECAST_MODEL', 'UNAVAILABLE_HISTORICAL_VIEWS', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
   "request": zod.object({
   "preparedInputId": zod.number().min(1),
   "candidateIds": zod.array(zod.string().min(1)).min(1),
@@ -5121,6 +5258,34 @@ export const GetAllocationResponse = zod.object({
   "factorCount": zod.number().min(1).optional(),
   "specificRiskFloorFraction": zod.number().min(getAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
+  "forecastModel": zod.object({
+  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS']),
+  "shrinkage": zod.number().min(getAllocationResponseRequestForecastModelShrinkageMin).max(getAllocationResponseRequestForecastModelShrinkageMax).optional(),
+  "shrinkagePrior": zod.object({
+  "source": zod.enum(['DEFAULT', 'USER_DEFINED']),
+  "values": zod.record(zod.string(), zod.number()).optional()
+}).optional(),
+  "priorMean": zod.object({
+  "source": zod.enum(['SAMPLE_PRIOR', 'SHRUNK_PRIOR', 'USER_DEFINED_PRIOR']),
+  "values": zod.record(zod.string(), zod.number()).optional()
+}).optional(),
+  "priorUncertainty": zod.object({
+  "type": zod.enum(['TAU_SIGMA', 'USER_DEFINED']),
+  "tau": zod.number().gt(getAllocationResponseRequestForecastModelPriorUncertaintyTauExclusiveMin).optional(),
+  "candidateIds": zod.array(zod.string().min(1)).optional(),
+  "matrix": zod.array(zod.array(zod.number())).optional()
+}).optional(),
+  "views": zod.array(zod.object({
+  "type": zod.enum(['ABSOLUTE', 'RELATIVE']),
+  "candidateId": zod.string().min(1),
+  "relativeCandidateId": zod.string().min(1).optional(),
+  "q": zod.number(),
+  "variance": zod.number().gt(getAllocationResponseRequestForecastModelViewsItemVarianceExclusiveMin),
+  "effectiveTimestamp": zod.coerce.date(),
+  "availabilityTimestamp": zod.coerce.date()
+})).optional(),
+  "displayZ": zod.number().gt(getAllocationResponseRequestForecastModelDisplayZExclusiveMin).optional()
+}).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
   "alphaBounds": zod.record(zod.string(), zod.object({
@@ -5190,11 +5355,16 @@ export const ReplayAllocationParams = zod.object({
   "allocationId": zod.coerce.number().min(1)
 })
 
+export const replayAllocationResponseMaximumNumericDifferenceMin = 0;
+
+
+
 export const ReplayAllocationResponse = zod.object({
   "allocationId": zod.number(),
   "status": zod.enum(['pass', 'fail', 'engine_mismatch']),
   "fingerprint": zod.string(),
   "differences": zod.array(zod.string()),
+  "maximumNumericDifference": zod.number().min(replayAllocationResponseMaximumNumericDifferenceMin).optional(),
   "replayedResult": zod.record(zod.string(), zod.unknown())
 })
 
@@ -5311,6 +5481,85 @@ export const ReplayAllocationModeComparisonParams = zod.object({
 })
 
 export const ReplayAllocationModeComparisonResponse = zod.object({
+  "comparisonId": zod.number(),
+  "status": zod.enum(['pass', 'fail']),
+  "differences": zod.array(zod.string()),
+  "maximumNumericDifference": zod.number(),
+  "result": zod.record(zod.string(), zod.unknown())
+})
+
+
+/**
+ * @summary Save a controlled comparison of the three frozen D3 expected-return estimators
+ */
+
+
+
+
+
+
+
+
+export const CreateForecastComparisonBody = zod.object({
+  "allocationIds": zod.object({
+  "SAMPLE_MEAN": zod.number().min(1),
+  "SHRUNK_MEAN": zod.number().min(1),
+  "BAYESIAN_VIEWS": zod.number().min(1)
+}),
+  "validationRunIds": zod.object({
+  "SAMPLE_MEAN": zod.number().min(1),
+  "SHRUNK_MEAN": zod.number().min(1),
+  "BAYESIAN_VIEWS": zod.number().min(1)
+}).optional()
+})
+
+export const CreateForecastComparisonResponse = zod.object({
+  "id": zod.number(),
+  "manifestHash": zod.string(),
+  "resultHash": zod.string(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown())
+}))
+
+
+export const ListForecastComparisonsResponse = zod.object({
+  "comparisons": zod.array(zod.object({
+  "id": zod.number(),
+  "manifestHash": zod.string(),
+  "resultHash": zod.string(),
+  "createdAt": zod.coerce.date()
+}))
+})
+
+
+
+
+
+export const GetForecastComparisonParams = zod.object({
+  "comparisonId": zod.coerce.number().min(1)
+})
+
+export const GetForecastComparisonResponse = zod.object({
+  "id": zod.number(),
+  "manifestHash": zod.string(),
+  "resultHash": zod.string(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown())
+}))
+
+
+
+
+
+export const ReplayForecastComparisonParams = zod.object({
+  "comparisonId": zod.coerce.number().min(1)
+})
+
+export const ReplayForecastComparisonResponse = zod.object({
   "comparisonId": zod.number(),
   "status": zod.enum(['pass', 'fail']),
   "differences": zod.array(zod.string()),

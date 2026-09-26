@@ -2475,6 +2475,8 @@ export interface ValidationRunReplay {
   status: ValidationRunReplayStatus;
   validationInputHash: string;
   differences: string[];
+  /** @minimum 0 */
+  maximumNumericDifference?: number;
   replayedResult: ValidationRunReplayReplayedResult;
 }
 
@@ -2934,6 +2936,147 @@ export interface AllocationRiskModelSettings {
   specificRiskFloorFraction?: number;
 }
 
+export type ForecastPriorVectorSource = typeof ForecastPriorVectorSource[keyof typeof ForecastPriorVectorSource];
+
+
+export const ForecastPriorVectorSource = {
+  DEFAULT: 'DEFAULT',
+  USER_DEFINED: 'USER_DEFINED',
+} as const;
+
+export type ForecastPriorVectorValues = {[key: string]: number};
+
+export interface ForecastPriorVector {
+  source: ForecastPriorVectorSource;
+  values?: ForecastPriorVectorValues;
+}
+
+export type ForecastPriorMeanSource = typeof ForecastPriorMeanSource[keyof typeof ForecastPriorMeanSource];
+
+
+export const ForecastPriorMeanSource = {
+  SAMPLE_PRIOR: 'SAMPLE_PRIOR',
+  SHRUNK_PRIOR: 'SHRUNK_PRIOR',
+  USER_DEFINED_PRIOR: 'USER_DEFINED_PRIOR',
+} as const;
+
+export type ForecastPriorMeanValues = {[key: string]: number};
+
+export interface ForecastPriorMean {
+  source: ForecastPriorMeanSource;
+  values?: ForecastPriorMeanValues;
+}
+
+export type ForecastPriorUncertaintyType = typeof ForecastPriorUncertaintyType[keyof typeof ForecastPriorUncertaintyType];
+
+
+export const ForecastPriorUncertaintyType = {
+  TAU_SIGMA: 'TAU_SIGMA',
+  USER_DEFINED: 'USER_DEFINED',
+} as const;
+
+export interface ForecastPriorUncertainty {
+  type: ForecastPriorUncertaintyType;
+  /** @exclusiveMinimum 0 */
+  tau?: number;
+  /** @items.minLength 1 */
+  candidateIds?: string[];
+  matrix?: number[][];
+}
+
+export type ForecastViewType = typeof ForecastViewType[keyof typeof ForecastViewType];
+
+
+export const ForecastViewType = {
+  ABSOLUTE: 'ABSOLUTE',
+  RELATIVE: 'RELATIVE',
+} as const;
+
+export interface ForecastView {
+  type: ForecastViewType;
+  /** @minLength 1 */
+  candidateId: string;
+  /** @minLength 1 */
+  relativeCandidateId?: string;
+  q: number;
+  /** @exclusiveMinimum 0 */
+  variance: number;
+  effectiveTimestamp: string;
+  availabilityTimestamp: string;
+}
+
+export type ForecastModelConfigType = typeof ForecastModelConfigType[keyof typeof ForecastModelConfigType];
+
+
+export const ForecastModelConfigType = {
+  SAMPLE_MEAN: 'SAMPLE_MEAN',
+  SHRUNK_MEAN: 'SHRUNK_MEAN',
+  BAYESIAN_VIEWS: 'BAYESIAN_VIEWS',
+} as const;
+
+export interface ForecastModelConfig {
+  type: ForecastModelConfigType;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  shrinkage?: number;
+  shrinkagePrior?: ForecastPriorVector;
+  priorMean?: ForecastPriorMean;
+  priorUncertainty?: ForecastPriorUncertainty;
+  views?: ForecastView[];
+  /** @exclusiveMinimum 0 */
+  displayZ?: number;
+}
+
+export interface ForecastComparisonIds {
+  /** @minimum 1 */
+  SAMPLE_MEAN: number;
+  /** @minimum 1 */
+  SHRUNK_MEAN: number;
+  /** @minimum 1 */
+  BAYESIAN_VIEWS: number;
+}
+
+export interface ForecastComparisonInput {
+  allocationIds: ForecastComparisonIds;
+  validationRunIds?: ForecastComparisonIds;
+}
+
+export interface ForecastComparisonSummary {
+  id: number;
+  manifestHash: string;
+  resultHash: string;
+  createdAt: string;
+}
+
+export type ForecastComparisonManifest = { [key: string]: unknown };
+
+export type ForecastComparisonResult = { [key: string]: unknown };
+
+export type ForecastComparison = ForecastComparisonSummary & {
+  manifest: ForecastComparisonManifest;
+  result: ForecastComparisonResult;
+};
+
+export type ForecastComparisonReplayStatus = typeof ForecastComparisonReplayStatus[keyof typeof ForecastComparisonReplayStatus];
+
+
+export const ForecastComparisonReplayStatus = {
+  pass: 'pass',
+  fail: 'fail',
+} as const;
+
+export type ForecastComparisonReplayResult = { [key: string]: unknown };
+
+export interface ForecastComparisonReplay {
+  comparisonId: number;
+  status: ForecastComparisonReplayStatus;
+  differences: string[];
+  maximumNumericDifference: number;
+  result: ForecastComparisonReplayResult;
+}
+
 export interface AllocationModeComparisonIds {
   /** @minimum 1 */
   CAPITAL_LONG_ONLY: number;
@@ -3080,6 +3223,7 @@ export interface AllocationRequest {
      */
   covarianceDiagonalShrinkage: number;
   riskModel?: AllocationRiskModelSettings;
+  forecastModel?: ForecastModelConfig;
   allocationMode?: AllocationRequestAllocationMode;
   signedConstraints?: SignedAllocationConstraints;
   targetExcessReturn?: number;
@@ -3106,6 +3250,8 @@ export const AllocationVersionStatus = {
   UNBOUNDED: 'UNBOUNDED',
   MISSING_TARGET_EXCESS_RETURN: 'MISSING_TARGET_EXCESS_RETURN',
   INVALID_INPUT: 'INVALID_INPUT',
+  INVALID_FORECAST_MODEL: 'INVALID_FORECAST_MODEL',
+  UNAVAILABLE_HISTORICAL_VIEWS: 'UNAVAILABLE_HISTORICAL_VIEWS',
   INVALID_RISK_MODEL: 'INVALID_RISK_MODEL',
   INVALID_FACTOR_MODEL: 'INVALID_FACTOR_MODEL',
   INSUFFICIENT_HISTORY_OR_DIMENSION: 'INSUFFICIENT_HISTORY_OR_DIMENSION',
@@ -3146,6 +3292,8 @@ export interface AllocationReplay {
   status: AllocationReplayStatus;
   fingerprint: string;
   differences: string[];
+  /** @minimum 0 */
+  maximumNumericDifference?: number;
   replayedResult: AllocationReplayReplayedResult;
 }
 
@@ -3391,5 +3539,9 @@ export type ListRiskModelComparisons200 = {
 
 export type ListAllocationModeComparisons200 = {
   comparisons: AllocationModeComparisonSummary[];
+};
+
+export type ListForecastComparisons200 = {
+  comparisons: ForecastComparisonSummary[];
 };
 

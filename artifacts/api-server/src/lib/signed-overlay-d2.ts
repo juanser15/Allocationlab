@@ -9,6 +9,9 @@ import type {
   AllocationModel, AllocationRequest, AllocationResult, AllocationStatus, SolverDiagnostics,
   SignedOverlayConstraints,
 } from "./allocation-b2";
+import {
+  estimateForecast, portfolioForecastUncertainty, type ForecastResult,
+} from "./forecast-d3";
 
 const SOLVER_VERSION = "2.0.0";
 const TOL = 1e-8;
@@ -334,6 +337,9 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
     !finite(request.objective.gamma) || request.objective.gamma <= 0 ||
     !finite(request.objective.eta) || request.objective.eta < 0)
     return reject("INVALID_INPUT", "Return convention, shrinkage or objective parameters are invalid.");
+  if (request.forecastModel !== undefined && request.expectedReturnShrinkage !== 0)
+    return reject("INVALID_FORECAST_MODEL",
+      "forecastModel cannot be combined with nonzero legacy expectedReturnShrinkage; set legacy shrinkage to zero.");
   if (request.objective.type === "minimum_variance" &&
     (!finite(request.targetExcessReturn) || request.targetExcessReturn <= 0))
     return reject("MISSING_TARGET_EXCESS_RETURN", "MISSING_TARGET_EXCESS_RETURN: signed minimum variance requires targetExcessReturn > 0.");
@@ -392,7 +398,7 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
     returns[j].get(date)!.slippage / returns[j].get(date)!.beginningNav));
   const excess = grossReturns.map((series) => series.map((value, i) => value - cashReturns[i]));
   const sampleMeans = excess.map(mean);
-  const mu = sampleMeans.map((value) => (1 - request.expectedReturnShrinkage) * value);
+  let mu = sampleMeans.map((value) => (1 - request.expectedReturnShrinkage) * value);
   const sampleCovariance = covariance(dates.map((_, row) => excess.map((series) => series[row])));
   let factorModel: D1StatisticalFactorRiskModel | undefined;
   let sigma: number[][];
@@ -411,6 +417,38 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
       (1 - shrinkage) * value + (i === j ? shrinkage * sampleCovariance[i][i] : 0)));
   }
   if (!validateCovariance(sigma)) return reject("INVALID_RISK_MODEL", "Excess-return covariance is not finite PSD.");
+  let forecast: AllocationResult["forecast"];
+  if (request.forecastModel) {
+    const fullCash = cashReturnsByDate(selected, common);
+    if (typeof fullCash === "string") return reject("INVALID_INPUT", fullCash);
+    const estimated = estimateForecast({
+      candidateIds: selected.map((candidate) => candidate.candidateId),
+      returns: dates.map((_, row) => excess.map((series) => series[row])),
+      dates,
+      sigma,
+      dailyCashYield: request.dailyCashYield,
+      mode: "SIGNED_OVERLAY",
+      config: request.forecastModel,
+      decisionCutoff: request.informationCutoff,
+      fullHistory: {
+        dates: common,
+        returns: common.map((date) => selected.map((_, j) => {
+          const entry = returns[j].get(date)!;
+          return (entry.etfPnl + entry.cashPnl) / entry.beginningNav - fullCash.get(date)!;
+        })),
+      },
+    });
+    const forecastStatus = (estimated as { status: string }).status;
+    if (forecastStatus !== "OK") {
+      const status = ["HISTORICAL_FORECAST_UNAVAILABLE", "UNAVAILABLE_HISTORICAL_VIEWS"]
+        .includes(forecastStatus) ? "UNAVAILABLE_HISTORICAL_VIEWS" : "INVALID_FORECAST_MODEL";
+      const failedResult = failure(status, estimated.reason ?? "Forecast model could not produce a valid forecast.");
+      failedResult.forecast = { ...estimated, config: structuredClone(request.forecastModel) };
+      return failedResult;
+    }
+    mu = estimated.muHat;
+    forecast = { ...estimated, config: structuredClone(request.forecastModel) } as AllocationResult["forecast"];
+  }
   const assets = [...new Set(selected.flatMap((candidate) => candidate.assetTickers))].sort();
   const columns = selected.map((candidate) => expose(candidate, request.decisionTimestamp, request.informationCutoff, assets));
   const badColumn = columns.find((item) => typeof item === "string");
@@ -558,6 +596,12 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
       netAssetExposure: netExposure, cashTarget, expectedExcessReturn: expectedExcess, allocationMode: "SIGNED_OVERLAY",
     },
   };
+  if (forecast) {
+    const uncertainty = portfolioForecastUncertainty(forecast as ForecastResult, weights);
+    if ("status" in uncertainty)
+      return failure("INVALID_FORECAST_MODEL", uncertainty.reason, model);
+    result.forecast = { ...forecast, portfolio: uncertainty };
+  }
   if (riskSummary) {
     if (factorModel) {
       for (const modelEntry of Object.values(riskSummary.sameWindowModels!))

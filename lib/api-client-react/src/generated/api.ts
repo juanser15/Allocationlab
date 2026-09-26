@@ -55,6 +55,9 @@ import type {
   EtfDetail,
   FactorLibrary,
   FactorLibraryInput,
+  ForecastComparison,
+  ForecastComparisonInput,
+  ForecastComparisonReplay,
   GetAttributionMetaParams,
   GetAttributionParams,
   GetBacktestParams,
@@ -74,6 +77,7 @@ import type {
   HealthStatus,
   ListAllocationModeComparisons200,
   ListArchiveParams,
+  ListForecastComparisons200,
   ListRiskModelComparisons200,
   ListValidationRunsParams,
   LivePricesFetchInput,
@@ -5910,6 +5914,282 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getReplayAllocationModeComparisonMutationOptions(options));
+    }
+
+export const getCreateForecastComparisonUrl = () => {
+
+
+
+
+  return `/api/forecast-comparisons`
+}
+
+/**
+ * @summary Save a controlled comparison of the three frozen D3 expected-return estimators
+ */
+export const createForecastComparison = async (forecastComparisonInput: ForecastComparisonInput, options?: RequestInit): Promise<ForecastComparison> => {
+
+  return customFetch<ForecastComparison>(getCreateForecastComparisonUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(forecastComparisonInput)
+  }
+);}
+
+
+
+
+export const getCreateForecastComparisonMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createForecastComparison>>, TError,{data: BodyType<ForecastComparisonInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createForecastComparison>>, TError,{data: BodyType<ForecastComparisonInput>}, TContext> => {
+
+const mutationKey = ['createForecastComparison'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createForecastComparison>>, {data: BodyType<ForecastComparisonInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createForecastComparison(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateForecastComparisonMutationResult = NonNullable<Awaited<ReturnType<typeof createForecastComparison>>>
+    export type CreateForecastComparisonMutationBody = BodyType<ForecastComparisonInput>
+    export type CreateForecastComparisonMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Save a controlled comparison of the three frozen D3 expected-return estimators
+ */
+export const useCreateForecastComparison = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createForecastComparison>>, TError,{data: BodyType<ForecastComparisonInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createForecastComparison>>,
+        TError,
+        {data: BodyType<ForecastComparisonInput>},
+        TContext
+      > => {
+      return useMutation(getCreateForecastComparisonMutationOptions(options));
+    }
+
+export const getListForecastComparisonsUrl = () => {
+
+
+
+
+  return `/api/forecast-comparisons`
+}
+
+export const listForecastComparisons = async ( options?: RequestInit): Promise<ListForecastComparisons200> => {
+
+  return customFetch<ListForecastComparisons200>(getListForecastComparisonsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListForecastComparisonsQueryKey = () => {
+    return [
+    `/api/forecast-comparisons`
+    ] as const;
+    }
+
+
+export const getListForecastComparisonsQueryOptions = <TData = Awaited<ReturnType<typeof listForecastComparisons>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listForecastComparisons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListForecastComparisonsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listForecastComparisons>>> = ({ signal }) => listForecastComparisons({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listForecastComparisons>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListForecastComparisonsQueryResult = NonNullable<Awaited<ReturnType<typeof listForecastComparisons>>>
+export type ListForecastComparisonsQueryError = ErrorType<unknown>
+
+
+
+export function useListForecastComparisons<TData = Awaited<ReturnType<typeof listForecastComparisons>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listForecastComparisons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListForecastComparisonsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetForecastComparisonUrl = (comparisonId: number,) => {
+
+
+
+
+  return `/api/forecast-comparisons/${comparisonId}`
+}
+
+export const getForecastComparison = async (comparisonId: number, options?: RequestInit): Promise<ForecastComparison> => {
+
+  return customFetch<ForecastComparison>(getGetForecastComparisonUrl(comparisonId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetForecastComparisonQueryKey = (comparisonId: number,) => {
+    return [
+    `/api/forecast-comparisons/${comparisonId}`
+    ] as const;
+    }
+
+
+export const getGetForecastComparisonQueryOptions = <TData = Awaited<ReturnType<typeof getForecastComparison>>, TError = ErrorType<ErrorResponse>>(comparisonId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getForecastComparison>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetForecastComparisonQueryKey(comparisonId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getForecastComparison>>> = ({ signal }) => getForecastComparison(comparisonId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: comparisonId !== null && comparisonId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getForecastComparison>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetForecastComparisonQueryResult = NonNullable<Awaited<ReturnType<typeof getForecastComparison>>>
+export type GetForecastComparisonQueryError = ErrorType<ErrorResponse>
+
+
+
+export function useGetForecastComparison<TData = Awaited<ReturnType<typeof getForecastComparison>>, TError = ErrorType<ErrorResponse>>(
+ comparisonId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getForecastComparison>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetForecastComparisonQueryOptions(comparisonId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReplayForecastComparisonUrl = (comparisonId: number,) => {
+
+
+
+
+  return `/api/forecast-comparisons/${comparisonId}/replay`
+}
+
+export const replayForecastComparison = async (comparisonId: number, options?: RequestInit): Promise<ForecastComparisonReplay> => {
+
+  return customFetch<ForecastComparisonReplay>(getReplayForecastComparisonUrl(comparisonId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getReplayForecastComparisonMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayForecastComparison>>, TError,{comparisonId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replayForecastComparison>>, TError,{comparisonId: number}, TContext> => {
+
+const mutationKey = ['replayForecastComparison'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replayForecastComparison>>, {comparisonId: number}> = (props) => {
+          const {comparisonId} = props ?? {};
+
+          return  replayForecastComparison(comparisonId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplayForecastComparisonMutationResult = NonNullable<Awaited<ReturnType<typeof replayForecastComparison>>>
+
+    export type ReplayForecastComparisonMutationError = ErrorType<ErrorResponse>
+
+    export const useReplayForecastComparison = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayForecastComparison>>, TError,{comparisonId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replayForecastComparison>>,
+        TError,
+        {comparisonId: number},
+        TContext
+      > => {
+      return useMutation(getReplayForecastComparisonMutationOptions(options));
     }
 
 export const getGetRiskModelComparisonUrl = (comparisonId: number,) => {

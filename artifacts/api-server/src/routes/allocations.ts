@@ -10,6 +10,7 @@ import {
 } from "../lib/allocation-b2";
 import { fingerprint, type PreparedSnapshot } from "../lib/prepared-inputs";
 import { hashDataset } from "../lib/run-snapshot";
+import { maximumNumericDifference } from "../lib/replay-numeric-difference";
 
 const router: IRouter = Router();
 const REPLAY_TOLERANCE = 1e-8;
@@ -54,11 +55,41 @@ function unexpectedAllocationFields(body: unknown): string[] {
     "preparedInputId", "candidateIds", "informationCutoff", "decisionTimestamp", "estimationWindow",
     "minObservations", "representation", "returnConvention", "expectedReturnShrinkage",
       "covarianceDiagonalShrinkage", "riskModel", "dailyCashYield", "objective", "constraints",
-      "allocationMode", "signedConstraints", "targetExcessReturn",
+      "allocationMode", "signedConstraints", "targetExcessReturn", "forecastModel",
   ], "request");
   if (!request) return differences;
   check(request.objective, ["type", "gamma", "eta"], "objective");
   check(request.riskModel, ["type", "factorCount", "specificRiskFloorFraction"], "riskModel");
+  const forecast = check(request.forecastModel, [
+    "type", "displayZ", "shrinkage", "shrinkagePrior", "priorMean", "priorUncertainty", "views",
+  ], "forecastModel");
+  if (forecast) {
+    const forecastType = forecast.type;
+    const typeAllowed = forecastType === "SAMPLE_MEAN" ? ["type", "displayZ"] :
+      forecastType === "SHRUNK_MEAN" ? ["type", "displayZ", "shrinkage", "shrinkagePrior"] :
+        ["type", "displayZ", "shrinkage", "shrinkagePrior", "priorMean", "priorUncertainty", "views"];
+    check(forecast, typeAllowed, "forecastModel");
+    const shrinkagePrior = check(forecast.shrinkagePrior, ["source", "values"], "forecastModel.shrinkagePrior");
+    if (shrinkagePrior) check(shrinkagePrior,
+      shrinkagePrior.source === "USER_DEFINED" ? ["source", "values"] : ["source"],
+      "forecastModel.shrinkagePrior");
+    const priorMean = check(forecast.priorMean, ["source", "values"], "forecastModel.priorMean");
+    if (priorMean) check(priorMean,
+      priorMean.source === "USER_DEFINED_PRIOR" ? ["source", "values"] : ["source"],
+      "forecastModel.priorMean");
+    const priorUncertainty = check(forecast.priorUncertainty,
+      ["type", "tau", "matrix", "candidateIds"], "forecastModel.priorUncertainty");
+    if (priorUncertainty) check(priorUncertainty,
+      priorUncertainty.type === "USER_DEFINED" ? ["type", "matrix", "candidateIds"] : ["type", "tau"],
+      "forecastModel.priorUncertainty");
+    if (Array.isArray(forecast.views)) forecast.views.forEach((view, index) => {
+      const viewRecord = record(view);
+      check(view, viewRecord?.type === "RELATIVE"
+        ? ["type", "candidateId", "relativeCandidateId", "q", "variance", "effectiveTimestamp", "availabilityTimestamp"]
+        : ["type", "candidateId", "q", "variance", "effectiveTimestamp", "availabilityTimestamp"],
+      `forecastModel.views[${index}]`);
+    });
+  }
   const constraints = check(request.constraints, [
     "candidateBounds", "totalCash", "assetBounds", "groupCaps", "unsupported",
   ], "constraints");
@@ -164,6 +195,9 @@ router.post("/allocations", async (req, res): Promise<void> => {
     return;
   }
   const request = structuredClone(parsed.data) as AllocationRequest;
+  if (req.body && typeof req.body === "object" && !Array.isArray(req.body) &&
+    Object.prototype.hasOwnProperty.call(req.body, "forecastModel"))
+    request.forecastModel = structuredClone((req.body as Record<string, unknown>).forecastModel) as AllocationRequest["forecastModel"];
   if (new Set(request.candidateIds).size !== request.candidateIds.length) {
     res.status(400).json({ error: "candidateIds must contain unique canonical B1 candidate IDs." });
     return;
@@ -341,6 +375,7 @@ router.post("/allocations/:allocationId/replay", async (req, res): Promise<void>
     status: incompatibleEngine ? "engine_mismatch" : differences.length === 0 ? "pass" : "fail",
     fingerprint: row.fingerprint,
     differences,
+    maximumNumericDifference: maximumNumericDifference(savedResult, replayedResult),
     replayedResult,
   }));
 });

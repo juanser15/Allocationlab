@@ -13,5 +13,7 @@ export interface AllocationReplay {
   status: AllocationReplayStatus;
   fingerprint: string;
   differences: string[];
+  /** @minimum 0 */
+  maximumNumericDifference?: number;
   replayedResult: AllocationReplayReplayedResult;
 }

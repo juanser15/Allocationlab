@@ -13,5 +13,7 @@ export interface ValidationRunReplay {
   status: ValidationRunReplayStatus;
   validationInputHash: string;
   differences: string[];
+  /** @minimum 0 */
+  maximumNumericDifference?: number;
   replayedResult: ValidationRunReplayReplayedResult;
 }

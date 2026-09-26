@@ -5,6 +5,10 @@ import {
   buildStatisticalFactorRiskModel, decomposeStatisticalFactorRisk, type D1StatisticalFactorRiskModel,
 } from "./d1-factor-model";
 import { optimizeSignedOverlay } from "./signed-overlay-d2";
+import {
+  estimateForecast, portfolioForecastUncertainty, type ForecastModelConfig, type ForecastResult,
+  type PortfolioForecastUncertainty,
+} from "./forecast-d3";
 
 export type AllocationRepresentation = "asset_returns" | "alpha_streams" | "signals";
 export type AllocationMode = "CAPITAL_LONG_ONLY" | "SIGNED_OVERLAY";
@@ -31,6 +35,7 @@ export interface AllocationRequest {
   representation: AllocationRepresentation;
   returnConvention: "daily_decimal";
   expectedReturnShrinkage: number;
+  forecastModel?: ForecastModelConfig;
   covarianceDiagonalShrinkage: number;
   allocationMode?: AllocationMode;
   signedConstraints?: SignedOverlayConstraints;
@@ -62,7 +67,9 @@ export type AllocationStatus =
   | "NUMERICAL_FAILURE"
   | "LIMIT_REACHED"
   | "UNBOUNDED"
-  | "MISSING_TARGET_EXCESS_RETURN";
+  | "MISSING_TARGET_EXCESS_RETURN"
+  | "INVALID_FORECAST_MODEL"
+  | "UNAVAILABLE_HISTORICAL_VIEWS";
 
 export interface AllocationModel {
   candidateIds: string[];
@@ -162,6 +169,11 @@ export interface AllocationResult {
       expectedDailyVolatility: number | null;
     }>;
     decomposition?: Record<string, unknown>;
+  };
+  forecast?: Omit<ForecastResult, "status"> & {
+    status: ForecastResult["status"] | "HISTORICAL_FORECAST_UNAVAILABLE" | "UNAVAILABLE_HISTORICAL_VIEWS";
+    config: ForecastModelConfig;
+    portfolio?: PortfolioForecastUncertainty;
   };
 }
 
@@ -436,6 +448,9 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
     !finite(request.covarianceDiagonalShrinkage) || request.covarianceDiagonalShrinkage < 0 ||
     request.covarianceDiagonalShrinkage > 1 || !finite(request.dailyCashYield))
     return failure("INVALID_INPUT", "Return convention, shrinkage strengths or daily cash yield are invalid.");
+  if (request.forecastModel !== undefined && request.expectedReturnShrinkage !== 0)
+    return failure("INVALID_FORECAST_MODEL",
+      "forecastModel cannot be combined with nonzero legacy expectedReturnShrinkage; set legacy shrinkage to zero.");
   if (request.riskModel !== undefined &&
       (!request.riskModel || !["SAMPLE", "DIAGONAL_SHRINKAGE", "STATISTICAL_FACTOR"].includes(request.riskModel.type) ||
        (request.riskModel.factorCount !== undefined &&
@@ -501,7 +516,7 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
   if (grossReturns.some((series) => series.some((value) => !finite(value))))
     return failure("INVALID_INPUT", "A selected candidate has nonfinite gross returns in the requested window.");
   const sampleMeans = grossReturns.map(mean);
-  const mu = sampleMeans.map((sampleMean) => (1 - request.expectedReturnShrinkage) * sampleMean +
+  let mu = sampleMeans.map((sampleMean) => (1 - request.expectedReturnShrinkage) * sampleMean +
     request.expectedReturnShrinkage * request.dailyCashYield);
   const sampleCovariance = covarianceMatrix(dates.map((_, row) => grossReturns.map((series) => series[row])));
   let factorModel: any;
@@ -530,6 +545,33 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
   const diagonalShrinkageCovariance = sampleCovariance.map((row, i) => row.map((value, j) =>
     (1 - request.covarianceDiagonalShrinkage) * value +
     (i === j ? request.covarianceDiagonalShrinkage * sampleCovariance[i][i] : 0)));
+  let forecast: AllocationResult["forecast"];
+  if (request.forecastModel) {
+    const estimated = estimateForecast({
+      candidateIds: candidates.map((candidate) => candidate.candidateId),
+      returns: dates.map((_, row) => grossReturns.map((series) => series[row])),
+      dates,
+      sigma,
+      dailyCashYield: request.dailyCashYield,
+      mode: "CAPITAL_LONG_ONLY",
+      config: request.forecastModel,
+      decisionCutoff: request.informationCutoff,
+      fullHistory: {
+        dates: common,
+        returns: common.map((date) => streams.map((stream) => stream.get(date)!.gross)),
+      },
+    });
+    const forecastStatus = (estimated as { status: string }).status;
+    if (forecastStatus !== "OK") {
+      const status = ["HISTORICAL_FORECAST_UNAVAILABLE", "UNAVAILABLE_HISTORICAL_VIEWS"]
+        .includes(forecastStatus) ? "UNAVAILABLE_HISTORICAL_VIEWS" : "INVALID_FORECAST_MODEL";
+      const failedResult = failure(status, estimated.reason ?? "Forecast model could not produce a valid forecast.");
+      failedResult.forecast = { ...estimated, config: structuredClone(request.forecastModel) };
+      return failedResult;
+    }
+    mu = estimated.muHat;
+    forecast = { ...estimated, config: structuredClone(request.forecastModel) } as AllocationResult["forecast"];
+  }
 
   const assets = request.representation === "asset_returns"
     ? [...new Set(candidates.flatMap((candidate) => candidate.assetTickers))].sort()
@@ -699,6 +741,12 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
       message: diagonalLift ? `PSD flat-direction candidate lift ${diagonalLift}; exact objective KKT independently verified.` :
         "Exact objective KKT stationarity and independent primal feasibility checks passed." },
   };
+  if (forecast) {
+    const uncertainty = portfolioForecastUncertainty(forecast as ForecastResult, weights);
+    if ("status" in uncertainty)
+      return failure("INVALID_FORECAST_MODEL", uncertainty.reason, model);
+    result.forecast = { ...forecast, portfolio: uncertainty };
+  }
   if (riskModelSummary) {
     if (factorModel) {
       for (const model of Object.values(riskModelSummary.sameWindowModels!)) {

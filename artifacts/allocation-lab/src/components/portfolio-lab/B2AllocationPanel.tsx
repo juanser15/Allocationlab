@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { B2PreparedSelection } from "./PreparedInputsPanel";
 import type { D1RiskModelRequest } from "./D1RiskModelPanel";
+import type { ForecastModelConfig } from "@workspace/api-client-react";
+import { ForecastModelPanel, ForecastResults, validateForecast } from "./ForecastModelPanel";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,6 +41,7 @@ type AllocationRequest = {
   dailyCashYield: number;
   objective: { type: "minimum_variance" | "regularized_mean_variance"; gamma: number; eta: number };
   riskModel?: D1RiskModelRequest;
+  forecastModel: ForecastModelConfig;
   constraints: {
     candidateBounds?: Record<string, { min?: number; max?: number }>;
     totalCash?: { min?: number; max?: number };
@@ -105,6 +108,32 @@ function displayName(representation?: string): string {
   return representation ?? "Unavailable";
 }
 
+function activeForecastModel(form: ForecastModelConfig): ForecastModelConfig {
+  const displayZ = form.displayZ ?? 1.96;
+  if (form.type === "SAMPLE_MEAN") return { type: "SAMPLE_MEAN", displayZ };
+  const shrinkagePrior = form.shrinkagePrior?.source === "USER_DEFINED"
+    ? { source: "USER_DEFINED" as const, values: form.shrinkagePrior.values }
+    : { source: "DEFAULT" as const };
+  const shrinkage = form.shrinkage ?? 0;
+  if (form.type === "SHRUNK_MEAN") return { type: "SHRUNK_MEAN", shrinkage, shrinkagePrior, displayZ };
+  const priorMean = form.priorMean?.source === "USER_DEFINED_PRIOR"
+    ? { source: "USER_DEFINED_PRIOR" as const, values: form.priorMean.values }
+    : { source: form.priorMean?.source === "SHRUNK_PRIOR" ? "SHRUNK_PRIOR" as const : "SAMPLE_PRIOR" as const };
+  const priorUncertainty = form.priorUncertainty?.type === "USER_DEFINED"
+    ? { type: "USER_DEFINED" as const, candidateIds: form.priorUncertainty.candidateIds, matrix: form.priorUncertainty.matrix }
+    : { type: "TAU_SIGMA" as const, ...(form.priorUncertainty?.tau !== undefined ? { tau: form.priorUncertainty.tau } : {}) };
+  return {
+    type: "BAYESIAN_VIEWS", displayZ, priorMean, priorUncertainty,
+    ...(priorMean.source === "SHRUNK_PRIOR" ? { shrinkage, shrinkagePrior } : {}),
+    views: (form.views ?? []).map(view => ({
+      type: view.type, candidateId: view.candidateId,
+      ...(view.type === "RELATIVE" ? { relativeCandidateId: view.relativeCandidateId } : {}),
+      q: view.q, variance: view.variance,
+      effectiveTimestamp: view.effectiveTimestamp, availabilityTimestamp: view.availabilityTimestamp,
+    })),
+  };
+}
+
 export function B2AllocationPanel({
   prepared,
   runToken,
@@ -129,7 +158,7 @@ export function B2AllocationPanel({
   const [decisionTimestamp, setDecisionTimestamp] = useState(localDateTime);
   const [estimationWindow, setEstimationWindow] = useState(252);
   const [minObservations, setMinObservations] = useState(60);
-  const [expectedReturnShrinkage, setExpectedReturnShrinkage] = useState(0);
+  const [forecastModel, setForecastModel] = useState<ForecastModelConfig>({ type: "SAMPLE_MEAN", displayZ: 1.96, shrinkage: 0, shrinkagePrior: { source: "DEFAULT" }, priorMean: { source: "SAMPLE_PRIOR" }, priorUncertainty: { type: "TAU_SIGMA" }, views: [] });
   const [covarianceDiagonalShrinkage, setCovarianceDiagonalShrinkage] = useState(0);
   const [dailyCashYield, setDailyCashYield] = useState(0);
   const [objectiveType, setObjectiveType] = useState<AllocationRequest["objective"]["type"]>("minimum_variance");
@@ -233,9 +262,8 @@ export function B2AllocationPanel({
     }
     if (!informationCutoff || !Number.isInteger(estimationWindow) || estimationWindow < 2
       || !Number.isInteger(minObservations) || minObservations < 2
-      || expectedReturnShrinkage < 0 || expectedReturnShrinkage > 1
       || covarianceDiagonalShrinkage < 0 || covarianceDiagonalShrinkage > 1
-      || !Number.isFinite(dailyCashYield) || !Number.isFinite(expectedReturnShrinkage)
+       || !Number.isFinite(dailyCashYield)
       || !Number.isFinite(covarianceDiagonalShrinkage) || !Number.isFinite(gamma) || gamma <= 0
       || !Number.isFinite(eta) || eta < 0 || !Number.isFinite(estimationWindow) || !Number.isFinite(minObservations)
       || Number.isNaN(new Date(decisionTimestamp).getTime())) {
@@ -244,6 +272,8 @@ export function B2AllocationPanel({
     }
     let constraints: AllocationRequest["constraints"];
     try {
+      const submittedForecast = activeForecastModel(forecastModel);
+      validateForecast(submittedForecast, candidateIds, informationCutoff, decisionTimestamp);
       let signedConstraints: AllocationRequest["signedConstraints"];
       if (allocationMode === "SIGNED_OVERLAY") {
         const { alphaBounds, netAssetExposure, cash, groupGrossCaps } = signedSettings;
@@ -305,7 +335,8 @@ export function B2AllocationPanel({
         minObservations,
         representation: prepared.representation,
         returnConvention: "daily_decimal",
-        expectedReturnShrinkage,
+         expectedReturnShrinkage: 0,
+         forecastModel: submittedForecast,
         covarianceDiagonalShrinkage: prepared.representation === "alpha_streams"
           ? riskModel.type === "SAMPLE" ? 0 : covarianceDiagonalShrinkage
           : covarianceDiagonalShrinkage,
@@ -353,7 +384,7 @@ export function B2AllocationPanel({
       setResult({ ...detail, replay });
       setSelectedAllocationId(id);
       onAllocationSelectionChange?.(id);
-      setReplayStatus(`Replay ${String(replay.status ?? "completed")}${Array.isArray(replay.differences) ? ` · ${replay.differences.length} differing fields${replay.differences.length ? `: ${replay.differences.join("; ")}` : ""}` : ""}${typeof replay.maximumNumericDifference === "number" ? ` · maximum numeric difference ${replay.maximumNumericDifference}` : ""}`);
+       setReplayStatus(`Replay ${String(replay.status ?? "completed").toUpperCase()}${Array.isArray(replay.differences) ? ` · ${replay.differences.length} differing fields${replay.differences.length ? `: ${replay.differences.join("; ")}` : ""}` : ""}${typeof replay.maximumNumericDifference === "number" ? ` · maximum numeric difference ${replay.maximumNumericDifference}` : ""}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Allocation replay failed.");
     } finally {
@@ -370,6 +401,7 @@ export function B2AllocationPanel({
   const assetWeights = asRecord(allocation.assetWeights);
   const frozenObjective = asRecord(asRecord(response.request).objective ?? allocation.objective);
   const frozenRequest = asRecord(response.request);
+  const frozenForecast = allocation.forecast ?? asRecord(response.result).forecast;
   const signedResult = frozenRequest.allocationMode === "SIGNED_OVERLAY" || asRecord(allocation.signedOverlay).allocationMode === "SIGNED_OVERLAY";
   const frozenRiskModel = asRecord(asRecord(response.request).riskModel ?? allocation.riskModel ?? model.riskModel);
   const objectiveFormula = frozenObjective.type === "minimum_variance"
@@ -411,13 +443,13 @@ export function B2AllocationPanel({
             <div className="space-y-1"><Label>Decision timestamp</Label><Input type="datetime-local" value={decisionTimestamp} onChange={event => setDecisionTimestamp(event.target.value)} data-testid="input-b2-decision-timestamp" /></div>
             <div className="space-y-1"><Label>Estimation window (days)</Label><Input type="number" min="2" value={estimationWindow} onChange={event => { const days = Number(event.target.value); setEstimationWindow(days); onEstimationWindowChange?.(days); }} data-testid="input-b2-estimation-window" /></div>
             <div className="space-y-1"><Label>Minimum observations</Label><Input type="number" min="2" value={minObservations} onChange={event => setMinObservations(Number(event.target.value))} data-testid="input-b2-min-observations" /></div>
-            <div className="space-y-1"><Label>Expected-return shrinkage s [0,1]</Label><Input type="number" min="0" max="1" step="any" value={expectedReturnShrinkage} onChange={event => setExpectedReturnShrinkage(Number(event.target.value))} data-testid="input-b2-return-shrinkage" /></div>
             {(prepared?.representation !== "alpha_streams" || riskModel.type === "DIAGONAL_SHRINKAGE") && <div className="space-y-1"><Label>Diagonal covariance shrinkage δ [0,1]</Label><Input type="number" min="0" max="1" step="any" value={covarianceDiagonalShrinkage} onChange={event => setCovarianceDiagonalShrinkage(Number(event.target.value))} data-testid="input-b2-covariance-shrinkage" /></div>}
             <div className="space-y-1"><Label>Deterministic daily cash yield</Label><Input type="number" step="any" value={dailyCashYield} onChange={event => setDailyCashYield(Number(event.target.value))} data-testid="input-b2-daily-cash-yield" /></div>
             <div className="space-y-1"><Label>Objective</Label><select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={objectiveType} onChange={event => setObjectiveType(event.target.value as AllocationRequest["objective"]["type"])} data-testid="select-b2-objective"><option value="minimum_variance">Minimum variance</option><option value="regularized_mean_variance">Regularized mean-variance</option></select></div>
             <div className="space-y-1"><Label>γ (must be positive)</Label><Input type="number" min="0.0000001" step="any" value={gamma} onChange={event => setGamma(Number(event.target.value))} data-testid="input-b2-gamma" /></div>
             <div className="space-y-1"><Label>η (nonnegative)</Label><Input type="number" min="0" step="any" value={eta} onChange={event => setEta(Number(event.target.value))} data-testid="input-b2-eta" /></div>
           </div>
+           <ForecastModelPanel value={forecastModel} onChange={setForecastModel} candidateIds={candidateIds} cutoff={informationCutoff} observationCount={prepared ? alignedObservationCount(prepared, candidateIds, informationCutoff) : null} />
            {allocationMode === "SIGNED_OVERLAY" && <SignedOverlayControls candidates={candidateIds} names={prepared?.candidateNames ?? {}} settings={signedSettings} onChange={setSignedSettings} objective={objectiveType} gamma={gamma} eta={eta} target={targetExcessReturn} onTargetChange={setTargetExcessReturn} />}
            {allocationMode === "CAPITAL_LONG_ONLY" && <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-1"><Label>Total cash bounds JSON</Label><Input value={cashBoundsText} onChange={event => setCashBoundsText(event.target.value)} placeholder='{"min":0,"max":1}' data-testid="input-b2-cash-bounds" /></div>
@@ -426,7 +458,7 @@ export function B2AllocationPanel({
             <div className="space-y-1"><Label>Candidate group caps JSON</Label><Input value={groupCapsText} onChange={event => setGroupCapsText(event.target.value)} placeholder="[]" data-testid="input-b2-group-caps" /></div>
             <div className="space-y-1 md:col-span-2"><Label>Unsupported constraint requests (comma-separated, sent for explicit rejection)</Label><Input value={unsupportedText} onChange={event => setUnsupportedText(event.target.value)} placeholder="cardinality, signed alpha, leverage" data-testid="input-b2-unsupported-constraints" /></div>
            </div>}
-           <p className="text-xs text-muted-foreground">{allocationMode === "SIGNED_OVERLAY" ? "Signed overlays optimize alpha coefficients against daily excess returns, then aggregate underlying risky exposures before computing net and cash. Minimum variance requires a positive daily target excess return. The selected D1 covariance estimator applies to signed coefficients." : "Objective formulas: minimum variance minimizes ½ bᵀΣb; regularized mean-variance minimizes (γ/2)bᵀΣb + (η/2)Σⱼbⱼ² − μᵀb − r_cash·c. Estimator: daily decimal gross-return sample mean; μ = (1−s) mean + s·cash yield. Alpha streams use the selected D1 covariance estimator; asset returns retain their existing covariance settings. No cost optimization or historical validation is implied."}</p>
+            <p className="text-xs text-muted-foreground">{allocationMode === "SIGNED_OVERLAY" ? "Signed overlays optimize alpha coefficients against daily excess returns, then aggregate underlying risky exposures before computing net and cash. Minimum variance requires a positive daily target excess return. D3 forecasts excess returns; D1 independently estimates risk." : "Objective formulas: minimum variance minimizes ½ bᵀΣb; regularized mean-variance minimizes (γ/2)bᵀΣb + (η/2)Σⱼbⱼ² − μᵀb − r_cash·c. D3 supplies μ in daily decimal gross returns; D1/B2 independently supplies risk covariance. No cost optimization or historical validation is implied."}</p>
           <Button type="button" onClick={() => void runAllocation()} disabled={busy || !prepared} data-testid="button-run-b2-allocation">
             {busy ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Optimizing…</> : "Optimize B2 allocation"}
           </Button>
@@ -461,6 +493,7 @@ export function B2AllocationPanel({
           {replayStatus && <p className="text-xs" data-testid="status-b2-replay">{replayStatus}</p>}
         </CardHeader>
         <CardContent className="space-y-3">
+           <ForecastResults forecast={frozenForecast} frozenConfig={frozenRequest.forecastModel} candidateIds={Array.isArray(frozenRequest.candidateIds) ? frozenRequest.candidateIds as string[] : []} allocation={allocation} legacy={!frozenRequest.forecastModel} />
            {signedResult && <SignedOverlayResult allocation={allocation} request={frozenRequest} names={prepared?.candidateNames ?? {}} />}
            {!signedResult && <>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -486,7 +519,7 @@ export function B2AllocationPanel({
             <div className="rounded border p-3 text-xs">
               <h4 className="mb-1 font-semibold">Frozen estimation inputs</h4>
               <p>{frozenRiskModel.type === "STATISTICAL_FACTOR" ? "Daily decimal risk · Gamma = Xi + Omega Phi Omega′." : frozenRiskModel.type === "SAMPLE" ? "Daily decimal risk · sample covariance S." : frozenRiskModel.type === "DIAGONAL_SHRINKAGE" ? "Daily decimal risk · Sigma=(1−δ)S+δ·diag(S)." : "Risk estimator details are not returned by this saved record."}</p>
-              <p>s={formatValue(asRecord(response.request).expectedReturnShrinkage)}, δ={formatValue(asRecord(response.request).covarianceDiagonalShrinkage)}, r_cash={formatValue(asRecord(response.request).dailyCashYield)}.</p>
+              <p>{frozenRequest.forecastModel ? `D3 ${formatValue(asRecord(frozenRequest.forecastModel).type)} · legacy shrinkage disabled` : `Legacy shrinkage s=${formatValue(frozenRequest.expectedReturnShrinkage)}`} · δ={formatValue(frozenRequest.covarianceDiagonalShrinkage)}, r_cash={formatValue(frozenRequest.dailyCashYield)}.</p>
               {frozenRiskModel.type === "STATISTICAL_FACTOR" && <p>The frozen δ value is retained for comparison/display; the selected statistical-factor covariance estimator does not use it.</p>}
               <p className="mt-1">Risk model: {formatValue(frozenRiskModel)}</p>
               <p className="mt-1">Observations / dates: {formatValue(model.observationCount)} / {formatValue(model.dates)}</p>

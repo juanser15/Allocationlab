@@ -10,6 +10,7 @@ import type { AllocationRequest } from "./allocation-b2";
 import type { B3ValidationAssumptions } from "@workspace/api-zod";
 import { fingerprint } from "./prepared-inputs";
 import { hashDataset } from "./run-snapshot";
+import { maximumNumericDifference } from "./replay-numeric-difference";
 
 const B3_API_ENGINE_VERSION = "b3-validation-api.1";
 
@@ -398,6 +399,7 @@ export async function replayB3ValidationRun(id: number) {
     status: differences.length ? "fail" as const : "pass" as const,
     validationInputHash: row.validationInputHash,
     differences,
+    maximumNumericDifference: maximumNumericDifference(frozen.result, replayed),
     replayedResult: replayed,
   };
 }
