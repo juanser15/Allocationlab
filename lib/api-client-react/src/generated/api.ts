@@ -36,6 +36,12 @@ import type {
   C2Experiment,
   C2ExperimentInput,
   C2ExperimentReplay,
+  C3Experiment,
+  C3ExperimentReplay,
+  C3SelectionPolicyInput,
+  C3SelectionPolicyPlan,
+  C3SelectionPolicyPlanInput,
+  C3SelectionPolicySourcesResponse,
   CommitteeResult,
   CompareArchiveParams,
   Constraints,
@@ -3882,6 +3888,441 @@ export const useReplayAlphaDiagnosticExperiment = <TError = ErrorType<ErrorRespo
         TContext
       > => {
       return useMutation(getReplayAlphaDiagnosticExperimentMutationOptions(options));
+    }
+
+export const getCreateSelectionPolicyPlanUrl = () => {
+
+
+
+
+  return `/api/selection-policies/plan`
+}
+
+/**
+ * @summary Preview frozen C2-based redundancy groups and representative choices
+ */
+export const createSelectionPolicyPlan = async (c3SelectionPolicyPlanInput: C3SelectionPolicyPlanInput, options?: RequestInit): Promise<C3SelectionPolicyPlan> => {
+
+  return customFetch<C3SelectionPolicyPlan>(getCreateSelectionPolicyPlanUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(c3SelectionPolicyPlanInput)
+  }
+);}
+
+
+
+
+export const getCreateSelectionPolicyPlanMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSelectionPolicyPlan>>, TError,{data: BodyType<C3SelectionPolicyPlanInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSelectionPolicyPlan>>, TError,{data: BodyType<C3SelectionPolicyPlanInput>}, TContext> => {
+
+const mutationKey = ['createSelectionPolicyPlan'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSelectionPolicyPlan>>, {data: BodyType<C3SelectionPolicyPlanInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createSelectionPolicyPlan(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSelectionPolicyPlanMutationResult = NonNullable<Awaited<ReturnType<typeof createSelectionPolicyPlan>>>
+    export type CreateSelectionPolicyPlanMutationBody = BodyType<C3SelectionPolicyPlanInput>
+    export type CreateSelectionPolicyPlanMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Preview frozen C2-based redundancy groups and representative choices
+ */
+export const useCreateSelectionPolicyPlan = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSelectionPolicyPlan>>, TError,{data: BodyType<C3SelectionPolicyPlanInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createSelectionPolicyPlan>>,
+        TError,
+        {data: BodyType<C3SelectionPolicyPlanInput>},
+        TContext
+      > => {
+      return useMutation(getCreateSelectionPolicyPlanMutationOptions(options));
+    }
+
+export const getCreateSelectionPolicyExperimentUrl = () => {
+
+
+
+
+  return `/api/selection-policies`
+}
+
+/**
+ * @summary Run and immutably persist KEEP_ALL, GROUP_CAP, and REPRESENTATIVE evaluation policies
+ */
+export const createSelectionPolicyExperiment = async (c3SelectionPolicyInput: C3SelectionPolicyInput, options?: RequestInit): Promise<C3Experiment> => {
+
+  return customFetch<C3Experiment>(getCreateSelectionPolicyExperimentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(c3SelectionPolicyInput)
+  }
+);}
+
+
+
+
+export const getCreateSelectionPolicyExperimentMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSelectionPolicyExperiment>>, TError,{data: BodyType<C3SelectionPolicyInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSelectionPolicyExperiment>>, TError,{data: BodyType<C3SelectionPolicyInput>}, TContext> => {
+
+const mutationKey = ['createSelectionPolicyExperiment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSelectionPolicyExperiment>>, {data: BodyType<C3SelectionPolicyInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createSelectionPolicyExperiment(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSelectionPolicyExperimentMutationResult = NonNullable<Awaited<ReturnType<typeof createSelectionPolicyExperiment>>>
+    export type CreateSelectionPolicyExperimentMutationBody = BodyType<C3SelectionPolicyInput>
+    export type CreateSelectionPolicyExperimentMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Run and immutably persist KEEP_ALL, GROUP_CAP, and REPRESENTATIVE evaluation policies
+ */
+export const useCreateSelectionPolicyExperiment = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSelectionPolicyExperiment>>, TError,{data: BodyType<C3SelectionPolicyInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createSelectionPolicyExperiment>>,
+        TError,
+        {data: BodyType<C3SelectionPolicyInput>},
+        TContext
+      > => {
+      return useMutation(getCreateSelectionPolicyExperimentMutationOptions(options));
+    }
+
+export const getListSelectionPolicyExperimentsUrl = () => {
+
+
+
+
+  return `/api/selection-policies`
+}
+
+/**
+ * @summary List immutable C3 policy comparisons without recomputation
+ */
+export const listSelectionPolicyExperiments = async ( options?: RequestInit): Promise<C3Experiment[]> => {
+
+  return customFetch<C3Experiment[]>(getListSelectionPolicyExperimentsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSelectionPolicyExperimentsQueryKey = () => {
+    return [
+    `/api/selection-policies`
+    ] as const;
+    }
+
+
+export const getListSelectionPolicyExperimentsQueryOptions = <TData = Awaited<ReturnType<typeof listSelectionPolicyExperiments>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSelectionPolicyExperiments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSelectionPolicyExperimentsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSelectionPolicyExperiments>>> = ({ signal }) => listSelectionPolicyExperiments({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSelectionPolicyExperiments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListSelectionPolicyExperimentsQueryResult = NonNullable<Awaited<ReturnType<typeof listSelectionPolicyExperiments>>>
+export type ListSelectionPolicyExperimentsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List immutable C3 policy comparisons without recomputation
+ */
+
+export function useListSelectionPolicyExperiments<TData = Awaited<ReturnType<typeof listSelectionPolicyExperiments>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSelectionPolicyExperiments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListSelectionPolicyExperimentsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetSelectionPolicySourcesUrl = () => {
+
+
+
+
+  return `/api/selection-policies/sources`
+}
+
+/**
+ * @summary List compact frozen B1, B2, and C2 source selector options
+ */
+export const getSelectionPolicySources = async ( options?: RequestInit): Promise<C3SelectionPolicySourcesResponse> => {
+
+  return customFetch<C3SelectionPolicySourcesResponse>(getGetSelectionPolicySourcesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSelectionPolicySourcesQueryKey = () => {
+    return [
+    `/api/selection-policies/sources`
+    ] as const;
+    }
+
+
+export const getGetSelectionPolicySourcesQueryOptions = <TData = Awaited<ReturnType<typeof getSelectionPolicySources>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSelectionPolicySources>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSelectionPolicySourcesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSelectionPolicySources>>> = ({ signal }) => getSelectionPolicySources({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSelectionPolicySources>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSelectionPolicySourcesQueryResult = NonNullable<Awaited<ReturnType<typeof getSelectionPolicySources>>>
+export type GetSelectionPolicySourcesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List compact frozen B1, B2, and C2 source selector options
+ */
+
+export function useGetSelectionPolicySources<TData = Awaited<ReturnType<typeof getSelectionPolicySources>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSelectionPolicySources>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSelectionPolicySourcesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetSelectionPolicyExperimentUrl = (experimentId: number,) => {
+
+
+
+
+  return `/api/selection-policies/${experimentId}`
+}
+
+export const getSelectionPolicyExperiment = async (experimentId: number, options?: RequestInit): Promise<C3Experiment> => {
+
+  return customFetch<C3Experiment>(getGetSelectionPolicyExperimentUrl(experimentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSelectionPolicyExperimentQueryKey = (experimentId: number,) => {
+    return [
+    `/api/selection-policies/${experimentId}`
+    ] as const;
+    }
+
+
+export const getGetSelectionPolicyExperimentQueryOptions = <TData = Awaited<ReturnType<typeof getSelectionPolicyExperiment>>, TError = ErrorType<ErrorResponse>>(experimentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSelectionPolicyExperiment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSelectionPolicyExperimentQueryKey(experimentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSelectionPolicyExperiment>>> = ({ signal }) => getSelectionPolicyExperiment(experimentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: experimentId !== null && experimentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSelectionPolicyExperiment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSelectionPolicyExperimentQueryResult = NonNullable<Awaited<ReturnType<typeof getSelectionPolicyExperiment>>>
+export type GetSelectionPolicyExperimentQueryError = ErrorType<ErrorResponse>
+
+
+
+export function useGetSelectionPolicyExperiment<TData = Awaited<ReturnType<typeof getSelectionPolicyExperiment>>, TError = ErrorType<ErrorResponse>>(
+ experimentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSelectionPolicyExperiment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSelectionPolicyExperimentQueryOptions(experimentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReplaySelectionPolicyExperimentUrl = (experimentId: number,) => {
+
+
+
+
+  return `/api/selection-policies/${experimentId}/replay`
+}
+
+/**
+ * @summary Verify C3 integrity and replay from the exact frozen development evidence and child B3 runs
+ */
+export const replaySelectionPolicyExperiment = async (experimentId: number, options?: RequestInit): Promise<C3ExperimentReplay> => {
+
+  return customFetch<C3ExperimentReplay>(getReplaySelectionPolicyExperimentUrl(experimentId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getReplaySelectionPolicyExperimentMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replaySelectionPolicyExperiment>>, TError,{experimentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replaySelectionPolicyExperiment>>, TError,{experimentId: number}, TContext> => {
+
+const mutationKey = ['replaySelectionPolicyExperiment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replaySelectionPolicyExperiment>>, {experimentId: number}> = (props) => {
+          const {experimentId} = props ?? {};
+
+          return  replaySelectionPolicyExperiment(experimentId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplaySelectionPolicyExperimentMutationResult = NonNullable<Awaited<ReturnType<typeof replaySelectionPolicyExperiment>>>
+
+    export type ReplaySelectionPolicyExperimentMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Verify C3 integrity and replay from the exact frozen development evidence and child B3 runs
+ */
+export const useReplaySelectionPolicyExperiment = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replaySelectionPolicyExperiment>>, TError,{experimentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replaySelectionPolicyExperiment>>,
+        TError,
+        {experimentId: number},
+        TContext
+      > => {
+      return useMutation(getReplaySelectionPolicyExperimentMutationOptions(options));
     }
 
 export const getGetCommitteeUrl = () => {

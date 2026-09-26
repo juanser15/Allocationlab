@@ -1713,7 +1713,7 @@ export interface C2ExperimentInput {
   assumptions?: B3ValidationAssumptions;
   /**
      * @minItems 1
-     * @maxItems 5
+     * @maxItems 8
      * @items.minLength 1
      */
   alphaIds: string[];
@@ -1818,6 +1818,204 @@ export interface C2ExperimentReplay {
   maximumNumericDifference: number;
   differences: string[];
 }
+
+export type C3SelectionPolicyPlanInputGroupCaps = {[key: string]: number};
+
+export type C3SelectionPolicyPlanInputManualOverrides = {[key: string]: string};
+
+export interface C3SelectionPolicyThresholds {
+  /**
+     * @minimum -1
+     * @maximum 1
+     */
+  returnCorrelation: number;
+  /**
+     * @minimum -1
+     * @maximum 1
+     */
+  rollingMedianCorrelation: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  exposureSimilarity: number;
+  /**
+     * @minimum -1
+     * @maximum 1
+     */
+  regimeCorrelation: number;
+  /** @minimum 2 */
+  minPairedObservations: number;
+  /** @minimum 1 */
+  minRollingWindows: number;
+  /** @minimum 2 */
+  minRegimeObservations: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  epsilon: number;
+}
+
+/**
+ * Development-only frozen C2 evidence used to preview redundancy groups before evaluation.
+ */
+export interface C3SelectionPolicyPlanInput {
+  /** @minimum 1 */
+  allocationId: number;
+  /** @minimum 1 */
+  validationPreparedInputId: number;
+  /** @minimum 1 */
+  c2ExperimentId: number;
+  /**
+     * @minItems 2
+     * @items.minLength 1
+     */
+  alphaIds: string[];
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  developmentStartDate: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  developmentEndDate: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  evaluationStartDate: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  evaluationEndDate: string;
+  thresholds: C3SelectionPolicyThresholds;
+  groupCaps?: C3SelectionPolicyPlanInputGroupCaps;
+  manualOverrides?: C3SelectionPolicyPlanInputManualOverrides;
+  assumptions?: B3ValidationAssumptions;
+}
+
+export type C3SelectionPolicySourcesResponseAllocationsItem = {
+  /** @minimum 1 */
+  id: number;
+  /** @minimum 1 */
+  preparedInputId: number;
+  representation: string;
+  status: string;
+  candidateIds: string[];
+};
+
+export type C3SelectionPolicySourcesResponsePreparedInputsItem = {
+  /** @minimum 1 */
+  preparedInputId: number;
+  representation: string;
+  status: string;
+};
+
+export type C3SelectionPolicySourcesResponseC2ExperimentsItem = {
+  /** @minimum 1 */
+  id: number;
+  /** @minimum 1 */
+  allocationId: number;
+  /** @minimum 1 */
+  validationPreparedInputId: number;
+  alphaIds: string[];
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+};
+
+export interface C3SelectionPolicySourcesResponse {
+  allocations: C3SelectionPolicySourcesResponseAllocationsItem[];
+  preparedInputs: C3SelectionPolicySourcesResponsePreparedInputsItem[];
+  c2Experiments: C3SelectionPolicySourcesResponseC2ExperimentsItem[];
+}
+
+export type C3SelectionPolicyInput = C3SelectionPolicyPlanInput & { [key: string]: unknown } & Required<Pick<C3SelectionPolicyPlanInput & { [key: string]: unknown }, 'groupCaps' | 'assumptions'>>;
+
+export type C3SelectionPolicyPlanDevelopmentPeriod = {
+  startDate: string;
+  endDate: string;
+};
+
+export type C3SelectionPolicyPlanEvaluationPeriod = {
+  startDate: string;
+  endDate: string;
+};
+
+export type C3SelectionPolicyPlanPoliciesKEEPALL = { [key: string]: unknown };
+
+export type C3SelectionPolicyPlanPoliciesGROUPCAP = { [key: string]: unknown };
+
+export type C3SelectionPolicyPlanPoliciesREPRESENTATIVE = { [key: string]: unknown };
+
+export type C3SelectionPolicyPlanPolicies = {
+  KEEP_ALL: C3SelectionPolicyPlanPoliciesKEEPALL;
+  GROUP_CAP: C3SelectionPolicyPlanPoliciesGROUPCAP;
+  REPRESENTATIVE: C3SelectionPolicyPlanPoliciesREPRESENTATIVE;
+};
+
+export type C3SelectionPolicyPlanGroupsItem = { [key: string]: unknown };
+
+export type C3SelectionPolicyPlanPreservedPairsItem = { [key: string]: unknown };
+
+export type C3SelectionPolicyPlanSensitivity = { [key: string]: unknown };
+
+export type C3SelectionPolicyPlanPolicyRequestsKEEPALL = { [key: string]: unknown };
+
+export type C3SelectionPolicyPlanPolicyRequestsGROUPCAP = { [key: string]: unknown };
+
+export type C3SelectionPolicyPlanPolicyRequestsREPRESENTATIVE = { [key: string]: unknown };
+
+export type C3SelectionPolicyPlanPolicyRequests = {
+  KEEP_ALL: C3SelectionPolicyPlanPolicyRequestsKEEPALL;
+  GROUP_CAP: C3SelectionPolicyPlanPolicyRequestsGROUPCAP;
+  REPRESENTATIVE: C3SelectionPolicyPlanPolicyRequestsREPRESENTATIVE;
+};
+
+export interface C3SelectionPolicyPlan {
+  engineVersion: string;
+  developmentPeriod: C3SelectionPolicyPlanDevelopmentPeriod;
+  evaluationPeriod: C3SelectionPolicyPlanEvaluationPeriod;
+  thresholds: C3SelectionPolicyThresholds;
+  policies: C3SelectionPolicyPlanPolicies;
+  groups: C3SelectionPolicyPlanGroupsItem[];
+  standaloneIds: string[];
+  preservedPairs: C3SelectionPolicyPlanPreservedPairsItem[];
+  sensitivity: C3SelectionPolicyPlanSensitivity;
+  policyRequests: C3SelectionPolicyPlanPolicyRequests;
+  methodology: string;
+}
+
+export type C3ExperimentManifest = { [key: string]: unknown };
+
+export type C3ExperimentResult = { [key: string]: unknown };
+
+export interface C3Experiment {
+  id: number;
+  allocationId: number;
+  validationPreparedInputId: number;
+  c2ExperimentId: number;
+  manifestHash: string;
+  inputHash: string;
+  resultHash: string;
+  manifest: C3ExperimentManifest;
+  result: C3ExperimentResult;
+  /** @items.minimum 1 */
+  childValidationRunIds: number[];
+  createdAt: string;
+  [key: string]: unknown;
+ }
+
+export type C3ExperimentReplayStatus = typeof C3ExperimentReplayStatus[keyof typeof C3ExperimentReplayStatus];
+
+
+export const C3ExperimentReplayStatus = {
+  pass: 'pass',
+  fail: 'fail',
+} as const;
+
+export type C3ExperimentReplayChildReplaysItem = { [key: string]: unknown };
+
+export interface C3ExperimentReplay {
+  experimentId: number;
+  status: C3ExperimentReplayStatus;
+  maximumNumericDifference: number;
+  differences: string[];
+  childReplays?: C3ExperimentReplayChildReplaysItem[];
+  [key: string]: unknown;
+ }
 
 export type C1ExperimentInputMode = typeof C1ExperimentInputMode[keyof typeof C1ExperimentInputMode];
 

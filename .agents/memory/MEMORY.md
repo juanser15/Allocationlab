@@ -8,3 +8,4 @@
 - [B2 as-of allocation boundary](b2-as-of-allocation.md) — B2 results remain separate from legacy validation sessions; replay freezes the selected B1 preparation, not current working inputs.
 - [B3 frozen policy validation](b3-frozen-policy-validation.md) — historical runs freeze both policy and evaluation preparations; map dataset-dependent candidate identities by definition, never by current settings.
 - [Database test ESM runner](database-test-esm-runner.md) — externalize third-party packages while bundling the workspace DB entry; emit under the DB package for its dependency resolution.
+- [C3 development evidence boundary](c3-development-boundary.md) — keep the eight-alpha C2 source universe exact; preview verifies frozen hashes, while save/replay perform full source replay.

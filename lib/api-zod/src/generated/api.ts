@@ -3478,7 +3478,7 @@ export const createAlphaDiagnosticExperimentBodyAssumptionsTransactionCostBpsMin
 export const createAlphaDiagnosticExperimentBodyAssumptionsSlippageBpsMin = 0;
 
 
-export const createAlphaDiagnosticExperimentBodyAlphaIdsMax = 5;
+export const createAlphaDiagnosticExperimentBodyAlphaIdsMax = 8;
 
 export const createAlphaDiagnosticExperimentBodyStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const createAlphaDiagnosticExperimentBodyEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
@@ -3596,7 +3596,7 @@ export const createAlphaDiagnosticDependencyPlanBodyAssumptionsTransactionCostBp
 export const createAlphaDiagnosticDependencyPlanBodyAssumptionsSlippageBpsMin = 0;
 
 
-export const createAlphaDiagnosticDependencyPlanBodyAlphaIdsMax = 5;
+export const createAlphaDiagnosticDependencyPlanBodyAlphaIdsMax = 8;
 
 export const createAlphaDiagnosticDependencyPlanBodyStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const createAlphaDiagnosticDependencyPlanBodyEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
@@ -3732,6 +3732,362 @@ export const ReplayAlphaDiagnosticExperimentResponse = zod.object({
   "resultHash": zod.string(),
   "maximumNumericDifference": zod.number(),
   "differences": zod.array(zod.string())
+})
+
+
+/**
+ * @summary Preview frozen C2-based redundancy groups and representative choices
+ */
+
+
+
+
+export const createSelectionPolicyPlanBodyAlphaIdsMin = 2;
+
+export const createSelectionPolicyPlanBodyDevelopmentStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyPlanBodyDevelopmentEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyPlanBodyEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyPlanBodyEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyPlanBodyThresholdsReturnCorrelationMin = -1;
+export const createSelectionPolicyPlanBodyThresholdsReturnCorrelationMax = 1;
+
+export const createSelectionPolicyPlanBodyThresholdsRollingMedianCorrelationMin = -1;
+export const createSelectionPolicyPlanBodyThresholdsRollingMedianCorrelationMax = 1;
+
+export const createSelectionPolicyPlanBodyThresholdsExposureSimilarityMin = 0;
+export const createSelectionPolicyPlanBodyThresholdsExposureSimilarityMax = 1;
+
+export const createSelectionPolicyPlanBodyThresholdsRegimeCorrelationMin = -1;
+export const createSelectionPolicyPlanBodyThresholdsRegimeCorrelationMax = 1;
+
+export const createSelectionPolicyPlanBodyThresholdsMinPairedObservationsMin = 2;
+
+
+export const createSelectionPolicyPlanBodyThresholdsMinRegimeObservationsMin = 2;
+
+export const createSelectionPolicyPlanBodyThresholdsEpsilonMin = 0;
+export const createSelectionPolicyPlanBodyThresholdsEpsilonMax = 1;
+
+export const createSelectionPolicyPlanBodyGroupCapsMinOne = 0;
+export const createSelectionPolicyPlanBodyGroupCapsMaxOne = 1;
+
+
+export const createSelectionPolicyPlanBodyAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyPlanBodyAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyPlanBodyAssumptionsInitialNavExclusiveMin = 0;
+
+export const createSelectionPolicyPlanBodyAssumptionsInitialHoldingsMinOne = 0;
+
+export const createSelectionPolicyPlanBodyAssumptionsInitialCashMin = 0;
+
+export const createSelectionPolicyPlanBodyAssumptionsTransactionCostBpsMin = 0;
+
+export const createSelectionPolicyPlanBodyAssumptionsSlippageBpsMin = 0;
+
+
+
+export const CreateSelectionPolicyPlanBody = zod.object({
+  "allocationId": zod.number().min(1),
+  "validationPreparedInputId": zod.number().min(1),
+  "c2ExperimentId": zod.number().min(1),
+  "alphaIds": zod.array(zod.string().min(1)).min(createSelectionPolicyPlanBodyAlphaIdsMin),
+  "developmentStartDate": zod.string().regex(createSelectionPolicyPlanBodyDevelopmentStartDateRegExp),
+  "developmentEndDate": zod.string().regex(createSelectionPolicyPlanBodyDevelopmentEndDateRegExp),
+  "evaluationStartDate": zod.string().regex(createSelectionPolicyPlanBodyEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(createSelectionPolicyPlanBodyEvaluationEndDateRegExp),
+  "thresholds": zod.object({
+  "returnCorrelation": zod.number().min(createSelectionPolicyPlanBodyThresholdsReturnCorrelationMin).max(createSelectionPolicyPlanBodyThresholdsReturnCorrelationMax),
+  "rollingMedianCorrelation": zod.number().min(createSelectionPolicyPlanBodyThresholdsRollingMedianCorrelationMin).max(createSelectionPolicyPlanBodyThresholdsRollingMedianCorrelationMax),
+  "exposureSimilarity": zod.number().min(createSelectionPolicyPlanBodyThresholdsExposureSimilarityMin).max(createSelectionPolicyPlanBodyThresholdsExposureSimilarityMax),
+  "regimeCorrelation": zod.number().min(createSelectionPolicyPlanBodyThresholdsRegimeCorrelationMin).max(createSelectionPolicyPlanBodyThresholdsRegimeCorrelationMax),
+  "minPairedObservations": zod.number().min(createSelectionPolicyPlanBodyThresholdsMinPairedObservationsMin),
+  "minRollingWindows": zod.number().min(1),
+  "minRegimeObservations": zod.number().min(createSelectionPolicyPlanBodyThresholdsMinRegimeObservationsMin),
+  "epsilon": zod.number().min(createSelectionPolicyPlanBodyThresholdsEpsilonMin).max(createSelectionPolicyPlanBodyThresholdsEpsilonMax)
+}),
+  "groupCaps": zod.record(zod.string(), zod.number().min(createSelectionPolicyPlanBodyGroupCapsMinOne).max(createSelectionPolicyPlanBodyGroupCapsMaxOne)).optional(),
+  "manualOverrides": zod.record(zod.string(), zod.string().min(1)).optional(),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(createSelectionPolicyPlanBodyAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(createSelectionPolicyPlanBodyAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close']),
+  "initialNav": zod.number().gt(createSelectionPolicyPlanBodyAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(createSelectionPolicyPlanBodyAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(createSelectionPolicyPlanBodyAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(createSelectionPolicyPlanBodyAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(createSelectionPolicyPlanBodyAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).optional().describe('Frozen evaluation and A1 execution settings applied to this validation.')
+}).describe('Development-only frozen C2 evidence used to preview redundancy groups before evaluation.')
+
+export const createSelectionPolicyPlanResponseThresholdsReturnCorrelationMin = -1;
+export const createSelectionPolicyPlanResponseThresholdsReturnCorrelationMax = 1;
+
+export const createSelectionPolicyPlanResponseThresholdsRollingMedianCorrelationMin = -1;
+export const createSelectionPolicyPlanResponseThresholdsRollingMedianCorrelationMax = 1;
+
+export const createSelectionPolicyPlanResponseThresholdsExposureSimilarityMin = 0;
+export const createSelectionPolicyPlanResponseThresholdsExposureSimilarityMax = 1;
+
+export const createSelectionPolicyPlanResponseThresholdsRegimeCorrelationMin = -1;
+export const createSelectionPolicyPlanResponseThresholdsRegimeCorrelationMax = 1;
+
+export const createSelectionPolicyPlanResponseThresholdsMinPairedObservationsMin = 2;
+
+
+export const createSelectionPolicyPlanResponseThresholdsMinRegimeObservationsMin = 2;
+
+export const createSelectionPolicyPlanResponseThresholdsEpsilonMin = 0;
+export const createSelectionPolicyPlanResponseThresholdsEpsilonMax = 1;
+
+
+
+export const CreateSelectionPolicyPlanResponse = zod.object({
+  "engineVersion": zod.string(),
+  "developmentPeriod": zod.object({
+  "startDate": zod.coerce.date(),
+  "endDate": zod.coerce.date()
+}),
+  "evaluationPeriod": zod.object({
+  "startDate": zod.coerce.date(),
+  "endDate": zod.coerce.date()
+}),
+  "thresholds": zod.object({
+  "returnCorrelation": zod.number().min(createSelectionPolicyPlanResponseThresholdsReturnCorrelationMin).max(createSelectionPolicyPlanResponseThresholdsReturnCorrelationMax),
+  "rollingMedianCorrelation": zod.number().min(createSelectionPolicyPlanResponseThresholdsRollingMedianCorrelationMin).max(createSelectionPolicyPlanResponseThresholdsRollingMedianCorrelationMax),
+  "exposureSimilarity": zod.number().min(createSelectionPolicyPlanResponseThresholdsExposureSimilarityMin).max(createSelectionPolicyPlanResponseThresholdsExposureSimilarityMax),
+  "regimeCorrelation": zod.number().min(createSelectionPolicyPlanResponseThresholdsRegimeCorrelationMin).max(createSelectionPolicyPlanResponseThresholdsRegimeCorrelationMax),
+  "minPairedObservations": zod.number().min(createSelectionPolicyPlanResponseThresholdsMinPairedObservationsMin),
+  "minRollingWindows": zod.number().min(1),
+  "minRegimeObservations": zod.number().min(createSelectionPolicyPlanResponseThresholdsMinRegimeObservationsMin),
+  "epsilon": zod.number().min(createSelectionPolicyPlanResponseThresholdsEpsilonMin).max(createSelectionPolicyPlanResponseThresholdsEpsilonMax)
+}),
+  "policies": zod.object({
+  "KEEP_ALL": zod.record(zod.string(), zod.unknown()),
+  "GROUP_CAP": zod.record(zod.string(), zod.unknown()),
+  "REPRESENTATIVE": zod.record(zod.string(), zod.unknown())
+}),
+  "groups": zod.array(zod.record(zod.string(), zod.unknown())),
+  "standaloneIds": zod.array(zod.string()),
+  "preservedPairs": zod.array(zod.record(zod.string(), zod.unknown())),
+  "sensitivity": zod.record(zod.string(), zod.unknown()),
+  "policyRequests": zod.object({
+  "KEEP_ALL": zod.record(zod.string(), zod.unknown()),
+  "GROUP_CAP": zod.record(zod.string(), zod.unknown()),
+  "REPRESENTATIVE": zod.record(zod.string(), zod.unknown())
+}),
+  "methodology": zod.string()
+})
+
+
+/**
+ * @summary Run and immutably persist KEEP_ALL, GROUP_CAP, and REPRESENTATIVE evaluation policies
+ */
+
+
+
+
+export const createSelectionPolicyExperimentBodyOneAlphaIdsMin = 2;
+
+export const createSelectionPolicyExperimentBodyOneDevelopmentStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyExperimentBodyOneDevelopmentEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyExperimentBodyOneEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyExperimentBodyOneEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyExperimentBodyOneThresholdsReturnCorrelationMin = -1;
+export const createSelectionPolicyExperimentBodyOneThresholdsReturnCorrelationMax = 1;
+
+export const createSelectionPolicyExperimentBodyOneThresholdsRollingMedianCorrelationMin = -1;
+export const createSelectionPolicyExperimentBodyOneThresholdsRollingMedianCorrelationMax = 1;
+
+export const createSelectionPolicyExperimentBodyOneThresholdsExposureSimilarityMin = 0;
+export const createSelectionPolicyExperimentBodyOneThresholdsExposureSimilarityMax = 1;
+
+export const createSelectionPolicyExperimentBodyOneThresholdsRegimeCorrelationMin = -1;
+export const createSelectionPolicyExperimentBodyOneThresholdsRegimeCorrelationMax = 1;
+
+export const createSelectionPolicyExperimentBodyOneThresholdsMinPairedObservationsMin = 2;
+
+
+export const createSelectionPolicyExperimentBodyOneThresholdsMinRegimeObservationsMin = 2;
+
+export const createSelectionPolicyExperimentBodyOneThresholdsEpsilonMin = 0;
+export const createSelectionPolicyExperimentBodyOneThresholdsEpsilonMax = 1;
+
+export const createSelectionPolicyExperimentBodyOneGroupCapsMinOne = 0;
+export const createSelectionPolicyExperimentBodyOneGroupCapsMaxOne = 1;
+
+
+export const createSelectionPolicyExperimentBodyOneAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyExperimentBodyOneAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createSelectionPolicyExperimentBodyOneAssumptionsInitialNavExclusiveMin = 0;
+
+export const createSelectionPolicyExperimentBodyOneAssumptionsInitialHoldingsMinOne = 0;
+
+export const createSelectionPolicyExperimentBodyOneAssumptionsInitialCashMin = 0;
+
+export const createSelectionPolicyExperimentBodyOneAssumptionsTransactionCostBpsMin = 0;
+
+export const createSelectionPolicyExperimentBodyOneAssumptionsSlippageBpsMin = 0;
+
+
+
+export const CreateSelectionPolicyExperimentBody = zod.object({
+  "allocationId": zod.number().min(1),
+  "validationPreparedInputId": zod.number().min(1),
+  "c2ExperimentId": zod.number().min(1),
+  "alphaIds": zod.array(zod.string().min(1)).min(createSelectionPolicyExperimentBodyOneAlphaIdsMin),
+  "developmentStartDate": zod.string().regex(createSelectionPolicyExperimentBodyOneDevelopmentStartDateRegExp),
+  "developmentEndDate": zod.string().regex(createSelectionPolicyExperimentBodyOneDevelopmentEndDateRegExp),
+  "evaluationStartDate": zod.string().regex(createSelectionPolicyExperimentBodyOneEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(createSelectionPolicyExperimentBodyOneEvaluationEndDateRegExp),
+  "thresholds": zod.object({
+  "returnCorrelation": zod.number().min(createSelectionPolicyExperimentBodyOneThresholdsReturnCorrelationMin).max(createSelectionPolicyExperimentBodyOneThresholdsReturnCorrelationMax),
+  "rollingMedianCorrelation": zod.number().min(createSelectionPolicyExperimentBodyOneThresholdsRollingMedianCorrelationMin).max(createSelectionPolicyExperimentBodyOneThresholdsRollingMedianCorrelationMax),
+  "exposureSimilarity": zod.number().min(createSelectionPolicyExperimentBodyOneThresholdsExposureSimilarityMin).max(createSelectionPolicyExperimentBodyOneThresholdsExposureSimilarityMax),
+  "regimeCorrelation": zod.number().min(createSelectionPolicyExperimentBodyOneThresholdsRegimeCorrelationMin).max(createSelectionPolicyExperimentBodyOneThresholdsRegimeCorrelationMax),
+  "minPairedObservations": zod.number().min(createSelectionPolicyExperimentBodyOneThresholdsMinPairedObservationsMin),
+  "minRollingWindows": zod.number().min(1),
+  "minRegimeObservations": zod.number().min(createSelectionPolicyExperimentBodyOneThresholdsMinRegimeObservationsMin),
+  "epsilon": zod.number().min(createSelectionPolicyExperimentBodyOneThresholdsEpsilonMin).max(createSelectionPolicyExperimentBodyOneThresholdsEpsilonMax)
+}),
+  "groupCaps": zod.record(zod.string(), zod.number().min(createSelectionPolicyExperimentBodyOneGroupCapsMinOne).max(createSelectionPolicyExperimentBodyOneGroupCapsMaxOne)),
+  "manualOverrides": zod.record(zod.string(), zod.string().min(1)).optional(),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(createSelectionPolicyExperimentBodyOneAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(createSelectionPolicyExperimentBodyOneAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close']),
+  "initialNav": zod.number().gt(createSelectionPolicyExperimentBodyOneAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(createSelectionPolicyExperimentBodyOneAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(createSelectionPolicyExperimentBodyOneAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(createSelectionPolicyExperimentBodyOneAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(createSelectionPolicyExperimentBodyOneAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).describe('Frozen evaluation and A1 execution settings applied to this validation.')
+}).describe('Development-only frozen C2 evidence used to preview redundancy groups before evaluation.').and(zod.object({
+
+}).passthrough())
+
+
+
+
+export const CreateSelectionPolicyExperimentResponse = zod.object({
+  "id": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "c2ExperimentId": zod.number(),
+  "manifestHash": zod.string(),
+  "inputHash": zod.string(),
+  "resultHash": zod.string(),
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "childValidationRunIds": zod.array(zod.number().min(1)),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List immutable C3 policy comparisons without recomputation
+ */
+
+
+
+export const ListSelectionPolicyExperimentsResponseItem = zod.object({
+  "id": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "c2ExperimentId": zod.number(),
+  "manifestHash": zod.string(),
+  "inputHash": zod.string(),
+  "resultHash": zod.string(),
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "childValidationRunIds": zod.array(zod.number().min(1)),
+  "createdAt": zod.coerce.date()
+})
+export const ListSelectionPolicyExperimentsResponse = zod.array(ListSelectionPolicyExperimentsResponseItem)
+
+
+/**
+ * @summary List compact frozen B1, B2, and C2 source selector options
+ */
+
+
+
+
+
+
+
+
+export const GetSelectionPolicySourcesResponse = zod.object({
+  "allocations": zod.array(zod.object({
+  "id": zod.number().min(1),
+  "preparedInputId": zod.number().min(1),
+  "representation": zod.string(),
+  "status": zod.string(),
+  "candidateIds": zod.array(zod.string())
+})),
+  "preparedInputs": zod.array(zod.object({
+  "preparedInputId": zod.number().min(1),
+  "representation": zod.string(),
+  "status": zod.string()
+})),
+  "c2Experiments": zod.array(zod.object({
+  "id": zod.number().min(1),
+  "allocationId": zod.number().min(1),
+  "validationPreparedInputId": zod.number().min(1),
+  "alphaIds": zod.array(zod.string()),
+  "startDate": zod.coerce.date(),
+  "endDate": zod.coerce.date(),
+  "createdAt": zod.coerce.date()
+}))
+})
+
+
+
+
+
+export const GetSelectionPolicyExperimentParams = zod.object({
+  "experimentId": zod.coerce.number().min(1)
+})
+
+
+
+
+export const GetSelectionPolicyExperimentResponse = zod.object({
+  "id": zod.number(),
+  "allocationId": zod.number(),
+  "validationPreparedInputId": zod.number(),
+  "c2ExperimentId": zod.number(),
+  "manifestHash": zod.string(),
+  "inputHash": zod.string(),
+  "resultHash": zod.string(),
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown()),
+  "childValidationRunIds": zod.array(zod.number().min(1)),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Verify C3 integrity and replay from the exact frozen development evidence and child B3 runs
+ */
+
+
+
+export const ReplaySelectionPolicyExperimentParams = zod.object({
+  "experimentId": zod.coerce.number().min(1)
+})
+
+export const ReplaySelectionPolicyExperimentResponse = zod.object({
+  "experimentId": zod.number(),
+  "status": zod.enum(['pass', 'fail']),
+  "maximumNumericDifference": zod.number(),
+  "differences": zod.array(zod.string()),
+  "childReplays": zod.array(zod.record(zod.string(), zod.unknown())).optional()
 })
 
 

@@ -24,6 +24,7 @@ import { B2AllocationPanel } from "@/components/portfolio-lab/B2AllocationPanel"
 import { B3ValidationPanel } from "@/components/portfolio-lab/B3ValidationPanel";
 import { C1ContributionPanel } from "@/components/portfolio-lab/C1ContributionPanel";
 import { C2DiagnosticsPanel } from "@/components/portfolio-lab/C2DiagnosticsPanel";
+import { C3SelectionPoliciesPanel } from "@/components/portfolio-lab/C3SelectionPoliciesPanel";
 import type { B2PreparedSelection } from "@/components/portfolio-lab/PreparedInputsPanel";
 
 export default function PortfolioLab() {
@@ -289,6 +290,7 @@ export default function PortfolioLab() {
             />}
           <C1ContributionPanel />
           <C2DiagnosticsPanel />
+          <C3SelectionPoliciesPanel />
         </TabsContent>
 
         <TabsContent value="allocation" forceMount className="space-y-6 pt-4 data-[state=inactive]:hidden">

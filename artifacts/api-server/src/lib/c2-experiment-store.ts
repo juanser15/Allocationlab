@@ -199,10 +199,10 @@ function validateNormalizedInput(input: C2StoreInput): string | null {
     return "allocationId and validationPreparedInputId must be positive safe integers.";
   if (input.c1ExperimentId !== null && (!Number.isSafeInteger(input.c1ExperimentId) || input.c1ExperimentId < 1))
     return "c1ExperimentId must be null or a positive safe integer.";
-  if (!input.alphaIds.length || input.alphaIds.length > 5 ||
+  if (!input.alphaIds.length || input.alphaIds.length > 8 ||
       input.alphaIds.some((id) => typeof id !== "string" || !id.trim()) ||
       new Set(input.alphaIds).size !== input.alphaIds.length)
-    return "alphaIds must contain one to five unique, explicit canonical alpha IDs.";
+    return "alphaIds must contain one to eight unique, explicit canonical alpha IDs.";
   if (!validDate(input.startDate) || !validDate(input.endDate) || input.startDate > input.endDate)
     return "startDate and endDate must be valid ISO dates with startDate not after endDate.";
   if (input.assumptions) {

@@ -1,0 +1,662 @@
+C3 — REDUNDANCY / ALPHA-SELECTION POLICY COMPARISON
+
+CLOSED-SCOPE TASK
+
+Stages A, B, C1 and C2 are CLOSED.
+
+Reuse:
+- B1 alpha-stream definitions;
+- B2 allocation engine;
+- B3 point-in-time policy backtester;
+- C1 incremental-contribution evidence;
+- C2 stability, dependence and regime evidence;
+- immutable snapshot/replay infrastructure.
+
+GOAL
+
+Compare three explicit policies for handling potentially redundant
+alpha streams:
+
+A. KEEP_ALL
+B. GROUP_CAP
+C. REPRESENTATIVE
+
+Evaluate them under the same portfolio construction and execution
+assumptions.
+
+C3 must NOT automatically declare a winning policy or promote one
+to production.
+
+C3 asks:
+
+“What happens if we keep all alphas, control redundant groups, or use
+one representative per genuinely redundant group?”
+
+--------------------------------------------------
+1. DEVELOPMENT AND EVALUATION SEPARATION
+--------------------------------------------------
+
+Every C3 experiment must declare:
+
+- Development start/end.
+- Evaluation start/end.
+
+Development must end strictly before evaluation begins.
+
+Use DEVELOPMENT data only to:
+
+- evaluate C2 redundancy evidence;
+- define redundancy groups;
+- select group representatives;
+- configure group membership.
+
+Once evaluation begins:
+
+- groups are frozen;
+- representatives are frozen;
+- policy definitions are frozen;
+- no evaluation-period results may alter them.
+
+The evaluation period is then run through the existing B3 engine.
+
+Do not use evaluation-period results to revise the development decision
+and still call the same period out-of-sample.
+
+If the user modifies a policy after seeing evaluation results, that is
+a NEW C3 experiment with a new evaluation claim.
+
+--------------------------------------------------
+2. REDUNDANCY IS MULTIDIMENSIONAL
+--------------------------------------------------
+
+Do not group two alphas merely because full-sample correlation is high.
+
+Use frozen C2 DEVELOPMENT evidence.
+
+A pair may be considered for the same redundancy group only when
+sufficient C2 evidence exists and ALL required redundancy conditions
+are satisfied.
+
+Required evidence:
+
+1. Alpha-return correlation.
+2. Rolling correlation stability.
+3. Regime-conditioned correlation.
+4. Underlying-exposure similarity.
+5. Regime-divergence flag.
+6. Sufficient observation counts.
+
+Critical rule:
+
+If C2 reports:
+
+REGIME_DIVERGENCE_OBSERVED
+
+for pair A/B,
+
+A and B MUST NOT be automatically collapsed into the same
+representative-selection redundancy group.
+
+Example:
+
+Full-sample correlation = 0.92
+Risk-On correlation = 0.95
+Risk-Off correlation = 0.30
+
+and/or materially different conditional contribution profiles.
+
+This pair may look redundant globally but is potentially complementary.
+
+Keep that distinction.
+
+--------------------------------------------------
+3. REDUNDANCY GROUP CONSTRUCTION
+--------------------------------------------------
+
+Use a conservative, transparent grouping rule.
+
+Default grouping eligibility requires:
+
+- full-sample return correlation >= user-configured threshold;
+- rolling median correlation >= user-configured threshold;
+- sufficiently high underlying-exposure similarity;
+- no REGIME_DIVERGENCE_OBSERVED;
+- sufficient regime evidence.
+
+Thresholds must be visible and versioned.
+
+Do not hardcode a universal financial threshold.
+
+For deterministic grouping, use a conservative COMPLETE-LINKAGE rule:
+
+A candidate may join an existing redundancy group only if it satisfies
+the grouping conditions against EVERY existing member of that group.
+
+This prevents chains such as:
+
+A similar to B
+B similar to C
+A not similar to C
+
+from being treated automatically as one homogeneous group.
+
+Candidates that do not satisfy a redundancy group remain standalone.
+
+Store the exact pairwise evidence supporting every group.
+
+--------------------------------------------------
+4. POLICY A — KEEP_ALL
+--------------------------------------------------
+
+KEEP_ALL is the benchmark.
+
+Use all technically admissible canonical alphas.
+
+Do not remove alphas because of:
+
+- correlation;
+- weak standalone Sharpe;
+- low standalone return;
+- low C1 contribution in one regime.
+
+Run the frozen B2/B3 policy using the complete candidate set.
+
+Existing regularization and constraints remain unchanged.
+
+--------------------------------------------------
+5. POLICY B — GROUP_CAP
+--------------------------------------------------
+
+Keep every alpha.
+
+For each C3 redundancy group, apply an aggregate candidate-group
+allocation cap using B2's existing group-cap capability.
+
+The cap is USER-CONFIGURABLE.
+
+Do not impose a universal cap.
+
+Examples:
+
+Group 1:
+Alpha A
+Alpha B
+Alpha C
+
+Constraint:
+
+sum(weights in Group 1) <= GroupCap_1
+
+Apply the cap INSIDE the B2 optimization.
+
+Do not optimize and clip afterward.
+
+Standalone alphas remain subject only to normal B2 constraints.
+
+A regime-divergent pair cannot be grouped automatically merely to
+reduce allocation.
+
+--------------------------------------------------
+6. POLICY C — REPRESENTATIVE
+--------------------------------------------------
+
+For each genuine redundancy group, retain one alpha as the group's
+representative.
+
+All standalone/non-grouped alphas remain available.
+
+The representative-selection rule must be specified BEFORE evaluation.
+
+Default deterministic rule:
+
+1. Require technically valid candidates and sufficient DEVELOPMENT
+   coverage.
+
+2. Within the redundancy group choose the alpha with the LOWER
+   median external traded-notional / turnover over the declared
+   development period.
+
+3. If tied within numerical tolerance, choose the alpha with the
+   HIGHER valid-data coverage.
+
+4. If still tied, choose deterministically by canonical alpha ID.
+
+Do NOT choose the alpha with:
+- highest development Sharpe;
+- highest development return;
+- best evaluation performance.
+
+The default rule intentionally prefers implementation efficiency
+within a set already determined to be economically redundant.
+
+Allow the PM to manually override the representative BEFORE evaluation.
+
+A manual override must be:
+- explicit;
+- versioned;
+- stored in the C3 manifest.
+
+Do not infer an override from historical performance.
+
+--------------------------------------------------
+7. REGIME COMPLEMENTARITY PROTECTION
+--------------------------------------------------
+
+This is a mandatory C3 invariant.
+
+Create a visible list:
+
+PRESERVED DUE TO REGIME COMPLEMENTARITY
+
+For every pair prevented from redundancy collapse because of
+REGIME_DIVERGENCE_OBSERVED show:
+
+- full-sample correlation;
+- correlation by regime;
+- conditional performance by regime;
+- conditional C1 contribution when available;
+- exposure similarity.
+
+Example interpretation:
+
+“High aggregate dependence, but materially different Risk-Off behavior.
+Both candidates preserved.”
+
+This is descriptive evidence.
+
+Do not automatically increase their weights.
+
+--------------------------------------------------
+8. SAME ECONOMIC CONDITIONS ACROSS POLICIES
+--------------------------------------------------
+
+KEEP_ALL, GROUP_CAP and REPRESENTATIVE must use identical:
+
+- immutable evaluation dataset;
+- evaluation dates;
+- initial NAV and holdings;
+- B2 objective;
+- expected-return estimator;
+- covariance estimator;
+- shrinkage parameters;
+- decision calendar;
+- execution timing;
+- transaction costs;
+- slippage;
+- cash yield;
+- underlying-asset constraints;
+- benchmark;
+- B3 accounting convention.
+
+Only the redundancy-treatment policy may differ.
+
+Do not compare policies generated with different underlying assumptions
+as though redundancy treatment caused the difference.
+
+--------------------------------------------------
+9. EVALUATION
+--------------------------------------------------
+
+Run all three frozen policies through B3 over the EVALUATION period.
+
+Report for each:
+
+- cumulative net return;
+- annualized return;
+- annualized volatility;
+- daily-excess-return Sharpe;
+- maximum drawdown;
+- external traded notional / turnover;
+- transaction costs;
+- average cash;
+- average risky exposure;
+- number of active alpha streams;
+- number of final underlying assets;
+- concentration of alpha capital;
+- concentration of underlying asset exposure.
+
+Also report pairwise differences:
+
+KEEP_ALL vs GROUP_CAP
+
+KEEP_ALL vs REPRESENTATIVE
+
+GROUP_CAP vs REPRESENTATIVE
+
+Do not create a generic “winner score”.
+
+Do not automatically label one superior.
+
+--------------------------------------------------
+10. STABILITY OF THE POLICY ITSELF
+--------------------------------------------------
+
+In DEVELOPMENT data only, test whether the redundancy grouping is
+sensitive to modest perturbations of the declared thresholds.
+
+Use:
+
+threshold - epsilon
+base threshold
+threshold + epsilon
+
+with user-visible epsilon.
+
+Report:
+
+- number of groups;
+- group-membership changes;
+- representative changes;
+- percentage of alphas whose group assignment changes.
+
+Do not search over epsilon to find the most favorable policy.
+
+This is a stability diagnostic, not hyperparameter optimization.
+
+--------------------------------------------------
+11. TWO LEVELS OF PORTFOLIO DIFFERENCE
+--------------------------------------------------
+
+At matched evaluation decision dates compare policies at:
+
+A. Alpha capital level.
+
+B. Final underlying-asset level.
+
+Use:
+
+distance_t
+=
+0.5 * sum |weights_policy1 - weights_policy2|
+
+Report:
+
+- mean distance;
+- maximum distance;
+- time series.
+
+This reveals whether very different alpha selection policies ultimately
+produce almost the same tradable portfolio.
+
+Do not interpret these distances as realized turnover.
+
+--------------------------------------------------
+12. UI
+--------------------------------------------------
+
+Do not add another top-level module.
+
+Inside Alpha Diagnostics / Research add:
+
+SELECTION POLICIES
+
+Use four clear internal sections:
+
+1. Development Evidence
+2. Redundancy Groups
+3. Policy Definitions
+4. Evaluation Comparison
+
+Workflow:
+
+Select frozen alpha universe
+→ Define development/evaluation split
+→ Review C2 evidence
+→ Build redundancy groups
+→ Review representatives/group caps
+→ Run Policy Comparison
+→ Inspect evaluation results
+
+Use ONE local command:
+
+RUN POLICY COMPARISON
+
+Before running, clearly show:
+
+KEEP_ALL:
+30 alphas
+
+GROUP_CAP:
+30 alphas
+6 redundancy groups
+
+REPRESENTATIVE:
+21 alphas
+9 removed as redundant representatives
+
+Also show:
+
+3 candidate pairs preserved due to regime complementarity
+
+Do not hide which alphas are removed from REPRESENTATIVE.
+
+--------------------------------------------------
+13. PERSISTENCE AND REPLAY
+--------------------------------------------------
+
+Persist C3 experiment immutably.
+
+Freeze:
+
+- B1/B2/B3/C1/C2 source identities;
+- development/evaluation dates;
+- selected alpha universe;
+- all C2 evidence used;
+- grouping thresholds;
+- epsilon;
+- generated redundancy groups;
+- regime-divergence protections;
+- representative-selection rule;
+- manual overrides;
+- group caps;
+- three frozen policy definitions;
+- child B3 Validation Run IDs;
+- resulting metrics;
+- allocation-distance series;
+- engine versions.
+
+Changing any setting creates a new C3 experiment.
+
+Replay must never rebuild groups using current C2 evidence.
+
+Replay uses the frozen development evidence and policy definitions.
+
+Maximum numerical replay difference:
+<= 1e-8.
+
+--------------------------------------------------
+ACCEPTANCE TESTS
+--------------------------------------------------
+
+T1 — Persistent redundancy grouping
+
+Create deterministic A, B and C where:
+
+A and B:
+high overall correlation,
+high rolling correlation,
+high regime correlations,
+high exposure similarity.
+
+C:
+not redundant.
+
+PASS only if:
+A/B form a valid redundancy group,
+C remains separate.
+
+--------------------------------------------------
+
+T2 — Regime divergence protection
+
+Create A and B with:
+
+high full-sample correlation,
+
+but:
+
+high correlation/performance similarity in Risk-On
+and materially different behavior in Risk-Off.
+
+PASS only if:
+
+REGIME_DIVERGENCE_OBSERVED is preserved
+and A/B are NOT automatically collapsed into the same representative
+group.
+
+--------------------------------------------------
+
+T3 — Complete-linkage protection
+
+Construct:
+
+A similar to B
+B similar to C
+A not similar to C.
+
+PASS only if the grouping procedure does NOT automatically put
+A, B and C into one redundancy group.
+
+--------------------------------------------------
+
+T4 — KEEP_ALL versus GROUP_CAP
+
+Use a deterministic feasible fixture.
+
+Verify independently:
+
+- KEEP_ALL contains all canonical candidates;
+- GROUP_CAP contains all candidates;
+- B2 enforces group cap inside optimization;
+- no post-hoc clipping occurs;
+- underlying portfolio and metrics reconcile through B3.
+
+--------------------------------------------------
+
+T5 — Representative selection
+
+For a true redundancy group, create deterministic turnover and coverage.
+
+Verify representative-selection hierarchy:
+
+lowest development turnover
+then highest coverage
+then canonical-ID tie break.
+
+Ensure evaluation-period results cannot affect the representative.
+
+--------------------------------------------------
+
+T6 — Identical economic assumptions
+
+Run all three policies.
+
+Verify all non-selection assumptions and evaluation dates are identical.
+
+A deliberately mismatched cost/cash/dataset policy must be rejected
+from controlled comparison.
+
+--------------------------------------------------
+
+T7 — Frozen evaluation / no hindsight
+
+Change all observations strictly after development end but before a
+separate future period.
+
+Frozen groups and representatives must remain unchanged.
+
+Change evaluation outcomes.
+
+Development selections must still remain unchanged.
+
+No evaluation-period result may modify grouping or representatives.
+
+--------------------------------------------------
+
+T8 — Real UI / persistence / replay
+
+Through the actual UI:
+
+- use at least 8 alpha streams;
+- create at least one genuine redundancy group;
+- include one regime-divergent high-correlation pair that remains
+  preserved;
+- run KEEP_ALL, GROUP_CAP and REPRESENTATIVE;
+- persist the C3 experiment;
+- change working settings;
+- reload in a fresh browser;
+- retrieve the original experiment;
+- replay.
+
+PASS only if:
+
+- all three child policies remain unchanged;
+- groups and representatives remain unchanged;
+- regime-preserved pair remains preserved;
+- B3 child replays pass;
+- C3 replay returns PASS;
+- differing fields = 0;
+- maximum numeric difference <= 1e-8;
+- UI visibly reports successful replay.
+
+--------------------------------------------------
+FINAL VERIFICATION
+--------------------------------------------------
+
+Run:
+
+- C3 T1–T8;
+- C3 persistence/replay integrity;
+- C2 regression suite;
+- C1 regression suite;
+- B3 regression suite;
+- B2 regression suite;
+- workspace typecheck.
+
+Do not modify Stage A/B/C1/C2 methodology.
+
+If application changes touch shared financial engines, additionally run
+the full Stage A/B regressions once.
+
+--------------------------------------------------
+DELIVERABLE
+--------------------------------------------------
+
+Return only:
+
+C3 COMPLETION REPORT
+
+- grouping methodology;
+- representative-selection methodology;
+- number of policies implemented;
+- regime-complementarity example;
+- T1 PASS/FAIL;
+- T2 PASS/FAIL;
+- T3 PASS/FAIL;
+- T4 PASS/FAIL;
+- T5 PASS/FAIL;
+- T6 PASS/FAIL;
+- T7 PASS/FAIL;
+- T8 PASS/FAIL;
+- persistence/replay PASS/FAIL;
+- regressions;
+- typecheck;
+- UI-created C3 experiment ID;
+- maximum numeric replay difference;
+- exact blocker, if any.
+
+STOP CONDITION
+
+All requirements pass:
+
+C3 CLOSED.
+STOP.
+
+Anything required fails:
+
+C3 BLOCKED.
+Report exact blocker.
+STOP.
+
+Do not start signed allocations, PCA, factor-risk models,
+cost-aware optimization or other future work.

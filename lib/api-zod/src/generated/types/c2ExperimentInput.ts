@@ -21,7 +21,7 @@ export interface C2ExperimentInput {
   assumptions?: B3ValidationAssumptions;
   /**
      * @minItems 1
-     * @maxItems 5
+     * @maxItems 8
      * @items.minLength 1
      */
   alphaIds: string[];

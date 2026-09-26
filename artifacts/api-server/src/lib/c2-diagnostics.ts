@@ -308,8 +308,8 @@ function runWindowPair(sources: C2Sources, input: C2Input, from: string, to: str
 }
 
 export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): Promise<C2Output> {
-  if (!input.alphaIds.length || input.alphaIds.length > 5 || new Set(input.alphaIds).size !== input.alphaIds.length)
-    throw new Error("C2 requires one to five unique selected canonical alpha IDs.");
+  if (!input.alphaIds.length || input.alphaIds.length > 8 || new Set(input.alphaIds).size !== input.alphaIds.length)
+    throw new Error("C2 requires one to eight unique selected canonical alpha IDs.");
   for (const [name, value] of Object.entries({ rollingWindow: input.rollingWindow, rollingStep: input.rollingStep,
     contributionWindow: input.contributionWindow, contributionStep: input.contributionStep,
     minRollingPaired: input.minRollingPaired, minRegimePaired: input.minRegimePaired,
@@ -594,7 +594,7 @@ export async function computeC2Diagnostics(input: C2Input, sources: C2Sources): 
       : { startDate: null, endDate: null },
     c1DevelopmentPeriod: commonDevelopment ?? null, holdoutStartDate: commonHoldout ?? null,
     windowObservations: input.contributionWindow, stepObservations: input.contributionStep,
-    selectedAlphaIds: [...input.alphaIds], maximumCandidates: 5, predeclaredWindows: legacyWindows,
+    selectedAlphaIds: [...input.alphaIds], maximumCandidates: 8, predeclaredWindows: legacyWindows,
     perAlpha: Object.fromEntries(selected.map((item) => [item.candidate.candidateId, {
       c1ExperimentId: item.dependencyId, c1DependencyStatus: item.dependencyStatus,
       developmentPeriod: rollingWindowsFor(item).development ?? null,
