@@ -94,6 +94,31 @@ function b3ComparisonMetadata(envelope: B3ValidationEnvelope) {
   };
 }
 
+function statisticalFactorIntegrityError(request: AllocationRequest, result: B3Result): string | null {
+  if (request.riskModel?.type !== "STATISTICAL_FACTOR") return null;
+  const expectedFactors = request.riskModel.factorCount;
+  const expectedFloor = request.riskModel.specificRiskFloorFraction ?? 1e-6;
+  if (!Number.isSafeInteger(expectedFactors) || (expectedFactors ?? 0) < 1)
+    return "Statistical-factor B3 policy must freeze a resolved positive factor count.";
+  for (const decision of result.decisions) {
+    const risk = decision.optimizer.riskModel;
+    if (risk?.type !== "STATISTICAL_FACTOR" || risk.factorCount !== expectedFactors ||
+        risk.specificRiskFloorFraction !== expectedFloor)
+      return `Statistical-factor settings changed or are missing at B3 decision ${decision.decisionDate}.`;
+    if (risk.provenance.informationCutoff !== decision.informationCutoff ||
+        risk.provenance.datasetHash !== decision.inputDatasetHash ||
+        risk.provenance.observationCount !== decision.estimationDates.length ||
+        JSON.stringify(risk.provenance.dates) !== JSON.stringify(decision.estimationDates) ||
+        JSON.stringify(risk.provenance.candidateIds) !== JSON.stringify(decision.pointInTimeCandidateIds) ||
+        risk.covariance.length !== decision.pointInTimeCandidateIds.length ||
+        risk.covariance.some((row) => row.length !== decision.pointInTimeCandidateIds.length))
+      return `Statistical-factor B3 provenance or covariance dimensions do not match decision ${decision.decisionDate}.`;
+    if (risk.provenance.dates.some((date) => date > decision.informationCutoff))
+      return `Statistical-factor B3 inputs contain future observations at ${decision.decisionDate}.`;
+  }
+  return null;
+}
+
 export function toB3ValidationRun(row: typeof validationRunsTable.$inferSelect) {
   const saved = envelope(row);
   const result = saved.result;
@@ -187,6 +212,10 @@ export async function persistB3ValidationRun(input: {
       status: "failed",
       diagnostic: error instanceof Error ? error.message : "B3 validation engine failed.",
     };
+  }
+  if (result.status === "completed") {
+    const integrityError = statisticalFactorIntegrityError(policyRequest, result);
+    if (integrityError) return { error: integrityError, status: 409 } as const;
   }
 
   const status = resultStatus(result);

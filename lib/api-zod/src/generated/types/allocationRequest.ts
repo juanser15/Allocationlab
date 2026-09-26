@@ -9,6 +9,7 @@ import type { AllocationConstraints } from './allocationConstraints';
 import type { AllocationObjective } from './allocationObjective';
 import type { AllocationRequestRepresentation } from './allocationRequestRepresentation';
 import type { AllocationRequestReturnConvention } from './allocationRequestReturnConvention';
+import type { AllocationRiskModelSettings } from './allocationRiskModelSettings';
 
 export interface AllocationRequest {
   /** @minimum 1 */
@@ -36,6 +37,7 @@ export interface AllocationRequest {
      * @maximum 1
      */
   covarianceDiagonalShrinkage: number;
+  riskModel?: AllocationRiskModelSettings;
   dailyCashYield: number;
   objective: AllocationObjective;
   constraints: AllocationConstraints;

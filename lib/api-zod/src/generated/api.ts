@@ -4645,6 +4645,9 @@ export const listAllocationsResponseRequestExpectedReturnShrinkageMax = 1;
 export const listAllocationsResponseRequestCovarianceDiagonalShrinkageMin = 0;
 export const listAllocationsResponseRequestCovarianceDiagonalShrinkageMax = 1;
 
+
+export const listAllocationsResponseRequestRiskModelSpecificRiskFloorFractionMin = 0;
+
 export const listAllocationsResponseRequestObjectiveGammaExclusiveMin = 0;
 
 export const listAllocationsResponseRequestObjectiveEtaMin = 0;
@@ -4681,7 +4684,7 @@ export const ListAllocationsResponseItem = zod.object({
   "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
   "fingerprint": zod.string(),
   "engineVersion": zod.string(),
-  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
   "request": zod.object({
   "preparedInputId": zod.number().min(1),
   "candidateIds": zod.array(zod.string().min(1)).min(1),
@@ -4693,6 +4696,11 @@ export const ListAllocationsResponseItem = zod.object({
   "returnConvention": zod.enum(['daily_decimal']),
   "expectedReturnShrinkage": zod.number().min(listAllocationsResponseRequestExpectedReturnShrinkageMin).max(listAllocationsResponseRequestExpectedReturnShrinkageMax),
   "covarianceDiagonalShrinkage": zod.number().min(listAllocationsResponseRequestCovarianceDiagonalShrinkageMin).max(listAllocationsResponseRequestCovarianceDiagonalShrinkageMax),
+  "riskModel": zod.object({
+  "type": zod.enum(['SAMPLE', 'DIAGONAL_SHRINKAGE', 'STATISTICAL_FACTOR']),
+  "factorCount": zod.number().min(1).optional(),
+  "specificRiskFloorFraction": zod.number().min(listAllocationsResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
+}).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
   "dailyCashYield": zod.number(),
   "objective": zod.object({
   "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
@@ -4742,6 +4750,9 @@ export const createAllocationBodyExpectedReturnShrinkageMax = 1;
 export const createAllocationBodyCovarianceDiagonalShrinkageMin = 0;
 export const createAllocationBodyCovarianceDiagonalShrinkageMax = 1;
 
+
+export const createAllocationBodyRiskModelSpecificRiskFloorFractionMin = 0;
+
 export const createAllocationBodyObjectiveGammaExclusiveMin = 0;
 
 export const createAllocationBodyObjectiveEtaMin = 0;
@@ -4783,6 +4794,11 @@ export const CreateAllocationBody = zod.object({
   "returnConvention": zod.enum(['daily_decimal']),
   "expectedReturnShrinkage": zod.number().min(createAllocationBodyExpectedReturnShrinkageMin).max(createAllocationBodyExpectedReturnShrinkageMax),
   "covarianceDiagonalShrinkage": zod.number().min(createAllocationBodyCovarianceDiagonalShrinkageMin).max(createAllocationBodyCovarianceDiagonalShrinkageMax),
+  "riskModel": zod.object({
+  "type": zod.enum(['SAMPLE', 'DIAGONAL_SHRINKAGE', 'STATISTICAL_FACTOR']),
+  "factorCount": zod.number().min(1).optional(),
+  "specificRiskFloorFraction": zod.number().min(createAllocationBodyRiskModelSpecificRiskFloorFractionMin).optional()
+}).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
   "dailyCashYield": zod.number(),
   "objective": zod.object({
   "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
@@ -4824,6 +4840,9 @@ export const createAllocationResponseRequestExpectedReturnShrinkageMax = 1;
 export const createAllocationResponseRequestCovarianceDiagonalShrinkageMin = 0;
 export const createAllocationResponseRequestCovarianceDiagonalShrinkageMax = 1;
 
+
+export const createAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin = 0;
+
 export const createAllocationResponseRequestObjectiveGammaExclusiveMin = 0;
 
 export const createAllocationResponseRequestObjectiveEtaMin = 0;
@@ -4860,7 +4879,7 @@ export const CreateAllocationResponse = zod.object({
   "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
   "fingerprint": zod.string(),
   "engineVersion": zod.string(),
-  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
   "request": zod.object({
   "preparedInputId": zod.number().min(1),
   "candidateIds": zod.array(zod.string().min(1)).min(1),
@@ -4872,6 +4891,11 @@ export const CreateAllocationResponse = zod.object({
   "returnConvention": zod.enum(['daily_decimal']),
   "expectedReturnShrinkage": zod.number().min(createAllocationResponseRequestExpectedReturnShrinkageMin).max(createAllocationResponseRequestExpectedReturnShrinkageMax),
   "covarianceDiagonalShrinkage": zod.number().min(createAllocationResponseRequestCovarianceDiagonalShrinkageMin).max(createAllocationResponseRequestCovarianceDiagonalShrinkageMax),
+  "riskModel": zod.object({
+  "type": zod.enum(['SAMPLE', 'DIAGONAL_SHRINKAGE', 'STATISTICAL_FACTOR']),
+  "factorCount": zod.number().min(1).optional(),
+  "specificRiskFloorFraction": zod.number().min(createAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
+}).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
   "dailyCashYield": zod.number(),
   "objective": zod.object({
   "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
@@ -4924,6 +4948,9 @@ export const getAllocationResponseRequestExpectedReturnShrinkageMax = 1;
 export const getAllocationResponseRequestCovarianceDiagonalShrinkageMin = 0;
 export const getAllocationResponseRequestCovarianceDiagonalShrinkageMax = 1;
 
+
+export const getAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin = 0;
+
 export const getAllocationResponseRequestObjectiveGammaExclusiveMin = 0;
 
 export const getAllocationResponseRequestObjectiveEtaMin = 0;
@@ -4960,7 +4987,7 @@ export const GetAllocationResponse = zod.object({
   "representation": zod.enum(['asset_returns', 'alpha_streams', 'signals']),
   "fingerprint": zod.string(),
   "engineVersion": zod.string(),
-  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
+  "status": zod.enum(['SOLVED', 'INFEASIBLE', 'INVALID_INPUT', 'INVALID_RISK_MODEL', 'INVALID_FACTOR_MODEL', 'INSUFFICIENT_HISTORY_OR_DIMENSION', 'UNSUPPORTED', 'UNSUPPORTED_REPRESENTATION', 'UNSUPPORTED_CONSTRAINT', 'NUMERICAL_FAILURE', 'LIMIT_REACHED']),
   "request": zod.object({
   "preparedInputId": zod.number().min(1),
   "candidateIds": zod.array(zod.string().min(1)).min(1),
@@ -4972,6 +4999,11 @@ export const GetAllocationResponse = zod.object({
   "returnConvention": zod.enum(['daily_decimal']),
   "expectedReturnShrinkage": zod.number().min(getAllocationResponseRequestExpectedReturnShrinkageMin).max(getAllocationResponseRequestExpectedReturnShrinkageMax),
   "covarianceDiagonalShrinkage": zod.number().min(getAllocationResponseRequestCovarianceDiagonalShrinkageMin).max(getAllocationResponseRequestCovarianceDiagonalShrinkageMax),
+  "riskModel": zod.object({
+  "type": zod.enum(['SAMPLE', 'DIAGONAL_SHRINKAGE', 'STATISTICAL_FACTOR']),
+  "factorCount": zod.number().min(1).optional(),
+  "specificRiskFloorFraction": zod.number().min(getAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
+}).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
   "dailyCashYield": zod.number(),
   "objective": zod.object({
   "type": zod.enum(['minimum_variance', 'regularized_mean_variance']),
@@ -5020,6 +5052,85 @@ export const ReplayAllocationResponse = zod.object({
   "fingerprint": zod.string(),
   "differences": zod.array(zod.string()),
   "replayedResult": zod.record(zod.string(), zod.unknown())
+})
+
+
+/**
+ * @summary Compare saved B2/B3 runs with identical economics and different alpha risk estimators
+ */
+
+
+
+
+
+
+
+
+export const CreateRiskModelComparisonBody = zod.object({
+  "allocationIds": zod.object({
+  "SAMPLE": zod.number().min(1),
+  "DIAGONAL_SHRINKAGE": zod.number().min(1),
+  "STATISTICAL_FACTOR": zod.number().min(1)
+}),
+  "validationRunIds": zod.object({
+  "SAMPLE": zod.number().min(1),
+  "DIAGONAL_SHRINKAGE": zod.number().min(1),
+  "STATISTICAL_FACTOR": zod.number().min(1)
+})
+})
+
+export const CreateRiskModelComparisonResponse = zod.object({
+  "id": zod.number(),
+  "manifestHash": zod.string(),
+  "resultHash": zod.string(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown())
+}))
+
+
+export const ListRiskModelComparisonsResponse = zod.object({
+  "comparisons": zod.array(zod.object({
+  "id": zod.number(),
+  "manifestHash": zod.string(),
+  "resultHash": zod.string(),
+  "createdAt": zod.coerce.date()
+}))
+})
+
+
+
+
+
+export const GetRiskModelComparisonParams = zod.object({
+  "comparisonId": zod.coerce.number().min(1)
+})
+
+export const GetRiskModelComparisonResponse = zod.object({
+  "id": zod.number(),
+  "manifestHash": zod.string(),
+  "resultHash": zod.string(),
+  "createdAt": zod.coerce.date()
+}).and(zod.object({
+  "manifest": zod.record(zod.string(), zod.unknown()),
+  "result": zod.record(zod.string(), zod.unknown())
+}))
+
+
+
+
+
+export const ReplayRiskModelComparisonParams = zod.object({
+  "comparisonId": zod.coerce.number().min(1)
+})
+
+export const ReplayRiskModelComparisonResponse = zod.object({
+  "comparisonId": zod.number(),
+  "status": zod.enum(['pass', 'fail', 'engine_mismatch']),
+  "differences": zod.array(zod.string()),
+  "maximumNumericDifference": zod.number(),
+  "result": zod.record(zod.string(), zod.unknown()).optional()
 })
 
 

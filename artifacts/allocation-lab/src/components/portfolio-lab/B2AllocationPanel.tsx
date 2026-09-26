@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { B2PreparedSelection } from "./PreparedInputsPanel";
+import type { D1RiskModelRequest } from "./D1RiskModelPanel";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ type AllocationRequest = {
   covarianceDiagonalShrinkage: number;
   dailyCashYield: number;
   objective: { type: "minimum_variance" | "regularized_mean_variance"; gamma: number; eta: number };
+  riskModel?: D1RiskModelRequest;
   constraints: {
     candidateBounds?: Record<string, { min?: number; max?: number }>;
     totalCash?: { min?: number; max?: number };
@@ -77,6 +79,15 @@ function localDateTime(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}T${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 }
 
+function alignedObservationCount(prepared: B2PreparedSelection, candidateIds: string[], cutoff: string): number | null {
+  if (!candidateIds.length || !cutoff) return null;
+  const candidateDateSets = candidateIds.map(id => prepared.returnDatesByCandidate[id]);
+  if (candidateDateSets.some(dates => !Array.isArray(dates))) return null;
+  const first = candidateDateSets[0].filter(date => date <= cutoff);
+  const remaining = candidateDateSets.slice(1).map(dates => new Set(dates.filter(date => date <= cutoff)));
+  return first.filter(date => remaining.every(dates => dates.has(date))).length;
+}
+
 function displayName(representation?: string): string {
   if (representation === "asset_returns") return "Asset Returns";
   if (representation === "alpha_streams") return "Alpha Streams";
@@ -89,11 +100,19 @@ export function B2AllocationPanel({
   runToken,
   onRunningChange,
   onAllocationSelectionChange,
+  riskModel,
+  onCandidateCountChange,
+  onEstimationWindowChange,
+  onAlignedObservationCountChange,
 }: {
   prepared: B2PreparedSelection | null;
   runToken: number;
   onRunningChange?: (running: boolean) => void;
   onAllocationSelectionChange?: (id: number | null) => void;
+  riskModel: D1RiskModelRequest;
+  onCandidateCountChange?: (count: number) => void;
+  onEstimationWindowChange?: (days: number) => void;
+  onAlignedObservationCountChange?: (count: number | null) => void;
 }) {
   const [candidateIds, setCandidateIds] = useState<string[]>([]);
   const [informationCutoff, setInformationCutoff] = useState("");
@@ -120,6 +139,16 @@ export function B2AllocationPanel({
   const [error, setError] = useState<string | null>(null);
   const lastRunToken = useRef(0);
   const selectedCandidateSet = new Set(candidateIds);
+
+  useEffect(() => {
+    onCandidateCountChange?.(candidateIds.length);
+  }, [candidateIds, onCandidateCountChange]);
+
+  useEffect(() => {
+    onAlignedObservationCountChange?.(prepared
+      ? alignedObservationCount(prepared, candidateIds, informationCutoff)
+      : null);
+  }, [prepared, candidateIds, informationCutoff, onAlignedObservationCountChange]);
 
   useEffect(() => {
     if (!prepared) {
@@ -183,6 +212,20 @@ export function B2AllocationPanel({
       setError("Select at least one canonical candidate from the prepared version.");
       return;
     }
+    const knownObservations = prepared ? alignedObservationCount(prepared, candidateIds, informationCutoff) : null;
+    const effectiveObservations = knownObservations === null ? estimationWindow : Math.min(estimationWindow, knownObservations);
+    const selectedFactorCount = riskModel.factorCount ?? Math.min(5, Math.max(0, candidateIds.length - 1), effectiveObservations - 1);
+    if (prepared.representation === "alpha_streams" && riskModel.type === "STATISTICAL_FACTOR" &&
+      (!Number.isSafeInteger(selectedFactorCount) || selectedFactorCount < 1 ||
+       selectedFactorCount >= candidateIds.length || selectedFactorCount >= effectiveObservations)) {
+      setError(`INSUFFICIENT_HISTORY_OR_DIMENSION: fixed F=${selectedFactorCount} requires 1 ≤ F < N (${candidateIds.length}) and F < T (${effectiveObservations}).`);
+      return;
+    }
+    if (prepared.representation === "alpha_streams" && riskModel.type === "STATISTICAL_FACTOR" &&
+      (!Number.isFinite(riskModel.specificRiskFloorFraction) || (riskModel.specificRiskFloorFraction ?? -1) < 0)) {
+      setError("Specific-risk floor fraction must be finite and nonnegative.");
+      return;
+    }
     if (!informationCutoff || !Number.isInteger(estimationWindow) || estimationWindow < 2
       || !Number.isInteger(minObservations) || minObservations < 2
       || expectedReturnShrinkage < 0 || expectedReturnShrinkage > 1
@@ -232,10 +275,21 @@ export function B2AllocationPanel({
         representation: prepared.representation,
         returnConvention: "daily_decimal",
         expectedReturnShrinkage,
-        covarianceDiagonalShrinkage,
+        covarianceDiagonalShrinkage: prepared.representation === "alpha_streams"
+          ? riskModel.type === "SAMPLE" ? 0 : covarianceDiagonalShrinkage
+          : covarianceDiagonalShrinkage,
         dailyCashYield,
         objective: { type: objectiveType, gamma, eta },
         constraints,
+        ...(prepared.representation === "alpha_streams" ? {
+          riskModel: {
+            type: riskModel.type,
+            ...(riskModel.type === "STATISTICAL_FACTOR" ? {
+              factorCount: selectedFactorCount,
+              specificRiskFloorFraction: riskModel.specificRiskFloorFraction ?? 1e-6,
+            } : {}),
+          },
+        } : {}),
       };
       setBusy(true);
       onRunningChange?.(true);
@@ -287,6 +341,7 @@ export function B2AllocationPanel({
   const candidateWeights = asRecord(allocation.candidateWeights);
   const assetWeights = asRecord(allocation.assetWeights);
   const frozenObjective = asRecord(asRecord(response.request).objective ?? allocation.objective);
+  const frozenRiskModel = asRecord(asRecord(response.request).riskModel ?? allocation.riskModel ?? model.riskModel);
   const objectiveFormula = frozenObjective.type === "minimum_variance"
     ? "minimize ½ bᵀΣb"
     : frozenObjective.type === "regularized_mean_variance"
@@ -320,10 +375,10 @@ export function B2AllocationPanel({
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-1"><Label>Information cutoff</Label><Input type="date" value={informationCutoff} onChange={event => setInformationCutoff(event.target.value)} data-testid="input-b2-cutoff" /></div>
             <div className="space-y-1"><Label>Decision timestamp</Label><Input type="datetime-local" value={decisionTimestamp} onChange={event => setDecisionTimestamp(event.target.value)} data-testid="input-b2-decision-timestamp" /></div>
-            <div className="space-y-1"><Label>Estimation window (days)</Label><Input type="number" min="2" value={estimationWindow} onChange={event => setEstimationWindow(Number(event.target.value))} data-testid="input-b2-estimation-window" /></div>
+            <div className="space-y-1"><Label>Estimation window (days)</Label><Input type="number" min="2" value={estimationWindow} onChange={event => { const days = Number(event.target.value); setEstimationWindow(days); onEstimationWindowChange?.(days); }} data-testid="input-b2-estimation-window" /></div>
             <div className="space-y-1"><Label>Minimum observations</Label><Input type="number" min="2" value={minObservations} onChange={event => setMinObservations(Number(event.target.value))} data-testid="input-b2-min-observations" /></div>
             <div className="space-y-1"><Label>Expected-return shrinkage s [0,1]</Label><Input type="number" min="0" max="1" step="any" value={expectedReturnShrinkage} onChange={event => setExpectedReturnShrinkage(Number(event.target.value))} data-testid="input-b2-return-shrinkage" /></div>
-            <div className="space-y-1"><Label>Diagonal covariance shrinkage δ [0,1]</Label><Input type="number" min="0" max="1" step="any" value={covarianceDiagonalShrinkage} onChange={event => setCovarianceDiagonalShrinkage(Number(event.target.value))} data-testid="input-b2-covariance-shrinkage" /></div>
+            {(prepared?.representation !== "alpha_streams" || riskModel.type === "DIAGONAL_SHRINKAGE") && <div className="space-y-1"><Label>Diagonal covariance shrinkage δ [0,1]</Label><Input type="number" min="0" max="1" step="any" value={covarianceDiagonalShrinkage} onChange={event => setCovarianceDiagonalShrinkage(Number(event.target.value))} data-testid="input-b2-covariance-shrinkage" /></div>}
             <div className="space-y-1"><Label>Deterministic daily cash yield</Label><Input type="number" step="any" value={dailyCashYield} onChange={event => setDailyCashYield(Number(event.target.value))} data-testid="input-b2-daily-cash-yield" /></div>
             <div className="space-y-1"><Label>Objective</Label><select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={objectiveType} onChange={event => setObjectiveType(event.target.value as AllocationRequest["objective"]["type"])} data-testid="select-b2-objective"><option value="minimum_variance">Minimum variance</option><option value="regularized_mean_variance">Regularized mean-variance</option></select></div>
             <div className="space-y-1"><Label>γ (must be positive)</Label><Input type="number" min="0.0000001" step="any" value={gamma} onChange={event => setGamma(Number(event.target.value))} data-testid="input-b2-gamma" /></div>
@@ -336,7 +391,7 @@ export function B2AllocationPanel({
             <div className="space-y-1"><Label>Candidate group caps JSON</Label><Input value={groupCapsText} onChange={event => setGroupCapsText(event.target.value)} placeholder="[]" data-testid="input-b2-group-caps" /></div>
             <div className="space-y-1 md:col-span-2"><Label>Unsupported constraint requests (comma-separated, sent for explicit rejection)</Label><Input value={unsupportedText} onChange={event => setUnsupportedText(event.target.value)} placeholder="cardinality, signed alpha, leverage" data-testid="input-b2-unsupported-constraints" /></div>
           </div>
-          <p className="text-xs text-muted-foreground">Objective formulas: minimum variance minimizes ½ bᵀΣb; regularized mean-variance minimizes (γ/2)bᵀΣb + (η/2)Σⱼbⱼ² − μᵀb − r_cash·c. Estimator: daily decimal gross-return sample mean; μ = (1−s) mean + s·cash yield. Covariance uses declared diagonal shrinkage, (1−δ)S + δ·diag(S). No cost optimization or historical validation is implied.</p>
+          <p className="text-xs text-muted-foreground">Objective formulas: minimum variance minimizes ½ bᵀΣb; regularized mean-variance minimizes (γ/2)bᵀΣb + (η/2)Σⱼbⱼ² − μᵀb − r_cash·c. Estimator: daily decimal gross-return sample mean; μ = (1−s) mean + s·cash yield. Alpha streams use the selected D1 covariance estimator; asset returns retain their existing covariance settings. No cost optimization or historical validation is implied.</p>
           <Button type="button" onClick={() => void runAllocation()} disabled={busy || !prepared} data-testid="button-run-b2-allocation">
             {busy ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Optimizing…</> : "Optimize B2 allocation"}
           </Button>
@@ -390,8 +445,10 @@ export function B2AllocationPanel({
             </div>
             <div className="rounded border p-3 text-xs">
               <h4 className="mb-1 font-semibold">Frozen estimation inputs</h4>
-              <p>Daily decimal returns · diagonal shrinkage Σ=(1−δ)S+δ·diag(S).</p>
+              <p>{frozenRiskModel.type === "STATISTICAL_FACTOR" ? "Daily decimal risk · Gamma = Xi + Omega Phi Omega′." : frozenRiskModel.type === "SAMPLE" ? "Daily decimal risk · sample covariance S." : frozenRiskModel.type === "DIAGONAL_SHRINKAGE" ? "Daily decimal risk · Sigma=(1−δ)S+δ·diag(S)." : "Risk estimator details are not returned by this saved record."}</p>
               <p>s={formatValue(asRecord(response.request).expectedReturnShrinkage)}, δ={formatValue(asRecord(response.request).covarianceDiagonalShrinkage)}, r_cash={formatValue(asRecord(response.request).dailyCashYield)}.</p>
+              {frozenRiskModel.type === "STATISTICAL_FACTOR" && <p>The frozen δ value is retained for comparison/display; the selected statistical-factor covariance estimator does not use it.</p>}
+              <p className="mt-1">Risk model: {formatValue(frozenRiskModel)}</p>
               <p className="mt-1">Observations / dates: {formatValue(model.observationCount)} / {formatValue(model.dates)}</p>
               <p>Candidate vector order: {formatValue(model.candidateIds)}</p>
             </div>

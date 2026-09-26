@@ -4,8 +4,8 @@ import {
   GetValidationRunResponse, ListValidationRunsResponse,
   type BacktestResult,
 } from "@workspace/api-zod";
-import { db, sessionsTable } from "@workspace/db";
-import { desc, eq } from "drizzle-orm";
+import { db, sessionsTable, validationRunsTable } from "@workspace/db";
+import { desc, eq, isNotNull } from "drizzle-orm";
 import {
   parseCsv,
   defaultBacktestConfig,
@@ -273,6 +273,25 @@ router.get("/validation-runs", async (req, res): Promise<void> => {
     return;
   }
   if (source === "b3") {
+    if (req.query.summary === "1") {
+      const rows = await db.select({
+        id: validationRunsTable.id,
+        allocationId: validationRunsTable.allocationId,
+        validationPreparedInputId: validationRunsTable.validationPreparedInputId,
+        reconciliationStatus: validationRunsTable.reconciliationStatus,
+        validatedAt: validationRunsTable.validatedAt,
+      }).from(validationRunsTable)
+        .where(isNotNull(validationRunsTable.allocationId))
+        .orderBy(desc(validationRunsTable.id));
+      res.json(rows.map(row => ({
+        validationRunId: row.id,
+        allocationId: row.allocationId,
+        validationPreparedInputId: row.validationPreparedInputId,
+        status: row.reconciliationStatus,
+        validatedAt: row.validatedAt,
+      })));
+      return;
+    }
     res.json(ListValidationRunsResponse.parse(await listB3ValidationRuns()));
     return;
   }

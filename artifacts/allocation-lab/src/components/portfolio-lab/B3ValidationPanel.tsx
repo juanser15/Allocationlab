@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getGetAllocationQueryKey, useGetAllocation } from "@workspace/api-client-react";
 
 type Row = Record<string, unknown>;
 type Step = "configure" | "results" | "diagnostics";
@@ -15,6 +16,17 @@ const rows = (value: unknown): Row[] => Array.isArray(value) ? value.map(record)
 const idOf = (value: unknown, name: string) => {
   const id = record(value)[name] ?? record(value).id;
   return Number.isSafeInteger(Number(id)) && Number(id) > 0 ? Number(id) : null;
+};
+const preparedInputIdOf = (value: unknown) => {
+  const item = record(value);
+  const id = item.preparedInputId ?? item.id ?? record(item.snapshot).preparedInputId;
+  return Number.isSafeInteger(Number(id)) && Number(id) > 0 ? Number(id) : null;
+};
+const preparedRepresentation = (value: unknown) => {
+  const item = record(value);
+  const snapshot = record(item.snapshot);
+  const request = record(item.request ?? snapshot.request);
+  return item.representation ?? request.representation ?? snapshot.representation;
 };
 const text = (value: unknown) => value === null || value === undefined || value === "" ? "Unavailable" : String(value);
 const num = (value: unknown) => typeof value === "number" && Number.isFinite(value) ? value : null;
@@ -26,6 +38,22 @@ const canonical = (value: unknown): string => JSON.stringify(value, (_key, item:
   item && typeof item === "object" && !Array.isArray(item)
     ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b)))
     : item) ?? "undefined";
+const halfL1 = (left: unknown, right: unknown): number | null => {
+  const a = record(left), b = record(right);
+  if (!Object.keys(a).length && !Object.keys(b).length) return null;
+  const ids = new Set([...Object.keys(a), ...Object.keys(b)]);
+  if ([...ids].some(id => (a[id] !== undefined && num(a[id]) === null) || (b[id] !== undefined && num(b[id]) === null))) return null;
+  return 0.5 * [...ids].reduce((sum, id) => sum + Math.abs((num(a[id]) ?? 0) - (num(b[id]) ?? 0)), 0);
+};
+const meanDecisionDistance = (left: Row[], right: Row[], key: "candidateWeights" | "targetAssetWeights") => {
+  const byDate = new Map(right.map(item => [text(item.decisionDate), item]));
+  const distances = left.flatMap(item => {
+    const other = byDate.get(text(item.decisionDate));
+    const distance = other ? halfL1(item[key], other[key]) : null;
+    return distance === null ? [] : [distance];
+  });
+  return distances.length ? distances.reduce((sum, distance) => sum + distance, 0) / distances.length : null;
+};
 async function api(path: string, init?: RequestInit): Promise<unknown> {
   const response = await fetch(`/api${path}`, { credentials: "include", ...init, headers: { "Content-Type": "application/json", ...init?.headers } });
   const data: unknown = await response.json().catch(() => ({}));
@@ -86,7 +114,7 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
   const refresh = useCallback(async () => {
     setError(null);
     try {
-      const [inputs, runs] = await Promise.all([api("/prepared-inputs"), api("/validation-runs?source=b3")]);
+      const [inputs, runs] = await Promise.all([api("/prepared-inputs?summary=1"), api("/validation-runs?source=b3&summary=1")]);
       setPrepared(list(inputs, "preparedInputs"));
       setSaved(list(runs, "validationRuns"));
     } catch (err) { setError(err instanceof Error ? err.message : "Saved B3 records could not be loaded."); }
@@ -116,11 +144,13 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
     return () => { active = false; };
   }, [comparisonId]);
 
-  const policyRequest = record(policy?.request ?? record(policy?.allocation).request);
-  const policyResult = record(policy?.result ?? policy?.allocation ?? policy);
-  const policyRepresentation = text(policyRequest.representation ?? policyResult.representation);
+  const policyRecord = record(policy?.allocation ?? policy);
+  const policyRequest = record(policyRecord.request);
+  const policyResult = record(policyRecord.result ?? policyRecord);
+  const policyRepresentation = policyRequest.representation ?? policyResult.representation ?? policyRecord.representation;
+  const policyRepresentationLabel = text(policyRepresentation);
   const sourceId = idOf(policyRequest.preparedInputId ? { id: policyRequest.preparedInputId } : {}, "id");
-  const compatibleInputs = prepared.filter(item => (item.representation ?? record(item.snapshot).representation) === policyRepresentation);
+  const compatibleInputs = prepared.filter(item => preparedRepresentation(item) === policyRepresentation);
 
   async function validate() {
     setError(null);
@@ -175,6 +205,32 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
   const summary = record(output.summary ?? output.metrics);
   const ledger = rows(output.dailyLedger ?? output.ledger);
   const decisions = rows(output.decisions ?? output.decisionRecords);
+  const runAllocationId = idOf(run ?? {}, "allocationId");
+  const runPolicyQuery = useGetAllocation(runAllocationId ?? 0, {
+    query: {
+      enabled: runAllocationId !== null,
+      queryKey: getGetAllocationQueryKey(runAllocationId ?? 0),
+    },
+  });
+  const runPolicy = record(runPolicyQuery.data);
+  const runPolicyRequest = record(runPolicy.request);
+  const comparisonAllocationId = idOf(comparison ?? {}, "allocationId");
+  const comparisonPolicyQuery = useGetAllocation(comparisonAllocationId ?? 0, {
+    query: {
+      enabled: comparisonAllocationId !== null,
+      queryKey: getGetAllocationQueryKey(comparisonAllocationId ?? 0),
+    },
+  });
+  const comparisonPolicyRequest = record(record(comparisonPolicyQuery.data).request);
+  const comparisonPolicyRiskModel = record(comparisonPolicyRequest.riskModel);
+  const selectedRiskModel = record(policyRequest.riskModel);
+  const runRiskModel = record(runPolicyRequest.riskModel);
+  const selectedRiskModelLabel = text(selectedRiskModel.type ?? record(policyResult.riskModel).type);
+  const runRiskModelLabel = text(runRiskModel.type ?? record(getResult(run ?? {}).riskModel).type);
+  const datedRiskRows = decisions.map(decision => ({
+    decision,
+    risk: record(record(decision.optimizer).riskModel),
+  })).filter(item => Object.keys(item.risk).length > 0);
   const monthly = rows(summary.monthlyReturns);
   const navSeries = rows(output.equityCurve ?? output.dailyNav);
   const chart = useMemo(() => {
@@ -190,17 +246,27 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
   const comparisonMetadata = record(run?.comparisonMetadata);
   const otherComparisonMetadata = record(comparison?.comparisonMetadata);
   const comparableKeys = ["evaluationStartDate", "evaluationEndDate", "initialNav", "initialCash", "decisionCalendar", "executionTiming", "transactionCostBps", "slippageBps", "dailyCashYield"];
+  const policyComparisonKeys = ["preparedInputId", "informationCutoff", "decisionTimestamp", "estimationWindow", "minObservations", "representation", "returnConvention", "expectedReturnShrinkage", "dailyCashYield", "objective", "constraints"];
+  const policyMismatches = comparison && !comparisonPolicyQuery.isLoading
+    ? !Object.keys(comparisonPolicyRequest).length || !Object.keys(runPolicyRequest).length
+      ? ["frozen B2 policy request unavailable"]
+      : policyComparisonKeys.filter(key => canonical(runPolicyRequest[key]) !== canonical(comparisonPolicyRequest[key]))
+        .concat(canonical([...(Array.isArray(runPolicyRequest.candidateIds) ? runPolicyRequest.candidateIds : [])].sort()) ===
+          canonical([...(Array.isArray(comparisonPolicyRequest.candidateIds) ? comparisonPolicyRequest.candidateIds : [])].sort())
+          ? [] : ["B2 candidate set"])
+    : [];
   const mismatches = comparison ? comparableKeys.filter(key => JSON.stringify(a[key]) !== JSON.stringify(b[key])).concat(
     canonical(a.initialHoldings) === canonical(b.initialHoldings) ? [] : ["initialHoldings"],
     text(run?.datasetHash) === text(comparison.datasetHash) && run?.datasetHash ? [] : ["market data identity"],
-    getRepresentation(run ?? {}) !== getRepresentation(comparison) ? [] : ["same representation; asset vs alpha not compared"],
+    getRepresentation(run ?? {}) !== getRepresentation(comparison) ? ["representation"] : [],
+    policyMismatches,
     comparisonMetadata.finalAssetConstraints !== undefined && otherComparisonMetadata.finalAssetConstraints !== undefined
       ? canonical(comparisonMetadata.finalAssetConstraints) === canonical(otherComparisonMetadata.finalAssetConstraints) ? [] : ["final-asset constraints"]
       : ["final-asset constraints unavailable"],
     comparisonMetadata.capitalBudget !== undefined && otherComparisonMetadata.capitalBudget !== undefined
       ? canonical(comparisonMetadata.capitalBudget) === canonical(otherComparisonMetadata.capitalBudget) ? [] : ["capital budget"]
       : ["capital budget unavailable"],
-  ) : [];
+  ).flat() : [];
   const status = text(run?.status ?? output.status);
   const isSuccessful = status === "success" && output.status === "completed" && run?.reconciliationStatus === "pass";
   const summaryItems: { label: string; value: string; note: string }[] = [
@@ -217,7 +283,7 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
     <Card className="border-primary/20"><CardHeader className="pb-3">
       <div className="flex flex-wrap items-start justify-between gap-3"><div><CardTitle className="text-base">B3 · Historical policy validation</CardTitle>
         <CardDescription className="mt-1">Fixed policy, rolling point-in-time estimates, one executed underlying asset book. Today's B2 weights are not replayed historically.</CardDescription></div>
-        <Badge variant="outline">B2 allocation #{allocationId ?? "not selected"} · {policyRepresentation}</Badge></div>
+        <Badge variant="outline">B2 allocation #{allocationId ?? "not selected"} · {policyRepresentationLabel}</Badge></div>
       <div className="flex items-center gap-1 border-t pt-3 text-xs">{(["configure", "results", "diagnostics"] as const).map((s, i) =>
         <Button key={s} size="sm" variant={step === s ? "default" : "ghost"} onClick={() => setStep(s)} data-testid={`button-b3-step-${s}`}>{i + 1} · {s === "configure" ? "Configure → Validate" : s === "results" ? "Results" : "Diagnostics"}</Button>)}</div>
     </CardHeader></Card>
@@ -226,9 +292,14 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
     {step === "configure" && <Card><CardHeader><CardTitle className="text-sm">Frozen inputs & execution assumptions</CardTitle>
       <CardDescription>Choose a saved B1 preparation with evaluation and warmup coverage. The working or latest price dataset is never substituted.</CardDescription></CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded border bg-muted/30 p-3 text-xs">Selected B2 policy #{allocationId ?? "none"} · {policyRepresentation} · original preparation #{sourceId ?? "unavailable"} · candidates {json(policyRequest.candidateIds)}. A new validation creates a separate immutable run.</div>
+        <div className="rounded border bg-muted/30 p-3 text-xs">Selected B2 policy #{allocationId ?? "none"} · {policyRepresentationLabel} · original preparation #{sourceId ?? "unavailable"} · candidates {json(policyRequest.candidateIds)}. A new validation creates a separate immutable run.
+          <p className="mt-2 border-t pt-2" data-testid="b3-frozen-risk-model">Frozen B2 risk model: <strong>{selectedRiskModelLabel}</strong>
+            {selectedRiskModel.type === "STATISTICAL_FACTOR" ? ` · F=${text(selectedRiskModel.factorCount)} · specific-risk floor=${text(selectedRiskModel.specificRiskFloorFraction)}` : ""}.
+            {selectedRiskModel.type === "STATISTICAL_FACTOR" ? " B3 must recompute Gamma and loadings independently at each point-in-time decision." : ""}
+          </p>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-1"><Label htmlFor="b3-prepared">Frozen validation B1 preparation</Label><select id="b3-prepared" className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={preparedId} onChange={e => setPreparedId(e.target.value)} data-testid="select-b3-prepared"><option value="">Select explicitly</option>{compatibleInputs.map(item => { const id = idOf(item, "preparedInputId"); return id ? <option key={id} value={id}>#{id} · {text(item.representation)} · {text(item.createdAt)}</option> : null; })}</select></div>
+          <div className="space-y-1"><Label htmlFor="b3-prepared">Frozen validation B1 preparation</Label><select id="b3-prepared" className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={preparedId} onChange={e => setPreparedId(e.target.value)} data-testid="select-b3-prepared"><option value="">Select explicitly</option>{compatibleInputs.map(item => { const id = preparedInputIdOf(item); return id ? <option key={id} value={id}>#{id} · {text(preparedRepresentation(item))} · {text(item.createdAt)}</option> : null; })}</select></div>
           <div className="space-y-1"><Label htmlFor="b3-start">Evaluation start</Label><Input id="b3-start" type="date" value={start} onChange={e => setStart(e.target.value)} data-testid="input-b3-start" /></div>
           <div className="space-y-1"><Label htmlFor="b3-end">Evaluation end</Label><Input id="b3-end" type="date" value={end} onChange={e => setEnd(e.target.value)} data-testid="input-b3-end" /></div>
           <div className="space-y-1"><Label htmlFor="b3-calendar">Decision calendar</Label><select id="b3-calendar" className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={calendar} onChange={e => setCalendar(e.target.value as typeof calendar)} data-testid="select-b3-calendar"><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option></select></div>
@@ -257,10 +328,49 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
         <Button size="sm" variant="outline" onClick={() => void replayRun()} disabled={busy} data-testid="button-replay-b3"><RotateCcw className="mr-2 h-3.5 w-3.5" />Replay frozen run</Button>
       </div>
       {replay && <div className="rounded border p-3 text-xs" data-testid="status-b3-replay"><strong>Replay result</strong><pre className="mt-2 overflow-auto whitespace-pre-wrap">{json(replay)}</pre></div>}
+      <Card data-testid="b3-d1-risk-model-result"><CardHeader className="pb-3">
+        <CardTitle className="text-sm">Frozen B3 risk-model path · {runRiskModelLabel}</CardTitle>
+        <CardDescription>Per-decision risk models are read from the saved B3 optimizer results; earlier decisions are not summarized using terminal-sample loadings.</CardDescription>
+      </CardHeader><CardContent className="space-y-3">
+        {runRiskModel.type === "STATISTICAL_FACTOR" && <p className="text-xs">Frozen fixed F={text(runRiskModel.factorCount)} · specific-risk floor={text(runRiskModel.specificRiskFloorFraction)}.</p>}
+        {!datedRiskRows.length && <p className="text-xs text-muted-foreground" data-testid="b3-d1-risk-model-unavailable">No per-decision riskModel diagnostics were returned for this saved B3 run.</p>}
+        {!!datedRiskRows.length && <div className="overflow-auto rounded border"><table className="w-full min-w-[680px] text-left text-xs">
+          <thead className="bg-muted"><tr><th className="p-2">Decision</th><th className="p-2">Information cutoff</th><th className="p-2">Model</th><th className="p-2">T / N / F</th><th className="p-2">Data identity</th><th className="p-2">Risk decomposition</th></tr></thead>
+          <tbody>{datedRiskRows.map(({ decision, risk }) => {
+            const provenance = record(risk.provenance);
+            const factorModel = record(risk.factorModel);
+            const diagnostics = record(factorModel.diagnostics);
+            return <tr key={text(decision.decisionDate)} className="border-t align-top">
+              <td className="p-2">{text(decision.decisionDate)}</td>
+              <td className="p-2">{text(provenance.informationCutoff ?? decision.informationCutoff)}</td>
+              <td className="p-2">{text(risk.type)}</td>
+              <td className="p-2">{text(provenance.observationCount)} / {text(provenance.alphaCount)} / {text(risk.factorCount)}</td>
+              <td className="max-w-48 truncate p-2" title={text(provenance.datasetHash)}>{text(provenance.datasetHash)}</td>
+              <td className="p-2"><details><summary className="cursor-pointer">Inspect saved contributions</summary><pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap">{json({
+                factorBasisUnstable: diagnostics.factorBasisUnstable,
+                commonFactorVarianceShare: diagnostics.commonFactorVarianceShare,
+                specificRiskVarianceShare: diagnostics.specificRiskVarianceShare,
+                decomposition: risk.decomposition,
+              })}</pre></details></td>
+            </tr>;
+          })}</tbody></table></div>}
+      </CardContent></Card>
       {comparison && <Card><CardHeader className="pb-3"><CardTitle className="text-sm">Saved-run comparison · #{text(run.validationRunId)} vs #{text(comparison.validationRunId)}</CardTitle><CardDescription>Asset and alpha policies are compared without retroactive rescaling or a declared winner.</CardDescription></CardHeader><CardContent className="space-y-3 text-xs">
-        <Badge variant="outline" className={mismatches.length ? "border-amber-300 bg-amber-50 text-amber-800" : "border-green-300 bg-green-50 text-green-800"}>{mismatches.length ? `Unmatched configuration · ${mismatches.join(", ")}` : "Matched configuration · frozen assumptions, market data, final-asset constraints and capital budget agree"}</Badge>
+        <Badge variant="outline" className={mismatches.length || comparisonPolicyQuery.isLoading ? "border-amber-300 bg-amber-50 text-amber-800" : "border-green-300 bg-green-50 text-green-800"}>{comparisonPolicyQuery.isLoading ? "Checking frozen B2 settings…" : mismatches.length ? `Unmatched configuration · ${mismatches.join(", ")}` : "Matched non-risk settings · frozen risk model may differ · no winner inferred"}</Badge>
         <p className="text-muted-foreground">Comparison uses frozen run metadata, not current working settings. Different realized turnover and risk remain legitimate outcomes; matching configuration does not establish equivalent policies or alpha efficacy.</p>
+        {!comparisonPolicyQuery.isLoading && !mismatches.length && <div className="grid gap-2 rounded border bg-muted/20 p-3 sm:grid-cols-2">
+          <p>Risk model: {runRiskModelLabel} (F={text(runRiskModel.factorCount)}, floor={text(runRiskModel.specificRiskFloorFraction)})</p>
+          <p>Comparison model: {text(comparisonPolicyRiskModel.type)} (F={text(comparisonPolicyRiskModel.factorCount)}, floor={text(comparisonPolicyRiskModel.specificRiskFloorFraction)})</p>
+          <p>Mean decision alpha-weight half-L1 distance: {metric(meanDecisionDistance(decisions, rows(getResult(comparison).decisions), "candidateWeights"))}</p>
+          <p>Mean decision asset-weight half-L1 distance: {metric(meanDecisionDistance(decisions, rows(getResult(comparison).decisions), "targetAssetWeights"))}</p>
+        </div>}
         <div className="overflow-auto"><table className="w-full min-w-[460px] text-xs"><thead><tr className="border-b text-left"><th className="py-2">Metric</th><th>#{text(run.validationRunId)} · {getRepresentation(run)}</th><th>#{text(comparison.validationRunId)} · {getRepresentation(comparison)}</th></tr></thead><tbody>{summaryItems.map(item => { const other = record(getResult(comparison).summary ?? getResult(comparison).metrics); const key = item.label === "Cumulative return" ? "cumulativeReturn" : item.label === "Annualized return" ? "annualizedReturn" : item.label === "Annualized volatility" ? "annualizedVolatility" : item.label === "Sharpe" ? "sharpe" : item.label === "Maximum drawdown" ? "maximumDrawdown" : item.label === "Turnover" ? "turnover" : "externalTradedNotional"; return <tr key={item.label} className="border-b"><td className="py-2">{item.label}</td><td>{item.value}</td><td>{item.label === "Sharpe" ? metric(other[key]) : item.label === "External traded notional" ? money(other[key]) : percent(other[key])}</td></tr>; })}</tbody></table></div>
+        {!comparisonPolicyQuery.isLoading && !mismatches.length && <details className="rounded border bg-muted/20 p-3"><summary className="cursor-pointer font-semibold">Inspect point-in-time alpha and asset weights</summary>
+          <div className="mt-2 grid gap-3 md:grid-cols-2">
+            <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words text-[11px]">{json(decisions.map(item => ({ decisionDate: item.decisionDate, candidateWeights: item.candidateWeights, targetAssetWeights: item.targetAssetWeights })))}</pre>
+            <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words text-[11px]">{json(rows(getResult(comparison).decisions).map(item => ({ decisionDate: item.decisionDate, candidateWeights: item.candidateWeights, targetAssetWeights: item.targetAssetWeights })))}</pre>
+          </div>
+        </details>}
         <details><summary className="cursor-pointer">Frozen estimation & objective settings for both policies</summary><pre className="mt-2 overflow-auto rounded border bg-muted/30 p-2">{json({ first: getResult(run).policyIdentity, second: getResult(comparison).policyIdentity })}</pre></details>
       </CardContent></Card>}
       {step === "results" && <>

@@ -32,7 +32,20 @@ function parseId(raw: string | string[]): number | null {
   return /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value)) ? Number(value) : null;
 }
 
-router.get("/prepared-inputs", async (_req, res): Promise<void> => {
+router.get("/prepared-inputs", async (req, res): Promise<void> => {
+  if (req.query.summary === "1") {
+    const rows = await db.select({
+      id: preparedInputsTable.id,
+      representation: preparedInputsTable.representation,
+      createdAt: preparedInputsTable.createdAt,
+    }).from(preparedInputsTable).orderBy(desc(preparedInputsTable.createdAt), desc(preparedInputsTable.id));
+    res.json(rows.map(row => ({
+      preparedInputId: row.id,
+      representation: row.representation,
+      createdAt: row.createdAt,
+    })));
+    return;
+  }
   const rows = await db.select().from(preparedInputsTable).orderBy(desc(preparedInputsTable.createdAt), desc(preparedInputsTable.id));
   res.json(ListPreparedInputsResponse.parse(rows.map(response)));
 });

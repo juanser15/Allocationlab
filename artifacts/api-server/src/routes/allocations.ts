@@ -53,10 +53,11 @@ function unexpectedAllocationFields(body: unknown): string[] {
   const request = check(body, [
     "preparedInputId", "candidateIds", "informationCutoff", "decisionTimestamp", "estimationWindow",
     "minObservations", "representation", "returnConvention", "expectedReturnShrinkage",
-    "covarianceDiagonalShrinkage", "dailyCashYield", "objective", "constraints",
+      "covarianceDiagonalShrinkage", "riskModel", "dailyCashYield", "objective", "constraints",
   ], "request");
   if (!request) return differences;
   check(request.objective, ["type", "gamma", "eta"], "objective");
+  check(request.riskModel, ["type", "factorCount", "specificRiskFloorFraction"], "riskModel");
   const constraints = check(request.constraints, [
     "candidateBounds", "totalCash", "assetBounds", "groupCaps", "unsupported",
   ], "constraints");
@@ -197,6 +198,19 @@ router.post("/allocations", async (req, res): Promise<void> => {
     return;
   }
   const frozenRequest = structuredClone(request);
+  // Resolve and persist the default factor count once from the B2 estimation
+  // window so every later B3 decision uses that same frozen dimension.
+  const factorCount = result.riskModel?.factorCount ?? result.model?.riskModel?.factorCount;
+  const specificRiskFloorFraction = result.riskModel?.specificRiskFloorFraction ??
+    result.model?.riskModel?.specificRiskFloorFraction;
+  if (frozenRequest.riskModel?.type === "STATISTICAL_FACTOR" &&
+      frozenRequest.riskModel.factorCount === undefined &&
+      Number.isSafeInteger(factorCount))
+    frozenRequest.riskModel.factorCount = factorCount;
+  if (frozenRequest.riskModel?.type === "STATISTICAL_FACTOR" &&
+      frozenRequest.riskModel.specificRiskFloorFraction === undefined &&
+      typeof specificRiskFloorFraction === "number")
+    frozenRequest.riskModel.specificRiskFloorFraction = specificRiskFloorFraction;
   const frozenSnapshot = structuredClone(snapshot);
   const frozenResult = structuredClone(result);
   const frozenSnapshotHash = fingerprint(frozenSnapshot);

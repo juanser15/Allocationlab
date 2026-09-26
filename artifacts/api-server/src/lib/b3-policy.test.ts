@@ -187,6 +187,43 @@ test("B3 T2 future prices and a future missing observation do not change results
   assert.deepEqual(changed.dailyLedger, clean.dailyLedger);
 });
 
+test("D1 T7 recomputes fixed-F covariance point-in-time at every B3 decision", () => {
+  const snapshot = makeSnapshot("alpha_streams");
+  const policy = allocationRequest(snapshot, {
+    candidateIds: snapshot.candidates.slice(0, 3).map((candidate) => candidate.candidateId),
+    estimationWindow: 60,
+    minObservations: 30,
+    riskModel: { type: "STATISTICAL_FACTOR", factorCount: 2, specificRiskFloorFraction: 1e-6 },
+  });
+  const result = runB3Validation(snapshot, policy, snapshot, assumptions(45, 130));
+  assert.equal(result.status, "completed", result.reason);
+  assert.ok(result.decisions.length >= 3);
+  assert.equal(result.policyIdentity.riskModel?.type, "STATISTICAL_FACTOR");
+  assert.equal(result.policyIdentity.riskModel?.factorCount, 2);
+  for (const decision of result.decisions) {
+    const risk = decision.optimizer.riskModel;
+    assert.ok(risk, `Missing saved statistical-factor diagnostics at ${decision.decisionDate}`);
+    assert.equal(risk.type, "STATISTICAL_FACTOR");
+    assert.equal(risk.factorCount, 2);
+    assert.equal(risk.provenance.informationCutoff, decision.informationCutoff);
+    assert.equal(risk.provenance.observationCount, decision.estimationDates.length);
+    assert.deepEqual(risk.provenance.dates, decision.estimationDates);
+    assert.deepEqual(risk.provenance.candidateIds, decision.pointInTimeCandidateIds);
+    assert.ok(risk.provenance.dates.every((date) => date <= decision.informationCutoff));
+    assert.equal(decision.optimizer.model?.sigma, risk.covariance);
+    assert.ok(risk.decomposition);
+  }
+
+  const invalidFixedFactorPolicy = {
+    ...policy,
+    riskModel: { ...policy.riskModel!, factorCount: policy.candidateIds.length },
+  };
+  const invalid = runB3Validation(snapshot, invalidFixedFactorPolicy, snapshot, assumptions(45, 130));
+  assert.equal(invalid.status, "failed");
+  assert.ok(invalid.failureDate);
+  assert.match(invalid.reason ?? "", /INSUFFICIENT_HISTORY_OR_DIMENSION/);
+});
+
 test("B3 T3 same-close and next-close buys do not earn the pre-purchase jump; quantities persist", () => {
   const snapshot = makeSnapshot("asset_returns");
   const policy = allocationRequest(snapshot);

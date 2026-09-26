@@ -1,6 +1,9 @@
 // @ts-expect-error quadprog 2.0.0 does not publish TypeScript declarations.
 import { solveQP } from "quadprog";
 import type { PreparedCandidate, PreparedSnapshot } from "./prepared-inputs";
+import {
+  buildStatisticalFactorRiskModel, decomposeStatisticalFactorRisk, type D1StatisticalFactorRiskModel,
+} from "./d1-factor-model";
 
 export type AllocationRepresentation = "asset_returns" | "alpha_streams" | "signals";
 export type AllocationObjective =
@@ -18,6 +21,11 @@ export interface AllocationRequest {
   returnConvention: "daily_decimal";
   expectedReturnShrinkage: number;
   covarianceDiagonalShrinkage: number;
+  riskModel?: {
+    type: "SAMPLE" | "DIAGONAL_SHRINKAGE" | "STATISTICAL_FACTOR";
+    factorCount?: number;
+    specificRiskFloorFraction?: number;
+  };
   dailyCashYield: number;
   objective: AllocationObjective;
   constraints: {
@@ -34,6 +42,8 @@ export type AllocationStatus =
   | "INFEASIBLE"
   | "INVALID_INPUT"
   | "INVALID_RISK_MODEL"
+  | "INSUFFICIENT_HISTORY_OR_DIMENSION"
+  | "INVALID_FACTOR_MODEL"
   | "UNSUPPORTED"
   | "NUMERICAL_FAILURE"
   | "LIMIT_REACHED";
@@ -54,6 +64,7 @@ export interface AllocationModel {
   expectedReturnShrinkage: number;
   covarianceDiagonalShrinkage: number;
   covarianceFormula: string;
+  riskModel?: AllocationResult["riskModel"];
   returnUnits: "daily_decimal";
   decisionTimestamp: string;
   informationCutoff: string;
@@ -93,6 +104,38 @@ export interface AllocationResult {
   } | null;
   constraintSlacks: Array<{ name: string; value: number; minSlack: number | null; maxSlack: number | null }>;
   solver: SolverDiagnostics;
+  riskModel?: {
+    type: "SAMPLE" | "DIAGONAL_SHRINKAGE" | "STATISTICAL_FACTOR";
+    factorCount?: number;
+    specificRiskFloorFraction?: number;
+    sampleCovariance: number[][];
+    covariance: number[][];
+    provenance: {
+      candidateIds: string[];
+      dates: string[];
+      observationCount: number;
+      alphaCount: number;
+      informationCutoff: string;
+      preparedInputId: number;
+      datasetId: string | number | null;
+      datasetHash: string;
+    };
+    factorModel?: D1StatisticalFactorRiskModel;
+    sampleDiagnostics?: {
+      covariance: number[][];
+      correlation: number[][];
+      covarianceEigenvalues: number[];
+      correlationEigenvalues: number[];
+      covarianceRank: number;
+      covarianceConditionNumber: number | null;
+      correlationConditionNumber: number | null;
+    };
+    sameWindowModels?: Record<"SAMPLE" | "DIAGONAL_SHRINKAGE" | "STATISTICAL_FACTOR", {
+      covariance: number[][];
+      expectedDailyVolatility: number | null;
+    }>;
+    decomposition?: Record<string, unknown>;
+  };
 }
 
 const SOLVER_VERSION = "2.0.0";
@@ -106,7 +149,7 @@ type Point = { gross: number; net: number; transactionCost: number; slippage: nu
 
 function failure(status: AllocationStatus, reason: string, model: AllocationModel | null = null,
   message = reason): AllocationResult {
-  return {
+  const result: AllocationResult = {
     status, reason, model, candidateWeights: null, assetWeights: null, totalCash: null, masterCash: null,
     estimatedGrossReturn: null, estimatedVolatility: null, objectiveContributions: null, constraintSlacks: [],
     solver: { name: "quadprog", version: SOLVER_VERSION, status, primalResidual: null, dualResidual: null,
@@ -114,6 +157,8 @@ function failure(status: AllocationStatus, reason: string, model: AllocationMode
       optimalityTolerance: OPTIMALITY_TOLERANCE, constraintTolerance: CONSTRAINT_TOLERANCE,
       iterations: null, message },
   };
+  if (model?.riskModel) result.riskModel = model.riskModel;
+  return result;
 }
 
 function finite(value: unknown): value is number {
@@ -362,6 +407,15 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
     !finite(request.covarianceDiagonalShrinkage) || request.covarianceDiagonalShrinkage < 0 ||
     request.covarianceDiagonalShrinkage > 1 || !finite(request.dailyCashYield))
     return failure("INVALID_INPUT", "Return convention, shrinkage strengths or daily cash yield are invalid.");
+  if (request.riskModel !== undefined &&
+      (!request.riskModel || !["SAMPLE", "DIAGONAL_SHRINKAGE", "STATISTICAL_FACTOR"].includes(request.riskModel.type) ||
+       (request.riskModel.factorCount !== undefined &&
+         (!Number.isSafeInteger(request.riskModel.factorCount) || request.riskModel.factorCount < 1)) ||
+       (request.riskModel.specificRiskFloorFraction !== undefined &&
+         (!finite(request.riskModel.specificRiskFloorFraction) || request.riskModel.specificRiskFloorFraction < 0))))
+    return failure("INVALID_INPUT", "Risk-model choice, factor count, or specific-risk floor is invalid.");
+  if (request.riskModel && request.representation !== "alpha_streams")
+    return failure("UNSUPPORTED", "D1 risk-model choices are supported only for alpha_streams; asset-return mode retains its existing covariance configuration.");
   if (!request.objective || !["minimum_variance", "regularized_mean_variance"].includes(request.objective.type) ||
     !finite(request.objective.gamma) || request.objective.gamma <= 0 ||
     !finite(request.objective.eta) || request.objective.eta < 0)
@@ -421,10 +475,32 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
   const mu = sampleMeans.map((sampleMean) => (1 - request.expectedReturnShrinkage) * sampleMean +
     request.expectedReturnShrinkage * request.dailyCashYield);
   const sampleCovariance = covarianceMatrix(dates.map((_, row) => grossReturns.map((series) => series[row])));
-  const sigma = sampleCovariance.map((row, i) => row.map((value, j) =>
-    (1 - request.covarianceDiagonalShrinkage) * value + (i === j ? request.covarianceDiagonalShrinkage * sampleCovariance[i][i] : 0)));
+  let factorModel: any;
+  let sigma: number[][];
+  const riskModelType = request.riskModel?.type;
+  if (riskModelType === "STATISTICAL_FACTOR") {
+    factorModel = buildStatisticalFactorRiskModel(
+      dates.map((_, row) => grossReturns.map((series) => series[row])),
+      candidates.map((candidate) => candidate.candidateId),
+      request.riskModel?.factorCount,
+      request.riskModel?.specificRiskFloorFraction ?? 1e-6,
+    );
+    if (factorModel.status !== "VALID") {
+      const status = ["INSUFFICIENT_HISTORY_OR_DIMENSION", "INVALID_FACTOR_MODEL"].includes(factorModel.status)
+        ? factorModel.status as AllocationStatus : "INVALID_RISK_MODEL";
+      return failure(status, factorModel.reason ?? `Statistical factor model failed: ${factorModel.status}.`);
+    }
+    sigma = factorModel.gamma;
+  } else {
+    const shrinkage = riskModelType === "SAMPLE" ? 0 : request.covarianceDiagonalShrinkage;
+    sigma = sampleCovariance.map((row, i) => row.map((value, j) =>
+      (1 - shrinkage) * value + (i === j ? shrinkage * sampleCovariance[i][i] : 0)));
+  }
   const covarianceError = validateCovariance(sigma);
   if (covarianceError) return failure("INVALID_RISK_MODEL", covarianceError);
+  const diagonalShrinkageCovariance = sampleCovariance.map((row, i) => row.map((value, j) =>
+    (1 - request.covarianceDiagonalShrinkage) * value +
+    (i === j ? request.covarianceDiagonalShrinkage * sampleCovariance[i][i] : 0)));
 
   const assets = request.representation === "asset_returns"
     ? [...new Set(candidates.flatMap((candidate) => candidate.assetTickers))].sort()
@@ -444,6 +520,45 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
         return failure("INVALID_INPUT", `Candidate ${candidates[j].candidateId} violates the B1 asset-plus-internal-cash identity.`);
     }
   }
+  const riskModelSummary: AllocationResult["riskModel"] | undefined = request.riskModel ? {
+    type: request.riskModel.type,
+    ...(request.riskModel.type === "STATISTICAL_FACTOR" ? {
+      factorCount: factorModel.factorCount,
+      specificRiskFloorFraction: factorModel.specificRiskFloorFraction,
+    } : {}),
+    sampleCovariance,
+    covariance: sigma,
+    provenance: {
+      candidateIds: candidates.map((candidate) => candidate.candidateId),
+      dates: [...dates],
+      observationCount: dates.length,
+      alphaCount: candidates.length,
+      informationCutoff: request.informationCutoff,
+      preparedInputId: request.preparedInputId,
+      datasetId: snapshot.dataset.id ?? null,
+      datasetHash: snapshot.dataset.sha256,
+    },
+    ...(factorModel ? {
+      factorModel,
+      sampleDiagnostics: {
+        covariance: sampleCovariance,
+        correlation: factorModel.correlationMatrix,
+        covarianceEigenvalues: factorModel.diagnostics.sampleEigenvalues,
+        correlationEigenvalues: factorModel.eigenvalues,
+        covarianceRank: factorModel.diagnostics.sampleCovarianceRank,
+        covarianceConditionNumber: factorModel.diagnostics.sampleConditionNumber,
+        correlationConditionNumber: factorModel.diagnostics.correlationConditionNumber,
+      },
+      // These are risk estimates on the SAME frozen return window, not extra
+      // optimizer runs. Their volatility fields are filled with this solve's
+      // common alpha weights once the selected model has solved.
+      sameWindowModels: {
+        SAMPLE: { covariance: sampleCovariance, expectedDailyVolatility: null },
+        DIAGONAL_SHRINKAGE: { covariance: diagonalShrinkageCovariance, expectedDailyVolatility: null },
+        STATISTICAL_FACTOR: { covariance: sigma, expectedDailyVolatility: null },
+      },
+    } : {}),
+  } : undefined;
   const model: AllocationModel = {
     candidateIds: candidates.map((candidate) => candidate.candidateId), assetTickers: assets, dates,
     observationCount: dates.length, sampleMeans, mu, sigma, H, d, netReturns,
@@ -451,7 +566,10 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
       total: transactionCosts.map((series, j) => series.map((value, i) => value + slippage[j][i])) }, grossReturns,
     expectedReturnShrinkage: request.expectedReturnShrinkage,
     covarianceDiagonalShrinkage: request.covarianceDiagonalShrinkage,
-    covarianceFormula: "Sigma=(1-delta)*sample_covariance+delta*diag(sample_covariance)",
+    covarianceFormula: factorModel ? "Gamma=Xi+Omega*Phi*Omega'" :
+      request.riskModel?.type === "SAMPLE" ? "Sigma=sample_covariance" :
+        "Sigma=(1-delta)*sample_covariance+delta*diag(sample_covariance)",
+    ...(riskModelSummary ? { riskModel: riskModelSummary } : {}),
     returnUnits: "daily_decimal", decisionTimestamp: request.decisionTimestamp, informationCutoff: request.informationCutoff,
   };
   const constraints = buildConstraints(request, model.candidateIds, assets, H, d);
@@ -540,7 +658,7 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
   const masterCashReturn = request.objective.type === "regularized_mean_variance"
     ? -request.dailyCashYield * masterCash : 0;
   const objectiveTotal = riskContribution + regularization + candidateReturn + masterCashReturn;
-  return {
+  const result: AllocationResult = {
     status: "SOLVED", model, candidateWeights: Object.fromEntries(model.candidateIds.map((id, i) => [id, weights[i]])),
     assetWeights, totalCash, masterCash, estimatedGrossReturn, estimatedVolatility,
     objectiveContributions: { variance: riskContribution, regularization, candidateReturn, masterCashReturn, total: objectiveTotal },
@@ -552,4 +670,22 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
       message: diagonalLift ? `PSD flat-direction candidate lift ${diagonalLift}; exact objective KKT independently verified.` :
         "Exact objective KKT stationarity and independent primal feasibility checks passed." },
   };
+  if (riskModelSummary) {
+    if (factorModel) {
+      for (const model of Object.values(riskModelSummary.sameWindowModels!)) {
+        const variance = quadratic(weights, model.covariance);
+        if (!finite(variance) || variance < -1e-10)
+          return failure("INVALID_RISK_MODEL", "Same-window expected risk is nonfinite or materially negative.", result.model);
+        model.expectedDailyVolatility = Math.sqrt(Math.max(0, variance));
+      }
+    }
+    result.riskModel = {
+      ...riskModelSummary,
+      ...(factorModel ? { decomposition: decomposeStatisticalFactorRisk(
+        factorModel, candidates.map((candidate) => result.candidateWeights![candidate.candidateId]),
+      ) } : {}),
+    };
+    result.model!.riskModel = result.riskModel;
+  }
+  return result;
 }

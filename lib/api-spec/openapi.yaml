@@ -1859,6 +1859,95 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /risk-model-comparisons:
+    post:
+      operationId: createRiskModelComparison
+      tags: [allocations]
+      summary: Compare saved B2/B3 runs with identical economics and different alpha risk estimators
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RiskModelComparisonInput" }
+      responses:
+        "201":
+          description: Immutable controlled comparison
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RiskModelComparison" }
+        "400":
+          description: Invalid input or mismatched economic assumptions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Saved B2 or B3 run not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Frozen run failed identity or integrity checks
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    get:
+      operationId: listRiskModelComparisons
+      tags: [allocations]
+      responses:
+        "200":
+          description: Saved controlled risk-model comparisons
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comparisons:
+                    type: array
+                    items: { $ref: "#/components/schemas/RiskModelComparisonSummary" }
+                required: [comparisons]
+
+  /risk-model-comparisons/{comparisonId}:
+    get:
+      operationId: getRiskModelComparison
+      tags: [allocations]
+      parameters:
+        - name: comparisonId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Frozen controlled comparison
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RiskModelComparison" }
+        "404":
+          description: Comparison not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /risk-model-comparisons/{comparisonId}/replay:
+    post:
+      operationId: replayRiskModelComparison
+      tags: [allocations]
+      parameters:
+        - name: comparisonId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Frozen B2/B3 child replay and comparison reconciliation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RiskModelComparisonReplay" }
+        "404":
+          description: Comparison not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     signalExportBearer:
@@ -5170,6 +5259,65 @@ components:
         eta: { type: number, minimum: 0 }
       required: [type, gamma, eta]
 
+    AllocationRiskModelSettings:
+      type: object
+      additionalProperties: false
+      description: Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.
+      properties:
+        type:
+          type: string
+          enum: [SAMPLE, DIAGONAL_SHRINKAGE, STATISTICAL_FACTOR]
+        factorCount: { type: integer, minimum: 1 }
+        specificRiskFloorFraction: { type: number, minimum: 0 }
+      required: [type]
+
+    RiskModelComparisonIds:
+      type: object
+      additionalProperties: false
+      properties:
+        SAMPLE: { type: integer, minimum: 1 }
+        DIAGONAL_SHRINKAGE: { type: integer, minimum: 1 }
+        STATISTICAL_FACTOR: { type: integer, minimum: 1 }
+      required: [SAMPLE, DIAGONAL_SHRINKAGE, STATISTICAL_FACTOR]
+
+    RiskModelComparisonInput:
+      type: object
+      additionalProperties: false
+      properties:
+        allocationIds: { $ref: "#/components/schemas/RiskModelComparisonIds" }
+        validationRunIds: { $ref: "#/components/schemas/RiskModelComparisonIds" }
+      required: [allocationIds, validationRunIds]
+
+    RiskModelComparisonSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        manifestHash: { type: string }
+        resultHash: { type: string }
+        createdAt: { type: string, format: date-time }
+      required: [id, manifestHash, resultHash, createdAt]
+
+    RiskModelComparison:
+      allOf:
+        - { $ref: "#/components/schemas/RiskModelComparisonSummary" }
+        - type: object
+          properties:
+            manifest: { type: object, additionalProperties: true }
+            result: { type: object, additionalProperties: true }
+          required: [manifest, result]
+
+    RiskModelComparisonReplay:
+      type: object
+      properties:
+        comparisonId: { type: integer }
+        status: { type: string, enum: [pass, fail, engine_mismatch] }
+        differences:
+          type: array
+          items: { type: string }
+        maximumNumericDifference: { type: number }
+        result: { type: object, additionalProperties: true }
+      required: [comparisonId, status, differences, maximumNumericDifference]
+
     AllocationRequest:
       type: object
       additionalProperties: false
@@ -5192,6 +5340,7 @@ components:
           enum: [daily_decimal]
         expectedReturnShrinkage: { type: number, minimum: 0, maximum: 1 }
         covarianceDiagonalShrinkage: { type: number, minimum: 0, maximum: 1 }
+        riskModel: { $ref: "#/components/schemas/AllocationRiskModelSettings" }
         dailyCashYield: { type: number }
         objective: { $ref: "#/components/schemas/AllocationObjective" }
         constraints: { $ref: "#/components/schemas/AllocationConstraints" }
@@ -5222,7 +5371,7 @@ components:
         engineVersion: { type: string }
         status:
           type: string
-          enum: [SOLVED, INFEASIBLE, INVALID_INPUT, INVALID_RISK_MODEL, UNSUPPORTED, UNSUPPORTED_REPRESENTATION, UNSUPPORTED_CONSTRAINT, NUMERICAL_FAILURE, LIMIT_REACHED]
+          enum: [SOLVED, INFEASIBLE, INVALID_INPUT, INVALID_RISK_MODEL, INVALID_FACTOR_MODEL, INSUFFICIENT_HISTORY_OR_DIMENSION, UNSUPPORTED, UNSUPPORTED_REPRESENTATION, UNSUPPORTED_CONSTRAINT, NUMERICAL_FAILURE, LIMIT_REACHED]
         request: { $ref: "#/components/schemas/AllocationRequest" }
         result: { type: object, additionalProperties: true }
         createdAt: { type: string, format: date-time }

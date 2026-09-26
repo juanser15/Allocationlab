@@ -10,11 +10,22 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { MetricTooltip } from "@/components/shared/MetricTooltip";
 import { Layers, Info, ShieldAlert, Lock } from "lucide-react";
 import type { RunResult, RiskModelResult } from "@workspace/api-client-react";
+import {
+  D1RiskModelPanel,
+  type D1RiskModelRequest,
+} from "@/components/portfolio-lab/D1RiskModelPanel";
 
 interface Props {
   result: RunResult | undefined;
   hasData: boolean;
   hasRun: boolean;
+  allocationId?: number | null;
+  representation?: string | null;
+  candidateCount?: number;
+  observationWindow?: number;
+  alignedObservationCount?: number | null;
+  d1RiskModel?: D1RiskModelRequest;
+  onD1RiskModelChange?: (config: D1RiskModelRequest) => void;
 }
 
 function pct(n: number | null | undefined, digits = 1) {
@@ -168,18 +179,33 @@ function ModelDrawer({
   );
 }
 
-export function ModelsTab({ result, hasData, hasRun }: Props) {
+export function ModelsTab({
+  result, hasData, hasRun, allocationId = null, representation = null,
+  candidateCount = 0, observationWindow = 252, alignedObservationCount = null,
+  d1RiskModel = { type: "SAMPLE", specificRiskFloorFraction: 1e-6 },
+  onD1RiskModelChange = () => undefined,
+}: Props) {
   const [covModel, setCovModel] = useState<"sample" | "ewma" | "shrinkage">("sample");
   const [openModel, setOpenModel] = useState<string | null>(null);
   const { data: riskModel } = useGetRiskModel({ covarianceModel: covModel });
 
-  if (!hasData) return <EmptyState icon={Layers} title="Valid price history is required." description="Upload price data to run portfolio construction models." />;
-  if (!hasRun || !result) return <EmptyState icon={Layers} title='Run Optimizer to generate model allocations.' description='The three portfolio construction engines are computed by the optimizer pipeline. Click "Run Optimizer" to begin.' />;
+  const d1RiskModelPanel = <D1RiskModelPanel
+    allocationId={allocationId}
+    representation={representation}
+    candidateCount={candidateCount}
+    observationWindow={observationWindow}
+    alignedObservationCount={alignedObservationCount}
+    config={d1RiskModel}
+    onConfigChange={onD1RiskModelChange}
+  />;
+  if (!hasData) return <div className="space-y-6">{d1RiskModelPanel}<EmptyState icon={Layers} title="Valid price history is required." description="Upload price data to run portfolio construction models." /></div>;
+  if (!hasRun || !result) return <div className="space-y-6">{d1RiskModelPanel}<EmptyState icon={Layers} title='Run Optimizer to generate model allocations.' description='The three portfolio construction engines are computed by the optimizer pipeline. Click "Run Optimizer" to begin.' /></div>;
 
   const diag = result.diagnostics;
 
   return (
     <div className="space-y-6">
+      {d1RiskModelPanel}
       <DetailDrawer
         open={!!openModel}
         onOpenChange={(o) => !o && setOpenModel(null)}

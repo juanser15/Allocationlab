@@ -44,6 +44,7 @@ export type B2PreparedSelection = {
   representation: Representation;
   candidateIds: string[];
   candidateNames: Record<string, string>;
+  returnDatesByCandidate: Record<string, string[]>;
   informationCutoff: string;
 };
 
@@ -149,9 +150,24 @@ export function PreparedInputsPanel({ b2Mode = false, onB2ModeChange, onPrepared
       return;
     }
     const candidateNames: Record<string, string> = {};
+    const returnDatesByCandidate: Record<string, string[]> = {};
     const candidateIds = candidates.map(candidate => {
       const candidateId = candidate.candidateId ?? candidate.id;
-      if (typeof candidateId === "string") candidateNames[candidateId] = candidate.name ?? candidateId;
+      if (typeof candidateId === "string") {
+        candidateNames[candidateId] = candidate.name ?? candidateId;
+        const isAlpha = representation === "alpha_streams";
+        const returns: string[] = isAlpha && Array.isArray(candidate.ledger)
+          ? candidate.ledger.filter((entry: ApiItem) => typeof entry.date === "string" &&
+              Number.isFinite(entry.beginningNav) && entry.beginningNav > 0 &&
+              Number.isFinite(entry.etfPnl) && Number.isFinite(entry.cashPnl) &&
+              Number.isFinite(entry.netPnl) && Number.isFinite(entry.transactionCosts) &&
+              Number.isFinite(entry.slippage)).map((entry: ApiItem) => entry.date as string)
+          : Array.isArray(candidate.returnSeries)
+            ? candidate.returnSeries.filter((point: ApiItem) => typeof point.date === "string" &&
+                typeof point.value === "number" && Number.isFinite(point.value)).map((point: ApiItem) => point.date as string)
+            : [];
+        returnDatesByCandidate[candidateId] = Array.from(new Set<string>(returns)).sort();
+      }
       return candidateId;
     }).filter((candidateId): candidateId is string => typeof candidateId === "string");
     onPreparedSelectionChange({
@@ -159,6 +175,7 @@ export function PreparedInputsPanel({ b2Mode = false, onB2ModeChange, onPrepared
       representation,
       candidateIds: Array.from(new Set(candidateIds)),
       candidateNames,
+      returnDatesByCandidate,
       informationCutoff: snapshot?.request?.cutoffDate ?? "",
     });
   }, [activeItem, onPreparedSelectionChange]);

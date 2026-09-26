@@ -70,6 +70,7 @@ import type {
   GovernanceVersionSummary,
   HealthStatus,
   ListArchiveParams,
+  ListRiskModelComparisons200,
   ListValidationRunsParams,
   LivePricesFetchInput,
   LivePricesResult,
@@ -82,6 +83,9 @@ import type {
   PricesUploadInput,
   ReportInput,
   ReportResult,
+  RiskModelComparison,
+  RiskModelComparisonInput,
+  RiskModelComparisonReplay,
   RiskModelResult,
   RunInput,
   RunReproduction,
@@ -5485,5 +5489,281 @@ export const useReplayAllocation = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getReplayAllocationMutationOptions(options));
+    }
+
+export const getCreateRiskModelComparisonUrl = () => {
+
+
+
+
+  return `/api/risk-model-comparisons`
+}
+
+/**
+ * @summary Compare saved B2/B3 runs with identical economics and different alpha risk estimators
+ */
+export const createRiskModelComparison = async (riskModelComparisonInput: RiskModelComparisonInput, options?: RequestInit): Promise<RiskModelComparison> => {
+
+  return customFetch<RiskModelComparison>(getCreateRiskModelComparisonUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(riskModelComparisonInput)
+  }
+);}
+
+
+
+
+export const getCreateRiskModelComparisonMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRiskModelComparison>>, TError,{data: BodyType<RiskModelComparisonInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createRiskModelComparison>>, TError,{data: BodyType<RiskModelComparisonInput>}, TContext> => {
+
+const mutationKey = ['createRiskModelComparison'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createRiskModelComparison>>, {data: BodyType<RiskModelComparisonInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createRiskModelComparison(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateRiskModelComparisonMutationResult = NonNullable<Awaited<ReturnType<typeof createRiskModelComparison>>>
+    export type CreateRiskModelComparisonMutationBody = BodyType<RiskModelComparisonInput>
+    export type CreateRiskModelComparisonMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Compare saved B2/B3 runs with identical economics and different alpha risk estimators
+ */
+export const useCreateRiskModelComparison = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRiskModelComparison>>, TError,{data: BodyType<RiskModelComparisonInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createRiskModelComparison>>,
+        TError,
+        {data: BodyType<RiskModelComparisonInput>},
+        TContext
+      > => {
+      return useMutation(getCreateRiskModelComparisonMutationOptions(options));
+    }
+
+export const getListRiskModelComparisonsUrl = () => {
+
+
+
+
+  return `/api/risk-model-comparisons`
+}
+
+export const listRiskModelComparisons = async ( options?: RequestInit): Promise<ListRiskModelComparisons200> => {
+
+  return customFetch<ListRiskModelComparisons200>(getListRiskModelComparisonsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListRiskModelComparisonsQueryKey = () => {
+    return [
+    `/api/risk-model-comparisons`
+    ] as const;
+    }
+
+
+export const getListRiskModelComparisonsQueryOptions = <TData = Awaited<ReturnType<typeof listRiskModelComparisons>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRiskModelComparisons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListRiskModelComparisonsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listRiskModelComparisons>>> = ({ signal }) => listRiskModelComparisons({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listRiskModelComparisons>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListRiskModelComparisonsQueryResult = NonNullable<Awaited<ReturnType<typeof listRiskModelComparisons>>>
+export type ListRiskModelComparisonsQueryError = ErrorType<unknown>
+
+
+
+export function useListRiskModelComparisons<TData = Awaited<ReturnType<typeof listRiskModelComparisons>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRiskModelComparisons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListRiskModelComparisonsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetRiskModelComparisonUrl = (comparisonId: number,) => {
+
+
+
+
+  return `/api/risk-model-comparisons/${comparisonId}`
+}
+
+export const getRiskModelComparison = async (comparisonId: number, options?: RequestInit): Promise<RiskModelComparison> => {
+
+  return customFetch<RiskModelComparison>(getGetRiskModelComparisonUrl(comparisonId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetRiskModelComparisonQueryKey = (comparisonId: number,) => {
+    return [
+    `/api/risk-model-comparisons/${comparisonId}`
+    ] as const;
+    }
+
+
+export const getGetRiskModelComparisonQueryOptions = <TData = Awaited<ReturnType<typeof getRiskModelComparison>>, TError = ErrorType<ErrorResponse>>(comparisonId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRiskModelComparison>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRiskModelComparisonQueryKey(comparisonId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRiskModelComparison>>> = ({ signal }) => getRiskModelComparison(comparisonId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: comparisonId !== null && comparisonId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRiskModelComparison>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetRiskModelComparisonQueryResult = NonNullable<Awaited<ReturnType<typeof getRiskModelComparison>>>
+export type GetRiskModelComparisonQueryError = ErrorType<ErrorResponse>
+
+
+
+export function useGetRiskModelComparison<TData = Awaited<ReturnType<typeof getRiskModelComparison>>, TError = ErrorType<ErrorResponse>>(
+ comparisonId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRiskModelComparison>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetRiskModelComparisonQueryOptions(comparisonId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReplayRiskModelComparisonUrl = (comparisonId: number,) => {
+
+
+
+
+  return `/api/risk-model-comparisons/${comparisonId}/replay`
+}
+
+export const replayRiskModelComparison = async (comparisonId: number, options?: RequestInit): Promise<RiskModelComparisonReplay> => {
+
+  return customFetch<RiskModelComparisonReplay>(getReplayRiskModelComparisonUrl(comparisonId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getReplayRiskModelComparisonMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayRiskModelComparison>>, TError,{comparisonId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replayRiskModelComparison>>, TError,{comparisonId: number}, TContext> => {
+
+const mutationKey = ['replayRiskModelComparison'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replayRiskModelComparison>>, {comparisonId: number}> = (props) => {
+          const {comparisonId} = props ?? {};
+
+          return  replayRiskModelComparison(comparisonId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplayRiskModelComparisonMutationResult = NonNullable<Awaited<ReturnType<typeof replayRiskModelComparison>>>
+
+    export type ReplayRiskModelComparisonMutationError = ErrorType<ErrorResponse>
+
+    export const useReplayRiskModelComparison = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replayRiskModelComparison>>, TError,{comparisonId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replayRiskModelComparison>>,
+        TError,
+        {comparisonId: number},
+        TContext
+      > => {
+      return useMutation(getReplayRiskModelComparisonMutationOptions(options));
     }
 

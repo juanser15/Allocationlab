@@ -2881,6 +2881,75 @@ export interface AllocationObjective {
   eta: number;
 }
 
+export type AllocationRiskModelSettingsType = typeof AllocationRiskModelSettingsType[keyof typeof AllocationRiskModelSettingsType];
+
+
+export const AllocationRiskModelSettingsType = {
+  SAMPLE: 'SAMPLE',
+  DIAGONAL_SHRINKAGE: 'DIAGONAL_SHRINKAGE',
+  STATISTICAL_FACTOR: 'STATISTICAL_FACTOR',
+} as const;
+
+/**
+ * Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.
+ */
+export interface AllocationRiskModelSettings {
+  type: AllocationRiskModelSettingsType;
+  /** @minimum 1 */
+  factorCount?: number;
+  /** @minimum 0 */
+  specificRiskFloorFraction?: number;
+}
+
+export interface RiskModelComparisonIds {
+  /** @minimum 1 */
+  SAMPLE: number;
+  /** @minimum 1 */
+  DIAGONAL_SHRINKAGE: number;
+  /** @minimum 1 */
+  STATISTICAL_FACTOR: number;
+}
+
+export interface RiskModelComparisonInput {
+  allocationIds: RiskModelComparisonIds;
+  validationRunIds: RiskModelComparisonIds;
+}
+
+export interface RiskModelComparisonSummary {
+  id: number;
+  manifestHash: string;
+  resultHash: string;
+  createdAt: string;
+}
+
+export type RiskModelComparisonManifest = { [key: string]: unknown };
+
+export type RiskModelComparisonResult = { [key: string]: unknown };
+
+export type RiskModelComparison = RiskModelComparisonSummary & {
+  manifest: RiskModelComparisonManifest;
+  result: RiskModelComparisonResult;
+};
+
+export type RiskModelComparisonReplayStatus = typeof RiskModelComparisonReplayStatus[keyof typeof RiskModelComparisonReplayStatus];
+
+
+export const RiskModelComparisonReplayStatus = {
+  pass: 'pass',
+  fail: 'fail',
+  engine_mismatch: 'engine_mismatch',
+} as const;
+
+export type RiskModelComparisonReplayResult = { [key: string]: unknown };
+
+export interface RiskModelComparisonReplay {
+  comparisonId: number;
+  status: RiskModelComparisonReplayStatus;
+  differences: string[];
+  maximumNumericDifference: number;
+  result?: RiskModelComparisonReplayResult;
+}
+
 export type AllocationRequestRepresentation = typeof AllocationRequestRepresentation[keyof typeof AllocationRequestRepresentation];
 
 
@@ -2923,6 +2992,7 @@ export interface AllocationRequest {
      * @maximum 1
      */
   covarianceDiagonalShrinkage: number;
+  riskModel?: AllocationRiskModelSettings;
   dailyCashYield: number;
   objective: AllocationObjective;
   constraints: AllocationConstraints;
@@ -2945,6 +3015,8 @@ export const AllocationVersionStatus = {
   INFEASIBLE: 'INFEASIBLE',
   INVALID_INPUT: 'INVALID_INPUT',
   INVALID_RISK_MODEL: 'INVALID_RISK_MODEL',
+  INVALID_FACTOR_MODEL: 'INVALID_FACTOR_MODEL',
+  INSUFFICIENT_HISTORY_OR_DIMENSION: 'INSUFFICIENT_HISTORY_OR_DIMENSION',
   UNSUPPORTED: 'UNSUPPORTED',
   UNSUPPORTED_REPRESENTATION: 'UNSUPPORTED_REPRESENTATION',
   UNSUPPORTED_CONSTRAINT: 'UNSUPPORTED_CONSTRAINT',
@@ -3219,5 +3291,9 @@ dateTo?: SignalDateToParameter;
  * @maximum 5000
  */
 limit?: SignalLimitParameter;
+};
+
+export type ListRiskModelComparisons200 = {
+  comparisons: RiskModelComparisonSummary[];
 };
 

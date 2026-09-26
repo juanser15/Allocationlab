@@ -26,6 +26,7 @@ import { C1ContributionPanel } from "@/components/portfolio-lab/C1ContributionPa
 import { C2DiagnosticsPanel } from "@/components/portfolio-lab/C2DiagnosticsPanel";
 import { C3SelectionPoliciesPanel } from "@/components/portfolio-lab/C3SelectionPoliciesPanel";
 import type { B2PreparedSelection } from "@/components/portfolio-lab/PreparedInputsPanel";
+import type { D1RiskModelRequest } from "@/components/portfolio-lab/D1RiskModelPanel";
 
 export default function PortfolioLab() {
   const { openSettings } = useSettingsDrawer();
@@ -33,6 +34,13 @@ export default function PortfolioLab() {
   const [b2Mode, setB2Mode] = useState(() =>
     typeof window !== "undefined" && window.localStorage.getItem("allocation-lab-optimization-mode") === "b2");
   const [b2Prepared, setB2Prepared] = useState<B2PreparedSelection | null>(null);
+  const [b2CandidateCount, setB2CandidateCount] = useState(0);
+  const [b2EstimationWindow, setB2EstimationWindow] = useState(252);
+  const [b2AlignedObservationCount, setB2AlignedObservationCount] = useState<number | null>(null);
+  const [d1RiskModel, setD1RiskModel] = useState<D1RiskModelRequest>({
+    type: "SAMPLE",
+    specificRiskFloorFraction: 1e-6,
+  });
   const [b2RunToken, setB2RunToken] = useState(0);
   const [b2Running, setB2Running] = useState(false);
   const [selectedB2AllocationId, setSelectedB2AllocationId] = useState<number | null>(null);
@@ -261,7 +269,18 @@ export default function PortfolioLab() {
         </TabsContent>
 
         <TabsContent value="models" className="space-y-6 pt-4">
-          <ModelsTab result={result} hasData={hasData} hasRun={hasRun} />
+          <ModelsTab
+            result={result}
+            hasData={hasData}
+            hasRun={hasRun}
+            allocationId={selectedB2AllocationId}
+            representation={b2Prepared?.representation ?? null}
+            candidateCount={b2CandidateCount || b2Prepared?.candidateIds.length || 0}
+            observationWindow={b2EstimationWindow}
+            alignedObservationCount={b2AlignedObservationCount}
+            d1RiskModel={d1RiskModel}
+            onD1RiskModelChange={setD1RiskModel}
+          />
         </TabsContent>
 
         <TabsContent value="backtest" className="space-y-6 pt-4">
@@ -295,7 +314,16 @@ export default function PortfolioLab() {
 
         <TabsContent value="allocation" forceMount className="space-y-6 pt-4 data-[state=inactive]:hidden">
           {b2Mode
-             ? <B2AllocationPanel prepared={b2Prepared} runToken={b2RunToken} onRunningChange={setB2Running} onAllocationSelectionChange={setSelectedB2AllocationId} />
+             ? <B2AllocationPanel
+                  prepared={b2Prepared}
+                  runToken={b2RunToken}
+                  onRunningChange={setB2Running}
+                  onAllocationSelectionChange={setSelectedB2AllocationId}
+                  riskModel={d1RiskModel}
+                  onCandidateCountChange={setB2CandidateCount}
+                  onEstimationWindowChange={setB2EstimationWindow}
+                  onAlignedObservationCountChange={setB2AlignedObservationCount}
+                />
             : <AllocationTab result={result} constraints={constraints} hasData={hasData} hasRun={hasRun} />}
         </TabsContent>
       </Tabs>

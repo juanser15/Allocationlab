@@ -1,0 +1,835 @@
+D1 — ALPHA FACTOR RISK MODEL
+
+CLOSED-SCOPE TASK
+
+Stages A, B, C1, C2 and C3 are CLOSED.
+
+GOAL
+
+Add a genuine statistical factor risk model for TRADABLE ALPHA STREAMS
+and make it an alternative risk estimator inside the existing B2/B3
+optimization workflow.
+
+D1 changes HOW joint alpha risk is estimated.
+
+It does NOT:
+- create new alphas;
+- select alphas;
+- remove correlated alphas;
+- change C3 grouping policies;
+- optimize raw signals;
+- add signed alpha weights;
+- add leverage;
+- add transaction costs to the optimizer objective;
+- implement liquidity/capacity;
+- run PCA as an alpha-selection method.
+
+PCA in D1 is used ONLY to construct a statistical covariance/risk model.
+
+--------------------------------------------------
+1. RISK MODEL OPTIONS
+--------------------------------------------------
+
+For alpha-stream optimization expose three explicit risk-model choices:
+
+A. SAMPLE_COVARIANCE
+
+Sigma = S
+
+B. DIAGONAL_SHRINKAGE
+
+Existing B2 methodology:
+
+Sigma =
+(1 - delta) S
++ delta diag(S)
+
+C. STATISTICAL_FACTOR_MODEL
+
+New D1 methodology:
+
+Gamma =
+Xi + Omega Phi Omega'
+
+The B2 expected-return estimator, objective, constraints and solver remain
+unchanged.
+
+Only the covariance/risk estimator changes.
+
+Asset-return mode keeps its existing supported risk models.
+D1 statistical factor modeling is initially for ALPHA STREAMS.
+
+Do not silently substitute one estimator for another.
+
+--------------------------------------------------
+2. INPUT DATA
+--------------------------------------------------
+
+Use the same aligned gross daily alpha-stream returns currently used by
+B2 for covariance estimation.
+
+Do not use:
+- raw signal scores;
+- final underlying asset returns;
+- future observations;
+- net returns after standalone alpha transaction costs as a substitute
+  for the existing B2 gross-return convention.
+
+For every as-of calculation record:
+
+- candidate IDs;
+- exact return dates;
+- observation count T;
+- alpha count N;
+- information cutoff;
+- B1 preparation identity;
+- dataset identity/hash.
+
+All observations must end at or before the valid point-in-time cutoff.
+
+No missing returns may be silently replaced by zero.
+
+--------------------------------------------------
+3. SAMPLE COVARIANCE
+--------------------------------------------------
+
+Given aligned alpha return matrix X with T observations and N alphas:
+
+Center each alpha using only the estimation window.
+
+Compute:
+
+S =
+1 / (T - 1) * X_centered' X_centered
+
+Use daily decimal returns.
+
+Record:
+- diagonal variances;
+- correlation matrix;
+- eigenvalues;
+- rank;
+- condition diagnostics.
+
+Do not annualize Sigma inside the solver.
+
+Annualized risk display may multiply daily variance by 252 only at the
+reporting layer.
+
+--------------------------------------------------
+4. STATISTICAL FACTOR MODEL CONSTRUCTION
+--------------------------------------------------
+
+Construct the factor model from the SAMPLE CORRELATION matrix.
+
+Let:
+
+D = diag(sigma_1, ..., sigma_N)
+
+where sigma_i is the sample standard deviation of alpha i.
+
+Correlation matrix:
+
+R =
+D^(-1) S D^(-1)
+
+Compute:
+
+R =
+V Lambda V'
+
+Order eigenvalues:
+
+lambda_1 >= lambda_2 >= ... >= lambda_N
+
+Use a FIXED user-visible factor count F.
+
+Do not choose F by maximizing historical portfolio performance.
+
+Default:
+
+F = min(5, N - 1, T - 1)
+
+The actual selected F must be visible, editable and frozen.
+
+If the user explicitly selects F, do NOT silently lower it later.
+
+Require:
+
+1 <= F < N
+and
+F < T
+
+If not satisfied:
+
+INSUFFICIENT_HISTORY_OR_DIMENSION
+
+Do not silently change F.
+
+--------------------------------------------------
+5. FACTOR COVARIANCE REPRESENTATION
+--------------------------------------------------
+
+Let V_F contain the first F eigenvectors and Lambda_F their eigenvalues.
+
+Define:
+
+Omega =
+D V_F
+
+Phi =
+diag(lambda_1, ..., lambda_F)
+
+Then common covariance is:
+
+C_common =
+Omega Phi Omega'
+
+Raw specific variance:
+
+xi_i_raw^2 =
+S_ii - (C_common)_ii
+
+Numerical negative values inside declared floating-point tolerance may
+be set to zero.
+
+Materially negative specific variance must return:
+
+INVALID_FACTOR_MODEL
+
+Do not silently repair a materially invalid decomposition.
+
+--------------------------------------------------
+6. SPECIFIC-RISK FLOOR
+--------------------------------------------------
+
+For numerical stability support an explicit user-visible parameter:
+
+specificRiskFloorFraction >= 0
+
+Define:
+
+xi_i^2 =
+max(
+    xi_i_raw^2,
+    specificRiskFloorFraction * S_ii
+)
+
+Default:
+
+specificRiskFloorFraction = 1e-6
+
+This is a numerical regularization assumption.
+
+It must:
+- be visible;
+- be versioned;
+- be included in snapshots;
+- report which alphas are floor-bound.
+
+Do not call it empirical alpha risk.
+
+Final model:
+
+Xi =
+diag(xi_1^2, ..., xi_N^2)
+
+Gamma =
+Xi + Omega Phi Omega'
+
+Report explicitly if the risk floor makes Gamma's diagonal differ from
+the raw sample variance.
+
+--------------------------------------------------
+7. PCA BASIS DETERMINISM
+--------------------------------------------------
+
+Order factors by descending eigenvalue.
+
+For each eigenvector apply a deterministic sign convention:
+
+Locate the loading with largest absolute magnitude.
+Make that loading positive.
+
+Persist:
+- ordered eigenvalues;
+- canonicalized eigenvectors/loadings.
+
+If adjacent eigenvalues are nearly tied according to a documented
+relative eigen-gap tolerance, flag:
+
+FACTOR_BASIS_UNSTABLE
+
+This warning does NOT invalidate Gamma.
+
+Do not interpret individual PCA-factor names economically.
+
+Use labels:
+
+Statistical Factor 1
+Statistical Factor 2
+...
+
+PCA factors are risk directions, not alpha signals.
+
+--------------------------------------------------
+8. VALIDATION OF GAMMA
+--------------------------------------------------
+
+Before B2 uses Gamma verify:
+
+- all entries finite;
+- symmetry within tolerance;
+- positive semidefinite within tolerance;
+- dimensions match candidate ordering;
+- specific variances nonnegative;
+- factor count valid.
+
+Report:
+
+- min eigenvalue;
+- max eigenvalue;
+- condition number when defined;
+- numerical rank;
+- effective rank.
+
+Effective rank:
+
+p_j =
+lambda_j / sum(lambda)
+
+EffectiveRank =
+exp(
+  -sum_j p_j log(p_j)
+)
+
+Use only positive eigenvalues for this diagnostic and state the
+convention.
+
+A materially invalid Gamma returns:
+
+INVALID_RISK_MODEL
+
+Never substitute equal weights or another covariance estimator.
+
+--------------------------------------------------
+9. RISK DECOMPOSITION
+--------------------------------------------------
+
+For portfolio alpha weights b:
+
+Portfolio variance:
+
+Var_p =
+b' Gamma b
+
+Portfolio volatility:
+
+sigma_p =
+sqrt(Var_p)
+
+FACTOR RISK
+
+Factor exposure:
+
+f =
+Omega' b
+
+Factor variance:
+
+Var_factor =
+f' Phi f
+
+Per-factor variance contribution:
+
+FC_A =
+f_A * (Phi f)_A
+
+Require:
+
+sum_A FC_A =
+Var_factor
+
+within numerical tolerance.
+
+SPECIFIC RISK
+
+Specific variance:
+
+Var_specific =
+sum_i b_i^2 xi_i^2
+
+Require:
+
+Var_p =
+Var_factor + Var_specific
+
+within numerical tolerance.
+
+ALPHA MARGINAL/COMPONENT RISK
+
+For sigma_p > 0:
+
+MRC_i =
+(Gamma b)_i / sigma_p
+
+CRC_i =
+b_i * MRC_i
+
+Require:
+
+sum_i CRC_i =
+sigma_p
+
+within numerical tolerance.
+
+If portfolio volatility is zero, relevant ratios remain undefined.
+
+Do not fabricate values.
+
+--------------------------------------------------
+10. DIAGNOSTICS
+--------------------------------------------------
+
+For every statistical factor-model calculation expose:
+
+- N alphas;
+- T observations;
+- F factors;
+- eigenvalue spectrum;
+- cumulative variance explained;
+- effective rank;
+- sample covariance rank;
+- factor covariance rank;
+- specific-risk share;
+- common-factor-risk share;
+- factor loadings by alpha;
+- specific variance by alpha;
+- floor-bound alphas;
+- covariance condition diagnostics.
+
+Also show:
+
+Sample covariance
+vs
+Diagonal shrinkage
+vs
+Statistical factor model
+
+for the SAME frozen return window.
+
+This is a risk-model comparison.
+
+Do not automatically select the estimator with the best backtest.
+
+--------------------------------------------------
+11. B2 INTEGRATION
+--------------------------------------------------
+
+Extend the existing B2 risk-model selector.
+
+The PM chooses:
+
+SAMPLE
+DIAGONAL_SHRINKAGE
+STATISTICAL_FACTOR
+
+If STATISTICAL_FACTOR:
+
+B2 must use Gamma directly in the SAME optimization objective currently
+used.
+
+Expected returns remain unchanged.
+
+Constraints remain unchanged.
+
+Solver remains unchanged.
+
+No score ranking or post-hoc weight modification.
+
+Persist:
+- risk-model type;
+- F;
+- specific-risk floor;
+- Gamma;
+- Omega;
+- Phi;
+- Xi;
+- eigen diagnostics;
+- solver inputs and outputs.
+
+--------------------------------------------------
+12. B3 POINT-IN-TIME INTEGRATION
+--------------------------------------------------
+
+Historical validation must recompute the selected risk model independently
+at every B3 decision date.
+
+At date t:
+
+1. use only return observations available by the valid cutoff;
+2. build S_t;
+3. build factor model Gamma_t using frozen F and floor;
+4. run B2;
+5. execute through A1.
+
+Never use:
+- today's eigenvectors;
+- terminal-sample factor loadings;
+- full-history covariance;
+- future F decisions.
+
+If fixed F is invalid at an early rebalance due to insufficient T/N,
+return a dated explicit failure.
+
+Do not silently reduce F.
+
+--------------------------------------------------
+13. RISK-MODEL COMPARISON
+--------------------------------------------------
+
+Allow a PM to compare saved policy runs using:
+
+- Sample;
+- Diagonal Shrinkage;
+- Statistical Factor Model.
+
+Controlled comparison requires identical:
+
+- alpha candidate set;
+- dates;
+- expected-return assumptions;
+- constraints;
+- execution;
+- costs;
+- cash assumptions;
+- B2 objective.
+
+Only the risk model may differ.
+
+Display:
+
+- resulting alpha weights;
+- underlying asset weights;
+- expected risk;
+- realized B3 metrics;
+- turnover;
+- weight distance between models;
+- asset-level distance between models.
+
+Do not declare a winner.
+
+--------------------------------------------------
+14. UI
+--------------------------------------------------
+
+Do not add a top-level module.
+
+Inside existing Models / Risk area add:
+
+RISK MODEL
+
+Selector:
+
+Sample
+Diagonal Shrinkage
+Statistical Factor
+
+For Statistical Factor show:
+
+- Factor Count F
+- Specific Risk Floor
+- Observation Window
+- Status
+
+Use internal views:
+
+1. Summary
+2. Spectrum
+3. Factor Loadings
+4. Risk Decomposition
+5. Model Comparison
+
+SUMMARY
+
+Show:
+- expected volatility;
+- common-factor risk share;
+- specific-risk share;
+- effective rank;
+- condition diagnostic.
+
+SPECTRUM
+
+Show:
+- eigenvalue chart;
+- cumulative explained variance.
+
+FACTOR LOADINGS
+
+Show:
+- compact alpha x statistical-factor heatmap.
+
+RISK DECOMPOSITION
+
+Show:
+- factor contributions;
+- specific risk;
+- alpha component risk.
+
+MODEL COMPARISON
+
+Show saved controlled comparisons.
+
+One existing Optimize command remains authoritative.
+
+Do not create separate Run buttons per risk model.
+
+--------------------------------------------------
+15. PERSISTENCE / REPLAY
+--------------------------------------------------
+
+Extend existing immutable B2/B3 snapshots.
+
+Freeze:
+
+- risk-model type;
+- F;
+- specific-risk floor;
+- estimation dates;
+- S;
+- R;
+- eigenvalues;
+- canonicalized loadings;
+- Omega;
+- Phi;
+- Xi;
+- Gamma;
+- diagnostics;
+- resulting B2 allocation;
+- engine/library versions.
+
+Replay must use frozen inputs.
+
+Changing current F or risk-model settings cannot change historical runs.
+
+Maximum numeric replay difference:
+
+<= 1e-8.
+
+--------------------------------------------------
+ACCEPTANCE TESTS
+--------------------------------------------------
+
+T1 — KNOWN FACTOR COVARIANCE
+
+Construct a deterministic return fixture with a known low-rank common
+structure plus idiosyncratic residuals.
+
+Use an appropriate fixed F.
+
+Independently calculate:
+
+S
+R
+Omega
+Phi
+Xi
+Gamma
+
+PASS only if D1 matches the independent calculation within tolerance
+and Gamma is PSD.
+
+--------------------------------------------------
+
+T2 — RISK DECOMPOSITION
+
+Use deterministic weights b.
+
+Independently verify:
+
+b' Gamma b
+=
+factor variance
++
+specific variance
+
+and:
+
+sum component alpha risk
+=
+portfolio volatility
+
+within 1e-8.
+
+--------------------------------------------------
+
+T3 — HIGH-DIMENSIONAL CASE
+
+Create N > T with correlated alpha streams.
+
+Verify:
+
+- sample covariance is rank-deficient as expected;
+- D1 statistical factor construction remains finite;
+- declared specific-risk floor behavior is visible;
+- Gamma passes PSD validation;
+- B2 either solves validly or returns an explicit numerical status.
+
+No covariance estimator substitution.
+
+--------------------------------------------------
+
+T4 — FACTOR-COUNT AND BASIS RULES
+
+Verify:
+
+- invalid F is rejected;
+- fixed F is not silently reduced;
+- eigenvalues are descending;
+- eigenvector sign canonicalization is deterministic;
+- near-degenerate eigenvalues trigger FACTOR_BASIS_UNSTABLE when
+  appropriate without corrupting Gamma.
+
+--------------------------------------------------
+
+T5 — POINT-IN-TIME ISOLATION
+
+At a historical decision date:
+
+change observations strictly after its information cutoff.
+
+PASS only if unchanged:
+
+- S;
+- R;
+- eigenvalues;
+- Omega/Phi/Xi;
+- Gamma;
+- B2 allocation.
+
+--------------------------------------------------
+
+T6 — CONTROLLED RISK-MODEL COMPARISON
+
+Run the same frozen alpha policy under:
+
+- Sample;
+- Diagonal Shrinkage;
+- Statistical Factor.
+
+Verify all non-risk-model assumptions are identical.
+
+Independently recompute expected risk and allocation-distance metrics.
+
+PASS only if comparison reports actual observed differences and does
+not alter candidate selection.
+
+--------------------------------------------------
+
+T7 — B3 INTEGRATION
+
+Run multiple historical decisions with Statistical Factor selected.
+
+PASS only if:
+
+- Gamma is recomputed point-in-time at every decision;
+- fixed F remains frozen;
+- B2 uses each contemporaneous Gamma;
+- A1 ledger reconciles;
+- B3 Validation Run persists and replays;
+- no future factor loadings enter earlier dates.
+
+--------------------------------------------------
+
+T8 — REAL UI / PERSISTENCE / REPLAY
+
+Through actual UI:
+
+1. select an alpha-stream B2 policy with at least 8 alphas;
+2. select Statistical Factor;
+3. set explicit F and specific-risk floor;
+4. Optimize;
+5. inspect spectrum, loadings and risk decomposition;
+6. Validate through B3;
+7. save the run;
+8. change current F and risk model;
+9. reload in a fresh browser;
+10. retrieve the original run;
+11. Replay.
+
+PASS only if:
+
+- original risk-model identity remains unchanged;
+- frozen F remains unchanged;
+- Gamma and decomposition reproduce;
+- B2/B3 outputs reproduce;
+- B3 child replay passes;
+- differing fields = 0;
+- maximum numeric difference <= 1e-8;
+- UI visibly reports successful replay.
+
+--------------------------------------------------
+FINAL VERIFICATION
+--------------------------------------------------
+
+Run:
+
+- D1 T1–T8;
+- D1 persistence/replay suite;
+- B2 regression;
+- B3 regression;
+- C1 regression;
+- C2 regression;
+- C3 regression;
+- workspace typecheck.
+
+If shared financial engines were changed in a way affecting Stage A/B1,
+also run the corresponding Stage A/B1 regression suites once.
+
+Do not repeatedly rerun until green.
+
+--------------------------------------------------
+DELIVERABLE
+--------------------------------------------------
+
+Return only:
+
+D1 COMPLETION REPORT
+
+- factor-model construction;
+- F used/default;
+- specific-risk-floor methodology;
+- solver integration;
+- one risk decomposition example;
+- T1 PASS/FAIL;
+- T2 PASS/FAIL;
+- T3 PASS/FAIL;
+- T4 PASS/FAIL;
+- T5 PASS/FAIL;
+- T6 PASS/FAIL;
+- T7 PASS/FAIL;
+- T8 PASS/FAIL;
+- persistence/replay PASS/FAIL;
+- regressions;
+- typecheck;
+- UI-created B2/B3 IDs;
+- maximum numeric replay difference;
+- exact blocker, if any.
+
+STOP CONDITION
+
+All requirements pass:
+
+D1 CLOSED.
+STOP.
+
+Any requirement fails:
+
+D1 BLOCKED.
+Report exact blocker.
+STOP.
+
+Do not begin D2 signed allocations.
+Do not begin cost-aware optimization.
+Do not begin raw-signal optimization.

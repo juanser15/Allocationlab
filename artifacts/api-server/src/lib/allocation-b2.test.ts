@@ -67,6 +67,29 @@ function orthogonalReturns(variance1: number, variance2: number, length = 3) {
   return { x, y };
 }
 
+test("D1 T3 B2 uses a high-dimensional factor covariance or reports an explicit numerical failure", () => {
+  const ids = Array.from({ length: 9 }, (_, alpha) => `stream-${alpha}`);
+  const streams = ids.map((id, alpha) => candidate(id,
+    Array.from({ length: 4 }, (_, time) =>
+      0.0003 * (alpha + 1) * Math.sin((time + 1) * (alpha + 1) * 0.37) +
+      0.0002 * Math.cos((time + 2) * (alpha + 2) * 0.23)),
+    { kind: "alpha_streams", ticker: `ASSET${alpha}` }));
+  const result = optimizePreparedSnapshot(snapshot(streams, "alpha_streams"), request(ids, "alpha_streams", {
+    informationCutoff: dateAt(5), decisionTimestamp: dateAt(10),
+    estimationWindow: 4, minObservations: 2,
+    riskModel: { type: "STATISTICAL_FACTOR", factorCount: 3, specificRiskFloorFraction: 10 },
+  }));
+  assert.ok(["SOLVED", "NUMERICAL_FAILURE"].includes(result.status), `${result.status}: ${result.reason}`);
+  assert.equal(result.model?.riskModel?.type, "STATISTICAL_FACTOR");
+  assert.equal(result.model?.riskModel?.factorCount, 3);
+  assert.ok(result.model?.riskModel?.factorModel?.gamma);
+  assert.deepEqual(result.model?.sigma, result.model?.riskModel?.factorModel?.gamma);
+  assert.ok(result.model!.riskModel!.factorModel!.diagnostics);
+  assert.ok((result.model!.riskModel!.factorModel!.diagnostics as { sampleCovarianceRank: number })
+    .sampleCovarianceRank <= 3);
+  assert.ok(result.model!.sigma.flat().every(Number.isFinite));
+});
+
 function actualB1ThirtyStreamSnapshot(): PreparedSnapshot {
   const tickers = ["A", "B", "C", "D", "E"];
   const transformations = [
@@ -248,4 +271,59 @@ test("B2 T7 excludes all post-cutoff observations and decision-time exposures", 
   assert.deepEqual(mutated.model!.mu, clean.model!.mu);
   assert.deepEqual(mutated.model!.H, clean.model!.H);
   assert.deepEqual(mutated.candidateWeights, clean.candidateWeights);
+});
+
+test("D1 T5 freezes statistical-factor covariance to aligned gross returns through the cutoff", () => {
+  const x = [0.01, -0.02, 0.03, -0.01, 0.02, -0.015, 0.025, -0.005];
+  const y = [0.015, -0.01, 0.02, -0.025, 0.01, -0.01, 0.018, -0.002];
+  const cleanCandidates = [
+    candidate("alpha-a", x, { kind: "alpha_streams", exposures: { A: 1 } }),
+    candidate("alpha-b", y, { kind: "alpha_streams", exposures: { B: 1 } }),
+  ];
+  const chosen = request(["alpha-a", "alpha-b"], "alpha_streams", {
+    informationCutoff: dateAt(10),
+    decisionTimestamp: dateAt(10),
+    estimationWindow: 10,
+    minObservations: 6,
+    covarianceDiagonalShrinkage: 0.25,
+    riskModel: { type: "STATISTICAL_FACTOR", factorCount: 1, specificRiskFloorFraction: 0.01 },
+  });
+  const clean = optimizePreparedSnapshot(snapshot(cleanCandidates, "alpha_streams"), chosen);
+  const changedCandidates = cleanCandidates.map((item, index) => ({
+    ...item,
+    ledger: [...item.ledger, {
+      date: dateAt(12), beginningNav: 100, etfPnl: (index ? -500 : 900), cashPnl: 0,
+      netPnl: index ? -500 : 900, transactionCosts: 0, slippage: 0,
+    }],
+  }));
+  const changed = optimizePreparedSnapshot(snapshot(changedCandidates, "alpha_streams"), chosen);
+  assert.equal(clean.status, "SOLVED", clean.reason);
+  assert.equal(changed.status, "SOLVED", changed.reason);
+  assert.equal(clean.riskModel?.type, "STATISTICAL_FACTOR");
+  assert.deepEqual(changed.riskModel, clean.riskModel);
+  assert.deepEqual(changed.model?.dates, clean.model?.dates);
+  assert.deepEqual(changed.model?.sigma, clean.model?.sigma);
+  assert.deepEqual(changed.candidateWeights, clean.candidateWeights);
+  assert.ok(clean.riskModel!.provenance.dates.every((date) => date <= chosen.informationCutoff));
+  assert.deepEqual(clean.riskModel!.provenance.candidateIds, chosen.candidateIds);
+  assert.equal(clean.riskModel!.provenance.datasetHash, "fixture-hash");
+
+  const detail = clean.riskModel!;
+  assert.deepEqual(detail.sampleDiagnostics!.covariance, detail.sampleCovariance);
+  assert.deepEqual(detail.sampleDiagnostics!.correlation, detail.factorModel!.correlationMatrix);
+  assert.deepEqual(detail.sampleDiagnostics!.covarianceEigenvalues, detail.factorModel!.diagnostics.sampleEigenvalues);
+  assert.deepEqual(detail.sampleDiagnostics!.correlationEigenvalues, detail.factorModel!.eigenvalues);
+  assert.deepEqual(detail.sameWindowModels!.SAMPLE.covariance, detail.sampleCovariance);
+  assert.deepEqual(detail.sameWindowModels!.STATISTICAL_FACTOR.covariance, clean.model!.sigma);
+  const expectedShrinkage = detail.sampleCovariance.map((row, i) => row.map((value, j) =>
+    (1 - chosen.covarianceDiagonalShrinkage) * value +
+    (i === j ? chosen.covarianceDiagonalShrinkage * detail.sampleCovariance[i][i] : 0)));
+  assert.deepEqual(detail.sameWindowModels!.DIAGONAL_SHRINKAGE.covariance, expectedShrinkage);
+  const weights = chosen.candidateIds.map((id) => clean.candidateWeights![id]);
+  const independentlyCalculatedVolatility = (matrix: number[][]) => Math.sqrt(Math.max(0,
+    matrix.reduce((sum, row, i) => sum + row.reduce((inner, value, j) =>
+      inner + weights[i] * value * weights[j], 0), 0)));
+  for (const model of Object.values(detail.sameWindowModels!))
+    close(model.expectedDailyVolatility!, independentlyCalculatedVolatility(model.covariance), 1e-12);
+  close(detail.sameWindowModels!.STATISTICAL_FACTOR.expectedDailyVolatility!, clean.estimatedVolatility!, 1e-12);
 });

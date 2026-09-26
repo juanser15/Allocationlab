@@ -92,6 +92,7 @@ export interface B3Result {
     datasetHash: string;
     validationDatasetHash: string;
     objective: AllocationRequest["objective"];
+    riskModel?: AllocationRequest["riskModel"];
     estimationWindow: number;
     minObservations: number;
   };
@@ -193,6 +194,7 @@ function failureResult(
       validationCandidateIds: {},
       datasetHash: policySnapshot.dataset.sha256, validationDatasetHash: validationSnapshot.dataset.sha256,
       objective: policy.objective, estimationWindow: policy.estimationWindow, minObservations: policy.minObservations,
+      ...(policy.riskModel ? { riskModel: structuredClone(policy.riskModel) } : {}),
     },
     decisionCalendar, decisions, dailyLedger: [], metrics: null,
     diagnostics: {
@@ -251,6 +253,10 @@ export function runB3Validation(
   if (policySnapshot.engineVersion !== validationSnapshot.engineVersion ||
     policySnapshot.a1EngineVersion !== validationSnapshot.a1EngineVersion)
     return fail("Policy and validation preparations use incompatible frozen B1/A1 engine versions.");
+  if (policyRequest.riskModel?.type === "STATISTICAL_FACTOR" &&
+      policyRequest.riskModel.factorCount === undefined)
+    return fail("Statistical factor B3 requires the resolved B2 factor count to be frozen in the policy request.",
+      assumptions.evaluationStartDate);
   const policyCandidates = policyRequest.candidateIds.map((id) => policySnapshot.candidates.find((candidate) =>
     candidate.candidateId === id && candidate.canonicalFingerprint === id));
   if (policyCandidates.some((candidate) => !candidate))
@@ -599,6 +605,7 @@ export function runB3Validation(
       datasetHash: policySnapshot.dataset.sha256, validationDatasetHash: validationSnapshot.dataset.sha256,
       objective: policyRequest.objective, estimationWindow: policyRequest.estimationWindow,
       minObservations: policyRequest.minObservations,
+      ...(policyRequest.riskModel ? { riskModel: structuredClone(policyRequest.riskModel) } : {}),
     },
     decisionCalendar: expectedCalendar, decisions, dailyLedger: ledger,
     metrics: {
