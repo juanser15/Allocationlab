@@ -1457,6 +1457,16 @@ export interface BacktestInitialState {
   dailyCashYield: number;
   /** Enables signed underlying quantities and negative cash for signed-overlay execution only. */
   allowShortPositions?: boolean;
+  /** B3 D5 charges full absolute consolidated fill notional rather than legacy half-L1 turnover. */
+  d5GrossTradeCosts?: boolean;
+}
+
+/** Immutable carried book at the strict prior-close information cutoff. */
+export interface BacktestTargetContext {
+  asOf: string;
+  quantities: Readonly<Record<string, number>>;
+  cash: number;
+  nav: number;
 }
 
 const TRADING_DAYS_PER_YEAR = 252;
@@ -1544,7 +1554,9 @@ export function runBacktestEngine(
   config: BacktestConfig,
   benchmarkTicker: string | null,
   factorSet?: { factors: FactorDefinition[] },
-  targetWeightsForSignal?: (signalDate: string, rows: PriceRow[]) => Record<string, number> | null,
+  targetWeightsForSignal?: (
+    signalDate: string, rows: PriceRow[], context?: BacktestTargetContext,
+  ) => Record<string, number> | null,
   initialState?: BacktestInitialState,
 ): BacktestEngineResult {
   const enabledTickers = etfs.filter((e) => e.enabled).map((e) => e.ticker);
@@ -1673,23 +1685,34 @@ export function runBacktestEngine(
       const etfsForSignal = etfs.map((e) => ({
         ...e, priorWeight: rebalanceLog.length ? (priorWeights.get(e.ticker) ?? 0) : e.priorWeight,
       }));
-       const signalInputs = targetWeightsForSignal
-         ? { regime: computeRegime(priceRows.filter((item) => item.date < row.date), enabledTickers),
-             allocations: [] as AllocationResult[], lookbackDays: priceRows.filter((item) => item.date < row.date).length }
-         : computeSignalAsOf(priceRows, row.date, enabledTickers, etfsForSignal, constraints, factorSet);
-       const { regime, allocations, lookbackDays } = signalInputs;
-       const explicitTarget = targetWeightsForSignal?.(row.date, priceRows);
-       if (targetWeightsForSignal && explicitTarget === null) {
-         pending = null;
-       } else {
-      pending = {
-        signalDate: row.date, executionDate: scheduled.get(row.date)!,
-         target: new Map(targetWeightsForSignal
-           ? Object.entries(explicitTarget ?? {})
-           : allocations.filter((a) => a.active).map((a) => [a.ticker, a.weight])),
-        lookbackDays, regimeLabel: regime.label, regimeComposite: regime.composite,
-      };
-       }
+      const signalInputs = targetWeightsForSignal
+        ? { regime: computeRegime(priceRows.filter((item) => item.date < row.date), enabledTickers),
+            allocations: [] as AllocationResult[], lookbackDays: priceRows.filter((item) => item.date < row.date).length }
+        : computeSignalAsOf(priceRows, row.date, enabledTickers, etfsForSignal, constraints, factorSet);
+      const { regime, allocations, lookbackDays } = signalInputs;
+      let explicitTarget: Record<string, number> | null | undefined;
+      if (targetWeightsForSignal) {
+        if (initialState?.d5GrossTradeCosts) {
+          const quantities = Object.freeze(Object.fromEntries([...shares]));
+          explicitTarget = targetWeightsForSignal(row.date, priceRows, Object.freeze({
+            asOf: prevRow.date, quantities, cash: beginningCash, nav: beginningNav,
+          }));
+        } else {
+          // Preserve the legacy callback invocation contract when D5 is omitted.
+          explicitTarget = targetWeightsForSignal(row.date, priceRows);
+        }
+      }
+      if (targetWeightsForSignal && explicitTarget === null) {
+        pending = null;
+      } else {
+        pending = {
+          signalDate: row.date, executionDate: scheduled.get(row.date)!,
+          target: new Map(targetWeightsForSignal
+            ? Object.entries(explicitTarget ?? {})
+            : allocations.filter((a) => a.active).map((a) => [a.ticker, a.weight])),
+          lookbackDays, regimeLabel: regime.label, regimeComposite: regime.composite,
+        };
+      }
     }
     let transactionCosts = 0;
     let slippage = 0;
@@ -1712,7 +1735,8 @@ export function runBacktestEngine(
       // Signed B3 targets are the solved underlying book, not an instruction to
       // incrementally approach it. Preserve the legacy turnover cap for all
       // long-only execution paths.
-      const cap = allowShortPositions ? requestedTurnover : clamp(config.maxTurnoverPerRebalance, 0, 1);
+      const cap = (allowShortPositions || initialState?.d5GrossTradeCosts)
+        ? requestedTurnover : clamp(config.maxTurnoverPerRebalance, 0, 1);
       const scale = requestedTurnover > 0 ? Math.min(1, cap / requestedTurnover) : 1;
       const applied = new Map<string, number>();
       for (const ticker of allTickers)
@@ -1721,11 +1745,32 @@ export function runBacktestEngine(
       let turnoverApplied = 0;
       for (const ticker of allTickers)
         turnoverApplied += Math.abs((applied.get(ticker) ?? 0) - (currentWeights.get(ticker) ?? 0));
-      turnoverApplied /= 2;
+      if (!initialState?.d5GrossTradeCosts) turnoverApplied /= 2;
       const preTradeNav = nav;
-      transactionCosts = preTradeNav * turnoverApplied * config.transactionCostBps / 10000;
-      slippage = preTradeNav * turnoverApplied * config.slippageBps / 10000;
-      const afterCostNav = preTradeNav - transactionCosts - slippage;
+      let afterCostNav = preTradeNav;
+      if (initialState?.d5GrossTradeCosts) {
+        // Solve the self-financing equation against the actual consolidated
+        // absolute fill notional, including gap-driven changes from cutoff values.
+        const oldMarketValues = new Map([...shares].map(([ticker, quantity]) =>
+          [ticker, quantity * row.prices[ticker]]));
+        const chargeRate = (config.transactionCostBps + config.slippageBps) / 10000;
+        const tradedAt = (candidateNav: number) => [...applied].reduce((sum, [ticker, weight]) =>
+          sum + Math.abs(candidateNav * weight - (oldMarketValues.get(ticker) ?? 0)), 0);
+        let low = 0, high = preTradeNav;
+        for (let iteration = 0; iteration < 80; iteration++) {
+          const candidate = (low + high) / 2;
+          if (candidate + chargeRate * tradedAt(candidate) > preTradeNav) high = candidate;
+          else low = candidate;
+        }
+        afterCostNav = (low + high) / 2;
+        const actualTradedNotional = tradedAt(afterCostNav);
+        transactionCosts = actualTradedNotional * config.transactionCostBps / 10000;
+        slippage = actualTradedNotional * config.slippageBps / 10000;
+      } else {
+        transactionCosts = preTradeNav * turnoverApplied * config.transactionCostBps / 10000;
+        slippage = preTradeNav * turnoverApplied * config.slippageBps / 10000;
+        afterCostNav = preTradeNav - transactionCosts - slippage;
+      }
       if (afterCostNav <= 0) return empty(`Trading costs exhaust NAV on ${row.date}.`);
       const nextShares = new Map<string, number>();
       let invested = 0;
@@ -1744,6 +1789,8 @@ export function runBacktestEngine(
       }
       shares = nextShares;
       cash = afterCostNav - invested;
+      if (initialState?.d5GrossTradeCosts && cash < 0 && cash > -1e-8 * Math.max(1, afterCostNav))
+        cash = 0;
       nav = afterCostNav;
       const topHoldings = [...applied].filter(([, w]) => w > 0.001).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t]) => t);
       rebalanceLog.push({

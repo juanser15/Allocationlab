@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { getAllocation, getGetAllocationQueryKey, getValidationRun, useCreateValidationRun, useGetAllocation, useReplayValidationRun } from "@workspace/api-client-react";
 import { AllocationModeComparisonPanel } from "./AllocationModeComparisonPanel";
 import { RobustnessPanel } from "./RobustnessPanel";
+import { CostAwareValidationResult } from "./CostAwarePanel";
 
 type Row = Record<string, unknown>;
 type Step = "configure" | "results" | "diagnostics";
@@ -130,7 +131,12 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
   useEffect(() => {
     if (!allocationId) { setPolicy(null); return; }
     let active = true;
-    void getAllocation(allocationId).then(data => { if (active) setPolicy(record(data)); })
+    void getAllocation(allocationId).then(data => { if (active) {
+      const frozen = record(data), frozenCost = record(record(frozen.request).costAware);
+      setPolicy(frozen);
+      if (typeof frozenCost.transactionCostBps === "number") setCost(frozenCost.transactionCostBps);
+      if (typeof frozenCost.slippageBps === "number") setSlippage(frozenCost.slippageBps);
+    } })
       .catch(err => { if (active) setError(err instanceof Error ? err.message : "Policy could not be loaded."); });
     return () => { active = false; };
   }, [allocationId]);
@@ -168,6 +174,10 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
     if (![initialNav, initialCash, cost, slippage, yieldDaily].every(Number.isFinite) ||
       initialNav <= 0 || (!isSigned && initialCash < 0) || cost < 0 || slippage < 0) {
       setError(`Provide a positive initial NAV, finite cash and nonnegative costs${isSigned ? "" : " (cash cannot be negative in capital long-only mode)"}.`); setStep("configure"); return;
+    }
+    const frozenCost = record(policyRequest.costAware);
+    if (policyRequest.costAware && (cost !== frozenCost.transactionCostBps || slippage !== frozenCost.slippageBps)) {
+      setError("Cost-aware validation requires execution fee and slippage bps to match the frozen B2 policy rates."); setStep("configure"); return;
     }
     let holdings: Record<string, number>;
     try {
@@ -314,7 +324,8 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
             {selectedRiskModel.type === "STATISTICAL_FACTOR" ? " B3 must recompute Gamma and loadings independently at each point-in-time decision." : ""}
           </p>
           <p className="mt-2 border-t pt-2" data-testid="b3-frozen-forecast-model">Frozen B2 forecast model: <strong>{text(record(policyRequest.forecastModel).type ?? "legacy embedded estimator")}</strong>. B3 re-estimates the frozen specification independently at each historical cutoff; views enter only when both their effective and availability dates permit them. Current B2 form edits cannot change a retrieved run.</p>
-          <p className="mt-2 border-t pt-2" data-testid="b3-frozen-robustness">Frozen B2 robustness: <strong>{text(record(policyRequest.robustness).method ?? "NOMINAL")}</strong> · κ {text(record(policyRequest.robustness).kappa ?? 0)}. Validation uses the frozen policy specification, not the current B2 controls; no robust backtest cost optimization is performed.</p>
+           <p className="mt-2 border-t pt-2" data-testid="b3-frozen-robustness">Frozen B2 robustness: <strong>{text(record(policyRequest.robustness).method ?? "NOMINAL")}</strong> · κ {text(record(policyRequest.robustness).kappa ?? 0)}. Validation uses the frozen policy specification, not the current B2 controls.</p>
+           <p className="mt-2 border-t pt-2" data-testid="b3-frozen-cost-policy">Frozen B2 trade-cost mode: <strong>{policyRequest.costAware ? "Cost-aware" : "Cost-blind"}</strong>{policyRequest.costAware ? ` · fee ${text(record(policyRequest.costAware).transactionCostBps)} bps · slippage ${text(record(policyRequest.costAware).slippageBps)} bps · h ${text(record(policyRequest.costAware).costAmortizationDays)} days · preference ${text(record(policyRequest.costAware).turnoverPreferenceBps ?? 0)} bps (not charged)` : ""}. Actual B2 snapshot: {json(record(policyRequest.costAware).holdings)}. B3 starts from its own explicit historical holdings, not B2 targets.</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-1"><Label htmlFor="b3-prepared">Frozen validation B1 preparation</Label><select id="b3-prepared" className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={preparedId} onChange={e => setPreparedId(e.target.value)} data-testid="select-b3-prepared"><option value="">Select explicitly</option>{compatibleInputs.map(item => { const id = preparedInputIdOf(item); return id ? <option key={id} value={id}>#{id} · {text(preparedRepresentation(item))} · {text(item.createdAt)}</option> : null; })}</select></div>
@@ -347,6 +358,7 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
         <Button size="sm" variant="outline" onClick={() => void replayRun()} disabled={busy} data-testid="button-replay-b3"><RotateCcw className="mr-2 h-3.5 w-3.5" />Replay frozen run</Button>
       </div>
       {replay && <div className="rounded border p-3 text-xs" data-testid="status-b3-replay"><strong>Replay {text(replay.status).toUpperCase()}</strong><p className="mt-1">{Array.isArray(replay.differences) ? `${replay.differences.length} differing fields` : "Difference count unavailable"} · maximum numeric difference {text(replay.maximumNumericDifference)}</p><details className="mt-2"><summary className="cursor-pointer">Full replay diagnostics</summary><pre className="mt-2 overflow-auto whitespace-pre-wrap">{json(replay)}</pre></details></div>}
+      <CostAwareValidationResult policyRequest={runPolicyRequest} run={run} />
       <RobustnessPanel result={record(runPolicy.result ?? runPolicy)} request={runPolicyRequest} replay={replay} compact />
       <Card data-testid="card-b3-robustness-path"><CardHeader className="pb-3"><CardTitle className="text-sm">Historical robustness path</CardTitle><CardDescription>Frozen method {text(record(runPolicyRequest.robustness).method ?? "NOMINAL")} · κ {text(record(runPolicyRequest.robustness).kappa ?? 0)}. Each date uses only its own available forecast and risk estimate; target distance is not turnover.</CardDescription></CardHeader><CardContent>{!decisions.length ? <p className="text-xs text-muted-foreground">No historical decisions have been saved for this run.</p> : <div className="max-h-64 overflow-auto rounded border"><table className="w-full min-w-[560px] text-left text-xs"><thead className="sticky top-0 bg-muted"><tr><th className="p-2">Decision</th><th className="p-2">Solver</th><th className="p-2">Method · κ</th><th className="p-2">Asset half-L1</th><th className="p-2">Haircut</th></tr></thead><tbody>{decisions.map((decision, index) => { const optimizer = record(decision.optimizer), robust = record(optimizer.robustness), comparison = record(record(robust.diagnostics).comparison); return <tr key={`${text(decision.decisionDate)}-${index}`} className="border-t" data-testid={`row-b3-robustness-${index}`}><td className="p-2">{text(decision.decisionDate)}</td><td className="p-2">{text(optimizer.status ?? decision.solverStatus)}</td><td className="p-2">{text(robust.method ?? record(runPolicyRequest.robustness).method ?? "NOMINAL")} · {text(robust.kappa ?? record(runPolicyRequest.robustness).kappa ?? 0)}</td><td className="p-2 font-mono">{metric(comparison.assetWeightHalfL1)}</td><td className="p-2 font-mono">{metric(robust.robustHaircut)}</td></tr>; })}</tbody></table></div>}</CardContent></Card>
       <Card data-testid="b3-d3-forecast-path"><CardHeader className="pb-3"><CardTitle className="text-sm">Frozen D3 forecast path · {text(record(runPolicyRequest.forecastModel).type ?? "legacy embedded estimator")}</CardTitle><CardDescription>Each decision shows its own saved forecast, uncertainty and dated-view status. Later edits and terminal-sample views are never substituted.</CardDescription></CardHeader><CardContent className="space-y-3">{!datedForecastRows.length ? <p className="text-xs text-muted-foreground">No historical decisions returned for this saved validation run.</p> : <div className="overflow-auto rounded border"><table className="w-full min-w-[680px] text-left text-xs"><thead className="bg-muted"><tr><th className="p-2">Decision / cutoff</th><th className="p-2">Estimator</th><th className="p-2">Observations</th><th className="p-2">View availability</th><th className="p-2">Frozen state</th></tr></thead><tbody>{datedForecastRows.map(({ decision, forecast }, i) => <tr className="border-t align-top" key={`${text(decision.decisionDate)}-${i}`} data-testid={`row-b3-forecast-${i}`}><td className="p-2">{text(decision.decisionDate)}<br /><span className="text-muted-foreground">{text(decision.informationCutoff)}</span></td><td className="p-2">{text(forecast.estimator ?? record(runPolicyRequest.forecastModel).type ?? "legacy")}</td><td className="p-2">{text(forecast.observationCount ?? forecast.T)}</td><td className="p-2">{Array.isArray(forecast.views) ? forecast.views.map((view, j) => { const v = record(view); return <p key={j}>{text(v.type)} · {text(v.availabilityTimestamp)} · {text(v.status ?? "frozen")}</p>; }) : text(forecast.viewStatus ?? (Object.keys(forecast).length ? "No views used" : "Unavailable in saved record"))}</td><td className="p-2"><details><summary className="cursor-pointer">Inspect μ, Vμ, prior and views</summary><pre className="mt-2 max-h-72 max-w-[480px] overflow-auto whitespace-pre-wrap break-words">{json(Object.keys(forecast).length ? forecast : { status: "Forecast snapshot unavailable in this saved decision" })}</pre></details></td></tr>)}</tbody></table></div>}</CardContent></Card>

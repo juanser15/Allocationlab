@@ -115,6 +115,41 @@ test("D2 T2 reverses B1 active exposure without double-counting internal cash", 
   }
 });
 
+test("D5 signed leveraged book accepts negative cash with positive marked NAV across decisions", () => {
+  const returns = centered(0.02).map((value) => value + 0.01);
+  const selected = candidate("levered", returns, { A: 1 });
+  const prepared = snapshot([selected]);
+  prepared.dataset.csvContent = [
+    "date,A", `${dateAt(30)},100`, `${dateAt(40)},100`,
+  ].join("\n");
+
+  for (const { cutoff, quantity, cash, expectedTrade } of [
+    { cutoff: dateAt(30), quantity: 1.1, cash: -10, expectedTrade: 0.1 },
+    { cutoff: dateAt(40), quantity: 1.15, cash: -15, expectedTrade: 0.05 },
+  ]) {
+    const nav = quantity * 100 + cash;
+    assert.ok(nav > 0);
+    assert.ok(cash < 0);
+    const result = optimizePreparedSnapshot(prepared, request(["levered"], {
+      informationCutoff: cutoff, decisionTimestamp: cutoff,
+      signedConstraints: {
+        alphaBounds: { levered: { min: 1.2, max: 1.2 } },
+        cash: { min: -0.25, max: -0.15 },
+      },
+      costAware: {
+        costAmortizationDays: 2, transactionCostBps: 50, slippageBps: 10,
+        holdings: { asOf: cutoff, quantities: { A: quantity }, cash, nav },
+      },
+    }));
+    assert.equal(result.status, "SOLVED", result.reason);
+    close(result.assetWeights!.A, 1.2);
+    close(result.signedOverlay!.cashTarget, -0.2);
+    close(result.costAware!.assets[0].tradeFraction, expectedTrade);
+    close(result.costAware!.assets[0].currentWeight + cash / nav, 1);
+    assert.ok(result.solver.maxConstraintViolation! <= 1e-8);
+  }
+});
+
 test("D2 T3 reports actual alpha gross and netted underlying gross/net/cash", () => {
   const data = centered(0.03, 6);
   const result = optimizePreparedSnapshot(snapshot([

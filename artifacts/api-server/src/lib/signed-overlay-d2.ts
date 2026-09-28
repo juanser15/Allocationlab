@@ -13,6 +13,9 @@ import {
   estimateForecast, portfolioForecastUncertainty, type ForecastResult,
 } from "./forecast-d3";
 import { D4_SOLVER_VERSION, solveRobustMeanUncertainty } from "./robust-solver-d4";
+import {
+  prepareCostAwarePlan, type CostAwarePlan,
+} from "./cost-aware-d5";
 
 const SOLVER_VERSION = "2.0.0";
 const TOL = 1e-8;
@@ -317,6 +320,8 @@ function hasUnrestrictedDescent(request: AllocationRequest, n: number, hessian: 
 export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: AllocationRequest,
   plannedEstimationDates?: readonly string[]): AllocationResult {
   const reject = (status: AllocationStatus, reason: string) => failure(status, reason);
+  if (request.costAware && request.objective?.type === "minimum_variance")
+    return reject("UNSUPPORTED", "D5 cost-aware optimization supports regularized_mean_variance only.");
   if (!snapshot || snapshot.representation !== "alpha_streams" || !Array.isArray(snapshot.candidates))
     return reject("UNSUPPORTED", "SIGNED_OVERLAY is supported only for alpha_streams preparations.");
   if (request.constraints?.unsupported?.length)
@@ -466,20 +471,45 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
   const H = assets.map((_, i) => (columns as Array<{ exposures: number[] }>).map((column) => column.exposures[i]));
   const ids = selected.map((candidate) => candidate.candidateId);
   const n = ids.length, m = assets.length;
+  let costPlan: CostAwarePlan | undefined;
+  if (request.costAware) {
+    const prepared = prepareCostAwarePlan(snapshot, request.costAware, assets, request.informationCutoff, true);
+    if (typeof prepared === "string") return reject("INVALID_INPUT", prepared);
+    costPlan = prepared;
+  }
   const useAlphaAbs = request.signedConstraints?.grossAlphaMax !== undefined ||
     (request.signedConstraints?.groupGrossCaps?.length ?? 0) > 0;
   const useAssetAbs = request.signedConstraints?.grossAssetMax !== undefined;
-  const total = n + (useAlphaAbs ? n : 0) + (useAssetAbs ? m : 0);
-  const constraints = constraintsFor(request, ids, assets, H, n, m, total);
+  const baseTotal = n + (useAlphaAbs ? n : 0) + (useAssetAbs ? m : 0);
+  const constraints = constraintsFor(request, ids, assets, H, n, m, baseTotal);
   if (typeof constraints === "string")
     return reject(constraints.startsWith("INFEASIBLE:") ? "INFEASIBLE" : "INVALID_INPUT",
       constraints.replace(/^INFEASIBLE:\s*/, ""));
+  const costAssetCount = costPlan?.hasPenalty ? costPlan.assets.length : 0;
+  const total = baseTotal + costAssetCount;
+  if (costAssetCount) {
+    for (const constraint of constraints) constraint.coefficients.push(...Array(costAssetCount).fill(0));
+    for (const [assetIndex, ticker] of costPlan!.assets.entries()) {
+      const auxiliary = Array.from({ length: total }, (_, i) => i === baseTotal + assetIndex ? 1 : 0);
+      const target = Array.from({ length: total }, (_, i) => i < n
+        ? (assets.includes(ticker) ? H[assets.indexOf(ticker)][i] : 0) : 0);
+      const current = costPlan!.currentWeights[ticker] ?? 0;
+      constraints.push({ name: `abs_trade_positive:${ticker}`,
+        coefficients: auxiliary.map((value, i) => value - target[i]), lower: -current });
+      constraints.push({ name: `abs_trade_negative:${ticker}`,
+        coefficients: auxiliary.map((value, i) => value + target[i]), lower: current });
+      constraints.push({ name: `abs_trade_nonnegative:${ticker}`, coefficients: auxiliary, lower: 0 });
+    }
+  }
   const minimumVariance = request.objective.type === "minimum_variance";
   const gamma = minimumVariance ? 1 : request.objective.gamma;
   const hessian = Array.from({ length: total }, (_, i) => Array.from({ length: total }, (_, j) =>
     i < n && j < n ? gamma * sigma[i][j] + (i === j && !minimumVariance ? request.objective.eta : 0) : 0));
+  const penaltyRate = costPlan && costPlan.hasPenalty
+    ? (costPlan.transactionCostBps + costPlan.slippageBps + costPlan.turnoverPreferenceBps) /
+      (10_000 * costPlan.costAmortizationDays) : 0;
   const linear = [...(minimumVariance ? Array(n).fill(0) : mu.map((value) => -value)),
-    ...Array(total - n).fill(0)];
+    ...Array(baseTotal - n).fill(0), ...Array(costAssetCount).fill(penaltyRate)];
   if (minimumVariance) constraints.push({ name: "target_excess_return", coefficients: [...mu, ...Array(total - n).fill(0)],
     lower: request.targetExcessReturn });
   if (!provedBounded(request, ids, assets, H, hessian)) {
@@ -595,13 +625,30 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
   const candidateReturn = minimumVariance ? 0 : -dot(mu, weights);
   const expectedExcess = dot(mu, weights);
   const robustHaircut = robustSolve?.robustHaircut ?? 0;
+  const tradedFraction = costPlan && costAssetCount
+    ? costPlan.assets.reduce((sum, _ticker, i) => sum + solution[baseTotal + i], 0) : 0;
+  const economicTransactionCost = costPlan ? tradedFraction * costPlan.transactionCostBps /
+    (10_000 * costPlan.costAmortizationDays) : 0;
+  const economicSlippage = costPlan ? tradedFraction * costPlan.slippageBps /
+    (10_000 * costPlan.costAmortizationDays) : 0;
+  const turnoverPreference = costPlan ? tradedFraction * costPlan.turnoverPreferenceBps /
+    (10_000 * costPlan.costAmortizationDays) : 0;
+  if (costPlan && costAssetCount) {
+    const reconciled = costPlan.assets.reduce((sum, ticker) =>
+      sum + Math.abs((assetWeights[ticker] ?? 0) - (costPlan!.currentWeights[ticker] ?? 0)), 0);
+    if (Math.abs(reconciled - tradedFraction) > 1e-7)
+      return failure("NUMERICAL_FAILURE", "D5 trade auxiliary does not reconcile to the underlying signed asset trade vector.", model);
+  }
+  const totalObjective = riskContribution + regularization + candidateReturn + robustHaircut +
+    economicTransactionCost + economicSlippage + turnoverPreference;
   const result: AllocationResult = {
     status: "SOLVED", model, candidateWeights: Object.fromEntries(ids.map((id, i) => [id, weights[i]])),
     assetWeights, totalCash: cashTarget, masterCash: cashTarget,
     estimatedGrossReturn: mean(cashReturns) + expectedExcess, estimatedVolatility: Math.sqrt(variance),
     objectiveContributions: { variance: riskContribution, regularization, candidateReturn, masterCashReturn: 0,
       ...(robustHaircut ? { robustHaircut } : {}),
-      total: riskContribution + regularization + candidateReturn + robustHaircut },
+      ...(costPlan?.hasPenalty ? { economicTransactionCost, economicSlippage, turnoverPreference } : {}),
+      total: totalObjective },
     constraintSlacks: constraintSlacks(solution, constraints),
     solver: { name: robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani",
       version: robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION, status: "SOLVED",
@@ -630,7 +677,7 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
   if (request.robustness) {
     result.robustness = {
       method: request.robustness.method, kappa: request.robustness.kappa, robustHaircut,
-      objectiveTotal: riskContribution + regularization + candidateReturn + robustHaircut,
+      objectiveTotal: totalObjective,
       solver: { name: robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani",
         version: robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION, optimalityTolerance: robustSolve ? 1e-8 : OPT_TOL,
         constraintTolerance: TOL },

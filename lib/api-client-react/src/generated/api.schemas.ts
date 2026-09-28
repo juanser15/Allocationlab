@@ -3210,6 +3210,29 @@ export interface AllocationRobustnessConfig {
   kappa?: number;
 }
 
+export type AllocationCostAwareHoldingsQuantities = {[key: string]: number};
+
+export interface AllocationCostAwareHoldings {
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  asOf: string;
+  quantities: AllocationCostAwareHoldingsQuantities;
+  cash: number;
+  /** @exclusiveMinimum 0 */
+  nav: number;
+}
+
+export interface AllocationCostAwareConfig {
+  /** @exclusiveMinimum 0 */
+  costAmortizationDays: number;
+  /** @minimum 0 */
+  turnoverPreferenceBps?: number;
+  /** @minimum 0 */
+  transactionCostBps: number;
+  /** @minimum 0 */
+  slippageBps: number;
+  holdings: AllocationCostAwareHoldings;
+}
+
 export interface AllocationRequest {
   /** @minimum 1 */
   preparedInputId: number;
@@ -3239,6 +3262,7 @@ export interface AllocationRequest {
   riskModel?: AllocationRiskModelSettings;
   forecastModel?: ForecastModelConfig;
   robustness?: AllocationRobustnessConfig;
+  costAware?: AllocationCostAwareConfig;
   allocationMode?: AllocationRequestAllocationMode;
   signedConstraints?: SignedAllocationConstraints;
   targetExcessReturn?: number;

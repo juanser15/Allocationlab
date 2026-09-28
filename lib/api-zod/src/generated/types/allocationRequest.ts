@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { AllocationConstraints } from './allocationConstraints';
+import type { AllocationCostAwareConfig } from './allocationCostAwareConfig';
 import type { AllocationObjective } from './allocationObjective';
 import type { AllocationRequestAllocationMode } from './allocationRequestAllocationMode';
 import type { AllocationRequestRepresentation } from './allocationRequestRepresentation';
@@ -44,6 +45,7 @@ export interface AllocationRequest {
   riskModel?: AllocationRiskModelSettings;
   forecastModel?: ForecastModelConfig;
   robustness?: AllocationRobustnessConfig;
+  costAware?: AllocationCostAwareConfig;
   allocationMode?: AllocationRequestAllocationMode;
   signedConstraints?: SignedAllocationConstraints;
   targetExcessReturn?: number;

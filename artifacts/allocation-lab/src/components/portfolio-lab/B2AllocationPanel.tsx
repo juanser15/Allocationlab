@@ -15,6 +15,8 @@ import { getAllocation, getGetAllocationQueryKey, getListAllocationsQueryKey, us
 import { SignedOverlayControls, SignedOverlayResult, initialSignedSettings } from "./SignedOverlaySection";
 import type { SignedSettings } from "./SignedOverlaySection";
 import { RobustnessPanel } from "./RobustnessPanel";
+import { CostAwareAllocationResult, CostAwareControls, initialCostAwareForm, parseCostAware } from "./CostAwarePanel";
+import type { CostAwareForm, CostAwareRequest } from "./CostAwarePanel";
 
 type Representation = "asset_returns" | "alpha_streams" | "signals";
 type AllocationRequest = {
@@ -44,6 +46,7 @@ type AllocationRequest = {
   riskModel?: D1RiskModelRequest;
   forecastModel: ForecastModelConfig;
   robustness?: { method: "NOMINAL" | "ROBUST_MEAN_UNCERTAINTY"; kappa: number };
+  costAware?: CostAwareRequest;
   constraints: {
     candidateBounds?: Record<string, { min?: number; max?: number }>;
     totalCash?: { min?: number; max?: number };
@@ -176,6 +179,7 @@ export function B2AllocationPanel({
   const [allocationMode, setAllocationMode] = useState<"CAPITAL_LONG_ONLY" | "SIGNED_OVERLAY">("CAPITAL_LONG_ONLY");
   const [signedSettings, setSignedSettings] = useState<SignedSettings>(initialSignedSettings);
   const [targetExcessReturn, setTargetExcessReturn] = useState("");
+  const [costAwareForm, setCostAwareForm] = useState<CostAwareForm>(initialCostAwareForm);
   const [result, setResult] = useState<JsonRecord | null>(null);
   const [selectedAllocationId, setSelectedAllocationId] = useState<number | null>(null);
   const [replayStatus, setReplayStatus] = useState<string | null>(null);
@@ -287,6 +291,9 @@ export function B2AllocationPanel({
     try {
       const submittedForecast = activeForecastModel(forecastModel);
       validateForecast(submittedForecast, candidateIds, informationCutoff, decisionTimestamp);
+      const costAware = parseCostAware(costAwareForm, informationCutoff, allocationMode === "SIGNED_OVERLAY");
+      if (costAware && objectiveType !== "regularized_mean_variance")
+        throw new Error("Cost-aware optimization requires the regularized mean-variance objective.");
       let signedConstraints: AllocationRequest["signedConstraints"];
       if (allocationMode === "SIGNED_OVERLAY") {
         const { alphaBounds, netAssetExposure, cash, groupGrossCaps } = signedSettings;
@@ -339,6 +346,7 @@ export function B2AllocationPanel({
         unsupported: allocationMode === "SIGNED_OVERLAY" ? [] : unsupportedText.split(",").map(value => value.trim()).filter(Boolean),
       };
       const request: AllocationRequest = {
+        ...(costAware ? { costAware } : {}),
         ...(allocationMode === "SIGNED_OVERLAY" ? { allocationMode, signedConstraints, ...(targetExcessReturn ? { targetExcessReturn: Number(targetExcessReturn) } : {}) } : {}),
         preparedInputId: prepared.preparedInputId,
         candidateIds,
@@ -487,7 +495,8 @@ export function B2AllocationPanel({
             <div className="space-y-1"><Label>Candidate group caps JSON</Label><Input value={groupCapsText} onChange={event => setGroupCapsText(event.target.value)} placeholder="[]" data-testid="input-b2-group-caps" /></div>
             <div className="space-y-1 md:col-span-2"><Label>Unsupported constraint requests (comma-separated, sent for explicit rejection)</Label><Input value={unsupportedText} onChange={event => setUnsupportedText(event.target.value)} placeholder="cardinality, signed alpha, leverage" data-testid="input-b2-unsupported-constraints" /></div>
            </div>}
-            <p className="text-xs text-muted-foreground">{allocationMode === "SIGNED_OVERLAY" ? "Signed overlays optimize alpha coefficients against daily excess returns, then aggregate underlying risky exposures before computing net and cash. Minimum variance requires a positive daily target excess return. D3 forecasts excess returns; D1 independently estimates risk." : "Objective formulas: minimum variance minimizes ½ bᵀΣb; regularized mean-variance minimizes (γ/2)bᵀΣb + (η/2)Σⱼbⱼ² − μᵀb − r_cash·c. D3 supplies μ in daily decimal gross returns; D1/B2 independently supplies risk covariance. No cost optimization or historical validation is implied."}</p>
+            <CostAwareControls value={costAwareForm} onChange={setCostAwareForm} cutoff={informationCutoff} />
+            <p className="text-xs text-muted-foreground">{allocationMode === "SIGNED_OVERLAY" ? "Signed overlays optimize alpha coefficients against daily excess returns, then aggregate underlying risky exposures before computing net and cash. Minimum variance requires a positive daily target excess return. D3 forecasts excess returns; D1 independently estimates risk." : "Base objective: minimum variance minimizes ½ bᵀΣb; regularized mean-variance minimizes (γ/2)bᵀΣb + (η/2)Σⱼbⱼ² − μᵀb − r_cash·c. D3 supplies μ in daily decimal gross returns; D1/B2 independently supplies risk covariance. Optional cost-aware mode estimates underlying trade friction; historical fills require B3 validation."}</p>
           <Button type="button" onClick={() => void runAllocation()} disabled={busy || !prepared} data-testid="button-run-b2-allocation">
             {busy ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Optimizing…</> : "Optimize B2 allocation"}
           </Button>
@@ -512,6 +521,7 @@ export function B2AllocationPanel({
       </Card>
 
       {(result || detailQuery.data) && <RobustnessPanel result={allocation} request={frozenRequest} replay={response.replay} />}
+      {(result || detailQuery.data) && <CostAwareAllocationResult request={frozenRequest} result={allocation} />}
       {(result || detailQuery.data) && <Card data-testid="card-b2-allocation-result">
         <CardHeader className="pb-3">
           <div className="flex flex-wrap items-start justify-between gap-2">

@@ -1,8 +1,11 @@
 import {
   defaultBacktestConfig, generateRebalanceDates, parseCsv, runBacktestEngine,
-  type BacktestInitialState, type Constraints,
+  type BacktestInitialState, type BacktestTargetContext, type Constraints,
 } from "./calculator";
-import { optimizePreparedSnapshot, type AllocationRequest, type AllocationResult } from "./allocation-b2";
+import {
+  optimizePreparedSnapshot, type AllocationRequest, type AllocationResult,
+} from "./allocation-b2";
+import type { CostAwareRequest } from "./cost-aware-d5";
 import {
   canonicalJson, prepareSnapshot, type PreparedCandidate, type PreparedSnapshot,
 } from "./prepared-inputs";
@@ -55,7 +58,23 @@ export interface B3Decision {
   executedAssetWeights?: Record<string, number>;
   executedTargetDifferences?: Record<string, number>;
   constraintChecks: AllocationResult["constraintSlacks"];
+  d5?: {
+    actualHoldings: { asOf: string; quantities: Record<string, number>; cash: number; nav: number };
+    costObjective?: AllocationResult["costAware"];
+    predictedTradedNotional: number;
+    predictedTransactionCosts: number;
+    predictedSlippage: number;
+    actualTrades?: Array<{ ticker: string; quantity: number; notional: number }>;
+    actualTransactionCosts?: number;
+    actualSlippage?: number;
+    executionDate?: string;
+  };
 }
+
+export type B3CostAwareRequest = CostAwareRequest;
+
+type D5ComparisonRun = Pick<B3Result, "policyIdentity" | "assumptions" | "decisionCalendar" |
+  "decisions" | "dailyLedger" | "metrics" | "diagnostics">;
 
 export const C1_ESTIMATION_ALIGNMENT_RULE =
   "At each strict prior-close cutoff, use the last min(estimationWindow, full-baseline complete-common daily row count) rows iff that count is at least minObservations; otherwise record a dated full-baseline failure. Every exclusion variant consumes exactly that frozen ordered date list.";
@@ -140,6 +159,14 @@ export interface B3Result {
     solverVersions: string[];
     limitations: string[];
   };
+  costBlindComparison?: {
+    convention: string;
+    costAwarePolicyObjective: "frozen_cost_aware_policy";
+    costBlindPolicyObjective: "frozen_cost_blind_policy";
+    costBlind: D5ComparisonRun;
+  };
+  costAwarePolicy?: Pick<B3CostAwareRequest,
+    "costAmortizationDays" | "turnoverPreferenceBps" | "transactionCostBps" | "slippageBps">;
 }
 
 const TOLERANCE = 1e-8;
@@ -241,10 +268,25 @@ export function runB3Validation(
   assumptions: B3Assumptions,
   estimationDatePlan?: B3EstimationDatePlan,
 ): B3Result {
+  return runB3ValidationInternal(
+    policySnapshot, policyRequest, validationSnapshot, assumptions, estimationDatePlan, false,
+  );
+}
+
+function runB3ValidationInternal(
+  policySnapshot: PreparedSnapshot,
+  policyRequest: AllocationRequest,
+  validationSnapshot: PreparedSnapshot,
+  assumptions: B3Assumptions,
+  estimationDatePlan: B3EstimationDatePlan | undefined,
+  d5ComparisonRun: boolean,
+): B3Result {
   // Missing mode is intentionally the historical B2 capital-only contract.
   // Signed execution is opt-in and is enabled only by a frozen B2 policy.
   const signedOverlay = (policyRequest as AllocationRequest & { allocationMode?: string }).allocationMode ===
     "SIGNED_OVERLAY";
+  const costAware = (policyRequest as AllocationRequest & { costAware?: B3CostAwareRequest }).costAware;
+  const d5Enabled = costAware !== undefined || d5ComparisonRun;
   const fail = (reason: string, date?: string, decisions: B3Decision[] = [],
     calendar: Array<{ decisionDate: string; executionDate: string }> = []) =>
     failureResult(assumptions, policyRequest, policySnapshot, validationSnapshot, reason, date, decisions, calendar);
@@ -279,6 +321,15 @@ export function runB3Validation(
   if (Object.values(assumptions.initialHoldings ?? {}).some((quantity) =>
     !isFiniteNumber(quantity) || (!signedOverlay && quantity < 0)))
     return fail(`Initial holdings must be finite${signedOverlay ? "" : " nonnegative"} quantities.`);
+  if (costAware && (
+    !isFiniteNumber(costAware.costAmortizationDays) || costAware.costAmortizationDays <= 0 ||
+    (costAware.turnoverPreferenceBps !== undefined &&
+      (!isFiniteNumber(costAware.turnoverPreferenceBps) || costAware.turnoverPreferenceBps < 0)) ||
+    !isFiniteNumber(costAware.transactionCostBps) || !isFiniteNumber(costAware.slippageBps) ||
+    costAware.transactionCostBps < 0 || costAware.slippageBps < 0 ||
+    costAware.transactionCostBps !== assumptions.transactionCostBps ||
+    costAware.slippageBps !== assumptions.slippageBps))
+    return fail("D5 cost-aware policy settings must be finite, use positive amortization days, and match the frozen execution fee/slippage rates.");
   if (policySnapshot.engineVersion !== validationSnapshot.engineVersion ||
     policySnapshot.a1EngineVersion !== validationSnapshot.a1EngineVersion)
     return fail("Policy and validation preparations use incompatible frozen B1/A1 engine versions.");
@@ -384,6 +435,10 @@ export function runB3Validation(
     }
   }
   const decisions: B3Decision[] = [];
+  const d5DecisionInputs = new Map<string, {
+    actualHoldings: B3CostAwareRequest["holdings"];
+    predictedTradedNotional: number;
+  }>();
   const unavailableForecastDates: string[] = [];
   let decisionFailure: { date: string; reason: string } | null = null;
   const readDecisionFailure = (): { date: string; reason: string } | null => decisionFailure;
@@ -401,7 +456,9 @@ export function runB3Validation(
       factors: validationSnapshot.factorSet.factors, datasetId: validationSnapshot.dataset.id ?? undefined,
     });
   };
-  const decisionTarget = (decisionDate: string): Record<string, number> | null => {
+  const decisionTarget = (
+    decisionDate: string, _allRows: ReturnType<typeof parseCsv>, context?: BacktestTargetContext,
+  ): Record<string, number> | null => {
     if (!dates.has(decisionDate)) return null;
     const rowIndex = rows.findIndex((row) => row.date === decisionDate);
     const informationCutoff = rows[rowIndex - 1]?.date;
@@ -419,6 +476,27 @@ export function runB3Validation(
       decisionFailure = { date: decisionDate,
         reason: `Full-baseline C1 estimation alignment failed at ${decisionDate}: ${alignment.failureReason}` };
       return null;
+    }
+    if (d5Enabled) {
+      if (!context || context.asOf !== informationCutoff || !isFiniteNumber(context.cash) ||
+          !isFiniteNumber(context.nav) || context.nav <= 0) {
+        decisionFailure = { date: decisionDate,
+          reason: `D5 actual carried holdings are unavailable at the strict prior-close cutoff ${informationCutoff}.` };
+        return null;
+      }
+      const cutoffRow = rows.find((row) => row.date === informationCutoff);
+      const quantities = { ...context.quantities };
+      const missingHeldPrice = Object.entries(quantities).find(([ticker, quantity]) =>
+        quantity !== 0 && !isFiniteNumber(cutoffRow?.prices[ticker]));
+      if (missingHeldPrice) {
+        decisionFailure = { date: decisionDate,
+          reason: `D5 missing cutoff price for carried holding ${missingHeldPrice[0]} on ${informationCutoff}.` };
+        return null;
+      }
+      const holdings: B3CostAwareRequest["holdings"] = {
+        asOf: informationCutoff, quantities, cash: context.cash, nav: context.nav,
+      };
+      d5DecisionInputs.set(decisionDate, { actualHoldings: holdings, predictedTradedNotional: 0 });
     }
     let historical: PreparedSnapshot;
     try {
@@ -469,7 +547,7 @@ export function runB3Validation(
       ? Object.fromEntries(policyRequest.candidateIds.flatMap((policyId, index) =>
         record[policyId] === undefined ? [] : [[pointInTimeIds[index], record[policyId]]]))
       : undefined;
-    const request: AllocationRequest = {
+    const request: AllocationRequest & { costAware?: B3CostAwareRequest } = {
       ...structuredClone(policyRequest),
       candidateIds: pointInTimeIds,
       informationCutoff, decisionTimestamp: decisionDate,
@@ -491,6 +569,15 @@ export function runB3Validation(
         })),
       },
     };
+    if (costAware && !d5ComparisonRun) {
+      const holdings = d5DecisionInputs.get(decisionDate)?.actualHoldings;
+      if (!holdings) {
+        decisionFailure = { date: decisionDate,
+          reason: `D5 actual carried holdings were not frozen at ${informationCutoff}.` };
+        return null;
+      }
+      request.costAware = { ...structuredClone(costAware), holdings: structuredClone(holdings) };
+    }
     if (policyRequest.forecastModel) {
       const forecastModel = structuredClone(policyRequest.forecastModel);
       const translateForecastVector = (values: Record<string, number> | undefined) => values
@@ -579,6 +666,31 @@ export function runB3Validation(
         reason: `B2 ${optimized.status} at ${decisionDate}: ${detail}`,
       };
       return null;
+    }
+    if (d5Enabled) {
+      const cutoffRow = rows.find((row) => row.date === informationCutoff);
+      const requiredTickers = new Set([
+        ...definitions.flatMap((candidate) => candidate.assetTickers),
+        ...Object.keys(optimized.assetWeights),
+        ...Object.entries(d5DecisionInputs.get(decisionDate)?.actualHoldings.quantities ?? {})
+          .filter(([, quantity]) => quantity !== 0).map(([ticker]) => ticker),
+      ]);
+      const missingTicker = [...requiredTickers].find((ticker) =>
+        !isFiniteNumber(cutoffRow?.prices[ticker]) || cutoffRow.prices[ticker] <= 0);
+      if (missingTicker) {
+        decisionFailure = { date: decisionDate,
+          reason: `D5 missing cutoff price for ${missingTicker} on ${informationCutoff}.` };
+        return null;
+      }
+      const holdings = d5DecisionInputs.get(decisionDate)!.actualHoldings;
+      const currentValues = Object.fromEntries(Object.entries(holdings.quantities).map(([ticker, quantity]) =>
+        [ticker, quantity * cutoffRow!.prices[ticker]]));
+      const predictedTradedNotional = [...new Set([
+        ...Object.keys(optimized.assetWeights), ...Object.keys(currentValues),
+      ])].reduce((sum, ticker) => sum + Math.abs(
+        holdings.nav * (optimized.assetWeights![ticker] ?? 0) - (currentValues[ticker] ?? 0),
+      ), 0);
+      d5DecisionInputs.set(decisionDate, { actualHoldings: holdings, predictedTradedNotional });
     }
     if ((optimized.solver.maxConstraintViolation ?? Infinity) > 1e-8 ||
       (optimized.solver.scaledOptimalityResidual ?? Infinity) > 1e-6) {
@@ -689,10 +801,12 @@ export function runB3Validation(
     initialHoldings: { ...assumptions.initialHoldings },
     dailyCashYield: assumptions.dailyCashYield,
     ...(signedOverlay ? { allowShortPositions: true } : {}),
+    ...(d5Enabled ? { d5GrossTradeCosts: true } : {}),
   };
   const engine = runBacktestEngine(
     evalRows, etfs, engineConstraints(), config, assumptions.benchmarkTicker ?? null,
-    { factors: validationSnapshot.factorSet.factors }, (date) => decisionTarget(date), initialState,
+    { factors: validationSnapshot.factorSet.factors },
+    (date, signalRows, context) => decisionTarget(date, signalRows, context), initialState,
   );
   const callbackFailure = readDecisionFailure();
   if (callbackFailure) return fail(callbackFailure.reason, callbackFailure.date, decisions, expectedCalendar);
@@ -749,6 +863,26 @@ export function runB3Validation(
       ...decision.targetAssetWeights, ...executed,
     }).map((ticker) => [ticker, (executed[ticker] ?? 0) - (decision.targetAssetWeights[ticker] ?? 0)]));
   }
+  if (d5Enabled) {
+    for (const decision of decisions) {
+      const frozen = d5DecisionInputs.get(decision.decisionDate);
+      if (!frozen) continue;
+      const fill = ledger.find((entry) => entry.date === decision.executionDate);
+      decision.d5 = {
+        actualHoldings: structuredClone(frozen.actualHoldings),
+        ...(decision.optimizer.costAware ? { costObjective: structuredClone(decision.optimizer.costAware) } : {}),
+        predictedTradedNotional: frozen.predictedTradedNotional,
+        predictedTransactionCosts: frozen.predictedTradedNotional * assumptions.transactionCostBps / 10000,
+        predictedSlippage: frozen.predictedTradedNotional * assumptions.slippageBps / 10000,
+        ...(fill ? {
+          actualTrades: structuredClone(fill.externalTrades),
+          actualTransactionCosts: fill.transactionCosts,
+          actualSlippage: fill.slippage,
+          executionDate: fill.date,
+        } : {}),
+      };
+    }
+  }
   const dailyReturns = ledger.map((entry) => entry.dailyNetReturn);
   const excessSharpe = dailySharpe(dailyReturns, assumptions.dailyCashYield);
   const terminalNav = ledger.at(-1)?.endingNav ?? assumptions.initialNav;
@@ -778,7 +912,7 @@ export function runB3Validation(
     partial: values[0].date > (rows.find((row) => row.date.slice(0, 7) === month)?.date ?? values[0].date) ||
       values.at(-1)!.date < (rows.filter((row) => row.date.slice(0, 7) === month).at(-1)?.date ?? values.at(-1)!.date),
   }));
-  return {
+  const result: B3Result = {
     status: unavailableForecastDates.length ? "failed" : "completed",
     ...(unavailableForecastDates.length ? {
       reason: `HISTORICAL_FORECAST_UNAVAILABLE: no eligible dated Bayesian views at ${
@@ -808,7 +942,9 @@ export function runB3Validation(
       totalTransactionCosts: ledger.reduce((sum, entry) => sum + entry.transactionCosts, 0),
       totalSlippage: ledger.reduce((sum, entry) => sum + entry.slippage, 0),
       externalTradedNotional: ledger.reduce((sum, entry) => sum + entry.externalTradedNotional, 0),
-      turnoverConvention: "A1 applies costs once to one-way turnover: half the sum of absolute changes in consolidated underlying target weights; external traded notional is reported separately as the sum of absolute underlying fill notionals.",
+      turnoverConvention: d5Enabled
+        ? "D5 charges transaction costs and slippage once on the full sum of absolute consolidated underlying fill notionals; sizing is self-financing and the preference penalty is never debited."
+        : "A1 applies costs once to one-way turnover: half the sum of absolute changes in consolidated underlying target weights; external traded notional is reported separately as the sum of absolute underlying fill notionals.",
       dailyCashYield: assumptions.dailyCashYield,
       annualizationConvention: "Daily returns are decimal close-to-close values; annualized return compounds over ledger tradingDays/252, annualized volatility is sample standard deviation times sqrt(252), and Sharpe is sqrt(252) times mean(dailyNetReturn - dailyCashYield) divided by sample standard deviation.",
     },
@@ -819,9 +955,36 @@ export function runB3Validation(
       limitations: [
         "Fixed-candidate-universe historical simulation; not an independent model-selection validation or proof of alpha efficacy.",
         "Input uses adjusted-close prices and does not model broker-level corporate actions.",
-        "A1 applies declared fees and slippage to consolidated underlying-book one-way turnover (half the absolute target-weight-change sum), as implemented by its existing execution convention.",
+        d5Enabled
+          ? "D5 applies declared fees and slippage once to full absolute consolidated underlying fill notional; predicted cutoff-close charges and actual gap-adjusted fills are retained per decision."
+          : "A1 applies declared fees and slippage to consolidated underlying-book one-way turnover (half the absolute target-weight-change sum), as implemented by its existing execution convention.",
         ...(signedOverlay ? ["Borrow and financing frictions beyond the declared cash/cost model are not modeled."] : []),
       ],
     },
   };
+  if (costAware) {
+    result.costAwarePolicy = {
+      costAmortizationDays: costAware.costAmortizationDays,
+      turnoverPreferenceBps: costAware.turnoverPreferenceBps ?? 0,
+      transactionCostBps: costAware.transactionCostBps,
+      slippageBps: costAware.slippageBps,
+    };
+  }
+  if (costAware && !d5ComparisonRun) {
+    const costBlindRequest = structuredClone(policyRequest) as AllocationRequest & { costAware?: B3CostAwareRequest };
+    delete costBlindRequest.costAware;
+    const costBlind = runB3ValidationInternal(
+      policySnapshot, costBlindRequest, validationSnapshot, assumptions, estimationDatePlan, true,
+    );
+    if (costBlind.status !== "completed")
+      return fail(`D5 cost-blind comparison failed: ${costBlind.reason ?? "comparison simulation did not complete."}`,
+        costBlind.failureDate, decisions, expectedCalendar);
+    result.costBlindComparison = {
+      convention: "Paired frozen-policy B3 runs share dates, snapshots, forecasts, risk, robustness, constraints, initial book, and realized fee/slippage rates; each run carries its own holdings. Both ledgers are retained; no winner is selected.",
+      costAwarePolicyObjective: "frozen_cost_aware_policy",
+      costBlindPolicyObjective: "frozen_cost_blind_policy",
+      costBlind: structuredClone(costBlind),
+    };
+  }
+  return result;
 }

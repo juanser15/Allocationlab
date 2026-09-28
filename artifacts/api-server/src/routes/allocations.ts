@@ -19,15 +19,27 @@ const REPLAY_TOLERANCE = 1e-8;
 // Bump this when route-level frozen-input or replay semantics change.
 const B2_API_ENGINE_VERSION = "allocation-b2-api.1";
 const D4_API_ENGINE_VERSION = "allocation-d4-api.1";
+const D5_API_ENGINE_VERSION = "allocation-d5-api.1";
 
 function apiEngineVersion(request: AllocationRequest): string {
-  return request.robustness ? D4_API_ENGINE_VERSION : B2_API_ENGINE_VERSION;
+  return (request as AllocationRequest & { costAware?: unknown }).costAware
+    ? D5_API_ENGINE_VERSION
+    : request.robustness ? D4_API_ENGINE_VERSION : B2_API_ENGINE_VERSION;
 }
 
 function engineVersion(result: AllocationResult, request: AllocationRequest): string {
   const d4Solver = result.robustness?.solver;
+  const costAware = (result as AllocationResult & { costAware?: Record<string, unknown> }).costAware;
+  const costAwareSolver = costAware?.solverEvidence && typeof costAware.solverEvidence === "object"
+    ? costAware.solverEvidence as Record<string, unknown> : undefined;
+  const costAwareMethod = "cost-aware";
   return `${apiEngineVersion(request)}; ${result.solver.name}@${result.solver.version}` +
-    (request.robustness ? `; D4 ${d4Solver?.name ?? "robust-solver"}@${d4Solver?.version ?? D4_SOLVER_VERSION}` : "");
+    (request.robustness ? `; D4 ${d4Solver?.name ?? "robust-solver"}@${d4Solver?.version ?? D4_SOLVER_VERSION}` : "") +
+    (costAware
+      ? `; D5 ${costAwareMethod}${costAwareSolver
+        ? ` ${String(costAwareSolver.name ?? "solver")}@${String(costAwareSolver.version ?? "unknown")}`
+        : ""}`
+      : "");
 }
 
 function validPathId(params: { allocationId: number }): boolean {
@@ -64,10 +76,14 @@ function unexpectedAllocationFields(body: unknown): string[] {
     "preparedInputId", "candidateIds", "informationCutoff", "decisionTimestamp", "estimationWindow",
     "minObservations", "representation", "returnConvention", "expectedReturnShrinkage",
       "covarianceDiagonalShrinkage", "riskModel", "dailyCashYield", "objective", "constraints",
-      "allocationMode", "signedConstraints", "targetExcessReturn", "forecastModel", "robustness",
+      "allocationMode", "signedConstraints", "targetExcessReturn", "forecastModel", "robustness", "costAware",
   ], "request");
   if (!request) return differences;
   check(request.objective, ["type", "gamma", "eta"], "objective");
+  const costAware = check(request.costAware, [
+    "costAmortizationDays", "turnoverPreferenceBps", "transactionCostBps", "slippageBps", "holdings",
+  ], "costAware");
+  if (costAware) check(costAware.holdings, ["asOf", "quantities", "cash", "nav"], "costAware.holdings");
   check(request.riskModel, ["type", "factorCount", "specificRiskFloorFraction"], "riskModel");
   check(request.robustness, ["method", "kappa"], "robustness");
   const forecast = check(request.forecastModel, [
@@ -198,6 +214,55 @@ router.post("/allocations", async (req, res): Promise<void> => {
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
+  }
+  const rawRequest = req.body && typeof req.body === "object" && !Array.isArray(req.body)
+    ? req.body as Record<string, unknown> : {};
+  const rawCostAware = rawRequest.costAware && typeof rawRequest.costAware === "object" && !Array.isArray(rawRequest.costAware)
+    ? rawRequest.costAware as Record<string, unknown> : undefined;
+  if (rawCostAware && parsed.data.objective.type !== "regularized_mean_variance") {
+    res.status(400).json({ error: "costAware requires objective.type to be regularized_mean_variance." });
+    return;
+  }
+  if (rawCostAware) {
+    const holdings = rawCostAware.holdings && typeof rawCostAware.holdings === "object" &&
+      !Array.isArray(rawCostAware.holdings) ? rawCostAware.holdings as Record<string, unknown> : undefined;
+    const asOf = holdings?.asOf;
+    if (typeof asOf !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(asOf) ||
+      !Number.isFinite(Date.parse(`${asOf}T00:00:00.000Z`)) ||
+      new Date(`${asOf}T00:00:00.000Z`).toISOString().slice(0, 10) !== asOf) {
+      res.status(400).json({ error: "costAware.holdings.asOf must be a valid ISO calendar date." });
+      return;
+    }
+    if (!holdings || !holdings.quantities || typeof holdings.quantities !== "object" ||
+      Array.isArray(holdings.quantities) ||
+      !Object.values(holdings.quantities as Record<string, unknown>).every((quantity) =>
+        typeof quantity === "number" && Number.isFinite(quantity)) ||
+      typeof holdings.cash !== "number" || !Number.isFinite(holdings.cash) ||
+      typeof holdings.nav !== "number" || !Number.isFinite(holdings.nav) || holdings.nav <= 0) {
+      res.status(400).json({ error: "costAware.holdings requires a quantities map and finite cash with positive finite nav." });
+      return;
+    }
+    if (holdings.cash < 0) {
+      const rawSignedConstraints = rawRequest.signedConstraints &&
+        typeof rawRequest.signedConstraints === "object" && !Array.isArray(rawRequest.signedConstraints)
+        ? rawRequest.signedConstraints as Record<string, unknown> : undefined;
+      const cashBounds = rawSignedConstraints?.cash && typeof rawSignedConstraints.cash === "object" &&
+        !Array.isArray(rawSignedConstraints.cash) ? rawSignedConstraints.cash as Record<string, unknown> : undefined;
+      const cashWeight = holdings.cash / holdings.nav;
+      const hasCashBound = !!cashBounds &&
+        (typeof cashBounds.min === "number" || typeof cashBounds.max === "number");
+      const permittedCashWeight = !!cashBounds && hasCashBound &&
+        (cashBounds.min === undefined || (typeof cashBounds.min === "number" &&
+          Number.isFinite(cashBounds.min) && cashWeight >= cashBounds.min)) &&
+        (cashBounds.max === undefined || (typeof cashBounds.max === "number" &&
+          Number.isFinite(cashBounds.max) && cashWeight <= cashBounds.max));
+      if (parsed.data.allocationMode !== "SIGNED_OVERLAY" || !permittedCashWeight) {
+        res.status(400).json({
+          error: "Negative costAware.holdings.cash requires SIGNED_OVERLAY and signedConstraints.cash bounds permitting the initial cash-to-NAV ratio.",
+        });
+        return;
+      }
+    }
   }
   if (parsed.data.robustness?.method === "ROBUST_MEAN_UNCERTAINTY" && !parsed.data.forecastModel) {
     res.status(400).json({ error: "ROBUST_MEAN_UNCERTAINTY requires an explicit forecastModel." });

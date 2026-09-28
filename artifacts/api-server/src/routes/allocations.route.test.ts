@@ -9,6 +9,76 @@ import type { PreparedSnapshot } from "../lib/prepared-inputs";
 import { fingerprint } from "../lib/prepared-inputs";
 import { hashDataset } from "../lib/run-snapshot";
 
+const routeCostAware = {
+  costAmortizationDays: 20,
+  turnoverPreferenceBps: 0,
+  transactionCostBps: 5,
+  slippageBps: 2,
+  holdings: { asOf: "2024-01-08", quantities: { first: 2, second: 0 }, cash: 10, nav: 100 },
+};
+
+test("allocation route validates D5 cost-aware config before accessing B1", async () => {
+  const app = express();
+  app.use(express.json());
+  app.use(router);
+  const server = app.listen(0);
+  await once(server, "listening");
+  const address = server.address();
+  assert.ok(address && typeof address !== "string");
+  const api = `http://127.0.0.1:${address.port}`;
+  const base = {
+    preparedInputId: 1,
+    candidateIds: ["first"],
+    informationCutoff: "2024-01-08",
+    decisionTimestamp: "2024-01-08",
+    estimationWindow: 8,
+    minObservations: 3,
+    representation: "alpha_streams",
+    returnConvention: "daily_decimal",
+    expectedReturnShrinkage: 0,
+    covarianceDiagonalShrinkage: 0,
+    dailyCashYield: 0,
+    objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.02 },
+    constraints: {},
+    costAware: routeCostAware,
+  };
+  try {
+    const cases = [
+      { name: "positive amortization horizon", patch: { costAware: { ...routeCostAware, costAmortizationDays: 0 } } },
+      { name: "nonnegative cost rates", patch: { costAware: { ...routeCostAware, transactionCostBps: -1 } } },
+      { name: "nonnegative slippage rate", patch: { costAware: { ...routeCostAware, slippageBps: -1 } } },
+      { name: "nonnegative turnover preference", patch: { costAware: { ...routeCostAware, turnoverPreferenceBps: -1 } } },
+      { name: "valid ISO holdings date", patch: { costAware: { ...routeCostAware,
+        holdings: { ...routeCostAware.holdings, asOf: "2024-02-30" } } } },
+      { name: "valid holdings", patch: { costAware: { ...routeCostAware, holdings: { ...routeCostAware.holdings, nav: 0 } } } },
+      { name: "finite holdings quantities", patch: { costAware: { ...routeCostAware,
+        holdings: { ...routeCostAware.holdings, quantities: { first: "many" } } } } },
+      { name: "negative capital holdings cash", patch: { costAware: { ...routeCostAware,
+        holdings: { ...routeCostAware.holdings, cash: -10 } } } },
+      { name: "signed cash outside declared bounds", patch: {
+        allocationMode: "SIGNED_OVERLAY",
+        signedConstraints: { cash: { min: -0.05, max: 0 } },
+        costAware: { ...routeCostAware, holdings: { ...routeCostAware.holdings, cash: -10 } },
+      } },
+      { name: "supported objective", patch: { objective: { type: "minimum_variance", gamma: 2, eta: 0.02 } } },
+      { name: "strict config fields", patch: { costAware: { ...routeCostAware, unexpected: true } } },
+      { name: "strict holdings fields", patch: { costAware: { ...routeCostAware,
+        holdings: { ...routeCostAware.holdings, unexpected: true } } } },
+    ];
+    for (const item of cases) {
+      const response = await fetch(`${api}/allocations`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ...base, ...item.patch }),
+      });
+      assert.equal(response.status, 400, `${item.name}: ${JSON.stringify(await response.json())}`);
+    }
+  } finally {
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
 function dateAt(index: number): string {
   return new Date(Date.UTC(2024, 0, index + 1)).toISOString().slice(0, 10);
 }
@@ -141,6 +211,64 @@ test("allocation route freezes default factor dimension before D4 diagnostics an
     assert.ok(replay.maximumNumericDifference !== undefined);
     assert.ok(replay.maximumNumericDifference <= 1e-8);
     assert.ok(replay.replayedResult);
+
+    // Requests predating D5 omit costAware entirely and retain the B2 engine
+    // version/replay behavior.
+    const legacyResponse = await fetch(`${api}/allocations`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        preparedInputId: preparedRow.id,
+        candidateIds: ["first", "second"],
+        informationCutoff: dateAt(7),
+        decisionTimestamp: dateAt(7),
+        estimationWindow: 8,
+        minObservations: 3,
+        representation: "alpha_streams",
+        returnConvention: "daily_decimal",
+        expectedReturnShrinkage: 0,
+        covarianceDiagonalShrinkage: 0,
+        dailyCashYield: 0,
+        objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.02 },
+        constraints: { totalCash: { min: 0, max: 0 } },
+      }),
+    });
+    const legacy = await legacyResponse.json() as { id?: number; engineVersion?: string; error?: string };
+    assert.equal(legacyResponse.status, 201, legacy.error);
+    assert.ok(legacy.id);
+    assert.match(legacy.engineVersion ?? "", /^allocation-b2-api\.1;/);
+    const legacyReplay = await fetch(`${api}/allocations/${legacy.id}/replay`, { method: "POST" });
+    const legacyReplayBody = await legacyReplay.json() as { status?: string; differences?: string[] };
+    assert.equal(legacyReplayBody.status, "pass", legacyReplayBody.differences?.join("; "));
+
+    const signedCashResponse = await fetch(`${api}/allocations`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        preparedInputId: preparedRow.id,
+        candidateIds: ["first", "second"],
+        informationCutoff: dateAt(7),
+        decisionTimestamp: dateAt(7),
+        estimationWindow: 8,
+        minObservations: 3,
+        representation: "alpha_streams",
+        returnConvention: "daily_decimal",
+        expectedReturnShrinkage: 0,
+        covarianceDiagonalShrinkage: 0,
+        allocationMode: "SIGNED_OVERLAY",
+        signedConstraints: { cash: { min: -0.2, max: -0.05 } },
+        dailyCashYield: 0,
+        objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.02 },
+        constraints: {},
+        costAware: {
+          ...routeCostAware,
+          holdings: { asOf: dateAt(7), quantities: { first: 2, second: 0 }, cash: -10, nav: 100 },
+        },
+      }),
+    });
+    const signedCash = await signedCashResponse.json() as { id?: number; error?: string };
+    assert.equal(signedCashResponse.status, 201, signedCash.error);
+    assert.ok(signedCash.id);
   } finally {
     await new Promise<void>((resolve, reject) =>
       server.close((error) => error ? reject(error) : resolve()));

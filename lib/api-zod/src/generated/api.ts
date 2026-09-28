@@ -4668,6 +4668,18 @@ export const listAllocationsResponseRequestForecastModelDisplayZExclusiveMin = 0
 export const listAllocationsResponseRequestRobustnessKappaDefault = 1;
 export const listAllocationsResponseRequestRobustnessKappaMin = 0;
 
+export const listAllocationsResponseRequestCostAwareCostAmortizationDaysExclusiveMin = 0;
+
+export const listAllocationsResponseRequestCostAwareTurnoverPreferenceBpsDefault = 0;
+export const listAllocationsResponseRequestCostAwareTurnoverPreferenceBpsMin = 0;
+
+export const listAllocationsResponseRequestCostAwareTransactionCostBpsMin = 0;
+
+export const listAllocationsResponseRequestCostAwareSlippageBpsMin = 0;
+
+export const listAllocationsResponseRequestCostAwareHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const listAllocationsResponseRequestCostAwareHoldingsNavExclusiveMin = 0;
+
 export const listAllocationsResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -4761,6 +4773,18 @@ export const ListAllocationsResponseItem = zod.object({
   "robustness": zod.object({
   "method": zod.enum(['NOMINAL', 'ROBUST_MEAN_UNCERTAINTY']),
   "kappa": zod.number().min(listAllocationsResponseRequestRobustnessKappaMin).default(listAllocationsResponseRequestRobustnessKappaDefault)
+}).optional(),
+  "costAware": zod.object({
+  "costAmortizationDays": zod.number().gt(listAllocationsResponseRequestCostAwareCostAmortizationDaysExclusiveMin),
+  "turnoverPreferenceBps": zod.number().min(listAllocationsResponseRequestCostAwareTurnoverPreferenceBpsMin).default(listAllocationsResponseRequestCostAwareTurnoverPreferenceBpsDefault),
+  "transactionCostBps": zod.number().min(listAllocationsResponseRequestCostAwareTransactionCostBpsMin),
+  "slippageBps": zod.number().min(listAllocationsResponseRequestCostAwareSlippageBpsMin),
+  "holdings": zod.object({
+  "asOf": zod.string().regex(listAllocationsResponseRequestCostAwareHoldingsAsOfRegExp),
+  "quantities": zod.record(zod.string(), zod.number()),
+  "cash": zod.number(),
+  "nav": zod.number().gt(listAllocationsResponseRequestCostAwareHoldingsNavExclusiveMin)
+})
 }).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
@@ -4856,6 +4880,18 @@ export const createAllocationBodyForecastModelDisplayZExclusiveMin = 0;
 export const createAllocationBodyRobustnessKappaDefault = 1;
 export const createAllocationBodyRobustnessKappaMin = 0;
 
+export const createAllocationBodyCostAwareCostAmortizationDaysExclusiveMin = 0;
+
+export const createAllocationBodyCostAwareTurnoverPreferenceBpsDefault = 0;
+export const createAllocationBodyCostAwareTurnoverPreferenceBpsMin = 0;
+
+export const createAllocationBodyCostAwareTransactionCostBpsMin = 0;
+
+export const createAllocationBodyCostAwareSlippageBpsMin = 0;
+
+export const createAllocationBodyCostAwareHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAllocationBodyCostAwareHoldingsNavExclusiveMin = 0;
+
 export const createAllocationBodySignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -4943,6 +4979,18 @@ export const CreateAllocationBody = zod.object({
   "method": zod.enum(['NOMINAL', 'ROBUST_MEAN_UNCERTAINTY']),
   "kappa": zod.number().min(createAllocationBodyRobustnessKappaMin).default(createAllocationBodyRobustnessKappaDefault)
 }).optional(),
+  "costAware": zod.object({
+  "costAmortizationDays": zod.number().gt(createAllocationBodyCostAwareCostAmortizationDaysExclusiveMin),
+  "turnoverPreferenceBps": zod.number().min(createAllocationBodyCostAwareTurnoverPreferenceBpsMin).default(createAllocationBodyCostAwareTurnoverPreferenceBpsDefault),
+  "transactionCostBps": zod.number().min(createAllocationBodyCostAwareTransactionCostBpsMin),
+  "slippageBps": zod.number().min(createAllocationBodyCostAwareSlippageBpsMin),
+  "holdings": zod.object({
+  "asOf": zod.string().regex(createAllocationBodyCostAwareHoldingsAsOfRegExp),
+  "quantities": zod.record(zod.string(), zod.number()),
+  "cash": zod.number(),
+  "nav": zod.number().gt(createAllocationBodyCostAwareHoldingsNavExclusiveMin)
+})
+}).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
   "alphaBounds": zod.record(zod.string(), zod.object({
@@ -5028,6 +5076,18 @@ export const createAllocationResponseRequestForecastModelDisplayZExclusiveMin = 
 
 export const createAllocationResponseRequestRobustnessKappaDefault = 1;
 export const createAllocationResponseRequestRobustnessKappaMin = 0;
+
+export const createAllocationResponseRequestCostAwareCostAmortizationDaysExclusiveMin = 0;
+
+export const createAllocationResponseRequestCostAwareTurnoverPreferenceBpsDefault = 0;
+export const createAllocationResponseRequestCostAwareTurnoverPreferenceBpsMin = 0;
+
+export const createAllocationResponseRequestCostAwareTransactionCostBpsMin = 0;
+
+export const createAllocationResponseRequestCostAwareSlippageBpsMin = 0;
+
+export const createAllocationResponseRequestCostAwareHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAllocationResponseRequestCostAwareHoldingsNavExclusiveMin = 0;
 
 export const createAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
@@ -5122,6 +5182,18 @@ export const CreateAllocationResponse = zod.object({
   "robustness": zod.object({
   "method": zod.enum(['NOMINAL', 'ROBUST_MEAN_UNCERTAINTY']),
   "kappa": zod.number().min(createAllocationResponseRequestRobustnessKappaMin).default(createAllocationResponseRequestRobustnessKappaDefault)
+}).optional(),
+  "costAware": zod.object({
+  "costAmortizationDays": zod.number().gt(createAllocationResponseRequestCostAwareCostAmortizationDaysExclusiveMin),
+  "turnoverPreferenceBps": zod.number().min(createAllocationResponseRequestCostAwareTurnoverPreferenceBpsMin).default(createAllocationResponseRequestCostAwareTurnoverPreferenceBpsDefault),
+  "transactionCostBps": zod.number().min(createAllocationResponseRequestCostAwareTransactionCostBpsMin),
+  "slippageBps": zod.number().min(createAllocationResponseRequestCostAwareSlippageBpsMin),
+  "holdings": zod.object({
+  "asOf": zod.string().regex(createAllocationResponseRequestCostAwareHoldingsAsOfRegExp),
+  "quantities": zod.record(zod.string(), zod.number()),
+  "cash": zod.number(),
+  "nav": zod.number().gt(createAllocationResponseRequestCostAwareHoldingsNavExclusiveMin)
+})
 }).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
@@ -5220,6 +5292,18 @@ export const getAllocationResponseRequestForecastModelDisplayZExclusiveMin = 0;
 export const getAllocationResponseRequestRobustnessKappaDefault = 1;
 export const getAllocationResponseRequestRobustnessKappaMin = 0;
 
+export const getAllocationResponseRequestCostAwareCostAmortizationDaysExclusiveMin = 0;
+
+export const getAllocationResponseRequestCostAwareTurnoverPreferenceBpsDefault = 0;
+export const getAllocationResponseRequestCostAwareTurnoverPreferenceBpsMin = 0;
+
+export const getAllocationResponseRequestCostAwareTransactionCostBpsMin = 0;
+
+export const getAllocationResponseRequestCostAwareSlippageBpsMin = 0;
+
+export const getAllocationResponseRequestCostAwareHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getAllocationResponseRequestCostAwareHoldingsNavExclusiveMin = 0;
+
 export const getAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -5313,6 +5397,18 @@ export const GetAllocationResponse = zod.object({
   "robustness": zod.object({
   "method": zod.enum(['NOMINAL', 'ROBUST_MEAN_UNCERTAINTY']),
   "kappa": zod.number().min(getAllocationResponseRequestRobustnessKappaMin).default(getAllocationResponseRequestRobustnessKappaDefault)
+}).optional(),
+  "costAware": zod.object({
+  "costAmortizationDays": zod.number().gt(getAllocationResponseRequestCostAwareCostAmortizationDaysExclusiveMin),
+  "turnoverPreferenceBps": zod.number().min(getAllocationResponseRequestCostAwareTurnoverPreferenceBpsMin).default(getAllocationResponseRequestCostAwareTurnoverPreferenceBpsDefault),
+  "transactionCostBps": zod.number().min(getAllocationResponseRequestCostAwareTransactionCostBpsMin),
+  "slippageBps": zod.number().min(getAllocationResponseRequestCostAwareSlippageBpsMin),
+  "holdings": zod.object({
+  "asOf": zod.string().regex(getAllocationResponseRequestCostAwareHoldingsAsOfRegExp),
+  "quantities": zod.record(zod.string(), zod.number()),
+  "cash": zod.number(),
+  "nav": zod.number().gt(getAllocationResponseRequestCostAwareHoldingsNavExclusiveMin)
+})
 }).optional(),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
