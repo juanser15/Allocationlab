@@ -81,3 +81,17 @@ mtime_ms = 1790225310481
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/80b17624-3b45-4da4-8c49-4e007f1eefc9/66a9ac43-923c-4678-b77f-f9d798c26685"
 storage_version_token = "1790225315169532"
 content_type = "text/markdown"
+
+[[outputs]]
+id = "N-O4Bk3eSH2pKcKjw7VtY"
+uri = "file://reports/D5_COMPLETION_REPORT_BLOCKED.md"
+type = "text"
+title = "Informe completo D5 (Markdown)"
+description = "Reporte de cierre bloqueado, verificaciones T1–T8 y resultados de regresión."
+logical_id = "fe0796fd-6bcb-4a36-a4e4-b73105e37940"
+content_hash = "sha256:a40d8eb2a3375f88e19007c027670b3da7800ccae20ce9684e635cff40991597"
+size = 3539
+mtime_ms = 1790598532283
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/fe0796fd-6bcb-4a36-a4e4-b73105e37940/c3bc0dcf-0071-45c4-8fd3-12a5a69005ef"
+storage_version_token = "1790598538601583"
+content_type = "text/markdown"
