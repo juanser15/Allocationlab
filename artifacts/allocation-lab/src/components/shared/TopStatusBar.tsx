@@ -33,6 +33,12 @@ export function TopStatusBar() {
   const stageInfo = useWorkflowStage();
 
   const hasData = !!pricesStatus?.hasData;
+  const matchesD6TestFixture = pricesStatus?.hasData === true
+    && pricesStatus.rowCount === 620
+    && pricesStatus.startDate === "2024-01-02"
+    && pricesStatus.endDate === "2026-05-18"
+    && pricesStatus.tickers.length === 5
+    && ["D6A", "D6B", "D6C", "D6D", "D6E"].every((ticker) => pricesStatus.tickers.includes(ticker));
 
   const freshnessLabel = useMemo(() => {
     if (!hasData || !pricesStatus?.endDate) return "No data";
@@ -65,6 +71,11 @@ export function TopStatusBar() {
 
   return (
     <div className="flex items-center gap-x-4 gap-y-1.5 px-4 py-1.5 text-xs border-b bg-gray-50 text-gray-600 shrink-0 flex-wrap">
+      {matchesD6TestFixture && (
+        <div role="alert" className="w-full rounded border border-amber-500 bg-amber-100 px-3 py-2 text-sm font-semibold text-amber-950">
+          TEST_ONLY — Latest price metadata matches the retained synthetic D6 fixture (D6A–D6E, 620 rows, 2024-01-02–2026-05-18). This is synthetic test data, not market evidence. Explicitly select market data before producing real-market reports.
+        </div>
+      )}
       <span className="inline-flex items-center gap-1.5 font-medium text-gray-900 shrink-0">
         <FolderKanban className="h-3.5 w-3.5 text-primary/70" />
         {latestResult ? `Session #${latestResult.sessionId}` : "No active session"}

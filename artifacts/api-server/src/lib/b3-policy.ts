@@ -11,6 +11,7 @@ import {
 } from "./prepared-inputs";
 import { computeD4Diagnostics } from "./d4-diagnostics";
 import { hashDataset } from "./run-snapshot";
+import { d6Trace, d6Span } from "./d6-trace";
 
 export interface B3Assumptions {
   evaluationStartDate: string;
@@ -435,8 +436,10 @@ function runB3ValidationInternal(
   const regularizationEnabled = (rebalanceRegularization?.lambdaR ?? 0) > 0;
   const contextEnabled = d5Enabled || regularizationEnabled || rebalanceComparisonRun;
   const fail = (reason: string, date?: string, decisions: B3Decision[] = [],
-    calendar: Array<{ decisionDate: string; executionDate: string }> = []) =>
-    failureResult(assumptions, policyRequest, policySnapshot, validationSnapshot, reason, date, decisions, calendar);
+    calendar: Array<{ decisionDate: string; executionDate: string }> = []) => {
+    d6Trace("validation.failed", { reason, decisionDate: date ?? null, completedDecisions: decisions.length });
+    return failureResult(assumptions, policyRequest, policySnapshot, validationSnapshot, reason, date, decisions, calendar);
+  };
 
   if (rebalanceRegularization !== undefined &&
       (!isFiniteNumber(rebalanceRegularization.lambdaR) || rebalanceRegularization.lambdaR < 0))
@@ -664,7 +667,8 @@ function runB3ValidationInternal(
     }
     let historical: PreparedSnapshot;
     try {
-      historical = historicalPreparation(decisionDate);
+      historical = d6Span("panel.historical_preparation", () => historicalPreparation(decisionDate),
+        { decisionDate, informationCutoff });
     } catch (error) {
       decisionFailure = { date: decisionDate, reason: `Point-in-time B1 preparation failed: ${error instanceof Error ? error.message : String(error)}` };
       return null;
@@ -818,12 +822,21 @@ function runB3ValidationInternal(
         reason: `D6 SIGNAL_RIDGE executionTiming does not match B3 assumptions at ${decisionDate}.` };
       return null;
     }
-    const optimized = optimizePreparedSnapshot(historicalForB2, request, alignment?.estimationDates);
+    const optimized = d6Span("b3.dated_optimize", () =>
+      optimizePreparedSnapshot(historicalForB2, request, alignment?.estimationDates),
+    { decisionDate, informationCutoff });
+    d6Trace("b3.dated_optimize.status", { decisionDate, status: optimized.status });
     if (request.robustness && optimized.status === "SOLVED" && optimized.robustness) {
       optimized.robustness.diagnostics = computeD4Diagnostics(
         request,
         optimized,
-        (variant) => optimizePreparedSnapshot(historicalForB2, variant, alignment?.estimationDates),
+        (variant) => {
+          const comparison = d6Span("b3.dated_optimize.comparison", () =>
+            optimizePreparedSnapshot(historicalForB2, variant, alignment?.estimationDates),
+          { decisionDate, informationCutoff });
+          d6Trace("b3.dated_optimize.comparison.status", { decisionDate, status: comparison.status });
+          return comparison;
+        },
       ) as Record<string, unknown>;
     }
     if (optimized.status === "UNAVAILABLE_HISTORICAL_VIEWS") {
@@ -1027,11 +1040,14 @@ function runB3ValidationInternal(
     ...(d5Enabled ? { d5GrossTradeCosts: true } : {}),
     ...(regularizationEnabled || rebalanceComparisonRun ? { provideTargetContext: true } : {}),
   };
-  const engine = runBacktestEngine(
+  d6Trace("ledger.engine.start", { decisionCount: expectedCalendar.length });
+  const engine = d6Span("ledger.engine", () => runBacktestEngine(
     evalRows, etfs, engineConstraints(), config, assumptions.benchmarkTicker ?? null,
     { factors: validationSnapshot.factorSet.factors },
     (date, signalRows, context) => decisionTarget(date, signalRows, context), initialState,
-  );
+  ));
+  d6Trace("ledger.engine.status", { sufficient: engine.hasSufficientData, completedDecisions: decisions.length,
+    ledgerDays: engine.dailyLedger.length });
   const callbackFailure = readDecisionFailure();
   if (callbackFailure) return fail(callbackFailure.reason, callbackFailure.date, decisions, expectedCalendar);
   if (!engine.hasSufficientData) {
@@ -1069,6 +1085,7 @@ function runB3ValidationInternal(
   });
   const maximumReconciliationDifference = ledger.reduce((max, entry) =>
     Math.max(max, Math.abs(entry.reconciliationDifference)), 0);
+  d6Trace("ledger.complete", { ledgerDays: ledger.length, completedDecisions: decisions.length });
   if (maximumReconciliationDifference > TOLERANCE)
     return fail(`A1 daily ledger reconciliation exceeded ${TOLERANCE}: ${maximumReconciliationDifference}.`,
       ledger.find((entry) => Math.abs(entry.reconciliationDifference) > TOLERANCE)?.date, decisions, expectedCalendar);

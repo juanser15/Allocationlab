@@ -8,6 +8,7 @@ import {
 } from "./b3-policy";
 import type { AllocationRequest } from "./allocation-b2";
 import type { B3ValidationAssumptions } from "@workspace/api-zod";
+import { d6Trace, d6Error } from "./d6-trace";
 import { fingerprint } from "./prepared-inputs";
 import { hashDataset } from "./run-snapshot";
 import { maximumNumericDifference } from "./replay-numeric-difference";
@@ -187,10 +188,17 @@ export async function persistB3ValidationRun(input: {
 }, internalPolicyRequestOverride?: AllocationRequest, internalEstimationDatePlan?: B3EstimationDatePlan) {
   const [allocation] = await db.select().from(allocationsTable)
     .where(eq(allocationsTable.id, input.allocationId)).limit(1);
-  if (!allocation) return { error: "Frozen allocation policy not found.", status: 404 } as const;
+  if (!allocation) {
+    d6Trace("frozen.inputs.rejected", { reason: "allocation_not_found", allocationId: input.allocationId });
+    return { error: "Frozen allocation policy not found.", status: 404 } as const;
+  }
   const [prepared] = await db.select().from(preparedInputsTable)
     .where(eq(preparedInputsTable.id, input.validationPreparedInputId)).limit(1);
-  if (!prepared) return { error: "Frozen validation prepared input not found.", status: 404 } as const;
+  if (!prepared) {
+    d6Trace("frozen.inputs.rejected", { reason: "prepared_input_not_found",
+      validationPreparedInputId: input.validationPreparedInputId });
+    return { error: "Frozen validation prepared input not found.", status: 404 } as const;
+  }
 
   const policySnapshot = structuredClone(allocation.frozenSnapshot);
   const basePolicyRequest = structuredClone(allocation.frozenRequest) as AllocationRequest;
@@ -216,6 +224,7 @@ export async function persistB3ValidationRun(input: {
     result: allocation.frozenResult,
   });
   if (policySnapshotHash !== allocation.frozenSnapshotHash || expectedAllocationFingerprint !== allocation.fingerprint) {
+    d6Trace("frozen.inputs.rejected", { reason: "allocation_fingerprint_mismatch" });
     return { error: "Frozen allocation policy fingerprint mismatch.", status: 409 } as const;
   }
   const preparedFingerprint = isRecord(validationSnapshot) && isRecord(validationSnapshot.dataset) &&
@@ -228,12 +237,14 @@ export async function persistB3ValidationRun(input: {
     })
     : "";
   if (preparedFingerprint !== prepared.fingerprint) {
+    d6Trace("frozen.inputs.rejected", { reason: "prepared_fingerprint_mismatch" });
     return { error: "Frozen validation prepared-input fingerprint mismatch.", status: 409 } as const;
   }
   const dataset = isRecord(validationSnapshot) && isRecord(validationSnapshot.dataset)
     ? validationSnapshot.dataset : null;
   if (!dataset || typeof dataset.csvContent !== "string" || typeof dataset.sha256 !== "string" ||
       hashDataset(dataset.csvContent) !== dataset.sha256) {
+    d6Trace("frozen.inputs.rejected", { reason: "dataset_hash_mismatch" });
     return { error: "Selected validation dataset content/hash mismatch.", status: 409 } as const;
   }
   if (allocation.representation !== prepared.representation ||
@@ -241,6 +252,13 @@ export async function persistB3ValidationRun(input: {
     return { error: "Policy and validation prepared-input representations must match.", status: 409 } as const;
   }
 
+  d6Trace("frozen.inputs.verified", {
+    allocationId: allocation.id, policyPreparedInputId: allocation.preparedInputId,
+    validationPreparedInputId: prepared.id,
+    policyDatasetId: isRecord(policySnapshot) && isRecord(policySnapshot.dataset) &&
+      typeof policySnapshot.dataset.id === "number" ? policySnapshot.dataset.id : null,
+    validationDatasetId: typeof dataset.id === "number" ? dataset.id : null,
+  });
   const frozenAssumptions = structuredClone(input.assumptions) as B3Assumptions;
   const version = engineVersion(policySnapshot);
   let result: B3Result | { status: "failed"; diagnostic: string };
@@ -253,11 +271,13 @@ export async function persistB3ValidationRun(input: {
       internalEstimationDatePlan,
     );
   } catch (error) {
+    d6Trace("validation.engine.exception", d6Error(error));
     result = {
       status: "failed",
       diagnostic: error instanceof Error ? error.message : "B3 validation engine failed.",
     };
   }
+  d6Trace("validation.engine.end", { status: result.status });
   if (result.status === "completed") {
     const integrityError = statisticalFactorIntegrityError(policyRequest, result);
     if (integrityError) return { error: integrityError, status: 409 } as const;
@@ -285,7 +305,11 @@ export async function persistB3ValidationRun(input: {
     engineVersion: version,
     result,
   });
-  const [row] = await db.insert(validationRunsTable).values({
+  d6Trace("db.persistence.before", { allocationId: allocation.id, validationPreparedInputId: prepared.id, status });
+  const persistenceStarted = performance.now();
+  let row: typeof validationRunsTable.$inferSelect;
+  try {
+    [row] = await db.insert(validationRunsTable).values({
     strategySnapshotId: null,
     allocationId: allocation.id,
     validationPreparedInputId: prepared.id,
@@ -299,7 +323,12 @@ export async function persistB3ValidationRun(input: {
     reconciliationStatus: status === "success" ? "pass" : "fail",
     reproducibilityStatus: status === "success" ? "pass" : "fail",
     validationInputHash: inputHash,
-  }).returning();
+    }).returning();
+  } catch (error) {
+    d6Trace("db.persistence.exception", { durationMs: Math.round(performance.now() - persistenceStarted), ...d6Error(error) });
+    throw error;
+  }
+  d6Trace("db.persistence.after", { durationMs: Math.round(performance.now() - persistenceStarted), validationRunId: row.id });
   return { run: toB3ValidationRun(row) } as const;
 }
 
@@ -382,12 +411,15 @@ export function resultDifferences(saved: unknown, replayed: unknown): string[] {
 }
 
 export async function replayB3ValidationRun(id: number) {
+  d6Trace("replay.lookup.start", { validationRunId: id });
   const [row] = await db.select().from(validationRunsTable).where(eq(validationRunsTable.id, id)).limit(1);
   if (!row) return null;
   if (row.allocationId === null || row.validationPreparedInputId === null)
     return { validationRunId: id, status: "fail" as const, validationInputHash: row.validationInputHash,
       differences: ["Validation Run is not a B3 run."], replayedResult: {} };
   const frozen = envelope(row);
+  d6Trace("replay.frozen.inputs.loaded", { validationRunId: id, allocationId: row.allocationId,
+    validationPreparedInputId: row.validationPreparedInputId });
   const version = engineVersion(frozen.policySnapshot);
   const differences: string[] = [];
   if (version !== row.engineVersion) differences.push(`engine version mismatch: saved=${row.engineVersion}, current=${version}`);
@@ -420,6 +452,7 @@ export async function replayB3ValidationRun(id: number) {
     result: frozen.result,
   };
   const expectedHash = b3InputHash(hashInput);
+  d6Trace("replay.frozen.inputs.verified", { validationRunId: id, valid: differences.length === 0 });
   if (differences.length) return {
     validationRunId: id,
     status: version !== row.engineVersion ? "engine_mismatch" as const : "fail" as const,
@@ -437,6 +470,7 @@ export async function replayB3ValidationRun(id: number) {
       frozen.estimationDatePlan,
     );
   } catch (error) {
+    d6Trace("replay.engine.exception", d6Error(error));
     replayed = { status: "failed", diagnostic: error instanceof Error ? error.message : "B3 replay failed." };
   }
   if (expectedHash !== row.validationInputHash &&

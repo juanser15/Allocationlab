@@ -2,6 +2,7 @@ import type { PreparedSnapshot } from "./prepared-inputs";
 import type { ForecastModelConfig, ForecastResult } from "./forecast-d3";
 import { fitSignalRidge, predictSignalRidge, type SignalRidgeTrainingRow } from "./signal-ridge";
 import { buildSignalRidgePanel } from "./signal-ridge-panel";
+import { d6Trace, d6Span } from "./d6-trace";
 
 export const SIGNAL_RIDGE_ENGINE_VERSION = "D6.1.0" as const;
 
@@ -30,11 +31,13 @@ export function buildSignalRidgeForecast(input: {
   if (input.candidateIds.length !== input.assetTickers.length ||
     new Set(input.candidateIds).size !== input.candidateIds.length)
     throw new Error("SIGNAL_RIDGE candidate IDs and assets must have the same unique order.");
-  const panel = buildSignalRidgePanel({
+  const panel = d6Span("ridge.panel", () => buildSignalRidgePanel({
     snapshot: input.snapshot, factorIds: config.factorIds, assetTickers: input.assetTickers,
     asOfCutoff: input.informationCutoff, executionTiming: config.executionTiming,
     dailyCashReturn: input.dailyCashYield, decisionDate: input.decisionDate,
-  });
+  }), { decisionDate: input.decisionDate, informationCutoff: input.informationCutoff });
+  d6Trace("ridge.panel.ready", { decisionDate: input.decisionDate,
+    trainingRows: panel.trainingRows.length, currentRows: panel.currentRows.length });
   const minimum = Math.max(60, 5 * (panel.canonicalFactorIds.length + 1));
   if (config.minTrainingDates < minimum)
     throw new Error(`SIGNAL_RIDGE minimum training dates cannot be below ${minimum} for this factor set.`);
@@ -55,14 +58,18 @@ export function buildSignalRidgeForecast(input: {
       throw new Error("SIGNAL_RIDGE incomplete training row passed balanced-panel validation.");
     return { date: row.signalDate, asset: row.ticker, features: toFeatures(row), y: row.excessReturnLabel };
   });
-  const fit = fitSignalRidge(rows, panel.canonicalFactorIds, config.lambdaSignal,
-    config.hacBandwidth, [...new Set(panel.panelRows.map((row) => row.signalDate))].sort());
+  const fit = d6Span("ridge.fit_uncertainty", () =>
+    fitSignalRidge(rows, panel.canonicalFactorIds, config.lambdaSignal,
+      config.hacBandwidth, [...new Set(panel.panelRows.map((row) => row.signalDate))].sort()),
+  { decisionDate: input.decisionDate, informationCutoff: input.informationCutoff,
+    trainingDates: chosenDates.length, assetCount: input.assetTickers.length });
   const current = input.assetTickers.map((ticker) => {
     const row = panel.currentRows.find((item) => item.ticker === ticker);
     if (!row) throw new Error(`SIGNAL_RIDGE missing current asset ${ticker}.`);
     return { asset: ticker, features: toFeatures(row) };
   });
-  const prediction = predictSignalRidge(fit, current);
+  const prediction = d6Span("ridge.prediction_uncertainty", () => predictSignalRidge(fit, current),
+    { decisionDate: input.decisionDate, informationCutoff: input.informationCutoff });
   const muHat = prediction.predictions.map((row) => row.excessPrediction + input.dailyCashYield);
   const standardErrors = prediction.V_mu.map((row, i) => Math.sqrt(Math.max(0, row[i])));
   const displayZ = config.displayZ ?? 1.96;
