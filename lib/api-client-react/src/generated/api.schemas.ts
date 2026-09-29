@@ -3012,6 +3012,15 @@ export const ForecastModelConfigType = {
   SAMPLE_MEAN: 'SAMPLE_MEAN',
   SHRUNK_MEAN: 'SHRUNK_MEAN',
   BAYESIAN_VIEWS: 'BAYESIAN_VIEWS',
+  SIGNAL_RIDGE: 'SIGNAL_RIDGE',
+} as const;
+
+export type ForecastModelConfigExecutionTiming = typeof ForecastModelConfigExecutionTiming[keyof typeof ForecastModelConfigExecutionTiming];
+
+
+export const ForecastModelConfigExecutionTiming = {
+  same_close: 'same_close',
+  next_close: 'next_close',
 } as const;
 
 export interface ForecastModelConfig {
@@ -3025,6 +3034,17 @@ export interface ForecastModelConfig {
   priorMean?: ForecastPriorMean;
   priorUncertainty?: ForecastPriorUncertainty;
   views?: ForecastView[];
+  /** @minItems 1 */
+  factorIds?: string[];
+  /** @exclusiveMinimum 0 */
+  lambdaSignal?: number;
+  /** @minimum 2 */
+  trainingWindowDates?: number;
+  /** @minimum 2 */
+  minTrainingDates?: number;
+  /** @minimum 0 */
+  hacBandwidth?: number;
+  executionTiming?: ForecastModelConfigExecutionTiming;
   /** @exclusiveMinimum 0 */
   displayZ?: number;
 }

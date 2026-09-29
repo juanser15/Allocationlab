@@ -5,6 +5,7 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+import type { ForecastModelConfigExecutionTiming } from './forecastModelConfigExecutionTiming';
 import type { ForecastModelConfigType } from './forecastModelConfigType';
 import type { ForecastPriorMean } from './forecastPriorMean';
 import type { ForecastPriorUncertainty } from './forecastPriorUncertainty';
@@ -22,6 +23,17 @@ export interface ForecastModelConfig {
   priorMean?: ForecastPriorMean;
   priorUncertainty?: ForecastPriorUncertainty;
   views?: ForecastView[];
+  /** @minItems 1 */
+  factorIds?: string[];
+  /** @exclusiveMinimum 0 */
+  lambdaSignal?: number;
+  /** @minimum 2 */
+  trainingWindowDates?: number;
+  /** @minimum 2 */
+  minTrainingDates?: number;
+  /** @minimum 0 */
+  hacBandwidth?: number;
+  executionTiming?: ForecastModelConfigExecutionTiming;
   /** @exclusiveMinimum 0 */
   displayZ?: number;
 }

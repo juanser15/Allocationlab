@@ -185,6 +185,34 @@ export interface B3Result {
   };
   costAwarePolicy?: Pick<B3CostAwareRequest,
     "costAmortizationDays" | "turnoverPreferenceBps" | "transactionCostBps" | "slippageBps">;
+  ridgeEvaluation?: {
+    horizon: "one close-to-close interval after execution close";
+    outcomes: Array<{
+      decisionDate: string;
+      informationCutoff: string;
+      executionDate: string;
+      labelStart: string;
+      labelEnd: string | null;
+      asset: string;
+      forecastExcessReturn: number;
+      actualExcessReturn: number | null;
+      status: "MATURED" | "PENDING" | "UNAVAILABLE";
+    }>;
+    metrics: {
+      maturedCount: number;
+      pendingCount: number;
+      unavailableCount: number;
+      rmse: number | null;
+      mae: number | null;
+      informationCoefficients: Array<{
+        decisionDate: string;
+        assetCount: number;
+        pearson: number | null;
+        rank: number | null;
+        status: "AVAILABLE" | "INSUFFICIENT_ASSETS" | "CONSTANT_VALUES";
+      }>;
+    };
+  };
 }
 
 const TOLERANCE = 1e-8;
@@ -237,6 +265,100 @@ function dailySharpe(returns: number[], cashYield: number): { value: number | nu
   const variance = excess.reduce((sum, value) => sum + (value - average) ** 2, 0) / (excess.length - 1);
   if (variance <= 1e-24) return { value: null, reason: "Daily excess-return volatility is zero; Sharpe is undefined." };
   return { value: Math.sqrt(DAYS_PER_YEAR) * average / Math.sqrt(variance), reason: null };
+}
+
+function correlation(left: number[], right: number[]): number | null {
+  if (left.length < 2 || left.length !== right.length) return null;
+  const leftMean = left.reduce((sum, value) => sum + value, 0) / left.length;
+  const rightMean = right.reduce((sum, value) => sum + value, 0) / right.length;
+  const covariance = left.reduce((sum, value, index) =>
+    sum + (value - leftMean) * (right[index] - rightMean), 0);
+  const leftVariance = left.reduce((sum, value) => sum + (value - leftMean) ** 2, 0);
+  const rightVariance = right.reduce((sum, value) => sum + (value - rightMean) ** 2, 0);
+  return leftVariance > 0 && rightVariance > 0
+    ? covariance / Math.sqrt(leftVariance * rightVariance) : null;
+}
+
+function averageRanks(values: number[]): number[] {
+  const order = values.map((value, index) => ({ value, index }))
+    .sort((left, right) => left.value - right.value || left.index - right.index);
+  const ranks = Array(values.length).fill(0) as number[];
+  for (let start = 0; start < order.length;) {
+    let end = start + 1;
+    while (end < order.length && order[end].value === order[start].value) end++;
+    const rank = (start + 1 + end) / 2;
+    for (let index = start; index < end; index++) ranks[order[index].index] = rank;
+    start = end;
+  }
+  return ranks;
+}
+
+function evaluateRidgeDecisions(
+  decisions: B3Decision[],
+  rows: ReturnType<typeof parseCsv>,
+  endDate: string,
+  cashReturn: number,
+): NonNullable<B3Result["ridgeEvaluation"]> {
+  const outcomes: NonNullable<B3Result["ridgeEvaluation"]>["outcomes"] = [];
+  const indexByDate = new Map(rows.map((row, index) => [row.date, index]));
+  for (const decision of decisions) {
+    const forecast = decision.forecast as (AllocationResult["forecast"] & {
+      ridge?: { predictions: Array<{ asset: string; excessPrediction: number }> };
+    }) | undefined;
+    for (const prediction of forecast?.ridge?.predictions ?? []) {
+      const executionIndex = indexByDate.get(decision.executionDate);
+      const labelEnd = executionIndex === undefined ? null : rows[executionIndex + 1]?.date ?? null;
+      const outcome = {
+        decisionDate: decision.decisionDate,
+        informationCutoff: decision.informationCutoff,
+        executionDate: decision.executionDate,
+        labelStart: decision.executionDate,
+        labelEnd,
+        asset: prediction.asset,
+        forecastExcessReturn: prediction.excessPrediction,
+        actualExcessReturn: null as number | null,
+        status: "PENDING" as "MATURED" | "PENDING" | "UNAVAILABLE",
+      };
+      if (labelEnd && labelEnd <= endDate) {
+        const startPrice = rows[executionIndex!].prices[prediction.asset];
+        const endPrice = rows[executionIndex! + 1].prices[prediction.asset];
+        if (isFiniteNumber(startPrice) && startPrice > 0 && isFiniteNumber(endPrice) && endPrice > 0) {
+          outcome.actualExcessReturn = endPrice / startPrice - 1 - cashReturn;
+          outcome.status = Number.isFinite(outcome.actualExcessReturn) ? "MATURED" : "UNAVAILABLE";
+          if (outcome.status === "UNAVAILABLE") outcome.actualExcessReturn = null;
+        } else {
+          outcome.status = "UNAVAILABLE";
+        }
+      }
+      outcomes.push(outcome);
+    }
+  }
+  const matured = outcomes.filter((outcome) => outcome.status === "MATURED");
+  const errors = matured.map((outcome) => outcome.actualExcessReturn! - outcome.forecastExcessReturn);
+  const informationCoefficients = [...new Set(outcomes.map((outcome) => outcome.decisionDate))].map((date) => {
+    const sample = matured.filter((outcome) => outcome.decisionDate === date);
+    if (sample.length < 3)
+      return { decisionDate: date, assetCount: sample.length, pearson: null, rank: null,
+        status: "INSUFFICIENT_ASSETS" as const };
+    const predictions = sample.map((item) => item.forecastExcessReturn);
+    const actuals = sample.map((item) => item.actualExcessReturn!);
+    const pearson = correlation(predictions, actuals);
+    const rank = correlation(averageRanks(predictions), averageRanks(actuals));
+    return { decisionDate: date, assetCount: sample.length, pearson, rank,
+      status: pearson === null || rank === null ? "CONSTANT_VALUES" as const : "AVAILABLE" as const };
+  });
+  return {
+    horizon: "one close-to-close interval after execution close",
+    outcomes,
+    metrics: {
+      maturedCount: matured.length,
+      pendingCount: outcomes.filter((outcome) => outcome.status === "PENDING").length,
+      unavailableCount: outcomes.filter((outcome) => outcome.status === "UNAVAILABLE").length,
+      rmse: errors.length ? Math.sqrt(errors.reduce((sum, value) => sum + value * value, 0) / errors.length) : null,
+      mae: errors.length ? errors.reduce((sum, value) => sum + Math.abs(value), 0) / errors.length : null,
+      informationCoefficients,
+    },
+  };
 }
 
 function failureResult(
@@ -304,6 +426,9 @@ function runB3ValidationInternal(
   // Signed execution is opt-in and is enabled only by a frozen B2 policy.
   const signedOverlay = (policyRequest as AllocationRequest & { allocationMode?: string }).allocationMode ===
     "SIGNED_OVERLAY";
+  const ridgeConfig = policyRequest.forecastModel?.type === "SIGNAL_RIDGE"
+    ? policyRequest.forecastModel : undefined;
+  const signalRidge = ridgeConfig !== undefined;
   const costAware = (policyRequest as AllocationRequest & { costAware?: B3CostAwareRequest }).costAware;
   const rebalanceRegularization = (policyRequest as B3ExtendedAllocationRequest).rebalanceRegularization;
   const d5Enabled = costAware !== undefined || d5ComparisonRun;
@@ -328,7 +453,8 @@ function runB3ValidationInternal(
   if (policySnapshot.representation !== policyRequest.representation ||
     validationSnapshot.representation !== policyRequest.representation)
     return fail("Policy request and both frozen preparations must use the same supported representation.");
-  if (policyRequest.representation === "signals")
+  if (policyRequest.representation === "signals" ||
+      (signalRidge && policyRequest.representation !== "asset_returns"))
     return fail("B2 does not support predictive signal optimization; B3 requires asset_returns or alpha_streams.");
   if (signedOverlay && policyRequest.representation !== "alpha_streams")
     return fail("SIGNED_OVERLAY B3 requires alpha_streams so signed coefficients map through the frozen underlying-exposure matrix.");
@@ -340,6 +466,14 @@ function runB3ValidationInternal(
   if (!["monthly", "quarterly"].includes(assumptions.decisionCalendar) ||
     !["same_close", "next_close"].includes(assumptions.executionTiming))
     return fail("B3 supports only monthly/quarterly calendars and A1 same_close/next_close execution.");
+  if (signalRidge && ridgeConfig.executionTiming !== assumptions.executionTiming)
+    return fail("D6 SIGNAL_RIDGE executionTiming must exactly match the frozen B3 executionTiming assumption.");
+  if (signalRidge && (!Number.isSafeInteger(ridgeConfig.trainingWindowDates) ||
+      ridgeConfig.trainingWindowDates < 1 || !Number.isSafeInteger(ridgeConfig.minTrainingDates) ||
+      ridgeConfig.minTrainingDates < 1 || !Number.isSafeInteger(ridgeConfig.hacBandwidth) ||
+      ridgeConfig.hacBandwidth < 0 || !isFiniteNumber(ridgeConfig.lambdaSignal) || ridgeConfig.lambdaSignal <= 0 ||
+      !ridgeConfig.factorIds.length || new Set(ridgeConfig.factorIds).size !== ridgeConfig.factorIds.length))
+    return fail("D6 SIGNAL_RIDGE requires unique selected factors, positive lambda, positive frozen training readiness/window, and nonnegative integer HAC bandwidth.");
   if (![assumptions.initialNav, assumptions.initialCash, assumptions.transactionCostBps,
     assumptions.slippageBps, assumptions.dailyCashYield].every(isFiniteNumber) ||
      assumptions.initialNav <= 0 || (!signedOverlay && assumptions.initialCash < 0) ||
@@ -385,6 +519,8 @@ function runB3ValidationInternal(
   if (policyRequest.representation === "alpha_streams" &&
     canonicalJson(policySnapshot.factorSet) !== canonicalJson(validationSnapshot.factorSet))
     return fail("Alpha validation must use the exact frozen B1 factor definitions and version.");
+  if (signalRidge && canonicalJson(policySnapshot.factorSet) !== canonicalJson(validationSnapshot.factorSet))
+    return fail("D6 SIGNAL_RIDGE policy and validation must share the exact frozen factor definitions and version.");
   const definitions = validationCandidates as PreparedCandidate[];
   const policyToValidationId = Object.fromEntries(policyRequest.candidateIds.map((id, i) =>
     [id, definitions[i].candidateId]));
@@ -676,6 +812,12 @@ function runB3ValidationInternal(
       referenceExposures = Object.fromEntries(Object.entries(referencePrices).map(([ticker, price]) =>
         [ticker, (holdings.quantities[ticker] ?? 0) * (price as number) / holdings.nav]));
     }
+    const planned = expectedCalendar.find((item) => item.decisionDate === decisionDate)!;
+    if (signalRidge && ridgeConfig!.executionTiming !== assumptions.executionTiming) {
+      decisionFailure = { date: decisionDate,
+        reason: `D6 SIGNAL_RIDGE executionTiming does not match B3 assumptions at ${decisionDate}.` };
+      return null;
+    }
     const optimized = optimizePreparedSnapshot(historicalForB2, request, alignment?.estimationDates);
     if (request.robustness && optimized.status === "SOLVED" && optimized.robustness) {
       optimized.robustness.diagnostics = computeD4Diagnostics(
@@ -757,7 +899,6 @@ function runB3ValidationInternal(
       decisionFailure = { date: decisionDate, reason: `B2 independent solver/constraint validation failed at ${decisionDate}.` };
       return null;
     }
-    const planned = expectedCalendar.find((item) => item.decisionDate === decisionDate)!;
     const targetAssetExposureSum = Object.values(optimized.assetWeights).reduce((sum, weight) => sum + weight, 0);
     const candidateWeights = Object.fromEntries(policyRequest.candidateIds.map((id, index) =>
       [id, optimized.candidateWeights![pointInTimeIds[index]]]));
@@ -1053,6 +1194,9 @@ function runB3ValidationInternal(
       slippageBps: costAware.slippageBps,
     };
   }
+  if (signalRidge)
+    result.ridgeEvaluation = evaluateRidgeDecisions(decisions, rows, assumptions.evaluationEndDate,
+      assumptions.dailyCashYield);
   if (costAware && !d5ComparisonRun) {
     const costBlindRequest = structuredClone(policyRequest) as AllocationRequest & { costAware?: B3CostAwareRequest };
     delete costBlindRequest.costAware;

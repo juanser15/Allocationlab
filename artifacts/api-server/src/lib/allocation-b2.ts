@@ -17,6 +17,7 @@ import {
   estimateForecast, portfolioForecastUncertainty, type ForecastModelConfig, type ForecastResult,
   type PortfolioForecastUncertainty,
 } from "./forecast-d3";
+import { buildSignalRidgeForecast } from "./signal-ridge-forecast";
 
 export type AllocationRepresentation = "asset_returns" | "alpha_streams" | "signals";
 export type AllocationMode = "CAPITAL_LONG_ONLY" | "SIGNED_OVERLAY";
@@ -496,6 +497,9 @@ export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: Al
 
 function optimizePreparedSnapshotCore(snapshot: PreparedSnapshot, request: AllocationRequest,
   plannedEstimationDates?: readonly string[]): AllocationResult {
+  if (request.forecastModel?.type === "SIGNAL_RIDGE" &&
+    (request.representation !== "asset_returns" || request.allocationMode === "SIGNED_OVERLAY"))
+    return failure("UNSUPPORTED", "SIGNAL_RIDGE supports underlying asset_returns in CAPITAL_LONG_ONLY only; alpha streams and signed overlays retain their existing forecast estimators.");
   if (request.allocationMode === "SIGNED_OVERLAY")
     return optimizeSignedOverlay(snapshot, request, plannedEstimationDates);
   if (request.representation === "signals")
@@ -626,7 +630,21 @@ function optimizePreparedSnapshotCore(snapshot: PreparedSnapshot, request: Alloc
     (i === j ? request.covarianceDiagonalShrinkage * sampleCovariance[i][i] : 0)));
   let forecast: AllocationResult["forecast"];
   if (request.forecastModel) {
-    const estimated = estimateForecast({
+    let estimated: ForecastResult;
+    if (request.forecastModel.type === "SIGNAL_RIDGE") {
+      try {
+        estimated = buildSignalRidgeForecast({
+          snapshot, config: request.forecastModel,
+          candidateIds: candidates.map((candidate) => candidate.candidateId),
+          assetTickers: candidates.map((candidate) => candidate.assetTickers[0]),
+          informationCutoff: request.informationCutoff, decisionDate: request.decisionTimestamp.slice(0, 10),
+          dailyCashYield: request.dailyCashYield, sigma,
+        });
+      } catch (error) {
+        return failure("INVALID_FORECAST_MODEL",
+          `SIGNAL_RIDGE cannot produce this forecast: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    } else estimated = estimateForecast({
       candidateIds: candidates.map((candidate) => candidate.candidateId),
       returns: dates.map((_, row) => grossReturns.map((series) => series[row])),
       dates,

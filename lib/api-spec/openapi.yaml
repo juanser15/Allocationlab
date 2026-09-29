@@ -5540,7 +5540,7 @@ components:
       type: object
       additionalProperties: false
       properties:
-        type: { type: string, enum: [SAMPLE_MEAN, SHRUNK_MEAN, BAYESIAN_VIEWS] }
+        type: { type: string, enum: [SAMPLE_MEAN, SHRUNK_MEAN, BAYESIAN_VIEWS, SIGNAL_RIDGE] }
         shrinkage: { type: number, minimum: 0, maximum: 1 }
         shrinkagePrior: { $ref: "#/components/schemas/ForecastPriorVector" }
         priorMean: { $ref: "#/components/schemas/ForecastPriorMean" }
@@ -5548,6 +5548,15 @@ components:
         views:
           type: array
           items: { $ref: "#/components/schemas/ForecastView" }
+        factorIds:
+          type: array
+          items: { type: string }
+          minItems: 1
+        lambdaSignal: { type: number, exclusiveMinimum: 0 }
+        trainingWindowDates: { type: integer, minimum: 2 }
+        minTrainingDates: { type: integer, minimum: 2 }
+        hacBandwidth: { type: integer, minimum: 0 }
+        executionTiming: { type: string, enum: [same_close, next_close] }
         displayZ: { type: number, exclusiveMinimum: 0 }
       required: [type]
 

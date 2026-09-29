@@ -95,3 +95,17 @@ mtime_ms = 1790598532283
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/fe0796fd-6bcb-4a36-a4e4-b73105e37940/c3bc0dcf-0071-45c4-8fd3-12a5a69005ef"
 storage_version_token = "1790598538601583"
 content_type = "text/markdown"
+
+[[outputs]]
+id = "dtYIF55f1U9g8jXGGXxpl"
+uri = "file://reports/D6_COMPLETION_REPORT.md"
+type = "text"
+title = "D6 completion report — BLOCKED"
+description = "Acceptance gates, verification evidence, and the real-browser validation blocker."
+logical_id = "6d9994f8-d39d-4a9b-8129-07baad0b9a74"
+content_hash = "sha256:9dca07fa956660ba2b08946014151db856d911a32f9e7664bf738d7a3dc95cfa"
+size = 8337
+mtime_ms = 1790694252727
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/6d9994f8-d39d-4a9b-8129-07baad0b9a74/82a035bf-586a-45b8-9c67-a0c5542bab8c"
+storage_version_token = "1790694271154995"
+content_type = "text/markdown"

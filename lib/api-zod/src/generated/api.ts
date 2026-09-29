@@ -4663,6 +4663,15 @@ export const listAllocationsResponseRequestForecastModelPriorUncertaintyTauExclu
 
 export const listAllocationsResponseRequestForecastModelViewsItemVarianceExclusiveMin = 0;
 
+
+export const listAllocationsResponseRequestForecastModelLambdaSignalExclusiveMin = 0;
+
+export const listAllocationsResponseRequestForecastModelTrainingWindowDatesMin = 2;
+
+export const listAllocationsResponseRequestForecastModelMinTrainingDatesMin = 2;
+
+export const listAllocationsResponseRequestForecastModelHacBandwidthMin = 0;
+
 export const listAllocationsResponseRequestForecastModelDisplayZExclusiveMin = 0;
 
 export const listAllocationsResponseRequestRobustnessKappaDefault = 1;
@@ -4748,7 +4757,7 @@ export const ListAllocationsResponseItem = zod.object({
   "specificRiskFloorFraction": zod.number().min(listAllocationsResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
   "forecastModel": zod.object({
-  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS']),
+  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS', 'SIGNAL_RIDGE']),
   "shrinkage": zod.number().min(listAllocationsResponseRequestForecastModelShrinkageMin).max(listAllocationsResponseRequestForecastModelShrinkageMax).optional(),
   "shrinkagePrior": zod.object({
   "source": zod.enum(['DEFAULT', 'USER_DEFINED']),
@@ -4773,6 +4782,12 @@ export const ListAllocationsResponseItem = zod.object({
   "effectiveTimestamp": zod.coerce.date(),
   "availabilityTimestamp": zod.coerce.date()
 })).optional(),
+  "factorIds": zod.array(zod.string()).min(1).optional(),
+  "lambdaSignal": zod.number().gt(listAllocationsResponseRequestForecastModelLambdaSignalExclusiveMin).optional(),
+  "trainingWindowDates": zod.number().min(listAllocationsResponseRequestForecastModelTrainingWindowDatesMin).optional(),
+  "minTrainingDates": zod.number().min(listAllocationsResponseRequestForecastModelMinTrainingDatesMin).optional(),
+  "hacBandwidth": zod.number().min(listAllocationsResponseRequestForecastModelHacBandwidthMin).optional(),
+  "executionTiming": zod.enum(['same_close', 'next_close']).optional(),
   "displayZ": zod.number().gt(listAllocationsResponseRequestForecastModelDisplayZExclusiveMin).optional()
 }).optional(),
   "robustness": zod.object({
@@ -4889,6 +4904,15 @@ export const createAllocationBodyForecastModelPriorUncertaintyTauExclusiveMin = 
 
 export const createAllocationBodyForecastModelViewsItemVarianceExclusiveMin = 0;
 
+
+export const createAllocationBodyForecastModelLambdaSignalExclusiveMin = 0;
+
+export const createAllocationBodyForecastModelTrainingWindowDatesMin = 2;
+
+export const createAllocationBodyForecastModelMinTrainingDatesMin = 2;
+
+export const createAllocationBodyForecastModelHacBandwidthMin = 0;
+
 export const createAllocationBodyForecastModelDisplayZExclusiveMin = 0;
 
 export const createAllocationBodyRobustnessKappaDefault = 1;
@@ -4967,7 +4991,7 @@ export const CreateAllocationBody = zod.object({
   "specificRiskFloorFraction": zod.number().min(createAllocationBodyRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
   "forecastModel": zod.object({
-  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS']),
+  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS', 'SIGNAL_RIDGE']),
   "shrinkage": zod.number().min(createAllocationBodyForecastModelShrinkageMin).max(createAllocationBodyForecastModelShrinkageMax).optional(),
   "shrinkagePrior": zod.object({
   "source": zod.enum(['DEFAULT', 'USER_DEFINED']),
@@ -4992,6 +5016,12 @@ export const CreateAllocationBody = zod.object({
   "effectiveTimestamp": zod.coerce.date(),
   "availabilityTimestamp": zod.coerce.date()
 })).optional(),
+  "factorIds": zod.array(zod.string()).min(1).optional(),
+  "lambdaSignal": zod.number().gt(createAllocationBodyForecastModelLambdaSignalExclusiveMin).optional(),
+  "trainingWindowDates": zod.number().min(createAllocationBodyForecastModelTrainingWindowDatesMin).optional(),
+  "minTrainingDates": zod.number().min(createAllocationBodyForecastModelMinTrainingDatesMin).optional(),
+  "hacBandwidth": zod.number().min(createAllocationBodyForecastModelHacBandwidthMin).optional(),
+  "executionTiming": zod.enum(['same_close', 'next_close']).optional(),
   "displayZ": zod.number().gt(createAllocationBodyForecastModelDisplayZExclusiveMin).optional()
 }).optional(),
   "robustness": zod.object({
@@ -5100,6 +5130,15 @@ export const createAllocationResponseRequestForecastModelPriorUncertaintyTauExcl
 
 export const createAllocationResponseRequestForecastModelViewsItemVarianceExclusiveMin = 0;
 
+
+export const createAllocationResponseRequestForecastModelLambdaSignalExclusiveMin = 0;
+
+export const createAllocationResponseRequestForecastModelTrainingWindowDatesMin = 2;
+
+export const createAllocationResponseRequestForecastModelMinTrainingDatesMin = 2;
+
+export const createAllocationResponseRequestForecastModelHacBandwidthMin = 0;
+
 export const createAllocationResponseRequestForecastModelDisplayZExclusiveMin = 0;
 
 export const createAllocationResponseRequestRobustnessKappaDefault = 1;
@@ -5185,7 +5224,7 @@ export const CreateAllocationResponse = zod.object({
   "specificRiskFloorFraction": zod.number().min(createAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
   "forecastModel": zod.object({
-  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS']),
+  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS', 'SIGNAL_RIDGE']),
   "shrinkage": zod.number().min(createAllocationResponseRequestForecastModelShrinkageMin).max(createAllocationResponseRequestForecastModelShrinkageMax).optional(),
   "shrinkagePrior": zod.object({
   "source": zod.enum(['DEFAULT', 'USER_DEFINED']),
@@ -5210,6 +5249,12 @@ export const CreateAllocationResponse = zod.object({
   "effectiveTimestamp": zod.coerce.date(),
   "availabilityTimestamp": zod.coerce.date()
 })).optional(),
+  "factorIds": zod.array(zod.string()).min(1).optional(),
+  "lambdaSignal": zod.number().gt(createAllocationResponseRequestForecastModelLambdaSignalExclusiveMin).optional(),
+  "trainingWindowDates": zod.number().min(createAllocationResponseRequestForecastModelTrainingWindowDatesMin).optional(),
+  "minTrainingDates": zod.number().min(createAllocationResponseRequestForecastModelMinTrainingDatesMin).optional(),
+  "hacBandwidth": zod.number().min(createAllocationResponseRequestForecastModelHacBandwidthMin).optional(),
+  "executionTiming": zod.enum(['same_close', 'next_close']).optional(),
   "displayZ": zod.number().gt(createAllocationResponseRequestForecastModelDisplayZExclusiveMin).optional()
 }).optional(),
   "robustness": zod.object({
@@ -5329,6 +5374,15 @@ export const getAllocationResponseRequestForecastModelPriorUncertaintyTauExclusi
 
 export const getAllocationResponseRequestForecastModelViewsItemVarianceExclusiveMin = 0;
 
+
+export const getAllocationResponseRequestForecastModelLambdaSignalExclusiveMin = 0;
+
+export const getAllocationResponseRequestForecastModelTrainingWindowDatesMin = 2;
+
+export const getAllocationResponseRequestForecastModelMinTrainingDatesMin = 2;
+
+export const getAllocationResponseRequestForecastModelHacBandwidthMin = 0;
+
 export const getAllocationResponseRequestForecastModelDisplayZExclusiveMin = 0;
 
 export const getAllocationResponseRequestRobustnessKappaDefault = 1;
@@ -5414,7 +5468,7 @@ export const GetAllocationResponse = zod.object({
   "specificRiskFloorFraction": zod.number().min(getAllocationResponseRequestRiskModelSpecificRiskFloorFractionMin).optional()
 }).optional().describe('Explicit alpha-stream covariance estimator. Omission preserves legacy B2 behavior.'),
   "forecastModel": zod.object({
-  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS']),
+  "type": zod.enum(['SAMPLE_MEAN', 'SHRUNK_MEAN', 'BAYESIAN_VIEWS', 'SIGNAL_RIDGE']),
   "shrinkage": zod.number().min(getAllocationResponseRequestForecastModelShrinkageMin).max(getAllocationResponseRequestForecastModelShrinkageMax).optional(),
   "shrinkagePrior": zod.object({
   "source": zod.enum(['DEFAULT', 'USER_DEFINED']),
@@ -5439,6 +5493,12 @@ export const GetAllocationResponse = zod.object({
   "effectiveTimestamp": zod.coerce.date(),
   "availabilityTimestamp": zod.coerce.date()
 })).optional(),
+  "factorIds": zod.array(zod.string()).min(1).optional(),
+  "lambdaSignal": zod.number().gt(getAllocationResponseRequestForecastModelLambdaSignalExclusiveMin).optional(),
+  "trainingWindowDates": zod.number().min(getAllocationResponseRequestForecastModelTrainingWindowDatesMin).optional(),
+  "minTrainingDates": zod.number().min(getAllocationResponseRequestForecastModelMinTrainingDatesMin).optional(),
+  "hacBandwidth": zod.number().min(getAllocationResponseRequestForecastModelHacBandwidthMin).optional(),
+  "executionTiming": zod.enum(['same_close', 'next_close']).optional(),
   "displayZ": zod.number().gt(getAllocationResponseRequestForecastModelDisplayZExclusiveMin).optional()
 }).optional(),
   "robustness": zod.object({

@@ -206,6 +206,7 @@ export * from './forecastComparisonReplayStatus';
 export * from './forecastComparisonResult';
 export * from './forecastComparisonSummary';
 export * from './forecastModelConfig';
+export * from './forecastModelConfigExecutionTiming';
 export * from './forecastModelConfigType';
 export * from './forecastPriorMean';
 export * from './forecastPriorMeanSource';

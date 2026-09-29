@@ -13,4 +13,5 @@ export const ForecastModelConfigType = {
   SAMPLE_MEAN: 'SAMPLE_MEAN',
   SHRUNK_MEAN: 'SHRUNK_MEAN',
   BAYESIAN_VIEWS: 'BAYESIAN_VIEWS',
+  SIGNAL_RIDGE: 'SIGNAL_RIDGE',
 } as const;

@@ -3,6 +3,7 @@ import type { B2PreparedSelection } from "./PreparedInputsPanel";
 import type { D1RiskModelRequest } from "./D1RiskModelPanel";
 import type { ForecastModelConfig, AllocationRebalanceRegularizationConfig } from "@workspace/api-client-react";
 import { ForecastModelPanel, ForecastResults, validateForecast } from "./ForecastModelPanel";
+import type { RidgeForecastConfig, RidgeFactorOption } from "./ForecastModelPanel";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { getAllocation, getGetAllocationQueryKey, getListAllocationsQueryKey, useCreateAllocation, useGetAllocation, useListAllocations, useReplayAllocation } from "@workspace/api-client-react";
+import { getAllocation, getGetAllocationQueryKey, getGetPreparedInputQueryKey, getListAllocationsQueryKey, useCreateAllocation, useGetAllocation, useGetPreparedInput, useListAllocations, useReplayAllocation } from "@workspace/api-client-react";
 import { SignedOverlayControls, SignedOverlayResult, initialSignedSettings } from "./SignedOverlaySection";
 import type { SignedSettings } from "./SignedOverlaySection";
 import { RobustnessPanel } from "./RobustnessPanel";
@@ -116,6 +117,18 @@ function displayName(representation?: string): string {
 
 function activeForecastModel(form: ForecastModelConfig): ForecastModelConfig {
   const displayZ = form.displayZ ?? 1.96;
+  if (form.type === "SIGNAL_RIDGE" as ForecastModelConfig["type"]) {
+    const ridge = form as RidgeForecastConfig;
+    return {
+      type: form.type, displayZ,
+      factorIds: ridge.factorIds ?? [],
+      trainingWindowDates: ridge.trainingWindowDates ?? 252,
+      minTrainingDates: ridge.minTrainingDates ?? Math.max(60, 5 * ((ridge.factorIds?.length ?? 0) + 1)),
+      lambdaSignal: ridge.lambdaSignal ?? 1,
+      hacBandwidth: ridge.hacBandwidth ?? 5,
+      executionTiming: ridge.executionTiming ?? "same_close",
+    } as ForecastModelConfig;
+  }
   if (form.type === "SAMPLE_MEAN") return { type: "SAMPLE_MEAN", displayZ };
   const shrinkagePrior = form.shrinkagePrior?.source === "USER_DEFINED"
     ? { source: "USER_DEFINED" as const, values: form.shrinkagePrior.values }
@@ -190,6 +203,12 @@ export function B2AllocationPanel({
   const detailQuery = useGetAllocation(selectedAllocationId ?? 0, { query: { enabled: selectedAllocationId !== null, queryKey: getGetAllocationQueryKey(selectedAllocationId ?? 0) } });
   const createMutation = useCreateAllocation();
   const replayMutation = useReplayAllocation();
+  const frozenInputQuery = useGetPreparedInput(prepared?.preparedInputId ?? 0, { query: { enabled: !!prepared?.preparedInputId, queryKey: getGetPreparedInputQueryKey(prepared?.preparedInputId ?? 0) } });
+  const frozenFactors = asRecord(asRecord(frozenInputQuery.data?.snapshot).factorSet).factors;
+  const supportedCalculations = new Set(["momentum", "trend_quality", "volatility", "drawdown", "mean_reversion", "relative_strength", "diversification_benefit", "return_over_volatility", "ma_distance", "downside_beta", "drawdown_recovery"]);
+  const ridgeFactors: RidgeFactorOption[] = (Array.isArray(frozenFactors) ? frozenFactors : []).map(asRecord)
+    .filter(factor => typeof factor.id === "string" && factor.status === "active" && factor.enabled === true && supportedCalculations.has(String(factor.calculationType)))
+    .map(factor => ({ id: String(factor.id), name: typeof factor.name === "string" ? factor.name : String(factor.id), aliases: Array.isArray(factor.aliases) ? factor.aliases.filter((alias): alias is string => typeof alias === "string") : [] }));
   const saved = savedQuery.data ?? [];
   const loadingSaved = savedQuery.isLoading || savedQuery.isFetching;
   const busy = createMutation.isPending || replayMutation.isPending;
@@ -254,6 +273,21 @@ export function B2AllocationPanel({
     if (allocationMode === "SIGNED_OVERLAY" && prepared.representation !== "alpha_streams") {
       setError("Signed alpha overlay requires a prepared alpha-stream representation.");
       return;
+    }
+    if (forecastModel.type === "SIGNAL_RIDGE" as ForecastModelConfig["type"]) {
+      if (prepared.representation !== "asset_returns" || allocationMode !== "CAPITAL_LONG_ONLY") {
+        setError("Signal Combination — Ridge is unsupported for alpha_streams and SIGNED_OVERLAY; select asset_returns with CAPITAL_LONG_ONLY.");
+        return;
+      }
+      if (frozenInputQuery.isLoading || frozenInputQuery.isError) {
+        setError("The frozen factor set could not be loaded. Retry the prepared input before optimizing.");
+        return;
+      }
+      const selected = (forecastModel as RidgeForecastConfig).factorIds ?? [];
+      if (selected.some(id => !ridgeFactors.some(factor => factor.id === id))) {
+        setError("Selected ridge factors must be active supported factors in the frozen prepared factor set.");
+        return;
+      }
     }
     const kappa = Number(kappaText);
     if (!kappaText.trim() || !Number.isFinite(kappa) || kappa < 0) {
@@ -473,7 +507,7 @@ export function B2AllocationPanel({
             <div className="space-y-1"><Label>γ (must be positive)</Label><Input type="number" min="0.0000001" step="any" value={gamma} onChange={event => setGamma(Number(event.target.value))} data-testid="input-b2-gamma" /></div>
             <div className="space-y-1"><Label>η (nonnegative)</Label><Input type="number" min="0" step="any" value={eta} onChange={event => setEta(Number(event.target.value))} data-testid="input-b2-eta" /></div>
           </div>
-           <ForecastModelPanel value={forecastModel} onChange={setForecastModel} candidateIds={candidateIds} cutoff={informationCutoff} observationCount={prepared ? alignedObservationCount(prepared, candidateIds, informationCutoff) : null} />
+           <ForecastModelPanel value={forecastModel} onChange={setForecastModel} candidateIds={candidateIds} cutoff={informationCutoff} observationCount={prepared ? alignedObservationCount(prepared, candidateIds, informationCutoff) : null} factors={ridgeFactors} representation={prepared?.representation} allocationMode={allocationMode} />
            <fieldset className="rounded-lg border border-primary/20 bg-primary/[0.025] p-3" data-testid="fieldset-b2-robustness">
              <legend className="px-1 text-[11px] font-semibold uppercase tracking-[0.13em] text-primary">Portfolio robustness</legend>
              <div className="flex flex-wrap items-center gap-x-5 gap-y-3">

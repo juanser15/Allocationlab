@@ -5,6 +5,16 @@
 export type ForecastModelConfig =
   | { type: "SAMPLE_MEAN"; displayZ?: number }
   | {
+      type: "SIGNAL_RIDGE";
+      factorIds: string[];
+      lambdaSignal: number;
+      trainingWindowDates: number;
+      minTrainingDates: number;
+      hacBandwidth: number;
+      executionTiming: "same_close" | "next_close";
+      displayZ?: number;
+    }
+  | {
       type: "SHRUNK_MEAN";
       shrinkage?: number;
       shrinkagePrior?: { source: "DEFAULT" | "USER_DEFINED"; values?: Record<string, number> };
@@ -74,7 +84,7 @@ export interface ForecastStability {
 export interface ForecastResult {
   status: "OK" | "INVALID_FORECAST_MODEL" | "HISTORICAL_FORECAST_UNAVAILABLE";
   reason?: string;
-  engineVersion: "D3.1.0";
+  engineVersion: "D3.1.0" | "D6.1.0";
   estimator: ForecastModelConfig["type"];
   returnConvention: "DAILY_DECIMAL_GROSS" | "DAILY_DECIMAL_EXCESS";
   mode: ForecastInput["mode"];
@@ -92,7 +102,7 @@ export interface ForecastResult {
   standardErrors: number[];
   signalToNoise: Array<number | null>;
   intervals: Array<{ lower: number; upper: number }>;
-  intervalLabel: "Gaussian forecast-uncertainty interval under model assumptions.";
+  intervalLabel: string;
   displayZ: number;
   priorMean: number[] | null;
   priorUncertainty: number[][] | null;
@@ -106,6 +116,7 @@ export interface ForecastResult {
   views: ForecastViewSnapshot[];
   viewSetStatus: "NOT_APPLICABLE" | "AVAILABLE" | "UNAVAILABLE_NO_ELIGIBLE_VIEWS";
   stability: ForecastStability | null;
+  ridge?: Record<string, unknown>;
 }
 
 export interface PortfolioForecastUncertainty {
@@ -239,7 +250,8 @@ function configuredVector(values: Record<string, number> | undefined, ids: strin
 }
 
 function configuredShrinkage(config: ForecastModelConfig): number | string {
-  const s = config.type === "SAMPLE_MEAN" ? 0 : config.shrinkage ?? 0;
+  const s = config.type === "SHRUNK_MEAN" || config.type === "BAYESIAN_VIEWS"
+    ? config.shrinkage ?? 0 : 0;
   return isFiniteNumber(s) && s >= 0 && s <= 1 ? s : "Shrinkage must be finite and between 0 and 1.";
 }
 
@@ -365,6 +377,8 @@ function eligibleBayesianUpdate(config: Extract<ForecastModelConfig, { type: "BA
 
 function forecastForWindow(rows: number[][], sigma: number[][], ids: string[], input: ForecastInput,
   config: ForecastModelConfig): number[] | string {
+  if (config.type === "SIGNAL_RIDGE")
+    return "SIGNAL_RIDGE stability must use point-in-time factor panels, not return-only windows.";
   const averages = sampleMeans(rows, ids.length);
   if (config.type === "SAMPLE_MEAN") return averages;
   if (config.type === "SHRUNK_MEAN") {
@@ -424,6 +438,8 @@ function buildStability(input: ForecastInput, config: ForecastModelConfig): Fore
 export function estimateForecast(input: ForecastInput): ForecastResult {
   const estimator = input?.config?.type ?? "SAMPLE_MEAN";
   const reject = (reason: string) => failed(reason, estimator);
+  if (input?.config?.type === "SIGNAL_RIDGE")
+    return reject("SIGNAL_RIDGE requires frozen B1 point-in-time asset signals; it cannot use the historical mean estimator.");
   if (!input || !Array.isArray(input.candidateIds) || !input.candidateIds.length ||
     new Set(input.candidateIds).size !== input.candidateIds.length ||
     input.candidateIds.some((id) => typeof id !== "string" || !id))

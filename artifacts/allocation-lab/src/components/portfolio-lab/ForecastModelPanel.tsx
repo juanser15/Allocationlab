@@ -17,9 +17,31 @@ const daily = (v: unknown) => number(v) === null ? "—" : `${(number(v)! * 1000
 const vectorValue = (v: unknown, id: string, index: number): unknown => Array.isArray(v) ? v[index] : obj(v)[id];
 const field = (v: Row, ...names: string[]) => names.map(n => v[n]).find(x => x !== undefined && x !== null);
 const inputClass = "h-9 w-full rounded-md border bg-background px-2 text-sm";
+export type RidgeForecastConfig = ForecastModelConfig & {
+  factorIds?: string[];
+  trainingWindowDates?: number;
+  minTrainingDates?: number;
+  lambdaSignal?: number;
+  hacBandwidth?: number;
+  executionTiming?: "same_close" | "next_close";
+};
+export type RidgeFactorOption = { id: string; name: string; aliases?: string[] };
+export const ridgeMinimum = (count: number) => Math.max(60, 5 * (count + 1));
 
 export function validateForecast(config: ForecastModelConfig, ids: string[], cutoff: string, decision: string): void {
   if (!Number.isFinite(config.displayZ) || (config.displayZ ?? 0) <= 0) throw new Error("Display z must be positive and finite.");
+  if (config.type === "SIGNAL_RIDGE" as ForecastModelConfig["type"]) {
+    const ridge = config as RidgeForecastConfig;
+    const factors = ridge.factorIds ?? [];
+    if (!factors.length || new Set(factors).size !== factors.length) throw new Error("Select at least one distinct supported frozen factor.");
+    if (!Number.isSafeInteger(ridge.trainingWindowDates ?? NaN) || (ridge.trainingWindowDates ?? 0) < 2) throw new Error("Training window must be an integer of at least two dates.");
+    if (!Number.isSafeInteger(ridge.minTrainingDates ?? NaN) || (ridge.minTrainingDates ?? 0) < ridgeMinimum(factors.length)) throw new Error(`Minimum training dates must be at least ${ridgeMinimum(factors.length)} for ${factors.length} factors.`);
+    if ((ridge.minTrainingDates ?? 0) > (ridge.trainingWindowDates ?? 0)) throw new Error("Minimum training dates cannot exceed the training window.");
+    if (!Number.isFinite(ridge.lambdaSignal ?? NaN) || (ridge.lambdaSignal ?? 0) <= 0) throw new Error("Signal ridge λ must be finite and positive.");
+    if (!Number.isSafeInteger(ridge.hacBandwidth ?? NaN) || (ridge.hacBandwidth ?? -1) < 0) throw new Error("HAC bandwidth must be a nonnegative integer.");
+    if (ridge.executionTiming !== "same_close" && ridge.executionTiming !== "next_close") throw new Error("Choose an execution timing.");
+    return;
+  }
   if (config.type === "SAMPLE_MEAN") return;
   const s = config.shrinkage ?? 0;
   if (!Number.isFinite(s) || s < 0 || s > 1) throw new Error("Forecast shrinkage s must be between 0 and 1.");
@@ -63,8 +85,9 @@ export function validateForecast(config: ForecastModelConfig, ids: string[], cut
   }
 }
 
-export function ForecastModelPanel({ value, onChange, candidateIds, cutoff, observationCount }: {
+export function ForecastModelPanel({ value, onChange, candidateIds, cutoff, observationCount, factors = [], representation, allocationMode }: {
   value: ForecastModelConfig; onChange: (value: ForecastModelConfig) => void; candidateIds: string[]; cutoff: string; observationCount: number | null;
+  factors?: RidgeFactorOption[]; representation?: string; allocationMode?: string;
 }) {
   const [matrixText, setMatrixText] = useState("");
   const [matrixError, setMatrixError] = useState("");
@@ -74,16 +97,37 @@ export function ForecastModelPanel({ value, onChange, candidateIds, cutoff, obse
     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{candidateIds.map(id =>
       <div key={id} className="space-y-1"><Label htmlFor={`${prefix}-${id}`}>{id} · daily decimal</Label><Input id={`${prefix}-${id}`} type="number" step="any" value={values?.[id] ?? ""} onChange={e => change({ ...values, [id]: e.target.value === "" ? NaN : Number(e.target.value) })} data-testid={`input-forecast-${prefix}-${id}`} /></div>)}</div>;
   const views = value.views ?? [];
+  const ridge = value as RidgeForecastConfig;
+  const isRidge = value.type === "SIGNAL_RIDGE" as ForecastModelConfig["type"];
+  const ridgeSupported = representation === "asset_returns" && allocationMode === "CAPITAL_LONG_ONLY";
+  const selectedFactors = ridge.factorIds ?? [];
+  const updateRidge = (patch: Partial<RidgeForecastConfig>) => onChange({ ...ridge, ...patch } as ForecastModelConfig);
   const editView = (i: number, patch: Partial<ForecastView>) => update({ views: views.map((v, j) => j === i ? { ...v, ...patch } : v) });
   return <Card className="border-primary/20" data-testid="card-forecast-model-setup">
     <CardHeader className="pb-3"><div className="flex items-center gap-2"><Badge variant="outline">D3</Badge><CardTitle className="text-sm">Forecast model</CardTitle></div><CardDescription>Expected returns are estimated separately from the risk covariance. All optimizer inputs are daily decimal returns; annualization below is display only.</CardDescription></CardHeader>
     <CardContent className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="space-y-1"><Label htmlFor="forecast-type">Estimator</Label><select id="forecast-type" className={inputClass} value={value.type} onChange={e => update({ type: e.target.value as ForecastModelConfig["type"] })} data-testid="select-forecast-model"><option value="SAMPLE_MEAN">Sample Mean</option><option value="SHRUNK_MEAN">Shrunk Mean</option><option value="BAYESIAN_VIEWS">Bayesian Views</option></select></div>
+         <div className="space-y-1"><Label htmlFor="forecast-type">Estimator</Label><select id="forecast-type" className={inputClass} value={value.type} onChange={e => update({ type: e.target.value as ForecastModelConfig["type"], ...(e.target.value === "SIGNAL_RIDGE" ? { factorIds: [], trainingWindowDates: 252, minTrainingDates: ridgeMinimum(0), lambdaSignal: 1, hacBandwidth: 5, executionTiming: "same_close" } : {}) } as Partial<ForecastModelConfig>)} data-testid="select-forecast-model"><option value="SAMPLE_MEAN">Sample Mean</option><option value="SHRUNK_MEAN">Shrunk Mean</option><option value="BAYESIAN_VIEWS">Bayesian Views</option><option value="SIGNAL_RIDGE">Signal Combination — Ridge</option></select></div>
         <div className="space-y-1"><Label htmlFor="forecast-z">Display interval z</Label><Input id="forecast-z" type="number" min="0.01" step="any" value={value.displayZ ?? 1.96} onChange={e => update({ displayZ: Number(e.target.value) })} data-testid="input-forecast-z" /><p className="text-[11px] text-muted-foreground">Display only. Does not alter weights.</p></div>
         <div className="rounded border bg-muted/30 px-3 py-2 text-xs"><strong>Estimation basis</strong><p className="mt-1">{candidateIds.length} candidates · {observationCount ?? "unknown"} aligned dates through {cutoff || "unset"}.</p></div>
       </div>
-      {value.type !== "SAMPLE_MEAN" && <div className="space-y-3 rounded border bg-muted/20 p-3">
+       {isRidge && <div className="space-y-4 rounded border border-primary/20 bg-primary/5 p-3" data-testid="section-ridge-definition">
+         <div><h4 className="text-xs font-semibold uppercase tracking-wide">Definition · pooled signal ridge</h4><p className="mt-1 text-xs text-muted-foreground">Fit one shared intercept and factor slopes to daily excess returns. Factor values and training dates are read from the frozen B1 preparation, not a live factor library. This does not change the risk covariance model.</p></div>
+         {!ridgeSupported ? <p role="alert" className="rounded border border-amber-500/30 bg-amber-500/10 p-2 text-xs" data-testid="status-ridge-unsupported">Unsupported: Signal Combination — Ridge requires asset_returns in CAPITAL_LONG_ONLY mode. Alpha streams and SIGNED_OVERLAY are not supported.</p> : <>
+           <fieldset className="space-y-2"><legend className="text-xs font-medium">Supported factors · explicit selection</legend>
+             {!factors.length ? <p className="rounded border border-dashed p-2 text-xs text-muted-foreground">No active supported factors in this frozen factor set. Select another prepared input before optimizing.</p> :
+               <div className="grid gap-2 sm:grid-cols-2">{factors.map(factor => <label key={factor.id} className="flex items-start gap-2 rounded border bg-background p-2 text-xs"><input type="checkbox" className="mt-0.5" checked={selectedFactors.includes(factor.id)} onChange={e => { const next = e.target.checked ? [...selectedFactors, factor.id] : selectedFactors.filter(id => id !== factor.id); updateRidge({ factorIds: next, minTrainingDates: ridge.minTrainingDates === ridgeMinimum(selectedFactors.length) || ridge.minTrainingDates === undefined ? ridgeMinimum(next.length) : ridge.minTrainingDates }); }} data-testid={`input-ridge-factor-${factor.id}`} /><span><strong>{factor.name}</strong> <span className="font-mono text-muted-foreground">{factor.id}</span>{!!factor.aliases?.length && <span className="block text-muted-foreground">Aliases: {factor.aliases.join(", ")} · same factor, not additional features</span>}</span></label>)}</div>}
+           </fieldset>
+           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+             <div className="space-y-1"><Label htmlFor="ridge-window">Training window · dates</Label><Input id="ridge-window" type="number" min="2" step="1" value={ridge.trainingWindowDates ?? 252} onChange={e => updateRidge({ trainingWindowDates: Number(e.target.value) })} data-testid="input-ridge-training-window" /></div>
+             <div className="space-y-1"><Label htmlFor="ridge-min">Minimum training dates · at least {ridgeMinimum(selectedFactors.length)}</Label><Input id="ridge-min" type="number" min={ridgeMinimum(selectedFactors.length)} step="1" value={ridge.minTrainingDates ?? ridgeMinimum(selectedFactors.length)} onChange={e => updateRidge({ minTrainingDates: Number(e.target.value) })} data-testid="input-ridge-min-training" /></div>
+             <div className="space-y-1"><Label htmlFor="ridge-lambda">Signal penalty λ · positive</Label><Input id="ridge-lambda" type="number" min="0.00000001" step="any" value={ridge.lambdaSignal ?? 1} onChange={e => updateRidge({ lambdaSignal: Number(e.target.value) })} data-testid="input-ridge-lambda" /></div>
+             <div className="space-y-1"><Label htmlFor="ridge-hac">HAC bandwidth · dates</Label><Input id="ridge-hac" type="number" min="0" step="1" value={ridge.hacBandwidth ?? 5} onChange={e => updateRidge({ hacBandwidth: Number(e.target.value) })} data-testid="input-ridge-hac" /></div>
+             <div className="space-y-1"><Label htmlFor="ridge-timing">Signal / execution timing</Label><select id="ridge-timing" className={inputClass} value={ridge.executionTiming ?? "next_close"} onChange={e => updateRidge({ executionTiming: e.target.value as "same_close" | "next_close" })} data-testid="select-ridge-execution-timing"><option value="next_close">Next close</option><option value="same_close">Same close</option></select></div>
+           </div><p className="text-xs text-muted-foreground">HAC estimates approximate sampling uncertainty of the penalized fitted mean; it does not account for selection, tuning, or realized-return risk. The execution choice governs feature availability and target alignment.</p>
+         </>}
+       </div>}
+       {value.type !== "SAMPLE_MEAN" && !isRidge && <div className="space-y-3 rounded border bg-muted/20 p-3">
         <h4 className="text-xs font-semibold uppercase tracking-wide">Linear shrinkage · fixed prior</h4>
         <div className="grid gap-3 sm:grid-cols-2"><div className="space-y-1"><Label htmlFor="forecast-s">Strength s [0, 1]</Label><Input id="forecast-s" type="number" min="0" max="1" step="any" value={value.shrinkage ?? 0} onChange={e => update({ shrinkage: Number(e.target.value) })} data-testid="input-forecast-shrinkage" /></div>
           <div className="space-y-1"><Label htmlFor="forecast-shrink-source">Shrinkage prior</Label><select id="forecast-shrink-source" className={inputClass} value={value.shrinkagePrior?.source ?? "DEFAULT"} onChange={e => update({ shrinkagePrior: { source: e.target.value as "DEFAULT" | "USER_DEFINED", ...(e.target.value === "USER_DEFINED" ? { values: value.shrinkagePrior?.values ?? {} } : {}) } })} data-testid="select-forecast-shrink-prior"><option value="DEFAULT">Default · cash yield / zero excess</option><option value="USER_DEFINED">User-defined vector</option></select></div></div>
@@ -130,8 +174,29 @@ export function ForecastResults({ forecast, frozenConfig, candidateIds, allocati
   const z = number(cfg.displayZ) ?? number(f.displayZ) ?? 1.96;
   const views = arr(field(f, "views", "viewDiagnostics"));
   const stability = obj(field(f, "stability", "stabilityDiagnostics"));
+  const ridge = obj(f.ridge);
+  const isRidge = cfg.type === "SIGNAL_RIDGE" || f.estimator === "SIGNAL_RIDGE" || Object.keys(ridge).length > 0;
+  const ridgeRows = arr(ridge.predictions);
+  const ridgeFactors = Array.isArray(ridge.factorIds) ? ridge.factorIds : Array.isArray(cfg.factorIds) ? cfg.factorIds : [];
+  const ridgeScaler = arr(ridge.scaler);
+  const ridgeV = ridge.V_mu;
   return <Card className="border-primary/20" data-testid="card-forecast-results"><CardHeader className="pb-3"><div className="flex flex-wrap items-center gap-2"><Badge variant="outline">D3</Badge><CardTitle className="text-sm">Forecast summary</CardTitle>{f.status != null && <Badge variant="outline">{shown(f.status)}</Badge>}{legacy && <Badge variant="secondary">Legacy embedded estimator</Badge>}</div><CardDescription>Frozen estimation state from this allocation. Editing the setup above does not change these results.</CardDescription></CardHeader>
     <CardContent className="space-y-4">
+      {isRidge && <div className="space-y-3" data-testid="section-ridge-frozen-fit">
+        <div className="rounded border border-primary/20 bg-primary/5 p-3 text-xs">
+          <h4 className="font-semibold uppercase tracking-wide">Definition · saved ridge fit</h4>
+          <p className="mt-1">Requested factors: {shown(ridge.requestedFactorIds ?? cfg.factorIds)} · fitted factors: {ridgeFactors.length ? ridgeFactors.map(shown).join(", ") : "Unavailable"} · aliases: {shown(ridge.factorAliases)} · peer universe: {shown(ridge.peerUniverse)}.</p>
+          <p className="mt-1">Window {shown(cfg.trainingWindowDates)} dates · minimum {shown(cfg.minTrainingDates)} dates · λ {shown(ridge.lambdaSignal ?? cfg.lambdaSignal)} · HAC {shown(ridge.hacBandwidth ?? cfg.hacBandwidth)} · {shown(cfg.executionTiming)}. Training: {shown(ridge.trainingDateCount)} dates / {shown(ridge.trainingRowCount)} asset-date rows. Signal and label dates appear with each forecast below.</p>
+        </div>
+        <div className="rounded border p-3 text-xs">
+          <h4 className="font-semibold uppercase tracking-wide">Coefficients &amp; forecasts</h4>
+          <p className="mt-1">Shared intercept: <strong className="font-mono">{daily(ridge.intercept)}</strong> daily excess return. Slopes operate on training-window standardized features; scaler means and standard deviations are frozen with the fit.</p>
+          <div className="mt-2 overflow-auto"><table className="w-full min-w-[500px] text-left text-xs"><thead className="bg-muted"><tr><th className="p-2">Factor</th><th className="p-2">Slope</th><th className="p-2">Scaler mean</th><th className="p-2">Scaler σ</th></tr></thead><tbody>{ridgeFactors.map((factor, i) => { const scaler = ridgeScaler.find(row => row.factorId === factor) ?? {}; return <tr key={String(factor)} className="border-t font-mono"><th className="p-2">{shown(factor)}</th><td className="p-2">{shown(vectorValue(ridge.slopes, String(factor), i))}</td><td className="p-2">{shown(scaler.mean)}</td><td className="p-2">{shown(scaler.standardDeviation)}</td></tr>; })}</tbody></table></div>
+          {!!ridgeRows.length && <div className="mt-3 overflow-auto"><table className="w-full min-w-[700px] text-left text-xs"><thead className="bg-muted"><tr><th className="p-2">Asset / signal</th><th className="p-2">Cutoff / execution / label</th><th className="p-2">Contributions</th><th className="p-2">Excess μ</th><th className="p-2">Gross μ</th><th className="p-2">SE</th></tr></thead><tbody>{ridgeRows.map((row, i) => <tr key={`${shown(row.candidateId)}-${i}`} className="border-t align-top"><th className="p-2">{shown(row.candidateId ?? row.asset)} · {shown(row.signalDate)}</th><td className="p-2">{shown(row.informationCutoff)} / {shown(row.executionDate)} / {shown(row.labelStart)} → {shown(row.labelEnd)}</td><td className="p-2">{arr(row.contributions).map(c => `${shown(c.factorId)}: ${daily(c.contribution)}`).join(" · ") || "—"}</td><td className="p-2">{daily(row.excessPrediction)}</td><td className="p-2">{daily(row.grossPrediction)}</td><td className="p-2">{daily(row.forecastStandardError)}</td></tr>)}</tbody></table></div>}
+          <details className="mt-2"><summary className="cursor-pointer">Inspect frozen scaler, feature contributions, Vμ and date scores</summary><pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-words">{JSON.stringify({ scaler: ridge.scaler, predictions: ridgeRows, V_mu: ridgeV, coefficientCovariance: ridge.coefficientCovariance, dateScores: ridge.dateScores }, null, 2)}</pre></details>
+        </div>
+        <p className="rounded border bg-muted/20 p-3 text-xs text-muted-foreground"><strong>Validation · uncertainty is conditional.</strong> Vμ / SE approximates sampling uncertainty of the penalized fitted mean under the HAC assumptions. It is not return volatility, a realized-return interval, a causal effect, or evidence of profitability. Factor choice, λ tuning, universe selection and future execution uncertainty are not included. Inspect B3 for independent point-in-time refits and matured errors.</p>
+      </div>}
       {Object.keys(f).length ? <><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{[
         ["Estimator", shown(f.estimator ?? f.type ?? cfg.type)], ["Window / observations", `${shown(field(f, "estimationWindow", "window") ?? obj(obj(f.stability).observationCounts).base)} / ${shown(t)}`],
         ["Candidates / dates", `${ids.length} · ${shown(Array.isArray(f.dates) ? f.dates[0] : field(f, "startDate", "windowStart"))} → ${shown(Array.isArray(f.dates) ? f.dates[f.dates.length - 1] : field(f, "endDate", "windowEnd"))}`],

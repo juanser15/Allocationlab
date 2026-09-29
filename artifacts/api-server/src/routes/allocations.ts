@@ -21,8 +21,10 @@ const B2_API_ENGINE_VERSION = "allocation-b2-api.1";
 const D4_API_ENGINE_VERSION = "allocation-d4-api.1";
 const D5_API_ENGINE_VERSION = "allocation-d5-api.1";
 const D5_SIMPLE_API_ENGINE_VERSION = "allocation-d5-simple-api.1";
+const D6_RIDGE_API_ENGINE_VERSION = "allocation-d6-signal-ridge-api.1";
 
 function apiEngineVersion(request: AllocationRequest): string {
+  if (request.forecastModel?.type === "SIGNAL_RIDGE") return D6_RIDGE_API_ENGINE_VERSION;
   if (request.rebalanceRegularization && request.rebalanceRegularization.lambdaR > 0)
     return D5_SIMPLE_API_ENGINE_VERSION;
   return (request as AllocationRequest & { costAware?: unknown }).costAware
@@ -96,11 +98,14 @@ function unexpectedAllocationFields(body: unknown): string[] {
   check(request.robustness, ["method", "kappa"], "robustness");
   const forecast = check(request.forecastModel, [
     "type", "displayZ", "shrinkage", "shrinkagePrior", "priorMean", "priorUncertainty", "views",
+    "factorIds", "lambdaSignal", "trainingWindowDates", "minTrainingDates", "hacBandwidth", "executionTiming",
   ], "forecastModel");
   if (forecast) {
     const forecastType = forecast.type;
     const typeAllowed = forecastType === "SAMPLE_MEAN" ? ["type", "displayZ"] :
       forecastType === "SHRUNK_MEAN" ? ["type", "displayZ", "shrinkage", "shrinkagePrior"] :
+      forecastType === "SIGNAL_RIDGE" ? ["type", "displayZ", "factorIds", "lambdaSignal",
+        "trainingWindowDates", "minTrainingDates", "hacBandwidth", "executionTiming"] :
         ["type", "displayZ", "shrinkage", "shrinkagePrior", "priorMean", "priorUncertainty", "views"];
     check(forecast, typeAllowed, "forecastModel");
     const shrinkagePrior = check(forecast.shrinkagePrior, ["source", "values"], "forecastModel.shrinkagePrior");
