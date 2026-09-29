@@ -115,39 +115,58 @@ test("D2 T2 reverses B1 active exposure without double-counting internal cash", 
   }
 });
 
-test("D5 signed leveraged book accepts negative cash with positive marked NAV across decisions", () => {
-  const returns = centered(0.02).map((value) => value + 0.01);
-  const selected = candidate("levered", returns, { A: 1 });
-  const prepared = snapshot([selected]);
-  prepared.dataset.csvContent = [
-    "date,A", `${dateAt(30)},100`, `${dateAt(40)},100`,
-  ].join("\n");
-
-  for (const { cutoff, quantity, cash, expectedTrade } of [
-    { cutoff: dateAt(30), quantity: 1.1, cash: -10, expectedTrade: 0.1 },
-    { cutoff: dateAt(40), quantity: 1.15, cash: -15, expectedTrade: 0.05 },
-  ]) {
-    const nav = quantity * 100 + cash;
-    assert.ok(nav > 0);
-    assert.ok(cash < 0);
-    const result = optimizePreparedSnapshot(prepared, request(["levered"], {
-      informationCutoff: cutoff, decisionTimestamp: cutoff,
-      signedConstraints: {
-        alphaBounds: { levered: { min: 1.2, max: 1.2 } },
-        cash: { min: -0.25, max: -0.15 },
-      },
-      costAware: {
-        costAmortizationDays: 2, transactionCostBps: 50, slippageBps: 10,
-        holdings: { asOf: cutoff, quantities: { A: quantity }, cash, nav },
-      },
+test("D5 SIMPLE T3 penalizes mapped net assets, independent of signed alpha decomposition", () => {
+  const prepared = snapshot([
+    stream("first", 0.01, 0.04, { A: 1 }),
+    stream("second", -0.005, 0.05, { A: 1 }),
+  ]);
+  prepared.dataset.csvContent = `date,A,B\n${dateAt(30)},100,100`;
+  const solve = (first: number, second: number) => optimizePreparedSnapshot(prepared,
+    request(["first", "second"], {
+      signedConstraints: { alphaBounds: {
+        first: { min: first, max: first }, second: { min: second, max: second },
+      } },
+      rebalanceRegularization: { lambdaR: 2,
+        holdings: { asOf: dateAt(30), quantities: { A: 0.4, B: 0.1 }, cash: 50, nav: 100 } },
     }));
-    assert.equal(result.status, "SOLVED", result.reason);
-    close(result.assetWeights!.A, 1.2);
-    close(result.signedOverlay!.cashTarget, -0.2);
-    close(result.costAware!.assets[0].tradeFraction, expectedTrade);
-    close(result.costAware!.assets[0].currentWeight + cash / nav, 1);
-    assert.ok(result.solver.maxConstraintViolation! <= 1e-8);
-  }
+  const one = solve(0.7, -0.2);
+  const two = solve(0.2, 0.3);
+  for (const result of [one, two]) assert.equal(result.status, "SOLVED", result.reason);
+  close(one.assetWeights!.A, 0.5);
+  close(two.assetWeights!.A, 0.5);
+  close(one.rebalanceRegularization!.penalty, 0.02);
+  close(two.rebalanceRegularization!.penalty, 0.02);
+  close(one.rebalanceRegularization!.referenceAssetWeights.B, 0.1);
+  close(one.rebalanceRegularization!.targetAssetWeights.B, 0);
+  assert.deepEqual(one.rebalanceRegularization!.prices, { A: 100, B: 100 });
+  assert.notEqual(one.candidateWeights!.first, two.candidateWeights!.first);
+});
+
+test("D5 SIMPLE T4 signed nominal and exact robust solves preserve binding asset constraints", () => {
+  const returns = centered(0.04).map((value) => value + 0.01);
+  const prepared = snapshot([candidate("levered", returns, { A: 1 })]);
+  prepared.dataset.csvContent = `date,A\n${dateAt(30)},100`;
+  const base = request(["levered"], {
+    signedConstraints: { alphaBounds: { levered: { min: -1, max: 1 } },
+      assetBounds: { A: { max: 0.25 } } },
+    rebalanceRegularization: { lambdaR: 10,
+      holdings: { asOf: dateAt(30), quantities: { A: 1 }, cash: 0, nav: 100 } },
+  });
+  const nominal = optimizePreparedSnapshot(prepared, base);
+  const robust = optimizePreparedSnapshot(prepared, {
+    ...base,
+    forecastModel: { type: "SAMPLE_MEAN" },
+    robustness: { method: "ROBUST_MEAN_UNCERTAINTY", kappa: 0.1 },
+  });
+  assert.equal(nominal.status, "SOLVED", nominal.reason);
+  assert.equal(robust.status, "SOLVED", robust.reason);
+  close(nominal.assetWeights!.A, 0.25, 1e-7);
+  close(robust.assetWeights!.A, 0.25, 1e-7);
+  assert.ok(nominal.solver.maxConstraintViolation! <= 1e-8);
+  assert.ok(robust.solver.maxConstraintViolation! <= 1e-8);
+  assert.ok(nominal.solver.scaledOptimalityResidual! <= 1e-6);
+  assert.ok(robust.solver.scaledOptimalityResidual! <= 1e-6);
+  assert.equal(robust.solver.version, "D5-SIMPLE.1+D4.2");
 });
 
 test("D2 T3 reports actual alpha gross and netted underlying gross/net/cash", () => {
@@ -251,4 +270,34 @@ test("D2 T6 D1 signed factor risk decomposition reconciles and preserves negativ
   close(decomposition.alphaMarginalComponentRisk.reduce((sum, item) =>
     sum + (item.componentContributionToRisk ?? 0), 0), decomposition.portfolioVolatility, 1e-8);
   assert.ok(decomposition.alphaMarginalComponentRisk.some((item) => (item.componentContributionToRisk ?? 0) < 0));
+});
+
+test("D5 SIMPLE T1 signed zero lambda needs no holdings and is an exact nominal/D4 identity", () => {
+  const prepared = snapshot([
+    stream("a", 0.01, 0.04, { A: 1 }),
+  ]);
+  const base = request(["a"]);
+  const nominal = optimizePreparedSnapshot(prepared, base);
+  const nominalZero = optimizePreparedSnapshot(prepared, {
+    ...base, rebalanceRegularization: { lambdaR: 0 },
+  });
+  assert.equal(nominal.status, "SOLVED", nominal.reason);
+  assert.equal(nominalZero.status, "SOLVED", nominalZero.reason);
+  assert.deepEqual(nominalZero.candidateWeights, nominal.candidateWeights);
+  assert.deepEqual(nominalZero.objectiveContributions, nominal.objectiveContributions);
+  assert.equal(nominalZero.solver.version, nominal.solver.version);
+
+  const robustOptions = {
+    forecastModel: { type: "SAMPLE_MEAN" as const },
+    robustness: { method: "ROBUST_MEAN_UNCERTAINTY" as const, kappa: 0.1 },
+  };
+  const robust = optimizePreparedSnapshot(prepared, { ...base, ...robustOptions });
+  const robustZero = optimizePreparedSnapshot(prepared, {
+    ...base, ...robustOptions, rebalanceRegularization: { lambdaR: 0 },
+  });
+  assert.equal(robust.status, "SOLVED", robust.reason);
+  assert.equal(robustZero.status, "SOLVED", robustZero.reason);
+  assert.deepEqual(robustZero.candidateWeights, robust.candidateWeights);
+  assert.deepEqual(robustZero.objectiveContributions, robust.objectiveContributions);
+  assert.equal(robustZero.solver.version, robust.solver.version);
 });

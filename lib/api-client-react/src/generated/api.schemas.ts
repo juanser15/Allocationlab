@@ -3233,6 +3233,15 @@ export interface AllocationCostAwareConfig {
   holdings: AllocationCostAwareHoldings;
 }
 
+/**
+ * Optional D5 simple turnover regularization. lambdaR zero disables the method and does not require holdings; positive lambdaR requires exact-cutoff holdings.
+ */
+export interface AllocationRebalanceRegularizationConfig {
+  /** @minimum 0 */
+  lambdaR: number;
+  holdings?: AllocationCostAwareHoldings;
+}
+
 export interface AllocationRequest {
   /** @minimum 1 */
   preparedInputId: number;
@@ -3263,6 +3272,7 @@ export interface AllocationRequest {
   forecastModel?: ForecastModelConfig;
   robustness?: AllocationRobustnessConfig;
   costAware?: AllocationCostAwareConfig;
+  rebalanceRegularization?: AllocationRebalanceRegularizationConfig;
   allocationMode?: AllocationRequestAllocationMode;
   signedConstraints?: SignedAllocationConstraints;
   targetExcessReturn?: number;

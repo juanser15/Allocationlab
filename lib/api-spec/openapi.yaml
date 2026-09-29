@@ -5717,6 +5717,7 @@ components:
         forecastModel: { $ref: "#/components/schemas/ForecastModelConfig" }
         robustness: { $ref: "#/components/schemas/AllocationRobustnessConfig" }
         costAware: { $ref: "#/components/schemas/AllocationCostAwareConfig" }
+        rebalanceRegularization: { $ref: "#/components/schemas/AllocationRebalanceRegularizationConfig" }
         allocationMode: { type: string, enum: [CAPITAL_LONG_ONLY, SIGNED_OVERLAY] }
         signedConstraints: { $ref: "#/components/schemas/SignedAllocationConstraints" }
         targetExcessReturn: { type: number }
@@ -5760,6 +5761,15 @@ components:
         slippageBps: { type: number, minimum: 0 }
         holdings: { $ref: "#/components/schemas/AllocationCostAwareHoldings" }
       required: [costAmortizationDays, transactionCostBps, slippageBps, holdings]
+
+    AllocationRebalanceRegularizationConfig:
+      type: object
+      additionalProperties: false
+      description: Optional D5 simple turnover regularization. lambdaR zero disables the method and does not require holdings; positive lambdaR requires exact-cutoff holdings.
+      properties:
+        lambdaR: { type: number, minimum: 0 }
+        holdings: { $ref: "#/components/schemas/AllocationCostAwareHoldings" }
+      required: [lambdaR]
 
     AllocationRobustnessConfig:
       type: object

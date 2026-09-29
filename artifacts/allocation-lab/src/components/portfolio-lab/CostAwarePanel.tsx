@@ -1,5 +1,3 @@
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -21,81 +19,6 @@ const assetEstimates = (summary: Row) => {
       ? asset.absoluteTradeFraction * rates.slippage / 10000 : null,
   }));
 };
-
-export type CostAwareRequest = {
-  costAmortizationDays: number;
-  turnoverPreferenceBps: number;
-  transactionCostBps: number;
-  slippageBps: number;
-  holdings: { asOf: string; quantities: Record<string, number>; cash: number; nav: number };
-};
-
-export type CostAwareForm = {
-  enabled: boolean;
-  costAmortizationDays: string;
-  turnoverPreferenceBps: string;
-  transactionCostBps: string;
-  slippageBps: string;
-  asOf: string;
-  quantities: string;
-  cash: string;
-  nav: string;
-};
-
-export const initialCostAwareForm: CostAwareForm = {
-  enabled: false, costAmortizationDays: "", turnoverPreferenceBps: "0",
-  transactionCostBps: "", slippageBps: "", asOf: "", quantities: "{}",
-  cash: "", nav: "",
-};
-
-export function parseCostAware(form: CostAwareForm, cutoff: string, signed: boolean): CostAwareRequest | undefined {
-  if (!form.enabled) return undefined;
-  const required = ["costAmortizationDays", "transactionCostBps", "slippageBps", "cash", "nav"] as const;
-  if (required.some(key => !form[key].trim()) || !form.asOf || !form.turnoverPreferenceBps.trim())
-    throw new Error("Cost-aware mode requires explicit h, fee, slippage, preference, dated actual holdings, cash and NAV.");
-  const h = Number(form.costAmortizationDays), fee = Number(form.transactionCostBps);
-  const slippage = Number(form.slippageBps), preference = Number(form.turnoverPreferenceBps);
-  const cash = Number(form.cash), nav = Number(form.nav);
-  if (![h, fee, slippage, preference, cash, nav].every(Number.isFinite) || h <= 0 || fee < 0 || slippage < 0 || preference < 0 || nav <= 0 || (!signed && cash < 0))
-    throw new Error("Cost-aware h and NAV must be positive; fee, slippage and preference must be nonnegative. Cash must be nonnegative for long-only portfolios.");
-  if (!cutoff || form.asOf !== cutoff) throw new Error("Actual holdings as-of date must match the information cutoff exactly.");
-  let quantities: unknown;
-  try { quantities = JSON.parse(form.quantities); } catch { throw new Error("Actual holdings quantities must be valid ticker-to-quantity JSON."); }
-  if (!quantities || typeof quantities !== "object" || Array.isArray(quantities) ||
-    Object.entries(quantities).some(([ticker, value]) => !ticker.trim() || typeof value !== "number" || !Number.isFinite(value) || (!signed && value < 0)))
-    throw new Error(`Actual holdings must be a ticker-to-${signed ? "signed " : "nonnegative "}finite quantity JSON object.`);
-  return { costAmortizationDays: h, turnoverPreferenceBps: preference, transactionCostBps: fee, slippageBps: slippage,
-    holdings: { asOf: form.asOf, quantities: quantities as Record<string, number>, cash, nav } };
-}
-
-export function CostAwareControls({ value, onChange, cutoff }: {
-  value: CostAwareForm; onChange: (next: CostAwareForm) => void; cutoff: string;
-}) {
-  const update = (key: keyof CostAwareForm, next: string) => onChange({ ...value, [key]: next });
-  return <fieldset className="rounded-lg border border-primary/25 bg-primary/[0.035] p-4" data-testid="fieldset-b2-cost-aware">
-    <legend className="px-1 text-[11px] font-semibold uppercase tracking-[0.13em] text-primary">Underlying asset trade costs</legend>
-    <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
-      <input type="checkbox" checked={value.enabled} onChange={e => onChange({ ...value, enabled: e.target.checked })} data-testid="input-b2-cost-aware" />
-      Cost-aware optimization
-    </label>
-    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Optional. Costs apply to trades in the netted underlying asset book, not candidate weight changes. Supply the actual pre-decision position snapshot; prior targets are never substituted. h converts one-time estimated trade costs to a daily objective term. Turnover preference is a separate optimization penalty, never an execution charge.</p>
-    {value.enabled && <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {([
-        ["costAmortizationDays", "Cost amortization h (days)", "0.01"],
-        ["transactionCostBps", "Transaction fee (bps)", "0"],
-        ["slippageBps", "Estimated slippage (bps)", "0"],
-        ["turnoverPreferenceBps", "Turnover preference (bps; not charged)", "0"],
-        ["nav", "Actual NAV", "0.01"],
-        ["cash", "Actual cash", undefined],
-      ] as const).map(([key, label, min]) => <div key={key} className="space-y-1">
-        <Label htmlFor={`b2-cost-${key}`}>{label}</Label>
-        <Input id={`b2-cost-${key}`} type="number" step="any" min={min} value={value[key]} onChange={e => update(key, e.target.value)} data-testid={`input-b2-cost-${key}`} />
-      </div>)}
-      <div className="space-y-1"><Label htmlFor="b2-cost-asof">Actual holdings as of (must equal cutoff)</Label><Input id="b2-cost-asof" type="date" value={value.asOf} onChange={e => update("asOf", e.target.value)} data-testid="input-b2-cost-asof" /><p className="text-[11px] text-muted-foreground">Information cutoff: {cutoff || "Select above"}</p></div>
-      <div className="space-y-1 sm:col-span-2"><Label htmlFor="b2-cost-quantities">Actual holdings quantities (ticker → quantity JSON)</Label><Input id="b2-cost-quantities" value={value.quantities} onChange={e => update("quantities", e.target.value)} placeholder='{"SPY":12.5,"TLT":4}' className="font-mono" data-testid="input-b2-cost-quantities" /></div>
-    </div>}
-  </fieldset>;
-}
 
 export function CostAwareAllocationResult({ request, result }: { request: unknown; result: unknown }) {
   const cost = object(object(request).costAware), output = object(result);

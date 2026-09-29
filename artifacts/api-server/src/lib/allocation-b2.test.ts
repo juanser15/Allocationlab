@@ -328,148 +328,139 @@ test("D1 T5 freezes statistical-factor covariance to aligned gross returns throu
   close(detail.sameWindowModels!.STATISTICAL_FACTOR.expectedDailyVolatility!, clean.estimatedVolatility!, 1e-12);
 });
 
-function d5AssetFixture(meanReturn = 0.08, variance = 0.1) {
+function rebalanceAssetFixture(meanReturn = 0.08, variance = 0.1) {
   const deviation = Math.sqrt(variance);
   const asset = candidate("A", [meanReturn - deviation, meanReturn + deviation, meanReturn],
     { ticker: "A" });
   const prepared = snapshot([asset], "asset_returns");
-  prepared.dataset.csvContent = `date,A\n${dateAt(10)},100`;
+  prepared.dataset.csvContent = `date,A,B\n${dateAt(10)},100,100`;
   return prepared;
 }
 
-function d5Request(overrides: Partial<AllocationRequest> = {}): AllocationRequest {
+function rebalanceRequest(overrides: Partial<AllocationRequest> = {}): AllocationRequest {
   return request(["A"], "asset_returns", {
     objective: { type: "regularized_mean_variance", gamma: 1, eta: 0 },
-    costAware: { costAmortizationDays: 1, transactionCostBps: 0, slippageBps: 0,
-      holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 } },
     ...overrides,
   });
 }
 
-test("D5 T1 zero-cost mode preserves the legacy optimum exactly", () => {
-  const prepared = d5AssetFixture();
-  const legacy = optimizePreparedSnapshot(prepared, d5Request({ costAware: undefined }));
-  const zero = optimizePreparedSnapshot(prepared, d5Request());
-  assert.equal(legacy.status, "SOLVED", legacy.reason);
-  assert.equal(zero.status, "SOLVED", zero.reason);
-  assert.deepEqual(zero.candidateWeights, legacy.candidateWeights);
-  assert.deepEqual(zero.objectiveContributions, legacy.objectiveContributions);
-  assert.equal(zero.costAware?.tradedFraction, Math.abs(legacy.assetWeights!.A - 0.4));
-});
-
-test("D5 T2 matches the one-asset no-trade and two amortization-h optima", () => {
-  const prepared = d5AssetFixture();
-  const noTrade = optimizePreparedSnapshot(prepared, d5Request({ costAware: {
-    costAmortizationDays: 1, transactionCostBps: 500, slippageBps: 0,
-    holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 },
-  } }));
-  assert.equal(noTrade.status, "SOLVED", noTrade.reason);
-  close(noTrade.assetWeights!.A, 0.4, 1e-7);
-  close(noTrade.costAware!.tradedFraction, 0, 1e-7);
-  close(noTrade.objectiveContributions!.economicTransactionCost!, 0, 1e-8);
-
-  const tradeAtH1 = optimizePreparedSnapshot(prepared, d5Request({ costAware: {
-    costAmortizationDays: 1, transactionCostBps: 100, slippageBps: 0,
-    holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 },
-  } }));
-  const tradeAtH2 = optimizePreparedSnapshot(prepared, d5Request({ costAware: {
-    costAmortizationDays: 2, transactionCostBps: 100, slippageBps: 0,
-    holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 },
-  } }));
-  assert.equal(tradeAtH1.status, "SOLVED", tradeAtH1.reason);
-  assert.equal(tradeAtH2.status, "SOLVED", tradeAtH2.reason);
-  close(tradeAtH1.assetWeights!.A, 0.7, 1e-7);
-  close(tradeAtH2.assetWeights!.A, 0.75, 1e-7);
-  close(tradeAtH1.costAware!.oneTimeFeeFractionOfNav, 0.003, 1e-7);
-  close(tradeAtH1.costAware!.economicFeeDailyEquivalent, 0.003, 1e-7);
-  close(tradeAtH2.costAware!.economicFeeDailyEquivalent, 0.00175, 1e-7);
-
-  const preferenceOnly = optimizePreparedSnapshot(prepared, d5Request({ costAware: {
-    costAmortizationDays: 1, transactionCostBps: 0, slippageBps: 0, turnoverPreferenceBps: 100,
-    holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 },
-  } }));
-  assert.equal(preferenceOnly.status, "SOLVED", preferenceOnly.reason);
-  close(preferenceOnly.costAware!.oneTimeFeeFractionOfNav, 0);
-  close(preferenceOnly.costAware!.turnoverPreferenceDailyEquivalent,
-    preferenceOnly.costAware!.tradedFraction * 0.01, 1e-8);
-  close(preferenceOnly.totalCash!, 1 - preferenceOnly.assetWeights!.A, 1e-8);
-});
-
-test("D5 T3 nets signed underlying trades and liquidates held non-candidate assets", () => {
-  const a = candidate("long-A", [0.01, -0.01, 0.02, -0.02], {
-    kind: "alpha_streams", exposures: { A: 1 },
-  });
-  const b = candidate("short-A", [-0.01, 0.01, -0.02, 0.02], {
-    kind: "alpha_streams", exposures: { A: 1 },
-  });
-  const prepared = snapshot([a, b], "alpha_streams");
-  prepared.dataset.csvContent = `date,A,B\n${dateAt(10)},100,100`;
-  const result = optimizePreparedSnapshot(prepared, request(["long-A", "short-A"], "alpha_streams", {
-    objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.1 },
-    signedConstraints: { alphaBounds: { "long-A": { min: 0.2, max: 0.2 },
-      "short-A": { min: -0.2, max: -0.2 } } },
-    costAware: { costAmortizationDays: 2, transactionCostBps: 100, slippageBps: 10,
-      holdings: { asOf: dateAt(10), quantities: { A: 0.25, B: 0.1 }, cash: 65, nav: 100 } },
+test("D5 SIMPLE T1 absent and zero regularization preserve nominal and robust D4 paths exactly", () => {
+  const prepared = rebalanceAssetFixture();
+  const nominal = optimizePreparedSnapshot(prepared, rebalanceRequest());
+  const nominalZero = optimizePreparedSnapshot(prepared, rebalanceRequest({
+    rebalanceRegularization: { lambdaR: 0 },
   }));
-  assert.equal(result.status, "SOLVED", result.reason);
-  close(result.assetWeights!.A, 0);
-  close(result.costAware!.assets.find((item) => item.ticker === "A")!.tradeFraction, -0.25);
-  close(result.costAware!.assets.find((item) => item.ticker === "B")!.tradeFraction, -0.1);
-  close(result.costAware!.tradedFraction, 0.35);
-  close(result.costAware!.oneTimeFeeFractionOfNav, 0.0035);
-  close(result.costAware!.oneTimeSlippageFractionOfNav, 0.00035);
-  close(result.objectiveContributions!.economicTransactionCost!, 0.00175);
-  close(result.objectiveContributions!.economicSlippage!, 0.000175);
+  assert.equal(nominal.status, "SOLVED", nominal.reason);
+  assert.equal(nominalZero.status, "SOLVED", nominalZero.reason);
+  assert.deepEqual(nominalZero.candidateWeights, nominal.candidateWeights);
+  assert.deepEqual(nominalZero.objectiveContributions, nominal.objectiveContributions);
+  assert.equal(nominalZero.solver.version, nominal.solver.version);
 
-  const reversal = optimizePreparedSnapshot(prepared, request(["long-A", "short-A"], "alpha_streams", {
-    objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.1 },
-    signedConstraints: { alphaBounds: { "long-A": { min: -0.2, max: -0.2 },
-      "short-A": { min: -0.2, max: -0.2 } } },
-    costAware: { costAmortizationDays: 2, transactionCostBps: 100, slippageBps: 10,
-      holdings: { asOf: dateAt(10), quantities: { A: 0.25, B: 0.1 }, cash: 65, nav: 100 } },
+  const robustRequest = {
+    forecastModel: { type: "SAMPLE_MEAN" as const },
+    robustness: { method: "ROBUST_MEAN_UNCERTAINTY" as const, kappa: 0.1 },
+  };
+  const robust = optimizePreparedSnapshot(prepared, rebalanceRequest(robustRequest));
+  const robustZero = optimizePreparedSnapshot(prepared, rebalanceRequest({
+    ...robustRequest, rebalanceRegularization: { lambdaR: 0 },
   }));
-  assert.equal(reversal.status, "SOLVED", reversal.reason);
-  close(reversal.assetWeights!.A, -0.4);
-  close(reversal.costAware!.assets.find((item) => item.ticker === "A")!.tradeFraction, -0.65);
+  assert.equal(robust.status, "SOLVED", robust.reason);
+  assert.equal(robustZero.status, "SOLVED", robustZero.reason);
+  assert.deepEqual(robustZero.candidateWeights, robust.candidateWeights);
+  assert.deepEqual(robustZero.objectiveContributions, robust.objectiveContributions);
+  assert.equal(robustZero.solver.version, robust.solver.version);
 });
 
-test("D5 T5 robust solve retains binding constraints and invalid configurations fail explicitly", () => {
-  const prepared = d5AssetFixture();
-  const robust = optimizePreparedSnapshot(prepared, d5Request({
+test("D5 SIMPLE T2 solves the quadratic rebalance penalty analytically and reports its constant", () => {
+  const meanReturn = 0.012, variance = 0.02;
+  const prepared = snapshot([candidate("A", [meanReturn - Math.sqrt(variance / 2),
+    meanReturn + Math.sqrt(variance / 2)], { ticker: "A" })], "asset_returns");
+  prepared.dataset.csvContent = `date,A\n${dateAt(10)},100`;
+  const baseRequest = rebalanceRequest({ estimationWindow: 2, minObservations: 2 });
+  const noPenalty = optimizePreparedSnapshot(prepared, baseRequest);
+  const regularized = optimizePreparedSnapshot(prepared, {
+    ...baseRequest,
+    rebalanceRegularization: { lambdaR: 0.04,
+      holdings: { asOf: dateAt(10), quantities: { A: 0.002 }, cash: 0.8, nav: 1 } },
+  });
+  assert.equal(noPenalty.status, "SOLVED", noPenalty.reason);
+  assert.equal(regularized.status, "SOLVED", regularized.reason);
+  close(noPenalty.assetWeights!.A, 0.6, 1e-8);
+  close(regularized.assetWeights!.A, 1 / 3, 1e-8);
+  const objective = (weight: number) => 0.5 * variance * weight ** 2 - meanReturn * weight +
+    0.5 * 0.04 * (weight - 0.2) ** 2;
+  const derivative = (weight: number) => variance * weight - meanReturn + 0.04 * (weight - 0.2);
+  close(derivative(regularized.assetWeights!.A), 0, 1e-8);
+  close(regularized.rebalanceRegularization!.penalty,
+    0.5 * 0.04 * (regularized.assetWeights!.A - 0.2) ** 2, 1e-8);
+  close(regularized.objectiveContributions!.total, objective(regularized.assetWeights!.A), 1e-8);
+  assert.equal(regularized.solver.version, "D5-SIMPLE.1");
+});
+
+test("D5 SIMPLE T4 rejects invalid lambda, missing valuation, cost stacking, and infeasible constraints", () => {
+  const prepared = rebalanceAssetFixture();
+  assert.equal(optimizePreparedSnapshot(prepared, rebalanceRequest({
+    rebalanceRegularization: { lambdaR: Number.NaN },
+  })).status, "INVALID_INPUT");
+  assert.equal(optimizePreparedSnapshot(prepared, rebalanceRequest({
+    rebalanceRegularization: { lambdaR: -1 },
+  })).status, "INVALID_INPUT");
+  assert.equal(optimizePreparedSnapshot(prepared, rebalanceRequest({
+    rebalanceRegularization: { lambdaR: 1 },
+  })).status, "INVALID_INPUT");
+  assert.equal(optimizePreparedSnapshot(prepared, rebalanceRequest({
+    rebalanceRegularization: { lambdaR: 1,
+      holdings: { asOf: dateAt(9), quantities: { A: 0.4 }, cash: 60, nav: 100 } },
+  })).status, "INVALID_INPUT");
+  assert.equal(optimizePreparedSnapshot(prepared, rebalanceRequest({
+    rebalanceRegularization: { lambdaR: 1,
+      holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 59, nav: 100 } },
+  })).status, "INVALID_INPUT");
+  assert.equal(optimizePreparedSnapshot(prepared, rebalanceRequest({
+    costAware: { costAmortizationDays: 1, transactionCostBps: 0, slippageBps: 0,
+      holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 } },
+    rebalanceRegularization: { lambdaR: 1,
+      holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 } },
+  })).status, "UNSUPPORTED");
+  assert.equal(optimizePreparedSnapshot(prepared, rebalanceRequest({
+    objective: { type: "minimum_variance", gamma: 1, eta: 0 },
+    rebalanceRegularization: { lambdaR: 1,
+      holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 } },
+  })).status, "INVALID_INPUT");
+  const infeasible = optimizePreparedSnapshot(prepared, rebalanceRequest({
+    constraints: { candidateBounds: { A: { min: 0.8 } }, totalCash: { min: 0.5 } },
+    rebalanceRegularization: { lambdaR: 1,
+      holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 } },
+  }));
+  assert.equal(infeasible.status, "INFEASIBLE");
+});
+
+test("D5 SIMPLE T5 robust capital constraints bind and cutoff evidence ignores future rows", () => {
+  const prepared = rebalanceAssetFixture();
+  const query = rebalanceRequest({
     forecastModel: { type: "SAMPLE_MEAN" },
     robustness: { method: "ROBUST_MEAN_UNCERTAINTY", kappa: 0.1 },
     constraints: { candidateBounds: { A: { max: 0.5 } } },
-    costAware: { costAmortizationDays: 2, transactionCostBps: 100, slippageBps: 20,
-      holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 } },
-  }));
-  assert.equal(robust.status, "SOLVED", robust.reason);
-  close(robust.assetWeights!.A, 0.5, 1e-7);
-  assert.ok(robust.solver.scaledOptimalityResidual! <= 1e-6);
-  assert.ok(robust.solver.maxConstraintViolation! <= 1e-8);
-  close(robust.objectiveContributions!.total,
-    robust.objectiveContributions!.variance + robust.objectiveContributions!.regularization +
-    robust.objectiveContributions!.candidateReturn + (robust.objectiveContributions!.robustHaircut ?? 0) +
-    robust.objectiveContributions!.economicTransactionCost! + robust.objectiveContributions!.economicSlippage! +
-    robust.objectiveContributions!.turnoverPreference!, 1e-7);
-  assert.equal(optimizePreparedSnapshot(prepared, d5Request({ costAware: {
-    costAmortizationDays: 0, transactionCostBps: 0, slippageBps: 0,
-    holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 },
-  } })).status, "INVALID_INPUT");
-  assert.equal(optimizePreparedSnapshot(prepared, d5Request({ costAware: {
-    costAmortizationDays: 2, transactionCostBps: -1, slippageBps: 0,
-    holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 60, nav: 100 },
-  } })).status, "INVALID_INPUT");
-  assert.equal(optimizePreparedSnapshot(prepared, d5Request({
-    objective: { type: "minimum_variance", gamma: 1, eta: 0 },
-  })).status, "UNSUPPORTED");
-  assert.equal(optimizePreparedSnapshot(prepared, d5Request({
-    constraints: { candidateBounds: { A: { min: 0.8, max: 1 } }, totalCash: { min: 0.5, max: 0.5 } },
-  })).status, "INFEASIBLE");
-  const missingPrice = structuredClone(prepared);
-  missingPrice.dataset.csvContent = `date,A\n${dateAt(9)},100`;
-  assert.equal(optimizePreparedSnapshot(missingPrice, d5Request()).status, "INVALID_INPUT");
-  assert.equal(optimizePreparedSnapshot(prepared, d5Request({ costAware: {
-    costAmortizationDays: 1, transactionCostBps: 0, slippageBps: 0,
-    holdings: { asOf: dateAt(10), quantities: { A: 0.4 }, cash: 59, nav: 100 },
-  } })).status, "INVALID_INPUT");
+    rebalanceRegularization: { lambdaR: 10,
+      holdings: { asOf: dateAt(10), quantities: { A: 0.01 }, cash: 0, nav: 1 } },
+  });
+  const clean = optimizePreparedSnapshot(prepared, query);
+  const futureMutation = structuredClone(prepared);
+  futureMutation.dataset.csvContent += `\n${dateAt(15)},999,999`;
+  futureMutation.candidates[0].ledger = [...futureMutation.candidates[0].ledger as Array<Record<string, unknown>>, {
+    date: dateAt(15), beginningNav: 100, etfPnl: 9000, cashPnl: 0, netPnl: 9000,
+    transactionCosts: 0, slippage: 0,
+  }] as PreparedCandidate["ledger"];
+  const mutated = optimizePreparedSnapshot(futureMutation, query);
+  assert.equal(clean.status, "SOLVED", clean.reason);
+  assert.equal(mutated.status, "SOLVED", mutated.reason);
+  close(clean.assetWeights!.A, 0.5, 1e-7);
+  assert.deepEqual(mutated.model?.dates, clean.model?.dates);
+  assert.deepEqual(mutated.model?.mu, clean.model?.mu);
+  assert.deepEqual(mutated.rebalanceRegularization, clean.rebalanceRegularization);
+  assert.ok(clean.solver.maxConstraintViolation! <= 1e-8);
+  close(clean.objectiveContributions!.total,
+    clean.objectiveContributions!.variance + clean.objectiveContributions!.regularization +
+    clean.objectiveContributions!.candidateReturn + (clean.objectiveContributions!.robustHaircut ?? 0) +
+    clean.rebalanceRegularization!.penalty, 1e-7);
 });

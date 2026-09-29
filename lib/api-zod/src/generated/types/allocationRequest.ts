@@ -8,6 +8,7 @@
 import type { AllocationConstraints } from './allocationConstraints';
 import type { AllocationCostAwareConfig } from './allocationCostAwareConfig';
 import type { AllocationObjective } from './allocationObjective';
+import type { AllocationRebalanceRegularizationConfig } from './allocationRebalanceRegularizationConfig';
 import type { AllocationRequestAllocationMode } from './allocationRequestAllocationMode';
 import type { AllocationRequestRepresentation } from './allocationRequestRepresentation';
 import type { AllocationRequestReturnConvention } from './allocationRequestReturnConvention';
@@ -46,6 +47,7 @@ export interface AllocationRequest {
   forecastModel?: ForecastModelConfig;
   robustness?: AllocationRobustnessConfig;
   costAware?: AllocationCostAwareConfig;
+  rebalanceRegularization?: AllocationRebalanceRegularizationConfig;
   allocationMode?: AllocationRequestAllocationMode;
   signedConstraints?: SignedAllocationConstraints;
   targetExcessReturn?: number;

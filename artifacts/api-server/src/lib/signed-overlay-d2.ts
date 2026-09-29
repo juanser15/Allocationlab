@@ -16,6 +16,9 @@ import { D4_SOLVER_VERSION, solveRobustMeanUncertainty } from "./robust-solver-d
 import {
   prepareCostAwarePlan, type CostAwarePlan,
 } from "./cost-aware-d5";
+import {
+  prepareRebalanceRegularizationPlan, type RebalanceRegularizationPlan,
+} from "./rebalance-regularization";
 
 const SOLVER_VERSION = "2.0.0";
 const TOL = 1e-8;
@@ -320,6 +323,14 @@ function hasUnrestrictedDescent(request: AllocationRequest, n: number, hessian: 
 export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: AllocationRequest,
   plannedEstimationDates?: readonly string[]): AllocationResult {
   const reject = (status: AllocationStatus, reason: string) => failure(status, reason);
+  const lambdaR = request.rebalanceRegularization?.lambdaR;
+  if (request.rebalanceRegularization !== undefined &&
+    (typeof lambdaR !== "number" || !Number.isFinite(lambdaR) || lambdaR < 0))
+    return reject("INVALID_INPUT", "rebalanceRegularization.lambdaR must be finite and nonnegative.");
+  if (lambdaR !== undefined && lambdaR > 0 && request.costAware)
+    return reject("UNSUPPORTED", "rebalanceRegularization cannot be combined with legacy costAware optimization.");
+  if (lambdaR !== undefined && lambdaR > 0 && request.objective?.type !== "regularized_mean_variance")
+    return reject("INVALID_INPUT", "Positive rebalanceRegularization requires regularized_mean_variance.");
   if (request.costAware && request.objective?.type === "minimum_variance")
     return reject("UNSUPPORTED", "D5 cost-aware optimization supports regularized_mean_variance only.");
   if (!snapshot || snapshot.representation !== "alpha_streams" || !Array.isArray(snapshot.candidates))
@@ -471,6 +482,13 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
   const H = assets.map((_, i) => (columns as Array<{ exposures: number[] }>).map((column) => column.exposures[i]));
   const ids = selected.map((candidate) => candidate.candidateId);
   const n = ids.length, m = assets.length;
+  let rebalancePlan: RebalanceRegularizationPlan | undefined;
+  if (request.rebalanceRegularization?.lambdaR) {
+    const prepared = prepareRebalanceRegularizationPlan(snapshot, request.rebalanceRegularization, assets,
+      request.informationCutoff, true);
+    if (typeof prepared === "string") return reject("INVALID_INPUT", prepared);
+    rebalancePlan = prepared;
+  }
   let costPlan: CostAwarePlan | undefined;
   if (request.costAware) {
     const prepared = prepareCostAwarePlan(snapshot, request.costAware, assets, request.informationCutoff, true);
@@ -505,11 +523,21 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
   const gamma = minimumVariance ? 1 : request.objective.gamma;
   const hessian = Array.from({ length: total }, (_, i) => Array.from({ length: total }, (_, j) =>
     i < n && j < n ? gamma * sigma[i][j] + (i === j && !minimumVariance ? request.objective.eta : 0) : 0));
+  const rebalanceMap = rebalancePlan?.assets.map((ticker) => assets.includes(ticker)
+    ? H[assets.indexOf(ticker)] : Array(n).fill(0)) ?? [];
+  const rebalanceReference = rebalancePlan?.assets.map((ticker) => rebalancePlan!.referenceAssetWeights[ticker]) ?? [];
+  if (rebalancePlan) {
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++)
+      hessian[i][j] += rebalancePlan.lambdaR * rebalanceMap.reduce((sum, row) => sum + row[i] * row[j], 0);
+  }
   const penaltyRate = costPlan && costPlan.hasPenalty
     ? (costPlan.transactionCostBps + costPlan.slippageBps + costPlan.turnoverPreferenceBps) /
       (10_000 * costPlan.costAmortizationDays) : 0;
   const linear = [...(minimumVariance ? Array(n).fill(0) : mu.map((value) => -value)),
     ...Array(baseTotal - n).fill(0), ...Array(costAssetCount).fill(penaltyRate)];
+  if (rebalancePlan) for (let i = 0; i < n; i++)
+    linear[i] -= rebalancePlan.lambdaR * rebalanceMap.reduce((sum, row, assetIndex) =>
+      sum + row[i] * rebalanceReference[assetIndex], 0);
   if (minimumVariance) constraints.push({ name: "target_excess_return", coefficients: [...mu, ...Array(total - n).fill(0)],
     lower: request.targetExcessReturn });
   if (!provedBounded(request, ids, assets, H, hessian)) {
@@ -624,6 +652,8 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
   const regularization = minimumVariance ? 0 : 0.5 * request.objective.eta * dot(weights, weights);
   const candidateReturn = minimumVariance ? 0 : -dot(mu, weights);
   const expectedExcess = dot(mu, weights);
+  const rebalancePenalty = rebalancePlan ? rebalancePlan.lambdaR / 2 * rebalancePlan.assets.reduce((sum, ticker, i) =>
+    sum + ((assetWeights[ticker] ?? 0) - rebalanceReference[i]) ** 2, 0) : 0;
   const robustHaircut = robustSolve?.robustHaircut ?? 0;
   const tradedFraction = costPlan && costAssetCount
     ? costPlan.assets.reduce((sum, _ticker, i) => sum + solution[baseTotal + i], 0) : 0;
@@ -640,18 +670,23 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
       return failure("NUMERICAL_FAILURE", "D5 trade auxiliary does not reconcile to the underlying signed asset trade vector.", model);
   }
   const totalObjective = riskContribution + regularization + candidateReturn + robustHaircut +
-    economicTransactionCost + economicSlippage + turnoverPreference;
+    economicTransactionCost + economicSlippage + turnoverPreference + rebalancePenalty;
+  const solverName = rebalancePlan ? "D5 SIMPLE quadratic rebalance regularization / quadprog" :
+    robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani";
+  const solverVersion = rebalancePlan ? `D5-SIMPLE.1${robustSolve ? `+${D4_SOLVER_VERSION}` : ""}` :
+    robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION;
   const result: AllocationResult = {
     status: "SOLVED", model, candidateWeights: Object.fromEntries(ids.map((id, i) => [id, weights[i]])),
     assetWeights, totalCash: cashTarget, masterCash: cashTarget,
     estimatedGrossReturn: mean(cashReturns) + expectedExcess, estimatedVolatility: Math.sqrt(variance),
     objectiveContributions: { variance: riskContribution, regularization, candidateReturn, masterCashReturn: 0,
       ...(robustHaircut ? { robustHaircut } : {}),
+      ...(rebalancePlan ? { rebalanceRegularization: rebalancePenalty } : {}),
       ...(costPlan?.hasPenalty ? { economicTransactionCost, economicSlippage, turnoverPreference } : {}),
       total: totalObjective },
     constraintSlacks: constraintSlacks(solution, constraints),
-    solver: { name: robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani",
-      version: robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION, status: "SOLVED",
+    solver: { name: solverName,
+      version: solverVersion, status: "SOLVED",
       primalResidual: violation, dualResidual: residual, scaledOptimalityResidual: residual,
       maxConstraintViolation: violation, psdTolerance: PSD_TOL, optimalityTolerance: OPT_TOL,
       constraintTolerance: TOL, iterations,
@@ -668,6 +703,23 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
       netAssetExposure: netExposure, cashTarget, expectedExcessReturn: expectedExcess, allocationMode: "SIGNED_OVERLAY",
     },
   };
+  if (rebalancePlan) {
+    const targetAssetWeights = Object.fromEntries(rebalancePlan.assets.map((ticker) =>
+      [ticker, assetWeights[ticker] ?? 0]));
+    result.rebalanceRegularization = {
+      lambdaR: rebalancePlan.lambdaR,
+      assets: [...rebalancePlan.assets],
+      prices: { ...rebalancePlan.prices },
+      assetMapping: Object.fromEntries(rebalancePlan.assets.map((ticker, i) =>
+        [ticker, Object.fromEntries(ids.map((id, j) => [id, rebalanceMap[i][j]]))])),
+      candidateIds: [...ids],
+      referenceAssetWeights: { ...rebalancePlan.referenceAssetWeights },
+      targetAssetWeights,
+      penalty: rebalancePenalty,
+      solverEvidence: { name: solverName, version: solverVersion,
+        optimalityResidual: residual, feasibilityResidual: violation },
+    };
+  }
   if (forecast) {
     const uncertainty = portfolioForecastUncertainty(forecast as ForecastResult, weights);
     if ("status" in uncertainty)
@@ -678,8 +730,8 @@ export function optimizeSignedOverlay(snapshot: PreparedSnapshot, request: Alloc
     result.robustness = {
       method: request.robustness.method, kappa: request.robustness.kappa, robustHaircut,
       objectiveTotal: totalObjective,
-      solver: { name: robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani",
-        version: robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION, optimalityTolerance: robustSolve ? 1e-8 : OPT_TOL,
+      solver: { name: solverName,
+        version: solverVersion, optimalityTolerance: robustSolve ? 1e-8 : OPT_TOL,
         constraintTolerance: TOL },
       nominalWeights: Object.fromEntries(ids.map((id, i) => [id, robustSolve?.nominalSolution[i] ?? weights[i]])),
       ...(robustSolve ? { robustWeights: Object.fromEntries(ids.map((id, i) => [id, weights[i]])) } : {}),

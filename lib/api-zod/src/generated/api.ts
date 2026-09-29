@@ -4680,6 +4680,11 @@ export const listAllocationsResponseRequestCostAwareSlippageBpsMin = 0;
 export const listAllocationsResponseRequestCostAwareHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const listAllocationsResponseRequestCostAwareHoldingsNavExclusiveMin = 0;
 
+export const listAllocationsResponseRequestRebalanceRegularizationLambdaRMin = 0;
+
+export const listAllocationsResponseRequestRebalanceRegularizationHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const listAllocationsResponseRequestRebalanceRegularizationHoldingsNavExclusiveMin = 0;
+
 export const listAllocationsResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -4786,6 +4791,15 @@ export const ListAllocationsResponseItem = zod.object({
   "nav": zod.number().gt(listAllocationsResponseRequestCostAwareHoldingsNavExclusiveMin)
 })
 }).optional(),
+  "rebalanceRegularization": zod.object({
+  "lambdaR": zod.number().min(listAllocationsResponseRequestRebalanceRegularizationLambdaRMin),
+  "holdings": zod.object({
+  "asOf": zod.string().regex(listAllocationsResponseRequestRebalanceRegularizationHoldingsAsOfRegExp),
+  "quantities": zod.record(zod.string(), zod.number()),
+  "cash": zod.number(),
+  "nav": zod.number().gt(listAllocationsResponseRequestRebalanceRegularizationHoldingsNavExclusiveMin)
+}).optional()
+}).optional().describe('Optional D5 simple turnover regularization. lambdaR zero disables the method and does not require holdings; positive lambdaR requires exact-cutoff holdings.'),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
   "alphaBounds": zod.record(zod.string(), zod.object({
@@ -4892,6 +4906,11 @@ export const createAllocationBodyCostAwareSlippageBpsMin = 0;
 export const createAllocationBodyCostAwareHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const createAllocationBodyCostAwareHoldingsNavExclusiveMin = 0;
 
+export const createAllocationBodyRebalanceRegularizationLambdaRMin = 0;
+
+export const createAllocationBodyRebalanceRegularizationHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAllocationBodyRebalanceRegularizationHoldingsNavExclusiveMin = 0;
+
 export const createAllocationBodySignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -4991,6 +5010,15 @@ export const CreateAllocationBody = zod.object({
   "nav": zod.number().gt(createAllocationBodyCostAwareHoldingsNavExclusiveMin)
 })
 }).optional(),
+  "rebalanceRegularization": zod.object({
+  "lambdaR": zod.number().min(createAllocationBodyRebalanceRegularizationLambdaRMin),
+  "holdings": zod.object({
+  "asOf": zod.string().regex(createAllocationBodyRebalanceRegularizationHoldingsAsOfRegExp),
+  "quantities": zod.record(zod.string(), zod.number()),
+  "cash": zod.number(),
+  "nav": zod.number().gt(createAllocationBodyRebalanceRegularizationHoldingsNavExclusiveMin)
+}).optional()
+}).optional().describe('Optional D5 simple turnover regularization. lambdaR zero disables the method and does not require holdings; positive lambdaR requires exact-cutoff holdings.'),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
   "alphaBounds": zod.record(zod.string(), zod.object({
@@ -5088,6 +5116,11 @@ export const createAllocationResponseRequestCostAwareSlippageBpsMin = 0;
 
 export const createAllocationResponseRequestCostAwareHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const createAllocationResponseRequestCostAwareHoldingsNavExclusiveMin = 0;
+
+export const createAllocationResponseRequestRebalanceRegularizationLambdaRMin = 0;
+
+export const createAllocationResponseRequestRebalanceRegularizationHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createAllocationResponseRequestRebalanceRegularizationHoldingsNavExclusiveMin = 0;
 
 export const createAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
@@ -5195,6 +5228,15 @@ export const CreateAllocationResponse = zod.object({
   "nav": zod.number().gt(createAllocationResponseRequestCostAwareHoldingsNavExclusiveMin)
 })
 }).optional(),
+  "rebalanceRegularization": zod.object({
+  "lambdaR": zod.number().min(createAllocationResponseRequestRebalanceRegularizationLambdaRMin),
+  "holdings": zod.object({
+  "asOf": zod.string().regex(createAllocationResponseRequestRebalanceRegularizationHoldingsAsOfRegExp),
+  "quantities": zod.record(zod.string(), zod.number()),
+  "cash": zod.number(),
+  "nav": zod.number().gt(createAllocationResponseRequestRebalanceRegularizationHoldingsNavExclusiveMin)
+}).optional()
+}).optional().describe('Optional D5 simple turnover regularization. lambdaR zero disables the method and does not require holdings; positive lambdaR requires exact-cutoff holdings.'),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
   "alphaBounds": zod.record(zod.string(), zod.object({
@@ -5304,6 +5346,11 @@ export const getAllocationResponseRequestCostAwareSlippageBpsMin = 0;
 export const getAllocationResponseRequestCostAwareHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const getAllocationResponseRequestCostAwareHoldingsNavExclusiveMin = 0;
 
+export const getAllocationResponseRequestRebalanceRegularizationLambdaRMin = 0;
+
+export const getAllocationResponseRequestRebalanceRegularizationHoldingsAsOfRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getAllocationResponseRequestRebalanceRegularizationHoldingsNavExclusiveMin = 0;
+
 export const getAllocationResponseRequestSignedConstraintsGrossAlphaMaxMin = 0;
 
 
@@ -5410,6 +5457,15 @@ export const GetAllocationResponse = zod.object({
   "nav": zod.number().gt(getAllocationResponseRequestCostAwareHoldingsNavExclusiveMin)
 })
 }).optional(),
+  "rebalanceRegularization": zod.object({
+  "lambdaR": zod.number().min(getAllocationResponseRequestRebalanceRegularizationLambdaRMin),
+  "holdings": zod.object({
+  "asOf": zod.string().regex(getAllocationResponseRequestRebalanceRegularizationHoldingsAsOfRegExp),
+  "quantities": zod.record(zod.string(), zod.number()),
+  "cash": zod.number(),
+  "nav": zod.number().gt(getAllocationResponseRequestRebalanceRegularizationHoldingsNavExclusiveMin)
+}).optional()
+}).optional().describe('Optional D5 simple turnover regularization. lambdaR zero disables the method and does not require holdings; positive lambdaR requires exact-cutoff holdings.'),
   "allocationMode": zod.enum(['CAPITAL_LONG_ONLY', 'SIGNED_OVERLAY']).optional(),
   "signedConstraints": zod.object({
   "alphaBounds": zod.record(zod.string(), zod.object({

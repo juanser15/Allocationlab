@@ -10,6 +10,10 @@ import {
   prepareCostAwarePlan, summarizeCostAware, type CostAwarePlan, type CostAwareRequest,
 } from "./cost-aware-d5";
 import {
+  prepareRebalanceRegularizationPlan, type RebalanceRegularizationPlan,
+  type RebalanceRegularizationRequest,
+} from "./rebalance-regularization";
+import {
   estimateForecast, portfolioForecastUncertainty, type ForecastModelConfig, type ForecastResult,
   type PortfolioForecastUncertainty,
 } from "./forecast-d3";
@@ -56,6 +60,7 @@ export interface AllocationRequest {
   forecastModel?: ForecastModelConfig;
   robustness?: AllocationRobustness;
   costAware?: CostAwareRequest;
+  rebalanceRegularization?: RebalanceRegularizationRequest;
   covarianceDiagonalShrinkage: number;
   allocationMode?: AllocationMode;
   signedConstraints?: SignedOverlayConstraints;
@@ -201,6 +206,17 @@ export interface AllocationResult {
   };
   robustness?: RobustnessDiagnostics;
   costAware?: ReturnType<typeof summarizeCostAware>;
+  rebalanceRegularization?: {
+    lambdaR: number;
+    assets: string[];
+    prices: Record<string, number>;
+    assetMapping: Record<string, Record<string, number>>;
+    candidateIds: string[];
+    referenceAssetWeights: Record<string, number>;
+    targetAssetWeights: Record<string, number>;
+    penalty: number;
+    solverEvidence: { name: string; version: string; optimalityResidual: number | null; feasibilityResidual: number | null };
+  };
 }
 
 const SOLVER_VERSION = "2.0.0";
@@ -452,6 +468,14 @@ function scaledKktResidual(Hessian: number[][], linear: number[], x: number[],
  */
 export function optimizePreparedSnapshot(snapshot: PreparedSnapshot, request: AllocationRequest,
   plannedEstimationDates?: readonly string[]): AllocationResult {
+  const lambdaR = request.rebalanceRegularization?.lambdaR;
+  if (request.rebalanceRegularization !== undefined &&
+    (typeof lambdaR !== "number" || !Number.isFinite(lambdaR) || lambdaR < 0))
+    return failure("INVALID_INPUT", "rebalanceRegularization.lambdaR must be finite and nonnegative.");
+  if (lambdaR !== undefined && lambdaR > 0 && request.costAware)
+    return failure("UNSUPPORTED", "rebalanceRegularization cannot be combined with legacy costAware optimization.");
+  if (lambdaR !== undefined && lambdaR > 0 && request.objective?.type !== "regularized_mean_variance")
+    return failure("INVALID_INPUT", "Positive rebalanceRegularization requires regularized_mean_variance.");
   if (!request.costAware) return optimizePreparedSnapshotCore(snapshot, request, plannedEstimationDates);
   if (request.objective?.type === "minimum_variance")
     return failure("UNSUPPORTED", "D5 cost-aware optimization supports regularized_mean_variance only.");
@@ -698,6 +722,13 @@ function optimizePreparedSnapshotCore(snapshot: PreparedSnapshot, request: Alloc
     ...(riskModelSummary ? { riskModel: riskModelSummary } : {}),
     returnUnits: "daily_decimal", decisionTimestamp: request.decisionTimestamp, informationCutoff: request.informationCutoff,
   };
+  let rebalancePlan: RebalanceRegularizationPlan | undefined;
+  if (request.rebalanceRegularization?.lambdaR) {
+    const prepared = prepareRebalanceRegularizationPlan(snapshot, request.rebalanceRegularization, assets,
+      request.informationCutoff);
+    if (typeof prepared === "string") return failure("INVALID_INPUT", prepared, model);
+    rebalancePlan = prepared;
+  }
   let costPlan: CostAwarePlan | undefined;
   if (request.costAware) {
     const planned = prepareCostAwarePlan(snapshot, request.costAware, assets, request.informationCutoff);
@@ -728,12 +759,22 @@ function optimizePreparedSnapshotCore(snapshot: PreparedSnapshot, request: Alloc
   const gamma = request.objective.type === "minimum_variance" ? 1 : request.objective.gamma;
   const Hessian = Array.from({ length: size }, (_, i) => Array.from({ length: size }, (_, j) =>
     i < n && j < n ? gamma * sigma[i][j] + (i === j && request.objective.type === "regularized_mean_variance" ? request.objective.eta : 0) : 0));
+  const rebalanceMap = rebalancePlan?.assets.map((ticker) => assets.includes(ticker)
+    ? H[assets.indexOf(ticker)] : Array(n).fill(0)) ?? [];
+  const rebalanceReference = rebalancePlan?.assets.map((ticker) => rebalancePlan!.referenceAssetWeights[ticker]) ?? [];
+  if (rebalancePlan) {
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++)
+      Hessian[i][j] += rebalancePlan.lambdaR * rebalanceMap.reduce((sum, row) => sum + row[i] * row[j], 0);
+  }
   const penaltyRate = costPlan && costPlan.hasPenalty
     ? (costPlan.transactionCostBps + costPlan.slippageBps + costPlan.turnoverPreferenceBps) /
       (10_000 * costPlan.costAmortizationDays) : 0;
   const linear = [...(request.objective.type === "regularized_mean_variance" ? mu.map((value) => -value) : Array(n).fill(0)),
     request.objective.type === "regularized_mean_variance" ? -request.dailyCashYield : 0,
     ...Array(costAssetCount).fill(penaltyRate)];
+  if (rebalancePlan) for (let i = 0; i < n; i++)
+    linear[i] -= rebalancePlan.lambdaR * rebalanceMap.reduce((sum, row, assetIndex) =>
+      sum + row[i] * rebalanceReference[assetIndex], 0);
 
   let robustSolve: ReturnType<typeof solveRobustMeanUncertainty> | undefined;
   // quadprog uses a strictly convex Cholesky factorization. Flat PSD directions
@@ -819,6 +860,8 @@ function optimizePreparedSnapshotCore(snapshot: PreparedSnapshot, request: Alloc
   const candidateReturn = request.objective.type === "regularized_mean_variance" ? -dot(mu, weights) : 0;
   const masterCashReturn = request.objective.type === "regularized_mean_variance"
     ? -request.dailyCashYield * masterCash : 0;
+  const rebalancePenalty = rebalancePlan ? rebalancePlan.lambdaR / 2 * rebalancePlan.assets.reduce((sum, ticker, i) =>
+    sum + ((assetWeights[ticker] ?? 0) - rebalanceReference[i]) ** 2, 0) : 0;
   const robustHaircut = robustSolve?.robustHaircut ?? 0;
   const costTrades = costPlan && costAssetCount
     ? costPlan.assets.map((ticker, i) => x[baseSize + i]) : [];
@@ -836,16 +879,21 @@ function optimizePreparedSnapshotCore(snapshot: PreparedSnapshot, request: Alloc
       return failure("NUMERICAL_FAILURE", "D5 trade auxiliary does not reconcile to the underlying asset trade vector.", model);
   }
   const objectiveTotal = riskContribution + regularization + candidateReturn + masterCashReturn + robustHaircut +
-    economicTransactionCost + economicSlippage + turnoverPreference;
+    economicTransactionCost + economicSlippage + turnoverPreference + rebalancePenalty;
+  const solverName = rebalancePlan ? "D5 SIMPLE quadratic rebalance regularization / quadprog" :
+    robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani";
+  const solverVersion = rebalancePlan ? `D5-SIMPLE.1${robustSolve ? `+${D4_SOLVER_VERSION}` : ""}` :
+    robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION;
   const result: AllocationResult = {
     status: "SOLVED", model, candidateWeights: Object.fromEntries(model.candidateIds.map((id, i) => [id, weights[i]])),
     assetWeights, totalCash, masterCash, estimatedGrossReturn, estimatedVolatility,
     objectiveContributions: { variance: riskContribution, regularization, candidateReturn, masterCashReturn,
       ...(robustHaircut ? { robustHaircut } : {}),
+      ...(rebalancePlan ? { rebalanceRegularization: rebalancePenalty } : {}),
       ...(costPlan?.hasPenalty ? { economicTransactionCost, economicSlippage, turnoverPreference } : {}), total: objectiveTotal },
     constraintSlacks: slacks(x, constraints),
-    solver: { name: robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani",
-      version: robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION, status: "SOLVED",
+    solver: { name: solverName,
+      version: solverVersion, status: "SOLVED",
       primalResidual, dualResidual: optimalityResidual, scaledOptimalityResidual: optimalityResidual,
       maxConstraintViolation: violation, psdTolerance: PSD_TOLERANCE, optimalityTolerance: OPTIMALITY_TOLERANCE,
       constraintTolerance: CONSTRAINT_TOLERANCE, iterations,
@@ -854,6 +902,23 @@ function optimizePreparedSnapshotCore(snapshot: PreparedSnapshot, request: Alloc
         : diagonalLift ? `PSD flat-direction candidate lift ${diagonalLift}; exact objective KKT independently verified.` :
           "Exact objective KKT stationarity and independent primal feasibility checks passed." },
   };
+  if (rebalancePlan) {
+    const targetAssetWeights = Object.fromEntries(rebalancePlan.assets.map((ticker) =>
+      [ticker, assetWeights[ticker] ?? 0]));
+    result.rebalanceRegularization = {
+      lambdaR: rebalancePlan.lambdaR,
+      assets: [...rebalancePlan.assets],
+      prices: { ...rebalancePlan.prices },
+      assetMapping: Object.fromEntries(rebalancePlan.assets.map((ticker, i) =>
+        [ticker, Object.fromEntries(model.candidateIds.map((id, j) => [id, rebalanceMap[i][j]]))])),
+      candidateIds: [...model.candidateIds],
+      referenceAssetWeights: { ...rebalancePlan.referenceAssetWeights },
+      targetAssetWeights,
+      penalty: rebalancePenalty,
+      solverEvidence: { name: solverName, version: solverVersion,
+        optimalityResidual, feasibilityResidual: violation },
+    };
+  }
   if (forecast) {
     const uncertainty = portfolioForecastUncertainty(forecast as ForecastResult, weights);
     if ("status" in uncertainty)
@@ -867,8 +932,8 @@ function optimizePreparedSnapshotCore(snapshot: PreparedSnapshot, request: Alloc
     result.robustness = {
       method: request.robustness.method, kappa: request.robustness.kappa, robustHaircut,
       objectiveTotal,
-      solver: { name: robustSolve ? "D4 exact parametric-QP / quadprog" : "quadprog / Goldfarb-Idnani",
-        version: robustSolve ? D4_SOLVER_VERSION : SOLVER_VERSION, optimalityTolerance: robustSolve ? 1e-8 : OPTIMALITY_TOLERANCE,
+      solver: { name: solverName,
+        version: solverVersion, optimalityTolerance: robustSolve ? 1e-8 : OPTIMALITY_TOLERANCE,
         constraintTolerance: CONSTRAINT_TOLERANCE },
       nominalWeights,
       ...(robustSolve ? { robustWeights: Object.fromEntries(model.candidateIds.map((id, i) => [id, weights[i]])) } : {}),

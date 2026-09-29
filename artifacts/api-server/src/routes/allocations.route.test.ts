@@ -8,6 +8,8 @@ import router from "./allocations";
 import type { PreparedSnapshot } from "../lib/prepared-inputs";
 import { fingerprint } from "../lib/prepared-inputs";
 import { hashDataset } from "../lib/run-snapshot";
+import { optimizePreparedSnapshot, type AllocationRequest } from "../lib/allocation-b2";
+import { persistB3ValidationRun } from "../lib/b3-validation-store";
 
 const routeCostAware = {
   costAmortizationDays: 20,
@@ -17,7 +19,7 @@ const routeCostAware = {
   holdings: { asOf: "2024-01-08", quantities: { first: 2, second: 0 }, cash: 10, nav: 100 },
 };
 
-test("allocation route validates D5 cost-aware config before accessing B1", async () => {
+test("allocation route retires legacy costAware and validates simple rebalance settings", async () => {
   const app = express();
   app.use(express.json());
   app.use(router);
@@ -40,30 +42,13 @@ test("allocation route validates D5 cost-aware config before accessing B1", asyn
     dailyCashYield: 0,
     objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.02 },
     constraints: {},
-    costAware: routeCostAware,
   };
   try {
     const cases = [
-      { name: "positive amortization horizon", patch: { costAware: { ...routeCostAware, costAmortizationDays: 0 } } },
-      { name: "nonnegative cost rates", patch: { costAware: { ...routeCostAware, transactionCostBps: -1 } } },
-      { name: "nonnegative slippage rate", patch: { costAware: { ...routeCostAware, slippageBps: -1 } } },
-      { name: "nonnegative turnover preference", patch: { costAware: { ...routeCostAware, turnoverPreferenceBps: -1 } } },
-      { name: "valid ISO holdings date", patch: { costAware: { ...routeCostAware,
-        holdings: { ...routeCostAware.holdings, asOf: "2024-02-30" } } } },
-      { name: "valid holdings", patch: { costAware: { ...routeCostAware, holdings: { ...routeCostAware.holdings, nav: 0 } } } },
-      { name: "finite holdings quantities", patch: { costAware: { ...routeCostAware,
-        holdings: { ...routeCostAware.holdings, quantities: { first: "many" } } } } },
-      { name: "negative capital holdings cash", patch: { costAware: { ...routeCostAware,
-        holdings: { ...routeCostAware.holdings, cash: -10 } } } },
-      { name: "signed cash outside declared bounds", patch: {
-        allocationMode: "SIGNED_OVERLAY",
-        signedConstraints: { cash: { min: -0.05, max: 0 } },
-        costAware: { ...routeCostAware, holdings: { ...routeCostAware.holdings, cash: -10 } },
+      { name: "legacy costAware L1 request", patch: { costAware: routeCostAware } },
+      { name: "legacy costAware even with invalid settings", patch: {
+        costAware: { ...routeCostAware, costAmortizationDays: 0, unexpected: true },
       } },
-      { name: "supported objective", patch: { objective: { type: "minimum_variance", gamma: 2, eta: 0.02 } } },
-      { name: "strict config fields", patch: { costAware: { ...routeCostAware, unexpected: true } } },
-      { name: "strict holdings fields", patch: { costAware: { ...routeCostAware,
-        holdings: { ...routeCostAware.holdings, unexpected: true } } } },
     ];
     for (const item of cases) {
       const response = await fetch(`${api}/allocations`, {
@@ -71,7 +56,37 @@ test("allocation route validates D5 cost-aware config before accessing B1", asyn
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ ...base, ...item.patch }),
       });
-      assert.equal(response.status, 400, `${item.name}: ${JSON.stringify(await response.json())}`);
+      const body = await response.json() as { error?: string };
+      assert.equal(response.status, 422, `${item.name}: ${JSON.stringify(body)}`);
+      assert.match(body.error ?? "", /costAware L1 method is retired/);
+    }
+    const regularized = { lambdaR: 1, holdings: {
+      asOf: "2024-01-08", quantities: { first: 2 }, cash: 10, nav: 100,
+    } };
+    const invalidCases = [
+      { name: "negative lambda", patch: { rebalanceRegularization: { lambdaR: -1 } } },
+      { name: "missing positive-lambda holdings", patch: { rebalanceRegularization: { lambdaR: 1 } } },
+      { name: "holdings cutoff mismatch", patch: { rebalanceRegularization: {
+        ...regularized, holdings: { ...regularized.holdings, asOf: "2024-01-07" },
+      } } },
+      { name: "unsupported minimum-variance objective", patch: {
+        objective: { type: "minimum_variance", gamma: 2, eta: 0.02 },
+        rebalanceRegularization: regularized,
+      } },
+      { name: "legacy and simple methods stacked", patch: {
+        costAware: routeCostAware, rebalanceRegularization: regularized,
+      } },
+    ];
+    for (const item of invalidCases) {
+      const response = await fetch(`${api}/allocations`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ...base, ...item.patch }),
+      });
+      const body = await response.json() as { error?: string };
+      assert.equal(response.status, item.name.includes("stacked") ? 422 : 400,
+        `${item.name}: ${JSON.stringify(body)}`);
+      if (item.name.includes("stacked")) assert.match(body.error ?? "", /cannot be combined/);
     }
   } finally {
     await new Promise<void>((resolve, reject) =>
@@ -241,7 +256,85 @@ test("allocation route freezes default factor dimension before D4 diagnostics an
     const legacyReplayBody = await legacyReplay.json() as { status?: string; differences?: string[] };
     assert.equal(legacyReplayBody.status, "pass", legacyReplayBody.differences?.join("; "));
 
-    const signedCashResponse = await fetch(`${api}/allocations`, {
+    // Model a pre-retirement saved D5 allocation: old snapshots remain
+    // replayable even though the create endpoint no longer accepts costAware.
+    const oldCostAwareRequest = {
+      preparedInputId: preparedRow.id,
+      candidateIds: ["first", "second"],
+      informationCutoff: dateAt(7),
+      decisionTimestamp: dateAt(7),
+      estimationWindow: 8,
+      minObservations: 3,
+      representation: "alpha_streams",
+      returnConvention: "daily_decimal",
+      expectedReturnShrinkage: 0,
+      covarianceDiagonalShrinkage: 0,
+      dailyCashYield: 0,
+      objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.02 },
+      constraints: { totalCash: { min: 0, max: 0 } },
+      costAware: {
+        costAmortizationDays: 20,
+        turnoverPreferenceBps: 0,
+        transactionCostBps: 5,
+        slippageBps: 2,
+        holdings: { asOf: dateAt(7), quantities: {}, cash: 100, nav: 100 },
+      },
+    } as AllocationRequest;
+    const oldCostAwareResult = optimizePreparedSnapshot(snapshot, oldCostAwareRequest);
+    assert.equal(oldCostAwareResult.status, "SOLVED");
+    const oldCostAwareEvidence = oldCostAwareResult.costAware?.solverEvidence;
+    assert.ok(oldCostAwareEvidence);
+    const persistedOldCostAwareResult = JSON.parse(JSON.stringify(oldCostAwareResult));
+    const oldCostAwareVersion = `allocation-d5-api.1; ${oldCostAwareResult.solver.name}@${oldCostAwareResult.solver.version}` +
+      `; D5 cost-aware ${oldCostAwareEvidence.name}@${oldCostAwareEvidence.version}`;
+    const oldCostAwareSnapshotHash = fingerprint(snapshot);
+    const oldCostAwareFingerprint = fingerprint({
+      preparedInputId: preparedRow.id,
+      representation: "alpha_streams",
+      engineVersion: oldCostAwareVersion,
+      request: oldCostAwareRequest,
+      snapshotHash: oldCostAwareSnapshotHash,
+      result: persistedOldCostAwareResult,
+    });
+    const [oldCostAwareAllocation] = await db.insert(allocationsTable).values({
+      preparedInputId: preparedRow.id,
+      representation: "alpha_streams",
+      fingerprint: oldCostAwareFingerprint,
+      frozenSnapshotHash: oldCostAwareSnapshotHash,
+      engineVersion: oldCostAwareVersion,
+      frozenRequest: oldCostAwareRequest,
+      frozenSnapshot: snapshot,
+      frozenResult: persistedOldCostAwareResult,
+    }).returning();
+    const oldCostAwareReplayResponse = await fetch(
+      `${api}/allocations/${oldCostAwareAllocation.id}/replay`, { method: "POST" });
+    const oldCostAwareReplay = await oldCostAwareReplayResponse.json() as {
+      status?: string; differences?: string[];
+    };
+    assert.equal(oldCostAwareReplay.status, "pass", oldCostAwareReplay.differences?.join("; "));
+    const retiredB3Validation = await persistB3ValidationRun({
+      allocationId: oldCostAwareAllocation.id,
+      validationPreparedInputId: preparedRow.id,
+      assumptions: {
+        evaluationStartDate: dateAt(0),
+        evaluationEndDate: dateAt(7),
+        decisionCalendar: "monthly",
+        executionTiming: "next_close",
+        initialNav: 100,
+        initialHoldings: {},
+        initialCash: 100,
+        transactionCostBps: 5,
+        slippageBps: 2,
+        dailyCashYield: 0,
+      },
+    });
+    assert.ok("error" in retiredB3Validation);
+    if ("error" in retiredB3Validation) {
+      assert.equal(retiredB3Validation.status, 422);
+      assert.match(retiredB3Validation.error, /costAware L1 method is retired/);
+    }
+
+    const noRegularizationHoldingsResponse = await fetch(`${api}/allocations`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
@@ -260,15 +353,61 @@ test("allocation route freezes default factor dimension before D4 diagnostics an
         dailyCashYield: 0,
         objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.02 },
         constraints: {},
-        costAware: {
-          ...routeCostAware,
-          holdings: { asOf: dateAt(7), quantities: { first: 2, second: 0 }, cash: -10, nav: 100 },
+        rebalanceRegularization: { lambdaR: 0 },
+      }),
+    });
+    const noRegularizationHoldings = await noRegularizationHoldingsResponse.json() as {
+      id?: number; engineVersion?: string; request?: { rebalanceRegularization?: { lambdaR?: number; holdings?: unknown } };
+      error?: string;
+    };
+    assert.equal(noRegularizationHoldingsResponse.status, 201, noRegularizationHoldings.error);
+    assert.ok(noRegularizationHoldings.id);
+    assert.equal(noRegularizationHoldings.request?.rebalanceRegularization?.lambdaR, 0);
+    assert.equal(noRegularizationHoldings.request?.rebalanceRegularization?.holdings, undefined);
+    assert.match(noRegularizationHoldings.engineVersion ?? "", /^allocation-b2-api\.1;/);
+
+    const positiveRegularizationResponse = await fetch(`${api}/allocations`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        preparedInputId: preparedRow.id,
+        candidateIds: ["first", "second"],
+        informationCutoff: dateAt(7),
+        decisionTimestamp: dateAt(7),
+        estimationWindow: 8,
+        minObservations: 3,
+        representation: "alpha_streams",
+        returnConvention: "daily_decimal",
+        expectedReturnShrinkage: 0,
+        covarianceDiagonalShrinkage: 0,
+        dailyCashYield: 0,
+        objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.02 },
+        constraints: { totalCash: { min: 0, max: 0 } },
+        rebalanceRegularization: {
+          lambdaR: 0.05,
+          holdings: { asOf: dateAt(7), quantities: {}, cash: 100, nav: 100 },
         },
       }),
     });
-    const signedCash = await signedCashResponse.json() as { id?: number; error?: string };
-    assert.equal(signedCashResponse.status, 201, signedCash.error);
-    assert.ok(signedCash.id);
+    const positiveRegularization = await positiveRegularizationResponse.json() as {
+      id?: number; engineVersion?: string; result?: { status?: string; rebalanceRegularization?: {
+        lambdaR?: number; referenceAssetWeights?: Record<string, number>; solverEvidence?: unknown;
+      } }; error?: string;
+    };
+    assert.equal(positiveRegularizationResponse.status, 201, positiveRegularization.error);
+    assert.ok(positiveRegularization.id);
+    assert.match(positiveRegularization.engineVersion ?? "", /^allocation-d5-simple-api\.1;/);
+    assert.equal(positiveRegularization.result?.status, "SOLVED");
+    assert.equal(positiveRegularization.result?.rebalanceRegularization?.lambdaR, 0.05);
+    assert.ok(positiveRegularization.result?.rebalanceRegularization?.referenceAssetWeights);
+    assert.ok(positiveRegularization.result?.rebalanceRegularization?.solverEvidence);
+    const regularizationReplayResponse = await fetch(
+      `${api}/allocations/${positiveRegularization.id}/replay`, { method: "POST" });
+    const regularizationReplay = await regularizationReplayResponse.json() as {
+      status?: string; differences?: string[]; maximumNumericDifference?: number;
+    };
+    assert.equal(regularizationReplay.status, "pass", regularizationReplay.differences?.join("; "));
+    assert.ok((regularizationReplay.maximumNumericDifference ?? Infinity) <= 1e-8);
   } finally {
     await new Promise<void>((resolve, reject) =>
       server.close((error) => error ? reject(error) : resolve()));

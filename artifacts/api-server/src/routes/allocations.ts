@@ -20,8 +20,11 @@ const REPLAY_TOLERANCE = 1e-8;
 const B2_API_ENGINE_VERSION = "allocation-b2-api.1";
 const D4_API_ENGINE_VERSION = "allocation-d4-api.1";
 const D5_API_ENGINE_VERSION = "allocation-d5-api.1";
+const D5_SIMPLE_API_ENGINE_VERSION = "allocation-d5-simple-api.1";
 
 function apiEngineVersion(request: AllocationRequest): string {
+  if (request.rebalanceRegularization && request.rebalanceRegularization.lambdaR > 0)
+    return D5_SIMPLE_API_ENGINE_VERSION;
   return (request as AllocationRequest & { costAware?: unknown }).costAware
     ? D5_API_ENGINE_VERSION
     : request.robustness ? D4_API_ENGINE_VERSION : B2_API_ENGINE_VERSION;
@@ -33,12 +36,16 @@ function engineVersion(result: AllocationResult, request: AllocationRequest): st
   const costAwareSolver = costAware?.solverEvidence && typeof costAware.solverEvidence === "object"
     ? costAware.solverEvidence as Record<string, unknown> : undefined;
   const costAwareMethod = "cost-aware";
+  const rebalanceSolver = result.rebalanceRegularization?.solverEvidence;
   return `${apiEngineVersion(request)}; ${result.solver.name}@${result.solver.version}` +
     (request.robustness ? `; D4 ${d4Solver?.name ?? "robust-solver"}@${d4Solver?.version ?? D4_SOLVER_VERSION}` : "") +
     (costAware
       ? `; D5 ${costAwareMethod}${costAwareSolver
         ? ` ${String(costAwareSolver.name ?? "solver")}@${String(costAwareSolver.version ?? "unknown")}`
         : ""}`
+      : "") +
+    (result.rebalanceRegularization
+      ? `; D5 simple rebalance regularization ${rebalanceSolver?.name ?? "solver"}@${rebalanceSolver?.version ?? "unknown"}`
       : "");
 }
 
@@ -77,6 +84,7 @@ function unexpectedAllocationFields(body: unknown): string[] {
     "minObservations", "representation", "returnConvention", "expectedReturnShrinkage",
       "covarianceDiagonalShrinkage", "riskModel", "dailyCashYield", "objective", "constraints",
       "allocationMode", "signedConstraints", "targetExcessReturn", "forecastModel", "robustness", "costAware",
+      "rebalanceRegularization",
   ], "request");
   if (!request) return differences;
   check(request.objective, ["type", "gamma", "eta"], "objective");
@@ -205,6 +213,17 @@ router.get("/allocations", async (_req, res): Promise<void> => {
 });
 
 router.post("/allocations", async (req, res): Promise<void> => {
+  const rawInput = req.body && typeof req.body === "object" && !Array.isArray(req.body)
+    ? req.body as Record<string, unknown> : {};
+  if (Object.prototype.hasOwnProperty.call(rawInput, "costAware")) {
+    const stacked = Object.prototype.hasOwnProperty.call(rawInput, "rebalanceRegularization");
+    res.status(422).json({
+      error: stacked
+        ? "The legacy D5 costAware L1 method is retired; costAware cannot be combined with rebalanceRegularization."
+        : "The legacy D5 costAware L1 method is retired; use rebalanceRegularization instead.",
+    });
+    return;
+  }
   const unexpectedFields = unexpectedAllocationFields(req.body);
   if (unexpectedFields.length) {
     res.status(400).json({ error: unexpectedFields.join("; ") });
@@ -215,53 +234,29 @@ router.post("/allocations", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const rawRequest = req.body && typeof req.body === "object" && !Array.isArray(req.body)
-    ? req.body as Record<string, unknown> : {};
-  const rawCostAware = rawRequest.costAware && typeof rawRequest.costAware === "object" && !Array.isArray(rawRequest.costAware)
-    ? rawRequest.costAware as Record<string, unknown> : undefined;
-  if (rawCostAware && parsed.data.objective.type !== "regularized_mean_variance") {
-    res.status(400).json({ error: "costAware requires objective.type to be regularized_mean_variance." });
-    return;
-  }
-  if (rawCostAware) {
-    const holdings = rawCostAware.holdings && typeof rawCostAware.holdings === "object" &&
-      !Array.isArray(rawCostAware.holdings) ? rawCostAware.holdings as Record<string, unknown> : undefined;
-    const asOf = holdings?.asOf;
-    if (typeof asOf !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(asOf) ||
+  const regularization = parsed.data.rebalanceRegularization;
+  if (regularization && regularization.lambdaR > 0) {
+    if (parsed.data.objective.type !== "regularized_mean_variance") {
+      res.status(400).json({ error: "Positive rebalanceRegularization requires objective.type to be regularized_mean_variance." });
+      return;
+    }
+    const holdings = regularization.holdings;
+    if (!holdings) {
+      res.status(400).json({ error: "Positive rebalanceRegularization requires explicit holdings." });
+      return;
+    }
+    const asOf = holdings.asOf;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf) ||
       !Number.isFinite(Date.parse(`${asOf}T00:00:00.000Z`)) ||
       new Date(`${asOf}T00:00:00.000Z`).toISOString().slice(0, 10) !== asOf) {
-      res.status(400).json({ error: "costAware.holdings.asOf must be a valid ISO calendar date." });
+      res.status(400).json({ error: "rebalanceRegularization.holdings.asOf must be a valid ISO calendar date." });
       return;
     }
-    if (!holdings || !holdings.quantities || typeof holdings.quantities !== "object" ||
-      Array.isArray(holdings.quantities) ||
-      !Object.values(holdings.quantities as Record<string, unknown>).every((quantity) =>
-        typeof quantity === "number" && Number.isFinite(quantity)) ||
-      typeof holdings.cash !== "number" || !Number.isFinite(holdings.cash) ||
-      typeof holdings.nav !== "number" || !Number.isFinite(holdings.nav) || holdings.nav <= 0) {
-      res.status(400).json({ error: "costAware.holdings requires a quantities map and finite cash with positive finite nav." });
+    if (asOf !== parsed.data.informationCutoff) {
+      res.status(400).json({
+        error: "rebalanceRegularization.holdings.asOf must exactly match informationCutoff.",
+      });
       return;
-    }
-    if (holdings.cash < 0) {
-      const rawSignedConstraints = rawRequest.signedConstraints &&
-        typeof rawRequest.signedConstraints === "object" && !Array.isArray(rawRequest.signedConstraints)
-        ? rawRequest.signedConstraints as Record<string, unknown> : undefined;
-      const cashBounds = rawSignedConstraints?.cash && typeof rawSignedConstraints.cash === "object" &&
-        !Array.isArray(rawSignedConstraints.cash) ? rawSignedConstraints.cash as Record<string, unknown> : undefined;
-      const cashWeight = holdings.cash / holdings.nav;
-      const hasCashBound = !!cashBounds &&
-        (typeof cashBounds.min === "number" || typeof cashBounds.max === "number");
-      const permittedCashWeight = !!cashBounds && hasCashBound &&
-        (cashBounds.min === undefined || (typeof cashBounds.min === "number" &&
-          Number.isFinite(cashBounds.min) && cashWeight >= cashBounds.min)) &&
-        (cashBounds.max === undefined || (typeof cashBounds.max === "number" &&
-          Number.isFinite(cashBounds.max) && cashWeight <= cashBounds.max));
-      if (parsed.data.allocationMode !== "SIGNED_OVERLAY" || !permittedCashWeight) {
-        res.status(400).json({
-          error: "Negative costAware.holdings.cash requires SIGNED_OVERLAY and signedConstraints.cash bounds permitting the initial cash-to-NAV ratio.",
-        });
-        return;
-      }
     }
   }
   if (parsed.data.robustness?.method === "ROBUST_MEAN_UNCERTAINTY" && !parsed.data.forecastModel) {
@@ -274,9 +269,8 @@ router.post("/allocations", async (req, res): Promise<void> => {
     return;
   }
   const request = structuredClone(parsed.data) as AllocationRequest;
-  if (req.body && typeof req.body === "object" && !Array.isArray(req.body) &&
-    Object.prototype.hasOwnProperty.call(req.body, "forecastModel"))
-    request.forecastModel = structuredClone((req.body as Record<string, unknown>).forecastModel) as AllocationRequest["forecastModel"];
+  if (Object.prototype.hasOwnProperty.call(rawInput, "forecastModel"))
+    request.forecastModel = structuredClone(rawInput.forecastModel) as AllocationRequest["forecastModel"];
   if (new Set(request.candidateIds).size !== request.candidateIds.length) {
     res.status(400).json({ error: "candidateIds must contain unique canonical B1 candidate IDs." });
     return;

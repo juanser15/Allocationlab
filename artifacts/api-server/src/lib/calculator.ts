@@ -1459,6 +1459,8 @@ export interface BacktestInitialState {
   allowShortPositions?: boolean;
   /** B3 D5 charges full absolute consolidated fill notional rather than legacy half-L1 turnover. */
   d5GrossTradeCosts?: boolean;
+  /** Supplies strict prior-close carried-book context without changing A1 execution costs. */
+  provideTargetContext?: boolean;
 }
 
 /** Immutable carried book at the strict prior-close information cutoff. */
@@ -1692,7 +1694,7 @@ export function runBacktestEngine(
       const { regime, allocations, lookbackDays } = signalInputs;
       let explicitTarget: Record<string, number> | null | undefined;
       if (targetWeightsForSignal) {
-        if (initialState?.d5GrossTradeCosts) {
+        if (initialState?.d5GrossTradeCosts || initialState?.provideTargetContext) {
           const quantities = Object.freeze(Object.fromEntries([...shares]));
           explicitTarget = targetWeightsForSignal(row.date, priceRows, Object.freeze({
             asOf: prevRow.date, quantities, cash: beginningCash, nav: beginningNav,

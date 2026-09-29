@@ -25,6 +25,7 @@ export * from './allocationModeComparisonResult';
 export * from './allocationModeComparisonSummary';
 export * from './allocationObjective';
 export * from './allocationObjectiveType';
+export * from './allocationRebalanceRegularizationConfig';
 export * from './allocationReplay';
 export * from './allocationReplayReplayedResult';
 export * from './allocationReplayStatus';

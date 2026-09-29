@@ -194,6 +194,12 @@ export async function persistB3ValidationRun(input: {
 
   const policySnapshot = structuredClone(allocation.frozenSnapshot);
   const basePolicyRequest = structuredClone(allocation.frozenRequest) as AllocationRequest;
+  if (basePolicyRequest.costAware) {
+    return {
+      error: "The legacy D5 costAware L1 method is retired; new B3 validations cannot be created from saved costAware allocations.",
+      status: 422,
+    } as const;
+  }
   const policyRequest = internalPolicyRequestOverride
     ? structuredClone(internalPolicyRequestOverride)
     : basePolicyRequest;

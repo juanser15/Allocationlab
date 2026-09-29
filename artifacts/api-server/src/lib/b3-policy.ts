@@ -69,9 +69,23 @@ export interface B3Decision {
     actualSlippage?: number;
     executionDate?: string;
   };
+  rebalanceRegularization?: {
+    lambdaR: number;
+    actualHoldings: { asOf: string; quantities: Record<string, number>; cash: number; nav: number };
+    referencePrices: Record<string, number>;
+    referenceExposures: Record<string, number>;
+    penalty: number;
+    targetExposures: Record<string, number>;
+    assetMapping?: Record<string, Record<string, number>>;
+  };
 }
 
 export type B3CostAwareRequest = CostAwareRequest;
+export type B3RebalanceRegularizationRequest = NonNullable<AllocationRequest["rebalanceRegularization"]>;
+
+type B3ExtendedAllocationRequest = AllocationRequest & {
+  rebalanceRegularization?: B3RebalanceRegularizationRequest;
+};
 
 type D5ComparisonRun = Pick<B3Result, "policyIdentity" | "assumptions" | "decisionCalendar" |
   "decisions" | "dailyLedger" | "metrics" | "diagnostics">;
@@ -164,6 +178,10 @@ export interface B3Result {
     costAwarePolicyObjective: "frozen_cost_aware_policy";
     costBlindPolicyObjective: "frozen_cost_blind_policy";
     costBlind: D5ComparisonRun;
+  };
+  rebalanceComparison?: {
+    convention: string;
+    zero: D5ComparisonRun;
   };
   costAwarePolicy?: Pick<B3CostAwareRequest,
     "costAmortizationDays" | "turnoverPreferenceBps" | "transactionCostBps" | "slippageBps">;
@@ -280,16 +298,26 @@ function runB3ValidationInternal(
   assumptions: B3Assumptions,
   estimationDatePlan: B3EstimationDatePlan | undefined,
   d5ComparisonRun: boolean,
+  rebalanceComparisonRun = false,
 ): B3Result {
   // Missing mode is intentionally the historical B2 capital-only contract.
   // Signed execution is opt-in and is enabled only by a frozen B2 policy.
   const signedOverlay = (policyRequest as AllocationRequest & { allocationMode?: string }).allocationMode ===
     "SIGNED_OVERLAY";
   const costAware = (policyRequest as AllocationRequest & { costAware?: B3CostAwareRequest }).costAware;
+  const rebalanceRegularization = (policyRequest as B3ExtendedAllocationRequest).rebalanceRegularization;
   const d5Enabled = costAware !== undefined || d5ComparisonRun;
+  const regularizationEnabled = (rebalanceRegularization?.lambdaR ?? 0) > 0;
+  const contextEnabled = d5Enabled || regularizationEnabled || rebalanceComparisonRun;
   const fail = (reason: string, date?: string, decisions: B3Decision[] = [],
     calendar: Array<{ decisionDate: string; executionDate: string }> = []) =>
     failureResult(assumptions, policyRequest, policySnapshot, validationSnapshot, reason, date, decisions, calendar);
+
+  if (rebalanceRegularization !== undefined &&
+      (!isFiniteNumber(rebalanceRegularization.lambdaR) || rebalanceRegularization.lambdaR < 0))
+    return fail("D5 rebalanceRegularization.lambdaR must be a finite nonnegative value.");
+  if (regularizationEnabled && costAware)
+    return fail("D5 quadratic rebalance regularization cannot be combined with legacy costAware policy settings.");
 
   if (!policySnapshot?.dataset?.csvContent || !validationSnapshot?.dataset?.csvContent)
     return fail("Policy and validation snapshots with their immutable CSV content are required.");
@@ -477,7 +505,7 @@ function runB3ValidationInternal(
         reason: `Full-baseline C1 estimation alignment failed at ${decisionDate}: ${alignment.failureReason}` };
       return null;
     }
-    if (d5Enabled) {
+    if (contextEnabled) {
       if (!context || context.asOf !== informationCutoff || !isFiniteNumber(context.cash) ||
           !isFiniteNumber(context.nav) || context.nav <= 0) {
         decisionFailure = { date: decisionDate,
@@ -547,7 +575,7 @@ function runB3ValidationInternal(
       ? Object.fromEntries(policyRequest.candidateIds.flatMap((policyId, index) =>
         record[policyId] === undefined ? [] : [[pointInTimeIds[index], record[policyId]]]))
       : undefined;
-    const request: AllocationRequest & { costAware?: B3CostAwareRequest } = {
+    const request: B3ExtendedAllocationRequest = {
       ...structuredClone(policyRequest),
       candidateIds: pointInTimeIds,
       informationCutoff, decisionTimestamp: decisionDate,
@@ -577,6 +605,16 @@ function runB3ValidationInternal(
         return null;
       }
       request.costAware = { ...structuredClone(costAware), holdings: structuredClone(holdings) };
+    }
+    if (contextEnabled && rebalanceRegularization) {
+      const holdings = d5DecisionInputs.get(decisionDate)?.actualHoldings;
+      if (!holdings) {
+        decisionFailure = { date: decisionDate,
+          reason: `D5 actual carried holdings were not frozen at ${informationCutoff}.` };
+        return null;
+      }
+      request.rebalanceRegularization = { lambdaR: rebalanceRegularization.lambdaR,
+        holdings: structuredClone(holdings) };
     }
     if (policyRequest.forecastModel) {
       const forecastModel = structuredClone(policyRequest.forecastModel);
@@ -615,6 +653,28 @@ function runB3ValidationInternal(
         }));
       }
       request.forecastModel = forecastModel;
+    }
+    let referencePrices: Record<string, number> | undefined;
+    let referenceExposures: Record<string, number> | undefined;
+    if ((request.rebalanceRegularization?.lambdaR ?? 0) > 0 || rebalanceComparisonRun) {
+      const decisionRegularization = request.rebalanceRegularization!;
+      const lambdaR = decisionRegularization.lambdaR;
+      const holdings = decisionRegularization.holdings!;
+      const cutoffRow = rows.find((row) => row.date === informationCutoff);
+      const priceEntries = [...new Set([
+        ...definitions.flatMap((candidate) => candidate.assetTickers),
+        ...Object.keys(holdings.quantities),
+      ])].map((ticker) => [ticker, cutoffRow?.prices[ticker]] as const);
+      const missingReference = priceEntries.find(([, price]) =>
+        !isFiniteNumber(price) || price <= 0);
+      if (missingReference) {
+        decisionFailure = { date: decisionDate,
+          reason: `D5 missing cutoff price for ${missingReference[0]} on ${informationCutoff}.` };
+        return null;
+      }
+      referencePrices = Object.fromEntries(priceEntries as Array<readonly [string, number]>);
+      referenceExposures = Object.fromEntries(Object.entries(referencePrices).map(([ticker, price]) =>
+        [ticker, (holdings.quantities[ticker] ?? 0) * (price as number) / holdings.nav]));
     }
     const optimized = optimizePreparedSnapshot(historicalForB2, request, alignment?.estimationDates);
     if (request.robustness && optimized.status === "SOLVED" && optimized.robustness) {
@@ -723,6 +783,14 @@ function runB3ValidationInternal(
         return value === undefined ? [] : [[id, value] as [string, number]];
       }))
       : undefined;
+    if (optimized.rebalanceRegularization) {
+      optimizerWithPolicyIds.rebalanceRegularization = {
+        ...optimized.rebalanceRegularization,
+        candidateIds: [...policyRequest.candidateIds],
+        assetMapping: Object.fromEntries(Object.entries(optimized.rebalanceRegularization.assetMapping)
+          .map(([ticker, weights]) => [ticker, remapPointInTimeWeights(weights)!])),
+      };
+    }
     const pointInTimeToPolicyId = new Map(pointInTimeIds.map((id, index) =>
       [id, policyRequest.candidateIds[index]]));
     const remapDiagnosticCandidateIds = (value: unknown): unknown => {
@@ -778,6 +846,20 @@ function runB3ValidationInternal(
       optimizer: optimizerWithPolicyIds, candidateWeights, masterCash: optimized.masterCash!,
       totalCash: optimized.totalCash!, targetAssetWeights: { ...optimized.assetWeights }, targetAssetExposureSum,
       candidateAssetContributions,
+      ...((request.rebalanceRegularization?.lambdaR ?? 0) > 0 || rebalanceComparisonRun ? {
+        rebalanceRegularization: {
+          lambdaR: request.rebalanceRegularization!.lambdaR,
+          actualHoldings: structuredClone(request.rebalanceRegularization!.holdings!),
+          referencePrices: structuredClone(referencePrices!),
+          referenceExposures: structuredClone(
+            optimized.rebalanceRegularization?.referenceAssetWeights ?? referenceExposures!),
+          penalty: optimized.rebalanceRegularization?.penalty ?? 0,
+          targetExposures: structuredClone(
+            optimized.rebalanceRegularization?.targetAssetWeights ?? optimized.assetWeights!),
+          ...(optimized.rebalanceRegularization
+            ? { assetMapping: structuredClone(optimizerWithPolicyIds.rebalanceRegularization!.assetMapping) } : {}),
+        },
+      } : {}),
       constraintChecks: optimized.constraintSlacks,
     });
     return optimized.assetWeights;
@@ -802,6 +884,7 @@ function runB3ValidationInternal(
     dailyCashYield: assumptions.dailyCashYield,
     ...(signedOverlay ? { allowShortPositions: true } : {}),
     ...(d5Enabled ? { d5GrossTradeCosts: true } : {}),
+    ...(regularizationEnabled || rebalanceComparisonRun ? { provideTargetContext: true } : {}),
   };
   const engine = runBacktestEngine(
     evalRows, etfs, engineConstraints(), config, assumptions.benchmarkTicker ?? null,
@@ -984,6 +1067,20 @@ function runB3ValidationInternal(
       costAwarePolicyObjective: "frozen_cost_aware_policy",
       costBlindPolicyObjective: "frozen_cost_blind_policy",
       costBlind: structuredClone(costBlind),
+    };
+  }
+  if (regularizationEnabled && !rebalanceComparisonRun) {
+    const zeroRequest = structuredClone(policyRequest) as B3ExtendedAllocationRequest;
+    zeroRequest.rebalanceRegularization = { lambdaR: 0 };
+    const zero = runB3ValidationInternal(
+      policySnapshot, zeroRequest, validationSnapshot, assumptions, estimationDatePlan, false, true,
+    );
+    if (zero.status !== "completed")
+      return fail(`D5 zero-regularization comparison failed: ${zero.reason ?? "comparison simulation did not complete."}`,
+        zero.failureDate, decisions, expectedCalendar);
+    result.rebalanceComparison = {
+      convention: "Paired B3 runs share frozen dates, inputs, forecasts, risk, constraints, charges and initial book; each run derives its own strict-prior-close carried holdings. A1 charges actual fills independently; no winner is selected.",
+      zero: structuredClone(zero),
     };
   }
   return result;
