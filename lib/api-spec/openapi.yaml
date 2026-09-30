@@ -987,6 +987,69 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /validation-jobs:
+    post:
+      operationId: createValidationJob
+      tags: [backtest]
+      summary: Queue a durable validation using frozen inputs without holding the HTTP request open
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ValidationJobInput" }
+      responses:
+        "202":
+          description: Durable job accepted or previously submitted job recovered
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationJob" }
+        "409":
+          description: Idempotency key reused with different input
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    get:
+      operationId: listValidationJobs
+      tags: [backtest]
+      summary: Recover durable validation jobs without creating or starting new jobs
+      parameters:
+        - name: sessionId
+          in: query
+          schema: { type: integer }
+        - name: allocationId
+          in: query
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Most recent matching durable jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ValidationJob" }
+
+  /validation-jobs/{jobId}:
+    get:
+      operationId: getValidationJob
+      tags: [backtest]
+      summary: Poll persisted status and result linkage without recomputing a validation
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Persisted job status, progress phase, failure or completed Validation Run identifier
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationJob" }
+        "404":
+          description: Job not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
   /validation-runs:
     post:
       operationId: createValidationRun
@@ -4280,6 +4343,41 @@ components:
         startDate:
           type: ["string", "null"]
       required: [rebalanceFrequency, executionTiming, transactionCostBps, slippageBps, maxTurnoverPerRebalance, cashYieldAnnual, warmupDays, startDate]
+
+    ValidationJobInput:
+      type: object
+      additionalProperties: false
+      properties:
+        idempotencyKey: { type: string, minLength: 1, maxLength: 128 }
+        request: { $ref: "#/components/schemas/ValidationRunInput" }
+      required: [idempotencyKey, request]
+
+    ValidationJob:
+      type: object
+      properties:
+        jobId: { type: string }
+        status: { type: string, enum: [queued, running, completed, failed] }
+        phase: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+        startedAt: { type: ["string", "null"] }
+        completedAt: { type: ["string", "null"] }
+        validationRunId: { type: ["integer", "null"] }
+        error:
+          oneOf:
+            - $ref: "#/components/schemas/ValidationJobError"
+            - type: "null"
+        attempts: { type: integer }
+        request: { $ref: "#/components/schemas/ValidationRunInput" }
+      required: [jobId, status, phase, createdAt, updatedAt, startedAt, completedAt, validationRunId, error, attempts, request]
+
+    ValidationJobError:
+      type: object
+      properties:
+        code: { type: string }
+        message: { type: string }
+        httpStatus: { type: ["integer", "null"] }
+      required: [code, message, httpStatus]
 
     ValidationRunInput:
       oneOf:

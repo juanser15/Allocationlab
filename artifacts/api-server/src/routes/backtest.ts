@@ -80,15 +80,24 @@ class BacktestRequestError extends Error {
   constructor(message: string, public status: number) { super(message); }
 }
 
-async function computeBacktest(params: Record<string, unknown>): Promise<BacktestResult> {
+export async function computeBacktest(
+  params: Record<string, unknown>,
+  options?: { frozenSession?: { id: number; resultJson: unknown }; validatedAt?: string },
+): Promise<BacktestResult> {
   const requestedId = params.sessionId;
   if (requestedId !== undefined && !(/^[1-9]\d*$/.test(String(requestedId)) && Number.isSafeInteger(Number(requestedId))))
     throw new BacktestRequestError("Invalid session ID", 400);
-  const [session] = requestedId
-    ? await db.select().from(sessionsTable).where(eq(sessionsTable.id, Number(requestedId))).limit(1)
-    : await db.select().from(sessionsTable).orderBy(desc(sessionsTable.runAt), desc(sessionsTable.id)).limit(1);
-  if (!session) throw new BacktestRequestError("Optimization run not found.", 404);
-  const stored = session.resultJson as Record<string, unknown>;
+  let sessionId = options?.frozenSession?.id;
+  let stored = options?.frozenSession?.resultJson as Record<string, unknown> | undefined;
+  if (!options?.frozenSession) {
+    const [session] = requestedId
+      ? await db.select().from(sessionsTable).where(eq(sessionsTable.id, Number(requestedId))).limit(1)
+      : await db.select().from(sessionsTable).orderBy(desc(sessionsTable.runAt), desc(sessionsTable.id)).limit(1);
+    if (!session) throw new BacktestRequestError("Optimization run not found.", 404);
+    sessionId = session.id;
+    stored = session.resultJson as Record<string, unknown>;
+  }
+  if (sessionId === undefined || stored === undefined) throw new BacktestRequestError("Optimization run not found.", 404);
   const resolution = resolveRunSnapshot(stored);
   const reproduction = reproduceRun(stored);
   const snapshot = resolution.snapshot;
@@ -97,7 +106,7 @@ async function computeBacktest(params: Record<string, unknown>): Promise<Backtes
   const benchmarkParam = typeof params.benchmark === "string"
     ? params.benchmark.toLowerCase() === "none" ? null : params.benchmark.toUpperCase()
     : snapshot?.benchmarkConfiguration.defaultTicker ?? null;
-  const validatedAt = new Date().toISOString();
+  const validatedAt = options?.validatedAt ?? new Date().toISOString();
 
   const defaults = defaultBacktestConfig();
   const config: BacktestConfig = {
@@ -117,7 +126,7 @@ async function computeBacktest(params: Record<string, unknown>): Promise<Backtes
   const constraints = snapshot?.constraints as Constraints;
   const factorSet = snapshot ? { factors: snapshot.factorSet.factors } : undefined;
   const validationIdentity = snapshot ? {
-    optimizationRunId: session.id, datasetId: snapshot.dataset.id,
+    optimizationRunId: sessionId, datasetId: snapshot.dataset.id,
     datasetHash: snapshot.dataset.sha256, factorSetVersion: snapshot.factorSet.version,
     factorSetSnapshot: snapshot.factorSet.factors,
     constraintsSnapshot: snapshot.constraints, universeSnapshot: snapshot.universe,
@@ -128,7 +137,7 @@ async function computeBacktest(params: Record<string, unknown>): Promise<Backtes
 
   const empty = (reason: string, dataStartDate: string | null = null, dataEndDate: string | null = null) =>
     GetBacktestResponse.parse({
-      optimizationRunId: session.id, snapshotStatus, reproducibility: reproduction, validationIdentity,
+      optimizationRunId: sessionId, snapshotStatus, reproducibility: reproduction, validationIdentity,
       hasSufficientData: false,
       insufficientReason: reason,
       startDate: null,
@@ -214,7 +223,7 @@ async function computeBacktest(params: Record<string, unknown>): Promise<Backtes
 
   return GetBacktestResponse.parse({
       ...engineResult,
-      optimizationRunId: session.id, snapshotStatus, reproducibility: reproduction, validationIdentity,
+      optimizationRunId: sessionId, snapshotStatus, reproducibility: reproduction, validationIdentity,
       benchmarkUnavailableReason,
       availableBenchmarkTickers: enabledTickers,
       dataStartDate: fullDataStartDate,

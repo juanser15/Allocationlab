@@ -14,6 +14,7 @@ import { hashDataset } from "./run-snapshot";
 import { maximumNumericDifference } from "./replay-numeric-difference";
 
 const B3_API_ENGINE_VERSION = "b3-validation-api.1";
+type ValidationDbWriter = Pick<typeof db, "insert">;
 
 type B3ValidationEnvelope = {
   kind: "b3";
@@ -207,18 +208,37 @@ export function toB3ValidationRun(row: typeof validationRunsTable.$inferSelect) 
   };
 }
 
-export async function persistB3ValidationRun(input: {
+export type FrozenB3ValidationInputs = {
+  allocation: typeof allocationsTable.$inferSelect;
+  prepared: typeof preparedInputsTable.$inferSelect;
+};
+
+export type PreparedB3ValidationRun = {
+  allocationId: number;
+  validationPreparedInputId: number;
+  datasetHash: string;
+  factorSetVersion: string;
+  engineVersion: string;
+  assumptions: B3ExecutionAssumptions;
+  validationInputHash: string;
+  reconciliationStatus: string;
+  reproducibilityStatus: string;
+  resultJson: B3ValidationEnvelope;
+};
+
+export async function computeB3ValidationRun(input: {
   allocationId: number;
   validationPreparedInputId: number;
   assumptions: B3ValidationAssumptions;
-}, internalPolicyRequestOverride?: AllocationRequest, internalEstimationDatePlan?: B3EstimationDatePlan) {
-  const [allocation] = await db.select().from(allocationsTable)
+}, internalPolicyRequestOverride?: AllocationRequest, internalEstimationDatePlan?: B3EstimationDatePlan,
+frozenInputs?: FrozenB3ValidationInputs): Promise<PreparedB3ValidationRun | { error: string; status: number }> {
+  const [allocation] = frozenInputs ? [frozenInputs.allocation] : await db.select().from(allocationsTable)
     .where(eq(allocationsTable.id, input.allocationId)).limit(1);
   if (!allocation) {
     d6Trace("frozen.inputs.rejected", { reason: "allocation_not_found", allocationId: input.allocationId });
     return { error: "Frozen allocation policy not found.", status: 404 } as const;
   }
-  const [prepared] = await db.select().from(preparedInputsTable)
+  const [prepared] = frozenInputs ? [frozenInputs.prepared] : await db.select().from(preparedInputsTable)
     .where(eq(preparedInputsTable.id, input.validationPreparedInputId)).limit(1);
   if (!prepared) {
     d6Trace("frozen.inputs.rejected", { reason: "prepared_input_not_found",
@@ -323,24 +343,44 @@ export async function persistB3ValidationRun(input: {
     engineVersion: version,
     result,
   });
-  d6Trace("db.persistence.before", { allocationId: allocation.id, validationPreparedInputId: prepared.id, status });
-  const persistenceStarted = performance.now();
-  let row: typeof validationRunsTable.$inferSelect;
-  try {
-    [row] = await db.insert(validationRunsTable).values({
-    strategySnapshotId: null,
+  return {
     allocationId: allocation.id,
     validationPreparedInputId: prepared.id,
     datasetHash: dataset.sha256,
     factorSetVersion: isRecord(validationSnapshot) && isRecord(validationSnapshot.factorSet) &&
       typeof validationSnapshot.factorSet.version === "string" ? validationSnapshot.factorSet.version : "none",
     engineVersion: version,
-    validatedAt: new Date(),
     assumptions: frozenAssumptions,
-    resultJson: savedEnvelope,
+    validationInputHash: inputHash,
     reconciliationStatus: status === "success" ? "pass" : "fail",
     reproducibilityStatus: status === "success" ? "pass" : "fail",
-    validationInputHash: inputHash,
+    resultJson: savedEnvelope,
+  };
+}
+
+export async function persistPreparedB3ValidationRun(
+  prepared: PreparedB3ValidationRun,
+  writer: ValidationDbWriter = db,
+) {
+  const persistenceStarted = performance.now();
+  d6Trace("db.persistence.before", { allocationId: prepared.allocationId,
+    validationPreparedInputId: prepared.validationPreparedInputId,
+    status: prepared.reconciliationStatus === "pass" ? "success" : "failed" });
+  let row: typeof validationRunsTable.$inferSelect;
+  try {
+    [row] = await writer.insert(validationRunsTable).values({
+    strategySnapshotId: null,
+    allocationId: prepared.allocationId,
+    validationPreparedInputId: prepared.validationPreparedInputId,
+    datasetHash: prepared.datasetHash,
+    factorSetVersion: prepared.factorSetVersion,
+    engineVersion: prepared.engineVersion,
+    validatedAt: new Date(),
+    assumptions: prepared.assumptions,
+    resultJson: prepared.resultJson,
+    reconciliationStatus: prepared.reconciliationStatus,
+    reproducibilityStatus: prepared.reproducibilityStatus,
+    validationInputHash: prepared.validationInputHash,
     }).returning();
   } catch (error) {
     d6Trace("db.persistence.exception", { durationMs: Math.round(performance.now() - persistenceStarted), ...d6Error(error) });
@@ -348,6 +388,16 @@ export async function persistB3ValidationRun(input: {
   }
   d6Trace("db.persistence.after", { durationMs: Math.round(performance.now() - persistenceStarted), validationRunId: row.id });
   return { run: toB3ValidationRun(row) } as const;
+}
+
+export async function persistB3ValidationRun(input: {
+  allocationId: number;
+  validationPreparedInputId: number;
+  assumptions: B3ValidationAssumptions;
+}, internalPolicyRequestOverride?: AllocationRequest, internalEstimationDatePlan?: B3EstimationDatePlan) {
+  const prepared = await computeB3ValidationRun(input, internalPolicyRequestOverride, internalEstimationDatePlan);
+  if ("error" in prepared) return prepared;
+  return persistPreparedB3ValidationRun(prepared);
 }
 
 function validInternalPolicyOverride(base: AllocationRequest, override: AllocationRequest): boolean {

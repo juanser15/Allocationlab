@@ -79,6 +79,7 @@ import type {
   ListArchiveParams,
   ListForecastComparisons200,
   ListRiskModelComparisons200,
+  ListValidationJobsParams,
   ListValidationRunsParams,
   LivePricesFetchInput,
   LivePricesResult,
@@ -110,6 +111,8 @@ import type {
   TradeImplementationResult,
   Universe,
   UniverseInput,
+  ValidationJob,
+  ValidationJobInput,
   ValidationRunInput,
   ValidationRunListItem,
   ValidationRunReplay,
@@ -2955,6 +2958,237 @@ export function useGetBacktest<TData = Awaited<ReturnType<typeof getBacktest>>, 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetBacktestQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateValidationJobUrl = () => {
+
+
+
+
+  return `/api/validation-jobs`
+}
+
+/**
+ * @summary Queue a durable validation using frozen inputs without holding the HTTP request open
+ */
+export const createValidationJob = async (validationJobInput: ValidationJobInput, options?: RequestInit): Promise<ValidationJob> => {
+
+  return customFetch<ValidationJob>(getCreateValidationJobUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(validationJobInput)
+  }
+);}
+
+
+
+
+export const getCreateValidationJobMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createValidationJob>>, TError,{data: BodyType<ValidationJobInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createValidationJob>>, TError,{data: BodyType<ValidationJobInput>}, TContext> => {
+
+const mutationKey = ['createValidationJob'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createValidationJob>>, {data: BodyType<ValidationJobInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createValidationJob(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateValidationJobMutationResult = NonNullable<Awaited<ReturnType<typeof createValidationJob>>>
+    export type CreateValidationJobMutationBody = BodyType<ValidationJobInput>
+    export type CreateValidationJobMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Queue a durable validation using frozen inputs without holding the HTTP request open
+ */
+export const useCreateValidationJob = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createValidationJob>>, TError,{data: BodyType<ValidationJobInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createValidationJob>>,
+        TError,
+        {data: BodyType<ValidationJobInput>},
+        TContext
+      > => {
+      return useMutation(getCreateValidationJobMutationOptions(options));
+    }
+
+export const getListValidationJobsUrl = (params?: ListValidationJobsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/validation-jobs?${stringifiedParams}` : `/api/validation-jobs`
+}
+
+/**
+ * @summary Recover durable validation jobs without creating or starting new jobs
+ */
+export const listValidationJobs = async (params?: ListValidationJobsParams, options?: RequestInit): Promise<ValidationJob[]> => {
+
+  return customFetch<ValidationJob[]>(getListValidationJobsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListValidationJobsQueryKey = (params?: ListValidationJobsParams,) => {
+    return [
+    `/api/validation-jobs`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListValidationJobsQueryOptions = <TData = Awaited<ReturnType<typeof listValidationJobs>>, TError = ErrorType<unknown>>(params?: ListValidationJobsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listValidationJobs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListValidationJobsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listValidationJobs>>> = ({ signal }) => listValidationJobs(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listValidationJobs>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListValidationJobsQueryResult = NonNullable<Awaited<ReturnType<typeof listValidationJobs>>>
+export type ListValidationJobsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Recover durable validation jobs without creating or starting new jobs
+ */
+
+export function useListValidationJobs<TData = Awaited<ReturnType<typeof listValidationJobs>>, TError = ErrorType<unknown>>(
+ params?: ListValidationJobsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listValidationJobs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListValidationJobsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetValidationJobUrl = (jobId: string,) => {
+
+
+
+
+  return `/api/validation-jobs/${jobId}`
+}
+
+/**
+ * @summary Poll persisted status and result linkage without recomputing a validation
+ */
+export const getValidationJob = async (jobId: string, options?: RequestInit): Promise<ValidationJob> => {
+
+  return customFetch<ValidationJob>(getGetValidationJobUrl(jobId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetValidationJobQueryKey = (jobId: string,) => {
+    return [
+    `/api/validation-jobs/${jobId}`
+    ] as const;
+    }
+
+
+export const getGetValidationJobQueryOptions = <TData = Awaited<ReturnType<typeof getValidationJob>>, TError = ErrorType<ErrorResponse>>(jobId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getValidationJob>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetValidationJobQueryKey(jobId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getValidationJob>>> = ({ signal }) => getValidationJob(jobId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: jobId !== null && jobId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getValidationJob>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetValidationJobQueryResult = NonNullable<Awaited<ReturnType<typeof getValidationJob>>>
+export type GetValidationJobQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Poll persisted status and result linkage without recomputing a validation
+ */
+
+export function useGetValidationJob<TData = Awaited<ReturnType<typeof getValidationJob>>, TError = ErrorType<ErrorResponse>>(
+ jobId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getValidationJob>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetValidationJobQueryOptions(jobId,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

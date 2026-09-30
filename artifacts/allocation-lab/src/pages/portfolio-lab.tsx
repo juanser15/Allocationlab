@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   useGetLatestResults, useGetPricesStatus, useGetConstraints,
   useRunPipeline, useGetRiskModel, useCreateGovernanceSnapshot,
-  useCreateValidationRun, useGetValidationRun, useListValidationRuns,
-  type ValidationRun, type ValidationRunSummary,
+  useGetValidationRun, useListValidationRuns,
+  type ValidationJob, type ValidationRun, type ValidationRunSummary,
 } from "@workspace/api-client-react";
 import { localSettings } from "@/lib/local-settings";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ import { B3ValidationPanel } from "@/components/portfolio-lab/B3ValidationPanel"
 import { C1ContributionPanel } from "@/components/portfolio-lab/C1ContributionPanel";
 import { C2DiagnosticsPanel } from "@/components/portfolio-lab/C2DiagnosticsPanel";
 import { C3SelectionPoliciesPanel } from "@/components/portfolio-lab/C3SelectionPoliciesPanel";
+import { useValidationJob } from "@/components/portfolio-lab/use-validation-job";
 import type { B2PreparedSelection } from "@/components/portfolio-lab/PreparedInputsPanel";
 import type { D1RiskModelRequest } from "@/components/portfolio-lab/D1RiskModelPanel";
 
@@ -70,21 +71,34 @@ export default function PortfolioLab() {
   const [btEndDate, setBtEndDate] = useState("");
   const [selectedValidationRunId, setSelectedValidationRunId] = useState<number | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const createValidationRun = useCreateValidationRun();
+  const refetchValidationRunsRef = useRef<() => void>(() => undefined);
+  const validationListSessionRef = useRef<number | null>(null);
+  const onLegacyJobCompleted = useCallback((job: ValidationJob) => {
+    if (!job.validationRunId || !("sessionId" in job.request)) return;
+    setSelectedValidationRunId(job.validationRunId);
+    if (validationListSessionRef.current === job.request.sessionId)
+      refetchValidationRunsRef.current();
+  }, []);
+  const legacyJob = useValidationJob("allocation-lab:validation-job:legacy", onLegacyJobCompleted);
+  const capturedLegacySessionId = legacyJob.request && "sessionId" in legacyJob.request
+    ? legacyJob.request.sessionId : null;
+  const legacySessionId = capturedLegacySessionId ?? result?.sessionId ?? null;
   const { data: validationRuns, refetch: refetchValidationRuns } = useListValidationRuns(
-    { sessionId: result?.sessionId ?? 0 },
-    { query: { enabled: !!result?.sessionId } as any },
+    { sessionId: legacySessionId ?? 0 },
+    { query: { enabled: !!legacySessionId } as any },
   );
+  validationListSessionRef.current = legacySessionId;
+  refetchValidationRunsRef.current = () => { void refetchValidationRuns(); };
   const legacyRuns = (validationRuns ?? []).filter((run): run is ValidationRunSummary => "strategySnapshotId" in run);
   const visibleValidationRunId = selectedValidationRunId ?? legacyRuns[0]?.validationRunId ?? null;
   const { data: savedValidation, isLoading: loadingBt } = useGetValidationRun(
     visibleValidationRunId ?? 0,
     { query: { enabled: !!visibleValidationRunId } as any },
   );
-  const legacyValidation: ValidationRun | undefined = savedValidation && "strategySnapshotId" in savedValidation && savedValidation.strategySnapshotId === result?.sessionId
+  const legacyValidation: ValidationRun | undefined = savedValidation && "strategySnapshotId" in savedValidation && savedValidation.strategySnapshotId === legacySessionId
     ? savedValidation : undefined;
   const bt = legacyValidation?.result;
-  const validationRequested = !!visibleValidationRunId || createValidationRun.isPending;
+  const validationRequested = !!visibleValidationRunId || !!legacyJob.job || !!legacyJob.submissionError;
 
   useEffect(() => {
     if (!legacyValidation) return;
@@ -97,7 +111,7 @@ export default function PortfolioLab() {
     setBtCashYield(a.cashYieldAnnual * 100);
     setBtStartDate(a.startDate ?? "");
     setBtEndDate(a.endDate ?? "");
-  }, [legacyValidation?.validationRunId, result?.sessionId]);
+  }, [legacyValidation?.validationRunId, legacySessionId]);
 
   const handleRunValidation = () => {
     if (b2Mode) {
@@ -108,26 +122,19 @@ export default function PortfolioLab() {
     if (!result?.sessionId) return;
     setValidationError(null);
     setActiveTab("backtest");
-    createValidationRun.mutate({
-      data: {
+    setSelectedValidationRunId(null);
+    legacyJob.start({
         sessionId: result.sessionId, benchmark: btBenchmark,
         rebalanceFrequency: btFrequency, executionTiming: btTiming,
         transactionCostBps: btTxnCostBps, slippageBps: btSlippageBps,
         cashYieldAnnual: btCashYield / 100,
         ...(btStartDate ? { startDate: btStartDate } : {}),
         ...(btEndDate ? { endDate: btEndDate } : {}),
-      },
-    }, {
-      onSuccess: (saved) => {
-        setSelectedValidationRunId(saved.validationRunId);
-        refetchValidationRuns();
-      },
-      onError: (error) => setValidationError(error instanceof Error ? error.message : "Validation could not be saved."),
     });
   };
 
   const isRunning = b2Mode ? b2Running : runPipeline.isPending;
-  const isValidating = b2Mode ? b3Running : createValidationRun.isPending;
+  const isValidating = b2Mode ? b3Running : legacyJob.active;
   const handleB2PreparedSelection = useCallback((selection: B2PreparedSelection | null) => {
     setB2Prepared(selection);
   }, []);
@@ -296,7 +303,13 @@ export default function PortfolioLab() {
                validationRuns={legacyRuns}
               selectedValidationRunId={visibleValidationRunId}
               onSelectValidationRun={(id) => setSelectedValidationRunId(id)}
-              validationError={validationError}
+               validationError={validationError ?? legacyJob.submissionError ?? legacyJob.job?.error?.message ?? null}
+               validationJob={legacyJob.job}
+               validationJobActive={legacyJob.active}
+               validationJobSubmitting={legacyJob.submitting}
+               validationJobReconnecting={legacyJob.reconnecting}
+               validationJobSeconds={legacyJob.seconds}
+               validationJobSubmissionError={legacyJob.submissionError}
               onRunValidation={handleRunValidation}
               benchmark={btBenchmark} setBenchmark={setBtBenchmark}
               frequency={btFrequency} setFrequency={setBtFrequency}

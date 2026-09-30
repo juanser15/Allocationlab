@@ -15,3 +15,4 @@
 - [Robust nullspace certification](robust-nullspace-certification.md) — exact square-root optimization needs joint active-constraint subgradient checks at zero uncertainty and scale-relative numerical thresholds.
 - [Full validation fetches in child processes](validation-fetch-buffer.md) — saved financial results can exceed Node's default synchronous child-process output buffer; size it explicitly.
 - [Browser 502 evidence boundary](browser-502-evidence.md) — an HTTP 502 without a completed API response is not evidence of a failed model or a passing replay; preserve the exact browser/server observations.
+- [Validation job identity](validation-job-identity.md) — idempotency belongs to one deliberate submission; identical inputs may be intentionally rerun, and execution failures remain distinct from financial results.

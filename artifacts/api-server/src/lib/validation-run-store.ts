@@ -4,6 +4,8 @@ import { desc, eq } from "drizzle-orm";
 import type { BacktestResult } from "@workspace/api-zod";
 import { toB3ValidationRun } from "./b3-validation-store";
 
+export type ValidationRunDbWriter = Pick<typeof db, "insert">;
+
 function stable(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(stable);
   if (value !== null && typeof value === "object")
@@ -36,14 +38,17 @@ function reconciliationStatus(result: BacktestResult): "pass" | "fail" {
   ) ? "pass" : "fail";
 }
 
-export async function persistValidationRun(result: BacktestResult) {
+export async function persistValidationRun(
+  result: BacktestResult,
+  writer: ValidationRunDbWriter = db,
+) {
   const identity = result.validationIdentity;
   if (!result.hasSufficientData || !identity || result.snapshotStatus !== "ready" ||
       result.reproducibility.status !== "pass")
     throw new Error(result.insufficientReason ?? "Only completed validations of reproducible Strategy Snapshots can be saved.");
   const reconciliation = reconciliationStatus(result);
   if (reconciliation !== "pass") throw new Error("Ledger reconciliation failed; validation was not saved.");
-  const [row] = await db.insert(validationRunsTable).values({
+  const [row] = await writer.insert(validationRunsTable).values({
     strategySnapshotId: identity.optimizationRunId,
     datasetHash: identity.datasetHash,
     factorSetVersion: identity.factorSetVersion,

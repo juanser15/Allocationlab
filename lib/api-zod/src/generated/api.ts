@@ -2455,6 +2455,265 @@ export const GetBacktestResponse = zod.object({
 
 
 /**
+ * @summary Queue a durable validation using frozen inputs without holding the HTTP request open
+ */
+export const createValidationJobBodyIdempotencyKeyMax = 128;
+
+
+
+export const createValidationJobBodyRequestTwoAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createValidationJobBodyRequestTwoAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createValidationJobBodyRequestTwoAssumptionsInitialNavExclusiveMin = 0;
+
+export const createValidationJobBodyRequestTwoAssumptionsInitialHoldingsMinOne = 0;
+
+export const createValidationJobBodyRequestTwoAssumptionsInitialCashMin = 0;
+
+export const createValidationJobBodyRequestTwoAssumptionsTransactionCostBpsMin = 0;
+
+export const createValidationJobBodyRequestTwoAssumptionsSlippageBpsMin = 0;
+
+
+
+export const CreateValidationJobBody = zod.object({
+  "idempotencyKey": zod.string().min(1).max(createValidationJobBodyIdempotencyKeyMax),
+  "request": zod.union([zod.object({
+  "sessionId": zod.number(),
+  "benchmark": zod.string().optional(),
+  "startDate": zod.string().optional(),
+  "endDate": zod.string().optional(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']).optional(),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']).optional(),
+  "transactionCostBps": zod.number().optional(),
+  "slippageBps": zod.number().optional(),
+  "maxTurnoverPerRebalance": zod.number().optional(),
+  "cashYieldAnnual": zod.number().optional(),
+  "warmupDays": zod.number().optional()
+}),zod.object({
+  "allocationId": zod.number().min(1),
+  "validationPreparedInputId": zod.number().min(1),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(createValidationJobBodyRequestTwoAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(createValidationJobBodyRequestTwoAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']),
+  "initialNav": zod.number().gt(createValidationJobBodyRequestTwoAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(createValidationJobBodyRequestTwoAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(createValidationJobBodyRequestTwoAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(createValidationJobBodyRequestTwoAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(createValidationJobBodyRequestTwoAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).describe('Frozen evaluation and A1 execution settings applied to this validation.')
+}).describe('Runs a B3 point-in-time backtest from explicitly selected immutable B2 policy and B1 validation snapshots. No working\/latest dataset is selected implicitly.')])
+})
+
+
+
+export const createValidationJobResponseRequestTwoAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createValidationJobResponseRequestTwoAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createValidationJobResponseRequestTwoAssumptionsInitialNavExclusiveMin = 0;
+
+export const createValidationJobResponseRequestTwoAssumptionsInitialHoldingsMinOne = 0;
+
+export const createValidationJobResponseRequestTwoAssumptionsInitialCashMin = 0;
+
+export const createValidationJobResponseRequestTwoAssumptionsTransactionCostBpsMin = 0;
+
+export const createValidationJobResponseRequestTwoAssumptionsSlippageBpsMin = 0;
+
+
+
+export const CreateValidationJobResponse = zod.object({
+  "jobId": zod.string(),
+  "status": zod.enum(['queued', 'running', 'completed', 'failed']),
+  "phase": zod.string(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "startedAt": zod.string().nullable(),
+  "completedAt": zod.string().nullable(),
+  "validationRunId": zod.number().nullable(),
+  "error": zod.union([zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "httpStatus": zod.number().nullable()
+}),zod.null()]),
+  "attempts": zod.number(),
+  "request": zod.union([zod.object({
+  "sessionId": zod.number(),
+  "benchmark": zod.string().optional(),
+  "startDate": zod.string().optional(),
+  "endDate": zod.string().optional(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']).optional(),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']).optional(),
+  "transactionCostBps": zod.number().optional(),
+  "slippageBps": zod.number().optional(),
+  "maxTurnoverPerRebalance": zod.number().optional(),
+  "cashYieldAnnual": zod.number().optional(),
+  "warmupDays": zod.number().optional()
+}),zod.object({
+  "allocationId": zod.number().min(1),
+  "validationPreparedInputId": zod.number().min(1),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(createValidationJobResponseRequestTwoAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(createValidationJobResponseRequestTwoAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']),
+  "initialNav": zod.number().gt(createValidationJobResponseRequestTwoAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(createValidationJobResponseRequestTwoAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(createValidationJobResponseRequestTwoAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(createValidationJobResponseRequestTwoAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(createValidationJobResponseRequestTwoAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).describe('Frozen evaluation and A1 execution settings applied to this validation.')
+}).describe('Runs a B3 point-in-time backtest from explicitly selected immutable B2 policy and B1 validation snapshots. No working\/latest dataset is selected implicitly.')])
+})
+
+
+/**
+ * @summary Recover durable validation jobs without creating or starting new jobs
+ */
+export const ListValidationJobsQueryParams = zod.object({
+  "sessionId": zod.coerce.number().optional(),
+  "allocationId": zod.coerce.number().optional()
+})
+
+
+
+export const listValidationJobsResponseRequestTwoAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const listValidationJobsResponseRequestTwoAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const listValidationJobsResponseRequestTwoAssumptionsInitialNavExclusiveMin = 0;
+
+export const listValidationJobsResponseRequestTwoAssumptionsInitialHoldingsMinOne = 0;
+
+export const listValidationJobsResponseRequestTwoAssumptionsInitialCashMin = 0;
+
+export const listValidationJobsResponseRequestTwoAssumptionsTransactionCostBpsMin = 0;
+
+export const listValidationJobsResponseRequestTwoAssumptionsSlippageBpsMin = 0;
+
+
+
+export const ListValidationJobsResponseItem = zod.object({
+  "jobId": zod.string(),
+  "status": zod.enum(['queued', 'running', 'completed', 'failed']),
+  "phase": zod.string(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "startedAt": zod.string().nullable(),
+  "completedAt": zod.string().nullable(),
+  "validationRunId": zod.number().nullable(),
+  "error": zod.union([zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "httpStatus": zod.number().nullable()
+}),zod.null()]),
+  "attempts": zod.number(),
+  "request": zod.union([zod.object({
+  "sessionId": zod.number(),
+  "benchmark": zod.string().optional(),
+  "startDate": zod.string().optional(),
+  "endDate": zod.string().optional(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']).optional(),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']).optional(),
+  "transactionCostBps": zod.number().optional(),
+  "slippageBps": zod.number().optional(),
+  "maxTurnoverPerRebalance": zod.number().optional(),
+  "cashYieldAnnual": zod.number().optional(),
+  "warmupDays": zod.number().optional()
+}),zod.object({
+  "allocationId": zod.number().min(1),
+  "validationPreparedInputId": zod.number().min(1),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(listValidationJobsResponseRequestTwoAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(listValidationJobsResponseRequestTwoAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']),
+  "initialNav": zod.number().gt(listValidationJobsResponseRequestTwoAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(listValidationJobsResponseRequestTwoAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(listValidationJobsResponseRequestTwoAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(listValidationJobsResponseRequestTwoAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(listValidationJobsResponseRequestTwoAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).describe('Frozen evaluation and A1 execution settings applied to this validation.')
+}).describe('Runs a B3 point-in-time backtest from explicitly selected immutable B2 policy and B1 validation snapshots. No working\/latest dataset is selected implicitly.')])
+})
+export const ListValidationJobsResponse = zod.array(ListValidationJobsResponseItem)
+
+
+/**
+ * @summary Poll persisted status and result linkage without recomputing a validation
+ */
+export const GetValidationJobParams = zod.object({
+  "jobId": zod.coerce.string()
+})
+
+
+
+export const getValidationJobResponseRequestTwoAssumptionsEvaluationStartDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getValidationJobResponseRequestTwoAssumptionsEvaluationEndDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getValidationJobResponseRequestTwoAssumptionsInitialNavExclusiveMin = 0;
+
+export const getValidationJobResponseRequestTwoAssumptionsInitialHoldingsMinOne = 0;
+
+export const getValidationJobResponseRequestTwoAssumptionsInitialCashMin = 0;
+
+export const getValidationJobResponseRequestTwoAssumptionsTransactionCostBpsMin = 0;
+
+export const getValidationJobResponseRequestTwoAssumptionsSlippageBpsMin = 0;
+
+
+
+export const GetValidationJobResponse = zod.object({
+  "jobId": zod.string(),
+  "status": zod.enum(['queued', 'running', 'completed', 'failed']),
+  "phase": zod.string(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "startedAt": zod.string().nullable(),
+  "completedAt": zod.string().nullable(),
+  "validationRunId": zod.number().nullable(),
+  "error": zod.union([zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "httpStatus": zod.number().nullable()
+}),zod.null()]),
+  "attempts": zod.number(),
+  "request": zod.union([zod.object({
+  "sessionId": zod.number(),
+  "benchmark": zod.string().optional(),
+  "startDate": zod.string().optional(),
+  "endDate": zod.string().optional(),
+  "rebalanceFrequency": zod.enum(['monthly', 'quarterly']).optional(),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']).optional(),
+  "transactionCostBps": zod.number().optional(),
+  "slippageBps": zod.number().optional(),
+  "maxTurnoverPerRebalance": zod.number().optional(),
+  "cashYieldAnnual": zod.number().optional(),
+  "warmupDays": zod.number().optional()
+}),zod.object({
+  "allocationId": zod.number().min(1),
+  "validationPreparedInputId": zod.number().min(1),
+  "assumptions": zod.object({
+  "evaluationStartDate": zod.string().regex(getValidationJobResponseRequestTwoAssumptionsEvaluationStartDateRegExp),
+  "evaluationEndDate": zod.string().regex(getValidationJobResponseRequestTwoAssumptionsEvaluationEndDateRegExp),
+  "decisionCalendar": zod.enum(['monthly', 'quarterly']),
+  "executionTiming": zod.enum(['same_close', 'next_close', 'next_open']),
+  "initialNav": zod.number().gt(getValidationJobResponseRequestTwoAssumptionsInitialNavExclusiveMin),
+  "initialHoldings": zod.record(zod.string(), zod.number().min(getValidationJobResponseRequestTwoAssumptionsInitialHoldingsMinOne)),
+  "initialCash": zod.number().min(getValidationJobResponseRequestTwoAssumptionsInitialCashMin),
+  "transactionCostBps": zod.number().min(getValidationJobResponseRequestTwoAssumptionsTransactionCostBpsMin),
+  "slippageBps": zod.number().min(getValidationJobResponseRequestTwoAssumptionsSlippageBpsMin),
+  "dailyCashYield": zod.number(),
+  "benchmarkTicker": zod.string().optional()
+}).describe('Frozen evaluation and A1 execution settings applied to this validation.')
+}).describe('Runs a B3 point-in-time backtest from explicitly selected immutable B2 policy and B1 validation snapshots. No working\/latest dataset is selected implicitly.')])
+})
+
+
+/**
  * @summary Execute and persist a legacy Strategy Snapshot validation or a frozen B3 policy validation
  */
 

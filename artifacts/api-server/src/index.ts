@@ -1,5 +1,7 @@
 import app from "./app";
+import { pool } from "@workspace/db";
 import { logger } from "./lib/logger";
+import { startValidationJobSupervisor } from "./lib/validation-job-supervisor";
 
 const rawPort = process.env["PORT"];
 
@@ -15,11 +17,31 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-app.listen(port, (err) => {
+const server = app.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
     process.exit(1);
   }
 
   logger.info({ port }, "Server listening");
+  stopWorker = startValidationJobSupervisor();
 });
+
+let stopWorker: () => Promise<void> = async () => {};
+let isShuttingDown = false;
+const shutdown = (signal: string) => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  logger.info({ signal }, "Shutting down API and validation worker");
+  void (async () => {
+    await stopWorker();
+    await new Promise<void>((resolveClose) => server.close(() => resolveClose()));
+    await pool.end();
+  })().catch((error: unknown) => {
+    logger.error({ err: error, signal }, "Could not shut down API and validation worker cleanly");
+    process.exitCode = 1;
+  });
+};
+
+process.once("SIGTERM", () => shutdown("SIGTERM"));
+process.once("SIGINT", () => shutdown("SIGINT"));

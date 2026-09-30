@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getAllocation, getGetAllocationQueryKey, getValidationRun, useCreateValidationRun, useGetAllocation, useReplayValidationRun } from "@workspace/api-client-react";
+import { getAllocation, getGetAllocationQueryKey, getValidationRun, useGetAllocation, useReplayValidationRun, type ValidationJob } from "@workspace/api-client-react";
 import { AllocationModeComparisonPanel } from "./AllocationModeComparisonPanel";
+import { useValidationJob } from "./use-validation-job";
+import { ValidationJobStatus } from "./ValidationJobStatus";
 import { RobustnessPanel } from "./RobustnessPanel";
 import { CostAwareValidationResult } from "./CostAwarePanel";
 import { RebalanceValidationResult } from "./RebalanceRegularizationPanel";
@@ -108,7 +110,6 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
   const [replay, setReplay] = useState<Row | null>(null);
   const [step, setStep] = useState<Step>("configure");
   const previousToken = useRef(0);
-  const createValidation = useCreateValidationRun();
   const replayValidation = useReplayValidationRun();
 
   const refresh = useCallback(async () => {
@@ -144,10 +145,36 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
   useEffect(() => {
     if (selectedRunId === null) { setRun(null); return; }
     let active = true;
+    let fetching = false;
+    let retryWhenSettled = false;
+    setRun(null);
     setError(null);
-    void getValidationRun(selectedRunId).then(data => { if (active) { setRun(record(data)); setStep("results"); } })
-      .catch(err => { if (active) setError(err instanceof Error ? err.message : "Saved run could not be retrieved."); });
-    return () => { active = false; };
+    const loadSelectedRun = async () => {
+      if (!active) return;
+      if (fetching) { retryWhenSettled = true; return; }
+      fetching = true;
+      try {
+        const data = await getValidationRun(selectedRunId);
+        if (active) { setRun(record(data)); setError(null); setStep("results"); }
+      } catch (err) {
+        if (active) setError(err instanceof Error ? err.message : "Saved run could not be retrieved.");
+      } finally {
+        fetching = false;
+        if (active && retryWhenSettled) {
+          retryWhenSettled = false;
+          void loadSelectedRun();
+        }
+      }
+    };
+    const reconnect = () => { void loadSelectedRun(); };
+    void loadSelectedRun();
+    window.addEventListener("online", reconnect);
+    window.addEventListener("focus", reconnect);
+    return () => {
+      active = false;
+      window.removeEventListener("online", reconnect);
+      window.removeEventListener("focus", reconnect);
+    };
   }, [selectedRunId]);
   useEffect(() => {
     if (comparisonId === null) { setComparison(null); return; }
@@ -156,6 +183,20 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
       .catch(err => { if (active) setError(err instanceof Error ? err.message : "Comparison could not be retrieved."); });
     return () => { active = false; };
   }, [comparisonId]);
+  const onValidationJobCompleted = useCallback((job: ValidationJob) => {
+    if (!job.validationRunId) return;
+    void refresh().finally(() => {
+      setSelectedRunId(job.validationRunId);
+      setRun(null);
+      setReplay(null);
+      setStep("results");
+    });
+  }, [refresh]);
+  const validationJob = useValidationJob("allocation-lab:validation-job:b3", onValidationJobCompleted);
+  useEffect(() => {
+    onRunningChange?.(validationJob.active);
+    return () => onRunningChange?.(false);
+  }, [onRunningChange, validationJob.active]);
 
   const policyRecord = record(policy?.allocation ?? policy);
   const policyRequest = record(policyRecord.request);
@@ -187,24 +228,18 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
         Object.values(parsed).some(v => typeof v !== "number" || !Number.isFinite(v) || (!isSigned && v < 0))) throw new Error();
       holdings = parsed as Record<string, number>;
     } catch { setError(`Initial holdings must be a JSON object of tickers to finite ${isSigned ? "signed" : "nonnegative"} quantities.`); setStep("configure"); return; }
-    setBusy(true); onRunningChange?.(true); setReplay(null);
-    try {
-      const created = record(await createValidation.mutateAsync({ data: {
-          allocationId, validationPreparedInputId: Number(preparedId),
-          assumptions: {
-            evaluationStartDate: start, evaluationEndDate: end, decisionCalendar: calendar, executionTiming: timing,
-            initialNav, initialHoldings: holdings, initialCash, transactionCostBps: cost, slippageBps: slippage,
-            dailyCashYield: yieldDaily, ...(benchmark.trim() ? { benchmarkTicker: benchmark.trim().toUpperCase() } : {}),
-          },
-        } }));
-      const id = idOf(created, "validationRunId");
-      if (!id) throw new Error("Validation response did not include a saved run ID.");
-      await refresh();
-      setSelectedRunId(id);
-      setRun(created);
-      setStep("results");
-    } catch (err) { setError(err instanceof Error ? err.message : "Validation failed."); setStep("configure"); }
-    finally { setBusy(false); onRunningChange?.(false); }
+    if (validationJob.active) return;
+    setReplay(null);
+    setSelectedRunId(null);
+    validationJob.start({
+      allocationId,
+      validationPreparedInputId: Number(preparedId),
+      assumptions: {
+        evaluationStartDate: start, evaluationEndDate: end, decisionCalendar: calendar, executionTiming: timing,
+        initialNav, initialHoldings: holdings, initialCash, transactionCostBps: cost, slippageBps: slippage,
+        dailyCashYield: yieldDaily, ...(benchmark.trim() ? { benchmarkTicker: benchmark.trim().toUpperCase() } : {}),
+      },
+    });
   }
   useEffect(() => {
     if (runToken === previousToken.current) return;
@@ -321,6 +356,14 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
         <Button key={s} size="sm" variant={step === s ? "default" : "ghost"} onClick={() => setStep(s)} data-testid={`button-b3-step-${s}`}>{i + 1} · {s === "configure" ? "Configure → Validate" : s === "results" ? "Results" : "Diagnostics"}</Button>)}</div>
     </CardHeader></Card>
     {error && <Alert variant="destructive" data-testid="status-b3-error"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
+    <ValidationJobStatus
+      job={validationJob.job}
+      active={validationJob.active}
+      submitting={validationJob.submitting}
+      reconnecting={validationJob.reconnecting}
+      seconds={validationJob.seconds}
+      submissionError={validationJob.submissionError}
+    />
     {loading && <div className="h-24 animate-pulse rounded border bg-muted/50" aria-label="Loading saved validation records" />}
     {step === "configure" && <Card><CardHeader><CardTitle className="text-sm">Frozen inputs & execution assumptions</CardTitle>
       <CardDescription>Choose a saved B1 preparation with evaluation and warmup coverage. The working or latest price dataset is never substituted.</CardDescription></CardHeader>
@@ -350,7 +393,7 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
           <div className="space-y-1"><Label htmlFor="b3-yield">Daily cash yield (decimal)</Label><Input id="b3-yield" type="number" step="any" value={yieldDaily} onChange={e => setYieldDaily(Number(e.target.value))} data-testid="input-b3-yield" /></div>
         </div>
         {!compatibleInputs.length && !loading && <p className="text-xs text-amber-700">No saved preparation of this representation is available. Prepare and save one in Optimization Inputs, then refresh this list.</p>}
-        <div className="flex flex-wrap gap-2 border-t pt-4"><Button size="sm" onClick={() => void validate()} disabled={busy || !allocationId} data-testid="button-run-b3-validation"><FlaskConical className="mr-2 h-4 w-4" />{busy ? "Validating…" : "Validate frozen policy"}</Button><Button size="sm" variant="outline" onClick={() => void refresh()} disabled={busy} data-testid="button-refresh-b3"><RefreshCw className="mr-2 h-3.5 w-3.5" />Refresh saved inputs & runs</Button></div>
+        <div className="flex flex-wrap gap-2 border-t pt-4"><Button size="sm" onClick={() => void validate()} disabled={busy || validationJob.active || !allocationId} data-testid="button-run-b3-validation"><FlaskConical className="mr-2 h-4 w-4" />{validationJob.active ? "Validation job running…" : busy ? "Validating…" : "Validate frozen policy"}</Button><Button size="sm" variant="outline" onClick={() => void refresh()} disabled={busy} data-testid="button-refresh-b3"><RefreshCw className="mr-2 h-3.5 w-3.5" />Refresh saved inputs & runs</Button></div>
       </CardContent></Card>}
     <Card><CardHeader className="pb-3"><CardTitle className="text-sm">Saved B3 validation runs</CardTitle><CardDescription>Persistent results can be retrieved by ID after reload, independent of the current working data.</CardDescription></CardHeader>
       <CardContent className="flex flex-wrap gap-3 items-end">

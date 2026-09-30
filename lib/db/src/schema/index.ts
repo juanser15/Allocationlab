@@ -4,6 +4,7 @@ export * from "./sessions";
 export * from "./decisionLogs";
 export * from "./governance";
 export * from "./validationRuns";
+export * from "./validationJobs";
 export * from "./preparedInputs";
 export * from "./allocations";
 export * from "./c1Experiments";

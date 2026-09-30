@@ -12,8 +12,8 @@ while (basename(artifactDir) !== "api-server" && dirname(artifactDir) !== artifa
   artifactDir = dirname(artifactDir);
 export const D6_TRACE_FILE = process.env.D6_TRACE_FILE ?? resolve(artifactDir, "../../reports/d6-evidence/validation-trace.jsonl");
 
-export function d6TraceContext(): TraceContext {
-  return { id: randomUUID(), started: performance.now() };
+export function d6TraceContext(id: string = randomUUID()): TraceContext {
+  return { id, started: performance.now() };
 }
 
 export function withD6Trace<T>(context: TraceContext, fn: () => T): T {

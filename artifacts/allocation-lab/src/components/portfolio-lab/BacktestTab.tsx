@@ -15,8 +15,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { EmptyState } from "@/components/shared/EmptyState";
 import { DetailDrawer } from "@/components/shared/DetailDrawer";
 import { FlaskConical, CheckCircle2, XCircle, ShieldAlert, Info, Loader2, ShieldCheck, Lock } from "lucide-react";
-import type { BacktestResult, ValidationRun, ValidationRunSummary } from "@workspace/api-client-react";
+import type { BacktestResult, ValidationJob, ValidationRun, ValidationRunSummary } from "@workspace/api-client-react";
 import { ScenarioStressLab } from "@/components/research-lab/ScenarioStressLab";
+import { ValidationJobStatus } from "./ValidationJobStatus";
 
 interface Props {
   bt: BacktestResult | undefined;
@@ -30,6 +31,12 @@ interface Props {
   selectedValidationRunId: number | null;
   onSelectValidationRun: (id: number) => void;
   validationError: string | null;
+  validationJob: ValidationJob | null;
+  validationJobActive: boolean;
+  validationJobSubmitting: boolean;
+  validationJobReconnecting: boolean;
+  validationJobSeconds: number;
+  validationJobSubmissionError: string | null;
   benchmark: string; setBenchmark: (v: string) => void;
   frequency: "monthly" | "quarterly"; setFrequency: (v: "monthly" | "quarterly") => void;
   timing: "same_close" | "next_close" | "next_open"; setTiming: (v: "same_close" | "next_close" | "next_open") => void;
@@ -105,6 +112,8 @@ export function BacktestTab(props: Props) {
   const {
     bt, loading, hasData, hasRun, validationRequested, onRunValidation,
     validationRun, validationRuns, selectedValidationRunId, onSelectValidationRun, validationError,
+    validationJob, validationJobActive, validationJobSubmitting, validationJobReconnecting,
+    validationJobSeconds, validationJobSubmissionError,
     benchmark, setBenchmark, frequency, setFrequency, timing, setTiming,
     txnCostBps, setTxnCostBps, slippageBps, setSlippageBps,
     cashYield, setCashYield, startDate, setStartDate, endDate, setEndDate,
@@ -203,6 +212,14 @@ export function BacktestTab(props: Props) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
+          <ValidationJobStatus
+            job={validationJob}
+            active={validationJobActive}
+            submitting={validationJobSubmitting}
+            reconnecting={validationJobReconnecting}
+            seconds={validationJobSeconds}
+            submissionError={validationJobSubmissionError}
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Benchmark</Label>

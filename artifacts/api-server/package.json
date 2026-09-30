@@ -12,7 +12,8 @@
     "test:a2": "esbuild src/lib/run-snapshot.a2.test.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./src/lib/calculator.a1.db-shim.ts --outfile=dist/run-snapshot.a2.test.mjs && node --test dist/run-snapshot.a2.test.mjs",
     "test:a21": "esbuild src/lib/validation-runs.a21.test.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/validation-runs.a21.test.mjs && node --test dist/validation-runs.a21.test.mjs",
     "test:b1": "esbuild src/lib/prepared-inputs.b1.test.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./src/lib/calculator.a1.db-shim.ts --outfile=dist/prepared-inputs.b1.test.mjs && node --test dist/prepared-inputs.b1.test.mjs",
-    "test:b2": "esbuild src/lib/allocation-b2.test.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./src/lib/calculator.a1.db-shim.ts --outfile=dist/allocation-b2.test.mjs && node --test dist/allocation-b2.test.mjs"
+    "test:b2": "esbuild src/lib/allocation-b2.test.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./src/lib/calculator.a1.db-shim.ts --outfile=dist/allocation-b2.test.mjs && node --test dist/allocation-b2.test.mjs",
+    "test:validation-job-supervisor": "esbuild src/lib/validation-job-supervisor-control.test.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/validation-job-supervisor-control.test.mjs && node --test dist/validation-job-supervisor-control.test.mjs"
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",

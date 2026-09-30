@@ -1693,6 +1693,49 @@ export interface B3ValidationRunInput {
 
 export type ValidationRunInput = LegacyValidationRunInput | B3ValidationRunInput;
 
+export interface ValidationJobInput {
+  /**
+     * @minLength 1
+     * @maxLength 128
+     */
+  idempotencyKey: string;
+  request: ValidationRunInput;
+}
+
+export type ValidationJobStatus = typeof ValidationJobStatus[keyof typeof ValidationJobStatus];
+
+
+export const ValidationJobStatus = {
+  queued: 'queued',
+  running: 'running',
+  completed: 'completed',
+  failed: 'failed',
+} as const;
+
+export interface ValidationJobError {
+  code: string;
+  message: string;
+  /** @nullable */
+  httpStatus: number | null;
+}
+
+export interface ValidationJob {
+  jobId: string;
+  status: ValidationJobStatus;
+  phase: string;
+  createdAt: string;
+  updatedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  completedAt: string | null;
+  /** @nullable */
+  validationRunId: number | null;
+  error: ValidationJobError | null;
+  attempts: number;
+  request: ValidationRunInput;
+}
+
 export type C2ExperimentInputRegimeSource = typeof C2ExperimentInputRegimeSource[keyof typeof C2ExperimentInputRegimeSource];
 
 
@@ -3510,6 +3553,11 @@ export const GetBacktestExecutionTiming = {
   next_close: 'next_close',
   next_open: 'next_open',
 } as const;
+
+export type ListValidationJobsParams = {
+sessionId?: number;
+allocationId?: number;
+};
 
 export type ListValidationRunsParams = {
 /**
