@@ -5,7 +5,9 @@ import {
   buildStatisticalFactorRiskModel, decomposeStatisticalFactorRisk, type D1StatisticalFactorRiskModel,
 } from "./d1-factor-model";
 import { optimizeSignedOverlay } from "./signed-overlay-d2";
-import { D4_SOLVER_VERSION, solveRobustMeanUncertainty } from "./robust-solver-d4";
+import { D4_SOLVER_VERSION, solveRobustMeanUncertainty, certifyRobustPoint } from "./robust-solver-d4";
+import { d6Trace } from "./d6-trace";
+import { canonicalizeLongOnlyCapital } from "./long-only-canonicalization";
 import {
   prepareCostAwarePlan, summarizeCostAware, type CostAwarePlan, type CostAwareRequest,
 } from "./cost-aware-d5";
@@ -120,6 +122,13 @@ export interface AllocationModel {
 }
 
 export interface SolverDiagnostics {
+  numericalCanonicalization?: {
+    originalSolution: number[];
+    executableSolution: number[];
+    maximumAdjustment: number;
+    originalFeasibilityResidual: number;
+    originalOptimalityResidual: number;
+  };
   name: string;
   version: string;
   status: string;
@@ -855,7 +864,34 @@ function optimizePreparedSnapshotCore(snapshot: PreparedSnapshot, request: Alloc
   }
   if (!solution! || solution!.length !== size || solution!.some((value) => !finite(value)))
     return failure("NUMERICAL_FAILURE", "QP solver returned a nonfinite or dimensionally invalid solution.", model);
-  const x = solution!;
+  d6Trace("b2.solver.raw", { payload: JSON.stringify({ solution, Hessian, linear, constraints,
+    forecastCovariance: forecast?.V_mu, kappa: request.robustness?.kappa, size, assets,
+    candidateIds: model.candidateIds, H, d, request, robustSolve }) });
+  let x = solution!;
+  let numericalCanonicalization: SolverDiagnostics["numericalCanonicalization"];
+  try {
+    const originalFeasibilityResidual = maxViolation(x, constraints);
+    const originalOptimalityResidual = robustSolve?.stationarityResidual ??
+      scaledKktResidual(Hessian, linear, x, constraints);
+    if (originalFeasibilityResidual > CONSTRAINT_TOLERANCE ||
+        !finite(originalOptimalityResidual) || originalOptimalityResidual > OPTIMALITY_TOLERANCE)
+      return failure("NUMERICAL_FAILURE", "Original solution failed independent certification.", model);
+    const canonical = canonicalizeLongOnlyCapital(x, baseSize, CONSTRAINT_TOLERANCE);
+    if (canonical.maximumAdjustment > 0) {
+      numericalCanonicalization = {
+        originalSolution: [...x], executableSolution: canonical.solution,
+        maximumAdjustment: canonical.maximumAdjustment, originalFeasibilityResidual, originalOptimalityResidual,
+      };
+      x = canonical.solution;
+      if (robustSolve) {
+        const certificate = certifyRobustPoint(Hessian, linear, forecast!.V_mu, constraints,
+          request.robustness!.kappa, robustSolve.lambda, x);
+        robustSolve = { ...robustSolve, ...certificate, solution: x };
+      }
+    }
+  } catch (error) {
+    return failure("NUMERICAL_FAILURE", `Executable long-only certification failed: ${error instanceof Error ? error.message : error}`, model);
+  }
   const violation = Math.max(0, maxViolation(x, constraints));
   const primalResidual = Math.max(violation, Math.abs(x.slice(0, baseSize).reduce((sum, value) => sum + value, 0) - 1));
   const optimalityResidual = robustSolve?.stationarityResidual ?? scaledKktResidual(Hessian, linear, x, constraints);
@@ -868,7 +904,10 @@ function optimizePreparedSnapshotCore(snapshot: PreparedSnapshot, request: Alloc
   const masterCash = x[n];
   const assetWeights = Object.fromEntries(assets.map((ticker, i) => [ticker,
     H[i].reduce((sum, h, j) => sum + h * weights[j], 0)]));
+  if (Object.values(assetWeights).some((value) => !finite(value) || value < 0))
+    return failure("NUMERICAL_FAILURE", "Long-only asset mapping produced an invalid executable exposure.", model);
   const totalCash = masterCash + dot(d, weights);
+  d6Trace("b2.target.mapped", { payload: JSON.stringify({ weights, masterCash, totalCash, assetWeights }) });
   const estimatedGrossReturn = dot(mu, weights) + request.dailyCashYield * masterCash;
   const variance = Math.max(0, quadratic(weights, sigma));
   const estimatedVolatility = Math.sqrt(variance);
@@ -914,6 +953,7 @@ function optimizePreparedSnapshotCore(snapshot: PreparedSnapshot, request: Alloc
       version: solverVersion, status: "SOLVED",
       primalResidual, dualResidual: optimalityResidual, scaledOptimalityResidual: optimalityResidual,
       maxConstraintViolation: violation, psdTolerance: PSD_TOLERANCE, optimalityTolerance: OPTIMALITY_TOLERANCE,
+      ...(numericalCanonicalization ? { numericalCanonicalization } : {}),
       constraintTolerance: CONSTRAINT_TOLERANCE, iterations,
       message: robustSolve
         ? "Exact square-root robust objective KKT stationarity and independent primal feasibility checks passed."

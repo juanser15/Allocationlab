@@ -10,7 +10,7 @@ const storage = new AsyncLocalStorage<TraceContext>();
 let artifactDir = dirname(fileURLToPath(import.meta.url));
 while (basename(artifactDir) !== "api-server" && dirname(artifactDir) !== artifactDir)
   artifactDir = dirname(artifactDir);
-export const D6_TRACE_FILE = resolve(artifactDir, "../../reports/d6-evidence/validation-trace.jsonl");
+export const D6_TRACE_FILE = process.env.D6_TRACE_FILE ?? resolve(artifactDir, "../../reports/d6-evidence/validation-trace.jsonl");
 
 export function d6TraceContext(): TraceContext {
   return { id: randomUUID(), started: performance.now() };

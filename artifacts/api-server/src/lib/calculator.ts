@@ -15,6 +15,7 @@
  *   Risk Contribution by ETF, Correlation Matrix, Tracking Error
  */
 
+import { d6Trace } from "./d6-trace";
 import {
   configuredWeight,
   regimeKey,
@@ -1726,6 +1727,8 @@ export function runBacktestEngine(
         [ticker, quantity * row.prices[ticker] / nav] as const));
       const allTickers = new Set([...currentWeights.keys(), ...pending.target.keys()]);
       for (const [ticker, weight] of pending.target) {
+        d6Trace("a1.target.check", { date: row.date, ticker, value: String(weight), type: typeof weight,
+          enabled: enabledTickers.includes(ticker), finite: Number.isFinite(weight), allowShortPositions });
         if (!enabledTickers.includes(ticker) || !Number.isFinite(weight) ||
             (!allowShortPositions && weight < 0))
           return empty(`Invalid ${allowShortPositions ? "signed " : ""}target exposure for ${ticker} on ${row.date}.`);

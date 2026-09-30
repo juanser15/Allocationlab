@@ -123,3 +123,17 @@ mtime_ms = 1790706282239
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/ed436a20-52ed-43f0-8fc7-f4c6b131d638/5a57abbb-dff7-4426-94d2-46d9cd544de5"
 storage_version_token = "1790706296768099"
 content_type = "text/markdown"
+
+[[outputs]]
+id = "-6Imyk_NHZG2cCi1zcigL"
+uri = "file://reports/d6-general-correction/RESULT.md"
+type = "text"
+title = "D6 — causa demostrada y verificación bloqueada"
+description = "Valor original capturado, corrección general implementada, pruebas dirigidas y motivo exacto de la detención."
+logical_id = "68594aae-352d-4c4b-80fd-33ef52bfc5a6"
+content_hash = "sha256:186208511d31372dd145b3434c585f0dfeb90c8213887bcf82daf92e13f945af"
+size = 4073
+mtime_ms = 1790748884218
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/68594aae-352d-4c4b-80fd-33ef52bfc5a6/90b1f896-9cdf-4427-818b-0f41c016ddb3"
+storage_version_token = "1790748917383497"
+content_type = "text/markdown"

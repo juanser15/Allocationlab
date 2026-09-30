@@ -416,6 +416,25 @@ export function solveRobustMeanUncertainty(
     }
   }
   const x = best.x;
+  const certificate = certifyRobustPoint(hessian, linear, uncertainty, constraints, kappa, lambda, x);
+  if (x.length !== variableCount) throw new Error("Robust solver returned an invalid decision dimension.");
+  return { solution: x, nominalSolution: nominal.x, ...certificate, lambda, iterations };
+}
+
+/** Recheck the unchanged robust objective at a supplied point; this is not another solve. */
+export function certifyRobustPoint(
+  hessian: number[][], linear: number[], uncertainty: number[][],
+  constraints: RobustLinearConstraint[], kappa: number, lambda: number, x: number[],
+) {
+  const n = uncertainty.length;
+  if (x.some((value) => !Number.isFinite(value))) throw new Error("Nonfinite robust certification point.");
+  const zeroUncertainty = uncertainty.every((row) => row.every((value) => value === 0));
+  if (kappa > 0 && !zeroUncertainty && lambda === 0) {
+    const certificate = zeroRiskDualCertificate(x, hessian, linear, uncertainty, constraints, kappa, n);
+    if (!certificate) throw new Error("Canonical point failed robust nullspace certification.");
+    return { robustHaircut: 0, objectiveTotal: 0.5 * quadratic(x, hessian) + dot(linear, x),
+      primalResidual: certificate.violation, stationarityResidual: certificate.gradientResidual };
+  }
   const varianceMu = Math.max(0, quadratic(x.slice(0, n), uncertainty));
   const robustHaircut = kappa * Math.sqrt(varianceMu);
   const objectiveTotal = 0.5 * quadratic(x, hessian) + dot(linear, x) + robustHaircut;
@@ -466,7 +485,5 @@ export function solveRobustMeanUncertainty(
     throw new Error(`Independent robust feasibility residual ${violation} exceeds 1e-8.`);
   if (!Number.isFinite(stationarityResidual) || stationarityResidual > 1e-8)
     throw new Error(`Independent exact robust KKT residual ${stationarityResidual} exceeds 1e-8.`);
-  if (x.length !== variableCount) throw new Error("Robust solver returned an invalid decision dimension.");
-  return { solution: x, nominalSolution: nominal.x, robustHaircut, objectiveTotal, lambda,
-    iterations, primalResidual: violation, stationarityResidual };
+  return { robustHaircut, objectiveTotal, primalResidual: violation, stationarityResidual };
 }
