@@ -1652,6 +1652,7 @@ export type B3ValidationAssumptionsExecutionTiming = typeof B3ValidationAssumpti
 export const B3ValidationAssumptionsExecutionTiming = {
   same_close: 'same_close',
   next_close: 'next_close',
+  next_open: 'next_open',
 } as const;
 
 export type B3ValidationAssumptionsInitialHoldings = {[key: string]: number};

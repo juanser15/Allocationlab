@@ -94,7 +94,7 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [calendar, setCalendar] = useState<"monthly" | "quarterly">("monthly");
-  const [timing, setTiming] = useState<"same_close" | "next_close">("next_close");
+  const [timing, setTiming] = useState<"same_close" | "next_close" | "next_open">("next_close");
   const [initialNav, setInitialNav] = useState(100000);
   const [holdingsText, setHoldingsText] = useState("{}");
   const [initialCash, setInitialCash] = useState(100000);
@@ -340,7 +340,7 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange }: {
           <div className="space-y-1"><Label htmlFor="b3-start">Evaluation start</Label><Input id="b3-start" type="date" value={start} onChange={e => setStart(e.target.value)} data-testid="input-b3-start" /></div>
           <div className="space-y-1"><Label htmlFor="b3-end">Evaluation end</Label><Input id="b3-end" type="date" value={end} onChange={e => setEnd(e.target.value)} data-testid="input-b3-end" /></div>
           <div className="space-y-1"><Label htmlFor="b3-calendar">Decision calendar</Label><select id="b3-calendar" className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={calendar} onChange={e => setCalendar(e.target.value as typeof calendar)} data-testid="select-b3-calendar"><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option></select></div>
-          <div className="space-y-1"><Label htmlFor="b3-timing">Execution</Label><select id="b3-timing" className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={timing} onChange={e => setTiming(e.target.value as typeof timing)} data-testid="select-b3-timing"><option value="next_close">Next close</option><option value="same_close">Same close</option></select></div>
+          <div className="space-y-1"><Label htmlFor="b3-timing">Execution</Label><select id="b3-timing" className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={timing} onChange={e => setTiming(e.target.value as typeof timing)} data-testid="select-b3-timing"><option value="next_close">Next close</option><option value="next_open">Next open (adjusted)</option><option value="same_close">Same close</option></select></div>
           <div className="space-y-1"><Label htmlFor="b3-benchmark">Benchmark ticker (optional)</Label><Input id="b3-benchmark" value={benchmark} onChange={e => setBenchmark(e.target.value)} placeholder="Ticker" data-testid="input-b3-benchmark" /></div>
           <div className="space-y-1"><Label htmlFor="b3-nav">Initial NAV</Label><Input id="b3-nav" type="number" min="0.01" step="any" value={initialNav} onChange={e => setInitialNav(Number(e.target.value))} data-testid="input-b3-nav" /></div>
           <div className="space-y-1"><Label htmlFor="b3-cash">Initial cash</Label><Input id="b3-cash" type="number" min={signedPolicy ? undefined : "0"} step="any" value={initialCash} onChange={e => setInitialCash(Number(e.target.value))} data-testid="input-b3-cash" /></div>

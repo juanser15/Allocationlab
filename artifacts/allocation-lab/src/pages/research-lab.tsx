@@ -652,7 +652,7 @@ export default function ResearchLab() {
                     <SelectContent>
                       <SelectItem value="same_close">Same Close (unrealistic)</SelectItem>
                       <SelectItem value="next_close">Next Close</SelectItem>
-                      <SelectItem value="next_open">Next Open (approximated)</SelectItem>
+                      <SelectItem value="next_open">Next Open (adjusted)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

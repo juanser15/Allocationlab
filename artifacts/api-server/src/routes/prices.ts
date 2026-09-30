@@ -7,6 +7,7 @@ import {
   UploadPricesResponse,
 } from "@workspace/api-zod";
 import { parseCsv } from "../lib/calculator";
+import { adjustedOhlcCloseCsv, attachAdjustedOhlcRows, parseAdjustedOhlcCsv } from "../lib/price-ohlc";
 
 const router: IRouter = Router();
 
@@ -57,8 +58,19 @@ router.post("/prices/upload", async (req, res): Promise<void> => {
   }
 
   let rows;
+  let csvContent = parsed.data.csvContent;
+  let ohlcCsvContent: string | undefined;
   try {
-    rows = parseCsv(parsed.data.csvContent);
+    const header = parsed.data.csvContent.replace(/^\uFEFF/, "").split(/\r?\n/, 1)[0]
+      .split(",").map((field) => field.trim().toLowerCase()).join(",");
+    if (header === "date,ticker,open,high,low,close") {
+      // Parse first for explicit row/field validation, then persist the companion unchanged.
+      parseAdjustedOhlcCsv(parsed.data.csvContent);
+      ohlcCsvContent = parsed.data.csvContent;
+      csvContent = adjustedOhlcCloseCsv(parsed.data.csvContent);
+    }
+    rows = parseCsv(csvContent);
+    if (ohlcCsvContent) attachAdjustedOhlcRows(rows, ohlcCsvContent);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "CSV parse error";
     req.log.warn({ err }, "CSV parse error");
@@ -83,7 +95,8 @@ router.post("/prices/upload", async (req, res): Promise<void> => {
   const endDate = rows[rows.length - 1].date;
 
   await db.insert(priceDataTable).values({
-    csvContent: parsed.data.csvContent,
+    csvContent,
+    ...(ohlcCsvContent ? { ohlcCsvContent } : {}),
     tickers: JSON.stringify(tickersList),
     startDate,
     endDate,

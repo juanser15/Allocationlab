@@ -5,6 +5,7 @@ import {
 } from "./calculator";
 import type { FactorDefinition } from "./factor-library";
 import { ENGINE_VERSION, hashDataset } from "./run-snapshot";
+import { ADJUSTED_OHLC_CONVENTION, attachAdjustedOhlcRows } from "./price-ohlc";
 
 export type PreparedRepresentation = "asset_returns" | "signals" | "alpha_streams";
 export type PreparedStatus = "READY" | "INCOMPLETE" | "INSUFFICIENT_HISTORY" | "INVALID_DATA" | "UNSUPPORTED";
@@ -61,7 +62,9 @@ export interface PreparedSnapshot {
   engineVersion: string;
   a1EngineVersion: string;
   representation: PreparedRepresentation;
-  dataset: { id: number | null; sha256: string; csvContent: string; startDate: string; endDate: string; tickers: string[]; priceConvention: string };
+  dataset: { id: number | null; sha256: string; csvContent: string; startDate: string; endDate: string;
+    tickers: string[]; priceConvention: string; ohlcCsvContent?: string; ohlcSha256?: string;
+    ohlcConvention?: string };
   factorSet: { version: string; factors: FactorDefinition[] };
   request: PreparedRequest;
   coverage: Record<string, unknown>;
@@ -219,9 +222,12 @@ function makeCandidateIdentity(def: unknown, name: string) {
 
 export function prepareSnapshot(args: {
   request: PreparedRequest; csvContent: string; factorVersion: string; factors: FactorDefinition[]; datasetId?: number;
+  ohlcCsvContent?: string | null;
 }): PreparedSnapshot {
   const { request } = args;
-  const fullRows = parseCsv(args.csvContent);
+  const parsedRows = parseCsv(args.csvContent);
+  const fullRows = args.ohlcCsvContent
+    ? attachAdjustedOhlcRows(parsedRows, args.ohlcCsvContent) : parsedRows;
   const rows = request.cutoffDate ? fullRows.filter((row) => row.date <= request.cutoffDate!) : fullRows;
   const tickers = [...new Set(request.assetTickers.map((ticker) => ticker.toUpperCase()))];
   const factorSet = { factors: structuredClone(args.factors) };
@@ -450,7 +456,9 @@ export function prepareSnapshot(args: {
     schemaVersion: 1, engineVersion: PREPARED_INPUT_ENGINE_VERSION, a1EngineVersion: ENGINE_VERSION,
     representation: request.representation,
     dataset: { id: args.datasetId ?? null, sha256: dataHash, csvContent: args.csvContent, startDate: rows[0]?.date ?? "",
-      endDate, tickers, priceConvention: "persisted adjusted-close prices; not broker-level corporate-action accounting" },
+      endDate, tickers, priceConvention: "persisted adjusted-close prices; not broker-level corporate-action accounting",
+      ...(args.ohlcCsvContent ? { ohlcCsvContent: args.ohlcCsvContent, ohlcSha256: hashDataset(args.ohlcCsvContent),
+        ohlcConvention: ADJUSTED_OHLC_CONVENTION } : {}) },
     factorSet: { version: args.factorVersion, factors: factorSet.factors }, request: structuredClone(request),
     coverage: { requestedAssets: tickers, availableAssets: tickers.filter((ticker) => rows.some((row) => Number.isFinite(row.prices[ticker]))),
       startDate: rows[0]?.date ?? null, endDate: endDate || null, observationCount: rows.length,
@@ -523,9 +531,13 @@ export function replayPreparedSnapshot(snapshot: PreparedSnapshot) {
     return { status: "engine_mismatch" as const, fingerprint: fingerprint(snapshot.candidates), differences: [],
       replayedCandidates: [] };
   try {
+    if (snapshot.dataset.ohlcCsvContent !== undefined &&
+        (!snapshot.dataset.ohlcSha256 || !snapshot.dataset.ohlcConvention ||
+         hashDataset(snapshot.dataset.ohlcCsvContent) !== snapshot.dataset.ohlcSha256))
+      throw new Error("Frozen adjusted OHLC hash or convention metadata is missing or invalid.");
     const replayed = prepareSnapshot({ request: snapshot.request, csvContent: snapshot.dataset.csvContent,
       factorVersion: snapshot.factorSet.version, factors: snapshot.factorSet.factors,
-      datasetId: snapshot.dataset.id ?? undefined });
+      datasetId: snapshot.dataset.id ?? undefined, ohlcCsvContent: snapshot.dataset.ohlcCsvContent });
     const originalFingerprint = fingerprint(snapshot.candidates);
     const replayFingerprint = fingerprint(replayed.candidates);
     return { status: originalFingerprint === replayFingerprint ? "pass" as const : "fail" as const,

@@ -138,14 +138,100 @@ test("TEST 6 — every daily ledger entry and the compounded curve reconcile", (
   }
   near(nav, result.equityCurve.at(-1)!.portfolioIndex, "final curve");
 
-  const unavailable = run(oneAsset(Array(8).fill(100)), config({ executionTiming: "next_open" }));
-  assert.equal(unavailable.hasSufficientData, false);
-  assert.equal(unavailable.insufficientReason, "Next-open execution requires open-price data and is currently unavailable.");
   const missing = oneAsset(Array(8).fill(100));
   delete missing[5].prices.AAA;
   const invalid = run(missing);
   assert.equal(invalid.hasSufficientData, false);
   assert.match(invalid.insufficientReason ?? "", /Missing or invalid price for held asset AAA/);
+});
+
+test("A1 next_open signals at close t, fills at t+1 open, and only new shares earn open-to-close", () => {
+  const prices = rows(dates.map((date, i) => [date, i === 4 ? 130 : i === 5 ? 140 : 100]));
+  prices.forEach((row, index) => {
+    row.opens = { AAA: index === 4 ? 120 : index === 5 ? 150 : 100 };
+  });
+  const result = runBacktestEngine(prices, [etfs[0]], constraints,
+    config({ executionTiming: "next_open", transactionCostBps: 100, slippageBps: 50 }), null,
+    factorSet, (signalDate, availableRows) => {
+      assert.ok(availableRows.some((row) => row.date === signalDate), "signal-day close is available");
+      assert.ok(availableRows.every((row) => row.date <= signalDate), "next_open callback cannot see future rows");
+      return signalDate === dates[3] ? { AAA: 1 } : null;
+    });
+  assert.equal(result.hasSufficientData, true, result.insufficientReason ?? "");
+  const signal = result.dailyLedger.find((entry) => entry.date === dates[3])!;
+  const fill = result.dailyLedger.find((entry) => entry.date === dates[4])!;
+  assert.equal(signal.signalDate, dates[3]);
+  assert.equal(signal.trades.length, 0);
+  near(signal.endingNav, 100, "no position before next-open fill");
+  assert.equal(fill.executionSignalDate, dates[3]);
+  near(fill.beginningNav, 100, "pre-open NAV");
+  const expectedNotional = 100 / 1.015;
+  near(fill.trades[0].notional, expectedNotional, "fill notional uses open price and self-financed costs");
+  near(fill.trades[0].quantity, expectedNotional / 120, "shares use actual execution open");
+  near(fill.transactionCosts, expectedNotional * 100 / 10000, "fees use actual open notional");
+  near(fill.slippage, expectedNotional * 50 / 10000, "slippage uses actual open notional");
+  near(fill.etfPnl, (expectedNotional / 120) * 10, "new shares earn open-to-close only");
+  near(fill.endingNav, expectedNotional + (expectedNotional / 120) * 10, "open fill and close mark reconcile");
+  near(fill.endingCash + fill.endingPositions.reduce((sum, position) => sum + position.marketValue, 0),
+    fill.endingNav, "fill-day holdings and cash");
+});
+
+test("A1 next_open is point-in-time and fails for missing held or traded adjusted opens", () => {
+  const base = rows(dates.map((date, i) => [date, i < 5 ? 100 : 110]));
+  base.forEach((row) => { row.opens = { AAA: 100 }; });
+  base[3].prices.AAA = 101;
+  const target = (signalDate: string, availableRows: PriceRow[]) => {
+    assert.ok(availableRows.every((row) => row.date <= signalDate), "next_open callback cannot see future rows");
+    const signalClose = availableRows.find((row) => row.date === signalDate)!.prices.AAA;
+    return signalDate === dates[3] && signalClose > 100 ? { AAA: 1 } : null;
+  };
+  const visibleRowsOriginal: PriceRow[][] = [];
+  const recordingTarget = (signalDate: string, availableRows: PriceRow[]) => {
+    visibleRowsOriginal.push(structuredClone(availableRows));
+    return target(signalDate, availableRows);
+  };
+  const original = runBacktestEngine(base, [etfs[0]], constraints,
+    config({ executionTiming: "next_open" }), null, factorSet, recordingTarget);
+  const futureMutation = structuredClone(base);
+  futureMutation[6].prices.AAA = 900;
+  futureMutation[7].prices.AAA = 1;
+  const visibleRowsMutated: PriceRow[][] = [];
+  const mutatedTarget = (signalDate: string, availableRows: PriceRow[]) => {
+    visibleRowsMutated.push(structuredClone(availableRows));
+    return target(signalDate, availableRows);
+  };
+  const mutated = runBacktestEngine(futureMutation, [etfs[0]], constraints,
+    config({ executionTiming: "next_open" }), null, factorSet, mutatedTarget);
+  assert.equal(original.hasSufficientData, true, original.insufficientReason ?? "");
+  assert.equal(mutated.hasSufficientData, true, mutated.insufficientReason ?? "");
+  assert.deepEqual(visibleRowsOriginal, visibleRowsMutated,
+    "future price mutations must not change callback-visible rows");
+  assert.ok(visibleRowsOriginal.every((rows) => rows.every((row) => row.date <= dates[3])));
+  assert.ok(visibleRowsOriginal.every((rows) => !rows.some((row) => row.date === dates[4])),
+    "the execution-day close is not callback-visible");
+  assert.deepEqual(original.dailyLedger.filter((day) => day.date <= dates[5]),
+    mutated.dailyLedger.filter((day) => day.date <= dates[5]));
+  const signalCloseChanged = structuredClone(base);
+  signalCloseChanged[3].prices.AAA = 99;
+  const cutoffResult = runBacktestEngine(signalCloseChanged, [etfs[0]], constraints,
+    config({ executionTiming: "next_open" }), null, factorSet, target);
+  assert.equal(cutoffResult.hasSufficientData, true, cutoffResult.insufficientReason ?? "");
+  assert.equal(cutoffResult.dailyLedger.find((day) => day.date === dates[4])!.trades.length, 0,
+    "the signal-day close through t must affect the target");
+
+  const missingHeld = structuredClone(base);
+  delete missingHeld[5].opens!.AAA;
+  const heldFailure = runBacktestEngine(missingHeld, [etfs[0]], constraints,
+    config({ executionTiming: "next_open" }), null, factorSet, target);
+  assert.equal(heldFailure.hasSufficientData, false);
+  assert.match(heldFailure.insufficientReason ?? "", /Missing or invalid adjusted open for held asset AAA/);
+
+  const missingTrade = structuredClone(base);
+  delete missingTrade[4].opens!.AAA;
+  const tradeFailure = runBacktestEngine(missingTrade, [etfs[0]], constraints,
+    config({ executionTiming: "next_open" }), null, factorSet, target);
+  assert.equal(tradeFailure.hasSufficientData, false);
+  assert.match(tradeFailure.insufficientReason ?? "", /Missing or invalid adjusted open for traded asset AAA/);
 });
 
 test("A1 signed execution accounts for short proceeds, covers, P&L and one-time costs", () => {

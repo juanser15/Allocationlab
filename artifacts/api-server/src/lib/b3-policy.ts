@@ -11,6 +11,7 @@ import {
 } from "./prepared-inputs";
 import { computeD4Diagnostics } from "./d4-diagnostics";
 import { hashDataset } from "./run-snapshot";
+import { attachAdjustedOhlcRows } from "./price-ohlc";
 import { d6Trace, d6Span } from "./d6-trace";
 
 export interface B3Assumptions {
@@ -26,6 +27,10 @@ export interface B3Assumptions {
   dailyCashYield: number;
   benchmarkTicker?: string;
 }
+
+export type B3ExecutionAssumptions = Omit<B3Assumptions, "executionTiming"> & {
+  executionTiming: B3Assumptions["executionTiming"] | "next_open";
+};
 
 export interface B3Decision {
   decisionDate: string;
@@ -147,7 +152,7 @@ export interface B3Result {
     estimationWindow: number;
     minObservations: number;
   };
-  assumptions: B3Assumptions;
+  assumptions: B3ExecutionAssumptions;
   decisionCalendar: Array<{ decisionDate: string; executionDate: string }>;
   decisions: B3Decision[];
   dailyLedger: B3DailyLedgerEntry[];
@@ -252,7 +257,8 @@ function engineConstraints(): Constraints {
   };
 }
 
-function executionDate(rows: Array<{ date: string }>, date: string, timing: B3Assumptions["executionTiming"]): string | null {
+function executionDate(rows: Array<{ date: string }>, date: string,
+  timing: B3ExecutionAssumptions["executionTiming"]): string | null {
   const index = rows.findIndex((row) => row.date === date);
   if (index < 0) return null;
   if (timing === "same_close") return date;
@@ -363,7 +369,7 @@ function evaluateRidgeDecisions(
 }
 
 function failureResult(
-  assumptions: B3Assumptions,
+  assumptions: B3ExecutionAssumptions,
   policy: AllocationRequest,
   policySnapshot: PreparedSnapshot,
   validationSnapshot: PreparedSnapshot,
@@ -406,7 +412,7 @@ export function runB3Validation(
   policySnapshot: PreparedSnapshot,
   policyRequest: AllocationRequest,
   validationSnapshot: PreparedSnapshot,
-  assumptions: B3Assumptions,
+  assumptions: B3ExecutionAssumptions,
   estimationDatePlan?: B3EstimationDatePlan,
 ): B3Result {
   return runB3ValidationInternal(
@@ -418,7 +424,7 @@ function runB3ValidationInternal(
   policySnapshot: PreparedSnapshot,
   policyRequest: AllocationRequest,
   validationSnapshot: PreparedSnapshot,
-  assumptions: B3Assumptions,
+  assumptions: B3ExecutionAssumptions,
   estimationDatePlan: B3EstimationDatePlan | undefined,
   d5ComparisonRun: boolean,
   rebalanceComparisonRun = false,
@@ -453,6 +459,10 @@ function runB3ValidationInternal(
     return fail("Policy dataset integrity failure: snapshot content does not match its SHA-256 hash.");
   if (hashDataset(validationSnapshot.dataset.csvContent) !== validationSnapshot.dataset.sha256)
     return fail("Validation dataset integrity failure: snapshot content does not match its SHA-256 hash.");
+  if (validationSnapshot.dataset.ohlcCsvContent !== undefined &&
+      (!validationSnapshot.dataset.ohlcSha256 || !validationSnapshot.dataset.ohlcConvention ||
+       hashDataset(validationSnapshot.dataset.ohlcCsvContent) !== validationSnapshot.dataset.ohlcSha256))
+    return fail("Validation adjusted OHLC dataset integrity failure: snapshot content does not match its SHA-256 hash or convention metadata.");
   if (policySnapshot.representation !== policyRequest.representation ||
     validationSnapshot.representation !== policyRequest.representation)
     return fail("Policy request and both frozen preparations must use the same supported representation.");
@@ -467,8 +477,8 @@ function runB3ValidationInternal(
     assumptions.evaluationStartDate >= assumptions.evaluationEndDate)
     return fail("Evaluation dates must be valid YYYY-MM-DD values with start before end.");
   if (!["monthly", "quarterly"].includes(assumptions.decisionCalendar) ||
-    !["same_close", "next_close"].includes(assumptions.executionTiming))
-    return fail("B3 supports only monthly/quarterly calendars and A1 same_close/next_close execution.");
+    !["same_close", "next_close", "next_open"].includes(assumptions.executionTiming))
+    return fail("B3 supports only monthly/quarterly calendars and A1 same_close/next_close/next_open execution.");
   if (signalRidge && ridgeConfig.executionTiming !== assumptions.executionTiming)
     return fail("D6 SIGNAL_RIDGE executionTiming must exactly match the frozen B3 executionTiming assumption.");
   if (signalRidge && (!Number.isSafeInteger(ridgeConfig.trainingWindowDates) ||
@@ -558,7 +568,10 @@ function runB3ValidationInternal(
 
   let rows: ReturnType<typeof parseCsv>;
   try {
-    rows = parseCsv(validationSnapshot.dataset.csvContent);
+    const closes = parseCsv(validationSnapshot.dataset.csvContent);
+    rows = validationSnapshot.dataset.ohlcCsvContent !== undefined
+      ? attachAdjustedOhlcRows(closes, validationSnapshot.dataset.ohlcCsvContent)
+      : closes;
   } catch (error) {
     return fail(`Validation dataset could not be parsed: ${error instanceof Error ? error.message : String(error)}`);
   }
@@ -610,10 +623,10 @@ function runB3ValidationInternal(
   let decisionFailure: { date: string; reason: string } | null = null;
   const readDecisionFailure = (): { date: string; reason: string } | null => decisionFailure;
   const historicalPreparation = (decisionDate: string): PreparedSnapshot => {
-    // Include the execution close so B1's A1 scheduler retains a NEXT_CLOSE
-    // decision-date target. The target itself still reads only prices strictly
-    // before the decision; B2 is independently cut off at the preceding close.
-    const b1PreparationEnd = executionDate(rows, decisionDate, assumptions.executionTiming) ?? decisionDate;
+    // Close fills retain their historical execution-close preparation. An open
+    // fill must not expose the following session's close to signal construction.
+    const b1PreparationEnd = assumptions.executionTiming === "next_open" ? decisionDate
+      : executionDate(rows, decisionDate, assumptions.executionTiming) ?? decisionDate;
     const inputLines = validationSnapshot.dataset.csvContent.trimEnd().split(/\r?\n/);
     const prefixCsv = [inputLines[0], ...inputLines.slice(1).filter((line) =>
       line.split(",")[0].replace(/^"|"$/g, "") <= b1PreparationEnd)].join("\n");
@@ -628,7 +641,8 @@ function runB3ValidationInternal(
   ): Record<string, number> | null => {
     if (!dates.has(decisionDate)) return null;
     const rowIndex = rows.findIndex((row) => row.date === decisionDate);
-    const informationCutoff = rows[rowIndex - 1]?.date;
+    const informationCutoff = assumptions.executionTiming === "next_open"
+      ? rows[rowIndex]?.date : rows[rowIndex - 1]?.date;
     if (!informationCutoff) {
       decisionFailure = { date: decisionDate, reason: "No preceding close exists for the decision information cutoff." };
       return null;

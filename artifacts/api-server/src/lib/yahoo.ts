@@ -14,11 +14,49 @@ export interface TickerFetchResult {
   rows: number;
   error: string | null;
   prices?: Record<string, number>; // date -> adjusted close
+  ohlc?: Record<string, { open?: number; high: number; low: number; close: number }>;
 }
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1500;
 const TICKER_TIMEOUT_MS = 20000;
+
+export interface AdjustedYahooRow {
+  rawClose: number | null | undefined;
+  adjustedClose: number | null | undefined;
+  open?: number | null;
+  high?: number | null;
+  low?: number | null;
+}
+
+export function adjustYahooHistoricalRow(row: AdjustedYahooRow): {
+  close: number;
+  ohlc: { open?: number; high: number; low: number; close: number };
+} {
+  if (row.rawClose == null || !Number.isFinite(row.rawClose) || row.rawClose <= 0)
+    throw new Error("Yahoo Finance row has no valid raw close; the adjusted OHLC factor cannot be computed.");
+  if (row.adjustedClose == null || !Number.isFinite(row.adjustedClose) || row.adjustedClose <= 0)
+    throw new Error("Yahoo Finance row has no valid adjClose; raw-close fallback is not allowed for new ingestion.");
+  const factor = row.adjustedClose / row.rawClose;
+  if (!Number.isFinite(factor) || factor <= 0)
+    throw new Error("Yahoo Finance row has an invalid adjClose/rawClose adjustment factor.");
+  const high = row.high == null ? NaN : row.high * factor;
+  const low = row.low == null ? NaN : row.low * factor;
+  if (!Number.isFinite(high) || high <= 0 || !Number.isFinite(low) || low <= 0)
+    throw new Error("Yahoo Finance row has a missing or invalid raw High/Low; adjusted OHLC cannot be persisted.");
+  const close = Math.round(row.adjustedClose * 10000) / 10000;
+  const open = row.open != null && Number.isFinite(row.open) && row.open > 0
+    ? Math.round(row.open * factor * 10000) / 10000 : undefined;
+  return {
+    close,
+    ohlc: {
+      ...(open === undefined ? {} : { open }),
+      high: Math.round(high * 10000) / 10000,
+      low: Math.round(low * 10000) / 10000,
+      close,
+    },
+  };
+}
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -29,7 +67,7 @@ async function fetchTickerWithTimeout(
   startDate: Date,
   endDate: Date,
   timeoutMs: number
-): Promise<Record<string, number>> {
+): Promise<{ prices: Record<string, number>; ohlc: TickerFetchResult["ohlc"] }> {
   const timeoutPromise = new Promise<never>((_, reject) =>
     setTimeout(() => reject(new Error(`Timeout after ${timeoutMs}ms`)), timeoutMs)
   );
@@ -45,19 +83,22 @@ async function fetchTickerWithTimeout(
   const result = await Promise.race([fetchPromise, timeoutPromise]);
 
   const prices: Record<string, number> = {};
+  const ohlc: NonNullable<TickerFetchResult["ohlc"]> = {};
   for (const row of result) {
     if (!row.date) continue;
     const dateStr = (row.date instanceof Date ? row.date : new Date(row.date))
       .toISOString()
       .slice(0, 10);
-    // Prefer adjClose, fall back to close
-    const price = (row as { adjClose?: number }).adjClose ?? row.close;
-    if (price != null && price > 0) {
-      prices[dateStr] = Math.round(price * 10000) / 10000;
-    }
+    const yahooRow = row as { adjClose?: number | null; open?: number | null; high?: number | null; low?: number | null };
+    const adjusted = adjustYahooHistoricalRow({
+      rawClose: row.close, adjustedClose: yahooRow.adjClose,
+      open: yahooRow.open, high: yahooRow.high, low: yahooRow.low,
+    });
+    prices[dateStr] = adjusted.close;
+    ohlc[dateStr] = adjusted.ohlc;
   }
 
-  return prices;
+  return { prices, ohlc };
 }
 
 async function fetchTickerWithRetry(
@@ -70,7 +111,8 @@ async function fetchTickerWithRetry(
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       logger.debug({ ticker, attempt }, "Fetching Yahoo Finance data");
-      const prices = await fetchTickerWithTimeout(ticker, startDate, endDate, TICKER_TIMEOUT_MS);
+      const fetched = await fetchTickerWithTimeout(ticker, startDate, endDate, TICKER_TIMEOUT_MS);
+      const { prices } = fetched;
       const rows = Object.keys(prices).length;
 
       if (rows === 0) {
@@ -83,7 +125,7 @@ async function fetchTickerWithRetry(
       }
 
       logger.info({ ticker, rows }, "Price data fetched successfully");
-      return { ticker, success: true, rows, error: null, prices };
+      return { ticker, success: true, rows, error: null, prices, ohlc: fetched.ohlc };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       lastError = msg.includes("Not Found") || msg.includes("404")
@@ -166,5 +208,22 @@ export function buildCsvFromResults(results: TickerFetchResult[]): string {
     }
   }
 
+  return lines.join("\n");
+}
+
+export function buildAdjustedOhlcCsvFromResults(results: TickerFetchResult[]): string {
+  const successful = results.filter((result) => result.success && result.ohlc);
+  const tickers = successful.map((result) => result.ticker).sort();
+  const dates = [...new Set(successful.flatMap((result) => Object.keys(result.ohlc!)))].sort();
+  if (!tickers.length || !dates.length) return "";
+  const lines = ["Date,Ticker,Open,High,Low,Close"];
+  for (const date of dates) {
+    for (const result of successful) {
+      const values = result.ohlc![date];
+      if (!values) continue;
+      lines.push([date, result.ticker, values.open === undefined ? "" : String(values.open),
+        String(values.high), String(values.low), String(values.close)].join(","));
+    }
+  }
   return lines.join("\n");
 }

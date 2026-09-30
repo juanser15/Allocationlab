@@ -21,6 +21,7 @@ import { getConstraintsConfig } from "./constraints";
 import { getLatestPriceData } from "./prices";
 import { getFactorSetSnapshot } from "../lib/factor-library";
 import { createRunSnapshot, hashDataset, resolveRunSnapshot } from "../lib/run-snapshot";
+import { ADJUSTED_OHLC_CONVENTION } from "../lib/price-ohlc";
 
 const router: IRouter = Router();
 
@@ -190,6 +191,11 @@ router.post("/run", async (req, res): Promise<void> => {
       id: priceRow.id, sha256: hashDataset(priceRow.csvContent),
       startDate: priceRow.startDate, endDate: priceRow.endDate,
       tickers: availableTickers, csvContent: priceRow.csvContent,
+      ...(priceRow.ohlcCsvContent ? {
+        ohlcCsvContent: priceRow.ohlcCsvContent,
+        ohlcSha256: hashDataset(priceRow.ohlcCsvContent),
+        ohlcConvention: ADJUSTED_OHLC_CONVENTION,
+      } : {}),
     },
     universe: { etfs: universe.etfs, cashPriorWeight: universe.cashPriorWeight },
     constraints, factorSet,

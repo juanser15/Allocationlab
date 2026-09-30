@@ -4321,7 +4321,7 @@ components:
         evaluationStartDate: { type: string, pattern: "^\\d{4}-\\d{2}-\\d{2}$" }
         evaluationEndDate: { type: string, pattern: "^\\d{4}-\\d{2}-\\d{2}$" }
         decisionCalendar: { type: string, enum: [monthly, quarterly] }
-        executionTiming: { type: string, enum: [same_close, next_close] }
+        executionTiming: { type: string, enum: [same_close, next_close, next_open] }
         initialNav: { type: number, exclusiveMinimum: 0 }
         initialHoldings:
           type: object

@@ -3,6 +3,7 @@ import { pgTable, text, serial, timestamp, integer } from "drizzle-orm/pg-core";
 export const priceDataTable = pgTable("price_data", {
   id: serial("id").primaryKey(),
   csvContent: text("csv_content").notNull(),
+  ohlcCsvContent: text("ohlc_csv_content"),
   tickers: text("tickers").notNull(),
   startDate: text("start_date").notNull(),
   endDate: text("end_date").notNull(),

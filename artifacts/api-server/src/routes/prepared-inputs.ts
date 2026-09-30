@@ -78,10 +78,15 @@ router.post("/prepared-inputs", async (req, res): Promise<void> => {
   try {
     const factorSet = await getFactorSetSnapshot();
     const snapshot = prepareSnapshot({ request, csvContent: dataset.csvContent, factorVersion: factorSet.version,
-      factors: factorSet.factors, datasetId: dataset.id });
+      factors: factorSet.factors, datasetId: dataset.id, ohlcCsvContent: dataset.ohlcCsvContent });
     snapshot.dataset.tickers = JSON.parse(dataset.tickers) as string[];
-    const fingerprintValue = fingerprint({ request: snapshot.request, datasetHash: snapshot.dataset.sha256,
-      factorVersion: snapshot.factorSet.version, engineVersion: PREPARED_INPUT_ENGINE_VERSION });
+    // Fingerprint the JSONB representation actually persisted. Optional
+    // undefined request keys (such as cutoffDate) disappear in PostgreSQL.
+    const fingerprintValue = fingerprint(JSON.parse(JSON.stringify({
+      request: snapshot.request, datasetHash: snapshot.dataset.sha256,
+      ohlcDatasetHash: snapshot.dataset.ohlcSha256 ?? null,
+      factorVersion: snapshot.factorSet.version, engineVersion: PREPARED_INPUT_ENGINE_VERSION,
+    })));
     const [saved] = await db.insert(preparedInputsTable).values({
       representation: request.representation, fingerprint: fingerprintValue, snapshot,
     }).returning();
@@ -138,7 +143,9 @@ router.post("/prepared-inputs/:preparedInputId/replay", async (req, res): Promis
     return;
   }
   const snapshot = row.snapshot as PreparedSnapshot;
-  if (hashDataset(snapshot.dataset.csvContent) !== snapshot.dataset.sha256) {
+  if (hashDataset(snapshot.dataset.csvContent) !== snapshot.dataset.sha256 ||
+      (snapshot.dataset.ohlcCsvContent !== undefined &&
+       (!snapshot.dataset.ohlcSha256 || hashDataset(snapshot.dataset.ohlcCsvContent) !== snapshot.dataset.ohlcSha256))) {
     res.json(ReplayPreparedInputResponse.parse({ preparedInputId: row.id, status: "fail",
       fingerprint: row.fingerprint, differences: ["frozen dataset hash mismatch"], replayedCandidates: [] }));
     return;

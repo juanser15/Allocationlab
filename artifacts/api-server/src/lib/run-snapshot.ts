@@ -5,6 +5,7 @@ import {
   type EtfEntry, type EtfFactorData,
 } from "./calculator";
 import type { FactorDefinition } from "./factor-library";
+import { attachAdjustedOhlcRows } from "./price-ohlc";
 
 // Bump when the optimizer, factor computation or backtest semantics change.
 export const ENGINE_VERSION = "allocation-a2.1";
@@ -22,6 +23,10 @@ export interface RunSnapshot {
     endDate: string;
     tickers: string[];
     csvContent: string;
+    /** Optional companion; absent on legacy persisted datasets and snapshots. */
+    ohlcCsvContent?: string;
+    ohlcSha256?: string;
+    ohlcConvention?: string;
   };
   universe: { etfs: EtfEntry[]; cashPriorWeight: number };
   constraints: Constraints;
@@ -44,6 +49,12 @@ export function createRunSnapshot(input: Omit<RunSnapshot, "schemaVersion" | "en
   });
   if (hashDataset(snapshot.dataset.csvContent) !== snapshot.dataset.sha256)
     throw new Error("Dataset hash does not match snapshot content.");
+  if (snapshot.dataset.ohlcCsvContent !== undefined) {
+    if (!snapshot.dataset.ohlcSha256 || !snapshot.dataset.ohlcConvention ||
+        hashDataset(snapshot.dataset.ohlcCsvContent) !== snapshot.dataset.ohlcSha256)
+      throw new Error("Adjusted OHLC dataset hash or convention metadata is missing or invalid.");
+    attachAdjustedOhlcRows(parseCsv(snapshot.dataset.csvContent), snapshot.dataset.ohlcCsvContent);
+  }
   return snapshot;
 }
 
@@ -66,6 +77,10 @@ export function resolveRunSnapshot(stored: Record<string, unknown>): SnapshotRes
   }
   if (hashDataset(s.dataset.csvContent) !== s.dataset.sha256)
     return { status: "integrity_fail", message: "REPRODUCIBILITY FAIL: stored dataset hash does not match its content.", snapshot: s };
+  if (s.dataset.ohlcCsvContent !== undefined &&
+      (!s.dataset.ohlcSha256 || !s.dataset.ohlcConvention ||
+       hashDataset(s.dataset.ohlcCsvContent) !== s.dataset.ohlcSha256))
+    return { status: "integrity_fail", message: "REPRODUCIBILITY FAIL: stored adjusted OHLC hash does not match its content.", snapshot: s };
   if (s.engineVersion !== ENGINE_VERSION)
     return { status: "engine_mismatch", message: `Historical inputs are preserved, but exact reproduction requires engine version ${s.engineVersion}.`, snapshot: s };
   return { status: "ready", message: "Frozen input snapshot available.", snapshot: s };
@@ -76,7 +91,9 @@ export function frozenValidationInputs(stored: Record<string, unknown>) {
   if (resolution.status !== "ready") return null;
   const s = resolution.snapshot;
   return {
-    priceRows: parseCsv(s.dataset.csvContent),
+    priceRows: s.dataset.ohlcCsvContent
+      ? attachAdjustedOhlcRows(parseCsv(s.dataset.csvContent), s.dataset.ohlcCsvContent)
+      : parseCsv(s.dataset.csvContent),
     etfs: s.universe.etfs,
     constraints: s.constraints,
     factorSet: { factors: s.factorSet.factors },

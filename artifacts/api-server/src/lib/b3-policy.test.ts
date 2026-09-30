@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { optimizePreparedSnapshot, type AllocationRequest } from "./allocation-b2";
-import { runB3Validation, type B3Assumptions } from "./b3-policy";
+import { runB3Validation, type B3ExecutionAssumptions } from "./b3-policy";
 import { prepareSnapshot, type AlphaDefinition, type PreparedSnapshot } from "./prepared-inputs";
 import type { FactorDefinition } from "./factor-library";
+import { hashDataset } from "./run-snapshot";
 
 const tickers = ["A", "B", "C", "D", "E"];
 
@@ -61,6 +62,31 @@ function makeSnapshot(representation: "asset_returns" | "alpha_streams", source 
   return snapshot;
 }
 
+function withOhlc(snapshot: PreparedSnapshot, missing?: { ticker: string; index: number }): PreparedSnapshot {
+  const sourceRows = snapshot.dataset.csvContent.trim().split(/\r?\n/);
+  const header = sourceRows[0].split(",");
+  const ohlc = ["Date,Ticker,Open,High,Low,Close"];
+  for (const line of sourceRows.slice(1)) {
+    const [date, ...rawPrices] = line.split(",");
+    const index = sourceRows.indexOf(line) - 1;
+    for (let asset = 0; asset < header.length - 1; asset++) {
+      const closePrice = Number(rawPrices[asset]);
+      if (!Number.isFinite(closePrice)) continue;
+      if (missing?.ticker === header[asset + 1] && missing.index === index) {
+        ohlc.push(`${date},${header[asset + 1]},,${(closePrice * 1.01).toFixed(8)},${(closePrice * 0.89).toFixed(8)},${rawPrices[asset]}`);
+        continue;
+      }
+      const open = closePrice * 0.9;
+      ohlc.push(`${date},${header[asset + 1]},${open.toFixed(8)},${(closePrice * 1.01).toFixed(8)},${(closePrice * 0.89).toFixed(8)},${rawPrices[asset]}`);
+    }
+  }
+  const ohlcCsvContent = ohlc.join("\n");
+  return { ...snapshot, dataset: {
+    ...snapshot.dataset, ohlcCsvContent, ohlcSha256: hashDataset(ohlcCsvContent),
+    ohlcConvention: "adjusted_test_fixture",
+  } };
+}
+
 function opposingAlphaSnapshot(): PreparedSnapshot {
   const factorSet = factors();
   const risingPrice = 100 * 1.01 ** 65;
@@ -102,8 +128,8 @@ function allocationRequest(snapshot: PreparedSnapshot, overrides: Partial<Alloca
 }
 
 function assumptions(
-  startIndex = 50, endIndex = 150, overrides: Partial<B3Assumptions> = {},
-): B3Assumptions {
+  startIndex = 50, endIndex = 150, overrides: Partial<B3ExecutionAssumptions> = {},
+): B3ExecutionAssumptions {
   return {
     evaluationStartDate: dateAt(startIndex), evaluationEndDate: dateAt(endIndex),
     decisionCalendar: "monthly", executionTiming: "next_close",
@@ -249,6 +275,75 @@ test("B3 T3 same-close and next-close buys do not earn the pre-purchase jump; qu
       }
     }
   }
+});
+
+test("B3 next_open uses the signal-date close, next-row open fills, full D5 costs, and reconciled ledger", () => {
+  const snapshot = withOhlc(makeSnapshot("asset_returns"));
+  const policy = allocationRequest(snapshot, {
+    estimationWindow: 30,
+    minObservations: 15,
+    objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.1 },
+    costAware: {
+      costAmortizationDays: 20, transactionCostBps: 10, slippageBps: 5,
+      holdings: { asOf: dateAt(49), quantities: {}, cash: 100, nav: 100 },
+    },
+  });
+  const result = runB3Validation(snapshot, policy, snapshot, assumptions(50, 150, {
+    executionTiming: "next_open", transactionCostBps: 10, slippageBps: 5,
+  }));
+  assert.equal(result.status, "completed", result.reason);
+  const decision = result.decisions[0];
+  assert.equal(decision.informationCutoff, decision.decisionDate);
+  assert.equal(decision.decisionDate, dateAt(50));
+  assert.equal(decision.executionDate, dateAt(51));
+  assert.ok(decision.estimationDates.every((date) => date <= decision.decisionDate));
+  const fill = result.dailyLedger.find((entry) => entry.date === decision.executionDate)!;
+  assert.ok(fill.externalTrades.length > 0);
+  const columns = snapshot.dataset.csvContent.split(/\r?\n/)[0].split(",");
+  const csvRow = snapshot.dataset.csvContent.split(/\r?\n/).find((line) =>
+    line.startsWith(`${fill.date},`))!.split(",");
+  for (const trade of fill.externalTrades) {
+    const closePrice = Number(csvRow[columns.indexOf(trade.ticker)]);
+    close(trade.notional, trade.quantity * closePrice * 0.9);
+  }
+  close(fill.beginningPositions.length, 0);
+  close(fill.cashPnl, fill.beginningCash * result.assumptions.dailyCashYield);
+  close(fill.assetPnl, fill.externalTrades.reduce((sum, trade) => {
+    const closePrice = Number(csvRow[columns.indexOf(trade.ticker)]);
+    return sum + trade.quantity * (closePrice - closePrice * 0.9);
+  }, 0));
+  close(fill.transactionCosts, fill.externalTradedNotional * 10 / 10000);
+  close(fill.slippage, fill.externalTradedNotional * 5 / 10000);
+  close(fill.beginningNav + fill.assetPnl + fill.cashPnl - fill.transactionCosts - fill.slippage,
+    fill.endingNav);
+  close(fill.endingCash + fill.endingPositions.reduce((sum, position) => sum + position.marketValue, 0),
+    fill.endingNav);
+  assert.ok(result.diagnostics.maximumReconciliationDifference! <= result.diagnostics.reconciliationTolerance);
+});
+
+test("B3 next_open fails explicitly for absent execution opens and mismatched frozen OHLC hashes", () => {
+  const source = makeSnapshot("asset_returns");
+  const candidateId = source.candidates.find((candidate) => candidate.assetTickers[0] === "A")!.candidateId;
+  const policy = allocationRequest(source, {
+    candidateIds: [candidateId], estimationWindow: 30, minObservations: 15,
+    objective: { type: "regularized_mean_variance", gamma: 2, eta: 0.1 },
+    constraints: { totalCash: { min: 0, max: 0 } },
+  });
+  const missingOpen = withOhlc(source, { ticker: "A", index: 51 });
+  const failed = runB3Validation(missingOpen, policy, missingOpen, assumptions(50, 150, {
+    executionTiming: "next_open",
+  }));
+  assert.equal(failed.status, "failed");
+  assert.match(failed.reason ?? "", /Missing or invalid adjusted open for traded asset A/);
+  assert.equal(failed.failureDate, dateAt(51));
+
+  const invalidHash = structuredClone(withOhlc(source));
+  invalidHash.dataset.ohlcCsvContent += "\n";
+  const integrityFailure = runB3Validation(invalidHash, policy, invalidHash, assumptions(50, 150, {
+    executionTiming: "next_open",
+  }));
+  assert.equal(integrityFailure.status, "failed");
+  assert.match(integrityFailure.reason ?? "", /adjusted OHLC dataset integrity failure/);
 });
 
 test("B3 T5 charges costs once on consolidated underlying turnover and reports external fills", () => {

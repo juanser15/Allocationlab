@@ -1,9 +1,26 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  b3InputHash, resultDifferences, verifyLegacyB3ReplayFingerprint,
+  b3InputHash, matchesPreparedFingerprint, resultDifferences, verifyLegacyB3ReplayFingerprint,
 } from "./b3-validation-store";
 import { fingerprint } from "./prepared-inputs";
+
+test("B3 accepts frozen OHLC preparation fingerprints across JSONB's undefined-key removal", () => {
+  const request = { representation: "asset_returns", assetTickers: ["D6A"], cutoffDate: undefined };
+  const base = { request, datasetHash: "close-hash", factorVersion: "v1", engineVersion: "b1" };
+  const persisted = JSON.parse(JSON.stringify({
+    dataset: { sha256: "close-hash", ohlcSha256: "open-hash" },
+    factorSet: { version: "v1" }, engineVersion: "b1", request,
+  }));
+  assert.equal(matchesPreparedFingerprint(persisted,
+    fingerprint({ ...base, ohlcDatasetHash: "open-hash" })), true);
+  assert.equal(matchesPreparedFingerprint(persisted,
+    fingerprint(JSON.parse(JSON.stringify({ ...base, ohlcDatasetHash: "open-hash" })))), true);
+  assert.equal(matchesPreparedFingerprint(persisted,
+    fingerprint({ ...base, ohlcDatasetHash: "tampered-hash" })), false);
+  assert.equal(matchesPreparedFingerprint(persisted, fingerprint(base)), false,
+    "An adjusted-OHLC preparation cannot claim the historical close-only fingerprint");
+});
 
 test("B3 persisted input fingerprint survives JSONB removal of undefined D4 diagnostic fields", () => {
   const input = {

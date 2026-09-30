@@ -27,6 +27,9 @@ import {
 export interface PriceRow {
   date: string;
   prices: Record<string, number>;
+  opens?: Record<string, number>;
+  highs?: Record<string, number>;
+  lows?: Record<string, number>;
 }
 
 export interface FactorScores {
@@ -1535,9 +1538,8 @@ export function computeSignalAsOf(
   return { factorData, regime, allocations, lookbackDays: priorRows.length };
 }
 
-/** Resolves the close at which a rebalance is filled; holdings change AFTER that close. */
+/** Resolves the execution row for close fills or next-row open fills. */
 export function resolveExecutionDate(priceRows: PriceRow[], rebalanceDate: string, timing: ExecutionTiming): string | null {
-  if (timing === "next_open") return null;
   const idx = priceRows.findIndex((r) => r.date === rebalanceDate);
   if (idx === -1) return null;
   if (timing === "same_close") return rebalanceDate;
@@ -1545,9 +1547,311 @@ export function resolveExecutionDate(priceRows: PriceRow[], rebalanceDate: strin
 }
 
 /**
- * A signal sees closes strictly BEFORE its signal date. SAME_CLOSE fills at that
- * day's close; NEXT_CLOSE fills at the following close. Shares held BEFORE a close
- * earn the preceding close-to-close return; trades only change subsequent intervals.
+ * Open execution has a distinct accounting boundary: existing shares earn the
+ * previous-close/open gap, fills occur at the open, and the resulting book earns
+ * the open/close move. Keep it isolated so the historical close-fill path remains
+ * byte-for-byte behaviorally unchanged.
+ */
+function runNextOpenBacktestEngine(
+  priceRows: PriceRow[],
+  etfs: EtfEntry[],
+  constraints: Constraints,
+  config: BacktestConfig,
+  benchmarkTicker: string | null,
+  factorSet?: { factors: FactorDefinition[] },
+  targetWeightsForSignal?: (
+    signalDate: string, rows: PriceRow[], context?: BacktestTargetContext,
+  ) => Record<string, number> | null,
+  initialState?: BacktestInitialState,
+): BacktestEngineResult {
+  const enabledTickers = etfs.filter((entry) => entry.enabled).map((entry) => entry.ticker);
+  const empty = (reason: string): BacktestEngineResult => ({
+    hasSufficientData: false, insufficientReason: reason, startDate: null, endDate: null,
+    tradingDays: 0, canAnnualize: false, equityCurve: [], dailyLedger: [],
+    cumulativeReturn: null, annualizedReturn: null, annualizedVolatility: null,
+    sharpeRatio: null, maxDrawdown: null, avgTurnover: null, totalTransactionCostPct: null,
+    monthlyReturns: [], rebalanceLog: [], benchmarkTicker: null,
+    benchmarkCumulativeReturn: null, benchmarkAnnualizedReturn: null,
+    benchmarkUnavailableReason: null,
+  });
+  if (priceRows.length < config.warmupDays + 2)
+    return empty(`Need at least ${config.warmupDays + 2} days of price history (a ${config.warmupDays}-day signal warmup plus tradeable days ahead); only ${priceRows.length} are uploaded.`);
+  const signalDates = generateRebalanceDates(priceRows, config.rebalanceFrequency, config.warmupDays, config.startDate);
+  if (!signalDates.length)
+    return empty("No rebalance dates fall after the signal warmup window — upload more price history.");
+  const scheduled = new Map<string, string>();
+  for (const date of signalDates) {
+    const execution = resolveExecutionDate(priceRows, date, "next_open");
+    if (execution) scheduled.set(date, execution);
+  }
+  if (!scheduled.size)
+    return empty("No rebalance could be executed — there is no trading day available after any rebalance date to apply weights.");
+  const firstSignalIndex = priceRows.findIndex((row) => row.date === [...scheduled.keys()][0]);
+  const firstExecutionIndex = priceRows.findIndex((row) => row.date === [...scheduled.values()][0]);
+  if (firstSignalIndex < 1 || firstExecutionIndex >= priceRows.length)
+    return empty("Not enough trading days remain after the first executable rebalance to simulate returns.");
+  const simRows = priceRows.slice(firstSignalIndex - 1);
+  if (initialState) {
+    const { initialNav, initialCash, initialHoldings, dailyCashYield, allowShortPositions = false } = initialState;
+    if (!Number.isFinite(initialNav) || initialNav <= 0 || !Number.isFinite(initialCash) ||
+        (!allowShortPositions && initialCash < 0) || !Number.isFinite(dailyCashYield) ||
+        dailyCashYield <= -1 || !initialHoldings || typeof initialHoldings !== "object")
+      return empty("Invalid initial NAV, cash, holdings or daily cash yield.");
+    let initialAssets = 0;
+    for (const [ticker, quantity] of Object.entries(initialHoldings)) {
+      const price = simRows[0].prices[ticker];
+      if (!enabledTickers.includes(ticker) || !Number.isFinite(quantity) ||
+          (!allowShortPositions && quantity < 0) || !Number.isFinite(price) || price <= 0)
+        return empty(`Invalid initial holding or missing price for ${ticker} on ${simRows[0].date}.`);
+      initialAssets += quantity * price;
+    }
+    if (Math.abs(initialCash + initialAssets - initialNav) > 1e-8)
+      return empty(`Initial holdings and cash do not reconcile to NAV on ${simRows[0].date}.`);
+  }
+  const dailyCashReturn = initialState?.dailyCashYield ??
+    (Math.pow(1 + config.cashYieldAnnual, 1 / TRADING_DAYS_PER_YEAR) - 1);
+  const allowShortPositions = initialState?.allowShortPositions ?? false;
+  const dailyReturns: Array<{ date: string; portfolioReturn: number; benchmarkReturn: number | null }> = [];
+  const dailyLedger: BacktestLedgerEntry[] = [];
+  const rebalanceLog: RebalanceLogEntry[] = [];
+  let shares = new Map<string, number>(Object.entries(initialState?.initialHoldings ?? {}));
+  let cash = initialState?.initialCash ?? 100;
+  let nav = initialState?.initialNav ?? 100;
+  let pending: { signalDate: string; executionDate: string; target: Map<string, number>;
+    lookbackDays: number; regimeLabel: string; regimeComposite: number } | null = null;
+  const positionSnapshot = (prices: Record<string, number>, value: number): BacktestPosition[] =>
+    [...shares].filter(([, quantity]) => quantity !== 0).map(([ticker, quantity]) => ({
+      ticker, quantity, price: prices[ticker], marketValue: quantity * prices[ticker],
+      weight: value > 0 ? quantity * prices[ticker] / value : 0,
+    }));
+  let benchmarkUnavailable: string | null = benchmarkTicker
+    ? !enabledTickers.includes(benchmarkTicker)
+      ? `${benchmarkTicker} is not an enabled ETF in the current universe.`
+      : !priceRows.some((row) => row.prices[benchmarkTicker] !== undefined)
+        ? `No price data available for ${benchmarkTicker} over the backtest period.` : null
+    : null;
+
+  for (let i = 1; i < simRows.length; i++) {
+    const prevRow = simRows[i - 1], row = simRows[i];
+    const beginningNav = nav, beginningCash = cash;
+    const beginningPositions = positionSnapshot(prevRow.prices, beginningNav);
+    let etfPnl = 0;
+    const openPrices = row.opens;
+    for (const [ticker, quantity] of shares) {
+      if (quantity === 0) continue;
+      const previousClose = prevRow.prices[ticker], open = openPrices?.[ticker];
+      if (!Number.isFinite(previousClose) || previousClose <= 0)
+        return empty(`Missing or invalid price for held asset ${ticker} on ${prevRow.date}; P&L cannot be determined.`);
+      if (!Number.isFinite(open) || open! <= 0)
+        return empty(`Missing or invalid adjusted open for held asset ${ticker} on ${row.date}; next-open P&L cannot be determined.`);
+      etfPnl += quantity * (open! - previousClose);
+    }
+    const cashPnl = beginningCash * dailyCashReturn;
+    cash += cashPnl;
+    let openNav = cash + [...shares].reduce((sum, [ticker, quantity]) =>
+      sum + quantity * (openPrices?.[ticker]!), 0);
+    let transactionCosts = 0, slippage = 0;
+    let executionSignalDate: string | null = null;
+    const trades: BacktestLedgerEntry["trades"] = [];
+    if (pending && pending.executionDate === row.date) {
+      executionSignalDate = pending.signalDate;
+      const currentWeights = new Map([...shares].filter(([, quantity]) => quantity !== 0).map(([ticker, quantity]) =>
+        [ticker, quantity * openPrices![ticker] / openNav] as const));
+      const allTickers = new Set([...currentWeights.keys(), ...pending.target.keys()]);
+      for (const [ticker, weight] of pending.target) {
+        d6Trace("a1.target.check", { date: row.date, ticker, value: String(weight), type: typeof weight,
+          enabled: enabledTickers.includes(ticker), finite: Number.isFinite(weight), allowShortPositions });
+        if (!enabledTickers.includes(ticker) || !Number.isFinite(weight) ||
+            (!allowShortPositions && weight < 0))
+          return empty(`Invalid ${allowShortPositions ? "signed " : ""}target exposure for ${ticker} on ${row.date}.`);
+      }
+      for (const ticker of allTickers) {
+        const targetWeight = pending.target.get(ticker) ?? 0;
+        const currentWeight = currentWeights.get(ticker) ?? 0;
+        if (Math.abs(targetWeight - currentWeight) <= 1e-12) continue;
+        const open = openPrices?.[ticker];
+        if (!Number.isFinite(open) || open! <= 0)
+          return empty(`Missing or invalid adjusted open for traded asset ${ticker} on ${row.date}; cannot execute trade.`);
+      }
+      let requestedTurnover = 0;
+      for (const ticker of allTickers)
+        requestedTurnover += Math.abs((pending.target.get(ticker) ?? 0) - (currentWeights.get(ticker) ?? 0));
+      requestedTurnover /= 2;
+      const cap = (allowShortPositions || initialState?.d5GrossTradeCosts)
+        ? requestedTurnover : clamp(config.maxTurnoverPerRebalance, 0, 1);
+      const scale = requestedTurnover > 0 ? Math.min(1, cap / requestedTurnover) : 1;
+      const applied = new Map<string, number>();
+      for (const ticker of allTickers)
+        applied.set(ticker, (currentWeights.get(ticker) ?? 0) +
+          ((pending.target.get(ticker) ?? 0) - (currentWeights.get(ticker) ?? 0)) * scale);
+      let turnoverApplied = 0;
+      for (const ticker of allTickers)
+        turnoverApplied += Math.abs((applied.get(ticker) ?? 0) - (currentWeights.get(ticker) ?? 0));
+      if (!initialState?.d5GrossTradeCosts) turnoverApplied /= 2;
+      const preTradeNav = openNav;
+      let afterCostNav = preTradeNav;
+      if (initialState?.d5GrossTradeCosts) {
+        const oldMarketValues = new Map([...shares].map(([ticker, quantity]) =>
+          [ticker, quantity * openPrices![ticker]]));
+        const chargeRate = (config.transactionCostBps + config.slippageBps) / 10000;
+        const tradedAt = (candidateNav: number) => [...applied].reduce((sum, [ticker, weight]) =>
+          sum + Math.abs(candidateNav * weight - (oldMarketValues.get(ticker) ?? 0)), 0);
+        let low = 0, high = preTradeNav;
+        for (let iteration = 0; iteration < 80; iteration++) {
+          const candidate = (low + high) / 2;
+          if (candidate + chargeRate * tradedAt(candidate) > preTradeNav) high = candidate;
+          else low = candidate;
+        }
+        afterCostNav = (low + high) / 2;
+        const notional = tradedAt(afterCostNav);
+        transactionCosts = notional * config.transactionCostBps / 10000;
+        slippage = notional * config.slippageBps / 10000;
+      } else {
+        const oldMarketValues = new Map([...shares].map(([ticker, quantity]) =>
+          [ticker, quantity * openPrices![ticker]]));
+        const chargeRate = (config.transactionCostBps + config.slippageBps) / 10000;
+        const tradedAt = (candidateNav: number) => [...applied].reduce((sum, [ticker, weight]) =>
+          sum + Math.abs(candidateNav * weight - (oldMarketValues.get(ticker) ?? 0)), 0);
+        let low = 0, high = preTradeNav;
+        for (let iteration = 0; iteration < 80; iteration++) {
+          const candidate = (low + high) / 2;
+          if (candidate + chargeRate * tradedAt(candidate) > preTradeNav) high = candidate;
+          else low = candidate;
+        }
+        afterCostNav = (low + high) / 2;
+        const notional = tradedAt(afterCostNav);
+        transactionCosts = notional * config.transactionCostBps / 10000;
+        slippage = notional * config.slippageBps / 10000;
+      }
+      if (afterCostNav <= 0) return empty(`Trading costs exhaust NAV on ${row.date}.`);
+      const nextShares = new Map<string, number>();
+      let invested = 0;
+      for (const [ticker, weight] of applied) {
+        if (allowShortPositions ? weight === 0 : weight <= 0) continue;
+        const open = openPrices?.[ticker];
+        if (!Number.isFinite(open) || open! <= 0)
+          return empty(`Missing or invalid adjusted open for traded asset ${ticker} on ${row.date}; cannot execute trade.`);
+        const quantity = afterCostNav * weight / open!;
+        nextShares.set(ticker, quantity);
+        invested += quantity * open!;
+      }
+      for (const ticker of allTickers) {
+        const difference = (nextShares.get(ticker) ?? 0) - (shares.get(ticker) ?? 0);
+        if (Math.abs(difference) > 1e-12)
+          trades.push({ ticker, quantity: difference, notional: difference * openPrices![ticker] });
+      }
+      shares = nextShares;
+      cash = afterCostNav - invested;
+      if (initialState?.d5GrossTradeCosts && cash < 0 && cash > -1e-8 * Math.max(1, afterCostNav))
+        cash = 0;
+      openNav = afterCostNav;
+      const topHoldings = [...applied].filter(([, weight]) => weight > 0.001)
+        .sort((a, b) => b[1] - a[1]).slice(0, 3).map(([ticker]) => ticker);
+      rebalanceLog.push({
+        rebalanceDate: pending.signalDate, executionDate: row.date,
+        lookbackDays: pending.lookbackDays, regimeLabel: pending.regimeLabel,
+        regimeComposite: pending.regimeComposite, cashWeight: round4(cash / afterCostNav),
+        activeEtfCount: [...applied.values()].filter((weight) => Math.abs(weight) > 0.001).length,
+        topHoldings, turnoverRequested: round4(requestedTurnover), turnoverApplied: round4(turnoverApplied),
+        turnoverCapped: requestedTurnover > cap + 1e-9,
+        transactionCostPct: round4((transactionCosts + slippage) / preTradeNav),
+      });
+      pending = null;
+    }
+    for (const [ticker, quantity] of shares) {
+      if (quantity === 0) continue;
+      const open = openPrices?.[ticker], close = row.prices[ticker];
+      if (!Number.isFinite(open) || open! <= 0)
+        return empty(`Missing or invalid adjusted open for held asset ${ticker} on ${row.date}; next-open P&L cannot be determined.`);
+      if (!Number.isFinite(close) || close <= 0)
+        return empty(`Missing or invalid price for held asset ${ticker} on ${row.date}; P&L cannot be determined.`);
+      etfPnl += quantity * (close - open!);
+    }
+    const endingAssets = [...shares].reduce((sum, [ticker, quantity]) =>
+      sum + quantity * row.prices[ticker], 0);
+    nav = cash + endingAssets;
+    const netPnl = etfPnl + cashPnl - transactionCosts - slippage;
+    if (Math.abs(beginningNav + netPnl - nav) > 1e-8)
+      return empty(`Ledger reconciliation failed on ${row.date}.`);
+    let signalDate: string | null = null;
+    if (scheduled.has(row.date)) {
+      signalDate = row.date;
+      const priorWeights = new Map(positionSnapshot(row.prices, nav).map((position) =>
+        [position.ticker, position.weight]));
+      const etfsForSignal = etfs.map((entry) => ({
+        ...entry, priorWeight: rebalanceLog.length ? (priorWeights.get(entry.ticker) ?? 0) : entry.priorWeight,
+      }));
+      const informationRows = priceRows.filter((item) => item.date <= row.date);
+      const regime = computeRegime(informationRows, enabledTickers);
+      const inputs = targetWeightsForSignal
+        ? { regime, allocations: [] as AllocationResult[], lookbackDays: informationRows.length }
+        : (() => {
+          const factorData = computeFactors(informationRows, enabledTickers, factorSet, regime.label);
+          return { regime, allocations: constructAllocation(factorData, etfsForSignal, constraints, regime),
+            lookbackDays: informationRows.length };
+        })();
+      let explicitTarget: Record<string, number> | null | undefined;
+      if (targetWeightsForSignal) {
+        const targetPriceRows = config.executionTiming === "next_open" ? informationRows : priceRows;
+        if (initialState?.d5GrossTradeCosts || initialState?.provideTargetContext) {
+          explicitTarget = targetWeightsForSignal(row.date, targetPriceRows, Object.freeze({
+            asOf: row.date, quantities: Object.freeze(Object.fromEntries([...shares])),
+            cash, nav,
+          }));
+        } else {
+          explicitTarget = targetWeightsForSignal(row.date, targetPriceRows);
+        }
+      }
+      if (targetWeightsForSignal && explicitTarget === null) pending = null;
+      else pending = {
+        signalDate: row.date, executionDate: scheduled.get(row.date)!,
+        target: new Map(targetWeightsForSignal
+          ? Object.entries(explicitTarget ?? {})
+          : inputs.allocations.filter((allocation) => allocation.active).map((allocation) =>
+            [allocation.ticker, allocation.weight])),
+        lookbackDays: inputs.lookbackDays, regimeLabel: inputs.regime.label,
+        regimeComposite: inputs.regime.composite,
+      };
+    }
+    dailyLedger.push({
+      date: row.date, intervalStart: prevRow.date, signalDate, executionSignalDate,
+      beginningNav, beginningCash, beginningPositions, etfPnl, cashPnl,
+      transactionCosts, slippage, trades, netPnl, endingNav: nav, endingCash: cash,
+      endingPositions: positionSnapshot(row.prices, nav),
+    });
+    let benchmarkReturn: number | null = null;
+    if (benchmarkTicker && !benchmarkUnavailable) {
+      const previous = prevRow.prices[benchmarkTicker], close = row.prices[benchmarkTicker];
+      if (previous && close && previous > 0) benchmarkReturn = (close - previous) / previous;
+      else benchmarkUnavailable = `Missing benchmark price for ${benchmarkTicker} on ${row.date}.`;
+    }
+    dailyReturns.push({ date: row.date, portfolioReturn: netPnl / beginningNav, benchmarkReturn });
+  }
+  if (benchmarkUnavailable) for (const item of dailyReturns) item.benchmarkReturn = null;
+  const { equityCurve, cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio,
+    maxDrawdown, benchmarkCumulativeReturn, benchmarkAnnualizedReturn } =
+    computeCurveMetrics(simRows[0].date, dailyReturns, !!benchmarkTicker && !benchmarkUnavailable);
+  const monthlyReturns = computeMonthlyReturns(dailyReturns, !!benchmarkTicker && !benchmarkUnavailable);
+  const turnoverValues = rebalanceLog.map((entry) => entry.turnoverApplied);
+  return {
+    hasSufficientData: true, insufficientReason: null, startDate: simRows[0].date,
+    endDate: simRows.at(-1)!.date, tradingDays: dailyReturns.length,
+    canAnnualize: dailyReturns.length >= MIN_DAYS_FOR_ANNUALIZATION, equityCurve, dailyLedger,
+    cumulativeReturn, annualizedReturn, annualizedVolatility, sharpeRatio, maxDrawdown,
+    avgTurnover: turnoverValues.length ? round4(turnoverValues.reduce((sum, value) => sum + value, 0) / turnoverValues.length) : null,
+    totalTransactionCostPct: round4(dailyLedger.reduce((sum, entry) =>
+      sum + (entry.transactionCosts + entry.slippage) / entry.beginningNav, 0)),
+    monthlyReturns, rebalanceLog,
+    benchmarkTicker: benchmarkTicker && !benchmarkUnavailable ? benchmarkTicker : null,
+    benchmarkCumulativeReturn, benchmarkAnnualizedReturn,
+    benchmarkUnavailableReason: benchmarkUnavailable,
+  };
+}
+
+/**
+ * Same/next-close signals see closes strictly BEFORE their signal date. NEXT_OPEN
+ * signals see closes through t and fill at the following row's open; its dedicated
+ * accounting path marks old shares to the open and new shares from open to close.
  * NAV and the ledger use index units (initial NAV 100), without daily rebalancing.
  */
 export function runBacktestEngine(
@@ -1562,6 +1866,10 @@ export function runBacktestEngine(
   ) => Record<string, number> | null,
   initialState?: BacktestInitialState,
 ): BacktestEngineResult {
+  if (config.executionTiming === "next_open")
+    return runNextOpenBacktestEngine(priceRows, etfs, constraints, config, benchmarkTicker,
+      factorSet, targetWeightsForSignal, initialState);
+
   const enabledTickers = etfs.filter((e) => e.enabled).map((e) => e.ticker);
   const empty = (reason: string): BacktestEngineResult => ({
     hasSufficientData: false,
@@ -1587,9 +1895,6 @@ export function runBacktestEngine(
     benchmarkUnavailableReason: null,
   });
 
-  if (config.executionTiming === "next_open") {
-    return empty("Next-open execution requires open-price data and is currently unavailable.");
-  }
   if (priceRows.length < config.warmupDays + 2) {
     return empty(
       `Need at least ${config.warmupDays + 2} days of price history (a ${config.warmupDays}-day signal warmup plus tradeable days ahead); only ${priceRows.length} are uploaded.`

@@ -54,7 +54,7 @@ function tracedD6(action: "validation" | "replay", handler: (req: Request, res: 
 }
 
 const METHODOLOGY_NOTE =
-  "Each signal uses price data strictly before its signal date. Same-close and next-close trades fill at the indicated close, AFTER the preceding close-to-close return; shares held at the previous close earn that return. Trades and costs affect NAV at the fill and new shares earn subsequent intervals. Next-open requires open-price data and is unavailable. Results are illustrative research output, not investment advice.";
+  "Same-close and next-close signals use closes strictly before their signal date and fill at the indicated close after the preceding close-to-close return. Next-open signals use adjusted closes through signal date t and fill at the next trading session's adjusted open: existing shares earn the previous-close/open gap, while new shares earn only the open-to-close move. Next-open requires frozen adjusted OHLC data; missing or invalid adjusted opens fail explicitly without a close fallback. Cash yield is credited once per trading day, and fills, fees, slippage, and the ledger are accounted at the actual execution price. Results are illustrative research output, not investment advice.";
 
 function parseFrequency(v: unknown): RebalanceFrequency {
   return v === "quarterly" ? "quarterly" : "monthly";
@@ -166,10 +166,6 @@ async function computeBacktest(params: Record<string, unknown>): Promise<Backtes
       ? `REPRODUCIBILITY FAIL: ${reproduction.differences.join("; ")}`
       : resolution.message);
   }
-  if (config.executionTiming === "next_open") {
-    return empty("Next-open execution requires open-price data and is currently unavailable.");
-  }
-
   let priceRows: PriceRow[];
   try {
     priceRows = frozenValidationInputs(stored)!.priceRows;

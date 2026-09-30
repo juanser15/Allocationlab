@@ -198,7 +198,7 @@ export function DataSourcesSection() {
 
       <div className="space-y-3">
         <div className="text-sm text-muted-foreground">
-          CSV format: First column "Date" (YYYY-MM-DD), remaining columns are ticker symbols. Minimum 21 rows required.
+          CSV format: legacy adjusted closes as Date and ticker columns, or adjusted OHLC rows as Date,Ticker,Open,High,Low,Close. Minimum 21 trading dates required. OHLC must be on the same adjusted price scale; raw opens cannot be mixed with adjusted closes.
         </div>
         <div className="flex items-center gap-4">
           <Input

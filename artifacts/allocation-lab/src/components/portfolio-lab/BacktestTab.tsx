@@ -232,11 +232,11 @@ export function BacktestTab(props: Props) {
                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="next_close">Next Close</SelectItem>
-                  <SelectItem value="next_open" disabled>Next Open — unavailable</SelectItem>
+                  <SelectItem value="next_open">Next Open (adjusted)</SelectItem>
                   <SelectItem value="same_close">Same Close</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-[11px] text-muted-foreground">Next-open execution requires open-price data and is currently unavailable.</p>
+              <p className="text-[11px] text-muted-foreground">Next-open execution uses the next trading day's adjusted open. A frozen dataset without adjusted OHLC cannot run this mode.</p>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Transaction Costs (bps): {txnCostBps}</Label>

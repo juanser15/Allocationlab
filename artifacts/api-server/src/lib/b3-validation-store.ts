@@ -2,7 +2,7 @@ import { db, allocationsTable, preparedInputsTable, validationRunsTable } from "
 import { desc, eq, isNotNull, and } from "drizzle-orm";
 import {
   runB3Validation,
-  type B3Assumptions,
+  type B3ExecutionAssumptions,
   type B3EstimationDatePlan,
   type B3Result,
 } from "./b3-policy";
@@ -21,7 +21,7 @@ type B3ValidationEnvelope = {
   policyRequest: unknown;
   validationSnapshot: unknown;
   validationPreparedFingerprint: string;
-  assumptions: B3Assumptions;
+  assumptions: B3ExecutionAssumptions;
   estimationDatePlan?: B3EstimationDatePlan;
   result: B3Result | { status: "failed"; diagnostic: string };
 };
@@ -76,6 +76,32 @@ export function b3InputHash(input: B3InputHashInput): string {
   // values to null. Hash the same representation that is persisted so save
   // and replay agree even when D4 diagnostics contain optional request fields.
   return fingerprint(jsonbRoundTrip(b3HashPayload(input)));
+}
+
+export function matchesPreparedFingerprint(
+  snapshot: Record<string, unknown>,
+  expected: string,
+): boolean {
+  if (!isRecord(snapshot.dataset) || !isRecord(snapshot.factorSet)) return false;
+  const base = {
+    request: snapshot.request,
+    datasetHash: snapshot.dataset.sha256,
+    factorVersion: snapshot.factorSet.version,
+    engineVersion: snapshot.engineVersion,
+  };
+  const ohlcHash = snapshot.dataset.ohlcSha256;
+  const variants = [base];
+  // Older preparation requests explicitly included cutoffDate: undefined.
+  // PostgreSQL JSONB omits that key, whereas canonicalJson historically
+  // included it in the hash. Reconstruct only that exact known route shape.
+  if (isRecord(snapshot.request) && !Object.hasOwn(snapshot.request, "cutoffDate"))
+    variants.push({ ...base, request: { ...snapshot.request, cutoffDate: undefined } });
+  if (variants.some((candidate) =>
+    fingerprint({ ...candidate, ohlcDatasetHash: ohlcHash ?? null }) === expected)) return true;
+  // Historical close-only preparations were fingerprinted before the optional
+  // companion existed. Never allow that legacy shape for an OHLC snapshot.
+  return ohlcHash === undefined &&
+    variants.some((candidate) => fingerprint(candidate) === expected);
 }
 
 function legacyB3InputHash(input: B3InputHashInput): string {
@@ -227,16 +253,8 @@ export async function persistB3ValidationRun(input: {
     d6Trace("frozen.inputs.rejected", { reason: "allocation_fingerprint_mismatch" });
     return { error: "Frozen allocation policy fingerprint mismatch.", status: 409 } as const;
   }
-  const preparedFingerprint = isRecord(validationSnapshot) && isRecord(validationSnapshot.dataset) &&
-    isRecord(validationSnapshot.factorSet)
-    ? fingerprint({
-      request: validationSnapshot.request,
-      datasetHash: validationSnapshot.dataset.sha256,
-      factorVersion: validationSnapshot.factorSet.version,
-      engineVersion: validationSnapshot.engineVersion,
-    })
-    : "";
-  if (preparedFingerprint !== prepared.fingerprint) {
+  if (!isRecord(validationSnapshot) ||
+      !matchesPreparedFingerprint(validationSnapshot, prepared.fingerprint)) {
     d6Trace("frozen.inputs.rejected", { reason: "prepared_fingerprint_mismatch" });
     return { error: "Frozen validation prepared-input fingerprint mismatch.", status: 409 } as const;
   }
@@ -259,14 +277,14 @@ export async function persistB3ValidationRun(input: {
       typeof policySnapshot.dataset.id === "number" ? policySnapshot.dataset.id : null,
     validationDatasetId: typeof dataset.id === "number" ? dataset.id : null,
   });
-  const frozenAssumptions = structuredClone(input.assumptions) as B3Assumptions;
+  const frozenAssumptions = structuredClone(input.assumptions) as B3ExecutionAssumptions;
   const version = engineVersion(policySnapshot);
   let result: B3Result | { status: "failed"; diagnostic: string };
   try {
     result = runB3Validation(
       policySnapshot as Parameters<typeof runB3Validation>[0],
       policyRequest as Parameters<typeof runB3Validation>[1],
-      validationSnapshot as Parameters<typeof runB3Validation>[2],
+      validationSnapshot as unknown as Parameters<typeof runB3Validation>[2],
       frozenAssumptions,
       internalEstimationDatePlan,
     );
@@ -428,17 +446,9 @@ export async function replayB3ValidationRun(id: number) {
   if (!dataset || typeof dataset.csvContent !== "string" || typeof dataset.sha256 !== "string" ||
       hashDataset(dataset.csvContent) !== dataset.sha256)
     differences.push("frozen validation dataset content/hash mismatch");
-  const preparedFingerprint = isRecord(frozen.validationSnapshot) && isRecord(frozen.validationSnapshot.dataset) &&
-    isRecord(frozen.validationSnapshot.factorSet)
-    ? fingerprint({
-      request: frozen.validationSnapshot.request,
-      datasetHash: frozen.validationSnapshot.dataset.sha256,
-      factorVersion: frozen.validationSnapshot.factorSet.version,
-      engineVersion: frozen.validationSnapshot.engineVersion,
-    })
-    : "";
-  if (!preparedFingerprint) differences.push("frozen validation prepared-input fingerprint cannot be reconstructed");
-  else if (preparedFingerprint !== frozen.validationPreparedFingerprint)
+  if (!isRecord(frozen.validationSnapshot))
+    differences.push("frozen validation prepared-input fingerprint cannot be reconstructed");
+  else if (!matchesPreparedFingerprint(frozen.validationSnapshot, frozen.validationPreparedFingerprint))
     differences.push("frozen validation prepared-input fingerprint mismatch");
   const hashInput: B3InputHashInput = {
     allocationId: row.allocationId,
