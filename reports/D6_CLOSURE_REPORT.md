@@ -1,6 +1,15 @@
 # D6 bounded closure report — D6 BLOCKED
 
-Date: 2026-09-29. Diagnosis began at approximately 18:08 UTC and concluded within the declared 30-minute bound. One final independent regression batch completed within its 15-minute bound. No later-stage work is included.
+Date: 2026-09-29. Diagnosis began at approximately 18:08 UTC and concluded within the declared **D6 BLOCKED — T6–T8 siguen sin cerrar.**
+
+- El 502 anterior **no se reprodujo**. El servidor registró HTTP **201 en 32,723 segundos** y guardó la Validation Run **#515** para la asignación #291.
+- La ejecución quedó fallida por: **“D5 zero-regularization comparison failed: Invalid target exposure for D6B on 2025-11-03.”**
+- No quedó conservado el valor rechazado. No apliqué una corrección especulativa ni repetí la validación.
+- La conservación de evidencia tuvo un error: el navegador sobrescribió la traza intermedia. El informe lo declara y distingue los logs independientes del servidor de la consulta posterior.
+- Typecheck pasó; **137 pruebas pasaron**, ninguna falló y una seed opcional quedó omitida.
+- Los fixtures siguen preservados y visibles como **TEST_ONLY**; no se restauró ni sustituyó ningún dataset de mercado.
+
+Informe guardado: [D6_CLOSURE_REPORT.md](reports/D6_CLOSURE_REPORT.md). Se detiene el trabajo sin iniciar otra etapa.-minute bound. One final independent regression batch completed within its 15-minute bound. No later-stage work is included.
 
 ## Revision and changes
 
