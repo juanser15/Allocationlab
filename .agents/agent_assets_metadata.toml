@@ -137,3 +137,17 @@ mtime_ms = 1790748884218
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/68594aae-352d-4c4b-80fd-33ef52bfc5a6/90b1f896-9cdf-4427-818b-0f41c016ddb3"
 storage_version_token = "1790748917383497"
 content_type = "text/markdown"
+
+[[outputs]]
+id = "wA6JQfkveQJE-mp7ZRwi8"
+uri = "file://reports/d6-typing-final/RESULT.md"
+type = "text"
+title = "D6 — tipado aprobado; verificación bloqueada"
+description = "Huella final, pruebas aprobadas y fallo exacto del cargador de la suite de persistencia."
+logical_id = "f9ef5104-d90d-456e-9036-5778e9554113"
+content_hash = "sha256:096088a35022c6630e51f32333317a8342492a2900f8e6d1b422167f5ee4f1d3"
+size = 2574
+mtime_ms = 1790773133588
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/f9ef5104-d90d-456e-9036-5778e9554113/9fdd584e-b4ee-4680-8799-2e0330f283b4"
+storage_version_token = "1790773164019446"
+content_type = "text/markdown"
