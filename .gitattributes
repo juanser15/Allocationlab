@@ -3,3 +3,4 @@ reports/d6-evidence/validation-trace.jsonl filter=lfs diff=lfs merge=lfs -text
 reports/oct2026-backtests/alpha2-preparation.response.json filter=lfs diff=lfs merge=lfs -text
 reports/oct2026-backtests/assets-gamma10-validation.response.json filter=lfs diff=lfs merge=lfs -text
 reports/oct2026-backtests/assets-gamma100-validation.response.json filter=lfs diff=lfs merge=lfs -text
+reports/oct2026-backtests/alpha-no-commodities-hrhgcyld/preparation.response.json filter=lfs diff=lfs merge=lfs -text

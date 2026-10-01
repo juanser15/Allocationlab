@@ -1,0 +1,194 @@
+{
+  "allocationId": 326,
+  "preparedInputId": 341,
+  "status": "SOLVED",
+  "excludedTickers": [
+    "DBC",
+    "GLD"
+  ],
+  "factorIds": [
+    "momentum",
+    "mean_reversion"
+  ],
+  "informationCutoff": "2026-09-30",
+  "decisionTimestamp": "2026-10-01T00:00:00Z",
+  "candidateWeights": {
+    "31da5b08208c9df683bbab13fc8f337aae4e4ae3d11e079857f0fa8ef04025d2": 0.34876901279427636,
+    "702383e38db83a40ac09101c22cb8a2db4a8b99952f1eaac37148677b76148da": 0.4512309872178475
+  },
+  "cash": 0.2000000000000001,
+  "assetWeights": {
+    "XLV": 0.10901771515320176,
+    "XLE": 0.09154423826425909,
+    "XLI": 0.08087954381245355,
+    "XLK": 0.0753097607614189,
+    "VNQ": 0.0659730673097817,
+    "EUFN": 0.05419228177513071,
+    "XLB": 0.044285099304940324,
+    "EFA": 0.04380284977177891,
+    "AAXJ": 0.03961430717803704,
+    "XLF": 0.03730178965558049,
+    "EEM": 0.03509229251926274,
+    "XLY": 0.03452192472820219,
+    "SPY": 0.03183973824459017,
+    "EWJ": 0.02848702884883969,
+    "EWG": 0.02426854507362582,
+    "XLU": 0.0038698176110208396,
+    "IEF": 0,
+    "TLT": 0
+  },
+  "solver": {
+    "name": "quadprog / Goldfarb-Idnani",
+    "status": "SOLVED",
+    "message": "PSD flat-direction candidate lift 1e-12; exact objective KKT independently verified.",
+    "version": "2.0.0",
+    "iterations": 3,
+    "dualResidual": 3.72984474995704e-10,
+    "psdTolerance": 1e-10,
+    "primalResidual": 1.212407951811656e-11,
+    "constraintTolerance": 1e-08,
+    "optimalityTolerance": 1e-06,
+    "maxConstraintViolation": 1.212407951811656e-11,
+    "scaledOptimalityResidual": 3.72984474995704e-10
+  },
+  "constraintSlacks": [
+    {
+      "name": "capital_budget",
+      "value": 1.000000000012124,
+      "maxSlack": -1.212407951811656e-11,
+      "minSlack": 1.212407951811656e-11
+    },
+    {
+      "name": "master_cash_nonnegative",
+      "value": 0.20000000000000007,
+      "maxSlack": null,
+      "minSlack": 0.20000000000000007
+    },
+    {
+      "name": "candidate:702383e38db83a40ac09101c22cb8a2db4a8b99952f1eaac37148677b76148da",
+      "value": 0.4512309872178475,
+      "maxSlack": 0.5487690127821525,
+      "minSlack": 0.4512309872178475
+    },
+    {
+      "name": "candidate:31da5b08208c9df683bbab13fc8f337aae4e4ae3d11e079857f0fa8ef04025d2",
+      "value": 0.34876901279427636,
+      "maxSlack": 0.6512309872057236,
+      "minSlack": 0.34876901279427636
+    },
+    {
+      "name": "asset:AAXJ",
+      "value": 0.03961430717803704,
+      "maxSlack": 0.26038569282196294,
+      "minSlack": null
+    },
+    {
+      "name": "asset:EEM",
+      "value": 0.03509229251926274,
+      "maxSlack": 0.2649077074807372,
+      "minSlack": null
+    },
+    {
+      "name": "asset:EFA",
+      "value": 0.04380284977177891,
+      "maxSlack": 0.2561971502282211,
+      "minSlack": null
+    },
+    {
+      "name": "asset:EUFN",
+      "value": 0.05419228177513071,
+      "maxSlack": 0.24580771822486927,
+      "minSlack": null
+    },
+    {
+      "name": "asset:EWG",
+      "value": 0.02426854507362582,
+      "maxSlack": 0.2757314549263742,
+      "minSlack": null
+    },
+    {
+      "name": "asset:EWJ",
+      "value": 0.02848702884883969,
+      "maxSlack": 0.2715129711511603,
+      "minSlack": null
+    },
+    {
+      "name": "asset:IEF",
+      "value": 0,
+      "maxSlack": 0.3,
+      "minSlack": null
+    },
+    {
+      "name": "asset:SPY",
+      "value": 0.03183973824459017,
+      "maxSlack": 0.2681602617554098,
+      "minSlack": null
+    },
+    {
+      "name": "asset:TLT",
+      "value": 0,
+      "maxSlack": 0.3,
+      "minSlack": null
+    },
+    {
+      "name": "asset:VNQ",
+      "value": 0.0659730673097817,
+      "maxSlack": 0.2340269326902183,
+      "minSlack": null
+    },
+    {
+      "name": "asset:XLB",
+      "value": 0.044285099304940324,
+      "maxSlack": 0.25571490069505964,
+      "minSlack": null
+    },
+    {
+      "name": "asset:XLE",
+      "value": 0.09154423826425909,
+      "maxSlack": 0.2084557617357409,
+      "minSlack": null
+    },
+    {
+      "name": "asset:XLF",
+      "value": 0.03730178965558049,
+      "maxSlack": 0.2626982103444195,
+      "minSlack": null
+    },
+    {
+      "name": "asset:XLI",
+      "value": 0.08087954381245355,
+      "maxSlack": 0.21912045618754644,
+      "minSlack": null
+    },
+    {
+      "name": "asset:XLK",
+      "value": 0.0753097607614189,
+      "maxSlack": 0.22469023923858109,
+      "minSlack": null
+    },
+    {
+      "name": "asset:XLU",
+      "value": 0.0038698176110208396,
+      "maxSlack": 0.29613018238897915,
+      "minSlack": null
+    },
+    {
+      "name": "asset:XLV",
+      "value": 0.10901771515320176,
+      "maxSlack": 0.19098228484679824,
+      "minSlack": null
+    },
+    {
+      "name": "asset:XLY",
+      "value": 0.03452192472820219,
+      "maxSlack": 0.2654780752717978,
+      "minSlack": null
+    },
+    {
+      "name": "total_cash",
+      "value": 0.2000000000000001,
+      "maxSlack": -8.326672684688674e-17,
+      "minSlack": 0.10000000000000009
+    }
+  ]
+}
