@@ -76,3 +76,28 @@ test("repin keeps pinned session and drops job; pending detection", () => {
   assert.equal(q.pinnedLegacyRunId, 77); assert.equal(q.pinnedSessionId, 3); assert.equal(q.inspectedJobId, null);
   assert.equal(jobIsPending("running"), true); assert.equal(jobIsPending("completed"), false);
 });
+
+import assert2 from "node:assert/strict";
+import test2 from "node:test";
+import { resolveInspectedAllocationId, planInspection as plan2 } from "./portfolio-history-state.ts";
+test2("B3 inspection resolves allocation only from recorded sources", () => {
+  const e: any = { kind: "validation", id: "543", createdAt: "x", status: "completed", representation: "asset_returns", executionMode: null, replayAvailable: false, sessionId: null, allocationId: null, validationRunId: 543, jobId: null };
+  const p = plan2(e);
+  assert2.equal(resolveInspectedAllocationId(p), null);
+  assert2.equal(resolveInspectedAllocationId(p, 12), 12);
+  assert2.equal(resolveInspectedAllocationId(p, null, { allocationId: 9 }), 9);
+  assert2.equal(resolveInspectedAllocationId(p, null, { sessionId: 1, allocationId: 9 }), null);
+  assert2.equal(resolveInspectedAllocationId(plan2({ ...e, allocationId: 5 }), 12), 5);
+});
+
+import { planInspection as plan3 } from "./portfolio-history-state.ts";
+test2("view mode derivation: working B2 -> legacy 544 -> return; working legacy -> B3 543 -> return", () => {
+  const view = (working: boolean, ins: any) => ins ? ins.b2Mode : working;
+  const mk = (o: any): any => ({ kind: "validation", id: "x", createdAt: "x", status: "completed", representation: null, executionMode: null, replayAvailable: false, sessionId: null, allocationId: null, validationRunId: null, jobId: null, ...o });
+  const legacy = plan3(mk({ id: "544", sessionId: 3, validationRunId: 544 }));
+  assert2.equal(view(true, legacy), false);
+  assert2.equal(view(true, null), true);
+  const b3 = plan3(mk({ id: "543", representation: "asset_returns", allocationId: 2, validationRunId: 543 }));
+  assert2.equal(view(false, b3), true);
+  assert2.equal(view(false, null), false);
+});

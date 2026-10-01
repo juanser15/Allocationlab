@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import {
   getGetSelectionPolicyExperimentQueryKey, useGetSelectionPolicySources,
@@ -138,17 +138,8 @@ export function C3SelectionPoliciesPanel() {
   const inputKey = input ? JSON.stringify(input) : null;
   const latestKey = useRef(inputKey);
   latestKey.current = inputKey;
-  useEffect(() => {
-    if (!inputKey) return;
-    let active = true;
-    const timer = window.setTimeout(() => {
-      void planRef.current({ data: JSON.parse(inputKey) as C3SelectionPolicyPlanInput })
-        .then(data => { if (active) setPlanned({ key: inputKey, data }); })
-        .catch(error => { if (active) setPlanned({ key: inputKey, error: errorText(error) }); });
-    }, 400);
-    return () => { active = false; window.clearTimeout(timer); };
-  }, [inputKey]);
-  const preview = planned?.key === inputKey ? planned : null;
+  const preview = planned;
+  const previewIsCurrent = !!inputKey && preview?.key === inputKey;
   const groups = array(preview?.data?.groups);
   const preserved = array(preview?.data?.preservedPairs);
   const policiesPreview = obj(preview?.data?.policies);
@@ -160,7 +151,7 @@ export function C3SelectionPoliciesPanel() {
     const group = groups.find(g => g.id === id);
     return !!group && strings(group.memberIds).includes(representative);
   });
-  const ready = !!input && !!preview?.data && capsValid && overridesValid &&
+  const ready = !!input && previewIsCurrent && capsValid && overridesValid &&
     policies.every(key => numeric(obj(policiesPreview[key]).alphaCount) !== null);
   const savedManifest = obj(detail.data?.manifest);
   const savedResult = obj(detail.data?.result);
@@ -168,9 +159,14 @@ export function C3SelectionPoliciesPanel() {
   const savedPolicies = obj(savedResult.policies);
 
   async function run() {
-    if (!ready || !input || !inputKey) return;
+    if (!input || !inputKey) {
+      setNotice("Complete the valid frozen sources, date split, thresholds, and B3 assumptions before running.");
+      return;
+    }
     setNotice(null); setChecking(true);
     try {
+      // Development plans are requested only inside this deliberate Run
+      // action; draft edits never trigger a background calculation.
       const checked = await planRef.current({ data: input });
       if (latestKey.current !== inputKey) return;
       const checkedGroups = array(checked.groups);
@@ -178,6 +174,19 @@ export function C3SelectionPoliciesPanel() {
         g.id !== groups[i].id || g.representativeId !== groups[i].representativeId)) {
         setPlanned({ key: inputKey, data: checked });
         setNotice("The frozen plan changed. Review groups, representatives, and caps again.");
+        return;
+      }
+      setPlanned({ key: inputKey, data: checked });
+      const checkedCapsValid = checkedGroups.every(g => {
+        const cap = groupCaps[String(g.id)];
+        return Number.isFinite(cap) && cap > 0 && cap <= 1;
+      }) && Object.keys(groupCaps).every(id => checkedGroups.some(g => g.id === id));
+      const checkedOverridesValid = Object.entries(manualOverrides).every(([id, representative]) => {
+        const group = checkedGroups.find(g => g.id === id);
+        return !!group && strings(group.memberIds).includes(representative);
+      });
+      if (!checkedCapsValid || !checkedOverridesValid) {
+        setNotice("Review the explicit plan, then provide a valid cap for each group and compatible representative overrides before running.");
         return;
       }
       const created = await create.mutateAsync({ data: {
@@ -225,12 +234,15 @@ export function C3SelectionPoliciesPanel() {
         {!splitValid && <p className="text-xs text-amber-800" role="status">Enter valid dates. Development must end strictly before evaluation begins.</p>}
         {selectedC2 && !sourceValid && <p className="text-xs text-amber-800" role="status">Select an evaluation B1 and the exact frozen B2/C2 alpha universe; development dates must match C2. The server verifies the full frozen sources on preview and run.</p>}
       </section>
-      <section className="space-y-4 border-t pt-6" aria-labelledby="c3-groups"><div><h3 id="c3-groups" className="text-sm font-semibold">02 / Redundancy Groups</h3><p className="mt-1 text-xs text-muted-foreground">Conservative complete-linkage, conditional evidence gates, and explicit regime-divergence protection. Preview does not run B3.</p></div>
+      <section className="space-y-4 border-t pt-6" aria-labelledby="c3-groups"><div><h3 id="c3-groups" className="text-sm font-semibold">02 / Redundancy Groups</h3><p className="mt-1 text-xs text-muted-foreground">Conservative complete-linkage, conditional evidence gates, and explicit regime-divergence protection. Grouping is calculated only during an explicit Run action.</p></div>
         <div className="rounded-md border bg-muted/20 p-3"><p className="mb-3 text-xs font-medium">Grouping rule · C3 engine {label(preview?.data?.engineVersion)} · thresholds v1</p><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{(Object.keys(defaults) as (keyof C3SelectionPolicyThresholds)[]).map(key => <div key={key} className="space-y-1"><Label htmlFor={`c3-threshold-${key}`}>{thresholdLabels[key]}</Label><Input id={`c3-threshold-${key}`} type="number" step={key.startsWith("min") ? 1 : 0.01} min={key.startsWith("min") ? 2 : key === "epsilon" ? 0.000001 : key === "exposureSimilarity" ? 0 : -1} max={key.startsWith("min") ? undefined : 1} value={thresholds[key]} onChange={e => { setThresholds(old => ({ ...old, [key]: Number(e.target.value) })); setGroupCaps({}); setManualOverrides({}); }} data-testid={`input-c3-threshold-${key}`} /></div>)}</div></div>
-        {!input ? <p className="rounded-md border border-dashed p-4 text-xs text-muted-foreground">Complete frozen sources, dates, thresholds, and B3 assumptions to preview the development-only plan.</p>
-          : !preview ? <div className="space-y-2" aria-label="Loading development plan"><div className="h-5 w-2/3 animate-pulse rounded bg-muted" /><div className="h-5 w-1/2 animate-pulse rounded bg-muted" /></div>
+        {!input ? <p className="rounded-md border border-dashed p-4 text-xs text-muted-foreground">Complete frozen sources, dates, thresholds, and B3 assumptions before running the development-only plan.</p>
+          : !preview ? <p className="text-xs text-muted-foreground">No development plan has been requested. It is calculated only when you explicitly run the policy comparison.</p>
             : preview.error ? <p className="text-xs text-amber-800" role="alert">Plan unavailable: {preview.error}</p>
               : <div className="space-y-4" data-testid="status-c3-plan">
+                <p className={previewIsCurrent ? "text-xs text-muted-foreground" : "text-xs font-medium text-amber-800"} role="status">
+                  {previewIsCurrent ? "Current explicit-run plan." : "STALE PLAN — the working draft changed. This saved plan is invalid for the current draft and will not be refreshed until Run."}
+                </p>
                 <p className="text-xs tabular-nums">{groups.length} redundancy groups · {array(preview.data?.standaloneIds).length || strings(preview.data?.standaloneIds).length} standalone alphas · {preserved.length} regime-preserved pairs.</p>
                 {groups.length ? groups.map((g, i) => <div key={String(g.id)} className="rounded-md border p-3 text-xs" data-testid={`status-c3-group-${i}`}><p className="font-semibold">Group {i + 1} <span className="ml-2 font-mono text-[10px] text-muted-foreground">{label(g.id)}</span></p><p className="mt-1 break-all">{strings(g.memberIds).join(" · ")}</p><p className="mt-2">Representative: <strong className="font-mono">{label(g.representativeId)}</strong> · {label(g.selectionReason)}</p><details className="mt-2"><summary className="cursor-pointer font-medium">Pairwise evidence</summary><div className="mt-2"><Evidence value={g.evidence} /></div></details></div>) : <p className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">No genuine redundancy group qualifies under these thresholds. All alphas remain standalone.</p>}
                 <div className="rounded-md border-l-2 border-amber-600 bg-amber-50/40 p-3 text-xs dark:bg-amber-950/10"><h4 className="font-semibold uppercase tracking-wider">Preserved due to regime complementarity</h4>{preserved.length ? preserved.map((pair, i) => <div key={i} className="mt-3 border-t pt-2" data-testid={`status-c3-preserved-${i}`}><p className="break-all font-medium">{label(pair.alphaA)} / {label(pair.alphaB)}</p><p className="mt-1">{label(pair.reason)}</p><div className="mt-2 grid gap-2 sm:grid-cols-2"><Field title="Full correlation"><Evidence value={pair.fullSampleCorrelation} /></Field><Field title="Conditional correlations"><Evidence value={pair.regimeCorrelations} /></Field><Field title="Conditional performance"><Evidence value={pair.conditionalPerformanceByRegime} /></Field><Field title="Conditional C1 contribution"><Evidence value={pair.conditionalContributionByRegime} /></Field><Field title="Exposure similarity"><Evidence value={pair.exposureSimilarityByRegime} /></Field></div></div>) : <p className="mt-2 text-muted-foreground">No C2 regime-divergent pair in this selection.</p>}</div>
@@ -238,6 +250,7 @@ export function C3SelectionPoliciesPanel() {
               </div>}
       </section>
       <section className="space-y-4 border-t pt-6" aria-labelledby="c3-policies"><div><h3 id="c3-policies" className="text-sm font-semibold">03 / Policy Definitions</h3><p className="mt-1 text-xs text-muted-foreground">The representative rule favors lower development external turnover, then coverage, then canonical ID. Override before evaluation. Every group cap must be declared by you.</p></div>
+        {groups.length > 0 && !previewIsCurrent && <p className="text-xs font-medium text-amber-800" role="status">These group definitions are from a stale plan. Review the new explicit plan before relying on these draft caps or overrides.</p>}
         {groups.map((g, i) => <div key={String(g.id)} className="grid gap-3 rounded-md border p-3 sm:grid-cols-2"><div className="space-y-1"><Label htmlFor={`c3-cap-${i}`}>Group {i + 1} · aggregate B2 allocation cap (0–1)</Label><Input id={`c3-cap-${i}`} type="number" min="0.000001" max="1" step="0.01" value={groupCaps[String(g.id)] ?? ""} onChange={e => setGroupCaps(old => {
           const next = { ...old }; if (!e.target.value) delete next[String(g.id)]; else next[String(g.id)] = Number(e.target.value); return next;
         })} placeholder="Required for run" data-testid={`input-c3-cap-${i}`} /></div><div className="space-y-1"><Label htmlFor={`c3-override-${i}`}>Manual representative override</Label><select id={`c3-override-${i}`} className={field} value={manualOverrides[String(g.id)] ?? ""} onChange={e => setManualOverrides(old => {
@@ -245,11 +258,11 @@ export function C3SelectionPoliciesPanel() {
         })} data-testid={`select-c3-override-${i}`}><option value="">Automatic · {label(g.representativeId)}</option>{strings(g.memberIds).map(id => <option key={id} value={id}>{id}</option>)}</select></div></div>)}
         <div className="rounded-md border bg-muted/20 p-3 text-xs"><h4 className="font-semibold">Shared B3 evaluation assumptions</h4><p className="mt-1 text-muted-foreground">The same NAV, holdings, execution, costs and evaluation dates apply to all three policies.</p><div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"><div className="space-y-1"><Label htmlFor="c3-calendar">Decision calendar</Label><select id="c3-calendar" className={field} value={assumptions.decisionCalendar} onChange={e => setAssumptions(old => ({ ...old, decisionCalendar: e.target.value as B3ValidationAssumptions["decisionCalendar"] }))} data-testid="select-c3-calendar"><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option></select></div><div className="space-y-1"><Label htmlFor="c3-execution">Execution timing</Label><select id="c3-execution" className={field} value={assumptions.executionTiming} onChange={e => setAssumptions(old => ({ ...old, executionTiming: e.target.value as B3ValidationAssumptions["executionTiming"] }))} data-testid="select-c3-execution"><option value="next_close">Next close</option><option value="same_close">Same close</option></select></div>
           {numberKeys.map(key => <div key={key} className="space-y-1"><Label htmlFor={`c3-${key}`}>{numberLabels[key]}</Label><Input id={`c3-${key}`} type="number" step="any" min={key === "dailyCashYield" ? undefined : key === "initialNav" ? "0.000001" : 0} value={assumptions[key]} onChange={e => setAssumptions(old => ({ ...old, [key]: Number(e.target.value) }))} data-testid={`input-c3-${key}`} /></div>)}<div className="space-y-1"><Label htmlFor="c3-benchmark">Benchmark ticker · optional</Label><Input id="c3-benchmark" value={assumptions.benchmarkTicker ?? ""} onChange={e => setAssumptions(old => ({ ...old, benchmarkTicker: e.target.value || undefined }))} data-testid="input-c3-benchmark" /></div><div className="space-y-1 sm:col-span-2"><Label htmlFor="c3-holdings">Initial holdings · asset-to-units JSON</Label><Input id="c3-holdings" value={holdingsText} onChange={e => setHoldingsText(e.target.value)} placeholder='{"SPY": 12}' data-testid="input-c3-holdings" />{!holdings && <p className="text-amber-800" role="alert">Enter a JSON object with nonnegative finite unit counts.</p>}</div></div></div>
-        {preview?.data && <div className="grid gap-2 sm:grid-cols-3" data-testid="status-c3-policy-preview">{policies.map(key => {
+        {previewIsCurrent && preview?.data && <div className="grid gap-2 sm:grid-cols-3" data-testid="status-c3-policy-preview">{policies.map(key => {
           const summary = obj(policiesPreview[key]); return <div key={key} className="rounded-md border bg-muted/20 p-3 text-xs"><h4 className="font-semibold tracking-wide">{key}</h4><p className="mt-2 tabular-nums">{label(summary.alphaCount)} alphas · {label(summary.groupCount)} groups</p><p className="mt-1 text-muted-foreground">{key === "GROUP_CAP" ? capsValid ? "User-defined caps ready" : "Enter a cap for each group" : key === "REPRESENTATIVE" ? `${strings(summary.removedAlphaIds).length} removed as redundant` : "Complete frozen universe"}</p>{key === "REPRESENTATIVE" && strings(summary.removedAlphaIds).length > 0 && <p className="mt-2 break-all font-mono" data-testid="status-c3-removed">Removed: {strings(summary.removedAlphaIds).join(" · ")}</p>}</div>;
         })}</div>}
-        <p className="text-xs text-muted-foreground" data-testid="status-c3-readiness">{preserved.length} pairs preserved due to regime complementarity · {ready ? "Plan and group caps validated. Ready to run." : "Run blocked until the current plan, assumptions and every group cap are valid."}</p>
-        <Button onClick={() => void run()} disabled={!ready || checking || create.isPending} data-testid="button-c3-run"><Activity className="mr-2 h-4 w-4" />{checking ? "Rechecking frozen plan…" : create.isPending ? "Running comparison…" : "RUN POLICY COMPARISON"}</Button>
+        <p className="text-xs text-muted-foreground" data-testid="status-c3-readiness">{preserved.length} pairs preserved due to regime complementarity · {ready ? "Current explicit plan and group caps validated." : input ? "Draft is locally valid; explicit Run checks the plan and required group caps." : "Complete locally validated sources and assumptions before running."}</p>
+        <Button onClick={() => void run()} disabled={!input || checking || create.isPending} data-testid="button-c3-run"><Activity className="mr-2 h-4 w-4" />{checking ? "Checking frozen plan…" : create.isPending ? "Running comparison…" : "RUN POLICY COMPARISON"}</Button>
       </section>
       <section className="space-y-4 border-t pt-6" aria-labelledby="c3-comparison"><div><h3 id="c3-comparison" className="text-sm font-semibold">04 / Evaluation Comparison</h3><p className="mt-1 text-xs text-muted-foreground">Immutable saved comparisons remain independent of your working draft. Reading does not recompute a run.</p></div>
         <div className="flex flex-wrap items-end gap-3"><div className="min-w-0 flex-1 space-y-1"><Label htmlFor="c3-saved">Saved comparisons</Label><select id="c3-saved" className={field} value={selectedId ?? ""} onChange={e => { setSelectedId(e.target.value ? Number(e.target.value) : null); setReplayResult(null); }} data-testid="select-c3-saved"><option value="">Select saved experiment</option>{(saved.data ?? []).map(x => <option key={x.id} value={x.id}>#{x.id} · B2 #{x.allocationId} · evaluation B1 #{x.validationPreparedInputId} · {x.createdAt}</option>)}</select></div><Button size="sm" variant="outline" onClick={() => void saved.refetch()} disabled={saved.isFetching} data-testid="button-c3-refresh"><RefreshCw className="mr-2 h-3.5 w-3.5" />Refresh saved</Button></div>

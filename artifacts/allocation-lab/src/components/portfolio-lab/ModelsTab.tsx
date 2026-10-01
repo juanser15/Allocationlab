@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useGetRiskModel } from "@workspace/api-client-react";
+import { useEffect, useRef, useState } from "react";
+import { getGetRiskModelQueryKey, useGetRiskModel } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,8 @@ interface Props {
   candidateCount?: number;
   observationWindow?: number;
   alignedObservationCount?: number | null;
+  riskExecutionToken?: number;
+  inspectionActive?: boolean;
   d1RiskModel?: D1RiskModelRequest;
   onD1RiskModelChange?: (config: D1RiskModelRequest) => void;
 }
@@ -45,7 +47,7 @@ const MODEL_DEFS = [
     objective: `maximize:\n  score′ · w\n  − λ_risk · w′ Σ w\n  − λ_turnover · ‖w − w_prev‖₁\n  − λ_concentration · Σᵢ wᵢ²`,
     description: "Score-weighted allocation with risk, turnover, and concentration penalties. Factor scores are regime-weighted composite ranks. This is the primary official model.",
     covariance: "Sample covariance (switchable to EWMA or Shrinkage in Models tab)",
-    inputs: "Composite factor scores (regime-weighted), prior weights, covariance matrix, constraint bounds",
+    inputs: "Composite factor scores (regime-weighted), configured starting weights, covariance matrix, constraint bounds",
     confidence: 85,
   },
   {
@@ -182,12 +184,51 @@ function ModelDrawer({
 export function ModelsTab({
   result, hasData, hasRun, allocationId = null, representation = null,
   candidateCount = 0, observationWindow = 252, alignedObservationCount = null,
+  riskExecutionToken, inspectionActive = false,
   d1RiskModel = { type: "SAMPLE", specificRiskFloorFraction: 1e-6 },
   onD1RiskModelChange = () => undefined,
 }: Props) {
   const [covModel, setCovModel] = useState<"sample" | "ewma" | "shrinkage">("sample");
   const [openModel, setOpenModel] = useState<string | null>(null);
-  const { data: riskModel } = useGetRiskModel({ covarianceModel: covModel });
+  const seenRiskExecutionToken = useRef(riskExecutionToken ?? 0);
+  const [riskRequest, setRiskRequest] = useState<{ token: number; covarianceModel: typeof covModel } | null>(null);
+  const [lastCompletedRisk, setLastCompletedRisk] = useState<{
+    covarianceModel: typeof covModel;
+    result: RiskModelResult;
+  } | null>(null);
+
+  // Covariance selection is a draft only. A newly completed, explicit legacy
+  // optimizer run is the sole event allowed to request a risk calculation.
+  useEffect(() => {
+    if (inspectionActive) return;
+    const token = riskExecutionToken ?? 0;
+    if (token <= 0 || token === seenRiskExecutionToken.current) return;
+    seenRiskExecutionToken.current = token;
+    setRiskRequest({ token, covarianceModel: covModel });
+  }, [riskExecutionToken, covModel, inspectionActive]);
+
+  const riskQuery = useGetRiskModel(
+    { covarianceModel: riskRequest?.covarianceModel ?? "sample" },
+    {
+      query: {
+        enabled: !!riskRequest,
+        queryKey: riskRequest
+          ? [...getGetRiskModelQueryKey({ covarianceModel: riskRequest.covarianceModel }), "explicit-run", riskRequest.token]
+          : ["/api/risk-model", "not-requested"],
+        retry: false,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+      } as any,
+    },
+  );
+  useEffect(() => {
+    if (riskRequest && riskQuery.data) {
+      setLastCompletedRisk({ covarianceModel: riskRequest.covarianceModel, result: riskQuery.data });
+    }
+  }, [riskQuery.data, riskRequest]);
+  const riskModel = inspectionActive ? undefined : lastCompletedRisk?.result;
+  const completedCovarianceModel = inspectionActive ? undefined : lastCompletedRisk?.covarianceModel;
 
   const d1RiskModelPanel = <D1RiskModelPanel
     allocationId={allocationId}
@@ -220,21 +261,31 @@ export function ModelsTab({
         )}
       </DetailDrawer>
 
-      {/* Covariance selector */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Covariance Model:</span>
-        <Select value={covModel} onValueChange={(v) => setCovModel(v as typeof covModel)}>
-          <SelectTrigger className="h-8 text-xs w-56">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(COVARIANCE_MODELS).map(([k, v]) => (
-              <SelectItem key={k} value={k}>{v}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <span className="text-[11px] text-muted-foreground">Shrinkage is the institutional default for production runs.</span>
-      </div>
+      {!inspectionActive && (
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Covariance Model:</span>
+          <Select value={covModel} onValueChange={(v) => setCovModel(v as typeof covModel)}>
+            <SelectTrigger className="h-8 text-xs w-56">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(COVARIANCE_MODELS).map(([k, v]) => (
+                <SelectItem key={k} value={k}>{v}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <span className="text-[11px] text-muted-foreground">Draft selection only; no calculation runs until an explicit optimizer completion.</span>
+        </div>
+      )}
+      <p className="text-xs text-muted-foreground" role="status" data-testid="status-risk-model-snapshot">
+        {inspectionActive
+          ? "Frozen risk snapshot not recorded for this history item. No working risk estimate is shown or requested."
+          : completedCovarianceModel
+          ? `Showing the last completed ${COVARIANCE_MODELS[completedCovarianceModel]} risk snapshot${riskQuery.isFetching ? " · a newly requested snapshot is running" : ""}.`
+          : riskQuery.isFetching
+            ? "An explicit optimizer run requested a risk snapshot."
+            : "No explicit risk snapshot has been run; risk metrics are unavailable."}
+      </p>
 
       {/* Three model cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -284,7 +335,7 @@ export function ModelsTab({
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-semibold">Model A — Output Diagnostics</CardTitle>
-          <CardDescription>Computed metrics for the Momentum/Trend allocation under the selected covariance model.</CardDescription>
+          <CardDescription>Frozen risk metrics from the last explicit optimizer run. Covariance selector changes remain a working draft.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

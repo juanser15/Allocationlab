@@ -4798,6 +4798,33 @@ export const RestoreFactorLibraryResponse = zod.object({
 })
 
 
+/**
+ * Returns only picker metadata projected from saved rows. Frozen snapshots and candidate histories are returned only by the explicit prepared-input detail endpoint.
+ * @summary List compact metadata for saved prepared inputs
+ */
+export const listPreparedInputSummariesResponseCandidateCountMin = 0;
+
+export const listPreparedInputSummariesResponseObservationCountMin = 0;
+
+
+
+export const ListPreparedInputSummariesResponseItem = zod.object({
+  "preparedInputId": zod.number(),
+  "representation": zod.enum(['asset_returns', 'signals', 'alpha_streams']),
+  "technicalStatus": zod.union([zod.literal('READY'),zod.literal('INCOMPLETE'),zod.literal('INSUFFICIENT_HISTORY'),zod.literal('INVALID_DATA'),zod.literal('UNSUPPORTED'),zod.literal(null)]).nullable(),
+  "createdAt": zod.coerce.date(),
+  "candidateCount": zod.number().min(listPreparedInputSummariesResponseCandidateCountMin).nullable(),
+  "coverageStartDate": zod.string().nullable(),
+  "coverageEndDate": zod.string().nullable(),
+  "observationCount": zod.number().min(listPreparedInputSummariesResponseObservationCountMin).nullable(),
+  "coverageStatus": zod.string().nullable(),
+  "datasetId": zod.number().nullable(),
+  "datasetHash": zod.string().nullable(),
+  "cutoffDate": zod.string().nullable()
+})
+export const ListPreparedInputSummariesResponse = zod.array(ListPreparedInputSummariesResponseItem)
+
+
 export const ListPreparedInputsResponseItem = zod.object({
   "preparedInputId": zod.number(),
   "representation": zod.enum(['asset_returns', 'signals', 'alpha_streams']),

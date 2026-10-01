@@ -126,3 +126,21 @@ export function repinLegacyRun(plan: InspectionPlan, runId: number): InspectionP
 export function jobIsPending(status: string | undefined | null): boolean {
   return status === "queued" || status === "running";
 }
+
+/**
+ * Frozen allocation behind a B2/B3 inspection. Uses only recorded sources, in order:
+ * the history entry (plan), the viewed B3 run's allocationId, a B3 job request's allocationId.
+ * Returns null when unrecorded; callers must NOT substitute the working allocation.
+ */
+export function resolveInspectedAllocationId(
+  plan: InspectionPlan | null, runAllocationId?: number | null, jobRequest?: unknown,
+): number | null {
+  if (!plan || !plan.b2Mode) return null;
+  if (plan.inspectedAllocationId !== null) return plan.inspectedAllocationId;
+  if (typeof runAllocationId === "number") return runAllocationId;
+  if (jobRequest && typeof jobRequest === "object" && !("sessionId" in jobRequest)) {
+    const id = (jobRequest as { allocationId?: unknown }).allocationId;
+    if (typeof id === "number") return id;
+  }
+  return null;
+}

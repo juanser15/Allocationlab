@@ -31,8 +31,8 @@ export function parseRebalance(form: RebalanceForm, cutoff: string, signed: bool
   return { lambdaR, holdings: { asOf: form.asOf, quantities: quantities as Record<string, number>, cash, nav } };
 }
 
-export function RebalanceRegularizationControls({ value, onChange, cutoff, objective }: {
-  value: RebalanceForm; onChange: (next: RebalanceForm) => void; cutoff: string; objective: string;
+export function RebalanceRegularizationControls({ value, onChange, cutoff, objective, referenceDisabled = false }: {
+  value: RebalanceForm; onChange: (next: RebalanceForm) => void; cutoff: string; objective: string; referenceDisabled?: boolean;
 }) {
   const update = (key: keyof RebalanceForm, next: string) => onChange({ ...value, [key]: next });
   const active = Number(value.lambdaR) > 0;
@@ -41,15 +41,16 @@ export function RebalanceRegularizationControls({ value, onChange, cutoff, objec
     <div className="flex flex-wrap items-center gap-3">
       <Label htmlFor="b2-rebalance-lambda" className="text-xs">λR · daily objective units</Label>
       <Input id="b2-rebalance-lambda" type="number" min="0" step="any" className="h-8 w-32 font-mono text-xs" value={value.lambdaR} onChange={e => update("lambdaR", e.target.value)} data-testid="input-b2-rebalance-lambda" />
-      <Badge variant="outline" data-testid="status-b2-rebalance">{active ? "On · actual book required" : "Off · no holdings sent"}</Badge>
+      <Badge variant="outline" data-testid="status-b2-rebalance">{referenceDisabled ? "Ignored · configured λR retained" : active ? "On · actual book required" : "Off · no holdings sent"}</Badge>
     </div>
     <p className="mt-2 text-xs leading-relaxed text-muted-foreground">½ × λR × Σ(target risky underlying asset weight − current risky underlying asset weight)². This is a quadratic objective preference, not a fee, slippage estimate or realized turnover. Use explicit pre-decision holdings at the cutoff; no prior target is substituted.</p>
-    {active && objective !== "regularized_mean_variance" && <p className="mt-2 rounded border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900" data-testid="status-b2-rebalance-unsupported">Unsupported combination: positive λR requires regularized mean-variance. Change the objective before optimizing.</p>}
+    {active && !referenceDisabled && objective !== "regularized_mean_variance" && <p className="mt-2 rounded border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900" data-testid="status-b2-rebalance-unsupported">Unsupported combination: positive λR requires regularized mean-variance. Change the objective before optimizing.</p>}
+    {active && referenceDisabled && <p className="mt-2 rounded border bg-muted/30 p-2 text-xs text-muted-foreground">Starting portfolio is set to Ignore for the next run. Configured λR remains unchanged; reference-book fields are disabled.</p>}
     {active && <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <div className="space-y-1"><Label htmlFor="b2-rebalance-asof">Holdings as of · equals cutoff</Label><Input id="b2-rebalance-asof" type="date" value={value.asOf} onChange={e => update("asOf", e.target.value)} data-testid="input-b2-rebalance-asof" /><p className="text-[11px] text-muted-foreground">Cutoff: {cutoff || "Not selected"}</p></div>
-      <div className="space-y-1"><Label htmlFor="b2-rebalance-nav">Actual NAV</Label><Input id="b2-rebalance-nav" type="number" min="0.000001" step="any" value={value.nav} onChange={e => update("nav", e.target.value)} data-testid="input-b2-rebalance-nav" /></div>
-      <div className="space-y-1"><Label htmlFor="b2-rebalance-cash">Actual cash</Label><Input id="b2-rebalance-cash" type="number" step="any" value={value.cash} onChange={e => update("cash", e.target.value)} data-testid="input-b2-rebalance-cash" /></div>
-      <div className="space-y-1 sm:col-span-2 lg:col-span-3"><Label htmlFor="b2-rebalance-quantities">Actual quantities · ticker → quantity JSON</Label><Input id="b2-rebalance-quantities" className="font-mono" value={value.quantities} onChange={e => update("quantities", e.target.value)} placeholder='{"SPY":12.5,"TLT":4}' data-testid="input-b2-rebalance-quantities" /></div>
+      <div className="space-y-1"><Label htmlFor="b2-rebalance-asof">Holdings as of · equals cutoff</Label><Input id="b2-rebalance-asof" type="date" value={value.asOf} disabled={referenceDisabled} onChange={e => update("asOf", e.target.value)} data-testid="input-b2-rebalance-asof" /><p className="text-[11px] text-muted-foreground">Cutoff: {cutoff || "Not selected"}</p></div>
+      <div className="space-y-1"><Label htmlFor="b2-rebalance-nav">Actual NAV</Label><Input id="b2-rebalance-nav" type="number" min="0.000001" step="any" value={value.nav} disabled={referenceDisabled} onChange={e => update("nav", e.target.value)} data-testid="input-b2-rebalance-nav" /></div>
+      <div className="space-y-1"><Label htmlFor="b2-rebalance-cash">Actual cash</Label><Input id="b2-rebalance-cash" type="number" step="any" value={value.cash} disabled={referenceDisabled} onChange={e => update("cash", e.target.value)} data-testid="input-b2-rebalance-cash" /></div>
+      <div className="space-y-1 sm:col-span-2 lg:col-span-3"><Label htmlFor="b2-rebalance-quantities">Actual quantities · ticker → quantity JSON</Label><Input id="b2-rebalance-quantities" className="font-mono" value={value.quantities} disabled={referenceDisabled} onChange={e => update("quantities", e.target.value)} placeholder='{"SPY":12.5,"TLT":4}' data-testid="input-b2-rebalance-quantities" /></div>
     </div>}
   </fieldset>;
 }

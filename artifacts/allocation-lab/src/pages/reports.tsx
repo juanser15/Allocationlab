@@ -175,7 +175,7 @@ export default function Reports() {
     if (!tradeImplMeta) {
       items.push({ id: "trade-implementation", label: "Trade implementation data unavailable", severity: "warn", detail: "Loading trade implementation readiness — refresh before finalizing the report." });
     } else if (!tradeImplMeta.ready) {
-      items.push({ id: "trade-implementation", label: "Trade implementation not ready", severity: "warn", detail: tradeImplMeta.reason ?? "Run the rebalance pipeline and configure previous weights before a trade blotter can be generated." });
+      items.push({ id: "trade-implementation", label: "Trade implementation not ready", severity: "warn", detail: tradeImplMeta.reason ?? "Run the rebalance pipeline and configure starting weights before a trade blotter can be generated." });
     } else {
       items.push({ id: "trade-implementation", label: "Trade implementation ready", severity: "pass", detail: `${tradeImplMeta.activeEtfCount} active ETFs covered; enter AUM in Portfolio Lab to generate the trade blotter.` });
     }
@@ -184,7 +184,7 @@ export default function Reports() {
     if (!attributionMeta) {
       items.push({ id: "attribution", label: "Attribution data unavailable", severity: "warn", detail: "Loading attribution readiness — refresh before finalizing the report." });
     } else if (!attributionMeta.ready) {
-      items.push({ id: "attribution", label: "Attribution not yet available", severity: "warn", detail: attributionMeta.reason ?? "Save a rebalance with prior weights and realized price history to unlock attribution." });
+      items.push({ id: "attribution", label: "Attribution not yet available", severity: "warn", detail: "Save a rebalance with starting weights and realized price history to unlock attribution." });
     } else {
       items.push({ id: "attribution", label: "Attribution available", severity: "pass", detail: `${attributionMeta.versions.length} saved version${attributionMeta.versions.length === 1 ? "" : "s"} with attribution coverage in the Archive tab.` });
     }
@@ -469,14 +469,14 @@ export default function Reports() {
                     </div>
 
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "#1B2F5B" }}>Final Allocation &amp; Changes vs. Prior Month</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "#1B2F5B" }}>Final Allocation &amp; Changes vs. Starting Weights</p>
                       <table className="w-full text-[10px] border-collapse">
                         <thead>
                           <tr className="text-left text-gray-500 border-b">
                             <th className="py-1 pr-2">Ticker</th>
                             <th className="py-1 pr-2">Sector</th>
                             <th className="py-1 pr-2 text-right">Weight</th>
-                            <th className="py-1 pr-2 text-right">Prior</th>
+                            <th className="py-1 pr-2 text-right">Starting Weight</th>
                             <th className="py-1 pr-2 text-right">Change</th>
                             <th className="py-1 pr-2 text-right">Score</th>
                           </tr>

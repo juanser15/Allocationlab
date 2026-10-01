@@ -88,6 +88,7 @@ import type {
   PreparedCompositionInput,
   PreparedInput,
   PreparedInputRequest,
+  PreparedInputSummary,
   PreparedReplay,
   PricesStatus,
   PricesUploadInput,
@@ -5188,6 +5189,84 @@ export const useRestoreFactorLibrary = <TError = ErrorType<SignalExportError | E
       > => {
       return useMutation(getRestoreFactorLibraryMutationOptions(options));
     }
+
+export const getListPreparedInputSummariesUrl = () => {
+
+
+
+
+  return `/api/prepared-input-summaries`
+}
+
+/**
+ * Returns only picker metadata projected from saved rows. Frozen snapshots and candidate histories are returned only by the explicit prepared-input detail endpoint.
+ * @summary List compact metadata for saved prepared inputs
+ */
+export const listPreparedInputSummaries = async ( options?: RequestInit): Promise<PreparedInputSummary[]> => {
+
+  return customFetch<PreparedInputSummary[]>(getListPreparedInputSummariesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPreparedInputSummariesQueryKey = () => {
+    return [
+    `/api/prepared-input-summaries`
+    ] as const;
+    }
+
+
+export const getListPreparedInputSummariesQueryOptions = <TData = Awaited<ReturnType<typeof listPreparedInputSummaries>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPreparedInputSummaries>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPreparedInputSummariesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPreparedInputSummaries>>> = ({ signal }) => listPreparedInputSummaries({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPreparedInputSummaries>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListPreparedInputSummariesQueryResult = NonNullable<Awaited<ReturnType<typeof listPreparedInputSummaries>>>
+export type ListPreparedInputSummariesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List compact metadata for saved prepared inputs
+ */
+
+export function useListPreparedInputSummaries<TData = Awaited<ReturnType<typeof listPreparedInputSummaries>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPreparedInputSummaries>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListPreparedInputSummariesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListPreparedInputsUrl = () => {
 

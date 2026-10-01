@@ -2904,6 +2904,59 @@ export interface PreparedInput {
   createdAt: string;
 }
 
+export type PreparedInputSummaryRepresentation = typeof PreparedInputSummaryRepresentation[keyof typeof PreparedInputSummaryRepresentation];
+
+
+export const PreparedInputSummaryRepresentation = {
+  asset_returns: 'asset_returns',
+  signals: 'signals',
+  alpha_streams: 'alpha_streams',
+} as const;
+
+/**
+ * @nullable
+ */
+export type PreparedInputSummaryTechnicalStatus = typeof PreparedInputSummaryTechnicalStatus[keyof typeof PreparedInputSummaryTechnicalStatus] | null;
+
+
+export const PreparedInputSummaryTechnicalStatus = {
+  READY: 'READY',
+  INCOMPLETE: 'INCOMPLETE',
+  INSUFFICIENT_HISTORY: 'INSUFFICIENT_HISTORY',
+  INVALID_DATA: 'INVALID_DATA',
+  UNSUPPORTED: 'UNSUPPORTED',
+} as const;
+
+export interface PreparedInputSummary {
+  preparedInputId: number;
+  representation: PreparedInputSummaryRepresentation;
+  /** @nullable */
+  technicalStatus: PreparedInputSummaryTechnicalStatus;
+  createdAt: string;
+  /**
+     * @minimum 0
+     * @nullable
+     */
+  candidateCount: number | null;
+  /** @nullable */
+  coverageStartDate: string | null;
+  /** @nullable */
+  coverageEndDate: string | null;
+  /**
+     * @minimum 0
+     * @nullable
+     */
+  observationCount: number | null;
+  /** @nullable */
+  coverageStatus: string | null;
+  /** @nullable */
+  datasetId: number | null;
+  /** @nullable */
+  datasetHash: string | null;
+  /** @nullable */
+  cutoffDate: string | null;
+}
+
 export type PreparedCompositionInputSuppliedWeights = {[key: string]: number};
 
 export interface PreparedCompositionInput {

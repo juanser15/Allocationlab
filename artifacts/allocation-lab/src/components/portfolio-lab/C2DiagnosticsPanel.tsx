@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import {
   getGetAllocationQueryKey, getGetAlphaContributionExperimentQueryKey, getGetAlphaDiagnosticExperimentQueryKey,
@@ -167,21 +167,7 @@ export function C2DiagnosticsPanel() {
   const inputKey = input ? JSON.stringify(input) : null;
   const latestInputKey = useRef(inputKey);
   latestInputKey.current = inputKey;
-  useEffect(() => {
-    if (!inputKey) return;
-    let active = true;
-    const timer = window.setTimeout(() => {
-      void planRequest.current({ data: JSON.parse(inputKey) as C2ExperimentInput })
-        .then(data => { if (active) setPlanned({ key: inputKey, data }); })
-        .catch(error => { if (active) setPlanned({ key: inputKey, error: failure(error) }); });
-    }, 350);
-    return () => { active = false; window.clearTimeout(timer); };
-  }, [inputKey]);
   const currentPlan = planned?.key === inputKey ? planned : null;
-  const planReady = !!input && !!currentPlan?.data &&
-    currentPlan.data.dependencies.length === alphaIds.length &&
-    currentPlan.data.dependencies.every(dependency => alphaIds.includes(dependency.alphaId) &&
-      (dependency.status === "REUSE" || dependency.status === "WILL_CREATE"));
   const result = row(detail.data?.result);
   const manifest = row(detail.data?.manifest);
   const savedInput = row(manifest.input);
@@ -198,16 +184,18 @@ export function C2DiagnosticsPanel() {
 
   async function run() {
     setMessage(null);
-    if (!planReady || !input || !inputKey) return setMessage("Review a current, available C1 dependency plan before running diagnostics.");
+    if (!input || !inputKey) return setMessage("Complete the valid frozen-source, alpha, date, and method fields before running diagnostics.");
     setCheckingRun(true);
     try {
-      // Recheck just before execution: planning is read-only, and another client may change the available dependencies.
+      // Planning is requested only by this explicit Run action. Another client
+      // may change available dependencies between source selection and execution.
       const checked = await planRequest.current({ data: input });
       if (latestInputKey.current !== inputKey) return;
+      setPlanned({ key: inputKey, data: checked });
       if (checked.dependencies.length !== alphaIds.length ||
-          checked.dependencies.some(d => d.status === "UNAVAILABLE" || !alphaIds.includes(d.alphaId))) {
-        setPlanned({ key: inputKey, data: checked });
-        return setMessage("A C1 dependency is unavailable. Review the updated plan before running.");
+          checked.dependencies.some(d => !alphaIds.includes(d.alphaId) ||
+            (d.status !== "REUSE" && d.status !== "WILL_CREATE"))) {
+        return setMessage("A C1 dependency is unavailable or the plan is incomplete. Review the returned plan and resolve its limits before running.");
       }
       const created = await create.mutateAsync({ data: input });
       await saved.refetch();
@@ -256,8 +244,8 @@ export function C2DiagnosticsPanel() {
                 : `C1 #${c1Id} frozen assumptions unavailable or incompatible. Planning and Run are blocked.`
               : "No explicit assumption template: no B3 assumptions sent. The server must resolve matching frozen assumptions or report unavailable; it must not silently use a different C1 as the intended template."}
           </p>
-          {!input ? <p className="mt-2 text-xs text-muted-foreground">Complete valid frozen sources, alpha selection, dates and method to preview required comparisons.</p>
-            : !currentPlan ? <div className="mt-3 space-y-2" aria-label="Planning C1 dependencies"><div className="h-4 w-2/3 animate-pulse rounded bg-muted" /><div className="h-4 w-1/2 animate-pulse rounded bg-muted" /></div>
+           {!input ? <p className="mt-2 text-xs text-muted-foreground">Complete valid frozen sources, alpha selection, dates and method. The dependency plan is requested only when you explicitly run diagnostics.</p>
+             : !currentPlan ? <p className="mt-2 text-xs text-muted-foreground">{planned ? "The draft changed since the last explicit plan; that plan is stale and will not be refreshed until Run." : "No dependency plan has been requested. Run will check dependencies before creating an experiment."}</p>
             : currentPlan.error ? <p className="mt-2 text-xs text-amber-800" role="alert">Plan unavailable: {currentPlan.error}. Check frozen inputs or change the assumption template.</p>
             : currentPlan.data && <><p className="mt-2 text-xs font-medium tabular-nums" data-testid="status-c2-dependency-totals">Reused: {currentPlan.data.reusedCount} · To create: {currentPlan.data.toCreateCount} · Unavailable: {currentPlan.data.unavailableCount}</p>
               <p className="mt-1 text-xs text-muted-foreground" data-testid="status-c2-dependency-policies">{currentPlan.data.newPolicyCount} new C1 policies · {currentPlan.data.estimatedTotalChildPolicies} estimated total child policies</p>
@@ -268,7 +256,7 @@ export function C2DiagnosticsPanel() {
               {currentPlan.data.unavailableCount > 0 && <p className="mt-2 text-xs text-amber-800">Resolve unavailable dependencies before running; no comparison is executed by this preview.</p>}
             </>}
         </div>
-        <Button onClick={() => void run()} disabled={!planReady || checkingRun || create.isPending} data-testid="button-c2-run"><Activity className="mr-2 h-4 w-4" />{checkingRun ? "Checking dependencies…" : create.isPending ? "Running diagnostics…" : "Run Alpha Diagnostics"}</Button>
+        <Button onClick={() => void run()} disabled={!input || checkingRun || create.isPending} data-testid="button-c2-run"><Activity className="mr-2 h-4 w-4" />{checkingRun ? "Checking dependencies…" : create.isPending ? "Running diagnostics…" : "Run Alpha Diagnostics"}</Button>
       </section>
       <section className="space-y-3 border-t pt-5"><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">03 / Saved experiments</h3><Button size="sm" variant="outline" onClick={() => void saved.refetch()} disabled={saved.isFetching} data-testid="button-c2-refresh"><RefreshCw className="mr-1 h-3.5 w-3.5" />Refresh saved</Button></div>
         {saved.isLoading && <div className="h-12 animate-pulse rounded bg-muted/60" aria-label="Loading saved diagnostics" />}

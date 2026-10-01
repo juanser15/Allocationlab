@@ -1,9 +1,9 @@
 import {
   useGetPricesStatus,
   useGetLatestResults,
-  useGetBacktest,
-  useGetOrCreateDecisionLog,
-  useGetCommittee,
+  useGetValidationRun,
+  useListValidationRuns,
+  useListDecisionLogs,
   useListArchive,
 } from "@workspace/api-client-react";
 import type { RailStep } from "@/components/shared/WorkflowRail";
@@ -33,22 +33,35 @@ export const STAGE_LABELS = [
 export function useWorkflowStage() {
   const { data: pricesStatus, isLoading: loadingPrices } = useGetPricesStatus();
   const { data: latestResult, isLoading: loadingResult } = useGetLatestResults();
-  const { data: backtest, isLoading: loadingBacktest } = useGetBacktest();
   const sessionId = latestResult?.sessionId;
 
-  const { data: decisionLog } = useGetOrCreateDecisionLog(sessionId ?? 0, {
-    query: { enabled: !!sessionId },
-  } as any);
-  const { data: committee } = useGetCommittee({
-    query: { enabled: !!sessionId },
-  } as any);
+  // Workflow/status surfaces are read-only: list saved validations, then read
+  // the latest saved validation for this session. Never call /api/backtest,
+  // which calculates a new legacy backtest as a side effect of GET.
+  const { data: validationRuns, isLoading: loadingValidationRuns } = useListValidationRuns(
+    { sessionId: sessionId ?? 0 },
+    { query: { enabled: !!sessionId } as any },
+  );
+  const legacyRuns = (validationRuns ?? []).filter(run => "strategySnapshotId" in run);
+  const savedRunId = legacyRuns[0]?.validationRunId;
+  const { data: savedValidation, isLoading: loadingSavedValidation } = useGetValidationRun(savedRunId ?? 0, {
+    query: { enabled: !!savedRunId } as any,
+  });
+  const backtest = savedValidation && "strategySnapshotId" in savedValidation &&
+    savedValidation.strategySnapshotId === sessionId ? savedValidation.result : undefined;
+
+  const { data: decisionLogs, isLoading: loadingDecisionLogs } = useListDecisionLogs();
+  const decisionLog = decisionLogs?.find(log => log.sessionId === sessionId);
   const { data: archiveList } = useListArchive({});
 
   const hasData = !!pricesStatus?.hasData;
   const hasRun = !!latestResult;
   const hasBacktest = !!backtest?.hasSufficientData;
   const hasDecisionLog = !!decisionLog;
-  const hasCommittee = !!committee;
+  // Committee packs are computed by an explicit Generate action and are not
+  // persisted as a pack. Only a saved decision-log state transition is
+  // evidence that committee review occurred.
+  const hasCommittee = decisionLog?.status === "under_review" || decisionLog?.status === "approved";
   const isApproved = decisionLog?.status === "approved";
   const isUnderReview = decisionLog?.status === "under_review";
   const archiveCount = archiveList?.entries?.length ?? 0;
@@ -76,9 +89,8 @@ export function useWorkflowStage() {
     latestResult,
     pricesStatus,
     backtest,
-    committee,
     decisionLog,
-    isLoading: loadingPrices || loadingResult || loadingBacktest,
+    isLoading: loadingPrices || loadingResult || loadingValidationRuns || loadingSavedValidation || loadingDecisionLogs,
   };
 }
 
@@ -117,7 +129,7 @@ export function toGuidedRailSteps(info: WorkflowStageInfo): RailStep[] {
     { key: "data", label: "Data Ready", status: dataStatus, detail: hasData ? "Price data loaded." : "Upload price data in Settings to begin." },
     { key: "rebalance", label: "Rebalance", status: rebalanceStatus, detail: hasRun ? "Rebalance has been run." : "Run the rebalance in Portfolio Lab." },
     { key: "validate", label: "Validate", status: validateStatus, detail: hasBacktest ? "Backtest validated." : "Run the backtester in Research Lab." },
-    { key: "committee", label: "Committee", status: committeeStatus, detail: hasCommittee ? "Committee pack generated." : "Generate the committee pack in Investment Committee." },
+    { key: "committee", label: "Committee", status: committeeStatus, detail: hasCommittee ? "Saved decision is under committee review or approved." : "Generate the committee pack and explicitly begin review in Investment Committee." },
     { key: "report", label: "Report", status: reportStatus, detail: isApproved ? "Decision approved." : "Awaiting committee approval." },
     { key: "archive", label: "Archive", status: archiveStatus, detail: archiveCount > 0 ? `${archiveCount} archived session${archiveCount === 1 ? "" : "s"}.` : "Archive this session once approved." },
   ];

@@ -141,7 +141,7 @@ export function TradeImplementationSection() {
               <p className="text-sm text-muted-foreground py-2">Computing trade list…</p>
             ) : isError || !trade ? (
               <Alert variant="destructive">
-                <AlertDescription>Could not compute the trade list. Confirm previous weights are configured in Settings.</AlertDescription>
+                <AlertDescription>Could not compute the trade list. Confirm starting weights are configured in Settings.</AlertDescription>
               </Alert>
             ) : (
               <>

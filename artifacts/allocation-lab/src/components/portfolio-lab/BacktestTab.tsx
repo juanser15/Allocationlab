@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartTooltip,
   ResponsiveContainer, Legend,
@@ -18,7 +18,8 @@ import { FlaskConical, CheckCircle2, XCircle, ShieldAlert, Info, Loader2, Shield
 import type { BacktestResult, ValidationJob, ValidationRun, ValidationRunSummary } from "@workspace/api-client-react";
 import { ScenarioStressLab } from "@/components/research-lab/ScenarioStressLab";
 import { ValidationJobStatus } from "./ValidationJobStatus";
-import { PortfolioResultOverview, replayAvailability } from "./PortfolioResultOverview";
+import { PortfolioResultOverview } from "./PortfolioResultOverview";
+import { registerRunAction, type RunAction } from "./portfolio-run-action";
 
 interface Props {
   bt: BacktestResult | undefined;
@@ -27,6 +28,7 @@ interface Props {
   hasRun: boolean;
   validationRequested: boolean;
   onRunValidation: () => void;
+  onValidateActionChange?: (action: RunAction | null) => void;
   validationRun: ValidationRun | undefined;
   validationRuns: ValidationRunSummary[];
   selectedValidationRunId: number | null;
@@ -116,7 +118,7 @@ const ROBUSTNESS_TESTS = [
 
 export function BacktestTab(props: Props) {
   const {
-    loading, hasData, onRunValidation,
+    loading, hasData,
     validationRuns, selectedValidationRunId, onSelectValidationRun, validationError,
     validationJob, validationJobActive, validationJobSubmitting, validationJobReconnecting,
     validationJobSeconds, validationJobSubmissionError,
@@ -129,6 +131,20 @@ export function BacktestTab(props: Props) {
   const [openTest, setOpenTest] = useState<typeof ROBUSTNESS_TESTS[0] | null>(null);
   const historyInspectionActive = props.inspectedRunId !== null && props.inspectedRunId !== undefined ||
     props.inspectedJobId !== null && props.inspectedJobId !== undefined;
+  const validationBusy = loading || props.validationJobActive || props.validationJobSubmitting;
+  const latestRunValidationRef = useRef(props.onRunValidation);
+  latestRunValidationRef.current = props.onRunValidation;
+  const stableRunValidation = useCallback(() => latestRunValidationRef.current(), []);
+  const validateAction = useMemo<RunAction>(() => ({
+    run: stableRunValidation,
+    disabled: !props.hasRun || validationBusy || historyInspectionActive,
+    busy: validationBusy,
+  }), [stableRunValidation, props.hasRun, validationBusy, historyInspectionActive]);
+  const validateActionCallbackRef = useRef(props.onValidateActionChange);
+  validateActionCallbackRef.current = props.onValidateActionChange;
+  useEffect(() => {
+    return registerRunAction(() => validateActionCallbackRef.current, validateAction);
+  }, [validateAction]);
   const inspectedRun = props.inspectedRunId !== null && props.inspectedRunId !== undefined
     ? props.inspectedRun?.validationRunId === props.inspectedRunId ? props.inspectedRun : null
     : null;
@@ -253,7 +269,6 @@ export function BacktestTab(props: Props) {
           { label: "Turnover", value: bt.avgTurnover === null ? "Not recorded" : pctPlain(bt.avgTurnover) },
           { label: "Transaction costs", value: bt.totalTransactionCostPct === null ? "Not recorded" : pctPlain(bt.totalTransactionCostPct) },
           { label: "Reproducibility", value: validationRun?.reproducibilityStatus ?? "Not recorded" },
-          { label: "Replay", value: replayAvailability({ domain: "legacy", status: validationRun?.reproducibilityStatus }), detail: "Inspection is read-only; no replay or new Validation Run is started" },
         ]}
       />}
 
@@ -334,12 +349,12 @@ export function BacktestTab(props: Props) {
           </div>
 
           <div className="flex items-center gap-3 pt-2 border-t">
-            <Button size="sm" onClick={onRunValidation} disabled={loading || historyInspectionActive} className="gap-1.5" title="Creates a new legacy Validation Run with the current assumptions">
-              {loading
+            {!props.onValidateActionChange && <Button size="sm" onClick={stableRunValidation} disabled={validateAction.disabled} className="gap-1.5" title="Creates a new legacy Validation Run with the current assumptions">
+              {validationBusy
                 ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Running Validation…</>
                 : <><FlaskConical className="h-3.5 w-3.5" /> Validate</>
               }
-            </Button>
+            </Button>}
             {hasBt && bt && (
               <span className="text-xs text-muted-foreground">
                 Data: {bt.dataStartDate ?? "—"} → {bt.dataEndDate ?? "—"} · {bt.tradingDays} trading days

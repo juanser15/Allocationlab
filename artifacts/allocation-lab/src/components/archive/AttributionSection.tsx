@@ -71,7 +71,7 @@ export function AttributionSection() {
           <BarChart3 className="h-12 w-12 text-gray-300 mb-3" />
           <h3 className="text-lg font-bold text-gray-900 mb-1">Attribution not yet available</h3>
           <p className="text-muted-foreground max-w-md text-sm">
-            {meta?.reason ?? "Run the pipeline and save at least one rebalance with prior weights and realized price history to unlock attribution."}
+            {meta?.reason ?? "Run the pipeline and save at least one rebalance with starting weights and realized price history to unlock attribution."}
           </p>
         </CardContent>
       </Card>
@@ -172,7 +172,7 @@ export function AttributionSection() {
                   <tr className="border-b text-[10px] uppercase tracking-wider text-muted-foreground">
                     <th className="text-left py-1.5 pr-3">Ticker</th>
                     <th className="text-right py-1.5 pr-3">Weight</th>
-                    <th className="text-right py-1.5 pr-3">Prior</th>
+                    <th className="text-right py-1.5 pr-3">Starting weight</th>
                     <th className="text-right py-1.5 pr-3">Realized Return</th>
                     <th className="text-right py-1.5 pr-3">Contribution</th>
                     <th className="text-right py-1.5 pr-3">Active Contribution</th>

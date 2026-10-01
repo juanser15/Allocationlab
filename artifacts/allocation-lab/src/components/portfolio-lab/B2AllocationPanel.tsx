@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { B2PreparedSelection } from "./PreparedInputsPanel";
 import type { D1RiskModelRequest } from "./D1RiskModelPanel";
 import type { ForecastModelConfig, AllocationRebalanceRegularizationConfig } from "@workspace/api-client-react";
@@ -10,18 +10,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Loader2, RefreshCw, RotateCcw } from "lucide-react";
+import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { getAllocation, getGetAllocationQueryKey, getGetPreparedInputQueryKey, getListAllocationsQueryKey, useCreateAllocation, useGetAllocation, useGetPreparedInput, useListAllocations, useReplayAllocation } from "@workspace/api-client-react";
+import { getAllocation, getGetAllocationQueryKey, getGetPreparedInputQueryKey, getListAllocationsQueryKey, useCreateAllocation, useGetAllocation, useGetPreparedInput, useListAllocations } from "@workspace/api-client-react";
 import { SignedOverlayControls, SignedOverlayResult, initialSignedSettings } from "./SignedOverlaySection";
 import type { SignedSettings } from "./SignedOverlaySection";
 import { RobustnessPanel } from "./RobustnessPanel";
 import { CostAwareAllocationResult } from "./CostAwarePanel";
 import { RebalanceRegularizationControls, RebalanceAllocationResult, initialRebalanceForm, parseRebalance } from "./RebalanceRegularizationPanel";
 import type { RebalanceForm } from "./RebalanceRegularizationPanel";
-import { PortfolioResultOverview, replayAvailability } from "./PortfolioResultOverview";
+import { PortfolioResultOverview } from "./PortfolioResultOverview";
 import { allocationSummaryState, isFailedAllocationOutcome, pmValue } from "./portfolio-result-summary";
 import { B2_WORKING_DRAFT_KEY, isCurrentViewRequest, readWorkingDraftValue, writeWorkingDraftValue } from "./portfolio-working-draft";
+import { SectionTargetPortal, type B2SectionTargets } from "./portfolio-panel-contracts";
+import { registerRunAction, type RunAction } from "./portfolio-run-action";
+import { applyStartingPortfolioSelection, parseManualActualBook } from "./starting-portfolio";
+import type { StartingPortfolioContext, StartingPortfolioSelection, StartingPortfolioRequest } from "./starting-portfolio";
+import { canOptimizeB2Draft, selectB2ResultView, updateB2DraftForPreparationChange } from "./b2-draft-transition";
 
 type Representation = "asset_returns" | "alpha_streams" | "signals";
 type AllocationRequest = {
@@ -201,26 +206,39 @@ export function B2AllocationPanel({
   runToken,
   onRunningChange,
   onAllocationSelectionChange,
-  onExitInspection,
+  workingAllocationId,
   riskModel,
   onCandidateCountChange,
   onEstimationWindowChange,
   onAlignedObservationCountChange,
   inspectedAllocationId,
+  inspectionActive,
+  sectionTargets,
+  onOptimizeActionChange,
+  onStartingPortfolioContextChange,
+  startingPortfolioRequest,
 }: {
   prepared: B2PreparedSelection | null;
   /** Retained for source compatibility. Optimization only starts from its explicit button. */
   runToken: number;
   inspectedAllocationId?: number | null;
+  inspectionActive?: boolean;
   onExitInspection?: () => void;
   onRunningChange?: (running: boolean) => void;
   onAllocationSelectionChange?: (id: number | null) => void;
+  /** Working selection survives an inspection that temporarily unmounts this controller. */
+  workingAllocationId?: number | null;
   riskModel: D1RiskModelRequest;
   onCandidateCountChange?: (count: number) => void;
   onEstimationWindowChange?: (days: number) => void;
   onAlignedObservationCountChange?: (count: number | null) => void;
+  sectionTargets?: B2SectionTargets;
+  onOptimizeActionChange?: (action: RunAction | null) => void;
+  onStartingPortfolioContextChange?: (context: StartingPortfolioContext) => void;
+  startingPortfolioRequest?: StartingPortfolioSelection;
 }) {
   const inspectingAllocation = inspectedAllocationId !== null && inspectedAllocationId !== undefined;
+  const historyInspectionActive = inspectionActive === true || inspectingAllocation;
   const [error, setError] = useState<string | null>(null);
   const reportDraftError = setError;
   const defaultForecastModel: ForecastModelConfig = { type: "SAMPLE_MEAN", displayZ: 1.96, shrinkage: 0, shrinkagePrior: { source: "DEFAULT" }, priorMean: { source: "SAMPLE_PRIOR" }, priorUncertainty: { type: "TAU_SIGMA" }, views: [] };
@@ -249,18 +267,22 @@ export function B2AllocationPanel({
   const [rebalanceForm, setRebalanceForm] = useWorkingDraftField("rebalanceForm", initialRebalanceForm, storedRebalanceForm, reportDraftError);
   const [result, setResult] = useState<JsonRecord | null>(null);
   const [inspectedResult, setInspectedResult] = useState<JsonRecord | null>(null);
-  const [selectedAllocationId, setSelectedAllocationId] = useState<number | null>(null);
-  const [replayStatus, setReplayStatus] = useState<string | null>(null);
-  const currentViewIdentity = () => inspectedAllocationId !== null && inspectedAllocationId !== undefined
-    ? `inspected:${inspectedAllocationId}`
-    : selectedAllocationId !== null ? `allocation:${selectedAllocationId}` : "draft";
+  const [inspectedResultId, setInspectedResultId] = useState<number | null>(null);
+  const [inspectedLoading, setInspectedLoading] = useState(false);
+  const [inspectedLoadFailedId, setInspectedLoadFailedId] = useState<number | null>(null);
+  const [selectedAllocationId, setSelectedAllocationId] = useState<number | null>(() => workingAllocationId ?? null);
+  const [candidateSearch, setCandidateSearch] = useState("");
+  const currentViewIdentity = () => {
+    if (historyInspectionActive) return inspectedAllocationId !== null && inspectedAllocationId !== undefined
+      ? `inspected:${inspectedAllocationId}`
+      : "inspected:unrecorded";
+    return selectedAllocationId !== null ? `allocation:${selectedAllocationId}` : "draft";
+  };
   const currentViewRef = useRef(currentViewIdentity());
   const viewGenerationRef = useRef(0);
-  const replayGenerationRef = useRef(0);
   const allocationMutationGenerationRef = useRef(0);
   useEffect(() => () => {
     viewGenerationRef.current += 1;
-    replayGenerationRef.current += 1;
     allocationMutationGenerationRef.current += 1;
   }, []);
   useLayoutEffect(() => {
@@ -268,14 +290,12 @@ export function B2AllocationPanel({
     if (nextView !== currentViewRef.current) {
       currentViewRef.current = nextView;
       viewGenerationRef.current += 1;
-      replayGenerationRef.current += 1;
     }
-  }, [inspectedAllocationId, selectedAllocationId]);
+  }, [historyInspectionActive, inspectedAllocationId, selectedAllocationId]);
   const queryClient = useQueryClient();
   const savedQuery = useListAllocations();
-  const detailQuery = useGetAllocation(selectedAllocationId ?? 0, { query: { enabled: selectedAllocationId !== null, queryKey: getGetAllocationQueryKey(selectedAllocationId ?? 0) } });
+  const detailQuery = useGetAllocation(selectedAllocationId ?? 0, { query: { enabled: selectedAllocationId !== null && !historyInspectionActive, queryKey: getGetAllocationQueryKey(selectedAllocationId ?? 0) } });
   const createMutation = useCreateAllocation();
-  const replayMutation = useReplayAllocation();
   const frozenInputQuery = useGetPreparedInput(prepared?.preparedInputId ?? 0, { query: { enabled: !!prepared?.preparedInputId, queryKey: getGetPreparedInputQueryKey(prepared?.preparedInputId ?? 0) } });
   const frozenFactors = asRecord(asRecord(frozenInputQuery.data?.snapshot).factorSet).factors;
   const supportedCalculations = new Set(["momentum", "trend_quality", "volatility", "drawdown", "mean_reversion", "relative_strength", "diversification_benefit", "return_over_volatility", "ma_distance", "downside_beta", "drawdown_recovery"]);
@@ -284,9 +304,60 @@ export function B2AllocationPanel({
     .map(factor => ({ id: String(factor.id), name: typeof factor.name === "string" ? factor.name : String(factor.id), aliases: Array.isArray(factor.aliases) ? factor.aliases.filter((alias): alias is string => typeof alias === "string") : [] }));
   const saved = savedQuery.data ?? [];
   const loadingSaved = savedQuery.isLoading || savedQuery.isFetching;
-  const busy = createMutation.isPending || replayMutation.isPending;
+  const busy = createMutation.isPending;
   const selectedCandidateSet = new Set(candidateIds);
+  const visibleCandidates = (prepared?.candidateIds ?? []).filter(id =>
+    id.toLocaleLowerCase().includes(candidateSearch.toLocaleLowerCase()) ||
+    (prepared?.candidateNames[id] ?? "").toLocaleLowerCase().includes(candidateSearch.toLocaleLowerCase()));
+  const selectAllCandidates = () => setCandidateIds(prepared?.candidateIds ?? []);
+  const clearAllCandidates = () => setCandidateIds([]);
   const previousPreparedIdRef = useRef<number | null>(prepared?.preparedInputId ?? null);
+  const draftRepresentation = prepared?.draftRepresentation ?? prepared?.representation;
+  const preparedInputMatchesDraft = previousPreparedIdRef.current === (prepared?.preparedInputId ?? null);
+  const draftCanOptimize = canOptimizeB2Draft({
+    historyInspectionActive,
+    preparedInputMatchesDraft,
+    draftReady: prepared?.draftReady,
+    draftRepresentation,
+    representation: prepared?.representation,
+  });
+  const configuredLambdaR = Number(rebalanceForm.lambdaR);
+  const parsedConfiguredBook = useMemo(() => parseManualActualBook({
+    asOf: rebalanceForm.asOf,
+    quantities: rebalanceForm.quantities,
+    cash: rebalanceForm.cash,
+    nav: rebalanceForm.nav,
+  }, informationCutoff, allocationMode === "SIGNED_OVERLAY"), [
+    rebalanceForm.asOf, rebalanceForm.quantities, rebalanceForm.cash, rebalanceForm.nav,
+    informationCutoff, allocationMode,
+  ]);
+  const startingPortfolioContext = useMemo<StartingPortfolioContext>(() => ({
+    informationCutoff,
+    lambdaR: configuredLambdaR,
+    ...(parsedConfiguredBook.book ? { holdings: parsedConfiguredBook.book, nav: parsedConfiguredBook.book.nav } : {}),
+    objectiveType,
+    allocationMode,
+  }), [informationCutoff, configuredLambdaR, parsedConfiguredBook.book, objectiveType, allocationMode]);
+  const startingContextCallbackRef = useRef(onStartingPortfolioContextChange);
+  startingContextCallbackRef.current = onStartingPortfolioContextChange;
+  useEffect(() => {
+    startingContextCallbackRef.current?.(startingPortfolioContext);
+  }, [startingPortfolioContext]);
+
+  const latestOptimizeRef = useRef<() => void>(() => undefined);
+  latestOptimizeRef.current = () => { void runAllocation(); };
+  const stableOptimizeRun = useCallback(() => latestOptimizeRef.current(), []);
+  const optimizeDisabled = busy || !prepared || !candidateIds.length || !draftCanOptimize;
+  const optimizeAction = useMemo<RunAction>(() => ({
+    run: stableOptimizeRun,
+    disabled: optimizeDisabled,
+    busy,
+  }), [stableOptimizeRun, optimizeDisabled, busy]);
+  const optimizeCallbackRef = useRef(onOptimizeActionChange);
+  optimizeCallbackRef.current = onOptimizeActionChange;
+  useEffect(() => {
+    return registerRunAction(() => optimizeCallbackRef.current, optimizeAction);
+  }, [optimizeAction]);
 
   useEffect(() => {
     onCandidateCountChange?.(candidateIds.length);
@@ -298,26 +369,22 @@ export function B2AllocationPanel({
       : null);
   }, [prepared, candidateIds, informationCutoff, onAlignedObservationCountChange]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const preparedId = prepared?.preparedInputId ?? null;
     if (previousPreparedIdRef.current === preparedId) return;
     previousPreparedIdRef.current = preparedId;
     viewGenerationRef.current += 1;
-    replayGenerationRef.current += 1;
     allocationMutationGenerationRef.current += 1;
-    currentViewRef.current = selectedAllocationId === null ? "draft" : `allocation:${selectedAllocationId}`;
-    if (!prepared) {
-      setCandidateIds([]);
-      setInformationCutoff("");
-    } else {
-      setCandidateIds(prepared.candidateIds);
-      setInformationCutoff(prepared.informationCutoff);
-    }
-    setResult(null);
-    setSelectedAllocationId(null);
-    onAllocationSelectionChange?.(null);
-    setReplayStatus(null);
-  }, [prepared?.preparedInputId, onAllocationSelectionChange, selectedAllocationId]);
+    currentViewRef.current = currentViewIdentity();
+    const nextDraft = updateB2DraftForPreparationChange(prepared, {
+      selectedAllocationId,
+      result,
+    });
+    setCandidateIds(nextDraft.candidateIds);
+    setInformationCutoff(nextDraft.informationCutoff);
+    setSelectedAllocationId(nextDraft.selectedAllocationId);
+    setResult(nextDraft.result);
+  }, [prepared?.preparedInputId, selectedAllocationId, candidateIds, informationCutoff, result]);
 
   async function refreshSaved() {
     try {
@@ -328,15 +395,14 @@ export function B2AllocationPanel({
   }
 
   async function loadAllocation(id: number) {
+    if (historyInspectionActive) return;
     const requestGeneration = ++viewGenerationRef.current;
     const requestView = `allocation:${id}`;
     currentViewRef.current = requestView;
-    replayGenerationRef.current += 1;
     allocationMutationGenerationRef.current += 1;
     setError(null);
     setSelectedAllocationId(id);
     setResult(null);
-    setReplayStatus(null);
     onAllocationSelectionChange?.(id);
     try {
       const payload = await queryClient.fetchQuery({ queryKey: getGetAllocationQueryKey(id), queryFn: () => getAllocation(id) });
@@ -356,17 +422,33 @@ export function B2AllocationPanel({
   useEffect(() => {
     if (inspectedAllocationId === null || inspectedAllocationId === undefined) {
       setInspectedResult(null);
+      setInspectedResultId(null);
+      setInspectedLoading(false);
+      setInspectedLoadFailedId(null);
       return;
     }
     let active = true;
     setInspectedResult(null);
+    setInspectedResultId(null);
+    setInspectedLoading(true);
+    setInspectedLoadFailedId(null);
+    setError(null);
     void queryClient.fetchQuery({
       queryKey: getGetAllocationQueryKey(inspectedAllocationId),
       queryFn: () => getAllocation(inspectedAllocationId),
     }).then(data => {
-      if (active) setInspectedResult(asRecord(data));
+      if (active) {
+        setInspectedResult(asRecord(data));
+        setInspectedResultId(inspectedAllocationId);
+        setInspectedLoading(false);
+        setError(null);
+      }
     }).catch(err => {
-      if (active) setError(err instanceof Error ? err.message : "Saved allocation could not be retrieved.");
+      if (active) {
+        setError(err instanceof Error ? err.message : "Saved allocation could not be retrieved.");
+        setInspectedLoading(false);
+        setInspectedLoadFailedId(inspectedAllocationId);
+      }
     });
     return () => { active = false; };
   }, [inspectedAllocationId, queryClient]);
@@ -375,8 +457,28 @@ export function B2AllocationPanel({
     let submittedView: string | null = null;
     let createGeneration: number | null = null;
     setError(null);
+    if (inspectingAllocation) {
+      setError("Return to the working draft before optimizing; history inspection is read-only.");
+      return;
+    }
+    if (previousPreparedIdRef.current !== (prepared?.preparedInputId ?? null)) {
+      setError("Wait for the selected prepared-input draft to finish synchronizing before optimizing.");
+      return;
+    }
     if (!prepared) {
       setError("Select or prepare an immutable B1 input version before optimizing.");
+      return;
+    }
+    if (prepared.draftReady === false) {
+      setError("The current B1 working draft is not ready. Finish and save its preparation before optimizing.");
+      return;
+    }
+    if (draftRepresentation === "signals" || prepared.representation === "signals") {
+      setError("Signals are a non-tradable preview, not asset returns. Prepare asset_returns or alpha_streams before optimizing.");
+      return;
+    }
+    if (!draftCanOptimize) {
+      setError("The current B1 prepared-input draft is not ready for optimization.");
       return;
     }
     if (!candidateIds.length) {
@@ -439,9 +541,17 @@ export function B2AllocationPanel({
     try {
       const submittedForecast = activeForecastModel(forecastModel);
       validateForecast(submittedForecast, candidateIds, informationCutoff, decisionTimestamp);
-      const rebalanceRegularization = parseRebalance(rebalanceForm, informationCutoff, allocationMode === "SIGNED_OVERLAY");
-      if (rebalanceRegularization && objectiveType !== "regularized_mean_variance")
-        throw new Error("Unsupported combination: positive rebalance λR requires regularized mean-variance.");
+      const ignoringStartingPortfolio = startingPortfolioRequest?.mode === "ignore";
+      let rebalanceRegularization: AllocationRebalanceRegularizationConfig | undefined;
+      if (!ignoringStartingPortfolio) {
+        if (!rebalanceForm.lambdaR.trim() || !Number.isFinite(configuredLambdaR) || configuredLambdaR < 0)
+          throw new Error("Rebalance λR must be finite and nonnegative.");
+        if (configuredLambdaR > 0 && objectiveType !== "regularized_mean_variance")
+          throw new Error("Unsupported combination: positive rebalance λR requires regularized mean-variance.");
+        rebalanceRegularization = startingPortfolioRequest
+          ? { lambdaR: configuredLambdaR }
+          : parseRebalance(rebalanceForm, informationCutoff, allocationMode === "SIGNED_OVERLAY");
+      }
       let signedConstraints: AllocationRequest["signedConstraints"];
       if (allocationMode === "SIGNED_OVERLAY") {
         const { alphaBounds, netAssetExposure, cash, groupGrossCaps } = signedSettings;
@@ -523,30 +633,23 @@ export function B2AllocationPanel({
           },
         } : {}),
       };
-      if (inspectingAllocation && !onExitInspection) {
-        setError("Return to the working draft before optimizing; the shell must wire onExitInspection to transition away from a pinned history record.");
-        return;
-      }
+      const runRequest = startingPortfolioRequest
+        ? applyStartingPortfolioSelection(request as unknown as StartingPortfolioRequest, startingPortfolioRequest, startingPortfolioContext) as unknown as AllocationRequest
+        : request;
       submittedView = currentViewRef.current;
       createGeneration = ++allocationMutationGenerationRef.current;
-      replayGenerationRef.current += 1;
       onRunningChange?.(true);
        // Generated request types may lag the frozen robustness contract.
-       const payload = await createMutation.mutateAsync({ data: request as Parameters<typeof createMutation.mutateAsync>[0]["data"] });
+       const payload = await createMutation.mutateAsync({ data: runRequest as Parameters<typeof createMutation.mutateAsync>[0]["data"] });
       if (allocationMutationGenerationRef.current !== createGeneration ||
           currentViewRef.current !== submittedView) return;
       const newAllocationId = idOf(payload);
       setResult(asRecord(payload));
       setSelectedAllocationId(newAllocationId);
       onAllocationSelectionChange?.(newAllocationId);
-      setReplayStatus(null);
-      if (!inspectingAllocation) {
+      if (!historyInspectionActive) {
         setInspectedResult(null);
         currentViewRef.current = newAllocationId === null ? "draft" : `allocation:${newAllocationId}`;
-      } else if (onExitInspection && currentViewRef.current === submittedView) {
-        setInspectedResult(null);
-        currentViewRef.current = newAllocationId === null ? "draft" : `allocation:${newAllocationId}`;
-        onExitInspection();
       }
       await queryClient.invalidateQueries({ queryKey: getListAllocationsQueryKey() });
     } catch (err) {
@@ -561,47 +664,22 @@ export function B2AllocationPanel({
     }
   }
 
-  async function replayAllocation(id: number) {
-    const viewedDuringReplay = inspectedAllocationId !== null && inspectedAllocationId !== undefined
-      ? `inspected:${id}` : `allocation:${id}`;
-    if (currentViewRef.current !== viewedDuringReplay) return;
-    const requestGeneration = ++replayGenerationRef.current;
-    const isCurrent = () => isCurrentViewRequest({
-      requestedView: viewedDuringReplay,
-      currentView: currentViewRef.current,
-      requestGeneration,
-      currentGeneration: replayGenerationRef.current,
-    });
-    setError(null);
-    setReplayStatus(null);
-    onRunningChange?.(true);
-    try {
-      const payload = await replayMutation.mutateAsync({ allocationId: id });
-      if (!isCurrent()) return;
-      const replay = asRecord(payload);
-      const detail = asRecord(await queryClient.fetchQuery({ queryKey: getGetAllocationQueryKey(id), queryFn: () => getAllocation(id) }));
-      if (!isCurrent()) return;
-      if (inspectedAllocationId === id)
-        setInspectedResult({ ...detail, replay });
-      else {
-        setResult({ ...detail, replay });
-      }
-       setReplayStatus(`Replay ${String(replay.status ?? "completed").toUpperCase()}${Array.isArray(replay.differences) ? ` · ${replay.differences.length} differing fields${replay.differences.length ? `: ${replay.differences.join("; ")}` : ""}` : ""}${typeof replay.maximumNumericDifference === "number" ? ` · maximum numeric difference ${replay.maximumNumericDifference}` : ""}`);
-    } catch (err) {
-      if (isCurrent()) setError(err instanceof Error ? err.message : "Allocation replay failed.");
-    } finally {
-      onRunningChange?.(false);
-    }
-  }
-
-  const response = inspectingAllocation ? inspectedResult ?? {} : result ?? asRecord(detailQuery.data);
-  const hasAllocationResult = inspectingAllocation ? !!inspectedResult : !!(result || detailQuery.data);
+  const currentInspectedResult = inspectingAllocation && inspectedResultId === inspectedAllocationId ? inspectedResult : null;
+  const resultView = selectB2ResultView({
+    historyInspectionActive,
+    inspectedAllocationId,
+    inspectedResult: currentInspectedResult,
+    inspectedLoading: inspectedLoading || (historyInspectionActive && inspectingAllocation && !currentInspectedResult && inspectedLoadFailedId !== inspectedAllocationId),
+    workingResult: result ?? (detailQuery.data ? asRecord(detailQuery.data) : null),
+  });
+  const response = asRecord(resultView.result);
+  const hasAllocationResult = resultView.result !== null;
   const allocation = asRecord(response.result ?? response.allocation ?? response);
   const model = asRecord(allocation.model);
   const status = typeof allocation.status === "string" ? allocation.status : "Unavailable";
   const allocationFailed = isFailedAllocationOutcome(status);
   const allocationOutcome = allocationSummaryState(status);
-  const allocationId = idOf(response) ?? (inspectingAllocation ? inspectedAllocationId : selectedAllocationId);
+  const allocationId = idOf(response) ?? (historyInspectionActive ? inspectedAllocationId ?? null : selectedAllocationId);
   const candidateWeights = asRecord(allocation.candidateWeights);
   const assetWeights = asRecord(allocation.assetWeights);
   const frozenObjective = asRecord(asRecord(response.request).objective ?? allocation.objective);
@@ -627,73 +705,107 @@ export function B2AllocationPanel({
           <div className="flex flex-wrap items-center justify-between gap-2 rounded border bg-muted/20 p-3" data-testid="status-b2-workflow">
             <div>
               <p className="text-sm font-medium">Draft allocation configuration</p>
-              <p className="mt-1 text-xs text-muted-foreground">{inspectingAllocation ? `Inspecting saved allocation #${inspectedAllocationId}; the working configuration remains unchanged.` : "Use Optimize B2 allocation below to create a new immutable policy."}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{historyInspectionActive ? inspectingAllocation ? `Inspecting saved allocation #${inspectedAllocationId}; the working configuration remains unchanged.` : "Inspecting history without a recorded frozen B2 allocation; the working configuration remains unchanged." : "Use Optimize B2 allocation below to create a new immutable policy."}</p>
             </div>
             <Badge variant="outline" data-testid="state-b2-allocation">Draft</Badge>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <Badge variant="outline">Preparation ID {prepared?.preparedInputId ?? "Unavailable"}</Badge>
-            <Badge variant="outline">{displayName(prepared?.representation)}</Badge>
-            <span className="text-muted-foreground">Selected canonical candidates: {candidateIds.length}</span>
-          </div>
-          <fieldset className="space-y-2 rounded border bg-muted/20 p-3"><legend className="px-1 text-xs font-semibold uppercase tracking-wide">Allocation mode</legend><div className="flex flex-wrap gap-4 text-xs">
-            <label className="flex items-center gap-2"><input type="radio" name="b2-allocation-mode" value="CAPITAL_LONG_ONLY" checked={allocationMode === "CAPITAL_LONG_ONLY"} onChange={() => setAllocationMode("CAPITAL_LONG_ONLY")} data-testid="input-b2-mode-long-only" />Capital long-only</label>
-            <label className={`flex items-center gap-2 ${prepared?.representation !== "alpha_streams" ? "opacity-50" : ""}`}><input type="radio" name="b2-allocation-mode" value="SIGNED_OVERLAY" checked={allocationMode === "SIGNED_OVERLAY"} disabled={prepared?.representation !== "alpha_streams"} onChange={() => setAllocationMode("SIGNED_OVERLAY")} data-testid="input-b2-mode-signed" />Signed alpha overlay</label>
-          </div>{prepared?.representation !== "alpha_streams" && <p className="text-xs text-muted-foreground">Signed overlays require an alpha-stream preparation.</p>}</fieldset>
-          {!prepared && <p className="text-xs text-amber-700">Select or prepare a saved version in Optimization Inputs to use B2.</p>}
-          {!!prepared?.candidateIds.length && <div className="space-y-1">
-            <Label>Canonical candidates</Label>
-            <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto rounded border p-2">
-              {prepared.candidateIds.map(id => <label key={id} className="flex items-center gap-1.5 rounded border px-2 py-1 text-xs">
-                <input type="checkbox" checked={selectedCandidateSet.has(id)} onChange={() => setCandidateIds(values => values.includes(id) ? values.filter(value => value !== id) : [...values, id])} data-testid={`input-b2-candidate-${id}`} />
-                {prepared.candidateNames[id] ?? id}
-              </label>)}
+          <SectionTargetPortal target={sectionTargets?.setup}>
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <Badge variant="outline">Preparation ID {prepared?.preparedInputId ?? "Unavailable"}</Badge>
+                <Badge variant="outline">{displayName(draftRepresentation)}</Badge>
+                <span className="text-muted-foreground">Selected canonical candidates: {candidateIds.length}</span>
+              </div>
+              <fieldset className="space-y-2 rounded border bg-muted/20 p-3"><legend className="px-1 text-xs font-semibold uppercase tracking-wide">Allocation mode</legend><div className="flex flex-wrap gap-4 text-xs">
+                <label className="flex items-center gap-2"><input type="radio" name="b2-allocation-mode" value="CAPITAL_LONG_ONLY" checked={allocationMode === "CAPITAL_LONG_ONLY"} onChange={() => setAllocationMode("CAPITAL_LONG_ONLY")} data-testid="input-b2-mode-long-only" />Capital long-only</label>
+                <label className={`flex items-center gap-2 ${prepared?.representation !== "alpha_streams" ? "opacity-50" : ""}`}><input type="radio" name="b2-allocation-mode" value="SIGNED_OVERLAY" checked={allocationMode === "SIGNED_OVERLAY"} disabled={prepared?.representation !== "alpha_streams"} onChange={() => setAllocationMode("SIGNED_OVERLAY")} data-testid="input-b2-mode-signed" />Signed alpha overlay</label>
+              </div>{prepared?.representation !== "alpha_streams" && <p className="text-xs text-muted-foreground">Signed overlays require an alpha-stream preparation.</p>}</fieldset>
+              {!prepared && <p className="text-xs text-amber-700">Select or prepare a saved version in Optimization Inputs to use B2.</p>}
+              {prepared?.draftReady === false && <p role="status" className="rounded border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900">The current B1 working draft is not ready. B2 Optimize is disabled; the existing B2 draft and frozen result are retained.</p>}
+              {(draftRepresentation === "signals" || prepared?.representation === "signals") && <p role="status" className="rounded border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900">Signals are preview scores, not tradable returns. Prepare asset_returns or alpha_streams before optimizing.</p>}
+              {!!prepared?.candidateIds.length && <div className="space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <Label>Canonical candidates</Label>
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" size="sm" onClick={selectAllCandidates} disabled={!prepared?.candidateIds.length || candidateIds.length === prepared?.candidateIds.length} data-testid="button-b2-candidates-select-all">Select all</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={clearAllCandidates} disabled={!candidateIds.length} data-testid="button-b2-candidates-clear-all">Clear all</Button>
+                  </div>
+                </div>
+                <Input type="search" aria-label="Search canonical candidates" placeholder="Search candidates…" value={candidateSearch} onChange={event => setCandidateSearch(event.target.value)} data-testid="input-b2-candidate-search" />
+                <div className="max-h-48 overflow-y-auto rounded border p-2">
+                  {!visibleCandidates.length ? <p className="p-2 text-xs text-muted-foreground">No canonical candidates match this search.</p> :
+                    <div className="flex flex-wrap gap-2">{visibleCandidates.map(id => <label key={id} className="flex items-center gap-1.5 rounded border px-2 py-1 text-xs">
+                      <input type="checkbox" checked={selectedCandidateSet.has(id)} onChange={() => setCandidateIds(values => values.includes(id) ? values.filter(value => value !== id) : [...values, id])} data-testid={`input-b2-candidate-${id}`} />
+                      {prepared.candidateNames[id] ?? id}
+                    </label>)}</div>}
+                </div>
+              </div>}
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-1"><Label>Information cutoff</Label><Input type="date" value={informationCutoff} onChange={event => setInformationCutoff(event.target.value)} data-testid="input-b2-cutoff" /></div>
+                <div className="space-y-1"><Label>Decision timestamp</Label><Input type="datetime-local" value={decisionTimestamp} onChange={event => setDecisionTimestamp(event.target.value)} data-testid="input-b2-decision-timestamp" /></div>
+                <div className="space-y-1"><Label>Estimation window (days)</Label><Input type="number" min="2" value={estimationWindow} onChange={event => { const days = Number(event.target.value); setEstimationWindow(days); onEstimationWindowChange?.(days); }} data-testid="input-b2-estimation-window" /></div>
+                <div className="space-y-1"><Label>Minimum observations</Label><Input type="number" min="2" value={minObservations} onChange={event => setMinObservations(Number(event.target.value))} data-testid="input-b2-min-observations" /></div>
+              </div>
             </div>
-          </div>}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="space-y-1"><Label>Information cutoff</Label><Input type="date" value={informationCutoff} onChange={event => setInformationCutoff(event.target.value)} data-testid="input-b2-cutoff" /></div>
-            <div className="space-y-1"><Label>Decision timestamp</Label><Input type="datetime-local" value={decisionTimestamp} onChange={event => setDecisionTimestamp(event.target.value)} data-testid="input-b2-decision-timestamp" /></div>
-            <div className="space-y-1"><Label>Estimation window (days)</Label><Input type="number" min="2" value={estimationWindow} onChange={event => { const days = Number(event.target.value); setEstimationWindow(days); onEstimationWindowChange?.(days); }} data-testid="input-b2-estimation-window" /></div>
-            <div className="space-y-1"><Label>Minimum observations</Label><Input type="number" min="2" value={minObservations} onChange={event => setMinObservations(Number(event.target.value))} data-testid="input-b2-min-observations" /></div>
-            {(prepared?.representation !== "alpha_streams" || riskModel.type === "DIAGONAL_SHRINKAGE") && <div className="space-y-1"><Label>Diagonal covariance shrinkage δ [0,1]</Label><Input type="number" min="0" max="1" step="any" value={covarianceDiagonalShrinkage} onChange={event => setCovarianceDiagonalShrinkage(Number(event.target.value))} data-testid="input-b2-covariance-shrinkage" /></div>}
-            <div className="space-y-1"><Label>Deterministic daily cash yield</Label><Input type="number" step="any" value={dailyCashYield} onChange={event => setDailyCashYield(Number(event.target.value))} data-testid="input-b2-daily-cash-yield" /></div>
-             <div className="space-y-1"><Label>Objective</Label><select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={objectiveType} onChange={event => { const next = event.target.value as AllocationRequest["objective"]["type"]; setObjectiveType(next); if (next === "minimum_variance") setRobustMethod("NOMINAL"); }} data-testid="select-b2-objective"><option value="minimum_variance">Minimum variance</option><option value="regularized_mean_variance">Regularized mean-variance</option></select></div>
-            <div className="space-y-1"><Label>γ (must be positive)</Label><Input type="number" min="0.0000001" step="any" value={gamma} onChange={event => setGamma(Number(event.target.value))} data-testid="input-b2-gamma" /></div>
-            <div className="space-y-1"><Label>η (nonnegative)</Label><Input type="number" min="0" step="any" value={eta} onChange={event => setEta(Number(event.target.value))} data-testid="input-b2-eta" /></div>
-          </div>
-           <ForecastModelPanel value={forecastModel} onChange={setForecastModel} candidateIds={candidateIds} cutoff={informationCutoff} observationCount={prepared ? alignedObservationCount(prepared, candidateIds, informationCutoff) : null} factors={ridgeFactors} representation={prepared?.representation} allocationMode={allocationMode} />
-           <fieldset className="rounded-lg border border-primary/20 bg-primary/[0.025] p-3" data-testid="fieldset-b2-robustness">
-             <legend className="px-1 text-[11px] font-semibold uppercase tracking-[0.13em] text-primary">Portfolio robustness</legend>
-             <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-               <div className="flex gap-1 rounded-md border bg-background p-1" role="radiogroup" aria-label="Portfolio robustness method">
-                 {([["NOMINAL", "Nominal"], ["ROBUST_MEAN_UNCERTAINTY", "Robust to Forecast Uncertainty"]] as const).map(([method, title]) =>
-                   <label key={method} className={`cursor-pointer rounded px-3 py-1.5 text-xs font-medium transition-colors ${robustMethod === method ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"} ${method !== "NOMINAL" && objectiveType === "minimum_variance" ? "cursor-not-allowed opacity-50" : ""}`}>
-                     <input className="sr-only" type="radio" name="b2-robust-method" checked={robustMethod === method} disabled={method !== "NOMINAL" && objectiveType === "minimum_variance"} onChange={() => setRobustMethod(method)} data-testid={`input-b2-robustness-${method.toLowerCase()}`} />{title}
-                   </label>)}
-               </div>
-               <div className="flex items-center gap-2"><Label htmlFor="b2-robust-kappa" className="whitespace-nowrap text-xs">κ</Label><Input id="b2-robust-kappa" className="h-8 w-24 font-mono text-xs" type="number" min="0" step="any" value={kappaText} onChange={event => setKappaText(event.target.value)} data-testid="input-b2-robustness-kappa" /></div>
-               <p className="max-w-md text-[11px] leading-relaxed text-muted-foreground">κ ≥ 0 · forecast uncertainty Vμ is separate from return risk Σ. No historical cost optimization.</p>
-             </div>
-             {objectiveType === "minimum_variance" && <p className="mt-2 text-xs text-amber-700">Robust mode is unavailable for minimum variance until its formula is defined. Select regularized mean-variance to enable it.</p>}
-           </fieldset>
-           {allocationMode === "SIGNED_OVERLAY" && <SignedOverlayControls candidates={candidateIds} names={prepared?.candidateNames ?? {}} settings={signedSettings} onChange={setSignedSettings} objective={objectiveType} gamma={gamma} eta={eta} target={targetExcessReturn} onTargetChange={setTargetExcessReturn} />}
-           {allocationMode === "CAPITAL_LONG_ONLY" && <div className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-1"><Label>Total cash bounds JSON</Label><Input value={cashBoundsText} onChange={event => setCashBoundsText(event.target.value)} placeholder='{"min":0,"max":1}' data-testid="input-b2-cash-bounds" /></div>
-            <div className="space-y-1"><Label>Candidate bounds JSON (candidate ID → min/max)</Label><Input value={candidateBoundsText} onChange={event => setCandidateBoundsText(event.target.value)} placeholder="{}" data-testid="input-b2-candidate-bounds" /></div>
-            <div className="space-y-1"><Label>Underlying asset bounds JSON (ticker → min/max)</Label><Input value={assetBoundsText} onChange={event => setAssetBoundsText(event.target.value)} placeholder="{}" data-testid="input-b2-asset-bounds" /></div>
-            <div className="space-y-1"><Label>Candidate group caps JSON</Label><Input value={groupCapsText} onChange={event => setGroupCapsText(event.target.value)} placeholder="[]" data-testid="input-b2-group-caps" /></div>
-            <div className="space-y-1 md:col-span-2"><Label>Unsupported constraint requests (comma-separated, sent for explicit rejection)</Label><Input value={unsupportedText} onChange={event => setUnsupportedText(event.target.value)} placeholder="cardinality, signed alpha, leverage" data-testid="input-b2-unsupported-constraints" /></div>
-           </div>}
-            <RebalanceRegularizationControls value={rebalanceForm} onChange={setRebalanceForm} cutoff={informationCutoff} objective={objectiveType} />
-            <p className="text-xs text-muted-foreground">{allocationMode === "SIGNED_OVERLAY" ? "Signed overlays optimize alpha coefficients against daily excess returns, then aggregate underlying risky exposures before computing net and cash. Minimum variance requires a positive daily target excess return. D3 forecasts excess returns; D1 independently estimates risk." : "Base objective: minimum variance minimizes ½ bᵀΣb; regularized mean-variance minimizes (γ/2)bᵀΣb + (η/2)Σⱼbⱼ² − μᵀb − r_cash·c. D3 supplies μ in daily decimal gross returns; D1/B2 independently supplies risk covariance."} Positive λR adds ½ × λR × Σ risky underlying (target weight − current weight)² to regularized mean-variance, not to execution fees.</p>
-           {inspectingAllocation && !onExitInspection && <p role="status" className="text-xs text-muted-foreground">Return to the working draft in the history panel before optimizing; the shell has not connected the inspection-exit action.</p>}
-           <Button type="button" onClick={() => void runAllocation()} disabled={busy || !prepared || inspectingAllocation && !onExitInspection} data-testid="button-run-b2-allocation" title="Creates a new immutable frozen allocation and exits the inspected record on success">
-            {busy ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Optimizing…</> : "Optimize B2 allocation"}
-          </Button>
+          </SectionTargetPortal>
+          <SectionTargetPortal target={sectionTargets?.forecastRisk}>
+            <div className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {(prepared?.representation !== "alpha_streams" || riskModel.type === "DIAGONAL_SHRINKAGE") && <div className="space-y-1"><Label>Diagonal covariance shrinkage δ [0,1]</Label><Input type="number" min="0" max="1" step="any" value={covarianceDiagonalShrinkage} onChange={event => setCovarianceDiagonalShrinkage(Number(event.target.value))} data-testid="input-b2-covariance-shrinkage" /></div>}
+                <div className="space-y-1"><Label>Deterministic daily cash yield</Label><Input type="number" step="any" value={dailyCashYield} onChange={event => setDailyCashYield(Number(event.target.value))} data-testid="input-b2-daily-cash-yield" /></div>
+              </div>
+              <ForecastModelPanel value={forecastModel} onChange={setForecastModel} candidateIds={candidateIds} cutoff={informationCutoff} observationCount={prepared ? alignedObservationCount(prepared, candidateIds, informationCutoff) : null} factors={ridgeFactors} representation={prepared?.representation} allocationMode={allocationMode} />
+              <fieldset className="rounded-lg border border-primary/20 bg-primary/[0.025] p-3" data-testid="fieldset-b2-robustness">
+                <legend className="px-1 text-[11px] font-semibold uppercase tracking-[0.13em] text-primary">Portfolio robustness</legend>
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+                  <div className="flex gap-1 rounded-md border bg-background p-1" role="radiogroup" aria-label="Portfolio robustness method">
+                    {([["NOMINAL", "Nominal"], ["ROBUST_MEAN_UNCERTAINTY", "Robust to Forecast Uncertainty"]] as const).map(([method, title]) =>
+                      <label key={method} className={`cursor-pointer rounded px-3 py-1.5 text-xs font-medium transition-colors ${robustMethod === method ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"} ${method !== "NOMINAL" && objectiveType === "minimum_variance" ? "cursor-not-allowed opacity-50" : ""}`}>
+                        <input className="sr-only" type="radio" name="b2-robust-method" checked={robustMethod === method} disabled={method !== "NOMINAL" && objectiveType === "minimum_variance"} onChange={() => setRobustMethod(method)} data-testid={`input-b2-robustness-${method.toLowerCase()}`} />{title}
+                      </label>)}
+                  </div>
+                  <div className="flex items-center gap-2"><Label htmlFor="b2-robust-kappa" className="whitespace-nowrap text-xs">κ</Label><Input id="b2-robust-kappa" className="h-8 w-24 font-mono text-xs" type="number" min="0" step="any" value={kappaText} onChange={event => setKappaText(event.target.value)} data-testid="input-b2-robustness-kappa" /></div>
+                  <p className="max-w-md text-[11px] leading-relaxed text-muted-foreground">κ ≥ 0 · forecast uncertainty Vμ is separate from return risk Σ. No historical cost optimization.</p>
+                </div>
+                {objectiveType === "minimum_variance" && <p className="mt-2 text-xs text-amber-700">Robust mode is unavailable for minimum variance until its formula is defined. Select regularized mean-variance to enable it.</p>}
+              </fieldset>
+            </div>
+          </SectionTargetPortal>
+          <SectionTargetPortal target={sectionTargets?.constraints}>
+            <div className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-1"><Label>Objective</Label><select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={objectiveType} onChange={event => { const next = event.target.value as AllocationRequest["objective"]["type"]; setObjectiveType(next); if (next === "minimum_variance") setRobustMethod("NOMINAL"); }} data-testid="select-b2-objective"><option value="minimum_variance">Minimum variance</option><option value="regularized_mean_variance">Regularized mean-variance</option></select></div>
+                <div className="space-y-1"><Label>γ (must be positive)</Label><Input type="number" min="0.0000001" step="any" value={gamma} onChange={event => setGamma(Number(event.target.value))} data-testid="input-b2-gamma" /></div>
+                <div className="space-y-1"><Label>η (nonnegative)</Label><Input type="number" min="0" step="any" value={eta} onChange={event => setEta(Number(event.target.value))} data-testid="input-b2-eta" /></div>
+              </div>
+              {allocationMode === "SIGNED_OVERLAY" && <details className="rounded border p-3">
+                <summary className="cursor-pointer text-xs font-semibold">Advanced signed-overlay settings</summary>
+                <div className="mt-3"><SignedOverlayControls candidates={candidateIds} names={prepared?.candidateNames ?? {}} settings={signedSettings} onChange={setSignedSettings} objective={objectiveType} gamma={gamma} eta={eta} target={targetExcessReturn} onTargetChange={setTargetExcessReturn} /></div>
+              </details>}
+              {allocationMode === "CAPITAL_LONG_ONLY" && <details className="rounded border p-3">
+                <summary className="cursor-pointer text-xs font-semibold">Advanced JSON constraints</summary>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <div className="space-y-1"><Label>Total cash bounds JSON</Label><Input value={cashBoundsText} onChange={event => setCashBoundsText(event.target.value)} placeholder='{"min":0,"max":1}' data-testid="input-b2-cash-bounds" /></div>
+                  <div className="space-y-1"><Label>Candidate bounds JSON (candidate ID → min/max)</Label><Input value={candidateBoundsText} onChange={event => setCandidateBoundsText(event.target.value)} placeholder="{}" data-testid="input-b2-candidate-bounds" /></div>
+                  <div className="space-y-1"><Label>Underlying asset bounds JSON (ticker → min/max)</Label><Input value={assetBoundsText} onChange={event => setAssetBoundsText(event.target.value)} placeholder="{}" data-testid="input-b2-asset-bounds" /></div>
+                  <div className="space-y-1"><Label>Candidate group caps JSON</Label><Input value={groupCapsText} onChange={event => setGroupCapsText(event.target.value)} placeholder="[]" data-testid="input-b2-group-caps" /></div>
+                  <div className="space-y-1 md:col-span-2"><Label>Unsupported constraint requests (comma-separated, sent for explicit rejection)</Label><Input value={unsupportedText} onChange={event => setUnsupportedText(event.target.value)} placeholder="cardinality, signed alpha, leverage" data-testid="input-b2-unsupported-constraints" /></div>
+                </div>
+              </details>}
+              <RebalanceRegularizationControls value={rebalanceForm} onChange={setRebalanceForm} cutoff={informationCutoff} objective={objectiveType} referenceDisabled={startingPortfolioRequest?.mode === "ignore"} />
+              <p className="text-xs text-muted-foreground">{allocationMode === "SIGNED_OVERLAY" ? "Signed overlays optimize alpha coefficients against daily excess returns, then aggregate underlying risky exposures before computing net and cash. Minimum variance requires a positive daily target excess return. D3 forecasts excess returns; D1 independently estimates risk." : "Base objective: minimum variance minimizes ½ bᵀΣb; regularized mean-variance minimizes (γ/2)bᵀΣb + (η/2)Σⱼbⱼ² − μᵀb − r_cash·c. D3 supplies μ in daily decimal gross returns; D1/B2 independently supplies risk covariance."} Positive λR adds ½ × λR × Σ risky underlying (target weight − current weight)² to regularized mean-variance, not to execution fees.</p>
+              {historyInspectionActive && <p role="status" className="text-xs text-muted-foreground">Return to the working draft before optimizing; history inspection is read-only.</p>}
+              {!onOptimizeActionChange && <Button type="button" onClick={stableOptimizeRun} disabled={optimizeDisabled} data-testid="button-run-b2-allocation" title="Creates a new immutable frozen allocation">
+                {busy ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Optimizing…</> : "Optimize B2 allocation"}
+              </Button>}
+            </div>
+          </SectionTargetPortal>
         </CardContent>
       </Card>
 
-      <Card>
+      <SectionTargetPortal target={sectionTargets?.results}>
+      <div className="space-y-4">
+      {!historyInspectionActive && <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
           <div><CardTitle className="text-sm">Saved B2 allocations</CardTitle><CardDescription>Reload an immutable saved optimization by ID.</CardDescription></div>
           <Button type="button" variant="outline" size="sm" onClick={() => void refreshSaved()} disabled={loadingSaved} data-testid="button-refresh-b2-allocations"><RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loadingSaved ? "animate-spin" : ""}`} />Refresh</Button>
@@ -710,6 +822,18 @@ export function B2AllocationPanel({
           {!loadingSaved && !saved.length && <span className="text-xs text-muted-foreground">No saved B2 allocations returned.</span>}
         </CardContent>
       </Card>
+      }
+
+      {historyInspectionActive && resultView.source === "unrecorded" && <Card data-testid="status-b2-unrecorded-frozen-policy">
+        <CardHeader className="pb-3"><CardTitle className="text-sm">Frozen B2 policy unavailable</CardTitle>
+          <CardDescription>This history record does not identify a frozen B2 allocation. The working allocation is hidden during inspection.</CardDescription></CardHeader>
+      </Card>}
+      {historyInspectionActive && resultView.source === "inspected-loading" && <Card data-testid="status-b2-loading-inspected-policy">
+        <CardContent className="pt-4 text-sm text-muted-foreground">Loading the recorded frozen B2 allocation #{inspectedAllocationId}…</CardContent>
+      </Card>}
+      {historyInspectionActive && resultView.source === "inspected-unavailable" && <Card data-testid="status-b2-inspected-policy-unavailable">
+        <CardContent className="pt-4 text-sm text-muted-foreground">The recorded frozen B2 allocation #{inspectedAllocationId} could not be retrieved. See the retrieval error above; no working allocation is substituted.</CardContent>
+      </Card>}
 
       {hasAllocationResult && <Card data-testid="card-b2-allocation-result">
         <CardHeader className="pb-3">
@@ -720,7 +844,6 @@ export function B2AllocationPanel({
           </div>
            {status === "SOLVED" && <p className="text-xs font-medium text-amber-700">Allocation computed — see saved Validation Runs for any separate historical validation.</p>}
           {typeof allocation.reason === "string" && <p className="text-xs text-destructive">{allocation.reason}</p>}
-           {!inspectingAllocation && replayStatus && <p className="text-xs" data-testid="status-b2-replay">{replayStatus}</p>}
         </CardHeader>
         <CardContent className="space-y-3">
            <PortfolioResultOverview
@@ -740,18 +863,13 @@ export function B2AllocationPanel({
                { label: "Robustness", value: `${pmValue(asRecord(frozenRequest.robustness).method)} · κ ${pmValue(asRecord(frozenRequest.robustness).kappa)}` },
                { label: "Turnover settings", value: `λR ${pmValue(asRecord(frozenRequest.rebalanceRegularization).lambdaR)}`, detail: `Frozen turnover preference ${pmValue(asRecord(frozenRequest.costAware).turnoverPreferenceBps)} bps` },
                { label: "Validation", value: "Inspect saved Validation Runs / Jobs", detail: "History selection never submits a validation" },
-               { label: "Replay", value: response.replay ? `Replay ${pmValue(asRecord(response.replay).status).toUpperCase()}` : !inspectingAllocation && replayStatus ? replayStatus : replayAvailability({ domain: "b3", status }), detail: "Available separately; replay never creates a Validation Run" },
              ]}
            />
-           <div className="flex flex-wrap items-center gap-2">
-             {allocationId !== null && <Button type="button" variant="outline" size="sm" onClick={() => void replayAllocation(allocationId)} disabled={busy} data-testid="button-replay-b2-allocation" title="Replays the saved frozen policy; it does not create a validation run"><RotateCcw className="mr-2 h-3.5 w-3.5" />Replay</Button>}
-             <span className="text-xs text-muted-foreground">Manual replay checks this frozen allocation only.</span>
-           </div>
            <details className="rounded border p-3 text-xs" data-testid="details-b2-frozen-diagnostics">
              <summary className="cursor-pointer font-semibold">Frozen forecast, risk, robustness, turnover and solver diagnostics</summary>
              <div className="mt-3 space-y-4">
             <ForecastResults forecast={frozenForecast} frozenConfig={frozenRequest.forecastModel} candidateIds={Array.isArray(frozenRequest.candidateIds) ? frozenRequest.candidateIds as string[] : []} allocation={allocation} legacy={!frozenRequest.forecastModel} />
-            {hasAllocationResult && <RobustnessPanel result={allocation} request={frozenRequest} replay={response.replay} />}
+            {hasAllocationResult && <RobustnessPanel result={allocation} request={frozenRequest} />}
             {hasAllocationResult && <CostAwareAllocationResult request={frozenRequest} result={allocation} />}
             {hasAllocationResult && <RebalanceAllocationResult request={frozenRequest} result={allocation} />}
            {signedResult && <SignedOverlayResult allocation={allocation} request={frozenRequest} names={prepared?.candidateNames ?? {}} />}
@@ -792,6 +910,8 @@ export function B2AllocationPanel({
            </details>
         </CardContent>
       </Card>}
+      </div>
+      </SectionTargetPortal>
     </section>
   );
 }

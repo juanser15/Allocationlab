@@ -82,9 +82,9 @@ export function PreviousWeightsSection() {
         onSuccess: () => {
           setSavedWeights(weights.map((w) => ({ ...w })));
           setSavedCash(cashWeight);
-          toast({ title: "Previous weights saved" });
+          toast({ title: "Starting portfolio baseline saved" });
         },
-        onError: () => toast({ title: "Error saving previous weights", variant: "destructive" }),
+        onError: () => toast({ title: "Error saving starting portfolio baseline", variant: "destructive" }),
       }
     );
   };
@@ -101,7 +101,7 @@ export function PreviousWeightsSection() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "previous-weights.json";
+      a.download = "starting-portfolio.json";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -122,9 +122,9 @@ export function PreviousWeightsSection() {
           );
         }
         if (typeof parsed.cashPriorWeight === "number") setCashWeight(parsed.cashPriorWeight);
-        toast({ title: "Previous weights imported", description: "Review and save to apply." });
+        toast({ title: "Starting portfolio baseline imported", description: "Review and save to apply." });
       } catch {
-        toast({ title: "Import failed", description: "File is not a valid previous-weights export.", variant: "destructive" });
+        toast({ title: "Import failed", description: "File is not a valid starting-portfolio baseline export.", variant: "destructive" });
       }
       if (fileInputRef.current) fileInputRef.current.value = "";
     };
@@ -137,22 +137,22 @@ export function PreviousWeightsSection() {
 
   return (
     <SectionShell
-      title="Previous Weights"
-      description="The prior-month allocation used as the baseline for computing weight changes in the results dashboard and reports."
+      title="Starting Portfolio"
+      description="The configured prior-month target-weight baseline used for weight changes in the results dashboard and reports. This is not an actual quantities/cash/NAV holdings book."
       dirty={dirty}
       errors={errors}
       onSave={handleSave}
       onCancel={handleCancel}
       onResetSection={handleResetSection}
       saving={updateUniverse.isPending}
-      saveLabel="Save Previous Weights"
+      saveLabel="Save Starting Portfolio"
     >
       <div className="border rounded-md overflow-hidden overflow-x-auto">
         <Table>
           <TableHeader className="bg-gray-50">
             <TableRow>
               <TableHead>Ticker</TableHead>
-              <TableHead className="w-32 text-right">Prior Weight (%)</TableHead>
+              <TableHead className="w-32 text-right">Starting Weight (%)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

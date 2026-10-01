@@ -251,7 +251,7 @@ export default function EtfDetail() {
 
         <Card>
           <CardContent className="pt-5 pb-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Prior Weight</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Starting Weight</p>
             <p className="text-3xl font-bold text-gray-600 mt-1">{(etf.priorWeight * 100).toFixed(1)}%</p>
             <p className="text-xs text-muted-foreground mt-0.5">previous month target</p>
           </CardContent>

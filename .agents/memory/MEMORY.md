@@ -1,4 +1,4 @@
-- [Allocation Lab nav structure](allocation-lab-nav.md) — 5-item sidebar (Dashboard/Market Monitor/Portfolio Lab/Research Lab/Investment Committee); Settings is a top-right gear, not a sidebar tab; merge sub-workflows via tabs, never a new top-level item.
+- [Allocation Lab navigation](allocation-lab-nav.md) — keep sub-workflows within existing destinations and the main Portfolio Lab vertical; Settings is global; inspect current nav rather than restoring old counts.
 - [Allocation Lab workflow-stage model](allocation-lab-workflow-stage.md) — 12-stage gating derived live from backend state, never inferred; drives EmptyStates and StatusBar so diagnostics never render before their generating run.
 - [Orval query hook options typing](orval-query-hook-options-typing.md) — generated `{ query: { enabled } }` options can fail TS (`queryKey` required) despite matching the documented shape; `as any` on that options object is the workaround.
 - [Recovering deleted files mid-session](deleted-file-recovery.md) — check HEAD via git show before assuming uncommitted deletes are unrecoverable

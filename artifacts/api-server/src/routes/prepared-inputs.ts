@@ -3,11 +3,13 @@ import { desc, eq } from "drizzle-orm";
 import {
   ComposePreparedInputBody, ComposePreparedInputParams, ComposePreparedInputResponse,
   GetPreparedInputParams, GetPreparedInputResponse, ListPreparedInputsResponse,
-  PrepareInputsBody, PrepareInputsResponse, ReplayPreparedInputParams, ReplayPreparedInputResponse,
+  ListPreparedInputSummariesResponse, PrepareInputsBody, PrepareInputsResponse,
+  ReplayPreparedInputParams, ReplayPreparedInputResponse,
 } from "@workspace/api-zod";
 import { db, preparedInputsTable, priceDataTable } from "@workspace/db";
 import { getFactorSetSnapshot } from "../lib/factor-library";
 import { hashDataset } from "../lib/run-snapshot";
+import { preparedInputSummaryProjection } from "../lib/prepared-input-summary";
 import {
   composePreparedSnapshot, fingerprint, prepareSnapshot, replayPreparedSnapshot, snapshotStatus,
   validatePreparedRequest, PREPARED_INPUT_ENGINE_VERSION, type PreparedRequest, type PreparedSnapshot,
@@ -31,6 +33,12 @@ function parseId(raw: string | string[]): number | null {
   const value = Array.isArray(raw) ? raw[0] : raw;
   return /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value)) ? Number(value) : null;
 }
+
+router.get("/prepared-input-summaries", async (_req, res): Promise<void> => {
+  const rows = await db.select(preparedInputSummaryProjection).from(preparedInputsTable)
+    .orderBy(desc(preparedInputsTable.createdAt), desc(preparedInputsTable.id));
+  res.json(ListPreparedInputSummariesResponse.parse(rows));
+});
 
 router.get("/prepared-inputs", async (req, res): Promise<void> => {
   if (req.query.summary === "1") {

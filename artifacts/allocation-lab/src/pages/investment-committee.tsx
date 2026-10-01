@@ -1,7 +1,8 @@
-import { type ReactElement, useState, useMemo } from "react";
+import { type ReactElement, useState } from "react";
 import {
   useGetLatestResults,
-  useGetOrCreateDecisionLog,
+  getOrCreateDecisionLog,
+  useListDecisionLogs,
   useGetRiskModel,
   useGetScenarioStressMeta,
   useUpdateDecisionLogStatus,
@@ -122,38 +123,121 @@ export default function InvestmentCommittee() {
 
   const sessionId = latestResult?.sessionId;
   const {
-    data: decisionLog,
+    data: decisionLogs,
     isLoading: loadingDecisionLog,
     refetch: refetchDecisionLog,
-  } = useGetOrCreateDecisionLog(sessionId ?? 0, {
-    query: { enabled: !!sessionId }
-  } as any);
-  
-  const updateStatus = useUpdateDecisionLogStatus();
-  const { data: riskModel } = useGetRiskModel();
-  const { data: scenarioMeta } = useGetScenarioStressMeta();
-  const { data: tradeImplMeta } = useGetTradeImplementationMeta();
+  } = useListDecisionLogs();
+  const decisionLog = decisionLogs?.find(log => log.sessionId === sessionId);
 
-  const [committeeRequested, setCommitteeRequested] = useState(false);
+  const updateStatus = useUpdateDecisionLogStatus();
+  const [drawerContent, setDrawerContent] = useState<"risk" | "scenario" | "trade" | null>(null);
+  const riskQuery = useGetRiskModel(undefined, {
+    query: {
+      enabled: false,
+      queryKey: ["/api/risk-model", sessionId ?? 0],
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: false,
+    } as any,
+  });
+  const scenarioQuery = useGetScenarioStressMeta({
+    query: {
+      enabled: false,
+      queryKey: ["/api/scenario-stress/meta", sessionId ?? 0],
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: false,
+    } as any,
+  });
+  const tradeImplementationQuery = useGetTradeImplementationMeta({
+    query: {
+      enabled: false,
+      queryKey: ["/api/trade-implementation/meta", sessionId ?? 0],
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: false,
+    } as any,
+  });
+  const riskModel = riskQuery.data;
+  const scenarioMeta = scenarioQuery.data;
+  const tradeImplMeta = tradeImplementationQuery.data;
+  const [committeeRequestedSessionId, setCommitteeRequestedSessionId] = useState<number | null>(null);
+  const committeeRequested = !!sessionId && committeeRequestedSessionId === sessionId;
+  const [creatingDecisionLog, setCreatingDecisionLog] = useState(false);
   const {
-    data: committee,
-    isLoading: loadingCommittee,
+    data: queriedCommittee,
+    isFetching: fetchingCommittee,
     error: committeeError,
     refetch: refetchCommittee,
   } = useGetCommittee({
-    query: { enabled: !!sessionId && committeeRequested },
+    query: {
+      enabled: false,
+      queryKey: ["/api/committee", sessionId ?? 0],
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: false,
+    } as any,
   } as any);
+  const committee = queriedCommittee?.sessionId === sessionId ? queriedCommittee : undefined;
 
-  const [drawerContent, setDrawerContent] = useState<"risk" | "scenario" | "trade" | null>(null);
+  const handleStartReview = async () => {
+    if (!sessionId || decisionLog || creatingDecisionLog) return;
+    setCreatingDecisionLog(true);
+    try {
+      await getOrCreateDecisionLog(sessionId);
+      await refetchDecisionLog();
+      toast({
+        title: "Decision draft created",
+        description: "The saved decision record is ready for committee review.",
+      });
+    } catch (error) {
+      toast({
+        title: "Could not start review",
+        description: error instanceof Error ? error.message : "The decision record could not be created.",
+        variant: "destructive",
+      });
+    } finally {
+      setCreatingDecisionLog(false);
+    }
+  };
 
-  const handleGenerateCommitteePack = () => {
-    setCommitteeRequested(true);
-    refetchCommittee().then(() => {
+  const handleGenerateCommitteePack = async () => {
+    if (!sessionId) return;
+    setCommitteeRequestedSessionId(sessionId);
+    try {
+      // Creation is permitted only from this deliberate user action.
+      if (!decisionLog) {
+        await getOrCreateDecisionLog(sessionId);
+        await refetchDecisionLog();
+      }
+      const generated = await refetchCommittee();
+      if (generated.error) throw generated.error;
+      if (!generated.data || generated.data.sessionId !== sessionId) {
+        throw new Error("No committee pack was returned for the current session.");
+      }
       toast({
         title: "Committee Pack Generated",
         description: "Persona recommendations and CIO synthesis are now available.",
       });
-    });
+    } catch (error) {
+      setCommitteeRequestedSessionId(null);
+      toast({
+        title: "Committee pack generation failed",
+        description: error instanceof Error ? error.message : "Ensure the allocation run is complete and data is available.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openEvidenceDrawer = (view: "risk" | "scenario" | "trade") => {
+    setDrawerContent(view);
+    if (view === "risk") void riskQuery.refetch();
+    if (view === "scenario") void scenarioQuery.refetch();
+    if (view === "trade") void tradeImplementationQuery.refetch();
   };
 
   const handleStatusChange = (status: "draft" | "under_review" | "approved") => {
@@ -192,7 +276,7 @@ export default function InvestmentCommittee() {
   };
 
   const isApproved = decisionLog?.status === "approved";
-  const isGenerating = loadingCommittee || (committeeRequested && !committee && !committeeError);
+  const isGenerating = fetchingCommittee || (committeeRequested && !committee && !committeeError);
 
   const renderSkeleton = () => (
     <div className="space-y-6 animate-pulse">
@@ -223,6 +307,20 @@ export default function InvestmentCommittee() {
             </Link>
           </AlertDescription>
         </Alert>
+      )}
+
+      {sessionId && !loadingDecisionLog && !decisionLog && (
+        <Card className="border-amber-200 bg-amber-50/30">
+          <CardHeader>
+            <CardTitle className="text-sm">No saved decision draft for this session</CardTitle>
+            <CardDescription>A decision record is created only when you explicitly start review or generate a committee pack.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => void handleStartReview()} disabled={creatingDecisionLog} data-testid="button-start-review">
+              {creatingDecisionLog ? "Starting review…" : "Start Review · Create Decision Draft"}
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
       <Tabs defaultValue="decision-room" className="space-y-8">
@@ -281,7 +379,7 @@ export default function InvestmentCommittee() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Risk Model */}
-                  <Card className="border-gray-200 shadow-sm hover:border-gray-300 transition-colors cursor-pointer" onClick={() => setDrawerContent('risk')}>
+                  <Card className="border-gray-200 shadow-sm hover:border-gray-300 transition-colors cursor-pointer" onClick={() => openEvidenceDrawer('risk')}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-semibold flex items-center justify-between text-primary">
                         <span className="flex items-center gap-2"><Scale className="h-4 w-4" /> Risk Profile</span>
@@ -290,7 +388,7 @@ export default function InvestmentCommittee() {
                     </CardHeader>
                     <CardContent>
                       {!riskModel?.hasSufficientData ? (
-                        <p className="text-sm text-muted-foreground">{riskModel?.insufficientReason ?? "Unavailable."}</p>
+                        <p className="text-sm text-muted-foreground">{riskQuery.isFetching ? "Retrieving risk evidence…" : riskModel?.insufficientReason ?? "Open this card to explicitly calculate risk evidence."}</p>
                       ) : (
                         <div className="grid grid-cols-2 gap-4">
                           <div>
@@ -307,7 +405,7 @@ export default function InvestmentCommittee() {
                   </Card>
 
                   {/* Scenario Stress */}
-                  <Card className="border-gray-200 shadow-sm hover:border-gray-300 transition-colors cursor-pointer" onClick={() => setDrawerContent('scenario')}>
+                  <Card className="border-gray-200 shadow-sm hover:border-gray-300 transition-colors cursor-pointer" onClick={() => openEvidenceDrawer('scenario')}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-semibold flex items-center justify-between text-primary">
                         <span className="flex items-center gap-2"><History className="h-4 w-4" /> Stress Testing</span>
@@ -316,7 +414,7 @@ export default function InvestmentCommittee() {
                     </CardHeader>
                     <CardContent>
                       {!scenarioMeta?.hasAllocation ? (
-                        <p className="text-sm text-muted-foreground">Unavailable.</p>
+                        <p className="text-sm text-muted-foreground">{scenarioQuery.isFetching ? "Retrieving scenario coverage…" : "Open this card to explicitly load scenario coverage."}</p>
                       ) : (
                         <div className="grid grid-cols-2 gap-4">
                           <div>
@@ -333,7 +431,7 @@ export default function InvestmentCommittee() {
                   </Card>
 
                   {/* Trade Implementation */}
-                  <Card className="border-gray-200 shadow-sm hover:border-gray-300 transition-colors cursor-pointer" onClick={() => setDrawerContent('trade')}>
+                  <Card className="border-gray-200 shadow-sm hover:border-gray-300 transition-colors cursor-pointer" onClick={() => openEvidenceDrawer('trade')}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-semibold flex items-center justify-between text-primary">
                         <span className="flex items-center gap-2"><ArrowLeftRight className="h-4 w-4" /> Implementation</span>
@@ -342,7 +440,7 @@ export default function InvestmentCommittee() {
                     </CardHeader>
                     <CardContent>
                       {!tradeImplMeta?.ready ? (
-                        <p className="text-sm text-muted-foreground">{tradeImplMeta?.reason ?? "Unavailable."}</p>
+                        <p className="text-sm text-muted-foreground">{tradeImplementationQuery.isFetching ? "Retrieving implementation readiness…" : tradeImplMeta?.reason ?? "Open this card to explicitly load implementation readiness."}</p>
                       ) : (
                         <div className="grid grid-cols-2 gap-4">
                           <div>
@@ -350,7 +448,7 @@ export default function InvestmentCommittee() {
                             <p className="font-semibold text-gray-900 text-lg">{tradeImplMeta.activeEtfCount}</p>
                           </div>
                           <div>
-                            <MetricTooltip label={<span className="text-xs text-muted-foreground">Prior Weights</span>} explanation="Are previous weights configured to allow delta calculation?" />
+                            <MetricTooltip label={<span className="text-xs text-muted-foreground">Starting Weights</span>} explanation="Are starting weights configured to allow delta calculation?" />
                             <p className="font-semibold text-gray-900 text-lg">{tradeImplMeta.hasPreviousWeights ? "Yes" : "No"}</p>
                           </div>
                         </div>
@@ -410,22 +508,22 @@ export default function InvestmentCommittee() {
                     <h2 className="text-xl font-semibold text-primary tracking-tight">II. Committee Debate & Synthesis</h2>
                     <p className="text-muted-foreground text-sm mt-1">Simulated perspectives assessing the recommendation.</p>
                   </div>
-                  {!committeeRequested && !committee && (
-                    <Button onClick={handleGenerateCommitteePack} disabled={!sessionId} className="gap-2">
+                  {(!committeeRequested || committeeError) && !committee && (
+                    <Button onClick={() => void handleGenerateCommitteePack()} disabled={!sessionId || loadingDecisionLog || creatingDecisionLog || fetchingCommittee} className="gap-2">
                       <Gavel className="h-4 w-4" /> Generate Pack
                     </Button>
                   )}
                 </div>
 
-                {!committeeRequested && !committee && (
+                {(!committeeRequested || committeeError) && !committee && (
                   <div className="py-16 text-center border-2 border-dashed rounded-lg border-gray-200 bg-gray-50">
                     <Gavel className="h-10 w-10 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-1">Synthesize Perspectives</h3>
                     <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
                       Generate the AI committee pack to review persona stances, debates, and the CIO's final summary.
                     </p>
-                    <Button onClick={handleGenerateCommitteePack} disabled={!sessionId} className="gap-2">
-                      <Gavel className="h-4 w-4" /> Generate Committee Pack
+                    <Button onClick={() => void handleGenerateCommitteePack()} disabled={!sessionId || loadingDecisionLog || creatingDecisionLog || fetchingCommittee} className="gap-2">
+                      <Gavel className="h-4 w-4" /> {committeeError ? "Retry Committee Pack" : "Generate Committee Pack"}
                     </Button>
                   </div>
                 )}
@@ -724,6 +822,9 @@ export default function InvestmentCommittee() {
         }
         description="Detailed quantitative evidence for this allocation cycle."
       >
+        {drawerContent === "risk" && riskQuery.isFetching && !riskModel && <p className="text-sm text-muted-foreground">Retrieving risk evidence for the current session…</p>}
+        {drawerContent === "risk" && riskQuery.isError && <p className="text-sm text-destructive">{riskQuery.error instanceof Error ? riskQuery.error.message : "Risk evidence could not be loaded."}</p>}
+        {drawerContent === "risk" && !riskQuery.isFetching && !riskQuery.isError && !riskModel && <p className="text-sm text-muted-foreground">No risk result was returned for this explicit request.</p>}
         {drawerContent === 'risk' && riskModel && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-md">
@@ -754,6 +855,9 @@ export default function InvestmentCommittee() {
           </div>
         )}
 
+        {drawerContent === "scenario" && scenarioQuery.isFetching && !scenarioMeta && <p className="text-sm text-muted-foreground">Retrieving scenario coverage for the current session…</p>}
+        {drawerContent === "scenario" && scenarioQuery.isError && <p className="text-sm text-destructive">{scenarioQuery.error instanceof Error ? scenarioQuery.error.message : "Scenario coverage could not be loaded."}</p>}
+        {drawerContent === "scenario" && !scenarioQuery.isFetching && !scenarioQuery.isError && !scenarioMeta && <p className="text-sm text-muted-foreground">No scenario coverage result was returned for this explicit request.</p>}
         {drawerContent === 'scenario' && scenarioMeta && (
           <div className="space-y-4">
              <h4 className="text-sm font-semibold border-b pb-2">Available Macro Proxies</h4>
@@ -771,6 +875,9 @@ export default function InvestmentCommittee() {
           </div>
         )}
 
+        {drawerContent === "trade" && tradeImplementationQuery.isFetching && !tradeImplMeta && <p className="text-sm text-muted-foreground">Retrieving implementation readiness…</p>}
+        {drawerContent === "trade" && tradeImplementationQuery.isError && <p className="text-sm text-destructive">{tradeImplementationQuery.error instanceof Error ? tradeImplementationQuery.error.message : "Implementation readiness could not be loaded."}</p>}
+        {drawerContent === "trade" && !tradeImplementationQuery.isFetching && !tradeImplementationQuery.isError && !tradeImplMeta && <p className="text-sm text-muted-foreground">No implementation readiness result was returned for this explicit request.</p>}
         {drawerContent === 'trade' && tradeImplMeta && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-md">
@@ -779,7 +886,7 @@ export default function InvestmentCommittee() {
                  <p className="font-medium">{tradeImplMeta.activeEtfCount}</p>
                </div>
                <div>
-                 <p className="text-xs text-muted-foreground mb-1">Previous Weights</p>
+                 <p className="text-xs text-muted-foreground mb-1">Starting Portfolio</p>
                  <p className="font-medium">{tradeImplMeta.hasPreviousWeights ? "Configured" : "Missing"}</p>
                </div>
             </div>

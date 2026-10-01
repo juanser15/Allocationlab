@@ -82,7 +82,7 @@ export function FinalAllocationTab({ result, hasData, hasRun }: Props) {
                 <p className="text-2xl font-bold text-primary">{pct(etfDrawer.weight)}</p>
               </div>
               <div className="border rounded p-3">
-                <p className="text-[10px] text-muted-foreground">Change vs Prior</p>
+                <p className="text-[10px] text-muted-foreground">Change vs Starting Weight</p>
                 <p className={`text-2xl font-bold ${etfDrawer.change > 0 ? "text-green-600" : etfDrawer.change < 0 ? "text-red-600" : "text-gray-400"}`}>
                   {etfDrawer.change >= 0 ? "+" : ""}{pct(etfDrawer.change)}
                 </p>
@@ -203,7 +203,7 @@ Current: α_momentum = 1.00 (sole computed model)
                 <TableHead className="text-[10px]">Ticker</TableHead>
                 <TableHead className="text-[10px]">Name</TableHead>
                 <TableHead className="text-[10px] text-center">Score</TableHead>
-                <TableHead className="text-[10px] text-right">Prior</TableHead>
+                <TableHead className="text-[10px] text-right">Starting weight</TableHead>
                 <TableHead className="text-[10px] text-right">Target</TableHead>
                 <TableHead className="text-[10px] text-right">Δ</TableHead>
                 <TableHead className="text-[10px] text-center">Model A</TableHead>

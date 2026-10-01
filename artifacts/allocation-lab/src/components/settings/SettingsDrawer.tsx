@@ -26,7 +26,7 @@ const SECTIONS: { id: SettingsSectionId; label: string; icon: any }[] = [
   { id: "data-sources", label: "Data Sources", icon: Database },
   { id: "universe", label: "Universe", icon: ListTree },
   { id: "constraints", label: "Portfolio Constraints", icon: ShieldCheck },
-  { id: "previous-weights", label: "Previous Weights", icon: History },
+  { id: "previous-weights", label: "Starting Portfolio", icon: History },
   { id: "execution", label: "Execution Assumptions", icon: Timer },
   { id: "model-factors", label: "Model & Factors", icon: Sigma },
   { id: "benchmarks", label: "Benchmarks", icon: LineChart },

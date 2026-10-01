@@ -1,22 +1,27 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { AlertCircle, FlaskConical, RefreshCw, RotateCcw } from "lucide-react";
+import { AlertCircle, FlaskConical, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getAllocation, getGetAllocationQueryKey, getValidationJob, getValidationRun, useGetAllocation, useReplayValidationRun, type ValidationJob } from "@workspace/api-client-react";
+import {
+  getAllocation, getGetAllocationQueryKey, getGetPreparedInputQueryKey, getListPreparedInputSummariesQueryKey,
+  getValidationJob, getValidationRun,
+  useGetAllocation, useGetPreparedInput, useListPreparedInputSummaries, type PreparedInputSummary, type ValidationJob,
+} from "@workspace/api-client-react";
 import { AllocationModeComparisonPanel } from "./AllocationModeComparisonPanel";
 import { useValidationJob } from "./use-validation-job";
 import { ValidationJobStatus } from "./ValidationJobStatus";
 import { RobustnessPanel } from "./RobustnessPanel";
 import { CostAwareValidationResult } from "./CostAwarePanel";
 import { RebalanceValidationResult } from "./RebalanceRegularizationPanel";
-import { PortfolioResultOverview, replayAvailability } from "./PortfolioResultOverview";
+import { PortfolioResultOverview } from "./PortfolioResultOverview";
 import { loadedPolicyMatches, needsHistoricalJobPolling, pmPercent, pmValue, portfolioStateLabel, viewedValidationRunId } from "./portfolio-result-summary";
-import { B3_WORKING_DRAFT_KEY, isCurrentViewRequest, readWorkingDraftValue, writeWorkingDraftValue } from "./portfolio-working-draft";
+import { B3_WORKING_DRAFT_KEY, readWorkingDraftValue, writeWorkingDraftValue } from "./portfolio-working-draft";
+import { registerRunAction, type RunAction } from "./portfolio-run-action";
 
 type Row = Record<string, unknown>;
 type Step = "configure" | "results" | "diagnostics";
@@ -109,15 +114,15 @@ function DataTable({ title, description, data, columns, limit = 80 }: {
   </Card>;
 }
 
-export function B3ValidationPanel({ allocationId, runToken, onRunningChange, inspectRunId, inspectedJobId }: {
+export function B3ValidationPanel({ allocationId, runToken, onRunningChange, inspectRunId, inspectedJobId, onValidateActionChange }: {
   allocationId: number | null;
   /** Retained for source compatibility. Validation only starts from its explicit button. */
   runToken: number;
   inspectRunId?: number | null;
   inspectedJobId?: string | null;
   onRunningChange?: (value: boolean) => void;
+  onValidateActionChange?: (action: RunAction | null) => void;
 }) {
-  const [prepared, setPrepared] = useState<Row[]>([]);
   const [saved, setSaved] = useState<Row[]>([]);
   const [selectedRunId, setSelectedRunId] = useState<number | null>(() => {
     if (typeof window === "undefined") return null;
@@ -143,9 +148,32 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
   const [slippage, setSlippage] = useWorkingDraftField("slippage", 5, validNumber, reportDraftError);
   const [yieldDaily, setYieldDaily] = useWorkingDraftField("yieldDaily", 0, validNumber, reportDraftError);
   const [benchmark, setBenchmark] = useWorkingDraftField("benchmark", "", validString, reportDraftError);
-  const [busy, setBusy] = useState(false);
+  const preparedInputsQuery = useListPreparedInputSummaries({
+    query: { queryKey: getListPreparedInputSummariesQueryKey(), refetchOnMount: "always" },
+  });
+  const selectedPreparedId = /^[1-9]\d*$/.test(preparedId) && Number.isSafeInteger(Number(preparedId))
+    ? Number(preparedId)
+    : null;
+  const selectedPreparedQuery = useGetPreparedInput(selectedPreparedId ?? 0, {
+    query: {
+      enabled: selectedPreparedId !== null,
+      queryKey: getGetPreparedInputQueryKey(selectedPreparedId ?? 0),
+      refetchOnMount: "always",
+    },
+  });
+  const selectedPreparedData = selectedPreparedQuery.data as unknown as Row | undefined;
+  const selectedPreparedFull = selectedPreparedId !== null && !selectedPreparedQuery.isFetching &&
+    !selectedPreparedQuery.isError && preparedInputIdOf(selectedPreparedData) === selectedPreparedId &&
+    !!selectedPreparedData?.snapshot && Array.isArray(selectedPreparedData.candidates)
+    ? selectedPreparedData
+    : null;
+  const selectedPreparedInvalidResponse = selectedPreparedId !== null && !selectedPreparedQuery.isFetching &&
+    !selectedPreparedQuery.isError && selectedPreparedData !== undefined && selectedPreparedFull === null;
+  const selectedPreparedLoading = selectedPreparedId !== null && !selectedPreparedQuery.isError &&
+    !selectedPreparedInvalidResponse && (selectedPreparedQuery.isFetching || selectedPreparedFull === null);
+  const selectedPreparedFailed = selectedPreparedId !== null &&
+    (selectedPreparedQuery.isError || selectedPreparedInvalidResponse);
   const [loading, setLoading] = useState(true);
-  const [replay, setReplay] = useState<Row | null>(null);
   const [step, setStep] = useState<Step>("configure");
   const [cachedPolicyAllocationId] = useState<number | null>(() => {
     try {
@@ -158,35 +186,25 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
     } catch { return null; }
   });
   const initialPolicySync = useRef(true);
-  const replayValidation = useReplayValidationRun();
   const historyInspectionActive = inspectRunId !== null && inspectRunId !== undefined ||
     inspectedJobId !== null && inspectedJobId !== undefined;
   const viewedRunId = viewedValidationRunId({ inspectRunId, inspectedJobId, inspectedJob, selectedRunId });
   const currentViewedRunIdRef = useRef(viewedRunId);
-  const replayGenerationRef = useRef(0);
   const selectionGenerationRef = useRef(0);
   const historyInspectionActiveRef = useRef(historyInspectionActive);
   useLayoutEffect(() => {
     historyInspectionActiveRef.current = historyInspectionActive;
     if (currentViewedRunIdRef.current !== viewedRunId) {
       currentViewedRunIdRef.current = viewedRunId;
-      replayGenerationRef.current += 1;
     }
   }, [historyInspectionActive, viewedRunId]);
 
   const refresh = useCallback(async () => {
     setError(null);
     try {
-      // The full B1 history contains immutable CSV snapshots. B3's picker only
-      // needs IDs and representations; transferring every snapshot can stall it.
-      const [inputsResponse, runsResponse] = await Promise.all([
-        fetch("/api/prepared-inputs?summary=1"),
-        fetch("/api/validation-runs?source=b3&summary=1"),
-      ]);
-      if (!inputsResponse.ok) throw new Error(`Saved preparation summaries could not be loaded (${inputsResponse.status}).`);
+      const runsResponse = await fetch("/api/validation-runs?source=b3&summary=1");
       if (!runsResponse.ok) throw new Error(`Saved B3 summaries could not be loaded (${runsResponse.status}).`);
-      const [inputs, runs]: [unknown, unknown] = await Promise.all([inputsResponse.json(), runsResponse.json()]);
-      setPrepared(list(inputs, "preparedInputs"));
+      const runs: unknown = await runsResponse.json();
       setSaved(list(runs, "validationRuns"));
     } catch (err) { setError(err instanceof Error ? err.message : "Saved B3 records could not be loaded."); }
     finally { setLoading(false); }
@@ -291,7 +309,6 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
     let fetching = false;
     let retryWhenSettled = false;
     setRun(null);
-    setReplay(null);
     setError(null);
     const loadSelectedRun = async () => {
       if (!active) return;
@@ -335,7 +352,6 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
       setSelectedRunId(job.validationRunId!);
       if (!historyInspectionActiveRef.current) {
         setRun(null);
-        setReplay(null);
       }
       if (!historyInspectionActiveRef.current) setStep("results");
     });
@@ -348,7 +364,6 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
     onRunningChange?.(validationJob.active);
     return () => onRunningChange?.(false);
   }, [onRunningChange, validationJob.active]);
-
   const policyRecord = record(policy?.allocation ?? policy);
   const policyReady = loadedPolicyMatches(allocationId, idOf(policyRecord, "allocationId"));
   const policyRequest = record(policyRecord.request);
@@ -360,7 +375,28 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
   const policyRepresentation = policyRequest.representation ?? policyResult.representation ?? policyRecord.representation;
   const policyRepresentationLabel = text(policyRepresentation);
   const sourceId = idOf(policyRequest.preparedInputId ? { id: policyRequest.preparedInputId } : {}, "id");
-  const compatibleInputs = prepared.filter(item => preparedRepresentation(item) === policyRepresentation);
+  const preparedItems = (preparedInputsQuery.data ?? []) as PreparedInputSummary[];
+  const compatibleInputs = preparedItems.filter(item => preparedRepresentation(item) === policyRepresentation);
+  const selectedPreparedRepresentation = selectedPreparedFull ? preparedRepresentation(selectedPreparedFull) : null;
+  const selectedPreparedStatus = selectedPreparedFull?.status;
+  const selectedPreparedCandidates = selectedPreparedFull ? rows(selectedPreparedFull.candidates) : [];
+  const selectedPreparedSourceReady = selectedPreparedFull !== null &&
+    selectedPreparedRepresentation === policyRepresentation && selectedPreparedStatus === "READY";
+
+  const latestValidateRef = useRef<() => void>(() => undefined);
+  latestValidateRef.current = () => { void validate(); };
+  const stableValidateRun = useCallback(() => latestValidateRef.current(), []);
+  const validateBusy = validationJob.active || validationJob.submitting;
+  const validateAction = useMemo<RunAction>(() => ({
+    run: stableValidateRun,
+    disabled: historyInspectionActive || !allocationId || !policyReady || !selectedPreparedSourceReady || validateBusy,
+    busy: validateBusy,
+  }), [stableValidateRun, historyInspectionActive, allocationId, policyReady, selectedPreparedSourceReady, validateBusy]);
+  const validateCallbackRef = useRef(onValidateActionChange);
+  validateCallbackRef.current = onValidateActionChange;
+  useEffect(() => {
+    return registerRunAction(() => validateCallbackRef.current, validateAction);
+  }, [validateAction]);
 
   async function validate() {
     setError(null);
@@ -369,6 +405,22 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
     if (!policyReady) { setError("Wait until the selected frozen B2 policy has been retrieved before validating."); setStep("configure"); return; }
     if (policyResult.status && policyResult.status !== "SOLVED") { setError("Only a solved B2 allocation policy can be validated."); setStep("configure"); return; }
     if (!preparedId) { setError("Choose an explicit frozen B1 validation preparation. No latest dataset is substituted."); setStep("configure"); return; }
+    if (selectedPreparedId === null) { setError("Choose a valid saved B1 preparation ID."); setStep("configure"); return; }
+    if (selectedPreparedLoading) { setError("Wait until the full saved B1 record has loaded before validating."); setStep("configure"); return; }
+    if (!selectedPreparedFull) {
+      setError(selectedPreparedQuery.error instanceof Error
+        ? `The selected full B1 record could not be loaded: ${selectedPreparedQuery.error.message}`
+        : `The response for saved B1 preparation #${selectedPreparedId} did not match a full saved record.`);
+      setStep("configure"); return;
+    }
+    if (selectedPreparedRepresentation !== policyRepresentation) {
+      setError("The selected full B1 preparation does not match the frozen B2 policy representation.");
+      setStep("configure"); return;
+    }
+    if (selectedPreparedStatus !== "READY") {
+      setError(`The selected full B1 preparation has technical status ${text(selectedPreparedStatus)}; only READY inputs can be validated.`);
+      setStep("configure"); return;
+    }
     if (!start || !end || start > end) { setError("Specify a valid evaluation start and end date."); setStep("configure"); return; }
     const isSigned = policyRequest.allocationMode === "SIGNED_OVERLAY";
     if (![initialNav, initialCash, cost, slippage, yieldDaily].every(Number.isFinite) ||
@@ -387,7 +439,6 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
       holdings = parsed as Record<string, number>;
     } catch { setError(`Initial holdings must be a JSON object of tickers to finite ${isSigned ? "signed" : "nonnegative"} quantities.`); setStep("configure"); return; }
     if (validationJob.active) return;
-    setReplay(null);
     selectionGenerationRef.current += 1;
     setSelectedRunId(null);
     validationJob.start({
@@ -399,26 +450,6 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
         dailyCashYield: yieldDaily, ...(benchmark.trim() ? { benchmarkTicker: benchmark.trim().toUpperCase() } : {}),
       },
     });
-  }
-  async function replayRun() {
-    const replayRunId = viewedRunId;
-    if (!replayRunId || currentViewedRunIdRef.current !== replayRunId) return;
-    const requestGeneration = ++replayGenerationRef.current;
-    const isCurrent = () => isCurrentViewRequest({
-      requestedView: String(replayRunId),
-      currentView: String(currentViewedRunIdRef.current ?? ""),
-      requestGeneration,
-      currentGeneration: replayGenerationRef.current,
-    });
-    setError(null); setBusy(true);
-    try {
-      const response = await replayValidation.mutateAsync({ validationRunId: replayRunId });
-      if (isCurrent()) setReplay(record(response));
-    } catch (err) {
-      if (isCurrent()) setError(err instanceof Error ? err.message : "Replay failed.");
-    } finally {
-      setBusy(false);
-    }
   }
   const output = getResult(run ?? {});
   const summary = record(output.summary ?? output.metrics);
@@ -536,18 +567,25 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
   return <section className="space-y-5" aria-label="B3 historical validation">
     <Card className="border-primary/20"><CardHeader className="pb-3">
       <div className="flex flex-wrap items-start justify-between gap-3"><div><CardTitle className="text-base">B3 · Historical policy validation</CardTitle>
-        <CardDescription className="mt-1">Fixed policy, rolling point-in-time estimates, one executed underlying asset book. Today's B2 weights are not replayed historically.</CardDescription></div>
+        <CardDescription className="mt-1">Fixed policy, rolling point-in-time estimates, one executed underlying asset book. Today's B2 weights are not used for historical execution.</CardDescription></div>
          <Badge variant="outline">{historyInspectionActive ? run ? `Inspecting Validation #${viewedRunId} · B2 allocation #${activeRunAllocationId ?? "unavailable"} · ${getRepresentation(run)}` : inspectRunId !== null && inspectRunId !== undefined ? `Retrieving saved Validation #${inspectRunId}` : `Inspected job ${inspectedJobId}` : step === "configure" ? `Working B2 allocation #${allocationId ?? "not selected"} · ${policyRepresentationLabel}` : run ? `Validation #${run.validationRunId ?? viewedRunId} · B2 allocation #${activeRunAllocationId ?? "unavailable"} · ${getRepresentation(run)}` : `B2 allocation #${allocationId ?? "not selected"}`}</Badge></div>
       <div className="flex items-center gap-1 border-t pt-3 text-xs">{(["configure", "results", "diagnostics"] as const).map((s, i) =>
         <Button key={s} size="sm" variant={step === s ? "default" : "ghost"} onClick={() => setStep(s)} data-testid={`button-b3-step-${s}`}>{i + 1} · {s === "configure" ? "Configure → Validate" : s === "results" ? "Results" : "Diagnostics"}</Button>)}</div>
     </CardHeader></Card>
-    {error && <Alert variant="destructive" data-testid="status-b3-error"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
+     {(error || preparedInputsQuery.isError || selectedPreparedFailed) && <Alert variant="destructive" data-testid="status-b3-error">
+       <AlertCircle className="h-4 w-4" />
+       <AlertDescription>{error ?? (selectedPreparedFailed
+         ? selectedPreparedQuery.error instanceof Error
+           ? `Full saved B1 preparation #${selectedPreparedId} could not be loaded: ${selectedPreparedQuery.error.message}`
+           : `The detail response for saved B1 preparation #${selectedPreparedId} did not match a full saved record.`
+         : `Saved B1 metadata could not be loaded: ${preparedInputsQuery.error instanceof Error ? preparedInputsQuery.error.message : "API request failed."}`)}</AlertDescription>
+     </Alert>}
     {historyInspectionActive ? inspectedJobId && !viewedJob
       ? <p role="status" className="rounded border bg-muted/20 p-3 text-xs">Retrieving selected saved validation job…</p>
       : <ValidationJobStatus job={viewedJob} active={false} submitting={false} reconnecting={false} seconds={0} submissionError={null} />
       : <ValidationJobStatus job={validationJob.job} active={validationJob.active} submitting={validationJob.submitting} reconnecting={validationJob.reconnecting} seconds={validationJob.seconds} submissionError={validationJob.submissionError} />}
     {historyInspectionActive && viewedJob && !viewedJob.validationRunId && <p className="rounded border bg-muted/20 p-3 text-xs">The selected historical job has no linked Validation Run yet. Its status is shown above; no other completed run is substituted.</p>}
-    {loading && <div className="h-24 animate-pulse rounded border bg-muted/50" aria-label="Loading saved validation records" />}
+     {(loading || preparedInputsQuery.isLoading) && <div className="h-24 animate-pulse rounded border bg-muted/50" aria-label="Loading saved validation records" />}
     {run && <PortfolioResultOverview
       title="Portfolio validation"
       runId={viewedRunId}
@@ -567,7 +605,6 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
         { label: "Turnover", value: summaryItems[6].value, detail: summaryItems[6].note },
         { label: "Frozen turnover settings", value: `λR ${pmValue(runRebalance.lambdaR)}`, detail: `Notional preference ${pmValue(runCostAware.turnoverPreferenceBps)} bps` },
         { label: "Ledger reconciliation", value: text(run.reconciliationStatus), detail: text(record(output.diagnostics).status ?? output.accountingStatus ?? "See ledger diagnostics") },
-        { label: "Replay", value: replay ? `Replay ${text(replay.status).toUpperCase()}` : replayAvailability({ domain: "b3", status: runOutcome }), detail: "Only the explicit Replay action requests a comparison" },
         { label: "Frozen forecast", value: pmValue(runForecast.type), detail: `B2 allocation #${activeRunAllocationId ?? "unavailable"}` },
       ]}
     />}
@@ -585,7 +622,21 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
             <p className="mt-2 border-t pt-2" data-testid="b3-frozen-cost-policy">Frozen B2 method: <strong>{policyRequest.costAware ? "Legacy cost-aware absolute-cost optimization" : record(policyRequest.rebalanceRegularization).lambdaR !== undefined ? Number(record(policyRequest.rebalanceRegularization).lambdaR) > 0 ? "Rebalance regularization" : "No B2 trading preference" : "Turnover settings not recorded"}</strong>{policyRequest.costAware ? ` · fee ${text(record(policyRequest.costAware).transactionCostBps)} bps · slippage ${text(record(policyRequest.costAware).slippageBps)} bps · h ${text(record(policyRequest.costAware).costAmortizationDays)} days · preference ${text(record(policyRequest.costAware).turnoverPreferenceBps ?? "Not recorded")} bps (not charged)` : Number(record(policyRequest.rebalanceRegularization).lambdaR) > 0 ? ` · λR ${text(record(policyRequest.rebalanceRegularization).lambdaR)} daily objective units · no estimated execution fees` : ""}. Frozen B2 snapshot: {json(record(policyRequest.costAware ?? policyRequest.rebalanceRegularization).holdings)}. B3 starts from its own explicit historical holdings, not B2 targets.</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-1"><Label htmlFor="b3-prepared">Frozen validation B1 preparation</Label><select id="b3-prepared" className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={preparedId} onChange={e => setPreparedId(e.target.value)} data-testid="select-b3-prepared"><option value="">Select explicitly</option>{compatibleInputs.map(item => { const id = preparedInputIdOf(item); return id ? <option key={id} value={id}>#{id} · {text(preparedRepresentation(item))} · {text(item.createdAt)}</option> : null; })}</select></div>
+          <div className="space-y-1"><Label htmlFor="b3-prepared">Frozen validation B1 preparation</Label><select id="b3-prepared" className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={preparedId} onChange={e => setPreparedId(e.target.value)} data-testid="select-b3-prepared"><option value="">Select explicitly</option>{compatibleInputs.map(item => { const id = preparedInputIdOf(item); const candidateCount = item.candidateCount === null ? "candidate count unavailable" : `${item.candidateCount} candidates`; return id ? <option key={id} value={id}>#{id} · {text(preparedRepresentation(item))} · {candidateCount} · {item.technicalStatus ?? "status unavailable"} · {text(item.createdAt)}</option> : null; })}</select>
+            {selectedPreparedLoading && <p className="text-xs text-muted-foreground" role="status" data-testid="status-b3-prepared-loading">Fetching full B1 preparation #{selectedPreparedId}…</p>}
+            {selectedPreparedFull && (
+              <div className="rounded border bg-muted/20 p-2 text-xs" data-testid="status-b3-prepared-full">
+                <p>Full B1 #{selectedPreparedId} · {text(selectedPreparedRepresentation)} · technical status {text(selectedPreparedStatus)} · {selectedPreparedCandidates.length} candidates · cutoff {text(record(record(selectedPreparedFull.snapshot).request).cutoffDate)}</p>
+                {selectedPreparedCandidates.length > 0
+                  ? <details className="mt-1"><summary className="cursor-pointer">Inspect full-record candidate definitions and IDs</summary><ul className="mt-1 space-y-1">{selectedPreparedCandidates.map((candidate, index) => <li key={`${text(candidate.candidateId)}-${index}`}>
+                    {text(candidate.name)} · ID {text(candidate.candidateId)} · {text(candidate.status)}
+                    {candidate.factorId !== undefined ? ` · factor ${text(candidate.factorId)}` : ""}
+                    {candidate.mapping !== undefined ? ` · mapping ${text(candidate.mapping)}` : ""}
+                  </li>)}</ul></details>
+                  : <p className="mt-1 text-muted-foreground">The full saved record contains no candidate outputs.</p>}
+              </div>
+            )}
+          </div>
           <div className="space-y-1"><Label htmlFor="b3-start">Evaluation start</Label><Input id="b3-start" type="date" value={start} onChange={e => setStart(e.target.value)} data-testid="input-b3-start" /></div>
           <div className="space-y-1"><Label htmlFor="b3-end">Evaluation end</Label><Input id="b3-end" type="date" value={end} onChange={e => setEnd(e.target.value)} data-testid="input-b3-end" /></div>
           <div className="space-y-1"><Label htmlFor="b3-calendar">Decision calendar</Label><select id="b3-calendar" className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={calendar} onChange={e => setCalendar(e.target.value as typeof calendar)} data-testid="select-b3-calendar"><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option></select></div>
@@ -593,23 +644,26 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
           <div className="space-y-1"><Label htmlFor="b3-benchmark">Benchmark ticker (optional)</Label><Input id="b3-benchmark" value={benchmark} onChange={e => setBenchmark(e.target.value)} placeholder="Ticker" data-testid="input-b3-benchmark" /></div>
           <div className="space-y-1"><Label htmlFor="b3-nav">Initial NAV</Label><Input id="b3-nav" type="number" min="0.01" step="any" value={initialNav} onChange={e => setInitialNav(Number(e.target.value))} data-testid="input-b3-nav" /></div>
           <div className="space-y-1"><Label htmlFor="b3-cash">Initial cash</Label><Input id="b3-cash" type="number" min={signedPolicy ? undefined : "0"} step="any" value={initialCash} onChange={e => setInitialCash(Number(e.target.value))} data-testid="input-b3-cash" /></div>
-          <div className="space-y-1"><Label htmlFor="b3-holdings">Initial holdings (ticker → quantity JSON)</Label><Input id="b3-holdings" value={holdingsText} onChange={e => setHoldingsText(e.target.value)} data-testid="input-b3-holdings" /></div>
+          <details className="rounded border p-3 sm:col-span-2"><summary className="cursor-pointer text-xs font-semibold">Advanced · historical initial holdings JSON</summary>
+            <div className="mt-3 space-y-1"><Label htmlFor="b3-holdings">B3 historical execution holdings (ticker → quantity JSON)</Label><Input id="b3-holdings" value={holdingsText} onChange={e => setHoldingsText(e.target.value)} data-testid="input-b3-holdings" />
+              <p className="text-[11px] text-muted-foreground">This is the historical execution book only; B2 starting-portfolio/reference choices are never injected here.</p>
+            </div>
+          </details>
           <div className="space-y-1"><Label htmlFor="b3-cost">Transaction cost (bps)</Label><Input id="b3-cost" type="number" min="0" step="any" value={cost} onChange={e => setCost(Number(e.target.value))} data-testid="input-b3-cost" /></div>
           <div className="space-y-1"><Label htmlFor="b3-slippage">Slippage (bps)</Label><Input id="b3-slippage" type="number" min="0" step="any" value={slippage} onChange={e => setSlippage(Number(e.target.value))} data-testid="input-b3-slippage" /></div>
           <div className="space-y-1"><Label htmlFor="b3-yield">Daily cash yield (decimal)</Label><Input id="b3-yield" type="number" step="any" value={yieldDaily} onChange={e => setYieldDaily(Number(e.target.value))} data-testid="input-b3-yield" /></div>
         </div>
-        {!compatibleInputs.length && !loading && <p className="text-xs text-amber-700">No saved preparation of this representation is available. Prepare and save one in Optimization Inputs, then refresh this list.</p>}
+         {!compatibleInputs.length && !loading && !preparedInputsQuery.isLoading && !preparedInputsQuery.isFetching && <p className="text-xs text-amber-700">No saved preparation of this representation is available. Prepare and save one in Optimization Inputs, then refresh this list.</p>}
         <p className="text-xs text-muted-foreground">Validation uses the working selected B2 policy and explicitly frozen B1 preparation above. Inspecting a saved Validation Run does not replace either working input.</p>
         {historyInspectionActive && <p role="status" className="text-xs text-muted-foreground">Validation is disabled while a saved record is pinned. Return to the working draft before starting a new Validation Run.</p>}
-        <div className="flex flex-wrap gap-2 border-t pt-4"><Button size="sm" onClick={() => void validate()} disabled={busy || validationJob.active || !policyReady || historyInspectionActive} data-testid="button-run-b3-validation" title="Submits a new immutable Validation Run job"><FlaskConical className="mr-2 h-4 w-4" />{validationJob.active ? "Validation job running…" : busy ? "Validating…" : !policyReady && allocationId ? "Retrieving frozen policy…" : "Validate"}</Button><Button size="sm" variant="outline" onClick={() => void refresh()} disabled={busy} data-testid="button-refresh-b3"><RefreshCw className="mr-2 h-3.5 w-3.5" />Refresh saved inputs & runs</Button></div>
+        <div className="flex flex-wrap gap-2 border-t pt-4">{!onValidateActionChange && <Button size="sm" onClick={stableValidateRun} disabled={validateAction.disabled} data-testid="button-run-b3-validation" title="Submits a new immutable Validation Run job"><FlaskConical className="mr-2 h-4 w-4" />{validationJob.active ? "Validation job running…" : validationJob.submitting ? "Submitting validation…" : !policyReady && allocationId ? "Retrieving frozen policy…" : selectedPreparedLoading ? "Retrieving full B1 preparation…" : "Validate"}</Button>}<Button size="sm" variant="outline" onClick={() => { void refresh(); void preparedInputsQuery.refetch(); }} disabled={loading || preparedInputsQuery.isFetching || validateBusy} data-testid="button-refresh-b3"><RefreshCw className="mr-2 h-3.5 w-3.5" />Refresh saved inputs & runs</Button></div>
       </CardContent></Card>}
     <Card><CardHeader className="pb-3"><CardTitle className="text-sm">Saved B3 validation runs</CardTitle><CardDescription>Persistent results can be retrieved by ID after reload, independent of the current working data.</CardDescription></CardHeader>
       <CardContent className="flex flex-wrap gap-3 items-end">
-        <div className="space-y-1"><Label htmlFor="b3-saved">Inspect saved run</Label><select id="b3-saved" disabled={historyInspectionActive || busy} className="h-9 min-w-56 rounded-md border bg-background px-2 text-sm" value={viewedRunId ?? ""} onChange={e => {
+        <div className="space-y-1"><Label htmlFor="b3-saved">Inspect saved run</Label><select id="b3-saved" disabled={historyInspectionActive || validateBusy} className="h-9 min-w-56 rounded-md border bg-background px-2 text-sm" value={viewedRunId ?? ""} onChange={e => {
           if (historyInspectionActive) return;
           const nextId = e.target.value ? Number(e.target.value) : null;
           selectionGenerationRef.current += 1;
-          replayGenerationRef.current += 1;
           currentViewedRunIdRef.current = nextId;
           setSelectedRunId(nextId);
         }} data-testid="select-b3-saved"><option value="">Select run</option>{saved.map(item => { const id = idOf(item, "validationRunId"); return id ? <option key={id} value={id}>#{id} · allocation #{text(item.allocationId)} · {text(item.reconciliationStatus ?? item.status)} · {text(item.validatedAt ?? item.createdAt)}</option> : null; })}</select>
@@ -623,15 +677,13 @@ export function B3ValidationPanel({ allocationId, runToken, onRunningChange, ins
       <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-primary/20 bg-primary/5 px-4 py-3 text-xs" data-testid="status-b3-run">
         <div><strong>Validation #{text(run.validationRunId ?? viewedRunId)}</strong> · {status} · {text(a.evaluationStartDate)} → {text(a.evaluationEndDate)} · {getRepresentation(run)}
           <p className="mt-1 text-muted-foreground">{isSuccessful ? "Historical simulation completed; accounting checks passed. This does not prove alpha efficacy or independent out-of-sample profitability." : `Run is not marked complete${output.failureDate ? `; failure at ${text(output.failureDate)}` : ""}. ${text(output.reason ?? output.diagnostic ?? "A partial diagnostic ledger is not a successful full-period backtest.")}`}</p></div>
-        <Button size="sm" variant="outline" onClick={() => void replayRun()} disabled={busy} data-testid="button-replay-b3"><RotateCcw className="mr-2 h-3.5 w-3.5" />Replay frozen run</Button>
       </div>
-      {replay && <div className="rounded border p-3 text-xs" data-testid="status-b3-replay"><strong>Replay {text(replay.status).toUpperCase()}</strong><p className="mt-1">{Array.isArray(replay.differences) ? `${replay.differences.length} differing fields` : "Difference count unavailable"} · maximum numeric difference {text(replay.maximumNumericDifference)}</p><details className="mt-2"><summary className="cursor-pointer">Full replay diagnostics</summary><pre className="mt-2 overflow-auto whitespace-pre-wrap">{json(replay)}</pre></details></div>}
       <details className="rounded border p-3" data-testid="details-b3-frozen-diagnostics">
-        <summary className="cursor-pointer text-sm font-semibold">Inspect historical forecast, risk, robustness, turnover, ledger and replay diagnostics</summary>
+        <summary className="cursor-pointer text-sm font-semibold">Inspect historical forecast, risk, robustness, turnover and ledger diagnostics</summary>
         <div className="mt-4 space-y-5">
       <CostAwareValidationResult policyRequest={runPolicyRequest} run={run} />
       <RebalanceValidationResult policyRequest={runPolicyRequest} run={run} />
-      <RobustnessPanel result={record(runPolicy.result ?? runPolicy)} request={runPolicyRequest} replay={replay} compact />
+      <RobustnessPanel result={record(runPolicy.result ?? runPolicy)} request={runPolicyRequest} compact />
       <Card data-testid="card-b3-robustness-path"><CardHeader className="pb-3"><CardTitle className="text-sm">Historical robustness path</CardTitle><CardDescription>Frozen method {pmValue(runRobustness.method)} · κ {pmValue(runRobustness.kappa)}. Each date uses only its own available forecast and risk estimate; target distance is not turnover.</CardDescription></CardHeader><CardContent>{!decisions.length ? <p className="text-xs text-muted-foreground">No historical decisions have been saved for this run.</p> : <div className="max-h-64 overflow-auto rounded border"><table className="w-full min-w-[560px] text-left text-xs"><thead className="sticky top-0 bg-muted"><tr><th className="p-2">Decision</th><th className="p-2">Solver</th><th className="p-2">Method · κ</th><th className="p-2">Asset half-L1</th><th className="p-2">Haircut</th></tr></thead><tbody>{decisions.map((decision, index) => { const optimizer = record(decision.optimizer), robust = record(optimizer.robustness), comparison = record(record(robust.diagnostics).comparison); return <tr key={`${text(decision.decisionDate)}-${index}`} className="border-t" data-testid={`row-b3-robustness-${index}`}><td className="p-2">{text(decision.decisionDate)}</td><td className="p-2">{text(optimizer.status ?? decision.solverStatus)}</td><td className="p-2">{pmValue(robust.method ?? runRobustness.method)} · κ {pmValue(robust.kappa ?? runRobustness.kappa)}</td><td className="p-2 font-mono">{metric(comparison.assetWeightHalfL1)}</td><td className="p-2 font-mono">{metric(robust.robustHaircut)}</td></tr>; })}</tbody></table></div>}</CardContent></Card>
       <Card data-testid="b3-d3-forecast-path"><CardHeader className="pb-3"><CardTitle className="text-sm">Frozen D3 forecast path · {pmValue(runForecast.type)}</CardTitle><CardDescription>Each decision shows its own saved forecast, uncertainty and dated-view status. Later edits and terminal-sample views are never substituted.</CardDescription></CardHeader><CardContent className="space-y-3">{!datedForecastRows.length ? <p className="text-xs text-muted-foreground">No historical decisions returned for this saved validation run.</p> : <div className="overflow-auto rounded border"><table className="w-full min-w-[680px] text-left text-xs"><thead className="bg-muted"><tr><th className="p-2">Decision / cutoff</th><th className="p-2">Estimator</th><th className="p-2">Observations</th><th className="p-2">View availability</th><th className="p-2">Frozen state</th></tr></thead><tbody>{datedForecastRows.map(({ decision, forecast }, i) => <tr className="border-t align-top" key={`${text(decision.decisionDate)}-${i}`} data-testid={`row-b3-forecast-${i}`}><td className="p-2">{text(decision.decisionDate)}<br /><span className="text-muted-foreground">{text(decision.informationCutoff)}</span></td><td className="p-2">{pmValue(forecast.estimator ?? runForecast.type)}</td><td className="p-2">{text(forecast.observationCount ?? forecast.T)}</td><td className="p-2">{Array.isArray(forecast.views) ? forecast.views.map((view, j) => { const v = record(view); return <p key={j}>{text(v.type)} · {text(v.availabilityTimestamp)} · {text(v.status ?? "frozen")}</p>; }) : text(forecast.viewStatus ?? (Object.keys(forecast).length ? "No views used" : "Unavailable in saved record"))}</td><td className="p-2"><details><summary className="cursor-pointer">Inspect μ, Vμ, prior and views</summary><pre className="mt-2 max-h-72 max-w-[480px] overflow-auto whitespace-pre-wrap break-words">{json(Object.keys(forecast).length ? forecast : { status: "Forecast snapshot unavailable in this saved decision" })}</pre></details></td></tr>)}</tbody></table></div>}</CardContent></Card>
       {frozenRidge && <Card data-testid="card-b3-ridge-validation"><CardHeader className="pb-3"><CardTitle className="text-sm">Signal Combination — Ridge · validation</CardTitle><CardDescription>Each saved decision uses its own historical training window, fit and available feature vector. Errors below include only forecasts whose forward returns have matured; they are not trade P&amp;L.</CardDescription></CardHeader><CardContent className="space-y-3 text-xs">

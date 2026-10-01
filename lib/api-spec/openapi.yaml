@@ -1758,6 +1758,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/SignalExportError"
 
+  /prepared-input-summaries:
+    get:
+      operationId: listPreparedInputSummaries
+      tags: [prepared-inputs]
+      summary: List compact metadata for saved prepared inputs
+      description: Returns only picker metadata projected from saved rows. Frozen snapshots and candidate histories are returned only by the explicit prepared-input detail endpoint.
+      responses:
+        "200":
+          description: Compact metadata for all immutable prepared input versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PreparedInputSummary" }
+
   /prepared-inputs:
     get:
       operationId: listPreparedInputs
@@ -5485,6 +5500,27 @@ components:
         snapshot: { type: object, additionalProperties: true }
         createdAt: { type: string, format: date-time }
       required: [preparedInputId, representation, status, candidates, snapshot, createdAt]
+
+    PreparedInputSummary:
+      type: object
+      properties:
+        preparedInputId: { type: integer }
+        representation:
+          type: string
+          enum: [asset_returns, signals, alpha_streams]
+        technicalStatus:
+          type: [string, "null"]
+          enum: [READY, INCOMPLETE, INSUFFICIENT_HISTORY, INVALID_DATA, UNSUPPORTED, null]
+        createdAt: { type: string, format: date-time }
+        candidateCount: { type: [integer, "null"], minimum: 0 }
+        coverageStartDate: { type: [string, "null"] }
+        coverageEndDate: { type: [string, "null"] }
+        observationCount: { type: [integer, "null"], minimum: 0 }
+        coverageStatus: { type: [string, "null"] }
+        datasetId: { type: [integer, "null"] }
+        datasetHash: { type: [string, "null"] }
+        cutoffDate: { type: [string, "null"] }
+      required: [preparedInputId, representation, technicalStatus, createdAt, candidateCount, coverageStartDate, coverageEndDate, observationCount, coverageStatus, datasetId, datasetHash, cutoffDate]
 
     PreparedCompositionInput:
       type: object

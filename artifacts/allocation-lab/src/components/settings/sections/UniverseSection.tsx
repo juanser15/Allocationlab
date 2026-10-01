@@ -121,7 +121,7 @@ export function UniverseSection() {
   return (
     <SectionShell
       title="Universe"
-      description="Define which ETFs are eligible for allocation. Disabled ETFs are excluded from every run. Prior-month weights are managed separately under Previous Weights."
+      description="Define which ETFs are eligible for allocation. Disabled ETFs are excluded from every run. The configured starting-weight baseline is managed separately under Starting Portfolio."
       dirty={dirty}
       errors={errors}
       onSave={handleSave}

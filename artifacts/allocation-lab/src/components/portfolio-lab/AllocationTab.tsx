@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useGetOrCreateDecisionLog } from "@workspace/api-client-react";
+import { useListDecisionLogs } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -67,9 +67,8 @@ export function AllocationTab({ result, constraints, hasData, hasRun }: Props) {
   const [etfDrawer, setEtfDrawer] = useState<NonNullable<typeof result>["allocations"][0] | null>(null);
 
   const sessionId = result?.sessionId;
-  const { data: decisionLog } = useGetOrCreateDecisionLog(sessionId ?? 0, {
-    query: { enabled: !!sessionId },
-  } as any);
+  const { data: decisionLogs, isLoading: loadingDecisionLog } = useListDecisionLogs();
+  const decisionLog = decisionLogs?.find(log => log.sessionId === sessionId);
   const tradeList = decisionLog?.content?.tradeList ?? [];
   const activeTrades = tradeList.filter((t: { action: string }) => t.action !== "HOLD");
 
@@ -171,7 +170,7 @@ export function AllocationTab({ result, constraints, hasData, hasRun }: Props) {
                 <p className="text-2xl font-bold text-primary">{pct(etfDrawer.weight)}</p>
               </div>
               <div className="border rounded p-3">
-                <p className="text-[10px] text-muted-foreground">Change vs Prior</p>
+                <p className="text-[10px] text-muted-foreground">Change vs Starting Weight</p>
                 <p className={`text-2xl font-bold ${etfDrawer.change > 0 ? "text-green-600" : etfDrawer.change < 0 ? "text-red-600" : "text-gray-400"}`}>
                   {etfDrawer.change >= 0 ? "+" : ""}{pct(etfDrawer.change)}
                 </p>
@@ -415,7 +414,7 @@ Current: α_momentum = 1.00 (sole computed model)
                 <TableHead className="text-[10px]">Ticker</TableHead>
                 <TableHead className="text-[10px]">Name</TableHead>
                 <TableHead className="text-[10px] text-center">Score</TableHead>
-                <TableHead className="text-[10px] text-right">Prior</TableHead>
+                <TableHead className="text-[10px] text-right">Starting weight</TableHead>
                 <TableHead className="text-[10px] text-right">Target</TableHead>
                 <TableHead className="text-[10px] text-right">Δ</TableHead>
                 <TableHead className="text-[10px] text-center">Risk Contrib.</TableHead>
@@ -482,7 +481,13 @@ Current: α_momentum = 1.00 (sole computed model)
           <CardDescription>Execution list implied by this rebalance. Committee approval in Investment Committee.</CardDescription>
         </CardHeader>
         <CardContent>
-          {activeTrades.length === 0 ? (
+          {loadingDecisionLog ? (
+            <p className="text-xs text-muted-foreground py-3">Loading the saved decision-log trade list…</p>
+          ) : !decisionLog ? (
+            <p className="text-xs text-muted-foreground py-3">
+              No saved trade list exists yet. <Link href="/investment-committee" className="underline">Start review in Investment Committee</Link> to create a decision draft explicitly.
+            </p>
+          ) : activeTrades.length === 0 ? (
             <p className="text-xs text-muted-foreground py-3">No active trades — run a rebalance to generate the trade list.</p>
           ) : (
             <Table>
