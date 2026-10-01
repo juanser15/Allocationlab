@@ -20,6 +20,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DetailDrawer } from "@/components/shared/DetailDrawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AlphaStreamDraftBuilder, type AlphaBuilderInput } from "./AlphaStreamDraftBuilder";
+import { previewAlphaDraft, type AlphaDefinition, type AlphaMapping } from "./alpha-stream-draft";
 import { AlertCircle, Loader2, Plus, RefreshCw, Save, X } from "lucide-react";
 import {
   filterSelectionOptions,
@@ -32,23 +34,6 @@ import {
 } from "./prepared-input-selection";
 
 type Representation = typeof PREPARED_REPRESENTATIONS[number]["value"];
-type Mapping = "single_asset_long_cash" | "cross_sectional_long_only";
-type SignalUnits = "raw" | "oriented" | "normalized";
-type AlphaDefinition = {
-  name: string;
-  factorId: string;
-  assetTickers: string[];
-  mapping: Mapping;
-  signalUnits: SignalUnits;
-  threshold: number;
-  grossFraction: number;
-  rebalanceFrequency: "monthly" | "quarterly";
-  executionTiming: "next_close" | "same_close";
-  transactionCostBps: number;
-  slippageBps: number;
-  cashYieldAnnual: number;
-};
-
 type ApiItem = Record<string, any>;
 export type B2PreparedSelection = {
   preparedInputId: number;
@@ -289,6 +274,7 @@ export function PreparedInputsPanel({ b2Mode = false, onB2ModeChange, onPrepared
   const [assetTickers, setAssetTickers] = useState<string[]>([]);
   const [factorIds, setFactorIds] = useState<string[]>([]);
   const [alphaDefinitions, setAlphaDefinitions] = useState<AlphaDefinition[]>([]);
+  const [manualEditorOpen, setManualEditorOpen] = useState(false);
   const [cutoffDate, setCutoffDate] = useState("");
   const [activeItem, setActiveItem] = useState<ApiItem | null>(null);
   const [detailItem, setDetailItem] = useState<ApiItem | null>(null);
@@ -378,6 +364,10 @@ export function PreparedInputsPanel({ b2Mode = false, onB2ModeChange, onPrepared
 
   const updateAlpha = (index: number, patch: Partial<AlphaDefinition>) => {
     setAlphaDefinitions(items => items.map((item, i) => i === index ? { ...item, ...patch } : item));
+  };
+
+  const createAlphaDrafts = (input: AlphaBuilderInput) => {
+    setAlphaDefinitions(existing => [...existing, ...previewAlphaDraft(input, existing).additions]);
   };
 
   const handlePrepare = async () => {
@@ -567,6 +557,17 @@ export function PreparedInputsPanel({ b2Mode = false, onB2ModeChange, onPrepared
                 </div>
               ) : (
                 <div className="space-y-3">
+                  <AlphaStreamDraftBuilder
+                    assetTickers={assetTickers}
+                    factorIds={factorIds}
+                    factors={factors}
+                    existing={alphaDefinitions}
+                    onCreate={createAlphaDrafts}
+                  />
+                  <p className="text-xs font-medium" data-testid="text-alpha-draft-count">{alphaDefinitions.length} alpha-stream draft definition{alphaDefinitions.length === 1 ? "" : "s"}</p>
+                  <details className="rounded border p-2" data-testid="details-alpha-manual-editor" open={manualEditorOpen} onToggle={event => setManualEditorOpen(event.currentTarget.open)}>
+                  <summary className="cursor-pointer text-xs font-medium">Advanced · manual one-by-one editor</summary>
+                  {manualEditorOpen && <div className="mt-2 space-y-3">
                   {alphaDefinitions.map((alpha, index) => (
                     <div key={index} className="space-y-3 rounded border p-3" data-testid={`card-alpha-definition-${index}`}>
                       <div className="flex items-center justify-between gap-2">
@@ -583,14 +584,14 @@ export function PreparedInputsPanel({ b2Mode = false, onB2ModeChange, onPrepared
                         </div>
                         <div className="space-y-1">
                           <Label>Position mapping</Label>
-                          <select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={alpha.mapping} onChange={event => updateAlpha(index, { mapping: event.target.value as Mapping })} data-testid={`select-alpha-mapping-${index}`}>
+                          <select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={alpha.mapping} onChange={event => updateAlpha(index, { mapping: event.target.value as AlphaMapping })} data-testid={`select-alpha-mapping-${index}`}>
                             <option value="single_asset_long_cash">Single-asset long / cash</option>
                             <option value="cross_sectional_long_only">Cross-sectional long-only</option>
                           </select>
                         </div>
                         <div className="space-y-1">
                           <Label>Signal units</Label>
-                          <select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={alpha.signalUnits} onChange={event => updateAlpha(index, { signalUnits: event.target.value as SignalUnits })} data-testid={`select-alpha-units-${index}`}>
+                          <select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={alpha.signalUnits} onChange={event => updateAlpha(index, { signalUnits: event.target.value as AlphaDefinition["signalUnits"] })} data-testid={`select-alpha-units-${index}`}>
                             <option value="raw">Raw</option><option value="oriented">Oriented</option><option value="normalized">Normalized</option>
                           </select>
                         </div>
@@ -620,6 +621,8 @@ export function PreparedInputsPanel({ b2Mode = false, onB2ModeChange, onPrepared
                     <Plus className="mr-1.5 h-3.5 w-3.5" /> Add candidate
                   </Button>
                   {!alphaDefinitions.length && <p className="text-xs text-muted-foreground">No candidate definitions selected. Add a definition to prepare alpha streams.</p>}
+                  </div>}
+                  </details>
                 </div>
               )}
             </div>
