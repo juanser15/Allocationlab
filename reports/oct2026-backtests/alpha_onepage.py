@@ -1,4 +1,4 @@
-"""One-page Alpha Streams allocation and model attribution from frozen B2."""
+"""One-page manual allocation adjustment, preserving the original frozen B2."""
 import json
 import math
 from pathlib import Path
@@ -35,6 +35,22 @@ audit = {
     "dailyContributionStandardErrors": se, "varianceContributions": variance_parts,
     "varianceShares": risk_share, "informationCutoff": m["informationCutoff"],
     "mappingSignalDate": "2026-09-01",
+}
+holdings = sorted([(k, v) for k, v in r["assetWeights"].items() if v > 1e-10],
+                  key=lambda x: x[1], reverse=True)
+top = holdings[:6]
+moved_to_cash = sum(value for _, value in holdings[6:])
+cash = r["totalCash"] + moved_to_cash
+invested = sum(value for _, value in top)
+assert math.isclose(invested + cash, 1, abs_tol=1e-8)
+audit["manualAdjustment"] = {
+    "type": "move_other_etfs_to_cash",
+    "assetWeights": dict(top),
+    "cash": cash,
+    "movedToCash": moved_to_cash,
+    "removedAssetWeights": dict(holdings[6:]),
+    "reoptimized": False,
+    "executed": False,
 }
 (ROOT / "alpha-onepage-data.json").write_text(json.dumps(audit, indent=2))
 
@@ -75,42 +91,40 @@ def percent(v):
 rect(0, 0, W, 9, NAVY)
 text(42, 34, "ALLOCATION LAB  /  OCTUBRE 2026", 8, MUTED, True)
 text(42, 65, "Alpha Streams", 29, NAVY, True)
-text(42, 86, "Asignación de capital · versión reducida de 2 alphas", 11, MUTED)
+text(42, 86, "Asignación ajustada · 6 ETFs y efectivo", 11, MUTED)
 rect(42, 103, W-84, 33, "#F0F4F8")
 text(52, 117, "Decisión 01/10/2026 · datos al 30/09 · mapas de señales del 01/09", 8)
-text(52, 129, "Pesos objetivo del modelo · asignación no ejecutada.", 7.5)
+text(52, 129, "Ajuste manual sobre B2 · sin reoptimizar ni ejecutar operaciones.", 7.5)
 
 for x, value, caption in [
-    (42, percent(sum(w)), "Capital asignado a streams"),
+    (42, percent(invested), "Capital asignado a ETFs"),
     (214, percent(cash), "Efectivo"),
-    (391, str(len(w)), "Alpha streams"),
+    (391, str(len(top)), "ETFs seleccionados"),
 ]:
     text(x, 192, value, 25, NAVY, True)
     text(x, 214, caption, 8, MUTED)
 line(42, 244, W-42, 244)
 
-text(42, 278, "Asignación por stream", 12, NAVY, True)
+text(42, 278, "Asignación de capital", 12, NAVY, True)
 text(330, 278, "Exposición a ETFs", 12, NAVY, True)
 cx, cy, radius = 168, H-427, 113
 start = 90
-for value, color in zip(w+[cash], PALETTE):
+for value, color in zip([invested, cash], [PALETTE[0], PALETTE[2]]):
     c.setFillColor(colors.HexColor(color))
     c.setStrokeColor(colors.white)
     c.setLineWidth(1.5)
     c.wedge(cx-radius, cy-radius, cx+radius, cy+radius,
             startAng=start, extent=-360*value, fill=1, stroke=1)
     start -= 360*value
-for i, (label, value, color) in enumerate(zip(labels+["Efectivo"], w+[cash], PALETTE)):
+for i, (label, value, color) in enumerate(zip(
+    ["ETFs seleccionados", "Efectivo"], [invested, cash], [PALETTE[0], PALETTE[2]]
+)):
     y = 580+i*27
     rect(62, y-7, 8, 8, color)
     text(78, y, label, 9)
     text(280, y, percent(value), 10, INK, True, right=True)
 
-holdings = sorted([(k, v) for k, v in r["assetWeights"].items() if v > 1e-10],
-                  key=lambda x: x[1], reverse=True)
-top = holdings[:6]
-table = top + [(f"Otros {len(holdings)-6} ETFs", sum(v for _, v in holdings[6:])),
-               ("Efectivo", cash)]
+table = top + [("Efectivo", cash), ("Total", invested+cash)]
 for i, (ticker, value) in enumerate(table):
     y = 325 + i*43
     if i % 2 == 0:
