@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { B2PreparedSelection } from "./PreparedInputsPanel";
 import type { D1RiskModelRequest } from "./D1RiskModelPanel";
 import type { ForecastModelConfig, AllocationRebalanceRegularizationConfig } from "@workspace/api-client-react";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
+import { AlertCircle, Loader2, RefreshCw, RotateCcw } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getAllocation, getGetAllocationQueryKey, getGetPreparedInputQueryKey, getListAllocationsQueryKey, useCreateAllocation, useGetAllocation, useGetPreparedInput, useListAllocations, useReplayAllocation } from "@workspace/api-client-react";
 import { SignedOverlayControls, SignedOverlayResult, initialSignedSettings } from "./SignedOverlaySection";
@@ -19,6 +19,9 @@ import { RobustnessPanel } from "./RobustnessPanel";
 import { CostAwareAllocationResult } from "./CostAwarePanel";
 import { RebalanceRegularizationControls, RebalanceAllocationResult, initialRebalanceForm, parseRebalance } from "./RebalanceRegularizationPanel";
 import type { RebalanceForm } from "./RebalanceRegularizationPanel";
+import { PortfolioResultOverview, replayAvailability } from "./PortfolioResultOverview";
+import { allocationSummaryState, isFailedAllocationOutcome, pmValue } from "./portfolio-result-summary";
+import { B2_WORKING_DRAFT_KEY, isCurrentViewRequest, readWorkingDraftValue, writeWorkingDraftValue } from "./portfolio-working-draft";
 
 type Representation = "asset_returns" | "alpha_streams" | "signals";
 type AllocationRequest = {
@@ -58,6 +61,46 @@ type AllocationRequest = {
   };
 };
 type JsonRecord = Record<string, unknown>;
+
+const storedString = (value: unknown): value is string => typeof value === "string";
+const storedNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
+const storedStringArray = (value: unknown): value is string[] => Array.isArray(value) && value.every(item => typeof item === "string");
+const storedObject = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value);
+const storedSignedSettings = (value: unknown): value is SignedSettings => storedObject(value)
+  && storedObject(value.alphaBounds) && typeof value.grossAlphaMax === "string"
+  && typeof value.grossAssetMax === "string" && storedObject(value.assetBounds)
+  && typeof value.assetBoundsText === "string" && storedObject(value.netAssetExposure)
+  && storedObject(value.cash) && Array.isArray(value.groupGrossCaps);
+const storedRebalanceForm = (value: unknown): value is RebalanceForm => storedObject(value)
+  && ["lambdaR", "asOf", "quantities", "cash", "nav"].every(key => typeof value[key] === "string");
+
+function useWorkingDraftField<T>(
+  field: string,
+  fallback: T,
+  isValid: (value: unknown) => value is T,
+  onStorageError: (message: string) => void,
+) {
+  const [value, setValue] = useState(() => {
+    try {
+      return readWorkingDraftValue(
+        typeof window === "undefined" ? null : window.localStorage.getItem(B2_WORKING_DRAFT_KEY),
+        field,
+        fallback,
+        isValid,
+      );
+    } catch { return fallback; }
+  });
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(B2_WORKING_DRAFT_KEY);
+      window.localStorage.setItem(B2_WORKING_DRAFT_KEY, writeWorkingDraftValue(raw, field, value));
+    } catch {
+      onStorageError("The working B2 draft could not be saved locally; keep this tab open to retain the current form.");
+    }
+  }, [field, onStorageError, value]);
+  return [value, setValue] as const;
+}
 
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === "object" && !Array.isArray(value) ? value as JsonRecord : {};
@@ -158,13 +201,18 @@ export function B2AllocationPanel({
   runToken,
   onRunningChange,
   onAllocationSelectionChange,
+  onExitInspection,
   riskModel,
   onCandidateCountChange,
   onEstimationWindowChange,
   onAlignedObservationCountChange,
+  inspectedAllocationId,
 }: {
   prepared: B2PreparedSelection | null;
+  /** Retained for source compatibility. Optimization only starts from its explicit button. */
   runToken: number;
+  inspectedAllocationId?: number | null;
+  onExitInspection?: () => void;
   onRunningChange?: (running: boolean) => void;
   onAllocationSelectionChange?: (id: number | null) => void;
   riskModel: D1RiskModelRequest;
@@ -172,32 +220,57 @@ export function B2AllocationPanel({
   onEstimationWindowChange?: (days: number) => void;
   onAlignedObservationCountChange?: (count: number | null) => void;
 }) {
-  const [candidateIds, setCandidateIds] = useState<string[]>([]);
-  const [informationCutoff, setInformationCutoff] = useState("");
-  const [decisionTimestamp, setDecisionTimestamp] = useState(localDateTime);
-  const [estimationWindow, setEstimationWindow] = useState(252);
-  const [minObservations, setMinObservations] = useState(60);
-  const [forecastModel, setForecastModel] = useState<ForecastModelConfig>({ type: "SAMPLE_MEAN", displayZ: 1.96, shrinkage: 0, shrinkagePrior: { source: "DEFAULT" }, priorMean: { source: "SAMPLE_PRIOR" }, priorUncertainty: { type: "TAU_SIGMA" }, views: [] });
-  const [robustMethod, setRobustMethod] = useState<"NOMINAL" | "ROBUST_MEAN_UNCERTAINTY">("NOMINAL");
-  const [kappaText, setKappaText] = useState("1");
-  const [covarianceDiagonalShrinkage, setCovarianceDiagonalShrinkage] = useState(0);
-  const [dailyCashYield, setDailyCashYield] = useState(0);
-  const [objectiveType, setObjectiveType] = useState<AllocationRequest["objective"]["type"]>("minimum_variance");
-  const [gamma, setGamma] = useState(1);
-  const [eta, setEta] = useState(0);
-  const [cashBoundsText, setCashBoundsText] = useState("{}");
-  const [candidateBoundsText, setCandidateBoundsText] = useState("{}");
-  const [assetBoundsText, setAssetBoundsText] = useState("{}");
-  const [groupCapsText, setGroupCapsText] = useState("[]");
-  const [unsupportedText, setUnsupportedText] = useState("");
-  const [allocationMode, setAllocationMode] = useState<"CAPITAL_LONG_ONLY" | "SIGNED_OVERLAY">("CAPITAL_LONG_ONLY");
-  const [signedSettings, setSignedSettings] = useState<SignedSettings>(initialSignedSettings);
-  const [targetExcessReturn, setTargetExcessReturn] = useState("");
-  const [rebalanceForm, setRebalanceForm] = useState<RebalanceForm>(initialRebalanceForm);
+  const inspectingAllocation = inspectedAllocationId !== null && inspectedAllocationId !== undefined;
+  const [error, setError] = useState<string | null>(null);
+  const reportDraftError = setError;
+  const defaultForecastModel: ForecastModelConfig = { type: "SAMPLE_MEAN", displayZ: 1.96, shrinkage: 0, shrinkagePrior: { source: "DEFAULT" }, priorMean: { source: "SAMPLE_PRIOR" }, priorUncertainty: { type: "TAU_SIGMA" }, views: [] };
+  const preparedDraftScope = prepared?.preparedInputId ?? "none";
+  const [candidateIds, setCandidateIds] = useWorkingDraftField(`candidateIds:${preparedDraftScope}`, prepared?.candidateIds ?? [], storedStringArray, reportDraftError);
+  const [informationCutoff, setInformationCutoff] = useWorkingDraftField(`informationCutoff:${preparedDraftScope}`, prepared?.informationCutoff ?? "", storedString, reportDraftError);
+  const [decisionTimestamp, setDecisionTimestamp] = useWorkingDraftField("decisionTimestamp", localDateTime(), storedString, reportDraftError);
+  const [estimationWindow, setEstimationWindow] = useWorkingDraftField("estimationWindow", 252, storedNumber, reportDraftError);
+  const [minObservations, setMinObservations] = useWorkingDraftField("minObservations", 60, storedNumber, reportDraftError);
+  const [forecastModel, setForecastModel] = useWorkingDraftField("forecastModel", defaultForecastModel, (value): value is ForecastModelConfig => storedObject(value) && typeof value.type === "string", reportDraftError);
+  const [robustMethod, setRobustMethod] = useWorkingDraftField("robustMethod", "NOMINAL" as const, (value): value is "NOMINAL" | "ROBUST_MEAN_UNCERTAINTY" => value === "NOMINAL" || value === "ROBUST_MEAN_UNCERTAINTY", reportDraftError);
+  const [kappaText, setKappaText] = useWorkingDraftField("kappaText", "1", storedString, reportDraftError);
+  const [covarianceDiagonalShrinkage, setCovarianceDiagonalShrinkage] = useWorkingDraftField("covarianceDiagonalShrinkage", 0, storedNumber, reportDraftError);
+  const [dailyCashYield, setDailyCashYield] = useWorkingDraftField("dailyCashYield", 0, storedNumber, reportDraftError);
+  const [objectiveType, setObjectiveType] = useWorkingDraftField("objectiveType", "minimum_variance" as const, (value): value is AllocationRequest["objective"]["type"] => value === "minimum_variance" || value === "regularized_mean_variance", reportDraftError);
+  const [gamma, setGamma] = useWorkingDraftField("gamma", 1, storedNumber, reportDraftError);
+  const [eta, setEta] = useWorkingDraftField("eta", 0, storedNumber, reportDraftError);
+  const [cashBoundsText, setCashBoundsText] = useWorkingDraftField("cashBoundsText", "{}", storedString, reportDraftError);
+  const [candidateBoundsText, setCandidateBoundsText] = useWorkingDraftField("candidateBoundsText", "{}", storedString, reportDraftError);
+  const [assetBoundsText, setAssetBoundsText] = useWorkingDraftField("assetBoundsText", "{}", storedString, reportDraftError);
+  const [groupCapsText, setGroupCapsText] = useWorkingDraftField("groupCapsText", "[]", storedString, reportDraftError);
+  const [unsupportedText, setUnsupportedText] = useWorkingDraftField("unsupportedText", "", storedString, reportDraftError);
+  const [allocationMode, setAllocationMode] = useWorkingDraftField("allocationMode", "CAPITAL_LONG_ONLY" as const, (value): value is "CAPITAL_LONG_ONLY" | "SIGNED_OVERLAY" => value === "CAPITAL_LONG_ONLY" || value === "SIGNED_OVERLAY", reportDraftError);
+  const [signedSettings, setSignedSettings] = useWorkingDraftField("signedSettings", initialSignedSettings, storedSignedSettings, reportDraftError);
+  const [targetExcessReturn, setTargetExcessReturn] = useWorkingDraftField("targetExcessReturn", "", storedString, reportDraftError);
+  const [rebalanceForm, setRebalanceForm] = useWorkingDraftField("rebalanceForm", initialRebalanceForm, storedRebalanceForm, reportDraftError);
   const [result, setResult] = useState<JsonRecord | null>(null);
+  const [inspectedResult, setInspectedResult] = useState<JsonRecord | null>(null);
   const [selectedAllocationId, setSelectedAllocationId] = useState<number | null>(null);
   const [replayStatus, setReplayStatus] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const currentViewIdentity = () => inspectedAllocationId !== null && inspectedAllocationId !== undefined
+    ? `inspected:${inspectedAllocationId}`
+    : selectedAllocationId !== null ? `allocation:${selectedAllocationId}` : "draft";
+  const currentViewRef = useRef(currentViewIdentity());
+  const viewGenerationRef = useRef(0);
+  const replayGenerationRef = useRef(0);
+  const allocationMutationGenerationRef = useRef(0);
+  useEffect(() => () => {
+    viewGenerationRef.current += 1;
+    replayGenerationRef.current += 1;
+    allocationMutationGenerationRef.current += 1;
+  }, []);
+  useLayoutEffect(() => {
+    const nextView = currentViewIdentity();
+    if (nextView !== currentViewRef.current) {
+      currentViewRef.current = nextView;
+      viewGenerationRef.current += 1;
+      replayGenerationRef.current += 1;
+    }
+  }, [inspectedAllocationId, selectedAllocationId]);
   const queryClient = useQueryClient();
   const savedQuery = useListAllocations();
   const detailQuery = useGetAllocation(selectedAllocationId ?? 0, { query: { enabled: selectedAllocationId !== null, queryKey: getGetAllocationQueryKey(selectedAllocationId ?? 0) } });
@@ -212,8 +285,8 @@ export function B2AllocationPanel({
   const saved = savedQuery.data ?? [];
   const loadingSaved = savedQuery.isLoading || savedQuery.isFetching;
   const busy = createMutation.isPending || replayMutation.isPending;
-  const lastRunToken = useRef(0);
   const selectedCandidateSet = new Set(candidateIds);
+  const previousPreparedIdRef = useRef<number | null>(prepared?.preparedInputId ?? null);
 
   useEffect(() => {
     onCandidateCountChange?.(candidateIds.length);
@@ -226,18 +299,25 @@ export function B2AllocationPanel({
   }, [prepared, candidateIds, informationCutoff, onAlignedObservationCountChange]);
 
   useEffect(() => {
+    const preparedId = prepared?.preparedInputId ?? null;
+    if (previousPreparedIdRef.current === preparedId) return;
+    previousPreparedIdRef.current = preparedId;
+    viewGenerationRef.current += 1;
+    replayGenerationRef.current += 1;
+    allocationMutationGenerationRef.current += 1;
+    currentViewRef.current = selectedAllocationId === null ? "draft" : `allocation:${selectedAllocationId}`;
     if (!prepared) {
       setCandidateIds([]);
       setInformationCutoff("");
-      return;
+    } else {
+      setCandidateIds(prepared.candidateIds);
+      setInformationCutoff(prepared.informationCutoff);
     }
-    setCandidateIds(prepared.candidateIds);
-    setInformationCutoff(prepared.informationCutoff);
     setResult(null);
     setSelectedAllocationId(null);
     onAllocationSelectionChange?.(null);
     setReplayStatus(null);
-  }, [prepared, onAllocationSelectionChange]);
+  }, [prepared?.preparedInputId, onAllocationSelectionChange, selectedAllocationId]);
 
   async function refreshSaved() {
     try {
@@ -248,19 +328,52 @@ export function B2AllocationPanel({
   }
 
   async function loadAllocation(id: number) {
+    const requestGeneration = ++viewGenerationRef.current;
+    const requestView = `allocation:${id}`;
+    currentViewRef.current = requestView;
+    replayGenerationRef.current += 1;
+    allocationMutationGenerationRef.current += 1;
     setError(null);
+    setSelectedAllocationId(id);
+    setResult(null);
+    setReplayStatus(null);
+    onAllocationSelectionChange?.(id);
     try {
       const payload = await queryClient.fetchQuery({ queryKey: getGetAllocationQueryKey(id), queryFn: () => getAllocation(id) });
-      setSelectedAllocationId(id);
-      onAllocationSelectionChange?.(id);
+      if (!isCurrentViewRequest({
+        requestedView: requestView, currentView: currentViewRef.current,
+        requestGeneration, currentGeneration: viewGenerationRef.current,
+      })) return;
       setResult(asRecord(payload));
-      setReplayStatus(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Saved allocation could not be loaded.");
+      if (isCurrentViewRequest({
+        requestedView: requestView, currentView: currentViewRef.current,
+        requestGeneration, currentGeneration: viewGenerationRef.current,
+      })) setError(err instanceof Error ? err.message : "Saved allocation could not be loaded.");
     }
   }
 
+  useEffect(() => {
+    if (inspectedAllocationId === null || inspectedAllocationId === undefined) {
+      setInspectedResult(null);
+      return;
+    }
+    let active = true;
+    setInspectedResult(null);
+    void queryClient.fetchQuery({
+      queryKey: getGetAllocationQueryKey(inspectedAllocationId),
+      queryFn: () => getAllocation(inspectedAllocationId),
+    }).then(data => {
+      if (active) setInspectedResult(asRecord(data));
+    }).catch(err => {
+      if (active) setError(err instanceof Error ? err.message : "Saved allocation could not be retrieved.");
+    });
+    return () => { active = false; };
+  }, [inspectedAllocationId, queryClient]);
+
   async function runAllocation() {
+    let submittedView: string | null = null;
+    let createGeneration: number | null = null;
     setError(null);
     if (!prepared) {
       setError("Select or prepare an immutable B1 input version before optimizing.");
@@ -410,51 +523,85 @@ export function B2AllocationPanel({
           },
         } : {}),
       };
+      if (inspectingAllocation && !onExitInspection) {
+        setError("Return to the working draft before optimizing; the shell must wire onExitInspection to transition away from a pinned history record.");
+        return;
+      }
+      submittedView = currentViewRef.current;
+      createGeneration = ++allocationMutationGenerationRef.current;
+      replayGenerationRef.current += 1;
       onRunningChange?.(true);
        // Generated request types may lag the frozen robustness contract.
        const payload = await createMutation.mutateAsync({ data: request as Parameters<typeof createMutation.mutateAsync>[0]["data"] });
+      if (allocationMutationGenerationRef.current !== createGeneration ||
+          currentViewRef.current !== submittedView) return;
+      const newAllocationId = idOf(payload);
       setResult(asRecord(payload));
-      setSelectedAllocationId(idOf(payload));
-      onAllocationSelectionChange?.(idOf(payload));
+      setSelectedAllocationId(newAllocationId);
+      onAllocationSelectionChange?.(newAllocationId);
       setReplayStatus(null);
+      if (!inspectingAllocation) {
+        setInspectedResult(null);
+        currentViewRef.current = newAllocationId === null ? "draft" : `allocation:${newAllocationId}`;
+      } else if (onExitInspection && currentViewRef.current === submittedView) {
+        setInspectedResult(null);
+        currentViewRef.current = newAllocationId === null ? "draft" : `allocation:${newAllocationId}`;
+        onExitInspection();
+      }
       await queryClient.invalidateQueries({ queryKey: getListAllocationsQueryKey() });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Allocation request failed.");
+      if (createGeneration === null || isCurrentViewRequest({
+        requestedView: submittedView ?? "draft",
+        currentView: currentViewRef.current,
+        requestGeneration: createGeneration,
+        currentGeneration: allocationMutationGenerationRef.current,
+      })) setError(err instanceof Error ? err.message : "Allocation request failed.");
     } finally {
       onRunningChange?.(false);
     }
   }
 
-  useEffect(() => {
-    if (runToken === lastRunToken.current) return;
-    lastRunToken.current = runToken;
-    void runAllocation();
-  }, [runToken]);
-
   async function replayAllocation(id: number) {
+    const viewedDuringReplay = inspectedAllocationId !== null && inspectedAllocationId !== undefined
+      ? `inspected:${id}` : `allocation:${id}`;
+    if (currentViewRef.current !== viewedDuringReplay) return;
+    const requestGeneration = ++replayGenerationRef.current;
+    const isCurrent = () => isCurrentViewRequest({
+      requestedView: viewedDuringReplay,
+      currentView: currentViewRef.current,
+      requestGeneration,
+      currentGeneration: replayGenerationRef.current,
+    });
     setError(null);
     setReplayStatus(null);
     onRunningChange?.(true);
     try {
       const payload = await replayMutation.mutateAsync({ allocationId: id });
+      if (!isCurrent()) return;
       const replay = asRecord(payload);
       const detail = asRecord(await queryClient.fetchQuery({ queryKey: getGetAllocationQueryKey(id), queryFn: () => getAllocation(id) }));
-      setResult({ ...detail, replay });
-      setSelectedAllocationId(id);
-      onAllocationSelectionChange?.(id);
+      if (!isCurrent()) return;
+      if (inspectedAllocationId === id)
+        setInspectedResult({ ...detail, replay });
+      else {
+        setResult({ ...detail, replay });
+      }
        setReplayStatus(`Replay ${String(replay.status ?? "completed").toUpperCase()}${Array.isArray(replay.differences) ? ` · ${replay.differences.length} differing fields${replay.differences.length ? `: ${replay.differences.join("; ")}` : ""}` : ""}${typeof replay.maximumNumericDifference === "number" ? ` · maximum numeric difference ${replay.maximumNumericDifference}` : ""}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Allocation replay failed.");
+      if (isCurrent()) setError(err instanceof Error ? err.message : "Allocation replay failed.");
     } finally {
       onRunningChange?.(false);
     }
   }
 
-  const response = result ?? asRecord(detailQuery.data);
+  const response = inspectingAllocation ? inspectedResult ?? {} : result ?? asRecord(detailQuery.data);
+  const hasAllocationResult = inspectingAllocation ? !!inspectedResult : !!(result || detailQuery.data);
   const allocation = asRecord(response.result ?? response.allocation ?? response);
   const model = asRecord(allocation.model);
   const status = typeof allocation.status === "string" ? allocation.status : "Unavailable";
-  const allocationId = idOf(response) ?? selectedAllocationId;
+  const allocationFailed = isFailedAllocationOutcome(status);
+  const allocationOutcome = allocationSummaryState(status);
+  const allocationId = idOf(response) ?? (inspectingAllocation ? inspectedAllocationId : selectedAllocationId);
   const candidateWeights = asRecord(allocation.candidateWeights);
   const assetWeights = asRecord(allocation.assetWeights);
   const frozenObjective = asRecord(asRecord(response.request).objective ?? allocation.objective);
@@ -477,6 +624,13 @@ export function B2AllocationPanel({
         </CardHeader>
         <CardContent className="space-y-4">
           {error && <Alert variant="destructive" data-testid="status-b2-allocation-error"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded border bg-muted/20 p-3" data-testid="status-b2-workflow">
+            <div>
+              <p className="text-sm font-medium">Draft allocation configuration</p>
+              <p className="mt-1 text-xs text-muted-foreground">{inspectingAllocation ? `Inspecting saved allocation #${inspectedAllocationId}; the working configuration remains unchanged.` : "Use Optimize B2 allocation below to create a new immutable policy."}</p>
+            </div>
+            <Badge variant="outline" data-testid="state-b2-allocation">Draft</Badge>
+          </div>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <Badge variant="outline">Preparation ID {prepared?.preparedInputId ?? "Unavailable"}</Badge>
             <Badge variant="outline">{displayName(prepared?.representation)}</Badge>
@@ -532,7 +686,8 @@ export function B2AllocationPanel({
            </div>}
             <RebalanceRegularizationControls value={rebalanceForm} onChange={setRebalanceForm} cutoff={informationCutoff} objective={objectiveType} />
             <p className="text-xs text-muted-foreground">{allocationMode === "SIGNED_OVERLAY" ? "Signed overlays optimize alpha coefficients against daily excess returns, then aggregate underlying risky exposures before computing net and cash. Minimum variance requires a positive daily target excess return. D3 forecasts excess returns; D1 independently estimates risk." : "Base objective: minimum variance minimizes ½ bᵀΣb; regularized mean-variance minimizes (γ/2)bᵀΣb + (η/2)Σⱼbⱼ² − μᵀb − r_cash·c. D3 supplies μ in daily decimal gross returns; D1/B2 independently supplies risk covariance."} Positive λR adds ½ × λR × Σ risky underlying (target weight − current weight)² to regularized mean-variance, not to execution fees.</p>
-          <Button type="button" onClick={() => void runAllocation()} disabled={busy || !prepared} data-testid="button-run-b2-allocation">
+           {inspectingAllocation && !onExitInspection && <p role="status" className="text-xs text-muted-foreground">Return to the working draft in the history panel before optimizing; the shell has not connected the inspection-exit action.</p>}
+           <Button type="button" onClick={() => void runAllocation()} disabled={busy || !prepared || inspectingAllocation && !onExitInspection} data-testid="button-run-b2-allocation" title="Creates a new immutable frozen allocation and exits the inspected record on success">
             {busy ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Optimizing…</> : "Optimize B2 allocation"}
           </Button>
         </CardContent>
@@ -545,31 +700,60 @@ export function B2AllocationPanel({
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2">
           <Label htmlFor="select-saved-b2">Saved optimization</Label>
-          <select id="select-saved-b2" className="h-9 min-w-48 rounded-md border bg-background px-2 text-sm" value={selectedAllocationId ?? ""} onChange={event => { const id = Number(event.target.value); if (Number.isSafeInteger(id) && id > 0) void loadAllocation(id); }} data-testid="select-saved-b2-allocation">
+          <select id="select-saved-b2" disabled={inspectingAllocation || busy} className="h-9 min-w-48 rounded-md border bg-background px-2 text-sm" value={selectedAllocationId ?? ""} onChange={event => { const id = Number(event.target.value); if (Number.isSafeInteger(id) && id > 0) void loadAllocation(id); }} data-testid="select-saved-b2-allocation">
             <option value="">Select saved allocation</option>
              {saved.map((item, index) => { const id = idOf(item); return id ? <option key={id} value={id}>Allocation {id} · {asRecord(asRecord(item).request).allocationMode === "SIGNED_OVERLAY" ? "Signed overlay" : "Capital long-only"} · {String(asRecord(item).status ?? "saved")}</option> : <option key={`unknown-${index}`} value="" disabled>Saved allocation ID unavailable</option>; })}
           </select>
+          {inspectingAllocation && <p className="w-full text-xs text-muted-foreground">Saved-allocation selection is pinned by history inspection. Return to the working draft to select another working allocation.</p>}
           {loadingSaved && <span className="text-xs text-muted-foreground">Loading saved optimizations…</span>}
           {savedQuery.isError && <Button type="button" variant="outline" size="sm" onClick={() => void refreshSaved()}>Could not load saved allocations · Retry</Button>}
           {!loadingSaved && !saved.length && <span className="text-xs text-muted-foreground">No saved B2 allocations returned.</span>}
         </CardContent>
       </Card>
 
-      {(result || detailQuery.data) && <RobustnessPanel result={allocation} request={frozenRequest} replay={response.replay} />}
-      {(result || detailQuery.data) && <CostAwareAllocationResult request={frozenRequest} result={allocation} />}
-      {(result || detailQuery.data) && <RebalanceAllocationResult request={frozenRequest} result={allocation} />}
-      {(result || detailQuery.data) && <Card data-testid="card-b2-allocation-result">
+      {hasAllocationResult && <Card data-testid="card-b2-allocation-result">
         <CardHeader className="pb-3">
           <div className="flex flex-wrap items-start justify-between gap-2">
              <div><CardTitle className="text-sm">Allocation result · ID {allocationId ?? "Unavailable"}</CardTitle><CardDescription>{signedResult ? "Signed alpha overlay" : "Capital long-only"} · Preparation ID {formatValue(asRecord(response.request).preparedInputId ?? prepared?.preparedInputId)} · {displayName(String(asRecord(response.request).representation ?? prepared?.representation ?? ""))}</CardDescription></div>
-            <Badge variant="outline" data-testid="status-b2-solver">{status}</Badge>
+            <Badge variant="outline" data-testid="stage-b2-frozen-input">Frozen input</Badge>
+            <Badge variant={allocationFailed ? "destructive" : "outline"} data-testid="status-b2-solver">{allocationFailed ? "Failed" : status}</Badge>
           </div>
-          {status === "SOLVED" && <p className="text-xs font-medium text-amber-700">Allocation computed — historical validation pending.</p>}
+           {status === "SOLVED" && <p className="text-xs font-medium text-amber-700">Allocation computed — see saved Validation Runs for any separate historical validation.</p>}
           {typeof allocation.reason === "string" && <p className="text-xs text-destructive">{allocation.reason}</p>}
-          {replayStatus && <p className="text-xs" data-testid="status-b2-replay">{replayStatus}</p>}
+           {!inspectingAllocation && replayStatus && <p className="text-xs" data-testid="status-b2-replay">{replayStatus}</p>}
         </CardHeader>
         <CardContent className="space-y-3">
-           <ForecastResults forecast={frozenForecast} frozenConfig={frozenRequest.forecastModel} candidateIds={Array.isArray(frozenRequest.candidateIds) ? frozenRequest.candidateIds as string[] : []} allocation={allocation} legacy={!frozenRequest.forecastModel} />
+           <PortfolioResultOverview
+             title="Portfolio decision"
+             runId={allocationId}
+             status={allocationOutcome}
+             representation={frozenRequest.representation}
+             executionMode={frozenRequest.allocationMode ?? "CAPITAL_LONG_ONLY"}
+             timestamp={response.createdAt ?? response.allocatedAt}
+             fields={[
+               { label: "Allocation outcome", value: allocationFailed ? "Failed" : status },
+               { label: signedResult ? "Signed overlay weights" : "Underlying asset weights", value: <span className="block whitespace-pre-wrap font-mono text-xs">{formatValue(signedResult ? candidateWeights : assetWeights)}</span>, detail: signedResult ? `Underlying exposure: ${formatValue(assetWeights)}` : `Candidate weights: ${formatValue(candidateWeights)}` },
+               { label: "Cash", value: formatValue(allocation.totalCash), detail: `Master cash: ${formatValue(allocation.masterCash)}` },
+               { label: "Expected return", value: formatValue(allocation.estimatedGrossReturn), detail: "Estimated gross daily return returned by the frozen allocation" },
+               { label: "Forecast", value: pmValue(asRecord(frozenRequest.forecastModel).type ?? "Legacy embedded estimator"), detail: "Specification saved with this frozen allocation" },
+               { label: "Risk", value: formatValue(allocation.estimatedVolatility), detail: `${pmValue(frozenRiskModel.type)} · estimated historical candidate-return volatility` },
+               { label: "Robustness", value: `${pmValue(asRecord(frozenRequest.robustness).method)} · κ ${pmValue(asRecord(frozenRequest.robustness).kappa)}` },
+               { label: "Turnover settings", value: `λR ${pmValue(asRecord(frozenRequest.rebalanceRegularization).lambdaR)}`, detail: `Frozen turnover preference ${pmValue(asRecord(frozenRequest.costAware).turnoverPreferenceBps)} bps` },
+               { label: "Validation", value: "Inspect saved Validation Runs / Jobs", detail: "History selection never submits a validation" },
+               { label: "Replay", value: response.replay ? `Replay ${pmValue(asRecord(response.replay).status).toUpperCase()}` : !inspectingAllocation && replayStatus ? replayStatus : replayAvailability({ domain: "b3", status }), detail: "Available separately; replay never creates a Validation Run" },
+             ]}
+           />
+           <div className="flex flex-wrap items-center gap-2">
+             {allocationId !== null && <Button type="button" variant="outline" size="sm" onClick={() => void replayAllocation(allocationId)} disabled={busy} data-testid="button-replay-b2-allocation" title="Replays the saved frozen policy; it does not create a validation run"><RotateCcw className="mr-2 h-3.5 w-3.5" />Replay</Button>}
+             <span className="text-xs text-muted-foreground">Manual replay checks this frozen allocation only.</span>
+           </div>
+           <details className="rounded border p-3 text-xs" data-testid="details-b2-frozen-diagnostics">
+             <summary className="cursor-pointer font-semibold">Frozen forecast, risk, robustness, turnover and solver diagnostics</summary>
+             <div className="mt-3 space-y-4">
+            <ForecastResults forecast={frozenForecast} frozenConfig={frozenRequest.forecastModel} candidateIds={Array.isArray(frozenRequest.candidateIds) ? frozenRequest.candidateIds as string[] : []} allocation={allocation} legacy={!frozenRequest.forecastModel} />
+            {hasAllocationResult && <RobustnessPanel result={allocation} request={frozenRequest} replay={response.replay} />}
+            {hasAllocationResult && <CostAwareAllocationResult request={frozenRequest} result={allocation} />}
+            {hasAllocationResult && <RebalanceAllocationResult request={frozenRequest} result={allocation} />}
            {signedResult && <SignedOverlayResult allocation={allocation} request={frozenRequest} names={prepared?.candidateNames ?? {}} />}
            {!signedResult && <>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -604,9 +788,8 @@ export function B2AllocationPanel({
             <div className="rounded border p-3"><h4 className="mb-1 text-xs font-semibold">Sample mean returns</h4><pre className="whitespace-pre-wrap break-words text-xs">{formatValue(model.sampleMeans)}</pre></div>
             <div className="rounded border p-3"><h4 className="mb-1 text-xs font-semibold">Shrunk expected returns μ</h4><pre className="whitespace-pre-wrap break-words text-xs">{formatValue(model.mu)}</pre></div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {allocationId !== null && <Button type="button" variant="outline" size="sm" onClick={() => void replayAllocation(allocationId)} disabled={busy} data-testid="button-replay-b2-allocation">Replay frozen allocation</Button>}
-          </div>
+             </div>
+           </details>
         </CardContent>
       </Card>}
     </section>

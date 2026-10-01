@@ -128,8 +128,11 @@ export function RobustnessPanel({ result, request, replay, compact = false }: { 
   const robustAssets = first(robustDisplay, "assetWeights", "underlyingAssetWeights") ?? robust.robustAssetWeights;
   const nominalCandidateWeights = first(nominalDisplay, "candidateWeights", "weights") ?? robust.nominalWeights;
   const robustCandidateWeights = first(robustDisplay, "candidateWeights", "weights") ?? robust.robustWeights;
-  const method = label(config.method ?? robust.method ?? "NOMINAL");
-  const kappa = config.kappa ?? robust.kappa ?? 1;
+  const method = config.method ?? robust.method;
+  const kappa = config.kappa ?? robust.kappa;
+  const methodLabel = method === "ROBUST_MEAN_UNCERTAINTY"
+    ? "Robust to forecast uncertainty"
+    : method === "NOMINAL" ? "Nominal" : "Not recorded";
   const sensitivities = array(first(diagnostic, "sensitivity", "sensitivityCases") ?? first(robust, "sensitivity", "sensitivityCases", "sensitivities") ?? object(robust.sensitivity).cases);
   const covariance = object(diagnostic.covarianceUncertainty ?? robust.covarianceUncertainty);
   const perturbations = array(first(robust, "covariancePerturbations", "covarianceSensitivity") ?? object(robust.stability).covariancePerturbations);
@@ -140,7 +143,7 @@ export function RobustnessPanel({ result, request, replay, compact = false }: { 
   const replayRecord = object(replay);
   const hasResults = Object.keys(robust).length > 0;
   return <Card className="overflow-hidden border-primary/20 bg-primary/[0.025]" data-testid="card-portfolio-robustness">
-    <CardHeader className="pb-3"><div className="flex flex-wrap items-center gap-2"><span className="h-2 w-2 rounded-full bg-primary" /><CardTitle className="text-sm uppercase tracking-[0.12em]">Portfolio robustness</CardTitle><Badge variant="outline" className="ml-auto font-mono text-[10px]">{method === "ROBUST_MEAN_UNCERTAINTY" ? "Robust to forecast uncertainty" : "Nominal"} · κ {fmt(kappa, 3)}</Badge></div>
+    <CardHeader className="pb-3"><div className="flex flex-wrap items-center gap-2"><span className="h-2 w-2 rounded-full bg-primary" /><CardTitle className="text-sm uppercase tracking-[0.12em]">Portfolio robustness</CardTitle><Badge variant="outline" className="ml-auto font-mono text-[10px]">{methodLabel} · κ {kappa === null || kappa === undefined ? "Not recorded" : fmt(kappa, 3)}</Badge></div>
       <CardDescription>Frozen point-in-time diagnostic. Compare sensitivity, not winners or historical trading costs.</CardDescription>
     </CardHeader>
     <CardContent className="space-y-3">
@@ -170,7 +173,7 @@ export function RobustnessPanel({ result, request, replay, compact = false }: { 
         <div className="rounded border bg-background p-3"><strong>Forecast uncertainty</strong><p className="mt-1 text-muted-foreground">Vμ describes uncertainty in estimated expected returns, separate from the return-risk covariance Σ. A robust mean-variance objective subtracts κ√(wᵀVμw) from the forecast return. κ ≥ 0; κ = 0 reduces to nominal.</p></div>
         <div className="rounded border bg-background p-3"><strong>What the distance means</strong><p className="mt-1 text-muted-foreground">½Σ|target asset weights A − target asset weights B| compares two simultaneous target portfolios. It is not realized turnover, a cost estimate, or a backtest. Signed exposures are aggregated to the underlying asset book first.</p></div>
         <div className="rounded border bg-background p-3"><strong>Scope</strong><p className="mt-1 text-muted-foreground">Minimum variance has no robust forecast-uncertainty formula here. Covariance changes and one-at-a-time sensitivity are diagnostics only; neither automatically selects a winner.</p></div>
-        <div className="rounded border bg-background p-3"><strong>Frozen identity</strong><p className="mt-1 text-muted-foreground">Method {method} · κ {fmt(kappa, 4)} · forecast {label(forecast.estimator ?? object(object(request).forecastModel).type)} · cutoff {label(object(request).informationCutoff)}. Replay checks the saved inputs and outputs independently.</p></div>
+        <div className="rounded border bg-background p-3"><strong>Frozen identity</strong><p className="mt-1 text-muted-foreground">Method {methodLabel} · κ {kappa === null || kappa === undefined ? "Not recorded" : fmt(kappa, 4)} · forecast {label(forecast.estimator ?? object(object(request).forecastModel).type)} · cutoff {label(object(request).informationCutoff)}. Replay checks the saved inputs and outputs independently.</p></div>
       </div>}
     </CardContent>
   </Card>;

@@ -28,6 +28,7 @@ import selectionPoliciesRouter from "./selection-policies";
 import d1RiskComparisonsRouter from "./d1-risk-comparisons";
 import d2AllocationModeComparisonsRouter from "./d2-allocation-mode-comparisons";
 import d3ForecastComparisonsRouter from "./d3-forecast-comparisons";
+import portfolioHistoryRouter from "./portfolio-history";
 
 const router: IRouter = Router();
 
@@ -60,5 +61,6 @@ router.use(selectionPoliciesRouter);
 router.use(d1RiskComparisonsRouter);
 router.use(d2AllocationModeComparisonsRouter);
 router.use(d3ForecastComparisonsRouter);
+router.use(portfolioHistoryRouter);
 
 export default router;

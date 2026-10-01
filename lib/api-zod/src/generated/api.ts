@@ -2714,6 +2714,26 @@ export const GetValidationJobResponse = zod.object({
 
 
 /**
+ * Returns persisted lifecycle and identifying metadata only. This read-only projection does not retrieve or recalculate frozen snapshots, price histories, ledgers, or saved numerical result payloads.
+ * @summary Read compact PM history of saved optimizations, allocations, validations, and jobs
+ */
+export const ListPortfolioHistoryResponseItem = zod.object({
+  "kind": zod.enum(['optimization', 'allocation', 'validation', 'job']),
+  "id": zod.string(),
+  "createdAt": zod.coerce.date(),
+  "status": zod.enum(['frozen', 'queued', 'running', 'completed', 'failed']),
+  "representation": zod.string().nullable(),
+  "executionMode": zod.string().nullable().describe('Recorded validation execution timing or saved B2 allocation mode; null when absent in historical records.'),
+  "replayAvailable": zod.boolean(),
+  "sessionId": zod.number().nullable(),
+  "allocationId": zod.number().nullable(),
+  "validationRunId": zod.number().nullable(),
+  "jobId": zod.string().nullable()
+})
+export const ListPortfolioHistoryResponse = zod.array(ListPortfolioHistoryResponseItem)
+
+
+/**
  * @summary Execute and persist a legacy Strategy Snapshot validation or a frozen B3 policy validation
  */
 

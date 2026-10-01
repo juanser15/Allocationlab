@@ -18,6 +18,7 @@ import { FlaskConical, CheckCircle2, XCircle, ShieldAlert, Info, Loader2, Shield
 import type { BacktestResult, ValidationJob, ValidationRun, ValidationRunSummary } from "@workspace/api-client-react";
 import { ScenarioStressLab } from "@/components/research-lab/ScenarioStressLab";
 import { ValidationJobStatus } from "./ValidationJobStatus";
+import { PortfolioResultOverview, replayAvailability } from "./PortfolioResultOverview";
 
 interface Props {
   bt: BacktestResult | undefined;
@@ -30,6 +31,11 @@ interface Props {
   validationRuns: ValidationRunSummary[];
   selectedValidationRunId: number | null;
   onSelectValidationRun: (id: number) => void;
+  /** Read-only inspector data; never used as inputs for a new validation. */
+  inspectedRunId?: number | null;
+  inspectedRun?: ValidationRun | null;
+  inspectedJobId?: string | null;
+  inspectedJob?: ValidationJob | null;
   validationError: string | null;
   validationJob: ValidationJob | null;
   validationJobActive: boolean;
@@ -110,8 +116,8 @@ const ROBUSTNESS_TESTS = [
 
 export function BacktestTab(props: Props) {
   const {
-    bt, loading, hasData, hasRun, validationRequested, onRunValidation,
-    validationRun, validationRuns, selectedValidationRunId, onSelectValidationRun, validationError,
+    loading, hasData, onRunValidation,
+    validationRuns, selectedValidationRunId, onSelectValidationRun, validationError,
     validationJob, validationJobActive, validationJobSubmitting, validationJobReconnecting,
     validationJobSeconds, validationJobSubmissionError,
     benchmark, setBenchmark, frequency, setFrequency, timing, setTiming,
@@ -121,9 +127,37 @@ export function BacktestTab(props: Props) {
 
   const [metricDetail, setMetricDetail] = useState<{ title: string; content: string } | null>(null);
   const [openTest, setOpenTest] = useState<typeof ROBUSTNESS_TESTS[0] | null>(null);
+  const historyInspectionActive = props.inspectedRunId !== null && props.inspectedRunId !== undefined ||
+    props.inspectedJobId !== null && props.inspectedJobId !== undefined;
+  const inspectedRun = props.inspectedRunId !== null && props.inspectedRunId !== undefined
+    ? props.inspectedRun?.validationRunId === props.inspectedRunId ? props.inspectedRun : null
+    : null;
+  const validationRun = historyInspectionActive ? inspectedRun : props.validationRun;
+  const bt = historyInspectionActive ? inspectedRun?.result : props.bt;
+  const hasRun = historyInspectionActive ? !!inspectedRun : props.hasRun;
+  const validationRequested = historyInspectionActive ? !!inspectedRun : props.validationRequested;
+  const viewLoading = historyInspectionActive ? !!props.inspectedRunId && !inspectedRun : loading;
+  const validationState = historyInspectionActive
+    ? inspectedRun?.reconciliationStatus === "pass" ? "completed"
+      : inspectedRun?.reconciliationStatus === "fail" ? "failed"
+        : inspectedRun ? "Not recorded" : "draft"
+    : validationRun
+      ? validationRun.reconciliationStatus === "pass" ? "completed"
+        : validationRun.reconciliationStatus === "fail" ? "failed" : "Not recorded"
+      : validationJobActive || validationJobSubmitting ? validationJob?.status ?? "running"
+        : validationRequested ? loading ? "running" : "Not recorded" : "draft";
 
-  if (!hasData && !hasRun) return <EmptyState icon={FlaskConical} title="Valid price history is required." description="Upload price data to configure and run the backtester." />;
-  if (!hasRun)  return <EmptyState icon={FlaskConical} title="Run Optimizer to generate model allocations." description="The backtester simulates the official portfolio process historically. An optimizer run is required first." />;
+  if (historyInspectionActive && props.inspectedJobId && !inspectedRun) return (
+    <div className="space-y-4" aria-label="Legacy validation job inspection">
+      {props.inspectedJob
+        ? <ValidationJobStatus job={props.inspectedJob} active={false} submitting={false} reconnecting={false} seconds={0} submissionError={null} />
+        : <p role="status" className="rounded border bg-muted/20 p-3 text-xs">Retrieving the selected legacy validation job. No other saved run is substituted.</p>}
+      <p className="rounded border bg-muted/20 p-3 text-xs">This selected job has no linked legacy Validation Run yet.</p>
+    </div>
+  );
+  if (historyInspectionActive && viewLoading) return <div className="h-24 animate-pulse rounded border bg-muted/50" aria-label="Loading inspected legacy validation run" />;
+  if (!hasData && !hasRun && !inspectedRun) return <EmptyState icon={FlaskConical} title="Valid price history is required." description="Upload price data to configure and run the backtester." />;
+  if (!hasRun && !inspectedRun)  return <EmptyState icon={FlaskConical} title="Run Optimizer to generate model allocations." description="The backtester simulates the official portfolio process historically. An optimizer run is required first." />;
 
   const hasBt = !!bt && bt.hasSufficientData;
 
@@ -201,25 +235,47 @@ export function BacktestTab(props: Props) {
         )}
       </DetailDrawer>
 
+      {hasBt && bt && validationRequested && <PortfolioResultOverview
+        title="Legacy portfolio validation"
+        runId={validationRun?.validationRunId ?? (historyInspectionActive ? props.inspectedRunId : selectedValidationRunId)}
+        status={validationState}
+        representation="Legacy A1"
+        executionMode={validationRun?.assumptions.executionTiming ?? bt.config.executionTiming}
+        timestamp={validationRun?.validatedAt}
+        fields={[
+          { label: "Validation", value: validationRun?.reconciliationStatus === "pass" ? "Completed · reconciliation passed" : validationRun?.reconciliationStatus === "fail" ? "Failed · reconciliation check" : "Not recorded" },
+          { label: "Net return", value: bt.cumulativeReturn === null ? "Not recorded" : pct(bt.cumulativeReturn) },
+          { label: "Annualized return", value: bt.canAnnualize ? pct(bt.annualizedReturn) : "Not available for sample length" },
+          { label: "Risk", value: bt.canAnnualize ? pctPlain(bt.annualizedVolatility) : "Not available for sample length" },
+          { label: "Sharpe", value: bt.canAnnualize ? num2(bt.sharpeRatio) : "Not available for sample length" },
+          { label: "Cash", value: bt.dailyLedger.length ? String(bt.dailyLedger.at(-1)?.endingCash ?? "Not recorded") : "Not recorded" },
+          { label: "Ending holdings", value: bt.dailyLedger.length ? JSON.stringify(bt.dailyLedger.at(-1)?.endingPositions ?? null) : "Not recorded" },
+          { label: "Turnover", value: bt.avgTurnover === null ? "Not recorded" : pctPlain(bt.avgTurnover) },
+          { label: "Transaction costs", value: bt.totalTransactionCostPct === null ? "Not recorded" : pctPlain(bt.totalTransactionCostPct) },
+          { label: "Reproducibility", value: validationRun?.reproducibilityStatus ?? "Not recorded" },
+          { label: "Replay", value: replayAvailability({ domain: "legacy", status: validationRun?.reproducibilityStatus }), detail: "Inspection is read-only; no replay or new Validation Run is started" },
+        ]}
+      />}
+
       {/* ═══════════════════════════════════
           CONFIGURATION
       ═══════════════════════════════════ */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-semibold">Validation Configuration</CardTitle>
+          <CardTitle className="text-sm font-semibold">Legacy Validation Configuration</CardTitle>
           <CardDescription>
-            Signals use only closes before their signal date. Existing holdings earn the return through the execution close; new holdings become active after that close.
+            Signals use only closes before their signal date. Existing holdings earn the return through the execution close; new holdings become active after that close. Inspecting a saved run above never changes this working configuration.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <ValidationJobStatus
+          {!historyInspectionActive && <ValidationJobStatus
             job={validationJob}
             active={validationJobActive}
             submitting={validationJobSubmitting}
             reconnecting={validationJobReconnecting}
             seconds={validationJobSeconds}
             submissionError={validationJobSubmissionError}
-          />
+          />}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Benchmark</Label>
@@ -278,10 +334,10 @@ export function BacktestTab(props: Props) {
           </div>
 
           <div className="flex items-center gap-3 pt-2 border-t">
-            <Button size="sm" onClick={onRunValidation} disabled={loading} className="gap-1.5">
+            <Button size="sm" onClick={onRunValidation} disabled={loading || historyInspectionActive} className="gap-1.5" title="Creates a new legacy Validation Run with the current assumptions">
               {loading
                 ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Running Validation…</>
-                : <><FlaskConical className="h-3.5 w-3.5" /> Run Validation</>
+                : <><FlaskConical className="h-3.5 w-3.5" /> Validate</>
               }
             </Button>
             {hasBt && bt && (
@@ -289,8 +345,9 @@ export function BacktestTab(props: Props) {
                 Data: {bt.dataStartDate ?? "—"} → {bt.dataEndDate ?? "—"} · {bt.tradingDays} trading days
               </span>
             )}
-            {validationRuns.length > 0 && selectedValidationRunId && (
-              <Select value={String(selectedValidationRunId)} onValueChange={(id) => onSelectValidationRun(Number(id))}>
+          {validationRuns.length > 0 && (historyInspectionActive ? !!props.inspectedRunId : !!selectedValidationRunId) && (
+              <Select value={String(historyInspectionActive ? props.inspectedRunId : selectedValidationRunId)} disabled={historyInspectionActive}
+                onValueChange={(id) => { if (!historyInspectionActive) onSelectValidationRun(Number(id)); }}>
                 <SelectTrigger aria-label="Saved Validation Run" className="h-8 w-56 text-xs">
                   <SelectValue placeholder="Saved Validation Runs" />
                 </SelectTrigger>
@@ -303,12 +360,13 @@ export function BacktestTab(props: Props) {
                 </SelectContent>
               </Select>
             )}
+          {historyInspectionActive && <p className="w-full text-xs text-muted-foreground">The saved Validation Run selection is pinned by history inspection. Return to the working draft to choose another run.</p>}
           </div>
 
           {!validationRequested && (
             <div className="flex items-start gap-2 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-600">
               <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-gray-400" />
-              <span><strong>Validation has not been run.</strong> Configure assumptions above and click Run Validation.</span>
+              <span><strong>Validation has not been run.</strong> Configure assumptions above and click Validate to create a separate Validation Run.</span>
             </div>
           )}
           {validationRequested && bt && (
@@ -332,21 +390,21 @@ export function BacktestTab(props: Props) {
               )}
             </div>
           )}
-          {validationError && (
+          {!historyInspectionActive && validationError && (
             <p role="alert" className="text-xs text-red-700">{validationError}</p>
           )}
         </CardContent>
       </Card>
 
       {/* Loading state */}
-      {validationRequested && loading && (
+      {validationRequested && viewLoading && (
         <div className="py-12 flex flex-col items-center gap-3 text-muted-foreground">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm">Running validation — computing factors, regimes, models, and ensemble allocation at each historical rebalance date…</p>
+          <p className="text-sm">{historyInspectionActive ? "Retrieving the selected saved validation…" : "Running validation — computing factors, regimes, models, and ensemble allocation at each historical rebalance date…"}</p>
         </div>
       )}
 
-      {validationRequested && !loading && bt && !bt.hasSufficientData && (
+      {validationRequested && !viewLoading && bt && !bt.hasSufficientData && (
         <div className="flex items-start gap-2 rounded border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
           <XCircle className="h-4 w-4 shrink-0 mt-0.5" />
           <span>{bt.insufficientReason ?? "Insufficient data for backtesting."}</span>

@@ -1736,6 +1736,50 @@ export interface ValidationJob {
   request: ValidationRunInput;
 }
 
+export type PortfolioHistoryEntryKind = typeof PortfolioHistoryEntryKind[keyof typeof PortfolioHistoryEntryKind];
+
+
+export const PortfolioHistoryEntryKind = {
+  optimization: 'optimization',
+  allocation: 'allocation',
+  validation: 'validation',
+  job: 'job',
+} as const;
+
+export type PortfolioHistoryEntryStatus = typeof PortfolioHistoryEntryStatus[keyof typeof PortfolioHistoryEntryStatus];
+
+
+export const PortfolioHistoryEntryStatus = {
+  frozen: 'frozen',
+  queued: 'queued',
+  running: 'running',
+  completed: 'completed',
+  failed: 'failed',
+} as const;
+
+export interface PortfolioHistoryEntry {
+  kind: PortfolioHistoryEntryKind;
+  id: string;
+  createdAt: string;
+  status: PortfolioHistoryEntryStatus;
+  /** @nullable */
+  representation: string | null;
+  /**
+     * Recorded validation execution timing or saved B2 allocation mode; null when absent in historical records.
+     * @nullable
+     */
+  executionMode: string | null;
+  replayAvailable: boolean;
+  /** @nullable */
+  sessionId: number | null;
+  /** @nullable */
+  allocationId: number | null;
+  /** @nullable */
+  validationRunId: number | null;
+  /** @nullable */
+  jobId: string | null;
+}
+
 export type C2ExperimentInputRegimeSource = typeof C2ExperimentInputRegimeSource[keyof typeof C2ExperimentInputRegimeSource];
 
 

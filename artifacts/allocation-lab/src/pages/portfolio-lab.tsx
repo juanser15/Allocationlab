@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   useGetLatestResults, useGetPricesStatus, useGetConstraints,
   useRunPipeline, useGetRiskModel, useCreateGovernanceSnapshot,
-  useGetValidationRun, useListValidationRuns,
+  useGetValidationRun, useListValidationRuns, useGetValidationJob, useGetSession,
+  getGetValidationJobQueryKey, getGetSessionQueryKey,
   type ValidationJob, type ValidationRun, type ValidationRunSummary,
 } from "@workspace/api-client-react";
 import { localSettings } from "@/lib/local-settings";
@@ -10,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Play, FlaskConical, AlertCircle, ArrowRight } from "lucide-react";
+import { Loader2, Play, Settings2, SearchCheck, AlertCircle, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useSettingsDrawer } from "@/context/settings-drawer-context";
 import { useWorkflowStage } from "@/lib/workflow";
@@ -25,6 +27,12 @@ import { B3ValidationPanel } from "@/components/portfolio-lab/B3ValidationPanel"
 import { C1ContributionPanel } from "@/components/portfolio-lab/C1ContributionPanel";
 import { C2DiagnosticsPanel } from "@/components/portfolio-lab/C2DiagnosticsPanel";
 import { C3SelectionPoliciesPanel } from "@/components/portfolio-lab/C3SelectionPoliciesPanel";
+import { PmSavedHistory } from "@/components/portfolio-lab/PmSavedHistory";
+import { PmWorkflowSummary } from "@/components/portfolio-lab/PmWorkflowSummary";
+import {
+  HISTORY_SELECTION_KEY, findSelected, parseSelection, planInspection,
+  hasPendingJobs, effectiveInspectedRunId, repinLegacyRun, jobIsPending, type HistorySelection, type InspectionPlan, type PortfolioHistoryEntry,
+} from "@/components/portfolio-lab/portfolio-history-state";
 import { useValidationJob } from "@/components/portfolio-lab/use-validation-job";
 import type { B2PreparedSelection } from "@/components/portfolio-lab/PreparedInputsPanel";
 import type { D1RiskModelRequest } from "@/components/portfolio-lab/D1RiskModelPanel";
@@ -42,10 +50,28 @@ export default function PortfolioLab() {
     type: "SAMPLE",
     specificRiskFloorFraction: 1e-6,
   });
-  const [b2RunToken, setB2RunToken] = useState(0);
+  const b2RunToken = 0;
   const [b2Running, setB2Running] = useState(false);
   const [selectedB2AllocationId, setSelectedB2AllocationId] = useState<number | null>(null);
-  const [b3RunToken, setB3RunToken] = useState(0);
+  // Navigation never changes these: panels' own explicit buttons are the only actors.
+  const b3RunToken = 0;
+  const [historySelection, setHistorySelection] = useState<HistorySelection | null>(() =>
+    typeof window === "undefined" ? null : parseSelection(window.localStorage.getItem(HISTORY_SELECTION_KEY)));
+  const [inspection, setInspection] = useState<InspectionPlan | null>(null);
+  const restoredRef = useRef(false);
+  const history = useQuery<PortfolioHistoryEntry[]>({
+    queryKey: ["/api/portfolio-history"],
+    queryFn: async () => {
+      const res = await fetch("/api/portfolio-history", { method: "GET", credentials: "include" });
+      if (!res.ok) throw new Error(`History request failed (${res.status})`);
+      return res.json();
+    },
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: (q) => hasPendingJobs(q.state.data) ? 5000 : false,
+  });
+  const historyEntries = history.data ?? [];
+  const inspectedEntry = findSelected(historyEntries, historySelection);
   const [b3Running, setB3Running] = useState(false);
 
   useEffect(() => {
@@ -82,7 +108,7 @@ export default function PortfolioLab() {
   const legacyJob = useValidationJob("allocation-lab:validation-job:legacy", onLegacyJobCompleted);
   const capturedLegacySessionId = legacyJob.request && "sessionId" in legacyJob.request
     ? legacyJob.request.sessionId : null;
-  const legacySessionId = capturedLegacySessionId ?? result?.sessionId ?? null;
+  const legacySessionId = inspection?.pinnedSessionId ?? capturedLegacySessionId ?? result?.sessionId ?? null;
   const { data: validationRuns, refetch: refetchValidationRuns } = useListValidationRuns(
     { sessionId: legacySessionId ?? 0 },
     { query: { enabled: !!legacySessionId } as any },
@@ -100,27 +126,56 @@ export default function PortfolioLab() {
   const bt = legacyValidation?.result;
   const validationRequested = !!visibleValidationRunId || !!legacyJob.job || !!legacyJob.submissionError;
 
-  useEffect(() => {
-    if (!legacyValidation) return;
-    const a = legacyValidation.assumptions;
-    setBtBenchmark(a.benchmarkTicker ?? "none");
-    setBtFrequency(a.rebalanceFrequency as "monthly" | "quarterly");
-    setBtTiming(a.executionTiming as "same_close" | "next_close" | "next_open");
-    setBtTxnCostBps(a.transactionCostBps);
-    setBtSlippageBps(a.slippageBps);
-    setBtCashYield(a.cashYieldAnnual * 100);
-    setBtStartDate(a.startDate ?? "");
-    setBtEndDate(a.endDate ?? "");
-  }, [legacyValidation?.validationRunId, legacySessionId]);
+  // Legacy inspected view: read-only, driven by history identity only.
+  const legacyInspecting = !!inspection && !inspection.b2Mode &&
+    (inspection.pinnedLegacyRunId !== null || inspection.inspectedJobId !== null);
+  const inspJobId = legacyInspecting ? inspection!.inspectedJobId : null;
+  const { data: inspJob } = useGetValidationJob(inspJobId ?? "", {
+    query: {
+      enabled: !!inspJobId, queryKey: getGetValidationJobQueryKey(inspJobId ?? ""),
+      refetchInterval: (q: any) => jobIsPending(q.state?.data?.status) ? 2000 : false,
+    } as any,
+  });
+  const inspRunId = legacyInspecting ? effectiveInspectedRunId(inspection, inspJob?.validationRunId) : null;
+  const { data: inspRunData } = useGetValidationRun(inspRunId ?? 0, { query: { enabled: !!inspRunId } as any });
+  const inspRun: ValidationRun | null = inspRunData && "strategySnapshotId" in inspRunData ? inspRunData : null;
+  const viewedSessionId = inspection?.legacySessionSummaryId ?? null;
+  const { data: viewedSession, isLoading: loadingViewedSession } = useGetSession(viewedSessionId ?? 0, {
+    query: { enabled: !!viewedSessionId, queryKey: getGetSessionQueryKey(viewedSessionId ?? 0) } as any,
+  });
+  const viewResult = viewedSessionId ? viewedSession?.result : result;
 
+  const applyInspection = useCallback((entry: PortfolioHistoryEntry) => {
+    const plan = planInspection(entry);
+    setInspection(plan);
+    setB2Mode(plan.b2Mode);
+    setActiveTab(plan.tab);
+  }, []);
+  const handleInspect = (entry: PortfolioHistoryEntry) => {
+    const sel = { kind: entry.kind, id: entry.id };
+    setHistorySelection(sel);
+    window.localStorage.setItem(HISTORY_SELECTION_KEY, JSON.stringify(sel));
+    applyInspection(entry);
+  };
+  const clearHistorySelection = () => {
+    setHistorySelection(null);
+    setInspection(null);
+    window.localStorage.removeItem(HISTORY_SELECTION_KEY);
+  };
+  const clearInspection = clearHistorySelection;
+  useEffect(() => {
+    if (restoredRef.current || !history.data) return;
+    restoredRef.current = true;
+    const entry = findSelected(history.data, historySelection);
+    if (entry) applyInspection(entry);
+  }, [history.data, historySelection, applyInspection]);
+
+  // Legacy explicit action (BacktestTab button). Header never calls this.
   const handleRunValidation = () => {
-    if (b2Mode) {
-      setActiveTab("backtest");
-      setB3RunToken(token => token + 1);
-      return;
-    }
+    if (b2Mode) return;
     if (!result?.sessionId) return;
     setValidationError(null);
+    clearHistorySelection();
     setActiveTab("backtest");
     setSelectedValidationRunId(null);
     legacyJob.start({
@@ -139,11 +194,8 @@ export default function PortfolioLab() {
     setB2Prepared(selection);
   }, []);
   const handleRunOptimizer = () => {
-    if (b2Mode) {
-      setActiveTab("allocation");
-      setB2RunToken(token => token + 1);
-      return;
-    }
+    if (b2Mode) return;
+    clearHistorySelection();
     setSelectedValidationRunId(null);
     runPipeline.mutate(
       { data: { benchmarkTicker: localSettings.getBenchmarksSettings().defaultBenchmark } },
@@ -174,32 +226,29 @@ export default function PortfolioLab() {
     <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
       <PageHeader
         section="2 · Portfolio Lab"
-        title="Optimizer Pro"
+        title="Portfolio Lab"
         description={b2Mode
           ? "B2 computes an as-of allocation. B3 validates the frozen policy through historical decisions and executed holdings; today's weights are not backtest inputs."
           : "Systematic multi-factor portfolio optimizer. 1 · Optimize generates the allocation. 2 · Validate runs the historical backtest, walk-forward, and robustness checks."}
         actions={
           <div className="flex items-center gap-2 flex-wrap">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleRunOptimizer}
-              disabled={b2Mode ? (!b2Prepared || b2Running) : (!hasData || isRunning)}
-            >
-              {isRunning
-                ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Running…</>
-                : <><Play className="mr-2 h-3.5 w-3.5" /> 1 · Optimize</>
-              }
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleRunValidation}
-               disabled={b2Mode ? (!selectedB2AllocationId || isValidating) : (!hasRun || isValidating)}
-            >
+            {b2Mode ? (
+              <Button size="sm" variant="outline" onClick={() => setActiveTab("allocation")} data-testid="button-configure-optimization">
+                <Settings2 className="mr-2 h-3.5 w-3.5" /> Configure allocation
+              </Button>
+            ) : (
+              <Button size="sm" variant="outline" onClick={handleRunOptimizer}
+                disabled={!hasData || isRunning} data-testid="button-run-new-optimization">
+                {isRunning
+                  ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Running…</>
+                  : <><Play className="mr-2 h-3.5 w-3.5" /> Optimize</>}
+              </Button>
+            )}
+            {!b2Mode && <span className="text-[11px] text-muted-foreground">Creates a new frozen session</span>}
+            <Button size="sm" onClick={() => setActiveTab("backtest")} data-testid="button-inspect-validation">
               {isValidating
-                ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Validating…</>
-                : <><FlaskConical className="mr-2 h-3.5 w-3.5" /> 2 · Validate</>
-              }
+                ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Validation in progress</>
+                : <><SearchCheck className="mr-2 h-3.5 w-3.5" /> Configure validation</>}
             </Button>
           </div>
         }
@@ -246,22 +295,31 @@ export default function PortfolioLab() {
         </div>
       )}
 
+      <PmWorkflowSummary
+        inspected={inspectedEntry}
+        hasDraft={b2Mode ? !!b2Prepared : hasData}
+        draftLabel={b2Mode ? `${b2Prepared?.candidateIds.length ?? 0} prepared candidates` : "current legacy optimizer settings"}
+        legacySessionSummaryId={inspection?.legacySessionSummaryId ?? null}
+        onClearInspection={clearInspection}
+      />
+
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex-wrap h-auto gap-0.5 bg-gray-100/70 p-1">
           <TabsTrigger value="overview"        className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">1 · Overview</TabsTrigger>
-          <TabsTrigger value="factors-regimes" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">2 · Factors &amp; Regimes</TabsTrigger>
-          <TabsTrigger value="models"          className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">3 · Models</TabsTrigger>
-          <TabsTrigger value="backtest"        className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">4 · Backtest</TabsTrigger>
-          <TabsTrigger value="allocation"      className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">5 · Allocation</TabsTrigger>
+          <TabsTrigger value="models"          className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">2 · Draft &amp; inputs</TabsTrigger>
+          <TabsTrigger value="allocation"      className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">3 · Allocation</TabsTrigger>
+          <TabsTrigger value="backtest"        className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">4 · Validation</TabsTrigger>
+          <TabsTrigger value="history"         className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm" data-testid="tab-saved-history">5 · Saved runs &amp; jobs</TabsTrigger>
+          <TabsTrigger value="factors-regimes" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">6 · Research diagnostics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 pt-4">
           <OverviewTab
-            result={result}
-            loading={loadingResult}
+            result={viewResult}
+            loading={viewedSessionId ? loadingViewedSession : loadingResult}
             hasData={hasData}
-            validationRan={validationRequested && !!bt}
-            bt={bt}
+            validationRan={!viewedSessionId && validationRequested && !!bt}
+            bt={viewedSessionId ? undefined : bt}
             onNavigate={(tab) => {
               if (tab === "regimes" || tab === "factors") setActiveTab("factors-regimes");
               else if (tab === "constraints") setActiveTab("allocation");
@@ -271,11 +329,11 @@ export default function PortfolioLab() {
         </TabsContent>
 
         <TabsContent value="factors-regimes" forceMount className="space-y-6 pt-4 data-[state=inactive]:hidden">
-          <PreparedInputsPanel b2Mode={b2Mode} onB2ModeChange={setB2Mode} onPreparedSelectionChange={handleB2PreparedSelection} />
-          <FactorsRegimesTab result={result} hasData={hasData} hasRun={hasRun} />
+          <FactorsRegimesTab result={viewResult} hasData={hasData} hasRun={hasRun} />
         </TabsContent>
 
-        <TabsContent value="models" className="space-y-6 pt-4">
+        <TabsContent value="models" forceMount className="space-y-6 pt-4 data-[state=inactive]:hidden">
+          <PreparedInputsPanel b2Mode={b2Mode} onB2ModeChange={setB2Mode} onPreparedSelectionChange={handleB2PreparedSelection} />
           <ModelsTab
             result={result}
             hasData={hasData}
@@ -292,7 +350,7 @@ export default function PortfolioLab() {
 
         <TabsContent value="backtest" className="space-y-6 pt-4">
           {b2Mode
-             ? <B3ValidationPanel allocationId={selectedB2AllocationId} runToken={b3RunToken} onRunningChange={setB3Running} />
+             ? <B3ValidationPanel allocationId={selectedB2AllocationId} runToken={b3RunToken} onRunningChange={setB3Running} {...{ inspectRunId: inspection?.inspectRunId ?? null, inspectedJobId: inspection?.inspectedJobId ?? null }} />
             : <BacktestTab
               bt={bt}
               loading={loadingBt || isValidating}
@@ -302,7 +360,16 @@ export default function PortfolioLab() {
                validationRun={legacyValidation}
                validationRuns={legacyRuns}
               selectedValidationRunId={visibleValidationRunId}
-              onSelectValidationRun={(id) => setSelectedValidationRunId(id)}
+              onSelectValidationRun={(id) => {
+                if (legacyInspecting && inspection) setInspection(repinLegacyRun(inspection, id));
+                else setSelectedValidationRunId(id);
+              }}
+              {...(legacyInspecting ? {
+                inspectedRunId: inspRunId,
+                inspectedRun: inspRun,
+                 inspectedJobId: inspection!.inspectedJobId,
+                inspectedJob: inspJob ?? null,
+              } : {})}
                validationError={validationError ?? legacyJob.submissionError ?? legacyJob.job?.error?.message ?? null}
                validationJob={legacyJob.job}
                validationJobActive={legacyJob.active}
@@ -320,9 +387,14 @@ export default function PortfolioLab() {
               startDate={btStartDate} setStartDate={setBtStartDate}
               endDate={btEndDate} setEndDate={setBtEndDate}
             />}
-          <C1ContributionPanel />
-          <C2DiagnosticsPanel />
-          <C3SelectionPoliciesPanel />
+          <details className="rounded-md border bg-white p-4" data-testid="details-advanced-research">
+            <summary className="cursor-pointer text-sm font-medium">Advanced research diagnostics</summary>
+            <div className="space-y-6 pt-4">
+              <C1ContributionPanel />
+              <C2DiagnosticsPanel />
+              <C3SelectionPoliciesPanel />
+            </div>
+          </details>
         </TabsContent>
 
         <TabsContent value="allocation" forceMount className="space-y-6 pt-4 data-[state=inactive]:hidden">
@@ -336,8 +408,22 @@ export default function PortfolioLab() {
                   onCandidateCountChange={setB2CandidateCount}
                   onEstimationWindowChange={setB2EstimationWindow}
                   onAlignedObservationCountChange={setB2AlignedObservationCount}
+                  inspectedAllocationId={inspection?.inspectedAllocationId ?? null}
+                  onExitInspection={clearInspection}
                 />
-            : <AllocationTab result={result} constraints={constraints} hasData={hasData} hasRun={hasRun} />}
+            : <AllocationTab result={viewResult} constraints={constraints} hasData={hasData} hasRun={hasRun} />}
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-6 pt-4">
+          <PmSavedHistory
+            entries={historyEntries}
+            loading={history.isLoading}
+            error={history.isError}
+            refreshing={history.isFetching}
+            selection={historySelection}
+            onRefresh={() => { void history.refetch(); }}
+            onInspect={handleInspect}
+          />
         </TabsContent>
       </Tabs>
     </div>

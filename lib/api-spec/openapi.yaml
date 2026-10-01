@@ -1050,6 +1050,25 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /portfolio-history:
+    get:
+      operationId: listPortfolioHistory
+      tags: [portfolio]
+      summary: Read compact PM history of saved optimizations, allocations, validations, and jobs
+      description: >
+        Returns persisted lifecycle and identifying metadata only. This read-only
+        projection does not retrieve or recalculate frozen snapshots, price
+        histories, ledgers, or saved numerical result payloads.
+      responses:
+        "200":
+          description: Existing immutable portfolio history and durable validation-job states, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PortfolioHistoryEntry"
+
   /validation-runs:
     post:
       operationId: createValidationRun
@@ -4378,6 +4397,28 @@ components:
         message: { type: string }
         httpStatus: { type: ["integer", "null"] }
       required: [code, message, httpStatus]
+
+    PortfolioHistoryEntry:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [optimization, allocation, validation, job]
+        id: { type: string }
+        createdAt: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [frozen, queued, running, completed, failed]
+        representation: { type: ["string", "null"] }
+        executionMode:
+          type: ["string", "null"]
+          description: Recorded validation execution timing or saved B2 allocation mode; null when absent in historical records.
+        replayAvailable: { type: boolean }
+        sessionId: { type: ["integer", "null"] }
+        allocationId: { type: ["integer", "null"] }
+        validationRunId: { type: ["integer", "null"] }
+        jobId: { type: ["string", "null"] }
+      required: [kind, id, createdAt, status, representation, executionMode, replayAvailable, sessionId, allocationId, validationRunId, jobId]
 
     ValidationRunInput:
       oneOf:

@@ -16,3 +16,4 @@
 - [Full validation fetches in child processes](validation-fetch-buffer.md) — saved financial results can exceed Node's default synchronous child-process output buffer; size it explicitly.
 - [Browser 502 evidence boundary](browser-502-evidence.md) — an HTTP 502 without a completed API response is not evidence of a failed model or a passing replay; preserve the exact browser/server observations.
 - [Validation job identity](validation-job-identity.md) — idempotency belongs to one deliberate submission; identical inputs may be intentionally rerun, and execution failures remain distinct from financial results.
+- [PM inspection boundary](pm-inspection-boundary.md) — history navigation is read-only; inspected frozen records and editable drafts stay separate, including delayed responses and refresh recovery.

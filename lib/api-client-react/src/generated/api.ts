@@ -83,6 +83,7 @@ import type {
   ListValidationRunsParams,
   LivePricesFetchInput,
   LivePricesResult,
+  PortfolioHistoryEntry,
   PreparedComposition,
   PreparedCompositionInput,
   PreparedInput,
@@ -3189,6 +3190,84 @@ export function useGetValidationJob<TData = Awaited<ReturnType<typeof getValidat
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetValidationJobQueryOptions(jobId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListPortfolioHistoryUrl = () => {
+
+
+
+
+  return `/api/portfolio-history`
+}
+
+/**
+ * Returns persisted lifecycle and identifying metadata only. This read-only projection does not retrieve or recalculate frozen snapshots, price histories, ledgers, or saved numerical result payloads.
+ * @summary Read compact PM history of saved optimizations, allocations, validations, and jobs
+ */
+export const listPortfolioHistory = async ( options?: RequestInit): Promise<PortfolioHistoryEntry[]> => {
+
+  return customFetch<PortfolioHistoryEntry[]>(getListPortfolioHistoryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPortfolioHistoryQueryKey = () => {
+    return [
+    `/api/portfolio-history`
+    ] as const;
+    }
+
+
+export const getListPortfolioHistoryQueryOptions = <TData = Awaited<ReturnType<typeof listPortfolioHistory>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPortfolioHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPortfolioHistoryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPortfolioHistory>>> = ({ signal }) => listPortfolioHistory({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPortfolioHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListPortfolioHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof listPortfolioHistory>>>
+export type ListPortfolioHistoryQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Read compact PM history of saved optimizations, allocations, validations, and jobs
+ */
+
+export function useListPortfolioHistory<TData = Awaited<ReturnType<typeof listPortfolioHistory>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPortfolioHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListPortfolioHistoryQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
