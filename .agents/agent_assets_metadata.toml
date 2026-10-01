@@ -151,3 +151,17 @@ mtime_ms = 1790773133588
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/f9ef5104-d90d-456e-9036-5778e9554113/9fdd584e-b4ee-4680-8799-2e0330f283b4"
 storage_version_token = "1790773164019446"
 content_type = "text/markdown"
+
+[[outputs]]
+id = "Yyagx9pdWT9Z0EDh0pr5i"
+uri = "file://reports/oct2026-backtests/Informe_Parcial_Backtests_Octubre_2026.pdf"
+type = "pdf"
+title = "Informe actualizado — estado final de las ejecuciones"
+description = "Sustituye el PDF anterior: Assets completo; Signals falló al guardar; Alpha finalizó sin una asignación factible el 01/08/2022. Ya no quedan ejecuciones pendientes de esta tanda."
+logical_id = "93ff2acf-f7d6-4f79-89b7-00fa1412f79d"
+content_hash = "sha256:64ca4ab42013ad1cc1be83b2234d4b62847eb59977d65e359c41420f9cfdc727"
+size = 83060
+mtime_ms = 1790876845359
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/93ff2acf-f7d6-4f79-89b7-00fa1412f79d/89e469f8-2447-424b-8e47-e708bd5f489c"
+storage_version_token = "1790876856355701"
+content_type = "application/pdf"

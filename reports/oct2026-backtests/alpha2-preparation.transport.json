@@ -1,0 +1,8 @@
+{
+  "endpoint": "/prepared-inputs",
+  "method": "POST",
+  "status": 201,
+  "startedAt": "2026-10-01T16:30:10.141Z",
+  "completedAt": "2026-10-01T16:31:19.122Z",
+  "responseSha256": "86fed76a2fc863dadb71aecbf5468c33773bdf3ae50dd7a1ab51c15c702065d7"
+}

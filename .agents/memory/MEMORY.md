@@ -18,3 +18,4 @@
 - [Validation job identity](validation-job-identity.md) — idempotency belongs to one deliberate submission; identical inputs may be intentionally rerun, and execution failures remain distinct from financial results.
 - [PM inspection boundary](pm-inspection-boundary.md) — history navigation is read-only; inspected frozen records and editable drafts stay separate, including delayed responses and refresh recovery.
 - [Alpha draft boundary](alpha-draft-boundary.md) — bulk creation appends unique definitions without calculation; final IDs belong to frozen B1, and old peer order must not change.
+- [Financial report evidence](financial-report-evidence.md) — validate complete histories, payload scale, signal/map freshness, and the actual turnover fee convention before publishing results.

@@ -1,0 +1,7 @@
+{
+  "reason": "Independent KKT certification failed in original asset B2; first try eliminates redundant zero underlying lower bounds (candidate nonnegativity implies these). No economic assumption changed.",
+  "gamma": 1,
+  "eta": 0,
+  "ridgeCurrentTargetLimitation": "Sep30 cutoff / Oct1 decision is unavailable. Latest executable next_close policy reference uses cutoff Sep28, decision Sep29, execution calendar Sep30. This is a stale reference, not an Oct1 target or an executed trade.",
+  "alphaLimitation": "Seven-stream full-history snapshot insertion failed through existing B1 API. Response exposes SQL+313MB parameter, but not underlying driver cause; suspected oversized JSONB. No dataset truncation or synthetic replacement authorized."
+}

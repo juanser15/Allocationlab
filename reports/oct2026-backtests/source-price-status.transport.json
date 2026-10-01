@@ -1,0 +1,8 @@
+{
+  "endpoint": "/prices/status",
+  "method": "GET",
+  "status": 200,
+  "startedAt": "2026-10-01T16:15:50.777Z",
+  "completedAt": "2026-10-01T16:15:50.871Z",
+  "responseSha256": "9dc8aab5388656a9e9b8c67aa9d93fb2c5059b0c76e82db8df8bcbd0b886ba2f"
+}

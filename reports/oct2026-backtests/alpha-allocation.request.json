@@ -1,0 +1,94 @@
+{
+  "preparedInputId": 340,
+  "candidateIds": [
+    "fc6cd1ae28a5410865ad89c568c49b5eeef73478b504747010c7009e39339e78",
+    "a6249be85434712700b0424f222e25d9583a6364cab644eb57ccbe6c87173d86"
+  ],
+  "informationCutoff": "2026-09-30",
+  "decisionTimestamp": "2026-10-01T00:00:00Z",
+  "estimationWindow": 252,
+  "minObservations": 60,
+  "representation": "alpha_streams",
+  "returnConvention": "daily_decimal",
+  "expectedReturnShrinkage": 0,
+  "covarianceDiagonalShrinkage": 0.2,
+  "allocationMode": "CAPITAL_LONG_ONLY",
+  "dailyCashYield": 0,
+  "objective": {
+    "type": "regularized_mean_variance",
+    "gamma": 100,
+    "eta": 0
+  },
+  "forecastModel": {
+    "type": "SAMPLE_MEAN",
+    "displayZ": 1.96
+  },
+  "constraints": {
+    "totalCash": {
+      "min": 0.1,
+      "max": 0.2
+    },
+    "assetBounds": {
+      "AAXJ": {
+        "max": 0.3
+      },
+      "DBC": {
+        "max": 0.3
+      },
+      "EEM": {
+        "max": 0.3
+      },
+      "EFA": {
+        "max": 0.3
+      },
+      "EUFN": {
+        "max": 0.3
+      },
+      "EWG": {
+        "max": 0.3
+      },
+      "EWJ": {
+        "max": 0.3
+      },
+      "GLD": {
+        "max": 0.3
+      },
+      "IEF": {
+        "max": 0.3
+      },
+      "SPY": {
+        "max": 0.3
+      },
+      "TLT": {
+        "max": 0.3
+      },
+      "VNQ": {
+        "max": 0.3
+      },
+      "XLB": {
+        "max": 0.3
+      },
+      "XLE": {
+        "max": 0.3
+      },
+      "XLF": {
+        "max": 0.3
+      },
+      "XLI": {
+        "max": 0.3
+      },
+      "XLK": {
+        "max": 0.3
+      },
+      "XLU": {
+        "max": 0.3
+      },
+      "XLV": {
+        "max": 0.3
+      },
+      "XLY": {
+        "max": 0.3
+      }
+    }
+  }
+}

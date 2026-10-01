@@ -1,0 +1,28 @@
+{
+  "representation": "asset_returns",
+  "assetTickers": [
+    "AAXJ",
+    "DBC",
+    "EEM",
+    "EFA",
+    "EUFN",
+    "EWG",
+    "EWJ",
+    "GLD",
+    "IEF",
+    "SPY",
+    "TLT",
+    "VNQ",
+    "XLB",
+    "XLE",
+    "XLF",
+    "XLI",
+    "XLK",
+    "XLU",
+    "XLV",
+    "XLY"
+  ],
+  "factorIds": [],
+  "alphaDefinitions": [],
+  "cutoffDate": "2026-09-30"
+}

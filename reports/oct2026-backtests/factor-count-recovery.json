@@ -1,0 +1,12 @@
+{
+  "selectedFactors": [
+    "momentum",
+    "mean_reversion"
+  ],
+  "reason": "Reduced from seven to two active frozen factors solely to bound snapshot size/computation after full-seven B1 insert failed. Selected momentum and mean_reversion a priori as supported medium-term trend and short-term reversal inputs, not using realized backtest performance.",
+  "appliesTo": [
+    "signals",
+    "alpha"
+  ],
+  "libraryVersionUnchanged": "v1.4"
+}

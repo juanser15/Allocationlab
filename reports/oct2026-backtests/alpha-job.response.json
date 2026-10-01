@@ -1,0 +1,29 @@
+{
+  "jobId": "5597e686-ac6a-4460-be16-42fe339e4502",
+  "status": "queued",
+  "phase": "queued",
+  "createdAt": "2026-10-01T16:38:25.960Z",
+  "updatedAt": "2026-10-01T16:38:25.960Z",
+  "startedAt": null,
+  "completedAt": null,
+  "validationRunId": null,
+  "error": null,
+  "attempts": 0,
+  "request": {
+    "allocationId": 325,
+    "validationPreparedInputId": 340,
+    "assumptions": {
+      "evaluationStartDate": "2016-10-01",
+      "evaluationEndDate": "2026-09-30",
+      "decisionCalendar": "monthly",
+      "executionTiming": "next_close",
+      "initialNav": 100000,
+      "initialHoldings": {},
+      "initialCash": 100000,
+      "transactionCostBps": 10,
+      "slippageBps": 5,
+      "dailyCashYield": 0,
+      "benchmarkTicker": "SPY"
+    }
+  }
+}

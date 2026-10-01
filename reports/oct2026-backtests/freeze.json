@@ -1,0 +1,255 @@
+{
+  "datasetId": 22,
+  "datasetHash": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+  "datasetStart": "2010-10-01",
+  "datasetEnd": "2026-09-30",
+  "factorSetVersion": "v1.4",
+  "factorSetHash": "34aeb786fc104092948513834c8af721acc8b4b33912ed26b93a000e4bd6b538",
+  "assetPreparedInputId": 339,
+  "universe": [
+    "AAXJ",
+    "DBC",
+    "EEM",
+    "EFA",
+    "EUFN",
+    "EWG",
+    "EWJ",
+    "GLD",
+    "IEF",
+    "SPY",
+    "TLT",
+    "VNQ",
+    "XLB",
+    "XLE",
+    "XLF",
+    "XLI",
+    "XLK",
+    "XLU",
+    "XLV",
+    "XLY"
+  ],
+  "coverage": [
+    {
+      "ticker": "AAXJ",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "DBC",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "EEM",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "EFA",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "EUFN",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "EWG",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "EWJ",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "GLD",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "IEF",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "SPY",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "TLT",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "VNQ",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "XLB",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "XLC",
+      "firstObservation": "2018-06-19",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 0,
+      "trailingRequiredObservations": 509,
+      "eligible": false,
+      "reason": "Insufficient pre-evaluation contiguous history for 509-observation threshold."
+    },
+    {
+      "ticker": "XLE",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "XLF",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "XLI",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "XLK",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "XLRE",
+      "firstObservation": "2015-10-08",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 248,
+      "trailingRequiredObservations": 509,
+      "eligible": false,
+      "reason": "Insufficient pre-evaluation contiguous history for 509-observation threshold."
+    },
+    {
+      "ticker": "XLU",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "XLV",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    },
+    {
+      "ticker": "XLY",
+      "firstObservation": "2010-10-01",
+      "lastObservation": "2026-09-30",
+      "priorObservations": 1511,
+      "trailingRequiredObservations": 509,
+      "eligible": true,
+      "reason": "At least 509 contiguous observations preceding evaluation start, covering longest frozen factor history + full 252-date training + label maturity."
+    }
+  ],
+  "eligibilityRule": "Require 509 contiguous positive close observations immediately before 2016-10-01: max factor lookback+lag+2 (255) +252 training dates +2 next-close label-maturity buffer. No future-performance selection.",
+  "provenance": "Persisted adjusted-close CSV; vendor authenticity unverified. Neither vendor verification nor synthetic origin is established.",
+  "factorIds": [
+    "momentum",
+    "trend_quality",
+    "volatility",
+    "drawdown_risk_fit",
+    "mean_reversion",
+    "relative_strength",
+    "diversification_benefit"
+  ],
+  "assumptions": {
+    "evaluationStartDate": "2016-10-01",
+    "evaluationEndDate": "2026-09-30",
+    "decisionCalendar": "monthly",
+    "executionTiming": "next_close",
+    "initialNav": 100000,
+    "initialHoldings": {},
+    "initialCash": 100000,
+    "transactionCostBps": 10,
+    "slippageBps": 5,
+    "dailyCashYield": 0,
+    "benchmarkTicker": "SPY"
+  }
+}

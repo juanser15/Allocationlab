@@ -1,0 +1,8 @@
+{
+  "reason": "Common risk-aversion increase, gamma10, selected solely after gamma1 independent-certification failure and before reviewing any backtest performance. Changes economic risk/return tradeoff; not a performance-tuned choice.",
+  "objective": {
+    "type": "regularized_mean_variance",
+    "gamma": 10,
+    "eta": 0
+  }
+}

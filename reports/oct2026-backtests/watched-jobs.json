@@ -1,0 +1,37 @@
+{
+  "assets": {
+    "jobId": "a1f27d9c-dbbf-4a97-91fd-96cdbbb5d3e6",
+    "status": "completed",
+    "phase": "completed",
+    "validationRunId": 547,
+    "error": null,
+    "attempts": 1,
+    "completedAt": "2026-10-01T16:44:43.157Z"
+  },
+  "signals": {
+    "jobId": "0c9ca31f-8991-4344-abc5-9292ecdac71b",
+    "status": "failed",
+    "phase": "failed",
+    "validationRunId": null,
+    "error": {
+      "code": "VALIDATION_JOB_EXECUTION_FAILED",
+      "message": "Invalid string length",
+      "httpStatus": null
+    },
+    "attempts": 1,
+    "completedAt": "2026-10-01T17:04:29.841Z"
+  },
+  "alpha": {
+    "jobId": "5597e686-ac6a-4460-be16-42fe339e4502",
+    "status": "failed",
+    "phase": "failed",
+    "validationRunId": 548,
+    "error": {
+      "code": "B3_VALIDATION_FAILED",
+      "message": "B3 validation completed with fail reconciliation.",
+      "httpStatus": null
+    },
+    "attempts": 1,
+    "completedAt": "2026-10-01T17:44:51.826Z"
+  }
+}
