@@ -1,0 +1,34 @@
+{
+  "allocationId": 325,
+  "candidateIds": [
+    "fc6cd1ae28a5410865ad89c568c49b5eeef73478b504747010c7009e39339e78",
+    "a6249be85434712700b0424f222e25d9583a6364cab644eb57ccbe6c87173d86"
+  ],
+  "labels": [
+    "Momentum",
+    "Mean Reversion"
+  ],
+  "weights": [
+    0.4771357286681037,
+    0.32286427132893947
+  ],
+  "cash": 0.20000000000000004,
+  "dailyGrossReturnContribution": [
+    0.00021885064328470684,
+    0.0002945341061087042
+  ],
+  "dailyContributionStandardErrors": [
+    0.0002576009247914598,
+    0.00021103639107041951
+  ],
+  "varianceContributions": [
+    2.153710348168902e-05,
+    1.6037990201147164e-05
+  ],
+  "varianceShares": [
+    0.5731749776455485,
+    0.4268250223544516
+  ],
+  "informationCutoff": "2026-09-30",
+  "mappingSignalDate": "2026-09-01"
+}

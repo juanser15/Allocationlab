@@ -165,3 +165,17 @@ mtime_ms = 1790876845359
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/93ff2acf-f7d6-4f79-89b7-00fa1412f79d/89e469f8-2447-424b-8e47-e708bd5f489c"
 storage_version_token = "1790876856355701"
 content_type = "application/pdf"
+
+[[outputs]]
+id = "Nm387qzOqvJpcmeyNboFn"
+uri = "file://reports/oct2026-backtests/Alpha_Streams_1_Pagina_Octubre_2026.pdf"
+type = "pdf"
+title = "Alpha Streams — reporte de una página"
+description = "Asignación circular, principales ETFs y gráficos de atribución al retorno estimado y al riesgo. Sin texto legal; cifras de la asignación B2 guardada."
+logical_id = "90791c38-8b81-438d-aaa1-63f7064242af"
+content_hash = "sha256:b95e94a0e31b001db56e9005e9276afc12220fa8713e029269c56ba78343f61d"
+size = 46937
+mtime_ms = 1790878056031
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/90791c38-8b81-438d-aaa1-63f7064242af/2397b8cd-e338-4747-b561-f5b9429c87a5"
+storage_version_token = "1790878067880766"
+content_type = "application/pdf"
