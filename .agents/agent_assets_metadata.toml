@@ -179,3 +179,45 @@ mtime_ms = 1790878602187
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/90791c38-8b81-438d-aaa1-63f7064242af/1ffabc9b-5796-40c4-a1e6-4d0027007127"
 storage_version_token = "1790878617372514"
 content_type = "application/pdf"
+
+[[outputs]]
+id = "z5YHHCWgzGOfrYTESrZLy"
+uri = "file://screenshots/allocation-lab-captures.zip"
+type = "unspecified"
+title = "Allocation Lab — 69 screenshots"
+description = "Capturas PNG numeradas por sección, pestaña y subpestaña, con índice de cobertura."
+logical_id = "419df596-cfad-4635-b5d1-fb9311a5f307"
+content_hash = "sha256:2a9dffc409c7fc08a4137b05694db0c630ebf241343ed265101bef09f9947bf0"
+size = 29223830
+mtime_ms = 1790926709946
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/419df596-cfad-4635-b5d1-fb9311a5f307/ea71ad4b-eb8d-485a-82ca-7e7e8505d915"
+storage_version_token = "1790926740098504"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "scRS2IUXiLk-iOZ4VIdTy"
+uri = "file://screenshots/allocation-lab/contact-sheet.pdf"
+type = "pdf"
+title = "PDF — capturas de Allocation Lab"
+description = "Índice visual de las 69 capturas para revisar todas las secciones."
+logical_id = "4c3157ca-4794-4dad-bb03-f112348507e5"
+content_hash = "sha256:f0c61d05c9017fedc0358c01a9766b85a408d9dd285d30e5a7b95120b257e6c1"
+size = 9551376
+mtime_ms = 1790926708586
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/4c3157ca-4794-4dad-bb03-f112348507e5/cfa604a4-bdc6-44ad-b09a-24b7b6d79557"
+storage_version_token = "1790926741552555"
+content_type = "application/pdf"
+
+[[outputs]]
+id = "3gqbCXFE3xQouCEBg-agG"
+uri = "file://screenshots/allocation-lab/gallery.html"
+type = "html"
+title = "Galería navegable de screenshots"
+description = "Galería autocontenida con capturas, rutas de navegación y notas de disponibilidad."
+logical_id = "5903bfdb-365f-48b5-a646-56fdd63310b7"
+content_hash = "sha256:dda118ea8a18ed5bfab6143ea5f7e67589eb188813c5c5f0b66f8072cb0c1da2"
+size = 25751281
+mtime_ms = 1790926702059
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/5903bfdb-365f-48b5-a646-56fdd63310b7/e56b6475-35fe-46bc-b250-232ada6befea"
+storage_version_token = "1790926742808568"
+content_type = "text/html"
