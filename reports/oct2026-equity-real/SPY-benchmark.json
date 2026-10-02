@@ -1,0 +1,21 @@
+{
+  "ticker": "SPY",
+  "source": "same frozen B1 adjusted OHLC; independent arithmetic, not app persisted backtest",
+  "start": "2017-01-03",
+  "end": "2026-10-02",
+  "initialNAV": 100000,
+  "entry": "first evaluation-session adjusted open",
+  "fees": 0,
+  "cashRiskFreeAnnual": 0,
+  "annualizationSessions": 252,
+  "annualizedReturn": 0.15263337753185335,
+  "annualizedVolatility": 0.18120852246704755,
+  "sharpe": 0.8749441743942681,
+  "maxDrawdown": -0.33717278269767603,
+  "hitRate": 0.5528355773153815,
+  "finalNAV": 398125.76106039964,
+  "executionCount": 1,
+  "rebalanceCount": 0,
+  "oneWayEntryTurnover": 1,
+  "ledgerReconciliation": "arithmetic only; no app ledger generated"
+}

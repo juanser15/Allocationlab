@@ -221,3 +221,17 @@ mtime_ms = 1790926702059
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/5903bfdb-365f-48b5-a646-56fdd63310b7/e56b6475-35fe-46bc-b250-232ada6befea"
 storage_version_token = "1790926742808568"
 content_type = "text/html"
+
+[[outputs]]
+id = "MwJbx0I2FhcgeqLplWDW4"
+uri = "file://reports/oct2026-equity-real/portfolio-package-summary.json"
+type = "unspecified"
+title = "October 2026 — machine-readable portfolio results (partial)"
+description = "Exact data provenance, 12 equity ETFs, seven factors, weights, IDs, replay outcomes, failed validations, pending D6 job, and frozen-data SPY benchmark. Missing results remain null."
+logical_id = "398ddbd6-6ac6-4d76-a8c0-f9603c652cc0"
+content_hash = "sha256:0c4e284bbd612716cbef6f186be0312f30c78ac45fe7eec8c6962cd89e5539d4"
+size = 12084
+mtime_ms = 1790975022209
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/398ddbd6-6ac6-4d76-a8c0-f9603c652cc0/4e1aff61-63b0-436b-a4f9-3e32d5c44649"
+storage_version_token = "1790975056465653"
+content_type = "application/octet-stream"

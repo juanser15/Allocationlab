@@ -26,3 +26,9 @@ Use the engine's actual cash ledger and turnover convention when reporting fees.
 **Why:** Configured commission/slippage basis points applied to half-absolute target-weight turnover are not equivalent to charging those basis points on every buy and sell fill dollar.
 
 **How to apply:** Reconcile dollar costs to the ledger and explain the calculation base. Do not independently recompute a different brokerage-cost model and label it the engine result.
+
+Check forecast and historical execution timing together before committing to a comparison; an OHLC dataset alone does not establish next-open support for every model.
+
+**Why:** Real-OHLC operation exposed a D6 terminal-calendar forecast limitation, followed by rejection of next-open validation for a same-close forecast. A passing target replay did not resolve either historical limitation.
+
+**How to apply:** Disclose supported timing substitutions and preserve failed attempts. Never invent future observations or present a differently timed validation as the requested execution convention.
