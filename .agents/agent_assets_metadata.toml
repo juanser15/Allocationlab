@@ -347,3 +347,17 @@ mtime_ms = 1791214831715
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/927c4017-43d7-4100-a6a4-6898eb21196a/c1d9d125-7343-4c7c-8c08-ecc30ccedbdc"
 storage_version_token = "1791214842839366"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "ETB0Pfiowf3b5G76I3tt9"
+uri = "file://reports/oct2026-classic-selection-minvar/October-allocation.pdf"
+type = "pdf"
+title = "October Allocation — análisis de cartera"
+description = "PDF de 4 páginas: distribución de la cartera, pesos por ETF, heatmap de los 20 candidatos y atribución factorial del score. Datos al 2 de octubre de 2026."
+logical_id = "4259d3f7-02a1-41d5-9c64-91f1cc85d632"
+content_hash = "sha256:c1939ca30834510b5b4f25af78344ba79f93bf788c1de4880d5c6758b9c065f0"
+size = 54512
+mtime_ms = 1791218687182
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/4259d3f7-02a1-41d5-9c64-91f1cc85d632/e32be27d-0043-419c-ac14-deb242e5af20"
+storage_version_token = "1791218707497459"
+content_type = "application/pdf"
