@@ -263,3 +263,31 @@ mtime_ms = 1791208716005
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/1bedbf93-9c78-4369-9f5c-fdae1456e5f1/7667ff17-8d88-4375-ace2-cb8aaa2ed9d8"
 storage_version_token = "1791208725667969"
 content_type = "text/csv"
+
+[[outputs]]
+id = "9p1rnLdAujkqBd5yJI1_h"
+uri = "file://reports/oct2026-twelve-minvar/result.json"
+type = "unspecified"
+title = "12-ETF nominal minimum-variance result"
+description = "Computed-only result using existing quadprog solver; exact weights, dates, risk, residuals, sample and shrunk covariance matrices."
+logical_id = "a51b8d61-6ff3-432d-8ef9-4240f005a909"
+content_hash = "sha256:6a2c534c79b98b8ec5d5ea4ae419f0cae7cf7d931da60877a25a6a323870bc5b"
+size = 10573
+mtime_ms = 1791208880880
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/a51b8d61-6ff3-432d-8ef9-4240f005a909/38671b7e-67f9-47e5-8dcf-e3ef4e08813d"
+storage_version_token = "1791208890460470"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "FVIn_rvcYGG4lYVIfSQM5"
+uri = "file://reports/oct2026-twelve-minvar/sample-covariance.csv"
+type = "table"
+title = "12×12 daily sample covariance — full precision"
+description = "Ticker order: SPY,QQQ,IWM,VEA,EEM,EWJ,EWG,EWU,EWC,EWA,INDA,EWZ. Unshrunk sample covariance for independent verification."
+logical_id = "e0373a30-fdbc-4dbb-97b8-37e38ebba978"
+content_hash = "sha256:b7b1b9be048c87914d7e7162a92ebae707f42a215a1d93ea98bf5ddf3286d083"
+size = 3406
+mtime_ms = 1791208880880
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/e0373a30-fdbc-4dbb-97b8-37e38ebba978/6bba575f-778b-4afd-85a7-5b187e4244d9"
+storage_version_token = "1791208891714909"
+content_type = "text/csv"
