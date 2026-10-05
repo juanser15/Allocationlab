@@ -1,0 +1,428 @@
+{
+  "universe": {
+    "etfs": [
+      {
+        "ticker": "XLK",
+        "name": "Technology Select Sector",
+        "sector": "Technology",
+        "priorWeight": 0.09,
+        "enabled": true
+      },
+      {
+        "ticker": "XLC",
+        "name": "Communication Services Select Sector",
+        "sector": "Communication Services",
+        "priorWeight": 0.085,
+        "enabled": true
+      },
+      {
+        "ticker": "XLRE",
+        "name": "Real Estate Select Sector",
+        "sector": "Real Estate",
+        "priorWeight": 0.055,
+        "enabled": true
+      },
+      {
+        "ticker": "XLI",
+        "name": "Industrials Select Sector",
+        "sector": "Industrials",
+        "priorWeight": 0.05,
+        "enabled": true
+      },
+      {
+        "ticker": "XLY",
+        "name": "Consumer Discretionary Select Sector",
+        "sector": "Consumer Discretionary",
+        "priorWeight": 0.045,
+        "enabled": true
+      },
+      {
+        "ticker": "XLF",
+        "name": "Financial Select Sector",
+        "sector": "Financials",
+        "priorWeight": 0.045,
+        "enabled": true
+      },
+      {
+        "ticker": "XLU",
+        "name": "Utilities Select Sector",
+        "sector": "Utilities",
+        "priorWeight": 0.045,
+        "enabled": true
+      },
+      {
+        "ticker": "XLE",
+        "name": "Energy Select Sector",
+        "sector": "Energy",
+        "priorWeight": 0.045,
+        "enabled": true
+      },
+      {
+        "ticker": "XLV",
+        "name": "Health Care Select Sector",
+        "sector": "Health Care",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "XLB",
+        "name": "Materials Select Sector",
+        "sector": "Materials",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "EEM",
+        "name": "iShares MSCI Emerging Markets",
+        "sector": "Emerging Markets",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "EWJ",
+        "name": "iShares MSCI Japan",
+        "sector": "Global - Japan",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "AAXJ",
+        "name": "iShares MSCI All Country Asia ex Japan",
+        "sector": "Global - Asia ex-Japan",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "EWC",
+        "name": "iShares MSCI Canada",
+        "sector": "Global - Canada",
+        "priorWeight": 0,
+        "enabled": false
+      },
+      {
+        "ticker": "EWB",
+        "name": "iShares MSCI Belgium",
+        "sector": "Global - Belgium",
+        "priorWeight": 0,
+        "enabled": false
+      },
+      {
+        "ticker": "EWG",
+        "name": "iShares MSCI Germany",
+        "sector": "Global - Germany",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "EUFN",
+        "name": "iShares MSCI Europe Financials",
+        "sector": "Global - Europe Financials",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "SPY",
+        "name": "SPY",
+        "sector": "Unclassified",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "GLD",
+        "name": "GLD",
+        "sector": "Unclassified",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "TLT",
+        "name": "TLT",
+        "sector": "Unclassified",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "IEF",
+        "name": "IEF",
+        "sector": "Unclassified",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "VNQ",
+        "name": "VNQ",
+        "sector": "Unclassified",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "EFA",
+        "name": "EFA",
+        "sector": "Unclassified",
+        "priorWeight": 0,
+        "enabled": true
+      },
+      {
+        "ticker": "DBC",
+        "name": "DBC",
+        "sector": "Unclassified",
+        "priorWeight": 0,
+        "enabled": true
+      }
+    ],
+    "cashPriorWeight": 0.54
+  },
+  "constraints": {
+    "cashMin": 0.1,
+    "cashMax": 0.2,
+    "minEtfWeight": 0.005,
+    "maxEtfWeight": 0.3,
+    "minInclusionThreshold": 0,
+    "targetActiveEtfs": 9,
+    "diversificationEnabled": true
+  },
+  "factor_library": {
+    "version": "v1.4",
+    "updatedAt": "2026-09-25T22:07:32.022Z",
+    "factors": [
+      {
+        "enabled": true,
+        "status": "active",
+        "inputSeries": "Adjusted close price",
+        "lag": 1,
+        "normalization": "percentile_rank",
+        "winsorizationLower": 0.05,
+        "winsorizationUpper": 0.95,
+        "missingDataTreatment": "exclude",
+        "activeRegimes": [
+          "risk_on",
+          "neutral",
+          "risk_off"
+        ],
+        "dataSource": "Latest persisted adjusted-close price dataset",
+        "id": "momentum",
+        "name": "Momentum",
+        "description": "Medium-term total return over the configured lookback.",
+        "family": "Momentum",
+        "calculationType": "momentum",
+        "formula": "P(t-lag) / P(t-lag-lookback) - 1",
+        "direction": "higher_is_better",
+        "lookback": 120,
+        "baseWeight": 0.25,
+        "regimeWeights": {
+          "riskOn": 0.35,
+          "neutral": 0.25,
+          "riskOff": 0.1
+        },
+        "benchmarkTicker": null,
+        "currentCoverage": 0,
+        "availabilityReason": null,
+        "version": "v1.4"
+      },
+      {
+        "enabled": true,
+        "status": "active",
+        "inputSeries": "Adjusted close price",
+        "lag": 1,
+        "normalization": "percentile_rank",
+        "winsorizationLower": 0.05,
+        "winsorizationUpper": 0.95,
+        "missingDataTreatment": "exclude",
+        "activeRegimes": [
+          "risk_on",
+          "neutral",
+          "risk_off"
+        ],
+        "dataSource": "Latest persisted adjusted-close price dataset",
+        "id": "trend_quality",
+        "name": "Trend Quality",
+        "description": "Stability and explanatory strength of the log-price trend.",
+        "family": "Trend",
+        "calculationType": "trend_quality",
+        "formula": "R\u00b2(log(P), time) \u00d7 sign(slope)",
+        "direction": "higher_is_better",
+        "lookback": 120,
+        "baseWeight": 0.2,
+        "regimeWeights": {
+          "riskOn": 0.3,
+          "neutral": 0.25,
+          "riskOff": 0.15
+        },
+        "benchmarkTicker": null,
+        "currentCoverage": 0,
+        "availabilityReason": null,
+        "version": "v1.4"
+      },
+      {
+        "enabled": true,
+        "status": "active",
+        "inputSeries": "Adjusted close price",
+        "lag": 1,
+        "normalization": "percentile_rank",
+        "winsorizationLower": 0.05,
+        "winsorizationUpper": 0.95,
+        "missingDataTreatment": "exclude",
+        "activeRegimes": [
+          "risk_on",
+          "neutral",
+          "risk_off"
+        ],
+        "dataSource": "Latest persisted adjusted-close price dataset",
+        "id": "volatility",
+        "name": "Volatility",
+        "description": "Annualized realized volatility; lower values receive stronger normalized scores.",
+        "family": "Risk",
+        "calculationType": "volatility",
+        "formula": "stdev(daily returns, lookback) \u00d7 \u221a252",
+        "direction": "lower_is_better",
+        "lookback": 60,
+        "baseWeight": 0.15,
+        "regimeWeights": {
+          "riskOn": 0.1,
+          "neutral": 0.2,
+          "riskOff": 0.3
+        },
+        "benchmarkTicker": null,
+        "currentCoverage": 0,
+        "availabilityReason": null,
+        "version": "v1.4"
+      },
+      {
+        "enabled": true,
+        "status": "active",
+        "inputSeries": "Adjusted close price",
+        "lag": 1,
+        "normalization": "percentile_rank",
+        "winsorizationLower": 0.05,
+        "winsorizationUpper": 0.95,
+        "missingDataTreatment": "exclude",
+        "activeRegimes": [
+          "risk_on",
+          "neutral",
+          "risk_off"
+        ],
+        "dataSource": "Latest persisted adjusted-close price dataset",
+        "id": "drawdown_risk_fit",
+        "name": "Drawdown / Risk Fit",
+        "description": "Maximum peak-to-trough loss over the configured lookback.",
+        "family": "Risk",
+        "calculationType": "drawdown",
+        "formula": "min(P(t) / running_max(P) - 1)",
+        "direction": "higher_is_better",
+        "lookback": 252,
+        "baseWeight": 0.15,
+        "regimeWeights": {
+          "riskOn": 0.1,
+          "neutral": 0.15,
+          "riskOff": 0.3
+        },
+        "benchmarkTicker": null,
+        "currentCoverage": 0,
+        "availabilityReason": null,
+        "version": "v1.4"
+      },
+      {
+        "enabled": true,
+        "status": "active",
+        "inputSeries": "Adjusted close price",
+        "lag": 1,
+        "normalization": "percentile_rank",
+        "winsorizationLower": 0.05,
+        "winsorizationUpper": 0.95,
+        "missingDataTreatment": "exclude",
+        "activeRegimes": [
+          "risk_on",
+          "neutral",
+          "risk_off"
+        ],
+        "dataSource": "Latest persisted adjusted-close price dataset",
+        "id": "mean_reversion",
+        "name": "Mean Reversion",
+        "description": "Short-term reversal measured from recent return relative to peers.",
+        "family": "Reversal",
+        "calculationType": "mean_reversion",
+        "formula": "-return(lookback)",
+        "direction": "higher_is_better",
+        "lookback": 5,
+        "baseWeight": 0.05,
+        "regimeWeights": {
+          "riskOn": 0.05,
+          "neutral": 0.05,
+          "riskOff": 0.05
+        },
+        "benchmarkTicker": null,
+        "currentCoverage": 0,
+        "availabilityReason": null,
+        "version": "v1.4"
+      },
+      {
+        "enabled": true,
+        "status": "active",
+        "inputSeries": "Adjusted close price",
+        "lag": 1,
+        "normalization": "percentile_rank",
+        "winsorizationLower": 0.05,
+        "winsorizationUpper": 0.95,
+        "missingDataTreatment": "exclude",
+        "activeRegimes": [
+          "risk_on",
+          "neutral",
+          "risk_off"
+        ],
+        "dataSource": "Latest persisted adjusted-close price dataset",
+        "id": "relative_strength",
+        "name": "Relative Strength",
+        "description": "Return in excess of a configured benchmark over the same window.",
+        "family": "Relative Value",
+        "calculationType": "relative_strength",
+        "formula": "return(asset, lookback) - return(benchmark, lookback)",
+        "direction": "higher_is_better",
+        "lookback": 63,
+        "baseWeight": 0.1,
+        "regimeWeights": {
+          "riskOn": 0.05,
+          "neutral": 0.05,
+          "riskOff": 0.05
+        },
+        "benchmarkTicker": "SPY",
+        "currentCoverage": 0,
+        "availabilityReason": null,
+        "version": "v1.4"
+      },
+      {
+        "enabled": true,
+        "status": "active",
+        "inputSeries": "Adjusted close price",
+        "lag": 1,
+        "normalization": "percentile_rank",
+        "winsorizationLower": 0.05,
+        "winsorizationUpper": 0.95,
+        "missingDataTreatment": "exclude",
+        "activeRegimes": [
+          "risk_on",
+          "neutral",
+          "risk_off"
+        ],
+        "dataSource": "Latest persisted adjusted-close price dataset",
+        "id": "diversification_benefit",
+        "name": "Diversification / Correlation Benefit",
+        "description": "Low average correlation to the rest of the investable universe.",
+        "family": "Diversification",
+        "calculationType": "diversification_benefit",
+        "formula": "1 - mean(correlation(asset, peers), lookback)",
+        "direction": "higher_is_better",
+        "lookback": 120,
+        "baseWeight": 0.1,
+        "regimeWeights": {
+          "riskOn": 0.05,
+          "neutral": 0.05,
+          "riskOff": 0.05
+        },
+        "benchmarkTicker": null,
+        "currentCoverage": 0,
+        "availabilityReason": null,
+        "version": "v1.4"
+      }
+    ]
+  }
+}

@@ -305,3 +305,45 @@ mtime_ms = 1791210666695
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/1b53c3f2-a3bf-41bd-aabd-1af8babbe7b5/e68fd34b-7090-4a57-aeb3-f01f91eb035c"
 storage_version_token = "1791210674147918"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "zTgruMe5AULvL6agOh5Fg"
+uri = "file://reports/oct2026-legacy-sector-diagnostic/result.json"
+type = "unspecified"
+title = "Diagnóstico octubre — constructor multifactor original"
+description = "Resultado aislado: 20 candidatos, 12 seleccionados, pesos, scores, factores efectivos, configuración y procedencia Yahoo; no persistido como corrida en la app."
+logical_id = "cc095daa-5864-41fa-85d3-58f14af9a4bf"
+content_hash = "sha256:58bb7df2801981a42978d26c73676f3872dda84f689056848f40c9d7a3d3207f"
+size = 199155
+mtime_ms = 1791214747939
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/cc095daa-5864-41fa-85d3-58f14af9a4bf/cc66640b-08ce-42ff-8d0e-c1e35e00e5f5"
+storage_version_token = "1791214762595912"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "Ape2kEpi4Oupg6IKaLhxC"
+uri = "file://reports/oct2026-legacy-sector-diagnostic/adjusted-closes.csv"
+type = "table"
+title = "Precios ajustados verificables — 20 ETFs"
+description = "439 fechas comunes del 2025-01-02 al 2026-10-02, recuperadas mediante el proveedor Yahoo existente; sin dataset22."
+logical_id = "f24b93e4-0b25-464a-ba90-6ddf6e5ab013"
+content_hash = "sha256:f993ae2937a69d0b7505e5063cb341ae9af626cbb640810e573d18a1a2c44708"
+size = 75176
+mtime_ms = 1791214747951
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/f24b93e4-0b25-464a-ba90-6ddf6e5ab013/36390f06-20e9-44bb-8ab4-76bf27ee9531"
+storage_version_token = "1791214763622026"
+content_type = "text/csv"
+
+[[outputs]]
+id = "T1WUmR19m7butK2sRmPNN"
+uri = "file://reports/oct2026-classic-selection-minvar/result.json"
+type = "unspecified"
+title = "Selección multifactor clásica + mínima varianza condicionada al subconjunto"
+description = "Nueva cuenta aislada: universo de20, ranking,12 posiciones, pesos exactos, factores efectivos, matrices de covarianza, procedencia Yahoo y diagnóstico del solver."
+logical_id = "927c4017-43d7-4100-a6a4-6898eb21196a"
+content_hash = "sha256:ae4523e663162646850ae9856616ca7a5ff0ccb4a0102d007816fcf4207aad98"
+size = 107691
+mtime_ms = 1791214831715
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/927c4017-43d7-4100-a6a4-6898eb21196a/c1d9d125-7343-4c7c-8c08-ecc30ccedbdc"
+storage_version_token = "1791214842839366"
+content_type = "application/octet-stream"
