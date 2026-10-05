@@ -361,3 +361,17 @@ mtime_ms = 1791218687182
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/4259d3f7-02a1-41d5-9c64-91f1cc85d632/e32be27d-0043-419c-ac14-deb242e5af20"
 storage_version_token = "1791218707497459"
 content_type = "application/pdf"
+
+[[outputs]]
+id = "uYKBoISKre9_fyTp3yHtP"
+uri = "file://reports/oct2026-classic-selection-minvar/October-allocation-English.pdf"
+type = "pdf"
+title = "Portfolio — October 2026"
+description = "English PDF styled after your reference: allocation chart, factor heatmaps, portfolio weights and investment snapshot. No “How it is constructed” section."
+logical_id = "722a1c87-886b-4e07-98f6-4eb975280ab7"
+content_hash = "sha256:b55e7ea95004f2fce9c417236b634a97f1cd61976c42d176de5b1d61e1a05d9e"
+size = 52494
+mtime_ms = 1791220027551
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/722a1c87-886b-4e07-98f6-4eb975280ab7/f1e15099-d841-49ff-a4b0-d04e8c511d00"
+storage_version_token = "1791220045752253"
+content_type = "application/pdf"
