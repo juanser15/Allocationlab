@@ -235,3 +235,31 @@ mtime_ms = 1790975022209
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/398ddbd6-6ac6-4d76-a8c0-f9603c652cc0/6b5b2fef-175a-4624-a29e-7fb639ac8909"
 storage_version_token = "1791207887563839"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "rLKrXQSMSFDaVwoJkXa3x"
+uri = "file://reports/oct2026-policy-allocation/allocation.json"
+type = "unspecified"
+title = "October 2 policy allocation — exact results"
+description = "Full-precision weights, all candidate features and percentiles, sample and shrunk covariance matrices, constraints and solver residuals."
+logical_id = "dba7deb4-3b38-401d-8764-4792d80234be"
+content_hash = "sha256:0cb5090e417c0f7843c39f3fbe9230f3786c7e4be38fd3ad117541ec8f640f6a"
+size = 13172
+mtime_ms = 1791208716004
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/dba7deb4-3b38-401d-8764-4792d80234be/3c349fe7-47c7-4d5a-a9d5-cb09b587e3f4"
+storage_version_token = "1791208724644629"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "tNpvRcsRhLdC8ZfoEvTBB"
+uri = "file://reports/oct2026-policy-allocation/adjusted-closes.csv"
+type = "table"
+title = "Exact adjusted-close inputs — 253 sessions"
+description = "Frozen Yahoo dataset 24/preparation 342: 12 ETFs, sufficient to reproduce all features and the 252-return covariance."
+logical_id = "1bedbf93-9c78-4369-9f5c-fdae1456e5f1"
+content_hash = "sha256:729f0cd79303895aad7d3f185ae499d02afdd4b06c5739e62cc9c9fad12c707b"
+size = 25867
+mtime_ms = 1791208716005
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/1bedbf93-9c78-4369-9f5c-fdae1456e5f1/7667ff17-8d88-4375-ace2-cb8aaa2ed9d8"
+storage_version_token = "1791208725667969"
+content_type = "text/csv"
