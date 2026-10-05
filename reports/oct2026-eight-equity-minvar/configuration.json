@@ -1,0 +1,43 @@
+{
+  "configurationId": "oct2026-eight-equity-minvar",
+  "eligibleTickers": [
+    "IWM",
+    "EEM",
+    "EWJ",
+    "EWG",
+    "EWU",
+    "EWC",
+    "EWA",
+    "EWZ"
+  ],
+  "excludedForThisPortfolioOnly": [
+    "SPY",
+    "INDA",
+    "VEA",
+    "QQQ"
+  ],
+  "datasetId": 24,
+  "preparedInputId": 342,
+  "asOf": "2026-10-02",
+  "source": "Frozen real Yahoo adjusted close dataset24/preparation342",
+  "sampleCovarianceSource": "reports/oct2026-twelve-minvar/result.json",
+  "priceWindowStart": "2025-10-01",
+  "returnWindowStart": "2025-10-02",
+  "returnObservations": 252,
+  "objective": "nominal minimum variance: 0.5*wT*Sigma*w",
+  "equityBudget": 0.5,
+  "cash": 0.5,
+  "assetBounds": {
+    "min": 0.025,
+    "max": 0.1
+  },
+  "covarianceDiagonalShrinkage": 0.2,
+  "covarianceSampleDenominator": 251,
+  "annualization": 252,
+  "cashVolatility": 0,
+  "expectedReturnTerm": false,
+  "robustness": false,
+  "turnoverPenalty": false,
+  "leverage": false,
+  "previousWeightsReference": null
+}

@@ -291,3 +291,17 @@ mtime_ms = 1791208880880
 storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/e0373a30-fdbc-4dbb-97b8-37e38ebba978/6bba575f-778b-4afd-85a7-5b187e4244d9"
 storage_version_token = "1791208891714909"
 content_type = "text/csv"
+
+[[outputs]]
+id = "XAI7xamVegWNe8SSDM3Dk"
+uri = "file://reports/oct2026-eight-equity-minvar/result.json"
+type = "unspecified"
+title = "Octubre: mínima varianza con ocho ETFs"
+description = "Nueva asignación, pesos exactos, riesgo, covarianzas, restricciones y configuración; sin modificar el informe anterior."
+logical_id = "1b53c3f2-a3bf-41bd-aabd-1af8babbe7b5"
+content_hash = "sha256:78c1f9416886759a10f2651e8f3950c1757f279e950bc47e78909752a01cff54"
+size = 6091
+mtime_ms = 1791210666695
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:9b86843f-00bc-4c2d-b36f-65d053132b90/1b53c3f2-a3bf-41bd-aabd-1af8babbe7b5/e68fd34b-7090-4a57-aeb3-f01f91eb035c"
+storage_version_token = "1791210674147918"
+content_type = "application/octet-stream"
