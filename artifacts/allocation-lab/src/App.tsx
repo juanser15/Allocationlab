@@ -1,4 +1,4 @@
-import { Switch, Route, Redirect, Router as WouterRouter } from "wouter";
+import { Switch, Route, Redirect, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +13,10 @@ import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
 import { UxPreferencesProvider } from "@/context/ux-preferences-context";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 
+import CertifiedApp from "@/certified/CertifiedApp";
+
+const CERTIFIED_PATHS = new Set(["/", "/risk-mandate", "/strategy-bank", "/allocation", "/research-engine", "/decision-trace", "/risk-performance", "/system-status"]);
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -23,12 +27,14 @@ const queryClient = new QueryClient({
 });
 
 function Router() {
+  const [location] = useLocation();
+  if (CERTIFIED_PATHS.has(location)) return <CertifiedApp />;
   return (
     <AppLayout>
       <SettingsDrawer />
       <OnboardingTour />
       <Switch>
-        <Route path="/" component={Dashboard} />
+        <Route path="/legacy-dashboard" component={Dashboard} />
         <Route path="/portfolio-lab" component={PortfolioLab} />
         <Route path="/investment-committee" component={InvestmentCommittee} />
         <Route path="/etf/:ticker" component={EtfDetail} />

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "pnpm install --frozen-lockfile --ignore-scripts --prod=false",
+  "buildCommand": "PORT=4173 BASE_PATH=/ NODE_ENV=production pnpm --config.verify-deps-before-run=false --filter @workspace/allocation-lab run build",
+  "outputDirectory": "artifacts/allocation-lab/dist/public",
+  "routes": [
+    {
+      "src": "/.*",
+      "methods": [
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "OPTIONS",
+        "CONNECT",
+        "TRACE"
+      ],
+      "status": 405
+    },
+    {
+      "src": "/api(?:/.*)?",
+      "status": 404
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(?:risk-mandate|strategy-bank|allocation|research-engine|decision-trace|risk-performance|system-status)?/?",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/index.html"
+    },
+    {
+      "src": "/.*",
+      "status": 404
+    }
+  ],
+  "git": {
+    "deploymentEnabled": false
+  }
+}
