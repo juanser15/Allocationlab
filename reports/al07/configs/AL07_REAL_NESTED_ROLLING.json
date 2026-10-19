@@ -1,0 +1,1581 @@
+{
+  "campaign_id": "AL07_REAL_NESTED_ROLLING",
+  "validation_mode": "NESTED_WALK_FORWARD",
+  "window_type": "ROLLING",
+  "dates": {
+    "start": "2018-01-01",
+    "end_exclusive": "2022-01-01"
+  },
+  "train_months": 24,
+  "test_months": 12,
+  "step_months": 12,
+  "inner_train_months": 12,
+  "inner_test_months": 6,
+  "inner_step_months": 6,
+  "search": "GRID",
+  "candidate_budget": 200,
+  "hard_max_candidates": 200,
+  "space": [
+    {
+      "base": {
+        "allocation_mode": "ASSETS",
+        "objective": {
+          "type": "EQUAL_WEIGHT"
+        },
+        "constraints": {
+          "asset_bounds": {},
+          "group_caps": [],
+          "max_active_names": null,
+          "turnover_cap": null
+        },
+        "risk_model": {
+          "id": "AL03_PIT_ASSETS_252",
+          "version": "pit-asset-beta-covariance-1.0.0",
+          "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827"
+        },
+        "expected_return": null,
+        "factor_target": null,
+        "strategy_universe": null,
+        "signal_gate": {
+          "required": false,
+          "policy": {
+            "as_of": "2020-12-31",
+            "information_cutoff": "2020-12-31",
+            "provenance": {
+              "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+              "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+              "source_ids": [
+                "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+              ],
+              "data_available_at": "2020-12-31",
+              "model": {
+                "id": "DECLARED_RESEARCH_GATE_POLICY",
+                "version": "1.0.0"
+              }
+            },
+            "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+            "gate_policy_version": "1.0.0",
+            "gate_type": "SIGNAL_QUALITY",
+            "mandatory_checks": [
+              "coverage",
+              "dispersion",
+              "pc1_share",
+              "rank_stability"
+            ],
+            "warning_checks": [],
+            "thresholds": {
+              "coverage": {
+                "operator": "MIN",
+                "value": 1,
+                "units": "ELIGIBLE_FRACTION"
+              },
+              "dispersion": {
+                "operator": "MIN",
+                "value": 0.1,
+                "units": "RANKING_SCORE"
+              },
+              "pc1_share": {
+                "operator": "MAX",
+                "value": 0.8,
+                "units": "VARIANCE_SHARE"
+              },
+              "rank_stability": {
+                "operator": "MIN",
+                "value": 0.5,
+                "units": "SPEARMAN_CORRELATION"
+              }
+            },
+            "minimum_observations": 2,
+            "failure_behavior": "RETURN_RESULT_ONLY",
+            "coverage_failure_status": "INSUFFICIENT_DATA",
+            "clock": {
+              "evaluation_dates": [
+                "2021-01-01"
+              ],
+              "signal_frequency": "EXTERNALLY_DECLARED",
+              "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+              "recalibration_frequency": "EXTERNALLY_DECLARED",
+              "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+            },
+            "signal_methodology": {
+              "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+              "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+              "dispersion_ddof": 0,
+              "rank_window_snapshots": 3,
+              "minimum_rank_intersection_fraction": 0.5,
+              "maximum_staleness_calendar_days": 90,
+              "minimum_rank_snapshots": 1
+            },
+            "robustness_methodology": {
+              "allow_approximate_factor_residual": true,
+              "allow_declared_controller_clip": false,
+              "correlation_cluster_threshold": 0.9,
+              "sensitivity_required_families": [],
+              "require_risk_artifact": true
+            },
+            "numerics": {
+              "absolute": 1e-9,
+              "covariance_psd": 1e-12,
+              "eigen_iterations": 10000
+            },
+            "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+          },
+          "exemption_reason": "NONFORECAST_OBJECTIVES: no signal/forecast consumed; supplied covariance only, no implicit gate bypass"
+        },
+        "portfolio_gate": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+            "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+            "source_ids": [
+              "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "DECLARED_RESEARCH_GATE_POLICY",
+              "version": "1.0.0"
+            }
+          },
+          "gate_policy_id": "AL06_QA_PORTFOLIO_ROBUSTNESS",
+          "gate_policy_version": "1.0.0",
+          "gate_type": "PORTFOLIO_ROBUSTNESS",
+          "mandatory_checks": [
+            "largest_weight",
+            "hhi",
+            "allocation_l1"
+          ],
+          "warning_checks": [],
+          "thresholds": {
+            "largest_weight": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "NORMALIZED_EXPOSURE_FRACTION"
+            },
+            "hhi": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "DIMENSIONLESS"
+            },
+            "allocation_l1": {
+              "operator": "MAX",
+              "value": 2,
+              "units": "GROSS_L1_RISK_CAPITAL_FRACTION"
+            }
+          },
+          "minimum_observations": 2,
+          "failure_behavior": "RETURN_RESULT_ONLY",
+          "coverage_failure_status": "INSUFFICIENT_DATA",
+          "clock": {
+            "evaluation_dates": [
+              "2021-01-01"
+            ],
+            "signal_frequency": "EXTERNALLY_DECLARED",
+            "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+            "recalibration_frequency": "EXTERNALLY_DECLARED",
+            "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+          },
+          "signal_methodology": {
+            "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+            "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+            "dispersion_ddof": 0,
+            "rank_window_snapshots": 3,
+            "minimum_rank_intersection_fraction": 0.5,
+            "maximum_staleness_calendar_days": 90,
+            "minimum_rank_snapshots": 1
+          },
+          "robustness_methodology": {
+            "allow_approximate_factor_residual": true,
+            "allow_declared_controller_clip": false,
+            "correlation_cluster_threshold": 0.9,
+            "sensitivity_required_families": [
+              "COVARIANCE"
+            ],
+            "require_risk_artifact": true
+          },
+          "numerics": {
+            "absolute": 1e-9,
+            "covariance_psd": 1e-12,
+            "eigen_iterations": 10000
+          },
+          "policy_hash": "ae51ffea5c032f579a2213737d60f57c94e25abf530fcb6779f0da0527d81917"
+        },
+        "clocks": {
+          "signal": "monthly",
+          "rebalance": "monthly",
+          "risk_recalibration": "monthly",
+          "forecast_recalibration": "monthly",
+          "gate": "EACH_ALLOCATION_DECISION"
+        },
+        "estimation": {
+          "window_sessions": 252,
+          "minimum_observations": 252
+        },
+        "costs": {
+          "scenarios_bps": [
+            0,
+            5
+          ],
+          "slippage_bps": 0,
+          "basis": "ACTUAL_INSTRUMENT_NOTIONAL",
+          "embedded_strategy_costs": "ALREADY_NET_NOT_RECHARGED"
+        },
+        "risk_mandate": {
+          "id": "DECLARED_RESEARCH_BETA_TARGET",
+          "version": "AL02-1",
+          "configuration_hash": "610be57188afdac1c4bd1b8ea235e96f77d8a00ec91c912d903b96c672d0a3d6"
+        },
+        "model_config_hashes": {
+          "AL03": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+          "AL02": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6",
+          "AL06": "2527e0f9440599883a6f2b287c0ffb743eb6fab2105f2ecd46f6926774266fb4"
+        }
+      }
+    },
+    {
+      "base": {
+        "allocation_mode": "ASSETS",
+        "objective": {
+          "type": "MIN_VARIANCE"
+        },
+        "constraints": {
+          "asset_bounds": {},
+          "group_caps": [],
+          "max_active_names": null,
+          "turnover_cap": null
+        },
+        "risk_model": {
+          "id": "AL03_PIT_ASSETS_252",
+          "version": "pit-asset-beta-covariance-1.0.0",
+          "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827"
+        },
+        "expected_return": null,
+        "factor_target": null,
+        "strategy_universe": null,
+        "signal_gate": {
+          "required": false,
+          "policy": {
+            "as_of": "2020-12-31",
+            "information_cutoff": "2020-12-31",
+            "provenance": {
+              "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+              "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+              "source_ids": [
+                "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+              ],
+              "data_available_at": "2020-12-31",
+              "model": {
+                "id": "DECLARED_RESEARCH_GATE_POLICY",
+                "version": "1.0.0"
+              }
+            },
+            "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+            "gate_policy_version": "1.0.0",
+            "gate_type": "SIGNAL_QUALITY",
+            "mandatory_checks": [
+              "coverage",
+              "dispersion",
+              "pc1_share",
+              "rank_stability"
+            ],
+            "warning_checks": [],
+            "thresholds": {
+              "coverage": {
+                "operator": "MIN",
+                "value": 1,
+                "units": "ELIGIBLE_FRACTION"
+              },
+              "dispersion": {
+                "operator": "MIN",
+                "value": 0.1,
+                "units": "RANKING_SCORE"
+              },
+              "pc1_share": {
+                "operator": "MAX",
+                "value": 0.8,
+                "units": "VARIANCE_SHARE"
+              },
+              "rank_stability": {
+                "operator": "MIN",
+                "value": 0.5,
+                "units": "SPEARMAN_CORRELATION"
+              }
+            },
+            "minimum_observations": 2,
+            "failure_behavior": "RETURN_RESULT_ONLY",
+            "coverage_failure_status": "INSUFFICIENT_DATA",
+            "clock": {
+              "evaluation_dates": [
+                "2021-01-01"
+              ],
+              "signal_frequency": "EXTERNALLY_DECLARED",
+              "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+              "recalibration_frequency": "EXTERNALLY_DECLARED",
+              "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+            },
+            "signal_methodology": {
+              "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+              "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+              "dispersion_ddof": 0,
+              "rank_window_snapshots": 3,
+              "minimum_rank_intersection_fraction": 0.5,
+              "maximum_staleness_calendar_days": 90,
+              "minimum_rank_snapshots": 1
+            },
+            "robustness_methodology": {
+              "allow_approximate_factor_residual": true,
+              "allow_declared_controller_clip": false,
+              "correlation_cluster_threshold": 0.9,
+              "sensitivity_required_families": [],
+              "require_risk_artifact": true
+            },
+            "numerics": {
+              "absolute": 1e-9,
+              "covariance_psd": 1e-12,
+              "eigen_iterations": 10000
+            },
+            "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+          },
+          "exemption_reason": "NONFORECAST_OBJECTIVES: no signal/forecast consumed; supplied covariance only, no implicit gate bypass"
+        },
+        "portfolio_gate": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+            "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+            "source_ids": [
+              "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "DECLARED_RESEARCH_GATE_POLICY",
+              "version": "1.0.0"
+            }
+          },
+          "gate_policy_id": "AL06_QA_PORTFOLIO_ROBUSTNESS",
+          "gate_policy_version": "1.0.0",
+          "gate_type": "PORTFOLIO_ROBUSTNESS",
+          "mandatory_checks": [
+            "largest_weight",
+            "hhi",
+            "allocation_l1"
+          ],
+          "warning_checks": [],
+          "thresholds": {
+            "largest_weight": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "NORMALIZED_EXPOSURE_FRACTION"
+            },
+            "hhi": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "DIMENSIONLESS"
+            },
+            "allocation_l1": {
+              "operator": "MAX",
+              "value": 2,
+              "units": "GROSS_L1_RISK_CAPITAL_FRACTION"
+            }
+          },
+          "minimum_observations": 2,
+          "failure_behavior": "RETURN_RESULT_ONLY",
+          "coverage_failure_status": "INSUFFICIENT_DATA",
+          "clock": {
+            "evaluation_dates": [
+              "2021-01-01"
+            ],
+            "signal_frequency": "EXTERNALLY_DECLARED",
+            "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+            "recalibration_frequency": "EXTERNALLY_DECLARED",
+            "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+          },
+          "signal_methodology": {
+            "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+            "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+            "dispersion_ddof": 0,
+            "rank_window_snapshots": 3,
+            "minimum_rank_intersection_fraction": 0.5,
+            "maximum_staleness_calendar_days": 90,
+            "minimum_rank_snapshots": 1
+          },
+          "robustness_methodology": {
+            "allow_approximate_factor_residual": true,
+            "allow_declared_controller_clip": false,
+            "correlation_cluster_threshold": 0.9,
+            "sensitivity_required_families": [
+              "COVARIANCE"
+            ],
+            "require_risk_artifact": true
+          },
+          "numerics": {
+            "absolute": 1e-9,
+            "covariance_psd": 1e-12,
+            "eigen_iterations": 10000
+          },
+          "policy_hash": "ae51ffea5c032f579a2213737d60f57c94e25abf530fcb6779f0da0527d81917"
+        },
+        "clocks": {
+          "signal": "monthly",
+          "rebalance": "monthly",
+          "risk_recalibration": "monthly",
+          "forecast_recalibration": "monthly",
+          "gate": "EACH_ALLOCATION_DECISION"
+        },
+        "estimation": {
+          "window_sessions": 252,
+          "minimum_observations": 252
+        },
+        "costs": {
+          "scenarios_bps": [
+            0,
+            5
+          ],
+          "slippage_bps": 0,
+          "basis": "ACTUAL_INSTRUMENT_NOTIONAL",
+          "embedded_strategy_costs": "ALREADY_NET_NOT_RECHARGED"
+        },
+        "risk_mandate": {
+          "id": "DECLARED_RESEARCH_BETA_TARGET",
+          "version": "AL02-1",
+          "configuration_hash": "610be57188afdac1c4bd1b8ea235e96f77d8a00ec91c912d903b96c672d0a3d6"
+        },
+        "model_config_hashes": {
+          "AL03": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+          "AL02": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6",
+          "AL06": "2527e0f9440599883a6f2b287c0ffb743eb6fab2105f2ecd46f6926774266fb4"
+        }
+      }
+    },
+    {
+      "base": {
+        "allocation_mode": "ASSETS",
+        "objective": {
+          "type": "ERC"
+        },
+        "constraints": {
+          "asset_bounds": {},
+          "group_caps": [],
+          "max_active_names": null,
+          "turnover_cap": null
+        },
+        "risk_model": {
+          "id": "AL03_PIT_ASSETS_252",
+          "version": "pit-asset-beta-covariance-1.0.0",
+          "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827"
+        },
+        "expected_return": null,
+        "factor_target": null,
+        "strategy_universe": null,
+        "signal_gate": {
+          "required": false,
+          "policy": {
+            "as_of": "2020-12-31",
+            "information_cutoff": "2020-12-31",
+            "provenance": {
+              "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+              "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+              "source_ids": [
+                "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+              ],
+              "data_available_at": "2020-12-31",
+              "model": {
+                "id": "DECLARED_RESEARCH_GATE_POLICY",
+                "version": "1.0.0"
+              }
+            },
+            "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+            "gate_policy_version": "1.0.0",
+            "gate_type": "SIGNAL_QUALITY",
+            "mandatory_checks": [
+              "coverage",
+              "dispersion",
+              "pc1_share",
+              "rank_stability"
+            ],
+            "warning_checks": [],
+            "thresholds": {
+              "coverage": {
+                "operator": "MIN",
+                "value": 1,
+                "units": "ELIGIBLE_FRACTION"
+              },
+              "dispersion": {
+                "operator": "MIN",
+                "value": 0.1,
+                "units": "RANKING_SCORE"
+              },
+              "pc1_share": {
+                "operator": "MAX",
+                "value": 0.8,
+                "units": "VARIANCE_SHARE"
+              },
+              "rank_stability": {
+                "operator": "MIN",
+                "value": 0.5,
+                "units": "SPEARMAN_CORRELATION"
+              }
+            },
+            "minimum_observations": 2,
+            "failure_behavior": "RETURN_RESULT_ONLY",
+            "coverage_failure_status": "INSUFFICIENT_DATA",
+            "clock": {
+              "evaluation_dates": [
+                "2021-01-01"
+              ],
+              "signal_frequency": "EXTERNALLY_DECLARED",
+              "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+              "recalibration_frequency": "EXTERNALLY_DECLARED",
+              "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+            },
+            "signal_methodology": {
+              "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+              "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+              "dispersion_ddof": 0,
+              "rank_window_snapshots": 3,
+              "minimum_rank_intersection_fraction": 0.5,
+              "maximum_staleness_calendar_days": 90,
+              "minimum_rank_snapshots": 1
+            },
+            "robustness_methodology": {
+              "allow_approximate_factor_residual": true,
+              "allow_declared_controller_clip": false,
+              "correlation_cluster_threshold": 0.9,
+              "sensitivity_required_families": [],
+              "require_risk_artifact": true
+            },
+            "numerics": {
+              "absolute": 1e-9,
+              "covariance_psd": 1e-12,
+              "eigen_iterations": 10000
+            },
+            "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+          },
+          "exemption_reason": "NONFORECAST_OBJECTIVES: no signal/forecast consumed; supplied covariance only, no implicit gate bypass"
+        },
+        "portfolio_gate": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+            "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+            "source_ids": [
+              "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "DECLARED_RESEARCH_GATE_POLICY",
+              "version": "1.0.0"
+            }
+          },
+          "gate_policy_id": "AL06_QA_PORTFOLIO_ROBUSTNESS",
+          "gate_policy_version": "1.0.0",
+          "gate_type": "PORTFOLIO_ROBUSTNESS",
+          "mandatory_checks": [
+            "largest_weight",
+            "hhi",
+            "allocation_l1"
+          ],
+          "warning_checks": [],
+          "thresholds": {
+            "largest_weight": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "NORMALIZED_EXPOSURE_FRACTION"
+            },
+            "hhi": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "DIMENSIONLESS"
+            },
+            "allocation_l1": {
+              "operator": "MAX",
+              "value": 2,
+              "units": "GROSS_L1_RISK_CAPITAL_FRACTION"
+            }
+          },
+          "minimum_observations": 2,
+          "failure_behavior": "RETURN_RESULT_ONLY",
+          "coverage_failure_status": "INSUFFICIENT_DATA",
+          "clock": {
+            "evaluation_dates": [
+              "2021-01-01"
+            ],
+            "signal_frequency": "EXTERNALLY_DECLARED",
+            "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+            "recalibration_frequency": "EXTERNALLY_DECLARED",
+            "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+          },
+          "signal_methodology": {
+            "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+            "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+            "dispersion_ddof": 0,
+            "rank_window_snapshots": 3,
+            "minimum_rank_intersection_fraction": 0.5,
+            "maximum_staleness_calendar_days": 90,
+            "minimum_rank_snapshots": 1
+          },
+          "robustness_methodology": {
+            "allow_approximate_factor_residual": true,
+            "allow_declared_controller_clip": false,
+            "correlation_cluster_threshold": 0.9,
+            "sensitivity_required_families": [
+              "COVARIANCE"
+            ],
+            "require_risk_artifact": true
+          },
+          "numerics": {
+            "absolute": 1e-9,
+            "covariance_psd": 1e-12,
+            "eigen_iterations": 10000
+          },
+          "policy_hash": "ae51ffea5c032f579a2213737d60f57c94e25abf530fcb6779f0da0527d81917"
+        },
+        "clocks": {
+          "signal": "monthly",
+          "rebalance": "monthly",
+          "risk_recalibration": "monthly",
+          "forecast_recalibration": "monthly",
+          "gate": "EACH_ALLOCATION_DECISION"
+        },
+        "estimation": {
+          "window_sessions": 252,
+          "minimum_observations": 252
+        },
+        "costs": {
+          "scenarios_bps": [
+            0,
+            5
+          ],
+          "slippage_bps": 0,
+          "basis": "ACTUAL_INSTRUMENT_NOTIONAL",
+          "embedded_strategy_costs": "ALREADY_NET_NOT_RECHARGED"
+        },
+        "risk_mandate": {
+          "id": "DECLARED_RESEARCH_BETA_TARGET",
+          "version": "AL02-1",
+          "configuration_hash": "610be57188afdac1c4bd1b8ea235e96f77d8a00ec91c912d903b96c672d0a3d6"
+        },
+        "model_config_hashes": {
+          "AL03": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+          "AL02": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6",
+          "AL06": "2527e0f9440599883a6f2b287c0ffb743eb6fab2105f2ecd46f6926774266fb4"
+        }
+      }
+    },
+    {
+      "base": {
+        "allocation_mode": "ASSETS",
+        "objective": {
+          "type": "MEAN_VARIANCE",
+          "gamma": 3
+        },
+        "constraints": {
+          "asset_bounds": {},
+          "group_caps": [],
+          "max_active_names": null,
+          "turnover_cap": null
+        },
+        "risk_model": {
+          "id": "AL03_PIT_ASSETS_252",
+          "version": "pit-asset-beta-covariance-1.0.0",
+          "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827"
+        },
+        "expected_return": null,
+        "factor_target": null,
+        "strategy_universe": null,
+        "signal_gate": {
+          "required": false,
+          "policy": {
+            "as_of": "2020-12-31",
+            "information_cutoff": "2020-12-31",
+            "provenance": {
+              "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+              "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+              "source_ids": [
+                "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+              ],
+              "data_available_at": "2020-12-31",
+              "model": {
+                "id": "DECLARED_RESEARCH_GATE_POLICY",
+                "version": "1.0.0"
+              }
+            },
+            "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+            "gate_policy_version": "1.0.0",
+            "gate_type": "SIGNAL_QUALITY",
+            "mandatory_checks": [
+              "coverage",
+              "dispersion",
+              "pc1_share",
+              "rank_stability"
+            ],
+            "warning_checks": [],
+            "thresholds": {
+              "coverage": {
+                "operator": "MIN",
+                "value": 1,
+                "units": "ELIGIBLE_FRACTION"
+              },
+              "dispersion": {
+                "operator": "MIN",
+                "value": 0.1,
+                "units": "RANKING_SCORE"
+              },
+              "pc1_share": {
+                "operator": "MAX",
+                "value": 0.8,
+                "units": "VARIANCE_SHARE"
+              },
+              "rank_stability": {
+                "operator": "MIN",
+                "value": 0.5,
+                "units": "SPEARMAN_CORRELATION"
+              }
+            },
+            "minimum_observations": 2,
+            "failure_behavior": "RETURN_RESULT_ONLY",
+            "coverage_failure_status": "INSUFFICIENT_DATA",
+            "clock": {
+              "evaluation_dates": [
+                "2021-01-01"
+              ],
+              "signal_frequency": "EXTERNALLY_DECLARED",
+              "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+              "recalibration_frequency": "EXTERNALLY_DECLARED",
+              "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+            },
+            "signal_methodology": {
+              "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+              "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+              "dispersion_ddof": 0,
+              "rank_window_snapshots": 3,
+              "minimum_rank_intersection_fraction": 0.5,
+              "maximum_staleness_calendar_days": 90,
+              "minimum_rank_snapshots": 1
+            },
+            "robustness_methodology": {
+              "allow_approximate_factor_residual": true,
+              "allow_declared_controller_clip": false,
+              "correlation_cluster_threshold": 0.9,
+              "sensitivity_required_families": [],
+              "require_risk_artifact": true
+            },
+            "numerics": {
+              "absolute": 1e-9,
+              "covariance_psd": 1e-12,
+              "eigen_iterations": 10000
+            },
+            "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+          },
+          "exemption_reason": "NONFORECAST_OBJECTIVES: no signal/forecast consumed; supplied covariance only, no implicit gate bypass"
+        },
+        "portfolio_gate": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+            "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+            "source_ids": [
+              "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "DECLARED_RESEARCH_GATE_POLICY",
+              "version": "1.0.0"
+            }
+          },
+          "gate_policy_id": "AL06_QA_PORTFOLIO_ROBUSTNESS",
+          "gate_policy_version": "1.0.0",
+          "gate_type": "PORTFOLIO_ROBUSTNESS",
+          "mandatory_checks": [
+            "largest_weight",
+            "hhi",
+            "allocation_l1"
+          ],
+          "warning_checks": [],
+          "thresholds": {
+            "largest_weight": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "NORMALIZED_EXPOSURE_FRACTION"
+            },
+            "hhi": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "DIMENSIONLESS"
+            },
+            "allocation_l1": {
+              "operator": "MAX",
+              "value": 2,
+              "units": "GROSS_L1_RISK_CAPITAL_FRACTION"
+            }
+          },
+          "minimum_observations": 2,
+          "failure_behavior": "RETURN_RESULT_ONLY",
+          "coverage_failure_status": "INSUFFICIENT_DATA",
+          "clock": {
+            "evaluation_dates": [
+              "2021-01-01"
+            ],
+            "signal_frequency": "EXTERNALLY_DECLARED",
+            "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+            "recalibration_frequency": "EXTERNALLY_DECLARED",
+            "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+          },
+          "signal_methodology": {
+            "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+            "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+            "dispersion_ddof": 0,
+            "rank_window_snapshots": 3,
+            "minimum_rank_intersection_fraction": 0.5,
+            "maximum_staleness_calendar_days": 90,
+            "minimum_rank_snapshots": 1
+          },
+          "robustness_methodology": {
+            "allow_approximate_factor_residual": true,
+            "allow_declared_controller_clip": false,
+            "correlation_cluster_threshold": 0.9,
+            "sensitivity_required_families": [
+              "COVARIANCE"
+            ],
+            "require_risk_artifact": true
+          },
+          "numerics": {
+            "absolute": 1e-9,
+            "covariance_psd": 1e-12,
+            "eigen_iterations": 10000
+          },
+          "policy_hash": "ae51ffea5c032f579a2213737d60f57c94e25abf530fcb6779f0da0527d81917"
+        },
+        "clocks": {
+          "signal": "monthly",
+          "rebalance": "monthly",
+          "risk_recalibration": "monthly",
+          "forecast_recalibration": "monthly",
+          "gate": "EACH_ALLOCATION_DECISION"
+        },
+        "estimation": {
+          "window_sessions": 252,
+          "minimum_observations": 252
+        },
+        "costs": {
+          "scenarios_bps": [
+            0,
+            5
+          ],
+          "slippage_bps": 0,
+          "basis": "ACTUAL_INSTRUMENT_NOTIONAL",
+          "embedded_strategy_costs": "ALREADY_NET_NOT_RECHARGED"
+        },
+        "risk_mandate": {
+          "id": "DECLARED_RESEARCH_BETA_TARGET",
+          "version": "AL02-1",
+          "configuration_hash": "610be57188afdac1c4bd1b8ea235e96f77d8a00ec91c912d903b96c672d0a3d6"
+        },
+        "model_config_hashes": {
+          "AL03": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+          "AL02": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6",
+          "AL06": "2527e0f9440599883a6f2b287c0ffb743eb6fab2105f2ecd46f6926774266fb4"
+        }
+      }
+    },
+    {
+      "base": {
+        "allocation_mode": "ASSETS",
+        "objective": {
+          "type": "MAX_SHARPE",
+          "rf_sleeve": 0
+        },
+        "constraints": {
+          "asset_bounds": {},
+          "group_caps": [],
+          "max_active_names": null,
+          "turnover_cap": null
+        },
+        "risk_model": {
+          "id": "AL03_PIT_ASSETS_252",
+          "version": "pit-asset-beta-covariance-1.0.0",
+          "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827"
+        },
+        "expected_return": null,
+        "factor_target": null,
+        "strategy_universe": null,
+        "signal_gate": {
+          "required": false,
+          "policy": {
+            "as_of": "2020-12-31",
+            "information_cutoff": "2020-12-31",
+            "provenance": {
+              "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+              "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+              "source_ids": [
+                "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+              ],
+              "data_available_at": "2020-12-31",
+              "model": {
+                "id": "DECLARED_RESEARCH_GATE_POLICY",
+                "version": "1.0.0"
+              }
+            },
+            "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+            "gate_policy_version": "1.0.0",
+            "gate_type": "SIGNAL_QUALITY",
+            "mandatory_checks": [
+              "coverage",
+              "dispersion",
+              "pc1_share",
+              "rank_stability"
+            ],
+            "warning_checks": [],
+            "thresholds": {
+              "coverage": {
+                "operator": "MIN",
+                "value": 1,
+                "units": "ELIGIBLE_FRACTION"
+              },
+              "dispersion": {
+                "operator": "MIN",
+                "value": 0.1,
+                "units": "RANKING_SCORE"
+              },
+              "pc1_share": {
+                "operator": "MAX",
+                "value": 0.8,
+                "units": "VARIANCE_SHARE"
+              },
+              "rank_stability": {
+                "operator": "MIN",
+                "value": 0.5,
+                "units": "SPEARMAN_CORRELATION"
+              }
+            },
+            "minimum_observations": 2,
+            "failure_behavior": "RETURN_RESULT_ONLY",
+            "coverage_failure_status": "INSUFFICIENT_DATA",
+            "clock": {
+              "evaluation_dates": [
+                "2021-01-01"
+              ],
+              "signal_frequency": "EXTERNALLY_DECLARED",
+              "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+              "recalibration_frequency": "EXTERNALLY_DECLARED",
+              "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+            },
+            "signal_methodology": {
+              "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+              "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+              "dispersion_ddof": 0,
+              "rank_window_snapshots": 3,
+              "minimum_rank_intersection_fraction": 0.5,
+              "maximum_staleness_calendar_days": 90,
+              "minimum_rank_snapshots": 1
+            },
+            "robustness_methodology": {
+              "allow_approximate_factor_residual": true,
+              "allow_declared_controller_clip": false,
+              "correlation_cluster_threshold": 0.9,
+              "sensitivity_required_families": [],
+              "require_risk_artifact": true
+            },
+            "numerics": {
+              "absolute": 1e-9,
+              "covariance_psd": 1e-12,
+              "eigen_iterations": 10000
+            },
+            "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+          },
+          "exemption_reason": "NONFORECAST_OBJECTIVES: no signal/forecast consumed; supplied covariance only, no implicit gate bypass"
+        },
+        "portfolio_gate": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+            "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+            "source_ids": [
+              "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "DECLARED_RESEARCH_GATE_POLICY",
+              "version": "1.0.0"
+            }
+          },
+          "gate_policy_id": "AL06_QA_PORTFOLIO_ROBUSTNESS",
+          "gate_policy_version": "1.0.0",
+          "gate_type": "PORTFOLIO_ROBUSTNESS",
+          "mandatory_checks": [
+            "largest_weight",
+            "hhi",
+            "allocation_l1"
+          ],
+          "warning_checks": [],
+          "thresholds": {
+            "largest_weight": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "NORMALIZED_EXPOSURE_FRACTION"
+            },
+            "hhi": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "DIMENSIONLESS"
+            },
+            "allocation_l1": {
+              "operator": "MAX",
+              "value": 2,
+              "units": "GROSS_L1_RISK_CAPITAL_FRACTION"
+            }
+          },
+          "minimum_observations": 2,
+          "failure_behavior": "RETURN_RESULT_ONLY",
+          "coverage_failure_status": "INSUFFICIENT_DATA",
+          "clock": {
+            "evaluation_dates": [
+              "2021-01-01"
+            ],
+            "signal_frequency": "EXTERNALLY_DECLARED",
+            "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+            "recalibration_frequency": "EXTERNALLY_DECLARED",
+            "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+          },
+          "signal_methodology": {
+            "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+            "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+            "dispersion_ddof": 0,
+            "rank_window_snapshots": 3,
+            "minimum_rank_intersection_fraction": 0.5,
+            "maximum_staleness_calendar_days": 90,
+            "minimum_rank_snapshots": 1
+          },
+          "robustness_methodology": {
+            "allow_approximate_factor_residual": true,
+            "allow_declared_controller_clip": false,
+            "correlation_cluster_threshold": 0.9,
+            "sensitivity_required_families": [
+              "COVARIANCE"
+            ],
+            "require_risk_artifact": true
+          },
+          "numerics": {
+            "absolute": 1e-9,
+            "covariance_psd": 1e-12,
+            "eigen_iterations": 10000
+          },
+          "policy_hash": "ae51ffea5c032f579a2213737d60f57c94e25abf530fcb6779f0da0527d81917"
+        },
+        "clocks": {
+          "signal": "monthly",
+          "rebalance": "monthly",
+          "risk_recalibration": "monthly",
+          "forecast_recalibration": "monthly",
+          "gate": "EACH_ALLOCATION_DECISION"
+        },
+        "estimation": {
+          "window_sessions": 252,
+          "minimum_observations": 252
+        },
+        "costs": {
+          "scenarios_bps": [
+            0,
+            5
+          ],
+          "slippage_bps": 0,
+          "basis": "ACTUAL_INSTRUMENT_NOTIONAL",
+          "embedded_strategy_costs": "ALREADY_NET_NOT_RECHARGED"
+        },
+        "risk_mandate": {
+          "id": "DECLARED_RESEARCH_BETA_TARGET",
+          "version": "AL02-1",
+          "configuration_hash": "610be57188afdac1c4bd1b8ea235e96f77d8a00ec91c912d903b96c672d0a3d6"
+        },
+        "model_config_hashes": {
+          "AL03": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+          "AL02": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6",
+          "AL06": "2527e0f9440599883a6f2b287c0ffb743eb6fab2105f2ecd46f6926774266fb4"
+        }
+      }
+    },
+    {
+      "base": {
+        "allocation_mode": "FACTORS",
+        "objective": {
+          "mode": "EXACT_FACTOR_TARGET",
+          "secondary": "SPECIFIC_VARIANCE"
+        },
+        "constraints": {
+          "asset_bounds": {},
+          "group_caps": [],
+          "max_active_names": null,
+          "turnover_cap": null
+        },
+        "risk_model": {
+          "id": "MISSING_CANONICAL_FACTOR_RISK",
+          "version": "1",
+          "configuration_hash": "4ffa54c1f62f31871d067b0199859b0df90a445b3c01a64b52b1ef9699c6ac03"
+        },
+        "expected_return": null,
+        "factor_target": {
+          "id": "DECLARED_MISSING_NEUTRAL_TARGET",
+          "version": "1",
+          "configuration_hash": "8f1fad2c3012800737c909bcd5c0158b8326fb960b84e09e7ab463404fc3d21d"
+        },
+        "strategy_universe": null,
+        "signal_gate": {
+          "required": false,
+          "policy": {
+            "as_of": "2020-12-31",
+            "information_cutoff": "2020-12-31",
+            "provenance": {
+              "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+              "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+              "source_ids": [
+                "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+              ],
+              "data_available_at": "2020-12-31",
+              "model": {
+                "id": "DECLARED_RESEARCH_GATE_POLICY",
+                "version": "1.0.0"
+              }
+            },
+            "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+            "gate_policy_version": "1.0.0",
+            "gate_type": "SIGNAL_QUALITY",
+            "mandatory_checks": [
+              "coverage",
+              "dispersion",
+              "pc1_share",
+              "rank_stability"
+            ],
+            "warning_checks": [],
+            "thresholds": {
+              "coverage": {
+                "operator": "MIN",
+                "value": 1,
+                "units": "ELIGIBLE_FRACTION"
+              },
+              "dispersion": {
+                "operator": "MIN",
+                "value": 0.1,
+                "units": "RANKING_SCORE"
+              },
+              "pc1_share": {
+                "operator": "MAX",
+                "value": 0.8,
+                "units": "VARIANCE_SHARE"
+              },
+              "rank_stability": {
+                "operator": "MIN",
+                "value": 0.5,
+                "units": "SPEARMAN_CORRELATION"
+              }
+            },
+            "minimum_observations": 2,
+            "failure_behavior": "RETURN_RESULT_ONLY",
+            "coverage_failure_status": "INSUFFICIENT_DATA",
+            "clock": {
+              "evaluation_dates": [
+                "2021-01-01"
+              ],
+              "signal_frequency": "EXTERNALLY_DECLARED",
+              "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+              "recalibration_frequency": "EXTERNALLY_DECLARED",
+              "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+            },
+            "signal_methodology": {
+              "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+              "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+              "dispersion_ddof": 0,
+              "rank_window_snapshots": 3,
+              "minimum_rank_intersection_fraction": 0.5,
+              "maximum_staleness_calendar_days": 90,
+              "minimum_rank_snapshots": 1
+            },
+            "robustness_methodology": {
+              "allow_approximate_factor_residual": true,
+              "allow_declared_controller_clip": false,
+              "correlation_cluster_threshold": 0.9,
+              "sensitivity_required_families": [],
+              "require_risk_artifact": true
+            },
+            "numerics": {
+              "absolute": 1e-9,
+              "covariance_psd": 1e-12,
+              "eigen_iterations": 10000
+            },
+            "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+          },
+          "exemption_reason": "NONFORECAST_OBJECTIVES: no signal/forecast consumed; supplied covariance only, no implicit gate bypass"
+        },
+        "portfolio_gate": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+            "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+            "source_ids": [
+              "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "DECLARED_RESEARCH_GATE_POLICY",
+              "version": "1.0.0"
+            }
+          },
+          "gate_policy_id": "AL06_QA_PORTFOLIO_ROBUSTNESS",
+          "gate_policy_version": "1.0.0",
+          "gate_type": "PORTFOLIO_ROBUSTNESS",
+          "mandatory_checks": [
+            "largest_weight",
+            "hhi",
+            "allocation_l1"
+          ],
+          "warning_checks": [],
+          "thresholds": {
+            "largest_weight": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "NORMALIZED_EXPOSURE_FRACTION"
+            },
+            "hhi": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "DIMENSIONLESS"
+            },
+            "allocation_l1": {
+              "operator": "MAX",
+              "value": 2,
+              "units": "GROSS_L1_RISK_CAPITAL_FRACTION"
+            }
+          },
+          "minimum_observations": 2,
+          "failure_behavior": "RETURN_RESULT_ONLY",
+          "coverage_failure_status": "INSUFFICIENT_DATA",
+          "clock": {
+            "evaluation_dates": [
+              "2021-01-01"
+            ],
+            "signal_frequency": "EXTERNALLY_DECLARED",
+            "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+            "recalibration_frequency": "EXTERNALLY_DECLARED",
+            "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+          },
+          "signal_methodology": {
+            "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+            "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+            "dispersion_ddof": 0,
+            "rank_window_snapshots": 3,
+            "minimum_rank_intersection_fraction": 0.5,
+            "maximum_staleness_calendar_days": 90,
+            "minimum_rank_snapshots": 1
+          },
+          "robustness_methodology": {
+            "allow_approximate_factor_residual": true,
+            "allow_declared_controller_clip": false,
+            "correlation_cluster_threshold": 0.9,
+            "sensitivity_required_families": [
+              "COVARIANCE"
+            ],
+            "require_risk_artifact": true
+          },
+          "numerics": {
+            "absolute": 1e-9,
+            "covariance_psd": 1e-12,
+            "eigen_iterations": 10000
+          },
+          "policy_hash": "ae51ffea5c032f579a2213737d60f57c94e25abf530fcb6779f0da0527d81917"
+        },
+        "clocks": {
+          "signal": "monthly",
+          "rebalance": "monthly",
+          "risk_recalibration": "monthly",
+          "forecast_recalibration": "monthly",
+          "gate": "EACH_ALLOCATION_DECISION"
+        },
+        "estimation": {
+          "window_sessions": 252,
+          "minimum_observations": 252
+        },
+        "costs": {
+          "scenarios_bps": [
+            0,
+            5
+          ],
+          "slippage_bps": 0,
+          "basis": "ACTUAL_INSTRUMENT_NOTIONAL",
+          "embedded_strategy_costs": "ALREADY_NET_NOT_RECHARGED"
+        },
+        "risk_mandate": {
+          "id": "DECLARED_RESEARCH_BETA_TARGET",
+          "version": "AL02-1",
+          "configuration_hash": "610be57188afdac1c4bd1b8ea235e96f77d8a00ec91c912d903b96c672d0a3d6"
+        },
+        "model_config_hashes": {
+          "AL03": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+          "AL02": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6",
+          "AL06": "2527e0f9440599883a6f2b287c0ffb743eb6fab2105f2ecd46f6926774266fb4"
+        }
+      }
+    },
+    {
+      "base": {
+        "allocation_mode": "STRATEGY_STREAMS",
+        "objective": {
+          "type": "EQUAL_CAPITAL"
+        },
+        "constraints": {
+          "asset_bounds": {},
+          "group_caps": [],
+          "max_active_names": null,
+          "turnover_cap": null
+        },
+        "risk_model": {
+          "id": "MISSING_CANONICAL_STRATEGY_RISK",
+          "version": "1",
+          "configuration_hash": "3f2487abe900ea1ec7e681bb22d209b4d2754089ac80ee83a26903f94be85be1"
+        },
+        "expected_return": null,
+        "factor_target": null,
+        "strategy_universe": {
+          "id": "MISSING_CANONICAL_STRATEGY_HISTORY_AND_MAPS",
+          "version": "1",
+          "configuration_hash": "40da86203630138d2054b322b3f521824d0c9551108428fdc298a9c13bf7b007"
+        },
+        "signal_gate": {
+          "required": false,
+          "policy": {
+            "as_of": "2020-12-31",
+            "information_cutoff": "2020-12-31",
+            "provenance": {
+              "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+              "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+              "source_ids": [
+                "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+              ],
+              "data_available_at": "2020-12-31",
+              "model": {
+                "id": "DECLARED_RESEARCH_GATE_POLICY",
+                "version": "1.0.0"
+              }
+            },
+            "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+            "gate_policy_version": "1.0.0",
+            "gate_type": "SIGNAL_QUALITY",
+            "mandatory_checks": [
+              "coverage",
+              "dispersion",
+              "pc1_share",
+              "rank_stability"
+            ],
+            "warning_checks": [],
+            "thresholds": {
+              "coverage": {
+                "operator": "MIN",
+                "value": 1,
+                "units": "ELIGIBLE_FRACTION"
+              },
+              "dispersion": {
+                "operator": "MIN",
+                "value": 0.1,
+                "units": "RANKING_SCORE"
+              },
+              "pc1_share": {
+                "operator": "MAX",
+                "value": 0.8,
+                "units": "VARIANCE_SHARE"
+              },
+              "rank_stability": {
+                "operator": "MIN",
+                "value": 0.5,
+                "units": "SPEARMAN_CORRELATION"
+              }
+            },
+            "minimum_observations": 2,
+            "failure_behavior": "RETURN_RESULT_ONLY",
+            "coverage_failure_status": "INSUFFICIENT_DATA",
+            "clock": {
+              "evaluation_dates": [
+                "2021-01-01"
+              ],
+              "signal_frequency": "EXTERNALLY_DECLARED",
+              "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+              "recalibration_frequency": "EXTERNALLY_DECLARED",
+              "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+            },
+            "signal_methodology": {
+              "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+              "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+              "dispersion_ddof": 0,
+              "rank_window_snapshots": 3,
+              "minimum_rank_intersection_fraction": 0.5,
+              "maximum_staleness_calendar_days": 90,
+              "minimum_rank_snapshots": 1
+            },
+            "robustness_methodology": {
+              "allow_approximate_factor_residual": true,
+              "allow_declared_controller_clip": false,
+              "correlation_cluster_threshold": 0.9,
+              "sensitivity_required_families": [],
+              "require_risk_artifact": true
+            },
+            "numerics": {
+              "absolute": 1e-9,
+              "covariance_psd": 1e-12,
+              "eigen_iterations": 10000
+            },
+            "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+          },
+          "exemption_reason": "NONFORECAST_OBJECTIVES: no signal/forecast consumed; supplied covariance only, no implicit gate bypass"
+        },
+        "portfolio_gate": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+            "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+            "source_ids": [
+              "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "DECLARED_RESEARCH_GATE_POLICY",
+              "version": "1.0.0"
+            }
+          },
+          "gate_policy_id": "AL06_QA_PORTFOLIO_ROBUSTNESS",
+          "gate_policy_version": "1.0.0",
+          "gate_type": "PORTFOLIO_ROBUSTNESS",
+          "mandatory_checks": [
+            "largest_weight",
+            "hhi",
+            "allocation_l1"
+          ],
+          "warning_checks": [],
+          "thresholds": {
+            "largest_weight": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "NORMALIZED_EXPOSURE_FRACTION"
+            },
+            "hhi": {
+              "operator": "MAX",
+              "value": 1,
+              "units": "DIMENSIONLESS"
+            },
+            "allocation_l1": {
+              "operator": "MAX",
+              "value": 2,
+              "units": "GROSS_L1_RISK_CAPITAL_FRACTION"
+            }
+          },
+          "minimum_observations": 2,
+          "failure_behavior": "RETURN_RESULT_ONLY",
+          "coverage_failure_status": "INSUFFICIENT_DATA",
+          "clock": {
+            "evaluation_dates": [
+              "2021-01-01"
+            ],
+            "signal_frequency": "EXTERNALLY_DECLARED",
+            "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+            "recalibration_frequency": "EXTERNALLY_DECLARED",
+            "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+          },
+          "signal_methodology": {
+            "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+            "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+            "dispersion_ddof": 0,
+            "rank_window_snapshots": 3,
+            "minimum_rank_intersection_fraction": 0.5,
+            "maximum_staleness_calendar_days": 90,
+            "minimum_rank_snapshots": 1
+          },
+          "robustness_methodology": {
+            "allow_approximate_factor_residual": true,
+            "allow_declared_controller_clip": false,
+            "correlation_cluster_threshold": 0.9,
+            "sensitivity_required_families": [
+              "COVARIANCE"
+            ],
+            "require_risk_artifact": true
+          },
+          "numerics": {
+            "absolute": 1e-9,
+            "covariance_psd": 1e-12,
+            "eigen_iterations": 10000
+          },
+          "policy_hash": "ae51ffea5c032f579a2213737d60f57c94e25abf530fcb6779f0da0527d81917"
+        },
+        "clocks": {
+          "signal": "monthly",
+          "rebalance": "monthly",
+          "risk_recalibration": "monthly",
+          "forecast_recalibration": "monthly",
+          "gate": "EACH_ALLOCATION_DECISION"
+        },
+        "estimation": {
+          "window_sessions": 252,
+          "minimum_observations": 252
+        },
+        "costs": {
+          "scenarios_bps": [
+            0,
+            5
+          ],
+          "slippage_bps": 0,
+          "basis": "ACTUAL_INSTRUMENT_NOTIONAL",
+          "embedded_strategy_costs": "ALREADY_NET_NOT_RECHARGED"
+        },
+        "risk_mandate": {
+          "id": "DECLARED_RESEARCH_BETA_TARGET",
+          "version": "AL02-1",
+          "configuration_hash": "610be57188afdac1c4bd1b8ea235e96f77d8a00ec91c912d903b96c672d0a3d6"
+        },
+        "model_config_hashes": {
+          "AL03": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+          "AL02": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6",
+          "AL06": "2527e0f9440599883a6f2b287c0ffb743eb6fab2105f2ecd46f6926774266fb4"
+        }
+      }
+    }
+  ],
+  "selection": {
+    "version": "ARE_SELECTION_1.0.0",
+    "metric": "SHARPE",
+    "lexicographic": [],
+    "utility_risk_aversion": null,
+    "selection_scenario_bps": 5,
+    "hurdles": {}
+  },
+  "controls": {
+    "candidate_ids": [
+      "are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638",
+      "are_8e900de5f1ee0da8be9cd3c93c52c69ac0a2cd396873ab21cb4155213dad2cd3",
+      "are_496ecdee3a1565f1f4e475aac0a196f71b053319e66e24cdbac55fca926637a7"
+    ],
+    "same_average_beta": true,
+    "same_volatility": true,
+    "label": "DECLARED_BEFORE_RUN"
+  },
+  "cost_scenarios_bps": [
+    0,
+    5
+  ],
+  "cash_yield_daily": 0,
+  "risk_free_daily": 0,
+  "benchmark": "SPY",
+  "max_jobs": 400,
+  "decay_horizons": [
+    1,
+    5,
+    10,
+    20,
+    63
+  ],
+  "cross_sectional": {
+    "enabled": false,
+    "buckets": 10
+  },
+  "data_reference": "reports/cl02/adjusted-closes.csv + frozen AL03 PIT covariance/mandates; 5bps declared research assumption, not observed cost"
+}

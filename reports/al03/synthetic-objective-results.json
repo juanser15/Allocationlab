@@ -1,0 +1,1428 @@
+[
+  {
+    "label": "SYNTHETIC_DECLARED_ARTIFACT_NOT_FINANCIAL_FORECAST",
+    "input": {
+      "schema_version": "assets-allocation-1.0.0",
+      "convention": "LONG_ONLY_FULLY_INVESTED",
+      "assets": [
+        "ASSET_0",
+        "ASSET_1",
+        "ASSET_2"
+      ],
+      "as_of": "2021-01-01",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+        "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+        "source_ids": [
+          "SYNTHETIC_KNOWN_ANSWER"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+          "version": "1.0.0"
+        }
+      },
+      "risk_model": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "representation": "COVARIANCE",
+        "units": "daily_decimal_return_squared",
+        "axis_ids": [
+          "ASSET_0",
+          "ASSET_1",
+          "ASSET_2"
+        ],
+        "covariance": [
+          [
+            0.0004,
+            0.00008,
+            0.00003
+          ],
+          [
+            0.00008,
+            0.0002,
+            0.00002
+          ],
+          [
+            0.00003,
+            0.00002,
+            0.0003
+          ]
+        ]
+      },
+      "expected_returns": null,
+      "beta_estimates": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "values": {
+          "ASSET_0": 0.8,
+          "ASSET_1": 1,
+          "ASSET_2": 1.2000000000000002
+        },
+        "beta_model": {
+          "benchmark": "SPY",
+          "estimation_window": {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "observations": 252
+          },
+          "estimator": "SUPPLIED_ASSET_BETAS_V1",
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e"
+        }
+      },
+      "previous_holdings": null,
+      "constraints": {
+        "asset_bounds": {},
+        "group_caps": [],
+        "max_active_names": null,
+        "turnover_cap": null
+      },
+      "objective": {
+        "type": "EQUAL_WEIGHT"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    "result": {
+      "status": "VALID",
+      "errors": [],
+      "warnings": [],
+      "input_hash": "7534fa5e4bd306c4544ea828c89b459db67d053eb4e7efe8442d5da1dba38d74",
+      "result_id": "assets_67c3f30b1c150e2303c2e27e4dd7a67f1fc00772b822a4d4595a2b172fa91a8c",
+      "objective": {
+        "type": "EQUAL_WEIGHT"
+      },
+      "objective_version": "1.0.0",
+      "weights": {
+        "ASSET_0": 0.3333333333333333,
+        "ASSET_1": 0.3333333333333333,
+        "ASSET_2": 0.3333333333333333
+      },
+      "objective_value": 0,
+      "diagnostics": {
+        "variance": 0.0001288888888888889,
+        "annualized_volatility": 0.18022208521710095,
+        "beta_sleeve": 1,
+        "marginal_risk": {
+          "ASSET_0": 0.00017,
+          "ASSET_1": 0.0001,
+          "ASSET_2": 0.00011666666666666667
+        },
+        "risk_contributions": {
+          "ASSET_0": 0.00005666666666666667,
+          "ASSET_1": 0.000033333333333333335,
+          "ASSET_2": 0.000038888888888888884
+        },
+        "risk_contribution_fractions": {
+          "ASSET_0": 0.43965517241379315,
+          "ASSET_1": 0.25862068965517243,
+          "ASSET_2": 0.3017241379310344
+        },
+        "gross_exposure": 1,
+        "net_exposure": 1,
+        "hhi": 0.3333333333333333,
+        "effective_number_weights": 3,
+        "largest_weight": 0.3333333333333333,
+        "top3_share": 1,
+        "turnover_gross_l1": null,
+        "active_bounds": [],
+        "covariance_effective_rank": 2.805890027381342,
+        "pca_effective_risk_bets": 1.7281912560146944,
+        "eigenvalues": [
+          0.0004369882649105563,
+          0.00029171933329447255,
+          0.00017129240179497096
+        ],
+        "pca_risk_shares": [
+          0.8336521060651941,
+          0.1214302753318211,
+          0.04491761860298481
+        ]
+      },
+      "sleeve": {
+        "schema_version": "allocation-core-1.1.0",
+        "allocation_mode": "ASSETS",
+        "as_of": "2021-01-01",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "2bd872d4304797fc7a182b591064c3d9c5c07fdb2b6d52bd6c70437cb1db3680",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "assets-allocation-1.0.0",
+            "version": "1.0.0"
+          }
+        },
+        "input_snapshot_id": "snapshot_7534fa5e4bd306c4544ea828c89b459db67d053eb4e7efe8442d5da1dba38d74",
+        "status": "VALID",
+        "asset_weight_units": "fraction_of_risk_capital",
+        "asset_weights_risk_sleeve": {
+          "ASSET_0": 0.3333333333333333,
+          "ASSET_1": 0.3333333333333333,
+          "ASSET_2": 0.3333333333333333
+        },
+        "gross_exposure": 1,
+        "net_exposure": 1,
+        "estimated_market_beta": 1,
+        "estimated_volatility": 0.18022208521710095,
+        "asset_market_betas": {
+          "ASSET_0": 0.8,
+          "ASSET_1": 1,
+          "ASSET_2": 1.2000000000000002
+        },
+        "beta_model": {
+          "benchmark": "SPY",
+          "estimation_window": {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "observations": 252
+          },
+          "estimator": "SUPPLIED_ASSET_BETAS_V1",
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e"
+        },
+        "risk_model_provenance": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+            "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+            "source_ids": [
+              "SYNTHETIC_KNOWN_ANSWER"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+              "version": "1.0.0"
+            }
+          }
+        },
+        "risk_measurement_status": "AVAILABLE",
+        "explicit_unallocated_risk_budget": 0,
+        "convention": {
+          "kind": "LONG_ONLY_FULLY_INVESTED",
+          "funding": "NET_ONE_WITH_GLOBAL_CASH",
+          "mandate": {
+            "allow_short": false,
+            "allow_leverage": false,
+            "allow_external_financing": false,
+            "max_gross_exposure": 1,
+            "min_net_exposure": 1,
+            "max_net_exposure": 1
+          }
+        },
+        "turnover_estimate": null,
+        "mode_specific_details": {
+          "allocation_mode": "ASSETS",
+          "asset_decision_weights": {
+            "ASSET_0": 0.3333333333333333,
+            "ASSET_1": 0.3333333333333333,
+            "ASSET_2": 0.3333333333333333
+          }
+        },
+        "warnings": [],
+        "errors": [],
+        "allocation_id": "allocation_a5446ad19682ef90fdf5b1f0c43ed2c17c453b6062e1c5441cf8e7e8aa9137b4"
+      },
+      "solver": {
+        "method": "EXPLICIT_EQUAL_WEIGHT_V1",
+        "iterations": 0,
+        "faces_examined": 0,
+        "supports_examined": 1,
+        "stationarity_residual": null,
+        "convergence_tolerance": 1e-9,
+        "constraint_tolerance": 1e-10,
+        "converged": true
+      }
+    }
+  },
+  {
+    "label": "SYNTHETIC_DECLARED_ARTIFACT_NOT_FINANCIAL_FORECAST",
+    "input": {
+      "schema_version": "assets-allocation-1.0.0",
+      "convention": "LONG_ONLY_FULLY_INVESTED",
+      "assets": [
+        "ASSET_0",
+        "ASSET_1",
+        "ASSET_2"
+      ],
+      "as_of": "2021-01-01",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+        "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+        "source_ids": [
+          "SYNTHETIC_KNOWN_ANSWER"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+          "version": "1.0.0"
+        }
+      },
+      "risk_model": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "representation": "COVARIANCE",
+        "units": "daily_decimal_return_squared",
+        "axis_ids": [
+          "ASSET_0",
+          "ASSET_1",
+          "ASSET_2"
+        ],
+        "covariance": [
+          [
+            0.0004,
+            0.00008,
+            0.00003
+          ],
+          [
+            0.00008,
+            0.0002,
+            0.00002
+          ],
+          [
+            0.00003,
+            0.00002,
+            0.0003
+          ]
+        ]
+      },
+      "expected_returns": null,
+      "beta_estimates": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "values": {
+          "ASSET_0": 0.8,
+          "ASSET_1": 1,
+          "ASSET_2": 1.2000000000000002
+        },
+        "beta_model": {
+          "benchmark": "SPY",
+          "estimation_window": {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "observations": 252
+          },
+          "estimator": "SUPPLIED_ASSET_BETAS_V1",
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e"
+        }
+      },
+      "previous_holdings": null,
+      "constraints": {
+        "asset_bounds": {},
+        "group_caps": [],
+        "max_active_names": null,
+        "turnover_cap": null
+      },
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    "result": {
+      "status": "VALID",
+      "errors": [],
+      "warnings": [],
+      "input_hash": "6c3a56caf555c5baa94e490e2ca2868eeef3f0be51060615ed6aae81d582af47",
+      "result_id": "assets_15086cc1f975e922459b9a7972c1d1584aaab0d07895a5dd328055c296216f7a",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "objective_version": "1.0.0",
+      "weights": {
+        "ASSET_0": 0.17142857142857132,
+        "ASSET_1": 0.48571428571428577,
+        "ASSET_2": 0.34285714285714286
+      },
+      "objective_value": 0.00011771428571428569,
+      "diagnostics": {
+        "variance": 0.00011771428571428569,
+        "annualized_volatility": 0.17223240113288787,
+        "beta_sleeve": 1.0342857142857143,
+        "marginal_risk": {
+          "ASSET_0": 0.00011771428571428568,
+          "ASSET_1": 0.00011771428571428572,
+          "ASSET_2": 0.0001177142857142857
+        },
+        "risk_contributions": {
+          "ASSET_0": 0.000020179591836734674,
+          "ASSET_1": 0.00005717551020408164,
+          "ASSET_2": 0.00004035918367346938
+        },
+        "risk_contribution_fractions": {
+          "ASSET_0": 0.1714285714285713,
+          "ASSET_1": 0.4857142857142859,
+          "ASSET_2": 0.34285714285714286
+        },
+        "gross_exposure": 0.9999999999999999,
+        "net_exposure": 0.9999999999999999,
+        "hhi": 0.3828571428571429,
+        "effective_number_weights": 2.6119402985074625,
+        "largest_weight": 0.48571428571428577,
+        "top3_share": 1,
+        "turnover_gross_l1": null,
+        "active_bounds": [],
+        "covariance_effective_rank": 2.805890027381342,
+        "pca_effective_risk_bets": 2.5967329292556487,
+        "eigenvalues": [
+          0.0004369882649105563,
+          0.00029171933329447255,
+          0.00017129240179497096
+        ],
+        "pca_risk_shares": [
+          0.5961183131190401,
+          0.19484251016394621,
+          0.2090391767170137
+        ]
+      },
+      "sleeve": {
+        "schema_version": "allocation-core-1.1.0",
+        "allocation_mode": "ASSETS",
+        "as_of": "2021-01-01",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "acbbc4a8396cf5fca718f431fe0c275369ff219a432d901762fbd5993bd4c179",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "assets-allocation-1.0.0",
+            "version": "1.0.0"
+          }
+        },
+        "input_snapshot_id": "snapshot_6c3a56caf555c5baa94e490e2ca2868eeef3f0be51060615ed6aae81d582af47",
+        "status": "VALID",
+        "asset_weight_units": "fraction_of_risk_capital",
+        "asset_weights_risk_sleeve": {
+          "ASSET_0": 0.17142857142857132,
+          "ASSET_1": 0.48571428571428577,
+          "ASSET_2": 0.34285714285714286
+        },
+        "gross_exposure": 0.9999999999999999,
+        "net_exposure": 0.9999999999999999,
+        "estimated_market_beta": 1.0342857142857143,
+        "estimated_volatility": 0.17223240113288787,
+        "asset_market_betas": {
+          "ASSET_0": 0.8,
+          "ASSET_1": 1,
+          "ASSET_2": 1.2000000000000002
+        },
+        "beta_model": {
+          "benchmark": "SPY",
+          "estimation_window": {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "observations": 252
+          },
+          "estimator": "SUPPLIED_ASSET_BETAS_V1",
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e"
+        },
+        "risk_model_provenance": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+            "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+            "source_ids": [
+              "SYNTHETIC_KNOWN_ANSWER"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+              "version": "1.0.0"
+            }
+          }
+        },
+        "risk_measurement_status": "AVAILABLE",
+        "explicit_unallocated_risk_budget": 0,
+        "convention": {
+          "kind": "LONG_ONLY_FULLY_INVESTED",
+          "funding": "NET_ONE_WITH_GLOBAL_CASH",
+          "mandate": {
+            "allow_short": false,
+            "allow_leverage": false,
+            "allow_external_financing": false,
+            "max_gross_exposure": 1,
+            "min_net_exposure": 1,
+            "max_net_exposure": 1
+          }
+        },
+        "turnover_estimate": null,
+        "mode_specific_details": {
+          "allocation_mode": "ASSETS",
+          "asset_decision_weights": {
+            "ASSET_0": 0.17142857142857132,
+            "ASSET_1": 0.48571428571428577,
+            "ASSET_2": 0.34285714285714286
+          }
+        },
+        "warnings": [],
+        "errors": [],
+        "allocation_id": "allocation_9269eddea3603c5a230dffe010d1db79f30a84146f14d35326d2e7199ce7702b"
+      },
+      "solver": {
+        "method": "EXHAUSTIVE_CONVEX_KKT_FACES_V1",
+        "iterations": 0,
+        "faces_examined": 22,
+        "supports_examined": 1,
+        "stationarity_residual": 5.551115123125783e-17,
+        "convergence_tolerance": 1e-9,
+        "constraint_tolerance": 1e-10,
+        "converged": true
+      }
+    }
+  },
+  {
+    "label": "SYNTHETIC_DECLARED_ARTIFACT_NOT_FINANCIAL_FORECAST",
+    "input": {
+      "schema_version": "assets-allocation-1.0.0",
+      "convention": "LONG_ONLY_FULLY_INVESTED",
+      "assets": [
+        "ASSET_0",
+        "ASSET_1",
+        "ASSET_2"
+      ],
+      "as_of": "2021-01-01",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+        "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+        "source_ids": [
+          "SYNTHETIC_KNOWN_ANSWER"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+          "version": "1.0.0"
+        }
+      },
+      "risk_model": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "representation": "COVARIANCE",
+        "units": "daily_decimal_return_squared",
+        "axis_ids": [
+          "ASSET_0",
+          "ASSET_1",
+          "ASSET_2"
+        ],
+        "covariance": [
+          [
+            0.0004,
+            0.00008,
+            0.00003
+          ],
+          [
+            0.00008,
+            0.0002,
+            0.00002
+          ],
+          [
+            0.00003,
+            0.00002,
+            0.0003
+          ]
+        ]
+      },
+      "expected_returns": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "units": "daily_decimal_return",
+        "values": {
+          "ASSET_0": 0.0006,
+          "ASSET_1": 0.0003,
+          "ASSET_2": 0.0004
+        }
+      },
+      "beta_estimates": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "values": {
+          "ASSET_0": 0.8,
+          "ASSET_1": 1,
+          "ASSET_2": 1.2000000000000002
+        },
+        "beta_model": {
+          "benchmark": "SPY",
+          "estimation_window": {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "observations": 252
+          },
+          "estimator": "SUPPLIED_ASSET_BETAS_V1",
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e"
+        }
+      },
+      "previous_holdings": null,
+      "constraints": {
+        "asset_bounds": {},
+        "group_caps": [],
+        "max_active_names": null,
+        "turnover_cap": null
+      },
+      "objective": {
+        "type": "MEAN_VARIANCE",
+        "gamma": 4
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    "result": {
+      "status": "VALID",
+      "errors": [],
+      "warnings": [],
+      "input_hash": "4230547a7d3daa0558a86368f76140ffb947216ddfe43f5c7af0d9d2daf4b3e9",
+      "result_id": "assets_13f97701f2e97c6cb03b6fa1be35f4354f041ee7a615220f2c4d9485c99880f7",
+      "objective": {
+        "type": "MEAN_VARIANCE",
+        "gamma": 4
+      },
+      "objective_version": "1.0.0",
+      "weights": {
+        "ASSET_0": 0.33989218328840964,
+        "ASSET_1": 0.31051212938005385,
+        "ASSET_2": 0.34959568733153645
+      },
+      "objective_value": 0.0001758921832884097,
+      "diagnostics": {
+        "variance": 0.0001305175202156334,
+        "annualized_volatility": 0.18135714789977156,
+        "beta_sleeve": 1.0019407008086254,
+        "marginal_risk": {
+          "ASSET_0": 0.00017128571428571426,
+          "ASSET_1": 0.00009628571428571428,
+          "ASSET_2": 0.00012128571428571429
+        },
+        "risk_contributions": {
+          "ASSET_0": 0.00005821867539468616,
+          "ASSET_1": 0.000029897882171736612,
+          "ASSET_2": 0.00004240096264921064
+        },
+        "risk_contribution_fractions": {
+          "ASSET_0": 0.4460602323619134,
+          "ASSET_1": 0.22907179145252748,
+          "ASSET_2": 0.32486797618555924
+        },
+        "gross_exposure": 1,
+        "net_exposure": 1,
+        "hhi": 0.3341616233535066,
+        "effective_number_weights": 2.9925638676411057,
+        "largest_weight": 0.34959568733153645,
+        "top3_share": 1,
+        "turnover_gross_l1": null,
+        "active_bounds": [],
+        "covariance_effective_rank": 2.805890027381342,
+        "pca_effective_risk_bets": 1.710754389991761,
+        "eigenvalues": [
+          0.0004369882649105563,
+          0.00029171933329447255,
+          0.00017129240179497096
+        ],
+        "pca_risk_shares": [
+          0.8315911096009447,
+          0.13522304736988683,
+          0.03318584302916827
+        ]
+      },
+      "sleeve": {
+        "schema_version": "allocation-core-1.1.0",
+        "allocation_mode": "ASSETS",
+        "as_of": "2021-01-01",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "88fc7b00b7450acaf6ac0d29c0e1f000ba9d7412a9f133a7ed5c7a230f118dae",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "assets-allocation-1.0.0",
+            "version": "1.0.0"
+          }
+        },
+        "input_snapshot_id": "snapshot_4230547a7d3daa0558a86368f76140ffb947216ddfe43f5c7af0d9d2daf4b3e9",
+        "status": "VALID",
+        "asset_weight_units": "fraction_of_risk_capital",
+        "asset_weights_risk_sleeve": {
+          "ASSET_0": 0.33989218328840964,
+          "ASSET_1": 0.31051212938005385,
+          "ASSET_2": 0.34959568733153645
+        },
+        "gross_exposure": 1,
+        "net_exposure": 1,
+        "estimated_market_beta": 1.0019407008086254,
+        "estimated_volatility": 0.18135714789977156,
+        "asset_market_betas": {
+          "ASSET_0": 0.8,
+          "ASSET_1": 1,
+          "ASSET_2": 1.2000000000000002
+        },
+        "beta_model": {
+          "benchmark": "SPY",
+          "estimation_window": {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "observations": 252
+          },
+          "estimator": "SUPPLIED_ASSET_BETAS_V1",
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e"
+        },
+        "risk_model_provenance": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+            "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+            "source_ids": [
+              "SYNTHETIC_KNOWN_ANSWER"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+              "version": "1.0.0"
+            }
+          }
+        },
+        "risk_measurement_status": "AVAILABLE",
+        "explicit_unallocated_risk_budget": 0,
+        "convention": {
+          "kind": "LONG_ONLY_FULLY_INVESTED",
+          "funding": "NET_ONE_WITH_GLOBAL_CASH",
+          "mandate": {
+            "allow_short": false,
+            "allow_leverage": false,
+            "allow_external_financing": false,
+            "max_gross_exposure": 1,
+            "min_net_exposure": 1,
+            "max_net_exposure": 1
+          }
+        },
+        "turnover_estimate": null,
+        "mode_specific_details": {
+          "allocation_mode": "ASSETS",
+          "asset_decision_weights": {
+            "ASSET_0": 0.33989218328840964,
+            "ASSET_1": 0.31051212938005385,
+            "ASSET_2": 0.34959568733153645
+          }
+        },
+        "warnings": [],
+        "errors": [],
+        "allocation_id": "allocation_803d63796c5058e71129f22bca3e56ead4b324e50d053c9e863b4a66ef388899"
+      },
+      "solver": {
+        "method": "EXHAUSTIVE_CONVEX_KKT_FACES_V1",
+        "iterations": 0,
+        "faces_examined": 22,
+        "supports_examined": 1,
+        "stationarity_residual": 2.0816681711721685e-17,
+        "convergence_tolerance": 1e-9,
+        "constraint_tolerance": 1e-10,
+        "converged": true
+      }
+    }
+  },
+  {
+    "label": "SYNTHETIC_DECLARED_ARTIFACT_NOT_FINANCIAL_FORECAST",
+    "input": {
+      "schema_version": "assets-allocation-1.0.0",
+      "convention": "LONG_ONLY_FULLY_INVESTED",
+      "assets": [
+        "ASSET_0",
+        "ASSET_1",
+        "ASSET_2"
+      ],
+      "as_of": "2021-01-01",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+        "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+        "source_ids": [
+          "SYNTHETIC_KNOWN_ANSWER"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+          "version": "1.0.0"
+        }
+      },
+      "risk_model": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "representation": "COVARIANCE",
+        "units": "daily_decimal_return_squared",
+        "axis_ids": [
+          "ASSET_0",
+          "ASSET_1",
+          "ASSET_2"
+        ],
+        "covariance": [
+          [
+            0.0004,
+            0.00008,
+            0.00003
+          ],
+          [
+            0.00008,
+            0.0002,
+            0.00002
+          ],
+          [
+            0.00003,
+            0.00002,
+            0.0003
+          ]
+        ]
+      },
+      "expected_returns": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "units": "daily_decimal_return",
+        "values": {
+          "ASSET_0": 0.0006,
+          "ASSET_1": 0.0003,
+          "ASSET_2": 0.0004
+        }
+      },
+      "beta_estimates": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "values": {
+          "ASSET_0": 0.8,
+          "ASSET_1": 1,
+          "ASSET_2": 1.2000000000000002
+        },
+        "beta_model": {
+          "benchmark": "SPY",
+          "estimation_window": {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "observations": 252
+          },
+          "estimator": "SUPPLIED_ASSET_BETAS_V1",
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e"
+        }
+      },
+      "previous_holdings": null,
+      "constraints": {
+        "asset_bounds": {},
+        "group_caps": [],
+        "max_active_names": null,
+        "turnover_cap": null
+      },
+      "objective": {
+        "type": "MAX_SHARPE",
+        "rf_sleeve": 0.00005
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    "result": {
+      "status": "VALID",
+      "errors": [],
+      "warnings": [],
+      "input_hash": "0d8feee8e408b41b432960053888e236dfe35ccbda7ae45f33b7b62acb0acbe2",
+      "result_id": "assets_0edc275ffe87f060d42be8e63115c1c94bcb91c6d56cbe16682c678284302f11",
+      "objective": {
+        "type": "MAX_SHARPE",
+        "rf_sleeve": 0.00005
+      },
+      "objective_version": "1.0.1",
+      "weights": {
+        "ASSET_0": 0.40770774789241265,
+        "ASSET_1": 0.2399839421918908,
+        "ASSET_2": 0.3523083099156966
+      },
+      "objective_value": 0.03409236481540585,
+      "diagnostics": {
+        "variance": 0.00014290023830470545,
+        "annualized_volatility": 0.18976527620401415,
+        "beta_sleeve": 0.9889201124046569,
+        "marginal_risk": {
+          "ASSET_0": 0.00019285106382978723,
+          "ASSET_1": 0.0000876595744680851,
+          "ASSET_2": 0.00012272340425531917
+        },
+        "risk_contributions": {
+          "ASSET_0": 0.00007862687291269847,
+          "ASSET_1": 0.00002103689025171468,
+          "ASSET_2": 0.00004323647514029231
+        },
+        "risk_contribution_fractions": {
+          "ASSET_0": 0.5502221259074654,
+          "ASSET_1": 0.1472138220431643,
+          "ASSET_2": 0.3025640520493702
+        },
+        "gross_exposure": 1,
+        "net_exposure": 1,
+        "hhi": 0.3479390454371184,
+        "effective_number_weights": 2.8740666306757627,
+        "largest_weight": 0.40770774789241265,
+        "top3_share": 1,
+        "turnover_gross_l1": null,
+        "active_bounds": [],
+        "covariance_effective_rank": 2.805890027381342,
+        "pca_effective_risk_bets": 1.4655025303495042,
+        "eigenvalues": [
+          0.0004369882649105563,
+          0.00029171933329447255,
+          0.00017129240179497096
+        ],
+        "pca_risk_shares": [
+          0.8840710336718858,
+          0.10997894865100238,
+          0.005950017677111809
+        ]
+      },
+      "sleeve": {
+        "schema_version": "allocation-core-1.1.0",
+        "allocation_mode": "ASSETS",
+        "as_of": "2021-01-01",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "15a0d95b0e4ed4e4cf15feefbeb64d08bf1e83329b5a686639ed8683ebca7006",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "assets-allocation-1.0.0",
+            "version": "1.0.1"
+          }
+        },
+        "input_snapshot_id": "snapshot_0d8feee8e408b41b432960053888e236dfe35ccbda7ae45f33b7b62acb0acbe2",
+        "status": "VALID",
+        "asset_weight_units": "fraction_of_risk_capital",
+        "asset_weights_risk_sleeve": {
+          "ASSET_0": 0.40770774789241265,
+          "ASSET_1": 0.2399839421918908,
+          "ASSET_2": 0.3523083099156966
+        },
+        "gross_exposure": 1,
+        "net_exposure": 1,
+        "estimated_market_beta": 0.9889201124046569,
+        "estimated_volatility": 0.18976527620401415,
+        "asset_market_betas": {
+          "ASSET_0": 0.8,
+          "ASSET_1": 1,
+          "ASSET_2": 1.2000000000000002
+        },
+        "beta_model": {
+          "benchmark": "SPY",
+          "estimation_window": {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "observations": 252
+          },
+          "estimator": "SUPPLIED_ASSET_BETAS_V1",
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e"
+        },
+        "risk_model_provenance": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+            "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+            "source_ids": [
+              "SYNTHETIC_KNOWN_ANSWER"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+              "version": "1.0.0"
+            }
+          }
+        },
+        "risk_measurement_status": "AVAILABLE",
+        "explicit_unallocated_risk_budget": 0,
+        "convention": {
+          "kind": "LONG_ONLY_FULLY_INVESTED",
+          "funding": "NET_ONE_WITH_GLOBAL_CASH",
+          "mandate": {
+            "allow_short": false,
+            "allow_leverage": false,
+            "allow_external_financing": false,
+            "max_gross_exposure": 1,
+            "min_net_exposure": 1,
+            "max_net_exposure": 1
+          }
+        },
+        "turnover_estimate": null,
+        "mode_specific_details": {
+          "allocation_mode": "ASSETS",
+          "asset_decision_weights": {
+            "ASSET_0": 0.40770774789241265,
+            "ASSET_1": 0.2399839421918908,
+            "ASSET_2": 0.3523083099156966
+          }
+        },
+        "warnings": [],
+        "errors": [],
+        "allocation_id": "allocation_f225b2b995a5c31226b4202ad050688e46f7e0ea53f26b70d887e900c65b8229"
+      },
+      "solver": {
+        "method": "SCHAIBLE_POSITIVE_OR_NONPOSITIVE_VERTEX_CERTIFICATION_V1",
+        "iterations": 0,
+        "faces_examined": 44,
+        "supports_examined": 1,
+        "stationarity_residual": 1.1368683772161603e-13,
+        "convergence_tolerance": 1e-9,
+        "constraint_tolerance": 1e-10,
+        "converged": true
+      }
+    }
+  },
+  {
+    "label": "SYNTHETIC_DECLARED_ARTIFACT_NOT_FINANCIAL_FORECAST",
+    "input": {
+      "schema_version": "assets-allocation-1.0.0",
+      "convention": "LONG_ONLY_FULLY_INVESTED",
+      "assets": [
+        "ASSET_0",
+        "ASSET_1",
+        "ASSET_2"
+      ],
+      "as_of": "2021-01-01",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+        "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+        "source_ids": [
+          "SYNTHETIC_KNOWN_ANSWER"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+          "version": "1.0.0"
+        }
+      },
+      "risk_model": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "representation": "COVARIANCE",
+        "units": "daily_decimal_return_squared",
+        "axis_ids": [
+          "ASSET_0",
+          "ASSET_1",
+          "ASSET_2"
+        ],
+        "covariance": [
+          [
+            0.0004,
+            0.00008,
+            0.00003
+          ],
+          [
+            0.00008,
+            0.0002,
+            0.00002
+          ],
+          [
+            0.00003,
+            0.00002,
+            0.0003
+          ]
+        ]
+      },
+      "expected_returns": null,
+      "beta_estimates": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+            "version": "1.0.0"
+          }
+        },
+        "values": {
+          "ASSET_0": 0.8,
+          "ASSET_1": 1,
+          "ASSET_2": 1.2000000000000002
+        },
+        "beta_model": {
+          "benchmark": "SPY",
+          "estimation_window": {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "observations": 252
+          },
+          "estimator": "SUPPLIED_ASSET_BETAS_V1",
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e"
+        }
+      },
+      "previous_holdings": null,
+      "constraints": {
+        "asset_bounds": {},
+        "group_caps": [],
+        "max_active_names": null,
+        "turnover_cap": null
+      },
+      "objective": {
+        "type": "ERC"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    "result": {
+      "status": "VALID",
+      "errors": [],
+      "warnings": [],
+      "input_hash": "dec5edd708f63bde6066e8f3f41dcaebf1413d56331c69bbb56bb4ef6d078d25",
+      "result_id": "assets_c2c830a55a23c6d08357377870efee02b82c3f434a29baff42cdfe0fcb699728",
+      "objective": {
+        "type": "ERC"
+      },
+      "objective_version": "1.0.0",
+      "weights": {
+        "ASSET_0": 0.2717626826720306,
+        "ASSET_1": 0.3853248789692719,
+        "ASSET_2": 0.34291243835869745
+      },
+      "objective_value": 4.164370379986217e-19,
+      "diagnostics": {
+        "variance": 0.0001221451805140459,
+        "annualized_volatility": 0.1754439668086069,
+        "beta_sleeve": 1.0142299511373334,
+        "marginal_risk": {
+          "ASSET_0": 0.00014981843653711494,
+          "ASSET_1": 0.0001056642391747908,
+          "ASSET_2": 0.00011873310956715558
+        },
+        "risk_contributions": {
+          "ASSET_0": 0.000040715060227055716,
+          "ASSET_1": 0.000040715060171406465,
+          "ASSET_2": 0.00004071506011558371
+        },
+        "risk_contribution_fractions": {
+          "ASSET_0": 0.33333333378940605,
+          "ASSET_1": 0.3333333333338068,
+          "ASSET_2": 0.33333333287678707
+        },
+        "gross_exposure": 1,
+        "net_exposure": 1,
+        "hhi": 0.33991915842689036,
+        "effective_number_weights": 2.941875958471695,
+        "largest_weight": 0.3853248789692719,
+        "top3_share": 1,
+        "turnover_gross_l1": null,
+        "active_bounds": [],
+        "covariance_effective_rank": 2.805890027381342,
+        "pca_effective_risk_bets": 2.050934211962654,
+        "eigenvalues": [
+          0.0004369882649105563,
+          0.00029171933329447255,
+          0.00017129240179497096
+        ],
+        "pca_risk_shares": [
+          0.7544016413940919,
+          0.15653449034889205,
+          0.08906386825701605
+        ]
+      },
+      "sleeve": {
+        "schema_version": "allocation-core-1.1.0",
+        "allocation_mode": "ASSETS",
+        "as_of": "2021-01-01",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+          "configuration_hash": "e7142820b51ead2f45d990fda05c895a95ff756566d9cbf76109959d02ad1976",
+          "source_ids": [
+            "SYNTHETIC_KNOWN_ANSWER"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "assets-allocation-1.0.0",
+            "version": "1.0.0"
+          }
+        },
+        "input_snapshot_id": "snapshot_dec5edd708f63bde6066e8f3f41dcaebf1413d56331c69bbb56bb4ef6d078d25",
+        "status": "VALID",
+        "asset_weight_units": "fraction_of_risk_capital",
+        "asset_weights_risk_sleeve": {
+          "ASSET_0": 0.2717626826720306,
+          "ASSET_1": 0.3853248789692719,
+          "ASSET_2": 0.34291243835869745
+        },
+        "gross_exposure": 1,
+        "net_exposure": 1,
+        "estimated_market_beta": 1.0142299511373334,
+        "estimated_volatility": 0.1754439668086069,
+        "asset_market_betas": {
+          "ASSET_0": 0.8,
+          "ASSET_1": 1,
+          "ASSET_2": 1.2000000000000002
+        },
+        "beta_model": {
+          "benchmark": "SPY",
+          "estimation_window": {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "observations": 252
+          },
+          "estimator": "SUPPLIED_ASSET_BETAS_V1",
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e"
+        },
+        "risk_model_provenance": {
+          "as_of": "2020-12-31",
+          "information_cutoff": "2020-12-31",
+          "provenance": {
+            "data_hash": "239a3e5cfa389c4cf58d4e61ec5e4430df6cc2025008ae0a0bbbdc543b404c3e",
+            "configuration_hash": "a8198524f58e72b56283ab71ebddada22840f108b46ef7165bb3fca9919c5558",
+            "source_ids": [
+              "SYNTHETIC_KNOWN_ANSWER"
+            ],
+            "data_available_at": "2020-12-31",
+            "model": {
+              "id": "SYNTHETIC_SUPPLIED_ARTIFACT",
+              "version": "1.0.0"
+            }
+          }
+        },
+        "risk_measurement_status": "AVAILABLE",
+        "explicit_unallocated_risk_budget": 0,
+        "convention": {
+          "kind": "LONG_ONLY_FULLY_INVESTED",
+          "funding": "NET_ONE_WITH_GLOBAL_CASH",
+          "mandate": {
+            "allow_short": false,
+            "allow_leverage": false,
+            "allow_external_financing": false,
+            "max_gross_exposure": 1,
+            "min_net_exposure": 1,
+            "max_net_exposure": 1
+          }
+        },
+        "turnover_estimate": null,
+        "mode_specific_details": {
+          "allocation_mode": "ASSETS",
+          "asset_decision_weights": {
+            "ASSET_0": 0.2717626826720306,
+            "ASSET_1": 0.3853248789692719,
+            "ASSET_2": 0.34291243835869745
+          }
+        },
+        "warnings": [],
+        "errors": [],
+        "allocation_id": "allocation_938b46e73136cddb7d5a0f73cda55466ecdf5ecf3eddac32012c6ab6bf628415"
+      },
+      "solver": {
+        "method": "CONVEX_LOG_RISK_BUDGET_COORDINATE_V1",
+        "iterations": 5,
+        "faces_examined": 0,
+        "supports_examined": 1,
+        "stationarity_residual": 4.5654624525326426e-10,
+        "convergence_tolerance": 1e-9,
+        "constraint_tolerance": 1e-10,
+        "converged": true
+      }
+    }
+  }
+]

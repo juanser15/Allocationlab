@@ -1,0 +1,162 @@
+{
+  "block": "AL-05",
+  "mechanical_status": "PASS",
+  "engine_version": "strategy-allocation-1.0.1",
+  "criteria": [
+    {
+      "id": "1",
+      "criterion": "Terminology: StrategyInstance, no statistical alpha claim",
+      "status": "PASS",
+      "evidence": "contracts.ts; reports/AL05_alpha_mapping.md"
+    },
+    {
+      "id": "2",
+      "criterion": "Nonnegative fully allocated strategy capital",
+      "status": "PASS",
+      "evidence": "A; B; C; maximum active strategies; family and underlying caps"
+    },
+    {
+      "id": "3",
+      "criterion": "Return-space objectives independent known answers",
+      "status": "PASS",
+      "evidence": "A-E; independent-verification.json"
+    },
+    {
+      "id": "4",
+      "criterion": "H*a contributions reconcile",
+      "status": "PASS",
+      "evidence": "F; instrument-contributions.csv; independent verification"
+    },
+    {
+      "id": "5",
+      "criterion": "Opposing signed exposures net algebraically",
+      "status": "PASS",
+      "evidence": "F; signed-net-band; post-net-gross-cap"
+    },
+    {
+      "id": "6",
+      "criterion": "Internal residual never becomes global cash",
+      "status": "PASS",
+      "evidence": "H; fully internal residual fixture; no masterCash acceptance"
+    },
+    {
+      "id": "7",
+      "criterion": "Return risk/beta distinct from position risk/beta",
+      "status": "PASS",
+      "evidence": "J-L; stream and implementation risk differ"
+    },
+    {
+      "id": "8",
+      "criterion": "Signed/non-net-one cannot enter long-only controller",
+      "status": "PASS",
+      "evidence": "I; controller-compatibility.csv"
+    },
+    {
+      "id": "9",
+      "criterion": "PIT/no lookahead",
+      "status": "PASS",
+      "evidence": "M-N; future model/map/return/beta/forecast and historical-store mutation tests"
+    },
+    {
+      "id": "10",
+      "criterion": "Read-only B1/B2/D1 mapping complete",
+      "status": "PASS",
+      "evidence": "reports/AL05_alpha_mapping.md; blocked-artifacts.json"
+    },
+    {
+      "id": "11",
+      "criterion": "Sensitivity reproducible",
+      "status": "PASS",
+      "evidence": "125 runs; reproducibility.json; independent-verification.json"
+    },
+    {
+      "id": "12",
+      "criterion": "Economic replay valid or explicitly blocked",
+      "status": "PASS",
+      "evidence": "economic-replay.csv: BLOCKED_MISSING_CANONICAL_ALPHA_STREAM_ARTIFACTS; missing historical NET PIT mu separately"
+    },
+    {
+      "id": "13",
+      "criterion": "Strict typecheck",
+      "status": "PASS",
+      "evidence": "typecheck.log; tsc exit 0, new research module and transitive imports"
+    },
+    {
+      "id": "14",
+      "criterion": "git diff --check",
+      "status": "PASS",
+      "evidence": "diff-check.json; tracked exit 0; new text --no-index empty check output"
+    },
+    {
+      "id": "15",
+      "criterion": "Prior baselines/production unchanged",
+      "status": "PASS",
+      "evidence": "checkpoint.json; preservation.json: 3137 files byte-identical"
+    }
+  ],
+  "tests": {
+    "passed": 83,
+    "failed": 0,
+    "skipped": 0,
+    "initial": {
+      "passed": 71,
+      "failed": 1,
+      "evidence": "test-results-initial.json; tests-initial.log",
+      "retained": true
+    }
+  },
+  "independent": {
+    "passed": 162,
+    "failed": 0,
+    "status": "PASS"
+  },
+  "fixtures": {
+    "fixtures": 22,
+    "valid": 19,
+    "expected_nonvalid": [
+      {
+        "case_id": "impossible-bounds",
+        "status": "INFEASIBLE",
+        "errors": [
+          "No feasible point in bounded sleeve polytope"
+        ]
+      },
+      {
+        "case_id": "missing-mu-mv",
+        "status": "INSUFFICIENT_DATA",
+        "errors": [
+          "BLOCKED_MISSING_PIT_MU_ALPHA"
+        ]
+      },
+      {
+        "case_id": "missing-mu-sharpe",
+        "status": "INSUFFICIENT_DATA",
+        "errors": [
+          "BLOCKED_MISSING_PIT_MU_ALPHA"
+        ]
+      }
+    ],
+    "sensitivity_runs": 125,
+    "sensitivity_valid": 122,
+    "sensitivity_nonvalid": 3,
+    "fixture_hash": "7acdd03e80e15b9f1f7f95def6039e054edb12eeceaed7bf14cc9d6563aa53d5",
+    "sensitivity_hash": "5f398f9fdc742b463aa2fb090716f04fab62876ab27aa24e6fb035bde58ba631"
+  },
+  "historical_replay": "BLOCKED_MISSING_CANONICAL_ALPHA_STREAM_ARTIFACTS",
+  "historical_mu": "BLOCKED_MISSING_PIT_MU_ALPHA",
+  "signed_normalization": "BLOCKED_BY_SIGNED_EXPOSURE_CONTROLLER_SCOPE",
+  "historical_backtests_executed": 0,
+  "new_strategies_or_signals_created": 0,
+  "production_adapters_added": 0,
+  "alpha_claim": false,
+  "preservation": {
+    "status": "PASS",
+    "protected_files": 3137,
+    "changed_protected_files": [],
+    "branch": "work",
+    "commit": "1163a0b574b573004372a3a2fc8752810dea7ef9",
+    "initial_pending_calculator_preserved": true,
+    "current_git_status": " M artifacts/api-server/src/lib/calculator.ts\n?? artifacts/api-server/src/lib/allocation-core/\n?? artifacts/api-server/src/lib/calculator.cl01-regressions.test.ts\n?? artifacts/api-server/src/lib/calculator.cl01.test.ts\n?? configs/\n?? reports/AL01_allocation_contracts.md\n?? reports/AL01_existing_system_mapping.md\n?? reports/AL02_reports.zip\n?? reports/AL02_risk_analytics.md\n?? reports/AL03_B2_mapping.md\n?? reports/AL03_assets_allocation.md\n?? reports/AL03_reports.zip\n?? reports/AL04_factor_allocation.md\n?? reports/AL04_factor_mapping.md\n?? reports/AL04_reports.zip\n?? reports/AL05_alpha_mapping.md\n?? reports/CL01_capital_layer.md\n?? reports/CL02_capital_layer.md\n?? reports/CL03_capital_research_engine.md\n?? reports/CL04_engine_validation.md\n?? reports/al01/\n?? reports/al02/\n?? reports/al03/\n?? reports/al04/\n?? reports/al05/\n?? reports/capital-research/\n?? reports/cl02/\n?? reports/cl04/\n?? research/\n"
+  },
+  "scope": "research-only certification, not alpha discovery or economic validation"
+}

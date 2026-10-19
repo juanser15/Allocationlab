@@ -1,0 +1,62 @@
+[
+  {
+    "id": "A_0bps",
+    "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+    "status": "PASS",
+    "invalidReason": null,
+    "checkedIntervals": 1823,
+    "feeConvention": "actual absolute fill notional",
+    "costBps": 0,
+    "slippageBps": 0
+  },
+  {
+    "id": "A_5bps",
+    "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+    "status": "PASS",
+    "invalidReason": null,
+    "checkedIntervals": 1823,
+    "feeConvention": "actual absolute fill notional",
+    "costBps": 5,
+    "slippageBps": 0
+  },
+  {
+    "id": "B_0bps",
+    "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+    "status": "PASS",
+    "invalidReason": null,
+    "checkedIntervals": 1823,
+    "feeConvention": "actual absolute fill notional",
+    "costBps": 0,
+    "slippageBps": 0
+  },
+  {
+    "id": "B_5bps",
+    "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+    "status": "PASS",
+    "invalidReason": null,
+    "checkedIntervals": 1823,
+    "feeConvention": "actual absolute fill notional",
+    "costBps": 5,
+    "slippageBps": 0
+  },
+  {
+    "id": "B_control_0bps",
+    "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+    "status": "PASS",
+    "invalidReason": null,
+    "checkedIntervals": 1823,
+    "feeConvention": "actual absolute fill notional",
+    "costBps": 0,
+    "slippageBps": 0
+  },
+  {
+    "id": "B_control_5bps",
+    "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+    "status": "PASS",
+    "invalidReason": null,
+    "checkedIntervals": 1823,
+    "feeConvention": "actual absolute fill notional",
+    "costBps": 5,
+    "slippageBps": 0
+  }
+]

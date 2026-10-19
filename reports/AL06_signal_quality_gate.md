@@ -1,0 +1,33 @@
+# AL-06 — Signal Quality Gate
+
+**AL-06 mechanical certification: PASS; legacy Node-3 audit: BLOCKED_SOURCE_NOT_AVAILABLE.** The requested implementation is absent from the current repository. The user explicitly authorized certifying the remaining criteria without reconstructing the missing legacy source. `AL06_existing_signal_gate_mapping.md` identifies the exact missing functions and search evidence. Historical legacy replay is `BLOCKED_MISSING_LEGACY_NODE3_SOURCE`.
+
+Separate signal and portfolio contracts/entry points are implemented in isolated `allocation-core/gates/`, version `allocation-gates-1.0.3`. **52/52 synthetic/observer tests pass**, with 0 skipped. The new canonical signal methodology is independently verified, but this does not certify its equivalence to Node 3. No production integration, financial signals, forecasts, strategies, optimization, fallback, UI or routing was added.
+
+## Contract and policy
+
+`SignalQualityInput` carries a RESEARCH_SIGNAL_ARTIFACT ID/model/version, decision universe, eligible asset IDs, ranking-score or externally supplied expected-daily-return units, explicit external normalization semantics, current dated ranking, an assets-by-signal-features matrix, historical ranking snapshots, as-of/cutoff/availability, provenance and a canonical PIT artifact hash. It rejects strategy-return/P&L units and factor-exposure targets as ranking scores. The gate does not modify/re-normalize the supplied scores. PCA demeaning is an internal diagnostic calculation, not a new allocation input.
+
+`GatePolicy` is versioned/hashed and declares type, identity, as-of/cutoff, mandatory and warning checks, thresholds with **operators and units**, minimum observations, explicit coverage-failure status (FAIL or INSUFFICIENT_DATA), RETURN_RESULT_ONLY, numerical tolerances and independent signal/allocation/recalibration/gate clocks. Exact evaluation dates are required; an undeclared daily evaluation returns INVALID_INPUT. A declared diagnostic warning never closes the gate unless made mandatory by policy. No weighted quality score.
+
+The policies used here are **QA policies frozen before gate observation**, not legacy defaults or researched investment recommendations. Declared canonical QA: coverage MIN 1.0 eligible fraction, dispersion MIN 0.1 ranking-score units, PC1 share MAX 0.8, mean Spearman MIN 0.5; minimum observations 2, ranking window 3 snapshots, minimum valid comparisons 1, minimum intersection fraction 0.5, max age 90 calendar days, ddof 0 for dispersion. These values were not tuned using subsequent performance. Policy changes in negative tests are explicit fixtures, not campaign retuning.
+
+## CANONICAL_SIGNAL_STRUCTURE_1.0.0 — new definitions, not legacy formulas
+
+Coverage uses eligible IDs and finite nonmissing, nonstale current scores. Current-score age is measured against the **decision information cutoff**, not the timestamp of an old current-ranking artifact. Missing/stale assets are listed separately; no zero/fill imputation. Output preserves eligible/valid counts, coverage, missing fraction, stale score count and minimum historical nonmissing snapshot count per eligible asset. Coverage threshold breaches use the explicit configured failure status.
+
+Dispersion: for n eligible nonstale finite scores, `sqrt(sum((score-mean)^2)/(n-ddof))` with ddof explicitly 0 or 1; minimum observations required. Sample size, units, normalization, threshold and component status are persisted. Low dispersion is weak cross-sectional differentiation, not a return forecast.
+
+PCA: rows are complete, nonstale, scored eligible assets; columns are externally supplied signal features. Features are demeaned, sample feature covariance uses **n−1**. Report eigenvalues, PC1 share `largest_eigenvalue/trace`, entropy covariance effective rank `exp(-sum(p_k log p_k))`, dimensions, included assets and construction. No imputation or feature-to-return reinterpretation. An old feature-matrix snapshot beyond the policy freshness limit produces unavailable/INSUFFICIENT_DATA PCA. Zero total variance has undefined PC1/rank. Eigen nonconvergence is NUMERICAL_FAILURE. This is feature covariance rank, **not portfolio bets or minimum-torsion diversification**. Repeated eigenvalues make eigenvectors nonunique, although eigenvalue-based share/rank is invariant.
+
+Rank stability: only snapshots with as-of before current ranking and publication **strictly before current cutoff** enter the declared latest-N-snapshot window. Compare average-tie Spearman correlations on the explicit asset intersection; minimum intersection fraction is `intersection_size / max(current_valid_count, old_valid_count)`. Historical score availability/age is checked. Require configured minimum common observations and valid comparisons; record every comparison date, publication/cutoff, assets, fraction and status. Mean of valid comparison correlations is the declared stability statistic; constant ranks have undefined correlation. No current/future ranking or late publication enters a past hash/estimate.
+
+Gate PASS requires all mandatory components and hard signal identity/unit/hash/PIT checks to pass. A mandatory FAIL cannot be averaged away; data insufficiency is distinct, and nonmandatory diagnostics remain diagnostic. Output includes `eligible_for_allocation`, never a fallback portfolio, weights, cash decision, promotion or execution.
+
+## Evidence and limits
+
+Five persisted **SYNTHETIC_NEW_CANONICAL_NOT_NODE3_REPLAY** cases: structured PASS; zero dispersion FAIL; collinear-feature PCA FAIL; reversed ranking FAIL; missing score INSUFFICIENT_DATA. Tests cover intersection policy, future and late-published history, exact independent score/PCA/Spearman oracles, same input/hash, stale ranking/matrix, forbidden units, no fallback and declared rebalance clocks. The first selector test failure and the later three hardening reproductions are preserved; expectations were not changed.
+
+Source/history missing prevents an old-versus-canonical Node-3 state comparison. The seven generated charts include labelled reference component bars, not fabricated legacy history; `charts/01-signal-history-status.json` records the blocker instead of a made-up curve. The new canonical implementation is research-only. It is certified mechanically under the declared policies; it does not close the blocked legacy-source audit or establish 1:1 compatibility.
+
+See `reports/al06/test-results.json`, `independent-verification.json`, `node3-audit-evidence.json`, `signal-gate-results.csv`, `signal-gate-components.csv`, `manifest.json`, `verification.json` and the portfolio report. All artifacts and source are bundled in `reports/AL06_reports.zip`. AL-07 was not opened.

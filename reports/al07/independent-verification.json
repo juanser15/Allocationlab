@@ -1,0 +1,503 @@
+{
+  "status": "PASS",
+  "checks": 96,
+  "failed": 0,
+  "oracle": "Independent NumPy/SciPy from original adjusted closes and persisted ledgers; no ARE/selector/gate/backtester calls",
+  "tolerance_absolute": 2e-08,
+  "campaigns": [
+    {
+      "campaign_id": "AL07_REAL_NESTED_ROLLING",
+      "jobs": 68,
+      "valid": 28,
+      "blocked": 40,
+      "selected": [
+        "are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638",
+        "are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638"
+      ]
+    },
+    {
+      "campaign_id": "AL07_REAL_TRADITIONAL_EXPANDING",
+      "jobs": 40,
+      "valid": 16,
+      "blocked": 24,
+      "selected": [
+        "are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638",
+        "are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "case": "AL07_REAL_NESTED_ROLLING source/code hashes and IDs",
+      "status": "PASS"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 018624aae550a51f6da5da370582b61a41a96c310265027927abb2dff9fd65e7",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 05fbcefeaa1ea2e9c9783286710cf16c235c497c5c24c7c49f3196fac47c0f7b",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 1e1f5aebec58e22d4e86491528f4ead73b52f97eab300376c15c3b6b4b72a1cb",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 22eba6b3eeee68b90d27fed37cd1aba0c8d67f3842a423d37dca4ec998d987e5",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 24024276f9377a095e6d19b869a34481f42af88b54d3f355d69b3e475fd99714",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 25e970f4c9e4a07c090d18bda57cdca63d7634cd72558888e82ec564c57d0893",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 29d444ffc5b063c0eb2d276d098fa69ff46c555e7619920c6bf3d552b004c455",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 3103a1e916986082f56075b79cdb26b63b7a9dff85033acbc3dac5647736aaa5",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 31a4d4a1fee0d6f14402071d919f6c2d04c570ac2b945967d41ab2fb47e29975",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 3b4b01ccfb1769a81058d1b0e1e4e50d7af6235d5d0fa252d8f536682ae20fa3",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 43acd28f4eedba2b02c974670190e788ff71d0177bf5583eb09c3df18d534851",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 573ec2868eb57bc13b873fce84e889f26a1b114bfe0cff17197ae4cd7e333f1c",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 64163cd8c8af649f582c49bcec839bc6dfceb91b6f2f425215674c050fff6e37",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 6c550232a0619d57f40c3108232c4bbd405db2b417a00c993550217de6b30921",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 6d51c67093e8a8265f5ff0cafe388733fc7e29f2b75f983c694e9ac4fee7273d",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 72139895c7cc21d955d48187318c996ff06f24689feb3b000bcf8b4d0e29db8d",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 89c52f0daececd8335db4ec631e7bac8195afb769e208c1a75f6d283a044a080",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 8fcbb7d075428f9f242a30f9d5782cab0ecac3db8be6b1b57ceed9ed65e4311d",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 926d722bc58212c1c32b03144fad61bd2af8533073f1ef358368e25a9b40e30d",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING 9520d2b97290d34c6eb77f7e9d07d4f8e52a5c739cd8c5da6b771925d5968d48",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING a5d524b1f26eb08a9176f46acf86e4030dfe3da8001a144c9b9ecb340f889145",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING b1f0998a26f9a87b30fdcd8caed93dd11123fc892845e351c491654794c5d1fc",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING bebc601a6bc309906fa7d5386cc626ad22e641ed3d093043e0a2370de3324c1d",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING c333040ab0e6c75f4b314bd62ae49d8c5544d71501e9868307e14651a216f4ac",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING c6bdc33a33422918a8643c8f4764df797929e8ec1ab72244ad9ab571c50b76c9",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING caf8c9857e4c142b6dcf52fef80a8617f62b1ffb32b6b25f8b296461e0871ab4",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING f2a077debbcfb2d88b0bf15a84fb45cd7c686feca73abc5a9865c9d0efdcaa88",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING f60b81f26819e3e6c096d35e15517b80f04252176e5b53fb1e0fceeaa8a7da9f",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING outer fold 0 winner independent replay",
+      "status": "PASS"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING outer fold 1 winner independent replay",
+      "status": "PASS"
+    },
+    {
+      "case": "AL07_REAL_NESTED_ROLLING composite outer OOS and independent summary",
+      "status": "PASS"
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/parameter-sensitivity.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 384
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/selection-stability.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 2
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/inner-fold-ranks.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 28
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/failure-summary.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 40
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/outer-oos-results.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 8
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/selection-bias.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 2
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/selection-frequency.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 7
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/oos-equity.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 2020
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/psr.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 56
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/job-registry.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 68
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/cross-sectional-analysis.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 4
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/candidate-results.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 96
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/gate-outcomes.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 384
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/inner-selection.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 14
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/empirical-response-surface.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 68
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/folds.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 6
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/risk-attribution.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 56
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/comparable-controls.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 8
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/alpha-decay.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 20
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/candidate-registry.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 7
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/performance-summary.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 4
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/fold-performance-stability.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 32
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING source/code hashes and IDs",
+      "status": "PASS"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING 22eba6b3eeee68b90d27fed37cd1aba0c8d67f3842a423d37dca4ec998d987e5",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING 3812095830546b02ed75c2ad4924eba160e29df1d7e63504e29fbb97d402050e",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING 4d9e68801c546935ee53fd61faf25053b08bb89b306cd37458e0f521c0551345",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING 559519c5e198de1b6d0709b92924c1008af04b66bbf3abbaed621b6f1ac82bec",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING 59397b88760ac3b26cd14dd01c253377707a4996e9ebaa184794252c437166d7",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING 608c1e4c1f733de156862b320bdaa04510e38faed3842ce52f08acfa5e6814f9",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING 6c550232a0619d57f40c3108232c4bbd405db2b417a00c993550217de6b30921",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING 6d51c67093e8a8265f5ff0cafe388733fc7e29f2b75f983c694e9ac4fee7273d",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING 711469cddd06c7895f0d04ce96011c22a24bb70957c5af2439caa29117a64638",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING 78923cf781adffb5296bf3f1fba09a09aeb1749cb30f19017d8ee1f37d18d0b1",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING 9520d2b97290d34c6eb77f7e9d07d4f8e52a5c739cd8c5da6b771925d5968d48",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING b41cbe6e14bd12442a6ab67dc8345edc7ee3bc17ce01d49274fd7b37f02828ee",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING b4422268edb392d08914dda28be64f9e769ed2af84a4aa584e9926ebe3e70701",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING cafa2d01d2a0e7f40d301f30a158ca5a2e6625715c31e430d86dec43da93755a",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING d14821ea4a4397868b69ac2c62d48039a41cd1c9a6e58e4754dc7c2c886d9ec7",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING f8ac9c18bc4a6c8973f2fc8657c277e040bfe8664d3af5ae63ce507c42b101c3",
+      "status": "PASS",
+      "scope": "independent covariance/beta/allocator conditions/accounting/AL02 attribution/HAC/PSR"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING outer fold 0 winner independent replay",
+      "status": "PASS"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING outer fold 1 winner independent replay",
+      "status": "PASS"
+    },
+    {
+      "case": "AL07_REAL_TRADITIONAL_EXPANDING composite outer OOS and independent summary",
+      "status": "PASS"
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/parameter-sensitivity.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 816
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/selection-stability.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 2
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/inner-fold-ranks.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 14
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/failure-summary.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 24
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/outer-oos-results.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 8
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/selection-bias.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 2
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/selection-frequency.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 7
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/oos-equity.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 2020
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/psr.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 32
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/job-registry.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 40
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/cross-sectional-analysis.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 4
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/candidate-results.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 56
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/gate-outcomes.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 816
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/inner-selection.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 14
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/empirical-response-surface.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 40
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/folds.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 2
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/risk-attribution.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 32
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/comparable-controls.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 8
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/alpha-decay.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 20
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/candidate-registry.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 7
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/performance-summary.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 4
+    },
+    {
+      "case": "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/fold-performance-stability.csv RFC4180 round-trip",
+      "status": "PASS",
+      "rows": 32
+    }
+  ]
+}

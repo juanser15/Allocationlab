@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "candidates": [
+    {
+      "candidate": "A_0bps",
+      "status": "PASS",
+      "observations": 1823
+    },
+    {
+      "candidate": "A_5bps",
+      "status": "PASS",
+      "observations": 1823
+    },
+    {
+      "candidate": "B_0bps",
+      "status": "PASS",
+      "observations": 1823
+    },
+    {
+      "candidate": "B_5bps",
+      "status": "PASS",
+      "observations": 1823
+    },
+    {
+      "candidate": "B_control_0bps",
+      "status": "PASS",
+      "observations": 1823
+    },
+    {
+      "candidate": "B_control_5bps",
+      "status": "PASS",
+      "observations": 1823
+    },
+    {
+      "candidate": "B_constant_beta_diagnostic_from_0bps",
+      "status": "PASS",
+      "observations": 1823
+    },
+    {
+      "candidate": "B_constant_beta_diagnostic_from_5bps",
+      "status": "PASS",
+      "observations": 1823
+    }
+  ],
+  "row_counts": {
+    "metrics-cl02.csv": 8,
+    "rolling-beta-cl02.csv": 27672,
+    "conditional-beta-cl02.csv": 88,
+    "alpha-timing-cl02.csv": 16,
+    "capital-efficiency-cl02.csv": 8,
+    "controller-replay.csv": 1392,
+    "pit-estimates.csv": 441
+  },
+  "method": "NumPy cov/std/full benchmark high-water, SciPy SVD OLS, Toeplitz lag5 HAC",
+  "engine_calls": 0,
+  "tolerance": {
+    "absolute": 1e-09,
+    "relative": 1e-08
+  }
+}

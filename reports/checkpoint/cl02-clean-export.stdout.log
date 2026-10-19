@@ -1,0 +1,17 @@
+A_0bps metrics / fees / RFC4180 round-trip PASS
+A_5bps metrics / fees / RFC4180 round-trip PASS
+B_0bps metrics / fees / RFC4180 round-trip PASS
+B_5bps metrics / fees / RFC4180 round-trip PASS
+B_control_0bps metrics / fees / RFC4180 round-trip PASS
+B_control_5bps metrics / fees / RFC4180 round-trip PASS
+| Case | CAGR | Volatility | Sharpe (daily excess over 0) | Max DD | Recovery of max DD | Target SPY mean* | Effective SPY mean** | Gross turnover | Costs (NAV units) |
+|---|---:|---:|---:|---:|---|---:|---:|---:|---:|
+| A_0bps | 15.56% | 19.60% | 0.839 | -33.72% | 2020-08-10 | 99.95% | 99.89% | 1.000x | 0.00 |
+| A_5bps | 15.55% | 19.60% | 0.838 | -33.72% | 2020-08-10 | 99.95% | 99.89% | 1.000x | 49.98 |
+| B_0bps | 13.35% | 16.43% | 0.848 | -28.41% | 2020-08-06 | 85.83% | 85.84% | 2.087x | 0.00 |
+| B_5bps | 13.33% | 16.43% | 0.847 | -28.41% | 2020-08-06 | 85.83% | 85.84% | 2.087x | 137.69 |
+| B_control_0bps | 13.42% | 16.73% | 0.839 | -29.33% | 2020-08-06 | 85.83% | 85.84% | 1.259x | 0.00 |
+| B_control_5bps | 13.41% | 16.73% | 0.839 | -29.33% | 2020-08-06 | 85.83% | 85.84% | 1.259x | 72.70 |
+
+*Daily post-close target, including initial waiting cash. **Beginning-of-interval exposure. Full post-entry target mean and closing effective exposure in metrics.csv.
+

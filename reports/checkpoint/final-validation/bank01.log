@@ -1,0 +1,71 @@
+PASS 01 PROMOTED does not imply ACTIVE: explicit cluster policy
+PASS 02 ACTIVE does not mean ALLOCATED: result contains IDs and no capital decisions
+PASS 03 high correlation default retains five promoted strategies; no retirement
+PASS 04 same-family cross-market low-correlation streams remain active
+PASS 05 same-asset streams are distinct; underlying and strategy counts separate
+PASS 06 negatively correlated same-asset P&L remains distinct; no positive-rho pruning
+PASS 07 exact duplicate economics rejected despite distinct labels
+PASS 08 explicitly separate execution sleeves permit duplicate economic identity
+PASS 09 rolling 63 exact sessions and sample covariance independent oracle
+PASS 09 rolling 126 exact sessions and sample covariance independent oracle
+PASS 09 rolling 252 exact sessions and sample covariance independent oracle
+PASS 10 exact orthogonal sample: covariance, rank, PC1, reference variance
+PASS 11 single vs complete vs average linkage known connected chain
+PASS 12 clustering invariant to input ordering and stable IDs
+PASS 13 deterministic representative LEXICOGRAPHIC_POLICY
+PASS 13 deterministic representative BEST_FROZEN_RESEARCH_SCORE
+PASS 13 deterministic representative HIGHEST_PSR_FROM_PROMOTION_EVIDENCE
+PASS 13 deterministic representative LOWEST_TURNOVER
+PASS 13 deterministic representative LOWEST_CORRELATION_TO_ACTIVE_SET
+PASS 14 missing frozen selector evidence => INSUFFICIENT_DATA, no lexicographic fallback
+PASS 15 family/underlying/total caps operate on strategy IDs, not combined returns
+PASS 16 explicit pairwise rho and marginal rank restrictions only
+PASS 17 missing observations explicit; no imputation/pairwise inconsistent covariance
+PASS 18 zero variance undefined correlation: no epsilon or invented rho
+PASS 19 no full-sample covariance: future mutation leaves full artifact unchanged
+PASS 20 future retirement/promotion/suspension cannot rewrite historical set
+PASS 21 delayed publication of past-effective suspension stays unavailable
+PASS 22 retired/suspended/manual-hold/not-promoted/expired reasons explicit
+PASS 23 missing/future strategy version cannot enter active set
+PASS 24 regime eligibility and missing regime are explicit
+PASS 25 preferred regime is diagnostic only; no hidden restriction
+PASS 26 future regime and evidence mutation cannot change past choice
+PASS 27 mandatory signal gate fail/missing/stale prevents activation, no fallback
+PASS 28 SIGNAL separate from strategy; scores never enter correlation
+PASS 29 signal-score return units and mixed dollar/P&L conventions rejected
+PASS 30 temporal changing clusters and exit/re-entry retain promotion
+PASS 31 crisis correlation spike observable causally
+PASS 32 marginal independent orthogonal rank oracle before/after
+PASS 33 signed map diagnostic never creates cash or normalizes internal capital
+PASS 34 certified asset-risk artifact supplies separate implementation PCA bets
+PASS 35 beta/factor/sector similarity diagnostic cannot prune
+PASS 36 allocator handoff rejects inactive streams; no axis/constraint rewriting
+PASS 37 RiskMandate/allocations/cash input rejected and upstream objects not mutated
+PASS 38 same frozen input => exact immutable IDs/hash
+PASS 39 resume and interrupted sequence => zero duplicate records
+PASS 40 tampered artifact/journal rejected, never silently reused
+PASS 41 immutable history refuses replacement after relevant input or code change
+PASS 42 real scope refuses unverified external QA promotion
+PASS 43 future map/beta/risk/signal artifacts cannot change past artifact
+PASS 44 mutation inside correlation window changes relevant artifact
+PASS 45 future entry/return arrival cannot affect historical universe
+PASS 46 NaN/Infinity visible returns rejected explicitly
+PASS 47 stale returns distinguish DATA from insufficient history
+PASS 48 zero policy cap explicitly deactivates all without retirement or fallback
+PASS 49 unsupported policy, hidden cash target, ambiguous snapshot rejected
+PASS 50 incomplete optional correlation leaves eligible entries active with explicit coverage
+PASS 51 two equal frozen scores break ties by strategy ID exactly
+PASS 52 evidence created after promotion cannot replace frozen research score
+PASS 53 same family has no hidden penalty outside declared caps
+PASS 54 historical session calendar ignores appended future sessions
+PASS 55 strategy returns with delayed availability excluded before statistics
+PASS 56 global required signal gate and allowed-regime policy are explicit
+PASS 57 model linkage ties invariant under permuted covariance axes
+PASS 58 empty eligible bank gives immutable empty set without invented fallback
+PASS 59 PIT cutoff after decision rejected; inconsistent artifact metadata rejected
+PASS 60 certified PIPE02 unpromoted state is consumed read-only, never self-promotes
+PASS 61 unversioned/mismatching history cannot substitute current strategy data
+PASS 62 no in-window deletion masked by minimum observations
+PASS 63 non-PSD implementation covariance rejected explicitly
+PASS 64 AL05 bundle cannot retain inactive IDs on covariance/forecast axes
+PASS 65 full activation round trip: ACTIVE then INACTIVE then ACTIVE; promotion unchanged

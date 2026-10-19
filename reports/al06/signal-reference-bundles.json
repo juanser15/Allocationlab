@@ -1,0 +1,1402 @@
+[
+  {
+    "case_id": "SYNTHETIC_STRUCTURED",
+    "input": {
+      "as_of": "2021-01-01",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+        "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+        "source_ids": [
+          "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+          "version": "1.0.0"
+        }
+      },
+      "kind": "RESEARCH_SIGNAL_ARTIFACT",
+      "signal_artifact_id": "SYNTHETIC_AL06_SIGNAL",
+      "signal_model_id": "SYNTHETIC_SIGNAL_STRUCTURE",
+      "signal_model_version": "1.0.0",
+      "decision_universe": [
+        "AAA",
+        "BBB",
+        "CCC",
+        "DDD"
+      ],
+      "eligible_assets": [
+        "AAA",
+        "BBB",
+        "CCC",
+        "DDD"
+      ],
+      "units": "RANKING_SCORE",
+      "normalization": {
+        "method": "SUPPLIED_FIXTURE_IDENTITY",
+        "version": "1.0.0",
+        "configuration_hash": "d65bcdf8d1c793faab87f62dc908ef30dd3785d1dbf080c9ccc8c821daaee3a5",
+        "semantics": "EXTERNALLY_SUPPLIED_NO_GATE_TRANSFORM"
+      },
+      "current_ranking": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+          "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+          "source_ids": [
+            "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+            "version": "1.0.0"
+          }
+        },
+        "scores": {
+          "AAA": {
+            "value": 1,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "BBB": {
+            "value": 2,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "CCC": {
+            "value": 3,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "DDD": {
+            "value": 4,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          }
+        }
+      },
+      "signal_matrix": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+          "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+          "source_ids": [
+            "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+            "version": "1.0.0"
+          }
+        },
+        "orientation": "ASSETS_BY_SIGNAL_FEATURES",
+        "feature_ids": [
+          "F0",
+          "F1"
+        ],
+        "rows": {
+          "AAA": [
+            1,
+            1
+          ],
+          "BBB": [
+            1,
+            -1
+          ],
+          "CCC": [
+            -1,
+            1
+          ],
+          "DDD": [
+            -1,
+            -1
+          ]
+        }
+      },
+      "historical_rankings": [
+        {
+          "as_of": "2020-11-30",
+          "information_cutoff": "2020-11-30",
+          "provenance": {
+            "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+            "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+            "source_ids": [
+              "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+            ],
+            "data_available_at": "2020-11-30",
+            "model": {
+              "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+              "version": "1.0.0"
+            }
+          },
+          "scores": {
+            "AAA": {
+              "value": 1,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "BBB": {
+              "value": 2,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "CCC": {
+              "value": 3,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "DDD": {
+              "value": 4,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            }
+          }
+        },
+        {
+          "as_of": "2020-12-15",
+          "information_cutoff": "2020-12-15",
+          "provenance": {
+            "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+            "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+            "source_ids": [
+              "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+            ],
+            "data_available_at": "2020-12-15",
+            "model": {
+              "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+              "version": "1.0.0"
+            }
+          },
+          "scores": {
+            "AAA": {
+              "value": 1,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "BBB": {
+              "value": 2,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "CCC": {
+              "value": 3,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "DDD": {
+              "value": 4,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            }
+          }
+        }
+      ],
+      "artifact_hash": "cded9d532e93db90f5f7995dd44dbe4480d0248ab15bd6335f46889a847848aa"
+    },
+    "policy": {
+      "as_of": "2020-12-31",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+        "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+        "source_ids": [
+          "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "DECLARED_RESEARCH_GATE_POLICY",
+          "version": "1.0.0"
+        }
+      },
+      "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+      "gate_policy_version": "1.0.0",
+      "gate_type": "SIGNAL_QUALITY",
+      "mandatory_checks": [
+        "coverage",
+        "dispersion",
+        "pc1_share",
+        "rank_stability"
+      ],
+      "warning_checks": [],
+      "thresholds": {
+        "coverage": {
+          "operator": "MIN",
+          "value": 1,
+          "units": "ELIGIBLE_FRACTION"
+        },
+        "dispersion": {
+          "operator": "MIN",
+          "value": 0.1,
+          "units": "RANKING_SCORE"
+        },
+        "pc1_share": {
+          "operator": "MAX",
+          "value": 0.8,
+          "units": "VARIANCE_SHARE"
+        },
+        "rank_stability": {
+          "operator": "MIN",
+          "value": 0.5,
+          "units": "SPEARMAN_CORRELATION"
+        }
+      },
+      "minimum_observations": 2,
+      "failure_behavior": "RETURN_RESULT_ONLY",
+      "coverage_failure_status": "INSUFFICIENT_DATA",
+      "clock": {
+        "evaluation_dates": [
+          "2021-01-01"
+        ],
+        "signal_frequency": "EXTERNALLY_DECLARED",
+        "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+        "recalibration_frequency": "EXTERNALLY_DECLARED",
+        "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+      },
+      "signal_methodology": {
+        "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+        "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+        "dispersion_ddof": 0,
+        "rank_window_snapshots": 3,
+        "minimum_rank_intersection_fraction": 0.5,
+        "maximum_staleness_calendar_days": 90,
+        "minimum_rank_snapshots": 1
+      },
+      "robustness_methodology": {
+        "allow_approximate_factor_residual": true,
+        "allow_declared_controller_clip": false,
+        "correlation_cluster_threshold": 0.9,
+        "sensitivity_required_families": [],
+        "require_risk_artifact": true
+      },
+      "numerics": {
+        "absolute": 1e-9,
+        "covariance_psd": 1e-12,
+        "eigen_iterations": 10000
+      },
+      "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+    }
+  },
+  {
+    "case_id": "SYNTHETIC_LOW_DISPERSION",
+    "input": {
+      "as_of": "2021-01-01",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+        "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+        "source_ids": [
+          "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+          "version": "1.0.0"
+        }
+      },
+      "kind": "RESEARCH_SIGNAL_ARTIFACT",
+      "signal_artifact_id": "SYNTHETIC_AL06_SIGNAL",
+      "signal_model_id": "SYNTHETIC_SIGNAL_STRUCTURE",
+      "signal_model_version": "1.0.0",
+      "decision_universe": [
+        "AAA",
+        "BBB",
+        "CCC",
+        "DDD"
+      ],
+      "eligible_assets": [
+        "AAA",
+        "BBB",
+        "CCC",
+        "DDD"
+      ],
+      "units": "RANKING_SCORE",
+      "normalization": {
+        "method": "SUPPLIED_FIXTURE_IDENTITY",
+        "version": "1.0.0",
+        "configuration_hash": "d65bcdf8d1c793faab87f62dc908ef30dd3785d1dbf080c9ccc8c821daaee3a5",
+        "semantics": "EXTERNALLY_SUPPLIED_NO_GATE_TRANSFORM"
+      },
+      "current_ranking": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+          "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+          "source_ids": [
+            "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+            "version": "1.0.0"
+          }
+        },
+        "scores": {
+          "AAA": {
+            "value": 1,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "BBB": {
+            "value": 1,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "CCC": {
+            "value": 1,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "DDD": {
+            "value": 1,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          }
+        }
+      },
+      "signal_matrix": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+          "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+          "source_ids": [
+            "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+            "version": "1.0.0"
+          }
+        },
+        "orientation": "ASSETS_BY_SIGNAL_FEATURES",
+        "feature_ids": [
+          "F0",
+          "F1"
+        ],
+        "rows": {
+          "AAA": [
+            1,
+            1
+          ],
+          "BBB": [
+            1,
+            -1
+          ],
+          "CCC": [
+            -1,
+            1
+          ],
+          "DDD": [
+            -1,
+            -1
+          ]
+        }
+      },
+      "historical_rankings": [
+        {
+          "as_of": "2020-11-30",
+          "information_cutoff": "2020-11-30",
+          "provenance": {
+            "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+            "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+            "source_ids": [
+              "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+            ],
+            "data_available_at": "2020-11-30",
+            "model": {
+              "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+              "version": "1.0.0"
+            }
+          },
+          "scores": {
+            "AAA": {
+              "value": 1,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "BBB": {
+              "value": 2,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "CCC": {
+              "value": 3,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "DDD": {
+              "value": 4,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            }
+          }
+        },
+        {
+          "as_of": "2020-12-15",
+          "information_cutoff": "2020-12-15",
+          "provenance": {
+            "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+            "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+            "source_ids": [
+              "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+            ],
+            "data_available_at": "2020-12-15",
+            "model": {
+              "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+              "version": "1.0.0"
+            }
+          },
+          "scores": {
+            "AAA": {
+              "value": 1,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "BBB": {
+              "value": 2,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "CCC": {
+              "value": 3,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "DDD": {
+              "value": 4,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            }
+          }
+        }
+      ],
+      "artifact_hash": "ac39e6a8608bc5ca01731ffcbf431e24741543838ae0ef6a2a3cf5627868f470"
+    },
+    "policy": {
+      "as_of": "2020-12-31",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+        "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+        "source_ids": [
+          "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "DECLARED_RESEARCH_GATE_POLICY",
+          "version": "1.0.0"
+        }
+      },
+      "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+      "gate_policy_version": "1.0.0",
+      "gate_type": "SIGNAL_QUALITY",
+      "mandatory_checks": [
+        "coverage",
+        "dispersion",
+        "pc1_share",
+        "rank_stability"
+      ],
+      "warning_checks": [],
+      "thresholds": {
+        "coverage": {
+          "operator": "MIN",
+          "value": 1,
+          "units": "ELIGIBLE_FRACTION"
+        },
+        "dispersion": {
+          "operator": "MIN",
+          "value": 0.1,
+          "units": "RANKING_SCORE"
+        },
+        "pc1_share": {
+          "operator": "MAX",
+          "value": 0.8,
+          "units": "VARIANCE_SHARE"
+        },
+        "rank_stability": {
+          "operator": "MIN",
+          "value": 0.5,
+          "units": "SPEARMAN_CORRELATION"
+        }
+      },
+      "minimum_observations": 2,
+      "failure_behavior": "RETURN_RESULT_ONLY",
+      "coverage_failure_status": "INSUFFICIENT_DATA",
+      "clock": {
+        "evaluation_dates": [
+          "2021-01-01"
+        ],
+        "signal_frequency": "EXTERNALLY_DECLARED",
+        "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+        "recalibration_frequency": "EXTERNALLY_DECLARED",
+        "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+      },
+      "signal_methodology": {
+        "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+        "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+        "dispersion_ddof": 0,
+        "rank_window_snapshots": 3,
+        "minimum_rank_intersection_fraction": 0.5,
+        "maximum_staleness_calendar_days": 90,
+        "minimum_rank_snapshots": 1
+      },
+      "robustness_methodology": {
+        "allow_approximate_factor_residual": true,
+        "allow_declared_controller_clip": false,
+        "correlation_cluster_threshold": 0.9,
+        "sensitivity_required_families": [],
+        "require_risk_artifact": true
+      },
+      "numerics": {
+        "absolute": 1e-9,
+        "covariance_psd": 1e-12,
+        "eigen_iterations": 10000
+      },
+      "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+    }
+  },
+  {
+    "case_id": "SYNTHETIC_COLLINEAR_FEATURES",
+    "input": {
+      "as_of": "2021-01-01",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+        "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+        "source_ids": [
+          "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+          "version": "1.0.0"
+        }
+      },
+      "kind": "RESEARCH_SIGNAL_ARTIFACT",
+      "signal_artifact_id": "SYNTHETIC_AL06_SIGNAL",
+      "signal_model_id": "SYNTHETIC_SIGNAL_STRUCTURE",
+      "signal_model_version": "1.0.0",
+      "decision_universe": [
+        "AAA",
+        "BBB",
+        "CCC",
+        "DDD"
+      ],
+      "eligible_assets": [
+        "AAA",
+        "BBB",
+        "CCC",
+        "DDD"
+      ],
+      "units": "RANKING_SCORE",
+      "normalization": {
+        "method": "SUPPLIED_FIXTURE_IDENTITY",
+        "version": "1.0.0",
+        "configuration_hash": "d65bcdf8d1c793faab87f62dc908ef30dd3785d1dbf080c9ccc8c821daaee3a5",
+        "semantics": "EXTERNALLY_SUPPLIED_NO_GATE_TRANSFORM"
+      },
+      "current_ranking": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+          "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+          "source_ids": [
+            "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+            "version": "1.0.0"
+          }
+        },
+        "scores": {
+          "AAA": {
+            "value": 1,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "BBB": {
+            "value": 2,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "CCC": {
+            "value": 3,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "DDD": {
+            "value": 4,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          }
+        }
+      },
+      "signal_matrix": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+          "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+          "source_ids": [
+            "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+            "version": "1.0.0"
+          }
+        },
+        "orientation": "ASSETS_BY_SIGNAL_FEATURES",
+        "feature_ids": [
+          "F0",
+          "F1"
+        ],
+        "rows": {
+          "AAA": [
+            0,
+            0
+          ],
+          "BBB": [
+            1,
+            2
+          ],
+          "CCC": [
+            2,
+            4
+          ],
+          "DDD": [
+            3,
+            6
+          ]
+        }
+      },
+      "historical_rankings": [
+        {
+          "as_of": "2020-11-30",
+          "information_cutoff": "2020-11-30",
+          "provenance": {
+            "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+            "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+            "source_ids": [
+              "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+            ],
+            "data_available_at": "2020-11-30",
+            "model": {
+              "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+              "version": "1.0.0"
+            }
+          },
+          "scores": {
+            "AAA": {
+              "value": 1,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "BBB": {
+              "value": 2,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "CCC": {
+              "value": 3,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "DDD": {
+              "value": 4,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            }
+          }
+        },
+        {
+          "as_of": "2020-12-15",
+          "information_cutoff": "2020-12-15",
+          "provenance": {
+            "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+            "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+            "source_ids": [
+              "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+            ],
+            "data_available_at": "2020-12-15",
+            "model": {
+              "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+              "version": "1.0.0"
+            }
+          },
+          "scores": {
+            "AAA": {
+              "value": 1,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "BBB": {
+              "value": 2,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "CCC": {
+              "value": 3,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "DDD": {
+              "value": 4,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            }
+          }
+        }
+      ],
+      "artifact_hash": "9c2b3597b522cdf5026c4a913a60b032f57f7faad55d6c8fcbbb9b957de7717f"
+    },
+    "policy": {
+      "as_of": "2020-12-31",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+        "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+        "source_ids": [
+          "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "DECLARED_RESEARCH_GATE_POLICY",
+          "version": "1.0.0"
+        }
+      },
+      "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+      "gate_policy_version": "1.0.0",
+      "gate_type": "SIGNAL_QUALITY",
+      "mandatory_checks": [
+        "coverage",
+        "dispersion",
+        "pc1_share",
+        "rank_stability"
+      ],
+      "warning_checks": [],
+      "thresholds": {
+        "coverage": {
+          "operator": "MIN",
+          "value": 1,
+          "units": "ELIGIBLE_FRACTION"
+        },
+        "dispersion": {
+          "operator": "MIN",
+          "value": 0.1,
+          "units": "RANKING_SCORE"
+        },
+        "pc1_share": {
+          "operator": "MAX",
+          "value": 0.8,
+          "units": "VARIANCE_SHARE"
+        },
+        "rank_stability": {
+          "operator": "MIN",
+          "value": 0.5,
+          "units": "SPEARMAN_CORRELATION"
+        }
+      },
+      "minimum_observations": 2,
+      "failure_behavior": "RETURN_RESULT_ONLY",
+      "coverage_failure_status": "INSUFFICIENT_DATA",
+      "clock": {
+        "evaluation_dates": [
+          "2021-01-01"
+        ],
+        "signal_frequency": "EXTERNALLY_DECLARED",
+        "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+        "recalibration_frequency": "EXTERNALLY_DECLARED",
+        "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+      },
+      "signal_methodology": {
+        "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+        "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+        "dispersion_ddof": 0,
+        "rank_window_snapshots": 3,
+        "minimum_rank_intersection_fraction": 0.5,
+        "maximum_staleness_calendar_days": 90,
+        "minimum_rank_snapshots": 1
+      },
+      "robustness_methodology": {
+        "allow_approximate_factor_residual": true,
+        "allow_declared_controller_clip": false,
+        "correlation_cluster_threshold": 0.9,
+        "sensitivity_required_families": [],
+        "require_risk_artifact": true
+      },
+      "numerics": {
+        "absolute": 1e-9,
+        "covariance_psd": 1e-12,
+        "eigen_iterations": 10000
+      },
+      "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+    }
+  },
+  {
+    "case_id": "SYNTHETIC_UNSTABLE_RANKS",
+    "input": {
+      "as_of": "2021-01-01",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+        "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+        "source_ids": [
+          "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+          "version": "1.0.0"
+        }
+      },
+      "kind": "RESEARCH_SIGNAL_ARTIFACT",
+      "signal_artifact_id": "SYNTHETIC_AL06_SIGNAL",
+      "signal_model_id": "SYNTHETIC_SIGNAL_STRUCTURE",
+      "signal_model_version": "1.0.0",
+      "decision_universe": [
+        "AAA",
+        "BBB",
+        "CCC",
+        "DDD"
+      ],
+      "eligible_assets": [
+        "AAA",
+        "BBB",
+        "CCC",
+        "DDD"
+      ],
+      "units": "RANKING_SCORE",
+      "normalization": {
+        "method": "SUPPLIED_FIXTURE_IDENTITY",
+        "version": "1.0.0",
+        "configuration_hash": "d65bcdf8d1c793faab87f62dc908ef30dd3785d1dbf080c9ccc8c821daaee3a5",
+        "semantics": "EXTERNALLY_SUPPLIED_NO_GATE_TRANSFORM"
+      },
+      "current_ranking": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+          "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+          "source_ids": [
+            "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+            "version": "1.0.0"
+          }
+        },
+        "scores": {
+          "AAA": {
+            "value": 4,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "BBB": {
+            "value": 3,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "CCC": {
+            "value": 2,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "DDD": {
+            "value": 1,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          }
+        }
+      },
+      "signal_matrix": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+          "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+          "source_ids": [
+            "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+            "version": "1.0.0"
+          }
+        },
+        "orientation": "ASSETS_BY_SIGNAL_FEATURES",
+        "feature_ids": [
+          "F0",
+          "F1"
+        ],
+        "rows": {
+          "AAA": [
+            1,
+            1
+          ],
+          "BBB": [
+            1,
+            -1
+          ],
+          "CCC": [
+            -1,
+            1
+          ],
+          "DDD": [
+            -1,
+            -1
+          ]
+        }
+      },
+      "historical_rankings": [
+        {
+          "as_of": "2020-11-30",
+          "information_cutoff": "2020-11-30",
+          "provenance": {
+            "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+            "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+            "source_ids": [
+              "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+            ],
+            "data_available_at": "2020-11-30",
+            "model": {
+              "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+              "version": "1.0.0"
+            }
+          },
+          "scores": {
+            "AAA": {
+              "value": 1,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "BBB": {
+              "value": 2,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "CCC": {
+              "value": 3,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "DDD": {
+              "value": 4,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            }
+          }
+        },
+        {
+          "as_of": "2020-12-15",
+          "information_cutoff": "2020-12-15",
+          "provenance": {
+            "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+            "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+            "source_ids": [
+              "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+            ],
+            "data_available_at": "2020-12-15",
+            "model": {
+              "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+              "version": "1.0.0"
+            }
+          },
+          "scores": {
+            "AAA": {
+              "value": 1,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "BBB": {
+              "value": 2,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "CCC": {
+              "value": 3,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "DDD": {
+              "value": 4,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            }
+          }
+        }
+      ],
+      "artifact_hash": "670604f842aa0be9e3fdc8dccc18f927892a8b7c3b7e009164317f6ab9cfede0"
+    },
+    "policy": {
+      "as_of": "2020-12-31",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+        "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+        "source_ids": [
+          "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "DECLARED_RESEARCH_GATE_POLICY",
+          "version": "1.0.0"
+        }
+      },
+      "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+      "gate_policy_version": "1.0.0",
+      "gate_type": "SIGNAL_QUALITY",
+      "mandatory_checks": [
+        "coverage",
+        "dispersion",
+        "pc1_share",
+        "rank_stability"
+      ],
+      "warning_checks": [],
+      "thresholds": {
+        "coverage": {
+          "operator": "MIN",
+          "value": 1,
+          "units": "ELIGIBLE_FRACTION"
+        },
+        "dispersion": {
+          "operator": "MIN",
+          "value": 0.1,
+          "units": "RANKING_SCORE"
+        },
+        "pc1_share": {
+          "operator": "MAX",
+          "value": 0.8,
+          "units": "VARIANCE_SHARE"
+        },
+        "rank_stability": {
+          "operator": "MIN",
+          "value": 0.5,
+          "units": "SPEARMAN_CORRELATION"
+        }
+      },
+      "minimum_observations": 2,
+      "failure_behavior": "RETURN_RESULT_ONLY",
+      "coverage_failure_status": "INSUFFICIENT_DATA",
+      "clock": {
+        "evaluation_dates": [
+          "2021-01-01"
+        ],
+        "signal_frequency": "EXTERNALLY_DECLARED",
+        "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+        "recalibration_frequency": "EXTERNALLY_DECLARED",
+        "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+      },
+      "signal_methodology": {
+        "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+        "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+        "dispersion_ddof": 0,
+        "rank_window_snapshots": 3,
+        "minimum_rank_intersection_fraction": 0.5,
+        "maximum_staleness_calendar_days": 90,
+        "minimum_rank_snapshots": 1
+      },
+      "robustness_methodology": {
+        "allow_approximate_factor_residual": true,
+        "allow_declared_controller_clip": false,
+        "correlation_cluster_threshold": 0.9,
+        "sensitivity_required_families": [],
+        "require_risk_artifact": true
+      },
+      "numerics": {
+        "absolute": 1e-9,
+        "covariance_psd": 1e-12,
+        "eigen_iterations": 10000
+      },
+      "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+    }
+  },
+  {
+    "case_id": "SYNTHETIC_MISSING_SCORE",
+    "input": {
+      "as_of": "2021-01-01",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+        "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+        "source_ids": [
+          "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+          "version": "1.0.0"
+        }
+      },
+      "kind": "RESEARCH_SIGNAL_ARTIFACT",
+      "signal_artifact_id": "SYNTHETIC_AL06_SIGNAL",
+      "signal_model_id": "SYNTHETIC_SIGNAL_STRUCTURE",
+      "signal_model_version": "1.0.0",
+      "decision_universe": [
+        "AAA",
+        "BBB",
+        "CCC",
+        "DDD"
+      ],
+      "eligible_assets": [
+        "AAA",
+        "BBB",
+        "CCC",
+        "DDD"
+      ],
+      "units": "RANKING_SCORE",
+      "normalization": {
+        "method": "SUPPLIED_FIXTURE_IDENTITY",
+        "version": "1.0.0",
+        "configuration_hash": "d65bcdf8d1c793faab87f62dc908ef30dd3785d1dbf080c9ccc8c821daaee3a5",
+        "semantics": "EXTERNALLY_SUPPLIED_NO_GATE_TRANSFORM"
+      },
+      "current_ranking": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+          "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+          "source_ids": [
+            "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+            "version": "1.0.0"
+          }
+        },
+        "scores": {
+          "AAA": {
+            "value": 1,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "BBB": {
+            "value": 2,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "CCC": {
+            "value": 3,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          },
+          "DDD": {
+            "value": null,
+            "observed_at": "2020-12-31",
+            "available_at": "2020-12-31"
+          }
+        }
+      },
+      "signal_matrix": {
+        "as_of": "2020-12-31",
+        "information_cutoff": "2020-12-31",
+        "provenance": {
+          "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+          "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+          "source_ids": [
+            "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+          ],
+          "data_available_at": "2020-12-31",
+          "model": {
+            "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+            "version": "1.0.0"
+          }
+        },
+        "orientation": "ASSETS_BY_SIGNAL_FEATURES",
+        "feature_ids": [
+          "F0",
+          "F1"
+        ],
+        "rows": {
+          "AAA": [
+            1,
+            1
+          ],
+          "BBB": [
+            1,
+            -1
+          ],
+          "CCC": [
+            -1,
+            1
+          ],
+          "DDD": [
+            -1,
+            -1
+          ]
+        }
+      },
+      "historical_rankings": [
+        {
+          "as_of": "2020-11-30",
+          "information_cutoff": "2020-11-30",
+          "provenance": {
+            "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+            "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+            "source_ids": [
+              "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+            ],
+            "data_available_at": "2020-11-30",
+            "model": {
+              "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+              "version": "1.0.0"
+            }
+          },
+          "scores": {
+            "AAA": {
+              "value": 1,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "BBB": {
+              "value": 2,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "CCC": {
+              "value": 3,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            },
+            "DDD": {
+              "value": 4,
+              "observed_at": "2020-11-30",
+              "available_at": "2020-11-30"
+            }
+          }
+        },
+        {
+          "as_of": "2020-12-15",
+          "information_cutoff": "2020-12-15",
+          "provenance": {
+            "data_hash": "5d9d03c3a2b87e0e2cf1525fa128591e4dc444808a8e194e5a6371b822ab861d",
+            "configuration_hash": "43e3d9e275265853f273e2ce1534804dc3bc61d53d44abe3e410a3450e06e376",
+            "source_ids": [
+              "SYNTHETIC_SCORE_NOT_STRATEGY_RETURN_OR_FACTOR_EXPOSURE"
+            ],
+            "data_available_at": "2020-12-15",
+            "model": {
+              "id": "SYNTHETIC_SIGNAL_STRUCTURE",
+              "version": "1.0.0"
+            }
+          },
+          "scores": {
+            "AAA": {
+              "value": 1,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "BBB": {
+              "value": 2,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "CCC": {
+              "value": 3,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            },
+            "DDD": {
+              "value": 4,
+              "observed_at": "2020-12-15",
+              "available_at": "2020-12-15"
+            }
+          }
+        }
+      ],
+      "artifact_hash": "640c1d9cb906f052a63160166142c4edc50e842b851d7740004ef73a9a5bbdde"
+    },
+    "policy": {
+      "as_of": "2020-12-31",
+      "information_cutoff": "2020-12-31",
+      "provenance": {
+        "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+        "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+        "source_ids": [
+          "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+        ],
+        "data_available_at": "2020-12-31",
+        "model": {
+          "id": "DECLARED_RESEARCH_GATE_POLICY",
+          "version": "1.0.0"
+        }
+      },
+      "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+      "gate_policy_version": "1.0.0",
+      "gate_type": "SIGNAL_QUALITY",
+      "mandatory_checks": [
+        "coverage",
+        "dispersion",
+        "pc1_share",
+        "rank_stability"
+      ],
+      "warning_checks": [],
+      "thresholds": {
+        "coverage": {
+          "operator": "MIN",
+          "value": 1,
+          "units": "ELIGIBLE_FRACTION"
+        },
+        "dispersion": {
+          "operator": "MIN",
+          "value": 0.1,
+          "units": "RANKING_SCORE"
+        },
+        "pc1_share": {
+          "operator": "MAX",
+          "value": 0.8,
+          "units": "VARIANCE_SHARE"
+        },
+        "rank_stability": {
+          "operator": "MIN",
+          "value": 0.5,
+          "units": "SPEARMAN_CORRELATION"
+        }
+      },
+      "minimum_observations": 2,
+      "failure_behavior": "RETURN_RESULT_ONLY",
+      "coverage_failure_status": "INSUFFICIENT_DATA",
+      "clock": {
+        "evaluation_dates": [
+          "2021-01-01"
+        ],
+        "signal_frequency": "EXTERNALLY_DECLARED",
+        "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+        "recalibration_frequency": "EXTERNALLY_DECLARED",
+        "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+      },
+      "signal_methodology": {
+        "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+        "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+        "dispersion_ddof": 0,
+        "rank_window_snapshots": 3,
+        "minimum_rank_intersection_fraction": 0.5,
+        "maximum_staleness_calendar_days": 90,
+        "minimum_rank_snapshots": 1
+      },
+      "robustness_methodology": {
+        "allow_approximate_factor_residual": true,
+        "allow_declared_controller_clip": false,
+        "correlation_cluster_threshold": 0.9,
+        "sensitivity_required_families": [],
+        "require_risk_artifact": true
+      },
+      "numerics": {
+        "absolute": 1e-9,
+        "covariance_psd": 1e-12,
+        "eigen_iterations": 10000
+      },
+      "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+    }
+  }
+]

@@ -1,0 +1,19 @@
+import {canonicalHash} from '../validation';
+import type {FactorsInput,FactorImplementationResult} from './contracts';
+import {implementFactors} from './engine';
+import {loadingHash,riskHash} from './validation';
+export const FACTOR_SENSITIVITY={version:'factor-local-sensitivity-1.0.1',target_delta_multiplier:.02,loading_delta_multiplier:.01,unit_scale_rule:'DIMENSIONLESS:1; DAILY_RETURN_LOADING:max absolute loading in that factor row; zero row explicitly NO_NONZERO_LOADING_SCALE',factor_covariance_scale:[.95,1.05],specific_risk_scale:[.95,1.05]};
+export function factorSensitivity(input:FactorsInput,base:FactorImplementationResult) {
+ if(base.status!=='VALID')return [];
+ const scenarios:Array<{id:string;input:FactorsInput}>=[],add=(id:string,x:FactorsInput)=>{x.provenance.configuration_hash=canonicalHash({base:input.provenance.configuration_hash,stress:id,configuration:FACTOR_SENSITIVITY});x.loadings.matrix_hash=loadingHash(x.loadings);x.risk_model.model_hash=riskHash(x.risk_model);scenarios.push({id,input:x});};
+ const unitScale=(f:string)=>input.target.factor_units[f]==='DIMENSIONLESS'?1:Math.max(...input.loadings.loadings[input.loadings.factor_ids.indexOf(f)].map(Math.abs));
+ for(const f of [...input.target.factor_ids].sort())for(const sign of [-1,1]){const x=structuredClone(input),delta=sign*.02*unitScale(f);x.target.target_exposures[f]+=delta;x.target.provenance.configuration_hash=canonicalHash({base:input.target.provenance.configuration_hash,delta,factor:f});add('target-'+f+'-'+(sign>0?'plus':'minus')+(delta===0?'-NO_NONZERO_LOADING_SCALE':''),x);}
+ for(const sign of [-1,1]){const x=structuredClone(input),f=[...x.loadings.factor_ids].sort()[0],a=[...x.loadings.asset_ids].sort()[0],delta=sign*.01*unitScale(f);x.loadings.loadings[x.loadings.factor_ids.indexOf(f)][x.loadings.asset_ids.indexOf(a)]+=delta;x.loadings.provenance.configuration_hash=canonicalHash({base:input.loadings.provenance.configuration_hash,loading_delta:delta,factor:f,asset:a});add('loading-'+(sign>0?'plus':'minus')+(delta===0?'-NO_NONZERO_LOADING_SCALE':''),x);}
+ for(const scale of [.95,1.05]){const x=structuredClone(input);x.risk_model.phi=x.risk_model.phi.map(r=>r.map(v=>v*scale));x.risk_model.provenance.configuration_hash=canonicalHash({base:input.risk_model.provenance.configuration_hash,phi_scale:scale});add('phi-scale-'+scale,x);
+  const y=structuredClone(input),d=y.risk_model.specific_risk;if(d.representation==='DIAGONAL_VARIANCES')d.values=d.values.map(v=>v*scale);else if(d.representation==='FULL_COVARIANCE')d.values=d.values.map(r=>r.map(v=>v*scale));y.risk_model.provenance.configuration_hash=canonicalHash({base:input.risk_model.provenance.configuration_hash,specific_scale:scale});add('specific-scale-'+scale+(d.representation==='ZERO_SPECIFIC_RISK'?'-EXPLICIT_ZERO_UNCHANGED':''),y);}
+ return scenarios.map(({id,input:x})=>{const response=implementFactors(x),r=response.result,q=r?.asset_weights_risk_sleeve,ids=[...input.assets].sort();return{scenario:id,status:response.status,errors:response.errors,sensitivity_configuration_hash:canonicalHash(FACTOR_SENSITIVITY),input_hash:r?.input_hash??null,result_id:r?.result_id??null,
+  q_l1:q?ids.reduce((s,a)=>s+Math.abs(q[a]-base.asset_weights_risk_sleeve![a]),0):null,max_weight_change:q?Math.max(...ids.map(a=>Math.abs(q[a]-base.asset_weights_risk_sleeve![a]))):null,
+  factor_residual_l2_change:r?.diagnostics?r.diagnostics.l2_residual-base.diagnostics!.l2_residual:null,weighted_residual_change:r?.diagnostics?r.diagnostics.weighted_residual_objective-base.diagnostics!.weighted_residual_objective:null,
+  beta_change:r?.estimated_market_beta!==null&&r?.estimated_market_beta!==undefined?r.estimated_market_beta-base.estimated_market_beta!:null,vol_change:r?.estimated_volatility!==null&&r?.estimated_volatility!==undefined?r.estimated_volatility-base.estimated_volatility!:null,
+  weights:q??null,perturbed_input:x};});
+}

@@ -1,0 +1,39 @@
+{
+  "status": "BLOCKED_MISSING_CANONICAL_ALPHA_STREAM_ARTIFACTS",
+  "files": [
+    {
+      "path": "reports/oct2026-backtests/alpha2-preparation.response.json",
+      "local_file_sha256": "20f89c6abf1a78db2e32df9a4796d111cdec8335d1a5010c5a92ad5a0958b0e2",
+      "local_bytes": 134,
+      "is_lfs_pointer": true,
+      "pointer": "version https://git-lfs.github.com/spec/v1\noid sha256:2a50c1401f7a3041c8118184d3a464d9618b950b25022aa16e56e9d3155eea58\nsize 379224955\n"
+    },
+    {
+      "path": "reports/oct2026-backtests/alpha-no-commodities-hrhgcyld/preparation.response.json",
+      "local_file_sha256": "0c6f71c1b897d2d9fe92aa743273f2160f81a5309d84b096fb52f0a4c19c32c5",
+      "local_bytes": 134,
+      "is_lfs_pointer": true,
+      "pointer": "version https://git-lfs.github.com/spec/v1\noid sha256:7ef32f2daa3e62c4e6bd42b1348cda9db2a8b11bad355c180a8e7e208252cc5f\nsize 170189491\n"
+    },
+    {
+      "path": "reports/oct2026-backtests/alpha-allocation.response.json",
+      "local_file_sha256": "af3773ee1f5365df71bb6923f659c661f97fc8a1b4a2e94716bcd902bd7a722f",
+      "local_bytes": 82283,
+      "is_lfs_pointer": false,
+      "pointer": null
+    },
+    {
+      "path": "reports/oct2026-backtests/alpha-preparation.request.json",
+      "local_file_sha256": "4a3734b5890220dab7607516e9cdadb25c649df4681a527597acea51d4bb2854",
+      "local_bytes": 5689,
+      "is_lfs_pointer": false,
+      "pointer": null
+    }
+  ],
+  "missing_inputs": [
+    "complete original B1 stream ledger/definition versions",
+    "historical dated unit maps and availability",
+    "external historical NET PIT covariance/forecast artifact envelopes"
+  ],
+  "no_downloads_or_retries": true
+}

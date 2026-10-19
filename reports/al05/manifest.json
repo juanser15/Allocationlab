@@ -1,0 +1,394 @@
+{
+  "experiment_id": "AL05_SYNTHETIC_MECHANICAL_CERTIFICATION",
+  "version": "strategy-allocation-1.0.1",
+  "label": "SYNTHETIC_NOT_ALPHA_DISCOVERY",
+  "input_hash": "e86c9410ef121476a66f3a5e5c08e107c044db40ccfb4308edc9f5ebb67f7086",
+  "code_hashes": {
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/analytics.ts": "e3321ce5e30c27f3c68dc910fce394422426a5371b3b788dfa6fb2cd9fc87596",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/certify.ts": "6ef9823536c32ac8d5886d8b445cc59841e446bbe5fa22182dd3076173a6c630",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts": "c48be987b0d5660d7cb172e16604e3ced785d87df94158e75d334291eee9bff8",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.test.ts": "2cbbd9361c6cdb4a8c20c103d357ad2b200fc5006ccf6a56658571649d11e8a3",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.ts": "061a77ca7e8b4ae3f11ac8070f6b3404f26d2fe956f0f5b022bda0bc7e7d8c0c",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/fixtures.ts": "96cceaf2ae35f8f5e4acc1ecbb323fcfc6be6309ff7fedbff4077c6fdc8ccd5b",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/history.ts": "7c69ff24ed2c425cf17d1caa868fbec970b55184739d110432e0d297fa7d9e23",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/independent.py": "3f878099528ba9539266bc752efd71350ef05b22ebe8975b8b332116e8063648",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/render.py": "2469f7480f69131ca628798c51e98aa1436e7aa81f38280be562c42551f14335",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/sensitivity.ts": "cf43e16f1a903ccbd1f61535983858334ac1f3f9a4d165b2677fb3852423356b",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/solver.ts": "d5c197ce96b7309102591d118189340ba553324d17da5d1307fb0b260edfdbb1",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts": "2fa5c2752e305c17733d6717123708345435e38a43945cca04319af743505948"
+  },
+  "reused_code_hashes": {
+    "artifacts/api-server/src/lib/allocation-core/contracts.ts": "cfeb3b171b7bd19a1cd198865b18c46b73864b9a03c66c34423d420206934e8a",
+    "artifacts/api-server/src/lib/allocation-core/validation.ts": "31bc8f62dc6452c14139bbd09229947f6d1e8b31d51206ea32cd228afdd40a0f",
+    "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts": "5905a1b9e6d6b868ec1c0d4f96367160329663b15d9ee2da86403839b7dc9dc0",
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts": "674986899e25102a12a2f300933dd592e612719d2ab8bf997d6c5782c84e072c",
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts": "29bc238ebde9d61835e1e2881f837645c016a641a4bbd18ded788a85dbf30c86",
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/solver.ts": "edb8166320b3cde9e51d0a85ca6c0ba6d4f5c6586c5c6abc621ffffd5ab0fd9b",
+    "artifacts/api-server/src/lib/allocation-core/risk-analytics/estimators.ts": "d1de31f4b74846dcc8022e2c197b31d6311ce8e5e380b5f9bd65297d41698770",
+    "artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics.ts": "4c7c9e5445a64ee222e8c69cf2a4e7f60207180fdf9b3473bc07157280b56c08",
+    "artifacts/api-server/src/lib/allocation-core/risk-analytics/analytics.ts": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6"
+  },
+  "data_source": "INDEPENDENT_DECLARED_SYNTHETIC_ARTIFACTS",
+  "risk_mandate": "NOT_AN_OPTIMIZER_INPUT",
+  "configuration": [
+    {
+      "case_id": "EQUAL_CAPITAL",
+      "objective": {
+        "type": "EQUAL_CAPITAL"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "MIN_VARIANCE",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "ERC",
+      "objective": {
+        "type": "ERC"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "MEAN_VARIANCE",
+      "objective": {
+        "type": "MEAN_VARIANCE",
+        "gamma": 10
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "MAX_SHARPE",
+      "objective": {
+        "type": "MAX_SHARPE",
+        "rf_stream": 0
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "signed-opposing",
+      "objective": {
+        "type": "EQUAL_CAPITAL"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "internal-residual",
+      "objective": {
+        "type": "EQUAL_CAPITAL"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "same-underlying-distinct-instance",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "post-map-shared-asset-cap",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "signed-net-band",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "post-net-gross-cap",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "strategy-family-cap",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "underlying-strategy-group-cap",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "post-map-sector-net-cap",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "max-active-two",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "strategy-turnover-cap",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "impossible-bounds",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "missing-mu-mv",
+      "objective": {
+        "type": "MEAN_VARIANCE",
+        "gamma": 10
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "missing-mu-sharpe",
+      "objective": {
+        "type": "MAX_SHARPE",
+        "rf_stream": 0
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "incremental-instrument-cost",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "negative-excess-sharpe",
+      "objective": {
+        "type": "MAX_SHARPE",
+        "rf_stream": 0
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    },
+    {
+      "case_id": "perfectly-correlated-preserved",
+      "objective": {
+        "type": "MIN_VARIANCE"
+      },
+      "solver": {
+        "feasibility_tolerance": 1e-10,
+        "stationarity_tolerance": 1e-9,
+        "psd_tolerance": 1e-12,
+        "symmetry_tolerance": 1e-12,
+        "erc_relative_tolerance": 1e-8,
+        "max_iterations": 10000,
+        "max_faces": 100000,
+        "max_supports": 4096
+      }
+    }
+  ],
+  "historical_replay": "BLOCKED_MISSING_CANONICAL_ALPHA_STREAM_ARTIFACTS",
+  "historical_mu": "BLOCKED_MISSING_PIT_MU_ALPHA"
+}

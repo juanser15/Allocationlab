@@ -1,0 +1,37 @@
+PASS A mechanical policy produces PROMOTABLE only
+PASS B PROMOTABLE without authorization is not PROMOTED
+PASS C explicit authorized APPROVE produces PROMOTED; ACTIVE needs a separate event
+PASS D REJECT cannot route primary target
+PASS E promoted INACTIVE cannot route primary
+PASS F PIPE01 valid plus promoted ACTIVE returns exact primary target
+PASS G signal gate FAIL routes explicit NO_NEW_TARGET and preserves primary failure
+PASS H t0 primary -> t1 robustness failure HOLD exact prior target
+PASS I t2 stale target cannot be held and gives explicit NO_NEW_TARGET
+PASS J separately preapproved fallback returns exact frozen F
+PASS K missing or newly generated fallback cannot be used
+PASS L router cannot modify RiskMandate, and different fallback mandate needs explicit permission
+PASS M weights/cash/beta and target convention are immutable, no cash overrides
+PASS N future suspension/retirement cannot rewrite past promotion or route
+PASS O future performance cannot mutate frozen evidence or past evaluation
+PASS P no broker/order/live execution interface or dependency
+PASS Q same canonical input and key reorder produce exact hashes
+PASS R durable resume creates zero duplicate transitions and routing records
+PASS S unknown condition defaults BLOCKED; policy cannot route a failed primary
+PASS T configured economic hurdle is screening, not an alpha definition
+PASS U missing required data/blockers are deferred, explicit failure is not promotable
+PASS V unapproved actor, forged evaluation and cross-scope approval rejected
+PASS W consecutive hold cap and current health enforced
+PASS X required mechanical recertification consumes only an explicit current attestation
+PASS Y future fallback changes and correlation references do not affect an earlier route
+PASS Z suspended approval may resume but stays INACTIVE until externally activated
+PASS AA availability time, not just effective time, controls PIT state
+PASS AB retired/expired fallback cannot be used; original primary failure remains
+PASS AC failed routes survive resume and contradictory rewrites/corruption are rejected
+PASS AD future-effective unreferenced fallback cannot change a historical route/hash
+PASS AE empty recertification attestation cannot satisfy required mechanical checks
+PASS AF a future APPROVE cannot turn an earlier PROMOTABLE route into primary use
+PASS AG disabling manual requirement never auto-promotes or removes explicit actor record
+PASS AH tampered health evidence is blocked, not silently downgraded to a warning
+PASS AI missing canonical artifact is explicitly routed without creating a replacement
+PASS AJ real evidence provenance and bank underlyings match frozen source artifacts
+PASS AK fallback preapproval cannot reference a certificate or approval that only exists later

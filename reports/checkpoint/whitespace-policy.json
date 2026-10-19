@@ -1,0 +1,11 @@
+{
+  "previous_local_value": null,
+  "current_local_value": "blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol",
+  "reason": "Recognize original RFC4180 CRLF line endings during whitespace checks; keep blank-at-eol, blank-at-eof and space-before-tab checks enabled. No file bytes or attributes are normalized.",
+  "scope": "Local Git metadata only; no source/fixture/artifact edit.",
+  "literal_evidence_exceptions": {
+    "reports/cl02/checkpoint.calculator.patch": "Historical unified patch: blank context lines contain a leading space by format. Preserve exact certified bytes.",
+    "reports/checkpoint/cl02-clean-export.stdout.log": "Exact captured stdout includes a terminal blank line."
+  },
+  "source_checks": "No source/test/config path is exempted."
+}

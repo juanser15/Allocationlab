@@ -1,0 +1,10 @@
+{
+  "reports/cl02/A_0bps.ledger.standard.csv": "615bfc5ced0e3c5d5f0537881e78c9fa93529d20c5f6c42ddda810e5478f05f4",
+  "reports/cl02/A_5bps.ledger.standard.csv": "d02876e4f39795e4e75bd876d46bb33cd5cc672be5f254ce837b2c738fb082c5",
+  "reports/cl02/B_0bps.ledger.standard.csv": "54a955ff73af58fcf351441cf62b87ce6db942dc6f4fc84b70e056dc70b3720d",
+  "reports/cl02/B_5bps.ledger.standard.csv": "c89586ae656109c03df354e41f00f7f93669b1dfbb652e2a85258811048fdc4d",
+  "reports/cl02/B_control_0bps.ledger.standard.csv": "03b777a2c7def7ce48824cb41ad59da4fb4f058a80303e243743d2b786e031e6",
+  "reports/cl02/B_control_5bps.ledger.standard.csv": "5e9a5b63ff9fe132ac90745db8564bd5fba606244486bce96709ec67318b2fea",
+  "reports/cl02/adjusted-closes.csv": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+  "reports/cl02/manifest.json": "396a9e408971027d45ca079dc87131e54a4d43105677b143f54cb717e1c65bba"
+}

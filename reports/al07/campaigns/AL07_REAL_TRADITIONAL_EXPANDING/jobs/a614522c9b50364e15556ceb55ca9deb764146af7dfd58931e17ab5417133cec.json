@@ -1,0 +1,22 @@
+{
+  "input_hash": "c385f6b1c388724f122e26603b2a4260f3f01c9e30ff7694678c7ce3a5c5f253",
+  "value_hash": "8352190712bbb5e65f3cf80d634d4bfb4264503fb066614a0eeaf4c2104857ce",
+  "value": {
+    "candidate_id": "are_70e7366d93b32e74beaad716bbbb3cf6fd744032ab89cadbe2749f001f8676e3",
+    "outer_fold": 1,
+    "inner_fold": null,
+    "stage": "train",
+    "scenario_bps": 5,
+    "job_id": "a614522c9b50364e15556ceb55ca9deb764146af7dfd58931e17ab5417133cec",
+    "interval_start": "2018-01-01",
+    "interval_end": "2021-01-01",
+    "information_identity": "c385f6b1c388724f122e26603b2a4260f3f01c9e30ff7694678c7ce3a5c5f253",
+    "status": "BLOCKED",
+    "reason": "BLOCKED_MISSING_PIT_EXPECTED_RETURNS",
+    "decisions": [],
+    "tracks": {
+      "RAW": null,
+      "NORMALIZED": null
+    }
+  }
+}

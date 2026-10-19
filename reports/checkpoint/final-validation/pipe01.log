@@ -1,0 +1,39 @@
+PASS A complete SYNTHETIC ASSETS path, certified modules and actual accounting
+PASS B complete SYNTHETIC FACTORS path, certified modules and actual accounting
+PASS C complete SYNTHETIC STRATEGY_STREAMS path, certified modules and actual accounting
+PASS D mandatory signal FAIL stops before allocator, no fallback/weights
+PASS E explicit nonforecast NOT_REQUIRED only; forecast exemption rejected
+PASS F impossible native bounds stop allocator before gate/controller
+PASS G robustness policy FAIL prevents controller and target
+PASS H infeasible beta request rejected by certified gate feasibility; no executable target
+PASS I target beta .3/.6 leaves exact allocator q/id invariant; only exposure changes
+PASS J context cannot contain a second cash target/override
+PASS K internal stream residual remains internal and never becomes global cash
+PASS L PIT trap: future price mutation cannot alter prior context/stages/target
+PASS L PIT trap: future covariance mutation cannot alter prior context/stages/target
+PASS L PIT trap: future beta mutation cannot alter prior context/stages/target
+PASS L PIT trap: future signal mutation cannot alter prior context/stages/target
+PASS L PIT trap: future gate mutation cannot alter prior context/stages/target
+PASS L PIT trap: future RiskMandate mutation cannot alter prior context/stages/target
+PASS M execution next_close uses prior-close inputs, cannot earn pre-fill P&L
+PASS N expected PIT beta vs realized forward beta remain separately named/different
+PASS O independent closed-form post-cost NAV/fees/cash/positions at 0 and 5bps
+PASS P same canonical inputs reproduce IDs, stages and hashes across clean directories
+PASS Q resume after 0/1/mid decisions, 1 book and last-book-before-summary; no duplicate completed execution
+PASS R persisted AL07 candidate lock cannot be replaced
+PASS S upstream artifacts and RiskMandate are byte/economically unchanged
+PASS T corrupt completed state is rejected; config/code identity not silently reused
+PASS U failed decisions are durable and not rerun on resume
+PASS V missing canonical input is blocked, not substituted
+PASS W accounting corruption is detected independently of book VALID label
+PASS X fill-price mutation changes realized NAV but never frozen targets
+PASS Y root/native future metadata is rejected, not republished as past
+PASS Z no implicit trades between fills or fictitious terminal liquidation
+PASS AA required signal PASS reaches target with identical decision cutoff
+PASS AB downstream target tampering cannot bypass passed robustness
+PASS AC decision envelope cannot replace the selected candidate gate policy
+PASS AD decision envelope cannot introduce undeclared cost scenario
+PASS AE context previous holdings and eligible universe must match the native input
+PASS AF future ranking inside a supplied signal history cannot change a past canonical decision
+PASS AG future ranking cannot invalidate a completed historical decision cache entry
+PASS AH execution failure never emits later accounting/attribution stage

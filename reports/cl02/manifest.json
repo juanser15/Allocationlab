@@ -1,0 +1,321 @@
+{
+  "schema": "CL02-research-1",
+  "git": {
+    "repository": "juanser15/Allocationlab",
+    "cwd": "/workspace/Allocationlab",
+    "branch": "work",
+    "commit": "1163a0b574b573004372a3a2fc8752810dea7ef9",
+    "pendingAtFreeze": " M artifacts/api-server/src/lib/calculator.ts\n?? artifacts/api-server/src/lib/calculator.cl01-regressions.test.ts\n?? artifacts/api-server/src/lib/calculator.cl01.test.ts\n?? reports/CL01_capital_layer.md\n?? reports/cl02/\n",
+    "productionDiffSha256": "a087d1dbf3d1aea5dfe67552a33d0934470ced06d4cd0b6eece036ad06ce0e2c"
+  },
+  "fileHashes": {
+    "artifacts/api-server/src/lib/calculator.ts": "c0e64df753f97c69390a146e72f05b5f1915e9f9532512e9076f6284677c57bc",
+    "artifacts/api-server/src/lib/factor-library.ts": "bf40ba169f6b014a4ef81e08315bd7df562da32875dfc95f0e80fa4393908e60",
+    "artifacts/api-server/src/lib/d6-trace.ts": "06bbd44ff21d4487664e9e19f9ebb56190238d14b60560f6ba88e65d1beb82ab",
+    "artifacts/api-server/src/lib/calculator.a1.db-shim.ts": "5a3fd0e46267ac223e0f8d2c743ff653b8f56613603f6eaf01f366f4691af2a2",
+    "artifacts/api-server/src/lib/calculator.a1.test.ts": "f8c975d2e0658a0d2097cf190858ecd9f4cd47ac3ff9b92b8ce51cbd63f8c390",
+    "artifacts/api-server/src/lib/calculator.cl01.test.ts": "3303c5820cf6742b7bf276da9a46807f91bdd4d4652b310e7ac0e0b8d30feac9",
+    "artifacts/api-server/src/lib/calculator.cl01-regressions.test.ts": "3b6fae23e137f80c08b146a7e0e932dcad2613cc14888983ddce3edd98203c31",
+    "reports/CL01_capital_layer.md": "4e39c943d181d8cafb0252c5a85f6e8bad53131a779fd95127ed6e51f32ac3f1",
+    "package.json": "e64b6248f89ea4873bcdf7dc17bf18a3b92d1ffc12eb528c8f158e4ca8ac16cd",
+    "artifacts/api-server/package.json": "aed0956344954b45f7e9384d8bbb162b1fc0db8ef37290122e5b933638ff4eb3",
+    "pnpm-workspace.yaml": "722057fdb1b2fd4f6ff9819628bb53549ab0bca3ac2207d81129cd2b3061f842",
+    "pnpm-lock.yaml": "93e6db6345768119ed2729c407865a7d45a0e3afa623d200662b258d16b75819",
+    "reports/cl02/research-runner.ts": "8a231078570695fec473563250ed031cec01ede5c072ef0f009ad120eb1b4218",
+    "reports/cl02/render.py": "cfc0201dc6e6abf8a9f410f460dc96f8662ce7c8681add7beac48adb0bfb4c89",
+    "reports/oct2026-backtests/assets-preparation.response.json": "9e88df9da23bfe3ca068f00d90b08f5967de63e14f0a74226a6e95307c72dfb0",
+    "reports/oct2026-legacy-sector-diagnostic/configuration-snapshot.json": "036d701024bd0a48391efb3db50075befee6c8ff5ae23f9606b859170e7fc81d",
+    "reports/oct2026-backtests/freeze.json": "4d2ecf288c6cf0ef93b0a2df2618ac6c2a54888d8932d8e24afbf2f873925e23",
+    "reports/oct2026-equity-real/AB-prep.response.json": "bdfaff54bee52df67c363bc4d3e1e29269531bd960f016c52cb0b7484a239d39",
+    "reports/oct2026-equity-real/live-refresh.response.json": "0bcf084116016927187fd306d7707bfe9553f0ef6198d87565ac0dca72d35c19",
+    "reports/cl02/checkpoint.branch.txt": "4c7a03f2c9a663a0678eef8293f7609a609c92a6b3bccb2e556301f8b290c7f2",
+    "reports/cl02/checkpoint.commit.txt": "eddfc684a0638a933c0505a72c95efd9ddd9d869f3641afa910007ac02b175cf",
+    "reports/cl02/checkpoint.status.txt": "f7e60c4d75457c0cf13bbc1d7fa2d56d52219de25ce84e1c14c747ae1aba9f59",
+    "reports/cl02/checkpoint.calculator.patch": "a087d1dbf3d1aea5dfe67552a33d0934470ced06d4cd0b6eece036ad06ce0e2c"
+  },
+  "nodeVersion": "v24.19.0",
+  "dataset": {
+    "id": 22,
+    "source": "reports/oct2026-backtests/assets-preparation.response.json",
+    "sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+    "rows": 4023,
+    "first": "2010-10-01",
+    "last": "2026-09-30",
+    "adjustment": "persisted adjusted-close prices; not broker-level corporate-action accounting",
+    "provenance": "Persisted adjusted-close CSV; vendor authenticity unverified. Neither vendor verification nor synthetic origin is established.",
+    "dividends": "embedded in adjusted-close claim; no separate dividend series or broker corporate-action verification",
+    "crossCheckSPY": {
+      "comparedRows": 2953,
+      "maximumAbsoluteDifference": 0.00020000000006348273,
+      "against": "Yahoo-linked dataset 24 snapshot; does not verify provenance of other instruments"
+    },
+    "coverage": [
+      {
+        "ticker": "XLK",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "XLC",
+        "first": "2018-06-19",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 1941,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "XLRE",
+        "first": "2015-10-08",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 1263,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "XLI",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "XLY",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "XLF",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "XLU",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "XLE",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "XLV",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "XLB",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "EEM",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "EWJ",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "AAXJ",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "EWG",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "EUFN",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "SPY",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "GLD",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "TLT",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "IEF",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "VNQ",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "EFA",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      },
+      {
+        "ticker": "DBC",
+        "first": "2010-10-01",
+        "last": "2026-09-30",
+        "missingInFullSnapshot": 0,
+        "missingInEvaluatedSegment": 0
+      }
+    ]
+  },
+  "referenceUniverse": [
+    "XLK",
+    "XLC",
+    "XLRE",
+    "XLI",
+    "XLY",
+    "XLF",
+    "XLU",
+    "XLE",
+    "XLV",
+    "XLB",
+    "EEM",
+    "EWJ",
+    "AAXJ",
+    "EWG",
+    "EUFN",
+    "SPY",
+    "GLD",
+    "TLT",
+    "IEF",
+    "VNQ",
+    "EFA",
+    "DBC"
+  ],
+  "operatedUniverse": [
+    "SPY"
+  ],
+  "ruleB": {
+    "cashMin": 0.1,
+    "cashMax": 0.2,
+    "expression": "clamp(cashMin + (cashMax - cashMin) * 0.5 + ((50 - regime.composite) / 50) * (cashMax - cashMin) * 0.5, cashMin, cashMax)",
+    "regime": "production computeRegime on full enabled reference universe; no ETF selection"
+  },
+  "protocol": {
+    "monthly": true,
+    "executionTiming": "next_close",
+    "informationCutoff": "row.date < signalDate",
+    "initialNav": 100000,
+    "initialCash": 100000,
+    "initialHoldings": {},
+    "allowShortPositions": false,
+    "leverage": false,
+    "d5GrossTradeCosts": true,
+    "turnoverCap": "not binding; explicit D5 targets",
+    "costScenariosBpsPerActualNotional": [
+      0,
+      5
+    ],
+    "slippageBps": 0,
+    "warmupRows": 252,
+    "warmupSource": "defaultBacktestConfig; all reference instruments require contiguous warmup",
+    "cashYield": {
+      "daily": 0,
+      "type": "constant research assumption recovered from freeze; no historical series"
+    },
+    "sharpeReference": {
+      "daily": 0,
+      "label": "constant cash reference = 0, not measured historical risk-free rate"
+    },
+    "requestedWindow": [
+      "2016-10-01",
+      "2026-09-30"
+    ],
+    "windowSource": "reports/oct2026-backtests/freeze.json",
+    "actualBaseline": "2019-06-28",
+    "firstSignal": "2019-07-01",
+    "firstExecution": "2019-07-02",
+    "end": "2026-09-30",
+    "clippingReason": "full 22-instrument reference warmup; XLC starts 2018-06-19; no substitution or reduced regime universe",
+    "previousAnalysis": "overlaps documented prior analyses; not a new holdout"
+  },
+  "candidates": [
+    {
+      "id": "A",
+      "status": "READY",
+      "definition": "constant target SPY=1, cash=0; monthly maintenance"
+    },
+    {
+      "id": "B",
+      "status": "READY",
+      "definition": "current cash rule; not identified as report V0"
+    },
+    {
+      "id": "B_control",
+      "status": "RETROSPECTIVE_CONTROL",
+      "constantExposure": 0.8587995828759691,
+      "meanDefinition": "trading-observation-weighted post-close B target, first execution through final close; not unweighted mean of monthly decisions",
+      "exAnte": false
+    },
+    {
+      "id": "C_V1",
+      "status": "BLOCKED",
+      "reason": "complete vol-managed definition absent, including k, volatility estimator/window and bounds; no parameters invented"
+    },
+    {
+      "id": "D_V3",
+      "status": "BLOCKED",
+      "reason": "complete trend definition absent, including signal window, thresholds and cash mapping"
+    }
+  ],
+  "searchScope": "bounded local reports/scripts/docs/attached text and seven existing committee/backtest PDFs; no complete V1/V3 recovered",
+  "metrics": {
+    "CAGR": "(endNAV/initialNAV)^(365.25/calendar_days)-1",
+    "volatility": "sample daily-return SD * sqrt(252)",
+    "Sharpe": "mean(daily_return-declared_daily_cash_reference)/sample_SD(excess)*sqrt(252)",
+    "targetExposure": "mean post-close target in ledger dates; waiting for first fill is zero",
+    "effectiveExposure": "mean beginning risky market value / beginning NAV; also export closing exposure",
+    "turnover": "sum actual absolute trade notional / pretrade NAV; includes initial entry, not half-L1 engine log",
+    "recovery": "date NAV regains the prior peak; pending if not regained by end; report all drawdown episodes"
+  },
+  "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+  "frozenAt": "2026-10-13T13:36:42.846Z"
+}

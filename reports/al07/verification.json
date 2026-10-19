@@ -1,0 +1,179 @@
+{
+  "block": "AL07",
+  "status": "PASS",
+  "version": "allocation-research-1.0.1",
+  "scope": "ISOLATED_RESEARCH_MECHANICS_AND_AVAILABLE_ASSETS_ACCEPTANCE; NOT_ALPHA_DISCOVERY",
+  "criteria": [
+    {
+      "id": 1,
+      "criterion": "traditional WF certified",
+      "status": "PASS",
+      "evidence": "test A + real traditional expanding"
+    },
+    {
+      "id": 2,
+      "criterion": "nested WF certified",
+      "status": "PASS",
+      "evidence": "test B/Q + persisted inner-only selector inputs"
+    },
+    {
+      "id": 3,
+      "criterion": "rolling/expanding certified",
+      "status": "PASS",
+      "evidence": "test C + explicit inner override + real rolling/expanding"
+    },
+    {
+      "id": 4,
+      "criterion": "deterministic/reproducible candidate search",
+      "status": "PASS",
+      "evidence": "test D/E/F + stable canonical IDs and registry hashes"
+    },
+    {
+      "id": 5,
+      "criterion": "candidate budget enforced",
+      "status": "PASS",
+      "evidence": "test G/H, 1/2/10/50/100/200 and explicit reduction/guard"
+    },
+    {
+      "id": 6,
+      "criterion": "no outer-OOS leakage",
+      "status": "PASS",
+      "evidence": "Q + selector rejects outer hashes + original future-source regression"
+    },
+    {
+      "id": 7,
+      "criterion": "gate semantics preserved",
+      "status": "PASS",
+      "evidence": "required signal PASS/FAIL and forged VALID gate trap; AL06 native gates"
+    },
+    {
+      "id": 8,
+      "criterion": "raw and normalized tracks retained",
+      "status": "PASS",
+      "evidence": "test L/M; paired ledger books and shared upstream mandates"
+    },
+    {
+      "id": 9,
+      "criterion": "AL02 risk attribution",
+      "status": "PASS",
+      "evidence": "independent NumPy/SciPy covariance/beta/HAC/conditional/rolling replay"
+    },
+    {
+      "id": 10,
+      "criterion": "missing artifacts remain blocked",
+      "status": "PASS",
+      "evidence": "candidate registry: four BLOCKED definitions, no historical-mean substitution"
+    },
+    {
+      "id": 11,
+      "criterion": "cache/resume certified",
+      "status": "PASS",
+      "evidence": "0/1/mid/summary pauses, corrupt/scoped cache tests, 124 stable files, zero repeat backtests"
+    },
+    {
+      "id": 12,
+      "criterion": "PSR independently verified",
+      "status": "PASS",
+      "evidence": "symmetric/nonzero SciPy oracle + actual ledger PSR checks"
+    },
+    {
+      "id": 13,
+      "criterion": "limited real acceptance without winner claim",
+      "status": "PASS",
+      "evidence": "both campaigns COMPLETE, 108 attempts, 44 valid / 64 blocked, no economic winner claim"
+    },
+    {
+      "id": 14,
+      "criterion": "strict typecheck",
+      "status": "PASS",
+      "evidence": "typecheck-final-current.log exit 0"
+    },
+    {
+      "id": 15,
+      "criterion": "git diff --check",
+      "status": "PASS",
+      "evidence": "diff-check.json tracked exit 0 and added text checks"
+    },
+    {
+      "id": 16,
+      "criterion": "previous baselines intact",
+      "status": "PASS",
+      "evidence": "preservation.json 3267 SHA256 matches"
+    }
+  ],
+  "tests": {
+    "passed": 30,
+    "failed": 0,
+    "skipped": 0,
+    "case_file": "test-results.json"
+  },
+  "independent": {
+    "checks": 96,
+    "failed": 0,
+    "checksum_checks": 1713,
+    "evidence": "independent-verification.json / hash-verification.log"
+  },
+  "real_campaigns": {
+    "protocols": [
+      "TRADITIONAL_WALK_FORWARD / EXPANDING",
+      "NESTED_WALK_FORWARD / ROLLING"
+    ],
+    "unique_candidate_definitions": 7,
+    "successful_definitions": 3,
+    "blocked_definitions": 4,
+    "attempts": 108,
+    "valid_attempts": 44,
+    "blocked_attempts": 64,
+    "solver_failures": 0,
+    "gate_failures": 0,
+    "certified_backtests": 88,
+    "retained_pre_guard_backtests": 88,
+    "decision_model_fits": 0,
+    "same_candidate_space_hash": true,
+    "same_data_hash": true,
+    "changed_parameters_after_oos": false,
+    "winner_claim": false
+  },
+  "resume": {
+    "status": "PASS",
+    "completed_and_output_files_checked": 124,
+    "changed": [],
+    "repeat": {
+      "AL07_REAL_TRADITIONAL_EXPANDING": {
+        "started_at": "2026-10-14T20:02:36.285Z",
+        "ended_at": "2026-10-14T20:02:40.258Z",
+        "status": "COMPLETE",
+        "new_jobs": 0,
+        "reused_jobs": 40,
+        "backtests": 0,
+        "cache": {}
+      },
+      "AL07_REAL_NESTED_ROLLING": {
+        "started_at": "2026-10-14T20:02:36.201Z",
+        "ended_at": "2026-10-14T20:02:39.584Z",
+        "status": "COMPLETE",
+        "new_jobs": 0,
+        "reused_jobs": 68,
+        "backtests": 0,
+        "cache": {}
+      }
+    },
+    "interruption": "0/1/mid/last-before-summary synthetic cases; real pause after 1 completed blocked attempt; zero duplicated completed jobs"
+  },
+  "DSR": "NOT_IMPLEMENTED",
+  "legacy_node3": "BLOCKED_SOURCE_NOT_AVAILABLE; new canonical AL06 methodology only",
+  "limitations": [
+    "Externally supplied PIT model artifacts only; no new fitting/normalization/forecast engine.",
+    "Real mean-variance/max-Sharpe blocked by missing legitimate PIT expected returns.",
+    "Real factor and strategy paths blocked by incomplete canonical bundles; their native mechanical routing is tested.",
+    "Strategy economic execution needs external unit NAV/PIT map certification; nonzero master costs need actual instrument trade notional, not allocation L1.",
+    "Signed financing outside long-only ExposureController; no fabricated normalization.",
+    "Historical signal-gate replay unavailable; nonforecast real objectives explicitly exempt and required-signal cases tested synthetically.",
+    "QA gate thresholds, previously inspected fixed ETF sample, vintage/dividend/availability assumptions and zero cash/risk-free yield do not establish economic robustness.",
+    "Research OOS index comprises independent NAV100 sleeves; not a continuous live account.",
+    "PSR IID diagnostic; no multiple-testing significance claim or DSR.",
+    "Acceptance parameter surface categorical objective only; no fabricated gamma/forecast grids or unselected outer returns."
+  ],
+  "preservation": "PASS",
+  "no_production_pipe": true
+}

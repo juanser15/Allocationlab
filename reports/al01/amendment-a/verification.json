@@ -1,0 +1,442 @@
+{
+  "block": "AL01",
+  "amendment": "A",
+  "status": "PASS",
+  "primary_architecture": "RiskMandate -> q plus unscaled risk -> ExposureController -> implemented cash",
+  "schema_version": "allocation-risk-1.1.0",
+  "sleeve_contract_version": "allocation-core-1.1.0",
+  "primary_reference_metric": "MARKET_BETA",
+  "criteria": [
+    {
+      "id": 1,
+      "criterion": "RiskMandate primary, MARKET_BETA reference; cash budget not primary",
+      "status": "PASS",
+      "evidence": "risk-mandate.ts + main report"
+    },
+    {
+      "id": 2,
+      "criterion": "Explicit unscaled sleeve beta/vol/model/provenance",
+      "status": "PASS",
+      "evidence": "contracts.ts + validation.ts + Risk estimates test"
+    },
+    {
+      "id": 3,
+      "criterion": "Exposure normalization and final beta reconciliation",
+      "status": "PASS",
+      "evidence": "A/B/C tests + ExposureControllerResult"
+    },
+    {
+      "id": 4,
+      "criterion": "Single implementation cash controller; constraints enforced",
+      "status": "PASS",
+      "evidence": "E/E2 + G original tests + primary validation"
+    },
+    {
+      "id": 5,
+      "criterion": "Beta/capture/alpha semantics separated and versioned",
+      "status": "PASS",
+      "evidence": "risk-metrics.ts + CAPM/scorecard contracts"
+    },
+    {
+      "id": 6,
+      "criterion": "LEGACY RISK_FRACTION preserves budgets and adapters",
+      "status": "PASS",
+      "evidence": "F/F2 tests + adapters.ts + composeFinalPortfolio LEGACY"
+    },
+    {
+      "id": 7,
+      "criterion": "Synthetic known-answer A/B/C",
+      "status": "PASS",
+      "evidence": "tests-final.txt"
+    },
+    {
+      "id": 8,
+      "criterion": "Zero/nearly-zero risk and constraints failures",
+      "status": "PASS",
+      "evidence": "D/E/E2 tests"
+    },
+    {
+      "id": 9,
+      "criterion": "Conditional beta and capture independent oracles",
+      "status": "PASS",
+      "evidence": "G six beta and two capture tests"
+    },
+    {
+      "id": 10,
+      "criterion": "Past metrics immune to future observations",
+      "status": "PASS",
+      "evidence": "H mutation test"
+    },
+    {
+      "id": 11,
+      "criterion": "Existing B1/B2/B3 q/cash/beta mapping updated",
+      "status": "PASS",
+      "evidence": "../../AL01_existing_system_mapping.md"
+    },
+    {
+      "id": 12,
+      "criterion": "Original 36 tests unchanged and PASS",
+      "status": "PASS",
+      "evidence": "test source checkpoint + tests-final.txt"
+    },
+    {
+      "id": 13,
+      "criterion": "Strict typecheck",
+      "status": "PASS",
+      "evidence": "typecheck.txt"
+    },
+    {
+      "id": 14,
+      "criterion": "git diff --check and added-file whitespace",
+      "status": "PASS",
+      "evidence": "diff-check.txt + whitespace-check.json"
+    },
+    {
+      "id": 15,
+      "criterion": "CL01/02/03/04 and production preserved",
+      "status": "PASS",
+      "evidence": "preservation.json"
+    }
+  ],
+  "tests": {
+    "total": 60,
+    "pass": 60,
+    "fail": 0,
+    "skipped": 0,
+    "preserved_original_cases": 36,
+    "amendment_cases": 24,
+    "cases": [
+      {
+        "name": "AL01 SYNTHETIC \u2014 A Assets: 60% risk, AAA 25%/BBB 75% => 15%/45%/40%",
+        "status": "PASS",
+        "elapsed_ms": 6.423893
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 B Factor exact diagonal oracle; exposures do not sum one",
+        "status": "PASS",
+        "elapsed_ms": 2.483569
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 B2 Factor coupled matrix, pivoting and independent arithmetic oracle",
+        "status": "PASS",
+        "elapsed_ms": 2.749291
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 C Impossible factor bounds => INFEASIBLE, no invented weights",
+        "status": "PASS",
+        "elapsed_ms": 1.241799
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 C2 Singular and underdetermined mapping never use pseudoinverse",
+        "status": "PASS",
+        "elapsed_ms": 1.261119
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 D Alpha aggregation: capital x per-unit map, not scores",
+        "status": "PASS",
+        "elapsed_ms": 4.600458
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 E Opposite overlapping alphas: algebraic netting, pre-netting gross distinct",
+        "status": "PASS",
+        "elapsed_ms": 1.649988
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 E2 Zero-net exposures require explicit external financing; no silent cash=1-net",
+        "status": "PASS",
+        "elapsed_ms": 0.976148
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 F Capital risk=0: all three modes, scaling once and upstream cash fixed",
+        "status": "PASS",
+        "elapsed_ms": 3.826212
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 F Capital risk=0.5: all three modes, scaling once and upstream cash fixed",
+        "status": "PASS",
+        "elapsed_ms": 4.061688
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 F Capital risk=1: all three modes, scaling once and upstream cash fixed",
+        "status": "PASS",
+        "elapsed_ms": 3.900613
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 G Double cash blocked in requests, decisions, constraints and canonical outputs",
+        "status": "PASS",
+        "elapsed_ms": 1.894438
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 G2 Residual remains explicit, never adds to global cash",
+        "status": "PASS",
+        "elapsed_ms": 2.41186
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 H Point-in-time rejects future forecast",
+        "status": "PASS",
+        "elapsed_ms": 0.398123
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 H Point-in-time rejects future covariance",
+        "status": "PASS",
+        "elapsed_ms": 0.319504
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 H Point-in-time rejects future factor-model",
+        "status": "PASS",
+        "elapsed_ms": 0.403992
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 H Point-in-time rejects future matrix",
+        "status": "PASS",
+        "elapsed_ms": 0.338052
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 H Point-in-time rejects future stream",
+        "status": "PASS",
+        "elapsed_ms": 0.580759
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 H Point-in-time rejects future history",
+        "status": "PASS",
+        "elapsed_ms": 0.543813
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 H Point-in-time rejects future position-map",
+        "status": "PASS",
+        "elapsed_ms": 0.490712
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 H Point-in-time rejects future alpha-forecast",
+        "status": "PASS",
+        "elapsed_ms": 0.747081
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 H Point-in-time rejects future availability",
+        "status": "PASS",
+        "elapsed_ms": 0.201205
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 H2 UTC timestamps, leap day, past metadata, mismatched capital clocks",
+        "status": "PASS",
+        "elapsed_ms": 1.677019
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 I Invalid units: factor exposures cannot become capital weights",
+        "status": "PASS",
+        "elapsed_ms": 1.898714
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 J Reproducible canonical input: key reorder keeps IDs, full input changes alter snapshots",
+        "status": "PASS",
+        "elapsed_ms": 2.632926
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 Capital invariants, nullable confidence and policy-defined scores are explicit",
+        "status": "PASS",
+        "elapsed_ms": 0.589112
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 Signed net-one portfolio preserves signs/leverage and prohibits incompatible mandates",
+        "status": "PASS",
+        "elapsed_ms": 1.124722
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 No normalization/clipping: tiny risk budget remains positive and residual must be exactly zero",
+        "status": "PASS",
+        "elapsed_ms": 2.57713
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 Warnings never erase failure, and tampered weights/gross/details/hash reject",
+        "status": "PASS",
+        "elapsed_ms": 2.041239
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 Missing/provenance/duplicate axes, matrix hash, covariance and insufficient alpha data reject",
+        "status": "PASS",
+        "elapsed_ms": 1.687598
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 Malformed/nonfinite runtime inputs reject explicitly rather than throw/fallback",
+        "status": "PASS",
+        "elapsed_ms": 1.277564
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 Numerical failure is explicit; input objects remain unchanged (pure functions)",
+        "status": "PASS",
+        "elapsed_ms": 0.936838
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 All mode outputs reconcile to the same canonical portfolio when their asset map is equal",
+        "status": "PASS",
+        "elapsed_ms": 2.619235
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 Required capital state, publication/model provenance and malformed detail objects cannot be omitted",
+        "status": "PASS",
+        "elapsed_ms": 2.508788
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 Realized P&L representation preserves units; negative stream capital and repeated IDs reject",
+        "status": "PASS",
+        "elapsed_ms": 1.733083
+      },
+      {
+        "name": "AL01 SYNTHETIC \u2014 J2 Canonical key reorder is reproducible with non-associative three-asset sums",
+        "status": "PASS",
+        "elapsed_ms": 4.781226
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 A/B target beta .60, sleeve 0.8: multiplier 0.75, cash 0.25",
+        "status": "PASS",
+        "elapsed_ms": 2.070213
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 A/B target beta .60, sleeve 1.2: multiplier 0.5, cash 0.5",
+        "status": "PASS",
+        "elapsed_ms": 2.655885
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 C Same beta mandate reconciles different sleeves to same final beta",
+        "status": "PASS",
+        "elapsed_ms": 2.24584
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 D Zero/nearly-zero beta nonzero target infeasible, tiny nonzero target not rounded away",
+        "status": "PASS",
+        "elapsed_ms": 5.64898
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 E Requested beta outside caps rejects; only explicit CLIP returns clipped diagnostic",
+        "status": "PASS",
+        "elapsed_ms": 2.392241
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 E2 Cash/risky/gross/net/target bounds all enforced; conflicting caps have no fallback",
+        "status": "PASS",
+        "elapsed_ms": 7.094188
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 F LEGACY RISK_FRACTION preserves literal cash/risk, version and labels",
+        "status": "PASS",
+        "elapsed_ms": 6.85789
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 F2 Archived unmeasured sleeve upgrade keeps allocation but never invents beta",
+        "status": "PASS",
+        "elapsed_ms": 1.363243
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 G market_beta known answer from independent pairwise oracle",
+        "status": "PASS",
+        "elapsed_ms": 3.07865
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 G rolling_market_beta known answer from independent pairwise oracle",
+        "status": "PASS",
+        "elapsed_ms": 0.31097
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 G upside_beta known answer from independent pairwise oracle",
+        "status": "PASS",
+        "elapsed_ms": 0.254926
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 G downside_beta known answer from independent pairwise oracle",
+        "status": "PASS",
+        "elapsed_ms": 0.53507
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 G drawdown_beta known answer from independent pairwise oracle",
+        "status": "PASS",
+        "elapsed_ms": 0.238211
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 G tail_beta known answer from independent pairwise oracle",
+        "status": "PASS",
+        "elapsed_ms": 0.204519
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 Capture upside_capture is geometric subset ratio, not conditional beta",
+        "status": "PASS",
+        "elapsed_ms": 1.347379
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 Capture downside_capture is geometric subset ratio, not conditional beta",
+        "status": "PASS",
+        "elapsed_ms": 0.193633
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 H Future mutations/NaN/appended returns do not change past beta/capture/hash estimates",
+        "status": "PASS",
+        "elapsed_ms": 0.616484
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 Risk estimates bind to weights/model/cutoff; missing or future risk cannot normalize",
+        "status": "PASS",
+        "elapsed_ms": 1.208369
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 Volatility mandate uses unscaled annual volatility; sum weights is not beta",
+        "status": "PASS",
+        "elapsed_ms": 2.421876
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 Metric default 63/.05/-10%, insufficient variance, invalid data and config reject explicitly",
+        "status": "PASS",
+        "elapsed_ms": 0.38293
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 Primary mandate validation rejects second cash primitive and malformed metadata",
+        "status": "PASS",
+        "elapsed_ms": 1.455262
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 Mandate composition is pure, key-order/hash reproducible and cash only an implementation output",
+        "status": "PASS",
+        "elapsed_ms": 1.345687
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 Beta benchmark identity cannot be silently substituted",
+        "status": "PASS",
+        "elapsed_ms": 1.174878
+      },
+      {
+        "name": "AL01 AMENDMENT A SYNTHETIC \u2014 Default 63-session rolling beta is computed only when all 63 past pairs exist",
+        "status": "PASS",
+        "elapsed_ms": 1.139966
+      }
+    ]
+  },
+  "beta_division_tolerance": 1.4210854715202004e-14,
+  "weight_constraint_tolerance": 1e-10,
+  "metric_capture_method": "GEOMETRIC_SUBSET_DAILY_RATIO_V1",
+  "tail_quantile_method": "LINEAR_TYPE7_V1",
+  "CAPM_ESTIMATION": "NOT_IMPLEMENTED",
+  "INSTITUTIONAL_SCORECARD_COMPUTATION": "NOT_IMPLEMENTED",
+  "alpha_claims": false,
+  "aggregate_selection_score": false,
+  "strict_typecheck_exit_code": 0,
+  "git_diff_check_exit_code": 0,
+  "protected_baseline_files_unchanged": 2811,
+  "source_hashes_sha256": {
+    "artifacts/api-server/src/lib/allocation-core/adapters.ts": "cf8652b5ac150ff4d451b80de10a98d25fd906b21c1e2000476db60218d806aa",
+    "artifacts/api-server/src/lib/allocation-core/amendment-a.test.ts": "ffca31b099d018bea0fad4e6e273ca8f41f39a53bc9189abe231f07ff6f5113d",
+    "artifacts/api-server/src/lib/allocation-core/composition.ts": "e8b348eaafdd9aa656ef28bedf5d73e16282bc5138aec4c688321b80a25b8b00",
+    "artifacts/api-server/src/lib/allocation-core/contracts.test.ts": "734b5c6fc55fe239e568146088b023c5d386260f6479ad18481aa1050237c2b7",
+    "artifacts/api-server/src/lib/allocation-core/contracts.ts": "cfeb3b171b7bd19a1cd198865b18c46b73864b9a03c66c34423d420206934e8a",
+    "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts": "5905a1b9e6d6b868ec1c0d4f96367160329663b15d9ee2da86403839b7dc9dc0",
+    "artifacts/api-server/src/lib/allocation-core/risk-metrics.ts": "06b24826dd2ac644a6a51cc1f5d37c31e9266196837798d6268bf5c75aa9e316",
+    "artifacts/api-server/src/lib/allocation-core/validation.ts": "31bc8f62dc6452c14139bbd09229947f6d1e8b31d51206ea32cd228afdd40a0f"
+  },
+  "limitations": [
+    "Primary controller only long-only fully-invested/no leverage; signed legacy composition preserved",
+    "Sleeve risk artifacts supplied, not a newly trained financial model",
+    "Conditional beta/capture diagnostic pure functions only, no economic campaign/new backtest",
+    "CAPM alpha regression/t-stats and full institutional scorecard calculation NOT_IMPLEMENTED; contracts only",
+    "Cash beta=0 assumed ex ante; realized beta need not equal target exactly",
+    "Drawdown origin provided history initial wealth/high-water=1; missing prior peaks not inferred",
+    "Source hashes/PIT validate declarations, not provider authenticity",
+    "No new optimizers/quality gates/production integration or AL02"
+  ]
+}

@@ -1,0 +1,83 @@
+PASS A equal capital across three strategy instances
+PASS B inverse-variance minimum variance oracle
+PASS C diagonal ERC inverse-volatility oracle
+PASS D two-strategy mean-variance closed-form oracle
+PASS E max-Sharpe inverse-covariance premium oracle
+PASS F opposite overlapping positions net exactly
+PASS G different strategy allocations can have identical instrument exposure
+PASS H internal residual capital is reported, never global cash
+PASS I signed/non-net-one result VALID but blocked from long-only controller
+PASS J allocated strategy-return beta independently reconciles
+PASS K current-position beta independently reconciles
+PASS L strategy-return and position beta can differ without validation failure
+PASS M latest available historical map, not final position map
+PASS N future map mutation leaves past result/hash unchanged
+PASS N future returns mutation leaves past result/hash unchanged
+PASS N future covariance mutation leaves past result/hash unchanged
+PASS N future configuration mutation leaves past result/hash unchanged
+PASS N future forecast mutation leaves past result/hash unchanged
+PASS N future beta mutation leaves past result/hash unchanged
+PASS O missing PIT mu: EQUAL_CAPITAL
+PASS O missing PIT mu: MIN_VARIANCE
+PASS O missing PIT mu: ERC
+PASS O missing PIT mu: MEAN_VARIANCE
+PASS O missing PIT mu: MAX_SHARPE
+PASS P same allocation and different RiskMandates: only controller changes
+PASS Q permutation of strategy and covariance axes preserves economics
+PASS R embedded NET internal costs cannot be charged again
+PASS S impossible bounds return INFEASIBLE without equal-capital fallback
+PASS post-map cap cannot be bypassed by two strategies on SPY
+PASS post-net aggregate gross constraint respects opposing netting
+PASS post-map NET band constrains signed H*a
+PASS post-map sector net cap oracle
+PASS post-map sector gross cap oracle
+PASS strategy family cap sums all members
+PASS underlying strategy-group cap separate from asset constraint
+PASS maximum active strategies never exceeded
+PASS strategy turnover constrained, instrument turnover reported separately
+PASS same x distinct a implies zero instrument but nonzero strategy turnover
+PASS highly correlated instances remain distinct, unpruned
+PASS exact duplicates rejected by economic hash, not underlying
+PASS explicit distinct execution sleeves allow exact economic duplicate
+PASS instance/family attribution sums exactly, underlying P&L not invented
+PASS covariance effective rank and diagonal PCA bets independent entropy oracle
+PASS stream and implementation risk can differ
+PASS PIT rejects future risk_model artifact
+PASS PIT rejects future unit_position_map artifact
+PASS PIT rejects future expected_returns artifact
+PASS PIT rejects future asset_betas artifact
+PASS PIT rejects future previous_allocation artifact
+PASS strict signal cutoff rejects same-close information
+PASS configuration mutation without new hash rejected
+PASS tampered covariance content hash rejected
+PASS gross covariance cannot mix with NET stream histories
+PASS signal score cannot be strategy history
+PASS NET PNL per beginning capital allowed only with matching covariance units
+PASS no EQUAL_CAPITAL objective can create/accept global cash
+PASS no MIN_VARIANCE objective can create/accept global cash
+PASS no ERC objective can create/accept global cash
+PASS no MEAN_VARIANCE objective can create/accept global cash
+PASS no MAX_SHARPE objective can create/accept global cash
+PASS non-PSD covariance explicit INVALID_INPUT
+PASS zero variance min-var selects zero-risk stream
+PASS zero variance ERC is INSUFFICIENT_DATA, no fallback
+PASS positive-return zero variance makes Sharpe undefined globally
+PASS nonpositive-excess Sharpe independently known vertex answer
+PASS workload limit NUMERICAL_FAILURE, never skipped silently
+PASS ERC nonconvergence is NUMERICAL_FAILURE
+PASS same canonical input/order-independent object keys -> same hash/output
+PASS strategy beta PIT sample covariance independent mathematical oracle
+PASS future return mutation cannot alter prior beta estimate/hash
+PASS all five objectives enforce post-mapping caps without fallback
+PASS actual instrument cost perturbation changes cost only, not allocations
+PASS ERC coordinate nonconvergence after successful eigencertificate
+PASS max-Sharpe infeasible polytope is INFEASIBLE, not missing data
+PASS historical store future return mutations ignored before hash/validation
+PASS historical store future map mutations ignored before hash/validation
+PASS historical store future covariance mutations ignored before hash/validation
+PASS local sensitivities reproduce deterministically
+PASS fully internal residual stream can have no current positions
+PASS missing nullable post-map bound cannot silently disable a constraint
+PASS incremental cost overflow is explicit numerical failure with no valid allocation
+PASS a past-dated but unpublished map cannot enter the information set
+PASS late-published return revision cannot change a past allocation/hash

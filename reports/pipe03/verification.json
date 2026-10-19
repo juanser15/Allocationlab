@@ -1,0 +1,125 @@
+{
+  "block": "PIPE-03",
+  "status": "PASS",
+  "scope": "MECHANICAL_SYNTHETIC_INTEGRATION_CERTIFICATION_ONLY",
+  "version": "active-set-pipeline-1.0.0",
+  "criteria": [
+    {
+      "id": "01",
+      "criterion": "ActiveSetArtifact is the sole eligible strategy universe",
+      "status": "PASS",
+      "evidence": "A, H, Q, X, AQ, AR, AT; frozen-source membership integrity; allocator-universe.csv"
+    },
+    {
+      "id": "02",
+      "criterion": "Inactive strategies cannot reach AL05",
+      "status": "PASS",
+      "evidence": "B, D, R, Y, Z; active-only mu/Sigma/H/constraints/output; excluded BANK reasons retained"
+    },
+    {
+      "id": "03",
+      "criterion": "BANK01 eligibility and AL05 allocation remain separate",
+      "status": "PASS",
+      "evidence": "A\u2013F, C active zero; static scope check; no BANK clustering/allocator math in new core"
+    },
+    {
+      "id": "04",
+      "criterion": "PIT and no-lookahead",
+      "status": "PASS",
+      "evidence": "G, W, AG, AH; exact dated immutable snapshots and strict previous-close cutoff"
+    },
+    {
+      "id": "05",
+      "criterion": "Strategy and underlying mappings reconcile",
+      "status": "PASS",
+      "evidence": "F, L, P, Q, T, AJ\u2013AL; independent H*a gross/net/residual/beta oracles"
+    },
+    {
+      "id": "06",
+      "criterion": "Robustness cannot alter allocations",
+      "status": "PASS",
+      "evidence": "I, J, M; exact AL05 stage/result equality; immutable source guards"
+    },
+    {
+      "id": "07",
+      "criterion": "RiskMandate unchanged",
+      "status": "PASS",
+      "evidence": "K, U, V; unchanged requested mandate hash and certified composition"
+    },
+    {
+      "id": "08",
+      "criterion": "No double cash",
+      "status": "PASS",
+      "evidence": "L, P, T, V; internal residual and signed/non-net-one paths explicitly blocked"
+    },
+    {
+      "id": "09",
+      "criterion": "PIPE02 routing semantics preserved",
+      "status": "PASS",
+      "evidence": "M, AC, AN, AS; source-configuration governance identity; no dynamic fallback/promotion"
+    },
+    {
+      "id": "10",
+      "criterion": "Historical replay honestly blocked",
+      "status": "PASS",
+      "evidence": "blockers.csv; frozen AL05 LFS/missing-history evidence and missing historical governance"
+    },
+    {
+      "id": "11",
+      "criterion": "Idempotence and resume",
+      "status": "PASS",
+      "evidence": "N, O, AD\u2013AF, AO, AP; pauses 0/1/10/20; final 20 reused with zero pipeline reruns"
+    },
+    {
+      "id": "12",
+      "criterion": "Independent verification",
+      "status": "PASS",
+      "evidence": "159 arithmetic/storage/preservation checks; independent canonical hash/stage/target validation"
+    },
+    {
+      "id": "13",
+      "criterion": "Strict typecheck",
+      "status": "PASS",
+      "evidence": "typecheck-release.log; exit 0, all new TS and imported certified dependencies"
+    },
+    {
+      "id": "14",
+      "criterion": "git diff --check",
+      "status": "PASS",
+      "evidence": "diff-check.log; exit 0; new-source whitespace diagnostics checked separately"
+    },
+    {
+      "id": "15",
+      "criterion": "All prior baselines unchanged",
+      "status": "PASS",
+      "evidence": "preservation.json; 9821 frozen files byte-identical; same branch/commit"
+    }
+  ],
+  "tests": {
+    "passed": 46,
+    "failed": 0,
+    "skipped": 0
+  },
+  "independent_checks": {
+    "passed": 159,
+    "failed": 0
+  },
+  "acceptance_decisions": 20,
+  "valid_primary_targets": 16,
+  "expected_primary_failures": 4,
+  "routing_actions": {
+    "NO_NEW_TARGET": 20
+  },
+  "new_promotions": 0,
+  "historical_replay": "BLOCKED_MISSING_STRATEGY_HISTORY",
+  "historical_governance": "BLOCKED_MISSING_HISTORICAL_PIT_GOVERNANCE",
+  "new_configuration_routing": "NO_NEW_TARGET_MISSING_PROMOTION",
+  "candidate_search_runs": 0,
+  "backtests_executed": 0,
+  "execution_connections": 0,
+  "source_code_hash": "e3b3a2e7b6790c934f3076aa4a48738fb8f80d5f95eb347db5b4d333008c73e9",
+  "manifest_hash": "3e50190ce6014de6f843f5bb8beffaae822b346eedb1a7d85b6e1afcc114b651",
+  "baseline_files_preserved": 9821,
+  "no_UI": true,
+  "no_follow_on_block_opened": true
+}

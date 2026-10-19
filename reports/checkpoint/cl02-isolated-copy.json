@@ -1,0 +1,17 @@
+{
+  "copy_root": "/tmp/allocationlab-cl02-reproduction",
+  "baseline_root": "/tmp/allocationlab-cl02-reproduction-baseline",
+  "scope": "Complete repository worktree, excluding only .git/node_modules/unrelated cache directories",
+  "excluded_names": [
+    ".cache",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    "__pycache__",
+    "node_modules"
+  ],
+  "regular_files_byte_verified": 11127,
+  "bytes_verified": 1760377697,
+  "mismatches": [],
+  "copy_and_hash_seconds": 4.35
+}

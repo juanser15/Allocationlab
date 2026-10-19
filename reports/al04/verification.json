@@ -1,0 +1,486 @@
+{
+  "block": "AL04",
+  "status": "PASS",
+  "engine_version": "factor-implementation-1.0.2",
+  "criteria": [
+    {
+      "id": 1,
+      "criterion": "Factor exposure != capital weight",
+      "status": "PASS",
+      "evidence": "Square/negative exposure tests; role/unit validators; no sum(e)=1 constraint"
+    },
+    {
+      "id": 2,
+      "criterion": "Exact implementation",
+      "status": "PASS",
+      "evidence": "Square/unique/bound/overdetermined fixture oracles"
+    },
+    {
+      "id": 3,
+      "criterion": "Underdetermined, no pseudoinverse",
+      "status": "PASS",
+      "evidence": "Rank-deficient/multiple feasible q with explicit specific/total/turnover secondary; constrained KKT faces"
+    },
+    {
+      "id": 4,
+      "criterion": "Explicit approximate mode",
+      "status": "PASS",
+      "evidence": "Residual endpoint, unequal W and singular W oracles; exact never falls back"
+    },
+    {
+      "id": 5,
+      "criterion": "Systematic/specific/total reconcile",
+      "status": "PASS",
+      "evidence": "Expanded known-answer identity + NumPy B transpose Phi B +D for all valid cases"
+    },
+    {
+      "id": 6,
+      "criterion": "Signed factor exposure",
+      "status": "PASS",
+      "evidence": "Negative B/e and signed Euler contribution fixtures; entropy undefined for signed shares"
+    },
+    {
+      "id": 7,
+      "criterion": "PIT/no lookahead",
+      "status": "PASS",
+      "evidence": "Future B/Phi/D/target snapshot mutations; future input availability rejection"
+    },
+    {
+      "id": 8,
+      "criterion": "Scoring/factor semantics",
+      "status": "PASS",
+      "evidence": "FactorDefinition-like and percentile/capital units rejected; classification CSV"
+    },
+    {
+      "id": 9,
+      "criterion": "Independent risk diagnostics",
+      "status": "PASS",
+      "evidence": "Independent NumPy covariance/eigensystem/risk identities and SciPy optimization oracle"
+    },
+    {
+      "id": 10,
+      "criterion": "Reproducible sensitivity",
+      "status": "PASS",
+      "evidence": "154 declared stress rows, 136 VALID/18 expected INFEASIBLE; same-manifest hashes"
+    },
+    {
+      "id": 11,
+      "criterion": "RiskMandate untouched",
+      "status": "PASS",
+      "evidence": "Two mandates preserve factor q/result; explicit origin projection; no mandate parameter in engine"
+    },
+    {
+      "id": 12,
+      "criterion": "Old D1/factor mapping",
+      "status": "PASS",
+      "evidence": "AL04_factor_mapping.md + mapping-evidence.json + classification CSV"
+    },
+    {
+      "id": 13,
+      "criterion": "Strict typecheck",
+      "status": "PASS",
+      "evidence": "typecheck.txt exit0 (all new .ts plus transitive imports, --strict --noEmit)"
+    },
+    {
+      "id": 14,
+      "criterion": "git diff --check",
+      "status": "PASS",
+      "evidence": "diff-check.txt exit0 + new-source/report whitespace scan"
+    },
+    {
+      "id": 15,
+      "criterion": "Baselines intact",
+      "status": "PASS",
+      "evidence": "preservation.json: 3063 files unchanged, including prior ZIPs"
+    }
+  ],
+  "tests": {
+    "total": 51,
+    "pass": 51,
+    "fail": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "Square exact B yields known q and factor exposures do not sum one",
+        "status": "PASS"
+      },
+      {
+        "name": "Underdetermined min-specific oracle inverse variances within exact face",
+        "status": "PASS"
+      },
+      {
+        "name": "Underdetermined min-total oracle inverse variances within exact face",
+        "status": "PASS"
+      },
+      {
+        "name": "Underdetermined TURNOVER secondary preserves feasible previous q exactly",
+        "status": "PASS"
+      },
+      {
+        "name": "Unattainable exact target remains INFEASIBLE, no approximate fallback",
+        "status": "PASS"
+      },
+      {
+        "name": "Approximate target independently enumerated endpoint oracle and explicit residual",
+        "status": "PASS"
+      },
+      {
+        "name": "Approximate lexicographic risk cannot trade tracking for lower variance",
+        "status": "PASS"
+      },
+      {
+        "name": "Singular W leaves explicitly unpenalized factor free under secondary risk",
+        "status": "PASS"
+      },
+      {
+        "name": "Negative target implementable with negative B row under long-only q",
+        "status": "PASS"
+      },
+      {
+        "name": "Signed factor contributions retained; entropy and concentration undefined",
+        "status": "PASS"
+      },
+      {
+        "name": "Risk identity independently expanded B Phi B plus full D",
+        "status": "PASS"
+      },
+      {
+        "name": "Statistical shock/loading units reconcile to daily asset variance with independent oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Rank-deficient B valid with declared secondary, no direct inverse",
+        "status": "PASS"
+      },
+      {
+        "name": "Overdetermined conflicting equations explicitly INFEASIBLE",
+        "status": "PASS"
+      },
+      {
+        "name": "Factor and asset permutation economic equivalence square-exact",
+        "status": "PASS"
+      },
+      {
+        "name": "Factor and asset permutation economic equivalence underdetermined-specific",
+        "status": "PASS"
+      },
+      {
+        "name": "Factor and asset permutation economic equivalence negative-risk-contribution",
+        "status": "PASS"
+      },
+      {
+        "name": "Same factor q under two RiskMandates; no mandate mutations or hidden cash",
+        "status": "PASS"
+      },
+      {
+        "name": "Global cash/risk field rejected global_cash",
+        "status": "PASS"
+      },
+      {
+        "name": "Global cash/risk field rejected masterCash",
+        "status": "PASS"
+      },
+      {
+        "name": "Global cash/risk field rejected totalCash",
+        "status": "PASS"
+      },
+      {
+        "name": "Global cash/risk field rejected cash_yield",
+        "status": "PASS"
+      },
+      {
+        "name": "Global cash/risk field rejected target_beta",
+        "status": "PASS"
+      },
+      {
+        "name": "Global cash/risk field rejected exposure_multiplier",
+        "status": "PASS"
+      },
+      {
+        "name": "Scoring FactorDefinition and percentile/capital units cannot masquerade as target/B",
+        "status": "PASS"
+      },
+      {
+        "name": "Explicit beta diagnostic does not equal factor loading/exposure or sum q",
+        "status": "PASS"
+      },
+      {
+        "name": "Missing D never becomes zero; explicitly zero D has known risk share",
+        "status": "PASS"
+      },
+      {
+        "name": "Phi/D/W PSD, dimensions, units and model hashes independently guarded",
+        "status": "PASS"
+      },
+      {
+        "name": "No pseudoinverse implementation mode or hidden tracking-risk lambda accepted",
+        "status": "PASS"
+      },
+      {
+        "name": "Asset bounds and group caps enforce known constrained q",
+        "status": "PASS"
+      },
+      {
+        "name": "Gross-L1 turnover cap and cardinality have exact independent oracles",
+        "status": "PASS"
+      },
+      {
+        "name": "Unequal W approximate objective independent derivative on constrained edge",
+        "status": "PASS"
+      },
+      {
+        "name": "Zero total variance returns undefined risk shares/entropy, not invented ENB",
+        "status": "PASS"
+      },
+      {
+        "name": "Malformed/nonfinite inputs reject without throws or invented envelope metadata",
+        "status": "PASS"
+      },
+      {
+        "name": "Explicit workload limits fail without silently truncated faces/supports",
+        "status": "PASS"
+      },
+      {
+        "name": "Future artifact availability rejected target",
+        "status": "PASS"
+      },
+      {
+        "name": "Future artifact availability rejected loadings",
+        "status": "PASS"
+      },
+      {
+        "name": "Future artifact availability rejected risk_model",
+        "status": "PASS"
+      },
+      {
+        "name": "Future artifact availability rejected beta_estimates",
+        "status": "PASS"
+      },
+      {
+        "name": "Future artifact availability rejected tracking_metric",
+        "status": "PASS"
+      },
+      {
+        "name": "Future mutation cannot alter historical factor selection/fit B",
+        "status": "PASS"
+      },
+      {
+        "name": "Future mutation cannot alter historical factor selection/fit Phi",
+        "status": "PASS"
+      },
+      {
+        "name": "Future mutation cannot alter historical factor selection/fit D",
+        "status": "PASS"
+      },
+      {
+        "name": "Future mutation cannot alter historical factor selection/fit target",
+        "status": "PASS"
+      },
+      {
+        "name": "Decision-day cutoff disallowed and ambiguous same-as-of snapshots do not auto-select",
+        "status": "PASS"
+      },
+      {
+        "name": "Sensitivity reproducible and base input/result immutable; expected infeasibilities retained",
+        "status": "PASS"
+      },
+      {
+        "name": "Boundary loading-plus retains exact no-short q=[0,1] negative-risk-contribution",
+        "status": "PASS"
+      },
+      {
+        "name": "Boundary loading-plus retains exact no-short q=[0,1] rank-deficient-B-no-inverse",
+        "status": "PASS"
+      },
+      {
+        "name": "Same canonical input produces same factor IDs/hash/output",
+        "status": "PASS"
+      },
+      {
+        "name": "Within-tolerance D asymmetry uses explicit symmetric covariance oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Within-tolerance Phi/W asymmetry preserves symmetric quadratic and Euler definition",
+        "status": "PASS"
+      }
+    ]
+  },
+  "fixtures": {
+    "total": 20,
+    "VALID": 18,
+    "INFEASIBLE": 2
+  },
+  "sensitivity": {
+    "total": 154,
+    "VALID": 136,
+    "INFEASIBLE": 18,
+    "unexpected_failures": []
+  },
+  "independent_verification": {
+    "status": "PASS",
+    "method": "Independent NumPy identities/eigh + SciPy HiGHS feasibility/turnover LP (N auxiliaries) + SLSQP constrained quadratic oracle; unique base q also compared; no engine functions called",
+    "fixtures": [
+      {
+        "fixture": "square-exact",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "underdetermined-specific",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "underdetermined-total",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "underdetermined-turnover",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "impossible-exact",
+        "status": "PASS",
+        "expected": "INFEASIBLE"
+      },
+      {
+        "fixture": "explicit-approximate",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "approximate-lexicographic",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "singular-W-explicit-unpenalized-factor",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "negative-risk-contribution",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "rank-deficient-B-no-inverse",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "overdetermined-inconsistent",
+        "status": "PASS",
+        "expected": "INFEASIBLE"
+      },
+      {
+        "fixture": "asset-bound-active",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "group-cap-active",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "cardinality-two",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "turnover-cap-active",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "explicit-zero-specific",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "full-specific-covariance",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "unequal-W-tracking",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "statistical-standardized-shock-units",
+        "status": "PASS",
+        "expected": "VALID"
+      },
+      {
+        "fixture": "within-tolerance-symmetric-specific-model",
+        "status": "PASS",
+        "expected": "VALID"
+      }
+    ],
+    "stress_rows_checked": 154,
+    "row_counts": {
+      "factor-implementation-results.csv": 20,
+      "factor-risk-diagnostics.csv": 20,
+      "factor-residuals.csv": 27,
+      "factor-diversification.csv": 20,
+      "factor-sensitivity.csv": 154
+    },
+    "tolerance": {
+      "absolute": 1e-09,
+      "relative": 1e-07,
+      "unique_scipy_weights_absolute": 3e-07
+    },
+    "real_backtests": 0,
+    "historical_replay": "BLOCKED_MISSING_CANONICAL_FACTOR_ARTIFACTS"
+  },
+  "preservation": {
+    "status": "PASS",
+    "files_frozen": 3063,
+    "files_unchanged": 3063,
+    "changes": [],
+    "branch": "work",
+    "commit": "1163a0b574b573004372a3a2fc8752810dea7ef9"
+  },
+  "historical_economic_replay": "BLOCKED_MISSING_CANONICAL_FACTOR_ARTIFACTS",
+  "backtester_executions": 0,
+  "producer_factor_model_fits": 0,
+  "production_adapter_created": false,
+  "research_controller_projection": "Explicit instrument-only q/risk projection with FACTORS origin; no production integration or D1/scoring conversion",
+  "pre_post_evidence": [
+    {
+      "stage": "roundoff regression",
+      "pass": 46,
+      "fail": 2,
+      "evidence": "tests-first.txt",
+      "correction": "Bounded explicit q roundoff canonicalization, no positive active weights discarded; original/applied weights retained"
+    },
+    {
+      "stage": "symmetry regression",
+      "pass": 49,
+      "fail": 2,
+      "evidence": "pre-symmetry-fix-tests.txt",
+      "correction": "Within-tolerance Phi/D/W symmetric parts, raw hashes retained and explicit warnings; no tolerance increase"
+    },
+    {
+      "stage": "final",
+      "pass": 51,
+      "fail": 0,
+      "evidence": "tests-final.txt"
+    }
+  ],
+  "limitations": [
+    "No canonical dated target +tradable B +Phi/explicit D +W artifact stream for historical replay",
+    "No fitting, forecast generation, factor economic quality validation or automatic basis alignment; external producers own coordinate identity/units/vintages",
+    "Exact-face solver bounded by max_faces/max_supports, intended for small problems; explicit failure rather than truncation",
+    "Numerical rank/tie/factor tolerances declared; approximate primary ties across supports use declared objective-unit tolerance",
+    "PCA entropy ENB is not minimum torsion; degenerate eigenbasis/units affect spectral diagnostics",
+    "Legacy AL01 square FACTORS envelope cannot describe general methods; versioned AL04 origin remains FACTORS, research instrument projection marked explicitly",
+    "Controller legacy risk-provenance hash tracks beta estimator; full factor-volatility source retained in origin reference",
+    "Only labelled synthetic mechanics, no economic profitability/alpha/robustness claim"
+  ]
+}

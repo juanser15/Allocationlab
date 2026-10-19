@@ -1,0 +1,3478 @@
+{
+  "identity": "526ae6078291024282406c891a0094dc0e7398ad7f5733c783daa5d4fa9bd99f",
+  "value_hash": "285ccc4bbea1133fc3f5371e91901530aab565351b72e858190d8a1eab5a2126",
+  "value": {
+    "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab",
+    "context": {
+      "schema_version": "canonical-research-pipeline-1.0.2",
+      "decision_date": "2021-04-01",
+      "information_cutoff": "2021-03-31",
+      "execution": {
+        "date": "2021-04-05",
+        "convention": "next_close",
+        "rebalance_frequency": "monthly"
+      },
+      "eligible_universe": [
+        "SPY",
+        "XLC",
+        "XLK",
+        "XLV"
+      ],
+      "previous_holdings": {
+        "as_of": "2021-03-31",
+        "information_cutoff": "2021-03-31",
+        "provenance": {
+          "data_hash": "cb66a7da0c42c00ae0800465ad4182abdee03d82ce7ff3a9e6cacaa89966a188",
+          "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+          "source_ids": [
+            "reports/cl02/adjusted-closes.csv",
+            "SPY"
+          ],
+          "data_available_at": "2021-03-31",
+          "model": {
+            "id": "sample-covariance-beta",
+            "version": "pit-asset-beta-covariance-1.0.0"
+          }
+        },
+        "units": "fraction_of_risk_capital",
+        "asset_weights": {
+          "SPY": 0.2528032476222383,
+          "XLC": 0.24774235787365587,
+          "XLK": 0.2463653111423692,
+          "XLV": 0.25308908336173647
+        }
+      },
+      "candidate": {
+        "candidate_id": "are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638",
+        "spec": {
+          "allocation_mode": "ASSETS",
+          "objective": {
+            "type": "EQUAL_WEIGHT"
+          },
+          "constraints": {
+            "asset_bounds": {},
+            "group_caps": [],
+            "max_active_names": null,
+            "turnover_cap": null
+          },
+          "risk_model": {
+            "id": "AL03_PIT_ASSETS_252",
+            "version": "pit-asset-beta-covariance-1.0.0",
+            "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827"
+          },
+          "expected_return": null,
+          "factor_target": null,
+          "strategy_universe": null,
+          "signal_gate": {
+            "required": false,
+            "policy": {
+              "as_of": "2020-12-31",
+              "information_cutoff": "2020-12-31",
+              "provenance": {
+                "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+                "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+                "source_ids": [
+                  "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+                ],
+                "data_available_at": "2020-12-31",
+                "model": {
+                  "id": "DECLARED_RESEARCH_GATE_POLICY",
+                  "version": "1.0.0"
+                }
+              },
+              "gate_policy_id": "AL06_QA_SIGNAL_QUALITY",
+              "gate_policy_version": "1.0.0",
+              "gate_type": "SIGNAL_QUALITY",
+              "mandatory_checks": [
+                "coverage",
+                "dispersion",
+                "pc1_share",
+                "rank_stability"
+              ],
+              "warning_checks": [],
+              "thresholds": {
+                "coverage": {
+                  "operator": "MIN",
+                  "value": 1,
+                  "units": "ELIGIBLE_FRACTION"
+                },
+                "dispersion": {
+                  "operator": "MIN",
+                  "value": 0.1,
+                  "units": "RANKING_SCORE"
+                },
+                "pc1_share": {
+                  "operator": "MAX",
+                  "value": 0.8,
+                  "units": "VARIANCE_SHARE"
+                },
+                "rank_stability": {
+                  "operator": "MIN",
+                  "value": 0.5,
+                  "units": "SPEARMAN_CORRELATION"
+                }
+              },
+              "minimum_observations": 2,
+              "failure_behavior": "RETURN_RESULT_ONLY",
+              "coverage_failure_status": "INSUFFICIENT_DATA",
+              "clock": {
+                "evaluation_dates": [
+                  "2021-01-01"
+                ],
+                "signal_frequency": "EXTERNALLY_DECLARED",
+                "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+                "recalibration_frequency": "EXTERNALLY_DECLARED",
+                "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+              },
+              "signal_methodology": {
+                "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+                "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+                "dispersion_ddof": 0,
+                "rank_window_snapshots": 3,
+                "minimum_rank_intersection_fraction": 0.5,
+                "maximum_staleness_calendar_days": 90,
+                "minimum_rank_snapshots": 1
+              },
+              "robustness_methodology": {
+                "allow_approximate_factor_residual": true,
+                "allow_declared_controller_clip": false,
+                "correlation_cluster_threshold": 0.9,
+                "sensitivity_required_families": [],
+                "require_risk_artifact": true
+              },
+              "numerics": {
+                "absolute": 1e-9,
+                "covariance_psd": 1e-12,
+                "eigen_iterations": 10000
+              },
+              "policy_hash": "683de79561b461bbb705999f7a984149e5ddce3f70c80a2d8e1327a60900716c"
+            },
+            "exemption_reason": "NONFORECAST_OBJECTIVES: no signal/forecast consumed; supplied covariance only, no implicit gate bypass"
+          },
+          "portfolio_gate": {
+            "as_of": "2020-12-31",
+            "information_cutoff": "2020-12-31",
+            "provenance": {
+              "data_hash": "666d208e9f65a47cb50f283282bdf6eeefa4629cc92ee9282a5e6b1fc924d089",
+              "configuration_hash": "53e4de8cb62c015292bcf3eb049a685ec3a929203e4eb20f352a18fa5c047656",
+              "source_ids": [
+                "AL06_DECLARED_MECHANICAL_POLICY_NOT_LEGACY_NODE3"
+              ],
+              "data_available_at": "2020-12-31",
+              "model": {
+                "id": "DECLARED_RESEARCH_GATE_POLICY",
+                "version": "1.0.0"
+              }
+            },
+            "gate_policy_id": "AL06_QA_PORTFOLIO_ROBUSTNESS",
+            "gate_policy_version": "1.0.0",
+            "gate_type": "PORTFOLIO_ROBUSTNESS",
+            "mandatory_checks": [
+              "largest_weight",
+              "hhi",
+              "allocation_l1"
+            ],
+            "warning_checks": [],
+            "thresholds": {
+              "largest_weight": {
+                "operator": "MAX",
+                "value": 1,
+                "units": "NORMALIZED_EXPOSURE_FRACTION"
+              },
+              "hhi": {
+                "operator": "MAX",
+                "value": 1,
+                "units": "DIMENSIONLESS"
+              },
+              "allocation_l1": {
+                "operator": "MAX",
+                "value": 2,
+                "units": "GROSS_L1_RISK_CAPITAL_FRACTION"
+              }
+            },
+            "minimum_observations": 2,
+            "failure_behavior": "RETURN_RESULT_ONLY",
+            "coverage_failure_status": "INSUFFICIENT_DATA",
+            "clock": {
+              "evaluation_dates": [
+                "2021-01-01"
+              ],
+              "signal_frequency": "EXTERNALLY_DECLARED",
+              "allocation_frequency": "MONTHLY_REPLAY_OR_DECLARED_FIXTURE",
+              "recalibration_frequency": "EXTERNALLY_DECLARED",
+              "gate_frequency": "ALLOCATION_DECISION_DATES_ONLY"
+            },
+            "signal_methodology": {
+              "version": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+              "legacy_node3_certification": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+              "dispersion_ddof": 0,
+              "rank_window_snapshots": 3,
+              "minimum_rank_intersection_fraction": 0.5,
+              "maximum_staleness_calendar_days": 90,
+              "minimum_rank_snapshots": 1
+            },
+            "robustness_methodology": {
+              "allow_approximate_factor_residual": true,
+              "allow_declared_controller_clip": false,
+              "correlation_cluster_threshold": 0.9,
+              "sensitivity_required_families": [
+                "COVARIANCE"
+              ],
+              "require_risk_artifact": true
+            },
+            "numerics": {
+              "absolute": 1e-9,
+              "covariance_psd": 1e-12,
+              "eigen_iterations": 10000
+            },
+            "policy_hash": "ae51ffea5c032f579a2213737d60f57c94e25abf530fcb6779f0da0527d81917"
+          },
+          "clocks": {
+            "signal": "monthly",
+            "rebalance": "monthly",
+            "risk_recalibration": "monthly",
+            "forecast_recalibration": "monthly",
+            "gate": "EACH_ALLOCATION_DECISION"
+          },
+          "estimation": {
+            "window_sessions": 252,
+            "minimum_observations": 252
+          },
+          "costs": {
+            "scenarios_bps": [
+              0,
+              5
+            ],
+            "slippage_bps": 0,
+            "basis": "ACTUAL_INSTRUMENT_NOTIONAL",
+            "embedded_strategy_costs": "ALREADY_NET_NOT_RECHARGED"
+          },
+          "risk_mandate": {
+            "id": "DECLARED_RESEARCH_BETA_TARGET",
+            "version": "AL02-1",
+            "configuration_hash": "610be57188afdac1c4bd1b8ea235e96f77d8a00ec91c912d903b96c672d0a3d6"
+          },
+          "model_config_hashes": {
+            "AL03": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+            "AL02": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6",
+            "AL06": "2527e0f9440599883a6f2b287c0ffb743eb6fab2105f2ecd46f6926774266fb4"
+          }
+        }
+      },
+      "selection_lock": {
+        "candidate_id": "are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638",
+        "selection_hash": "735edbb0d9da184fe643f9f97b9f9cc8e7de3b21414c34de2dec314a603caf0e",
+        "outer_fold": 1,
+        "source_id": "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/selections/1.json"
+      },
+      "signal_gate_required": false,
+      "signal_exemption_reason": "NONFORECAST_OBJECTIVES: no signal/forecast consumed; supplied covariance only, no implicit gate bypass",
+      "risk_mandate_hash": "6760f4a333c8e5db6a608eb26d4ce80ec1a6a7ac44b0726580883d66a1331c8e",
+      "signal_policy_hash": "10a977981ee16cf5796ba2b84107a45f71407e7a6b00101f30e464f678133b24",
+      "robustness_policy_hash": "338577e9ab58db38cbe8fb6bdf01fd61f3e0dafb1f6a2dc53adecd9fcf905d76",
+      "artifact_hashes": {
+        "native": "5d091233a300b3cd2c5bce8da93bab37789da2339f511f2d575cd5e65d97348f",
+        "signal": null,
+        "sensitivity": "f64d93c3c37ae538cf9b0d005213e2a88457ddcce3594f63bb7176230eacebd9",
+        "original_risk_reference": "f16b9d7b1594978be3c26819bbb09e2428c6c9e6bfa6a555038c2a728f987f16"
+      },
+      "costs": {
+        "bps": 5,
+        "slippage_bps": 0,
+        "basis": "ACTUAL_INSTRUMENT_NOTIONAL",
+        "embedded_strategy_costs": "NOT_RECHARGED",
+        "cash_yield_daily": 0
+      },
+      "provenance": {
+        "information_prices_hash": "d809672ee0e548865ecc3834c3d678f0a565a21758a0c42b5d2523c0054134ae",
+        "source_ids": [
+          "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/selections/1.json"
+        ],
+        "bundle_hash": "14f9945f5379edfc58f2fe2faca007917ebfb6d9f60f43922899656f8b39f09b",
+        "code_version": "canonical-research-pipeline-1.0.2"
+      },
+      "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab"
+    },
+    "status": "VALID",
+    "reason": null,
+    "stages": [
+      {
+        "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab",
+        "stage": "VALIDATE_CONTEXT",
+        "status": "VALID",
+        "input_hash": "67563148d886a5b57901ac50595bb21d01366336086986cb73a19f9207f9ea22",
+        "output_hash": "debf84af8d66827e1cbc6791aa686504e3116d8cb20f4697fef23108333061f8",
+        "output": {
+          "errors": []
+        },
+        "stage_id": "stage_e4f4e31f0262a75102b3e07f01dfbd6679f5fec2035996677d1123e1a51749d3"
+      },
+      {
+        "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab",
+        "stage": "RESOLVE_MANDATE",
+        "status": "VALID",
+        "input_hash": "a60af672b02bed126167196abff5d378238e0205e6b50ed9a22f999901247899",
+        "output_hash": "0de0dea31417b0bbc971e939ba3b39d64254977a23b5d87d4577afc8523b8f3d",
+        "output": {
+          "mandate_hash": "6760f4a333c8e5db6a608eb26d4ce80ec1a6a7ac44b0726580883d66a1331c8e",
+          "mandate": {
+            "schema_version": "allocation-risk-1.1.0",
+            "as_of": "2021-04-01",
+            "policy_id": "DECLARED_RESEARCH_BETA_TARGET",
+            "policy_version": "AL02-1",
+            "state": null,
+            "confidence": null,
+            "confidence_semantics": "POLICY_DEFINED_SCORE",
+            "semantics": "SYSTEMATIC_RISK",
+            "market_benchmark": "SPY",
+            "primary_target": {
+              "metric": "MARKET_BETA",
+              "target": 0.3,
+              "lower_bound": null,
+              "upper_bound": null
+            },
+            "constraints": {
+              "min_risky_allocation": 0,
+              "max_risky_allocation": 1,
+              "cash_floor": 0,
+              "cash_ceiling": 1,
+              "max_gross_exposure": 1,
+              "max_net_exposure": 1
+            },
+            "exposure_policy": {
+              "controller": "LONG_ONLY_NO_LEVERAGE_V1",
+              "constraint_action": "REJECT"
+            },
+            "provenance": {
+              "data_hash": "cb66a7da0c42c00ae0800465ad4182abdee03d82ce7ff3a9e6cacaa89966a188",
+              "configuration_hash": "2bd872d4304797fc7a182b591064c3d9c5c07fdb2b6d52bd6c70437cb1db3680",
+              "source_ids": [
+                "reports/cl02/adjusted-closes.csv",
+                "SPY"
+              ],
+              "data_available_at": "2021-03-31",
+              "model": {
+                "id": "assets-allocation-1.0.0",
+                "version": "1.0.0"
+              },
+              "information_cutoff": "2021-03-31",
+              "generated_at": "2021-04-01"
+            },
+            "legacy_source": null
+          },
+          "errors": []
+        },
+        "stage_id": "stage_a38356b99abd5a944a66d353dc5ac6bd088c0c217396cc16f587cb53b8ee14bc"
+      },
+      {
+        "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab",
+        "stage": "SIGNAL_GATE",
+        "status": "NOT_REQUIRED",
+        "input_hash": "c973ad65f63da294852032d313ec7357a72611cf384db66c1dad409b3bac52be",
+        "output_hash": "2f8aabd978623d37538b0c1decda095675b18d05329e004e1d1effefbf20ac07",
+        "output": {
+          "reason": "NONFORECAST_OBJECTIVES: no signal/forecast consumed; supplied covariance only, no implicit gate bypass"
+        },
+        "stage_id": "stage_4345b23cd8101f7f69372b7540383c44fccc96cb7768663597bebb7354a65369"
+      },
+      {
+        "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab",
+        "stage": "ALLOCATOR",
+        "status": "VALID",
+        "input_hash": "cede01840a55bd220fecfd0b079a6fa3fdac2d1161152bd8793e2d6476c21b69",
+        "output_hash": "90b6f2d048e50259e46a7319db56556db5193859a0fb31b60074ee9a3d8dae17",
+        "output": {
+          "mode": "ASSETS",
+          "input": {
+            "schema_version": "assets-allocation-1.0.0",
+            "convention": "LONG_ONLY_FULLY_INVESTED",
+            "assets": [
+              "SPY",
+              "XLC",
+              "XLK",
+              "XLV"
+            ],
+            "as_of": "2021-04-01",
+            "information_cutoff": "2021-03-31",
+            "provenance": {
+              "data_hash": "cb66a7da0c42c00ae0800465ad4182abdee03d82ce7ff3a9e6cacaa89966a188",
+              "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+              "source_ids": [
+                "reports/cl02/adjusted-closes.csv",
+                "SPY"
+              ],
+              "data_available_at": "2021-03-31",
+              "model": {
+                "id": "sample-covariance-beta",
+                "version": "pit-asset-beta-covariance-1.0.0"
+              }
+            },
+            "risk_model": {
+              "as_of": "2021-03-31",
+              "information_cutoff": "2021-03-31",
+              "provenance": {
+                "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+                "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+                "source_ids": [
+                  "reports/cl02/adjusted-closes.csv",
+                  "SPY"
+                ],
+                "data_available_at": "2020-11-30",
+                "model": {
+                  "id": "sample-covariance-beta",
+                  "version": "pit-asset-beta-covariance-1.0.0"
+                }
+              },
+              "representation": "COVARIANCE",
+              "units": "daily_decimal_return_squared",
+              "axis_ids": [
+                "SPY",
+                "XLC",
+                "XLK",
+                "XLV"
+              ],
+              "covariance": [
+                [
+                  0.00044366271582626734,
+                  0.0004096105021764339,
+                  0.0005087336546600715,
+                  0.00037201673234925776
+                ],
+                [
+                  0.0004096105021764339,
+                  0.000435618349317599,
+                  0.0004941025479299716,
+                  0.0003309415721421846
+                ],
+                [
+                  0.0005087336546600715,
+                  0.0004941025479299716,
+                  0.0006410727545457341,
+                  0.000421751434484305
+                ],
+                [
+                  0.00037201673234925776,
+                  0.0003309415721421846,
+                  0.000421751434484305,
+                  0.00036809409246214126
+                ]
+              ]
+            },
+            "expected_returns": null,
+            "beta_estimates": {
+              "as_of": "2021-03-31",
+              "information_cutoff": "2021-03-31",
+              "provenance": {
+                "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+                "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+                "source_ids": [
+                  "reports/cl02/adjusted-closes.csv",
+                  "SPY"
+                ],
+                "data_available_at": "2020-11-30",
+                "model": {
+                  "id": "sample-covariance-beta",
+                  "version": "pit-asset-beta-covariance-1.0.0"
+                }
+              },
+              "values": {
+                "SPY": 1,
+                "XLC": 0.9232475201653684,
+                "XLK": 1.1466675844343097,
+                "XLV": 0.838512498523619
+              },
+              "beta_model": {
+                "benchmark": "SPY",
+                "estimation_window": {
+                  "start": "2019-12-02",
+                  "end": "2020-11-30",
+                  "observations": 252
+                },
+                "estimator": "OLS_COV_VARIANCE_SAMPLE_V1",
+                "as_of": "2021-03-31",
+                "information_cutoff": "2021-03-31",
+                "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356"
+              }
+            },
+            "previous_holdings": {
+              "as_of": "2021-03-31",
+              "information_cutoff": "2021-03-31",
+              "provenance": {
+                "data_hash": "cb66a7da0c42c00ae0800465ad4182abdee03d82ce7ff3a9e6cacaa89966a188",
+                "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+                "source_ids": [
+                  "reports/cl02/adjusted-closes.csv",
+                  "SPY"
+                ],
+                "data_available_at": "2021-03-31",
+                "model": {
+                  "id": "sample-covariance-beta",
+                  "version": "pit-asset-beta-covariance-1.0.0"
+                }
+              },
+              "units": "fraction_of_risk_capital",
+              "asset_weights": {
+                "SPY": 0.2528032476222383,
+                "XLC": 0.24774235787365587,
+                "XLK": 0.2463653111423692,
+                "XLV": 0.25308908336173647
+              }
+            },
+            "constraints": {
+              "asset_bounds": {},
+              "group_caps": [],
+              "max_active_names": null,
+              "turnover_cap": null
+            },
+            "objective": {
+              "type": "EQUAL_WEIGHT"
+            },
+            "solver": {
+              "feasibility_tolerance": 1e-10,
+              "stationarity_tolerance": 1e-9,
+              "psd_tolerance": 1e-12,
+              "symmetry_tolerance": 1e-12,
+              "erc_relative_tolerance": 1e-8,
+              "max_iterations": 10000,
+              "max_faces": 100000,
+              "max_supports": 4096
+            }
+          },
+          "result": {
+            "status": "VALID",
+            "errors": [],
+            "warnings": [],
+            "input_hash": "50a5aaf205e49d1f9bd85115950123b55553822272b986f722e116d1c91c6f73",
+            "result_id": "assets_00ebe6c292c3333f3087ab504b29dadc62fec823edca31a30daa5e2c45b801b4",
+            "objective": {
+              "type": "EQUAL_WEIGHT"
+            },
+            "objective_version": "1.0.0",
+            "weights": {
+              "SPY": 0.25,
+              "XLC": 0.25,
+              "XLK": 0.25,
+              "XLV": 0.25
+            },
+            "objective_value": 0,
+            "diagnostics": {
+              "variance": 0.0004351725499772619,
+              "annualized_volatility": 0.331154771359662,
+              "beta_sleeve": 0.9771069007808243,
+              "marginal_risk": {
+                "SPY": 0.00043350590125300765,
+                "XLC": 0.00041756824289154726,
+                "XLK": 0.0005164150979050206,
+                "XLV": 0.00037320095785947215
+              },
+              "risk_contributions": {
+                "SPY": 0.00010837647531325191,
+                "XLC": 0.00010439206072288681,
+                "XLK": 0.00012910377447625514,
+                "XLV": 0.00009330023946486804
+              },
+              "risk_contribution_fractions": {
+                "SPY": 0.2490425356997234,
+                "XLC": 0.23988659378524996,
+                "XLK": 0.29667260603409135,
+                "XLV": 0.2143982644809353
+              },
+              "gross_exposure": 1,
+              "net_exposure": 1,
+              "hhi": 0.25,
+              "effective_number_weights": 4,
+              "largest_weight": 0.25,
+              "top3_share": 0.75,
+              "turnover_gross_l1": 0.011784661967949722,
+              "active_bounds": [],
+              "covariance_effective_rank": 1.348230483151786,
+              "pca_effective_risk_bets": 1.0040270759681844,
+              "eigenvalues": [
+                0.0017661289772557195,
+                0.00007510645081645503,
+                0.00003204939708799864,
+                0.000015163086991568681
+              ],
+              "pca_risk_shares": [
+                0.9995736081757558,
+                0.00026844322537272465,
+                0.00015755511639934487,
+                3.934824721058716e-7
+              ]
+            },
+            "sleeve": {
+              "schema_version": "allocation-core-1.1.0",
+              "allocation_mode": "ASSETS",
+              "as_of": "2021-04-01",
+              "information_cutoff": "2021-03-31",
+              "provenance": {
+                "data_hash": "cb66a7da0c42c00ae0800465ad4182abdee03d82ce7ff3a9e6cacaa89966a188",
+                "configuration_hash": "2bd872d4304797fc7a182b591064c3d9c5c07fdb2b6d52bd6c70437cb1db3680",
+                "source_ids": [
+                  "reports/cl02/adjusted-closes.csv",
+                  "SPY"
+                ],
+                "data_available_at": "2021-03-31",
+                "model": {
+                  "id": "assets-allocation-1.0.0",
+                  "version": "1.0.0"
+                }
+              },
+              "input_snapshot_id": "snapshot_50a5aaf205e49d1f9bd85115950123b55553822272b986f722e116d1c91c6f73",
+              "status": "VALID",
+              "asset_weight_units": "fraction_of_risk_capital",
+              "asset_weights_risk_sleeve": {
+                "SPY": 0.25,
+                "XLC": 0.25,
+                "XLK": 0.25,
+                "XLV": 0.25
+              },
+              "gross_exposure": 1,
+              "net_exposure": 1,
+              "estimated_market_beta": 0.9771069007808243,
+              "estimated_volatility": 0.331154771359662,
+              "asset_market_betas": {
+                "SPY": 1,
+                "XLC": 0.9232475201653684,
+                "XLK": 1.1466675844343097,
+                "XLV": 0.838512498523619
+              },
+              "beta_model": {
+                "benchmark": "SPY",
+                "estimation_window": {
+                  "start": "2019-12-02",
+                  "end": "2020-11-30",
+                  "observations": 252
+                },
+                "estimator": "OLS_COV_VARIANCE_SAMPLE_V1",
+                "as_of": "2021-03-31",
+                "information_cutoff": "2021-03-31",
+                "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356"
+              },
+              "risk_model_provenance": {
+                "as_of": "2021-03-31",
+                "information_cutoff": "2021-03-31",
+                "provenance": {
+                  "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+                  "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+                  "source_ids": [
+                    "reports/cl02/adjusted-closes.csv",
+                    "SPY"
+                  ],
+                  "data_available_at": "2020-11-30",
+                  "model": {
+                    "id": "sample-covariance-beta",
+                    "version": "pit-asset-beta-covariance-1.0.0"
+                  }
+                }
+              },
+              "risk_measurement_status": "AVAILABLE",
+              "explicit_unallocated_risk_budget": 0,
+              "convention": {
+                "kind": "LONG_ONLY_FULLY_INVESTED",
+                "funding": "NET_ONE_WITH_GLOBAL_CASH",
+                "mandate": {
+                  "allow_short": false,
+                  "allow_leverage": false,
+                  "allow_external_financing": false,
+                  "max_gross_exposure": 1,
+                  "min_net_exposure": 1,
+                  "max_net_exposure": 1
+                }
+              },
+              "turnover_estimate": 0.011784661967949722,
+              "mode_specific_details": {
+                "allocation_mode": "ASSETS",
+                "asset_decision_weights": {
+                  "SPY": 0.25,
+                  "XLC": 0.25,
+                  "XLK": 0.25,
+                  "XLV": 0.25
+                }
+              },
+              "warnings": [],
+              "errors": [],
+              "allocation_id": "allocation_9b71a31a687108aae850349b4d40f8e08175b16ac6c7d22f3644ad1a3320a1a0"
+            },
+            "solver": {
+              "method": "EXPLICIT_EQUAL_WEIGHT_V1",
+              "iterations": 0,
+              "faces_examined": 0,
+              "supports_examined": 1,
+              "stationarity_residual": null,
+              "convergence_tolerance": 1e-9,
+              "constraint_tolerance": 1e-10,
+              "converged": true
+            }
+          }
+        },
+        "stage_id": "stage_9b152f9f034cfa0ed27bb800e7008293fa5d58594ab92b0143f141fcafe0543c"
+      },
+      {
+        "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab",
+        "stage": "SLEEVE_RISK",
+        "status": "VALID",
+        "input_hash": "85cf47c2b04f90abfb9e03ae1a00bfdf13c03b63e78ccc580d682c40f81b2dc6",
+        "output_hash": "5ac12ff2409ce806396097917ad1c373bf0bd837fedc431126af744c4d90873c",
+        "output": {
+          "sleeve": {
+            "schema_version": "allocation-core-1.1.0",
+            "allocation_mode": "ASSETS",
+            "as_of": "2021-04-01",
+            "information_cutoff": "2021-03-31",
+            "provenance": {
+              "data_hash": "cb66a7da0c42c00ae0800465ad4182abdee03d82ce7ff3a9e6cacaa89966a188",
+              "configuration_hash": "2bd872d4304797fc7a182b591064c3d9c5c07fdb2b6d52bd6c70437cb1db3680",
+              "source_ids": [
+                "reports/cl02/adjusted-closes.csv",
+                "SPY"
+              ],
+              "data_available_at": "2021-03-31",
+              "model": {
+                "id": "assets-allocation-1.0.0",
+                "version": "1.0.0"
+              }
+            },
+            "input_snapshot_id": "snapshot_50a5aaf205e49d1f9bd85115950123b55553822272b986f722e116d1c91c6f73",
+            "status": "VALID",
+            "asset_weight_units": "fraction_of_risk_capital",
+            "asset_weights_risk_sleeve": {
+              "SPY": 0.25,
+              "XLC": 0.25,
+              "XLK": 0.25,
+              "XLV": 0.25
+            },
+            "gross_exposure": 1,
+            "net_exposure": 1,
+            "estimated_market_beta": 0.9771069007808243,
+            "estimated_volatility": 0.331154771359662,
+            "asset_market_betas": {
+              "SPY": 1,
+              "XLC": 0.9232475201653684,
+              "XLK": 1.1466675844343097,
+              "XLV": 0.838512498523619
+            },
+            "beta_model": {
+              "benchmark": "SPY",
+              "estimation_window": {
+                "start": "2019-12-02",
+                "end": "2020-11-30",
+                "observations": 252
+              },
+              "estimator": "OLS_COV_VARIANCE_SAMPLE_V1",
+              "as_of": "2021-03-31",
+              "information_cutoff": "2021-03-31",
+              "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356"
+            },
+            "risk_model_provenance": {
+              "as_of": "2021-03-31",
+              "information_cutoff": "2021-03-31",
+              "provenance": {
+                "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+                "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+                "source_ids": [
+                  "reports/cl02/adjusted-closes.csv",
+                  "SPY"
+                ],
+                "data_available_at": "2020-11-30",
+                "model": {
+                  "id": "sample-covariance-beta",
+                  "version": "pit-asset-beta-covariance-1.0.0"
+                }
+              }
+            },
+            "risk_measurement_status": "AVAILABLE",
+            "explicit_unallocated_risk_budget": 0,
+            "convention": {
+              "kind": "LONG_ONLY_FULLY_INVESTED",
+              "funding": "NET_ONE_WITH_GLOBAL_CASH",
+              "mandate": {
+                "allow_short": false,
+                "allow_leverage": false,
+                "allow_external_financing": false,
+                "max_gross_exposure": 1,
+                "min_net_exposure": 1,
+                "max_net_exposure": 1
+              }
+            },
+            "turnover_estimate": 0.011784661967949722,
+            "mode_specific_details": {
+              "allocation_mode": "ASSETS",
+              "asset_decision_weights": {
+                "SPY": 0.25,
+                "XLC": 0.25,
+                "XLK": 0.25,
+                "XLV": 0.25
+              }
+            },
+            "warnings": [],
+            "errors": [],
+            "allocation_id": "allocation_9b71a31a687108aae850349b4d40f8e08175b16ac6c7d22f3644ad1a3320a1a0"
+          },
+          "errors": []
+        },
+        "stage_id": "stage_5b42cc9254b2999edb64f4670bc2a3ffd366e9078d645924ac9ee385bdc252b0"
+      },
+      {
+        "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab",
+        "stage": "ROBUSTNESS_GATE",
+        "status": "PASS",
+        "input_hash": "7e33aa14a6a08046e431ee2b1572455463e08878ffc36bb38af0f674cd648d06",
+        "output_hash": "4e614c51f90959475f654ec8a94d6168ba4d11564018ac77fc14791802506e6b",
+        "output": {
+          "schema_version": "allocation-gates-1.0.3",
+          "gate_type": "PORTFOLIO_ROBUSTNESS",
+          "gate_id": "gate_378bae23ad82574acc6c5d64379ed8ba27cb3d411e6ca9039ee0e53b1a0d9e0b",
+          "policy_id": "AL06_QA_PORTFOLIO_ROBUSTNESS",
+          "policy_version": "1.0.0",
+          "as_of": "2021-04-01",
+          "information_cutoff": "2021-03-31",
+          "status": "PASS",
+          "eligible_for_allocation": false,
+          "eligible_for_promotion": true,
+          "components": [
+            {
+              "check": "CERTIFIED_NATIVE_INPUT",
+              "category": "HARD",
+              "status": "PASS",
+              "value": [],
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "ALLOCATION_STATUS_VALID",
+              "category": "HARD",
+              "status": "PASS",
+              "value": "VALID",
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": "Computed allocator status must be VALID"
+            },
+            {
+              "check": "PIT",
+              "category": "HARD",
+              "status": "PASS",
+              "value": true,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "FINITE_WEIGHTS_EXPOSURES",
+              "category": "HARD",
+              "status": "PASS",
+              "value": true,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "IDS_UNIQUE",
+              "category": "HARD",
+              "status": "PASS",
+              "value": true,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "CANONICAL_HASHES",
+              "category": "HARD",
+              "status": "PASS",
+              "value": true,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": "Source payload/canonical allocator identity must reconcile"
+            },
+            {
+              "check": "CAPITAL_CONVENTION",
+              "category": "HARD",
+              "status": "PASS",
+              "value": true,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": "Long-only asset/factor q or nonnegative fully allocated strategy a; signed H is separate"
+            },
+            {
+              "check": "DECISION_AXIS_COMPLETE",
+              "category": "HARD",
+              "status": "PASS",
+              "value": true,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "CONSTRAINT_RECONCILIATION",
+              "category": "HARD",
+              "status": "PASS",
+              "value": {
+                "SPY:min": 0.25,
+                "SPY:max": 0.75,
+                "XLC:min": 0.25,
+                "XLC:max": 0.75,
+                "XLK:min": 0.25,
+                "XLK:max": 0.75,
+                "XLV:min": 0.25,
+                "XLV:max": 0.75
+              },
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "SOLVER_CONVERGENCE",
+              "category": "HARD",
+              "status": "PASS",
+              "value": true,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": "Convergence/KKT tolerance is supplied by the certified objective"
+            },
+            {
+              "check": "MAPPING_RESIDUAL",
+              "category": "HARD",
+              "status": "PASS",
+              "value": null,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "NO_HIDDEN_FALLBACK",
+              "category": "HARD",
+              "status": "PASS",
+              "value": true,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "RISK_ARTIFACT_AVAILABLE",
+              "category": "HARD",
+              "status": "PASS",
+              "value": true,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": "Required current-position covariance artifact unavailable"
+            },
+            {
+              "check": "BETA_RISK_RECONCILIATION",
+              "category": "HARD",
+              "status": "PASS",
+              "value": {
+                "reported_position_beta": 0.9771069007808243,
+                "derived_asset_dot_beta": 0.9771069007808243,
+                "reported_return_beta": null,
+                "derived_strategy_dot_beta": null
+              },
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": "Position beta and strategy-return beta reconcile independently, never substituted"
+            },
+            {
+              "check": "RISK_RECONCILIATION",
+              "category": "HARD",
+              "status": "PASS",
+              "value": {
+                "reported_vol": 0.331154771359662,
+                "recalculated_vol": 0.331154771359662
+              },
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "CONTROLLER_COMPATIBILITY",
+              "category": "HARD",
+              "status": "PASS",
+              "value": true,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": "Signed/non-net-one/external financing cannot enter long-only controller"
+            },
+            {
+              "check": "CONTROLLER_PROJECTION_BASIS",
+              "category": "HARD",
+              "status": "PASS",
+              "value": {
+                "weights_match": true,
+                "risk_match": true,
+                "snapshot_linked": true
+              },
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": "Controller projection must be the SAME unscaled allocation and current risk; no alternative sleeve"
+            },
+            {
+              "check": "TARGET_RISK_FEASIBILITY",
+              "category": "HARD",
+              "status": "PASS",
+              "value": "VALID",
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": ""
+            },
+            {
+              "check": "NO_UNAUTHORIZED_CLIPPING",
+              "category": "HARD",
+              "status": "PASS",
+              "value": {
+                "beta_sleeve": 0.9771069007808243,
+                "vol_sleeve": 0.331154771359662,
+                "requested_metric": "MARKET_BETA",
+                "requested_target": 0.3,
+                "requested_multiplier": 0.30702884173703454,
+                "feasible_multiplier_interval": {
+                  "lower": 0,
+                  "upper": 1
+                },
+                "achieved_multiplier": 0.30702884173703454,
+                "expected_final_beta": 0.3,
+                "expected_final_vol": 0.10167406588624951,
+                "implied_implementation_cash": 0.6929711582629654,
+                "target_clipped": false,
+                "reported_target_clipped": null,
+                "unauthorized_clipping": false,
+                "report_consistent": true,
+                "status": "VALID",
+                "constraint_failures": [],
+                "controller": "LONG_ONLY_NO_LEVERAGE_V1",
+                "allocation_and_mandate_unchanged": true
+              },
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": "Keep requested/achieved risk; no unauthorized clipping or false controller report"
+            },
+            {
+              "check": "largest_weight",
+              "category": "POLICY",
+              "status": "PASS",
+              "value": 0.25,
+              "threshold": {
+                "operator": "MAX",
+                "value": 1,
+                "units": "NORMALIZED_EXPOSURE_FRACTION"
+              },
+              "observations": 4,
+              "methodology": "LONG_ONLY_NET_ONE_CAPITAL_WEIGHTS",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "top3_share",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 0.75,
+              "threshold": null,
+              "observations": 4,
+              "methodology": "LONG_ONLY_NET_ONE_CAPITAL_WEIGHTS",
+              "details": {
+                "diagnostic_only": true,
+                "details": null
+              },
+              "reason": null
+            },
+            {
+              "check": "hhi",
+              "category": "POLICY",
+              "status": "PASS",
+              "value": 0.25,
+              "threshold": {
+                "operator": "MAX",
+                "value": 1,
+                "units": "DIMENSIONLESS"
+              },
+              "observations": 4,
+              "methodology": "LONG_ONLY_NET_ONE_CAPITAL_WEIGHTS",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "effective_weights",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 4,
+              "threshold": null,
+              "observations": 4,
+              "methodology": "LONG_ONLY_NET_ONE_CAPITAL_WEIGHTS",
+              "details": {
+                "diagnostic_only": true,
+                "details": null
+              },
+              "reason": null
+            },
+            {
+              "check": "covariance_rank",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 1.348230483151786,
+              "threshold": null,
+              "observations": 4,
+              "methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "basis": "CURRENT_ASSET_COVARIANCE",
+                  "diagnostics": {
+                    "eigenvalues": [
+                      0.0017661289772557195,
+                      0.00007510645081645503,
+                      0.00003204939708799864,
+                      0.000015163086991568681
+                    ],
+                    "covariance_rank": 1.348230483151786,
+                    "pc1_share": 0.9352277952127103,
+                    "pca_bets": 1.0040270759681844,
+                    "smallest_eigenvalue": 0.000015163086991568681,
+                    "condition_number": 116.47555529014389,
+                    "condition_status": "FINITE",
+                    "variance": 0.0004351725499772619,
+                    "annualized_volatility": 0.331154771359662,
+                    "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+                    "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+                  }
+                }
+              },
+              "reason": null
+            },
+            {
+              "check": "pc1_share",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 0.9352277952127103,
+              "threshold": null,
+              "observations": 4,
+              "methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "basis": "CURRENT_ASSET_COVARIANCE",
+                  "diagnostics": {
+                    "eigenvalues": [
+                      0.0017661289772557195,
+                      0.00007510645081645503,
+                      0.00003204939708799864,
+                      0.000015163086991568681
+                    ],
+                    "covariance_rank": 1.348230483151786,
+                    "pc1_share": 0.9352277952127103,
+                    "pca_bets": 1.0040270759681844,
+                    "smallest_eigenvalue": 0.000015163086991568681,
+                    "condition_number": 116.47555529014389,
+                    "condition_status": "FINITE",
+                    "variance": 0.0004351725499772619,
+                    "annualized_volatility": 0.331154771359662,
+                    "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+                    "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+                  }
+                }
+              },
+              "reason": null
+            },
+            {
+              "check": "pca_bets",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 1.0040270759681844,
+              "threshold": null,
+              "observations": 4,
+              "methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "basis": "CURRENT_ASSET_COVARIANCE",
+                  "diagnostics": {
+                    "eigenvalues": [
+                      0.0017661289772557195,
+                      0.00007510645081645503,
+                      0.00003204939708799864,
+                      0.000015163086991568681
+                    ],
+                    "covariance_rank": 1.348230483151786,
+                    "pc1_share": 0.9352277952127103,
+                    "pca_bets": 1.0040270759681844,
+                    "smallest_eigenvalue": 0.000015163086991568681,
+                    "condition_number": 116.47555529014389,
+                    "condition_status": "FINITE",
+                    "variance": 0.0004351725499772619,
+                    "annualized_volatility": 0.331154771359662,
+                    "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+                    "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+                  }
+                }
+              },
+              "reason": null
+            },
+            {
+              "check": "condition_number",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 116.47555529014389,
+              "threshold": null,
+              "observations": 4,
+              "methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "basis": "CURRENT_ASSET_COVARIANCE",
+                  "diagnostics": {
+                    "eigenvalues": [
+                      0.0017661289772557195,
+                      0.00007510645081645503,
+                      0.00003204939708799864,
+                      0.000015163086991568681
+                    ],
+                    "covariance_rank": 1.348230483151786,
+                    "pc1_share": 0.9352277952127103,
+                    "pca_bets": 1.0040270759681844,
+                    "smallest_eigenvalue": 0.000015163086991568681,
+                    "condition_number": 116.47555529014389,
+                    "condition_status": "FINITE",
+                    "variance": 0.0004351725499772619,
+                    "annualized_volatility": 0.331154771359662,
+                    "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+                    "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+                  }
+                }
+              },
+              "reason": null
+            },
+            {
+              "check": "smallest_eigenvalue",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 0.000015163086991568681,
+              "threshold": null,
+              "observations": 4,
+              "methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "basis": "CURRENT_ASSET_COVARIANCE",
+                  "diagnostics": {
+                    "eigenvalues": [
+                      0.0017661289772557195,
+                      0.00007510645081645503,
+                      0.00003204939708799864,
+                      0.000015163086991568681
+                    ],
+                    "covariance_rank": 1.348230483151786,
+                    "pc1_share": 0.9352277952127103,
+                    "pca_bets": 1.0040270759681844,
+                    "smallest_eigenvalue": 0.000015163086991568681,
+                    "condition_number": 116.47555529014389,
+                    "condition_status": "FINITE",
+                    "variance": 0.0004351725499772619,
+                    "annualized_volatility": 0.331154771359662,
+                    "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+                    "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+                  }
+                }
+              },
+              "reason": null
+            },
+            {
+              "check": "solver_iterations",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 0,
+              "threshold": null,
+              "observations": null,
+              "methodology": "CERTIFIED_SOLVER_REPORTED_NOT_RECOMPUTED",
+              "details": {
+                "diagnostic_only": true,
+                "details": null
+              },
+              "reason": null
+            },
+            {
+              "check": "kkt_residual",
+              "category": "WARNING",
+              "status": "INSUFFICIENT_DATA",
+              "value": null,
+              "threshold": null,
+              "observations": null,
+              "methodology": "CERTIFIED_SOLVER_REPORTED",
+              "details": {
+                "diagnostic_only": true,
+                "details": null
+              },
+              "reason": "Required diagnostic unavailable"
+            },
+            {
+              "check": "active_constraint_count",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 0,
+              "threshold": null,
+              "observations": null,
+              "methodology": "UNSCALED_MATERIAL_CONSTRAINT_SLACKS",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "SPY:min": 0.25,
+                  "SPY:max": 0.75,
+                  "XLC:min": 0.25,
+                  "XLC:max": 0.75,
+                  "XLK:min": 0.25,
+                  "XLK:max": 0.75,
+                  "XLV:min": 0.25,
+                  "XLV:max": 0.75
+                }
+              },
+              "reason": null
+            },
+            {
+              "check": "min_constraint_slack",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 0.25,
+              "threshold": null,
+              "observations": null,
+              "methodology": "UNSCALED_CONSTRAINT_SLACKS",
+              "details": {
+                "diagnostic_only": true,
+                "details": null
+              },
+              "reason": null
+            },
+            {
+              "check": "SENSITIVITY_BASE_AND_HASH",
+              "category": "HARD",
+              "status": "PASS",
+              "value": "ced634bb845eaab260386748559eafa29a07d1028c102c454cbb836b382fa920",
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": null
+            },
+            {
+              "check": "REQUIRED_SENSITIVITY_FAMILIES",
+              "category": "HARD",
+              "status": "PASS",
+              "value": [],
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": "Missing certified sensitivity; gate generates no perturbations"
+            },
+            {
+              "check": "REQUIRED_SENSITIVITY_OUTCOMES",
+              "category": "POLICY",
+              "status": "PASS",
+              "value": [],
+              "threshold": null,
+              "observations": 2,
+              "methodology": "DECLARED_REQUIRED_STRESS_FAMILIES",
+              "details": [
+                "COVARIANCE"
+              ],
+              "reason": "Required perturbation outcomes must be available; failure cannot be averaged away"
+            },
+            {
+              "check": "allocation_l1",
+              "category": "POLICY",
+              "status": "PASS",
+              "value": 0,
+              "threshold": {
+                "operator": "MAX",
+                "value": 2,
+                "units": "GROSS_L1_RISK_CAPITAL_FRACTION"
+              },
+              "observations": 2,
+              "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+              "details": {
+                "required_families": [
+                  "COVARIANCE"
+                ],
+                "missing": [],
+                "failed_outcomes": [],
+                "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+                "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+                "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+              },
+              "reason": null
+            },
+            {
+              "check": "single_weight_change",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 0,
+              "threshold": null,
+              "observations": 2,
+              "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "required_families": [
+                    "COVARIANCE"
+                  ],
+                  "missing": [],
+                  "failed_outcomes": [],
+                  "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+                  "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+                  "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+                }
+              },
+              "reason": null
+            },
+            {
+              "check": "beta_change",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 0,
+              "threshold": null,
+              "observations": 2,
+              "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "required_families": [
+                    "COVARIANCE"
+                  ],
+                  "missing": [],
+                  "failed_outcomes": [],
+                  "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+                  "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+                  "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+                }
+              },
+              "reason": null
+            },
+            {
+              "check": "return_beta_change",
+              "category": "WARNING",
+              "status": "INSUFFICIENT_DATA",
+              "value": null,
+              "threshold": null,
+              "observations": 2,
+              "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "required_families": [
+                    "COVARIANCE"
+                  ],
+                  "missing": [],
+                  "failed_outcomes": [],
+                  "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+                  "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+                  "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+                }
+              },
+              "reason": "Sensitivity metric unavailable"
+            },
+            {
+              "check": "vol_change",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 0.006089453007525281,
+              "threshold": null,
+              "observations": 2,
+              "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "required_families": [
+                    "COVARIANCE"
+                  ],
+                  "missing": [],
+                  "failed_outcomes": [],
+                  "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+                  "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+                  "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+                }
+              },
+              "reason": null
+            },
+            {
+              "check": "factor_residual_change",
+              "category": "WARNING",
+              "status": "INSUFFICIENT_DATA",
+              "value": null,
+              "threshold": null,
+              "observations": 2,
+              "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "required_families": [
+                    "COVARIANCE"
+                  ],
+                  "missing": [],
+                  "failed_outcomes": [],
+                  "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+                  "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+                  "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+                }
+              },
+              "reason": "Sensitivity metric unavailable"
+            },
+            {
+              "check": "position_exposure_change",
+              "category": "WARNING",
+              "status": "INSUFFICIENT_DATA",
+              "value": null,
+              "threshold": null,
+              "observations": 2,
+              "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "required_families": [
+                    "COVARIANCE"
+                  ],
+                  "missing": [],
+                  "failed_outcomes": [],
+                  "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+                  "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+                  "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+                }
+              },
+              "reason": "Sensitivity metric unavailable"
+            },
+            {
+              "check": "objective_degradation",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 0,
+              "threshold": null,
+              "observations": 2,
+              "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+              "details": {
+                "diagnostic_only": true,
+                "details": {
+                  "required_families": [
+                    "COVARIANCE"
+                  ],
+                  "missing": [],
+                  "failed_outcomes": [],
+                  "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+                  "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+                  "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+                }
+              },
+              "reason": null
+            },
+            {
+              "check": "sleeve_turnover",
+              "category": "WARNING",
+              "status": "PASS",
+              "value": 0.011784661967949722,
+              "threshold": null,
+              "observations": null,
+              "methodology": "SEPARATE_GROSS_L1_TURNOVER_NOT_EXECUTED_NAV_TRADES",
+              "details": {
+                "diagnostic_only": true,
+                "details": null
+              },
+              "reason": null
+            },
+            {
+              "check": "strategy_turnover",
+              "category": "WARNING",
+              "status": "INSUFFICIENT_DATA",
+              "value": null,
+              "threshold": null,
+              "observations": null,
+              "methodology": "SEPARATE_GROSS_L1_TURNOVER_NOT_EXECUTED_NAV_TRADES",
+              "details": {
+                "diagnostic_only": true,
+                "details": null
+              },
+              "reason": "Required diagnostic unavailable"
+            },
+            {
+              "check": "instrument_turnover",
+              "category": "WARNING",
+              "status": "INSUFFICIENT_DATA",
+              "value": null,
+              "threshold": null,
+              "observations": null,
+              "methodology": "SEPARATE_GROSS_L1_TURNOVER_NOT_EXECUTED_NAV_TRADES",
+              "details": {
+                "diagnostic_only": true,
+                "details": null
+              },
+              "reason": "Required diagnostic unavailable"
+            },
+            {
+              "check": "incremental_cost",
+              "category": "WARNING",
+              "status": "INSUFFICIENT_DATA",
+              "value": null,
+              "threshold": null,
+              "observations": null,
+              "methodology": "DECLARED_EXTERNAL_INCREMENTAL_COST_ONLY",
+              "details": {
+                "diagnostic_only": true,
+                "details": null
+              },
+              "reason": "Incremental cost basis not supplied"
+            },
+            {
+              "check": "OBSERVER_PURITY",
+              "category": "HARD",
+              "status": "PASS",
+              "value": true,
+              "threshold": null,
+              "observations": null,
+              "methodology": "allocation-gates-1.0.3",
+              "details": null,
+              "reason": null
+            }
+          ],
+          "hard_failures": [],
+          "policy_failures": [],
+          "warnings": [],
+          "errors": [],
+          "diagnostics": {
+            "mode": "ASSETS",
+            "asset_concentration": {
+              "basis": "LONG_ONLY_NET_ONE_CAPITAL_WEIGHTS",
+              "nominal_assets": 4,
+              "largest_weight": 0.25,
+              "top3_share": 0.75,
+              "hhi": 0.25,
+              "effective_weights": 4,
+              "gross": 1,
+              "net": 1
+            },
+            "asset_risk_breadth": {
+              "eigenvalues": [
+                0.0017661289772557195,
+                0.00007510645081645503,
+                0.00003204939708799864,
+                0.000015163086991568681
+              ],
+              "covariance_rank": 1.348230483151786,
+              "pc1_share": 0.9352277952127103,
+              "pca_bets": 1.0040270759681844,
+              "smallest_eigenvalue": 0.000015163086991568681,
+              "condition_number": 116.47555529014389,
+              "condition_status": "FINITE",
+              "variance": 0.0004351725499772619,
+              "annualized_volatility": 0.331154771359662,
+              "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+              "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+            },
+            "strategy_risk_breadth": null,
+            "solver": {
+              "converged": true,
+              "iterations": 0,
+              "residual": null,
+              "tolerance": 1e-9,
+              "constraints": {
+                "SPY:min": 0.25,
+                "SPY:max": 0.75,
+                "XLC:min": 0.25,
+                "XLC:max": 0.75,
+                "XLK:min": 0.25,
+                "XLK:max": 0.75,
+                "XLV:min": 0.25,
+                "XLV:max": 0.75
+              },
+              "active_constraint_count": 0
+            },
+            "sensitivities": {
+              "rows": [
+                {
+                  "scenario": "covariance-diagonal-shrink-0.01",
+                  "family": "COVARIANCE",
+                  "status": "VALID",
+                  "allocation_l1": 0,
+                  "max_weight_change": 0,
+                  "beta_change": 0,
+                  "vol_change": -0.0012088995647701606,
+                  "residual_change": null,
+                  "exposure_l1": null,
+                  "objective_degradation": 0,
+                  "return_beta_change": null
+                },
+                {
+                  "scenario": "covariance-diagonal-shrink-0.05",
+                  "family": "COVARIANCE",
+                  "status": "VALID",
+                  "allocation_l1": 0,
+                  "max_weight_change": 0,
+                  "beta_change": 0,
+                  "vol_change": -0.006089453007525281,
+                  "residual_change": null,
+                  "exposure_l1": null,
+                  "objective_degradation": 0,
+                  "return_beta_change": null
+                }
+              ],
+              "required_families": [
+                "COVARIANCE"
+              ],
+              "missing_families": []
+            },
+            "turnover": {
+              "sleeve": 0.011784661967949722,
+              "strategy": null,
+              "instrument": null
+            },
+            "costs": {
+              "incremental": null,
+              "embedded": "NOT_A_STRATEGY_HISTORY"
+            },
+            "risk_mandate_compatibility": {
+              "beta_sleeve": 0.9771069007808243,
+              "vol_sleeve": 0.331154771359662,
+              "requested_metric": "MARKET_BETA",
+              "requested_target": 0.3,
+              "requested_multiplier": 0.30702884173703454,
+              "feasible_multiplier_interval": {
+                "lower": 0,
+                "upper": 1
+              },
+              "achieved_multiplier": 0.30702884173703454,
+              "expected_final_beta": 0.3,
+              "expected_final_vol": 0.10167406588624951,
+              "implied_implementation_cash": 0.6929711582629654,
+              "target_clipped": false,
+              "reported_target_clipped": null,
+              "unauthorized_clipping": false,
+              "report_consistent": true,
+              "status": "VALID",
+              "constraint_failures": [],
+              "controller": "LONG_ONLY_NO_LEVERAGE_V1",
+              "allocation_and_mandate_unchanged": true
+            },
+            "mode_specific": {
+              "objective": {
+                "type": "EQUAL_WEIGHT"
+              },
+              "risk_artifact": {
+                "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+                "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+                "source_ids": [
+                  "reports/cl02/adjusted-closes.csv",
+                  "SPY"
+                ],
+                "data_available_at": "2020-11-30",
+                "model": {
+                  "id": "sample-covariance-beta",
+                  "version": "pit-asset-beta-covariance-1.0.0"
+                }
+              }
+            },
+            "mapping": null,
+            "correlation": null
+          },
+          "semantic_input_hash": "f89b14fd11476f6cff6f10e0d1a2472bbd55c3c0d4f0cc5cb0aafc4a6f7fa0f8",
+          "policy_hash": "338577e9ab58db38cbe8fb6bdf01fd61f3e0dafb1f6a2dc53adecd9fcf905d76",
+          "source_hashes": {
+            "source_payload": "90b6f2d048e50259e46a7319db56556db5193859a0fb31b60074ee9a3d8dae17",
+            "allocation_result_id": "assets_00ebe6c292c3333f3087ab504b29dadc62fec823edca31a30daa5e2c45b801b4",
+            "controller_snapshot": "snapshot_50a5aaf205e49d1f9bd85115950123b55553822272b986f722e116d1c91c6f73"
+          },
+          "no_routing_or_execution": true
+        },
+        "stage_id": "stage_0be9e557a0649b546109a63333806c46f38838c0b888029a634d411caf33dc21"
+      },
+      {
+        "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab",
+        "stage": "EXPOSURE_CONTROLLER",
+        "status": "VALID",
+        "input_hash": "dd7e9f5861d561ac9324c3d5ddada6c66a574c58a0802797e9ddefb08a185e7a",
+        "output_hash": "cad91436ab16e36936ade5297ec91ac544113cdafce567a141632ef9af4c7ca9",
+        "output": {
+          "status": "VALID",
+          "portfolio": {
+            "schema_version": "allocation-risk-1.1.0",
+            "controller": "LONG_ONLY_NO_LEVERAGE_V1",
+            "status": "VALID",
+            "semantics": "SYSTEMATIC_RISK",
+            "mandate_hash": "6760f4a333c8e5db6a608eb26d4ce80ec1a6a7ac44b0726580883d66a1331c8e",
+            "allocation_id": "allocation_9b71a31a687108aae850349b4d40f8e08175b16ac6c7d22f3644ad1a3320a1a0",
+            "requested_target": {
+              "metric": "MARKET_BETA",
+              "target": 0.3,
+              "lower_bound": null,
+              "upper_bound": null
+            },
+            "exposure_multiplier": 0.30702884173703454,
+            "total_asset_weights": {
+              "SPY": 0.07675721043425864,
+              "XLC": 0.07675721043425864,
+              "XLK": 0.07675721043425864,
+              "XLV": 0.07675721043425864
+            },
+            "implied_cash_weight": 0.6929711582629654,
+            "expected_final_beta": 0.3,
+            "expected_final_volatility": 0.10167406588624951,
+            "beta_sleeve": 0.9771069007808243,
+            "volatility_sleeve": 0.331154771359662,
+            "beta_model": {
+              "benchmark": "SPY",
+              "estimation_window": {
+                "start": "2019-12-02",
+                "end": "2020-11-30",
+                "observations": 252
+              },
+              "estimator": "OLS_COV_VARIANCE_SAMPLE_V1",
+              "as_of": "2021-03-31",
+              "information_cutoff": "2021-03-31",
+              "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356"
+            },
+            "risk_model_provenance": {
+              "as_of": "2021-03-31",
+              "information_cutoff": "2021-03-31",
+              "provenance": {
+                "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+                "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+                "source_ids": [
+                  "reports/cl02/adjusted-closes.csv",
+                  "SPY"
+                ],
+                "data_available_at": "2020-11-30",
+                "model": {
+                  "id": "sample-covariance-beta",
+                  "version": "pit-asset-beta-covariance-1.0.0"
+                }
+              }
+            },
+            "gross_exposure": 0.30702884173703454,
+            "net_exposure": 0.30702884173703454,
+            "explicit_unallocated_risk_budget": 0,
+            "target_clipped": false,
+            "constraint_failures": [],
+            "warnings": [],
+            "as_of": "2021-04-01",
+            "information_cutoff": "2021-03-31",
+            "provenance": {
+              "data_hash": "4ccd08bce86dcc5318405ccebd653bcd5fa914cf5f99f69ce9ad07b74e118d27",
+              "configuration_hash": "5b7714dc17b69a0e01c3942eda8926ac8dab640a583d5424fb1a17c66ac9ac82",
+              "source_ids": [
+                "SPY",
+                "reports/cl02/adjusted-closes.csv"
+              ],
+              "data_available_at": "2021-03-31",
+              "model": {
+                "id": "ExposureController",
+                "version": "LONG_ONLY_NO_LEVERAGE_V1"
+              }
+            },
+            "composition_id": "composition_5e0e9540132da01dcbe6ea287a92a34b0c0e87788461faa60d1a884879a1f490"
+          },
+          "errors": []
+        },
+        "stage_id": "stage_1f5580ffd6570e1144894064c466437404643349d7ada285bcc79e2deee42aad"
+      },
+      {
+        "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab",
+        "stage": "FINAL_TARGET",
+        "status": "VALID",
+        "input_hash": "498774ca1b3832d723e8aa7310c5fac6d4c31450c4a3545e7d6ae225f52c3947",
+        "output_hash": "9dd6db7f8d8c3b3322e336f21a0a62594244e36990c79717f23ad8a328a90891",
+        "output": {
+          "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab",
+          "risk_mandate_hash": "6760f4a333c8e5db6a608eb26d4ce80ec1a6a7ac44b0726580883d66a1331c8e",
+          "allocation_id": "allocation_9b71a31a687108aae850349b4d40f8e08175b16ac6c7d22f3644ad1a3320a1a0",
+          "robustness_gate_id": "gate_378bae23ad82574acc6c5d64379ed8ba27cb3d411e6ca9039ee0e53b1a0d9e0b",
+          "composition_id": "composition_5e0e9540132da01dcbe6ea287a92a34b0c0e87788461faa60d1a884879a1f490",
+          "final_asset_weights": {
+            "SPY": 0.07675721043425864,
+            "XLC": 0.07675721043425864,
+            "XLK": 0.07675721043425864,
+            "XLV": 0.07675721043425864
+          },
+          "implementation_cash": 0.6929711582629654,
+          "expected_final_beta": 0.3,
+          "expected_final_volatility": 0.10167406588624951,
+          "gross_exposure": 0.30702884173703454,
+          "net_exposure": 0.30702884173703454,
+          "execution": {
+            "date": "2021-04-05",
+            "convention": "next_close",
+            "rebalance_frequency": "monthly"
+          },
+          "status": "VALID",
+          "provenance": {
+            "information_prices_hash": "d809672ee0e548865ecc3834c3d678f0a565a21758a0c42b5d2523c0054134ae",
+            "source_ids": [
+              "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/selections/1.json"
+            ],
+            "bundle_hash": "14f9945f5379edfc58f2fe2faca007917ebfb6d9f60f43922899656f8b39f09b",
+            "code_version": "canonical-research-pipeline-1.0.2"
+          },
+          "target_id": "target_926a979c6bde2e0fe5c4760bc86250e13b4663e2bb6a77d42c94ec19476da662"
+        },
+        "stage_id": "stage_f1657b92b49e421512e520620cb5dfeb017a0a3ed9673a2292554191ceabe437"
+      }
+    ],
+    "allocation": {
+      "mode": "ASSETS",
+      "input": {
+        "schema_version": "assets-allocation-1.0.0",
+        "convention": "LONG_ONLY_FULLY_INVESTED",
+        "assets": [
+          "SPY",
+          "XLC",
+          "XLK",
+          "XLV"
+        ],
+        "as_of": "2021-04-01",
+        "information_cutoff": "2021-03-31",
+        "provenance": {
+          "data_hash": "cb66a7da0c42c00ae0800465ad4182abdee03d82ce7ff3a9e6cacaa89966a188",
+          "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+          "source_ids": [
+            "reports/cl02/adjusted-closes.csv",
+            "SPY"
+          ],
+          "data_available_at": "2021-03-31",
+          "model": {
+            "id": "sample-covariance-beta",
+            "version": "pit-asset-beta-covariance-1.0.0"
+          }
+        },
+        "risk_model": {
+          "as_of": "2021-03-31",
+          "information_cutoff": "2021-03-31",
+          "provenance": {
+            "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+            "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+            "source_ids": [
+              "reports/cl02/adjusted-closes.csv",
+              "SPY"
+            ],
+            "data_available_at": "2020-11-30",
+            "model": {
+              "id": "sample-covariance-beta",
+              "version": "pit-asset-beta-covariance-1.0.0"
+            }
+          },
+          "representation": "COVARIANCE",
+          "units": "daily_decimal_return_squared",
+          "axis_ids": [
+            "SPY",
+            "XLC",
+            "XLK",
+            "XLV"
+          ],
+          "covariance": [
+            [
+              0.00044366271582626734,
+              0.0004096105021764339,
+              0.0005087336546600715,
+              0.00037201673234925776
+            ],
+            [
+              0.0004096105021764339,
+              0.000435618349317599,
+              0.0004941025479299716,
+              0.0003309415721421846
+            ],
+            [
+              0.0005087336546600715,
+              0.0004941025479299716,
+              0.0006410727545457341,
+              0.000421751434484305
+            ],
+            [
+              0.00037201673234925776,
+              0.0003309415721421846,
+              0.000421751434484305,
+              0.00036809409246214126
+            ]
+          ]
+        },
+        "expected_returns": null,
+        "beta_estimates": {
+          "as_of": "2021-03-31",
+          "information_cutoff": "2021-03-31",
+          "provenance": {
+            "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+            "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+            "source_ids": [
+              "reports/cl02/adjusted-closes.csv",
+              "SPY"
+            ],
+            "data_available_at": "2020-11-30",
+            "model": {
+              "id": "sample-covariance-beta",
+              "version": "pit-asset-beta-covariance-1.0.0"
+            }
+          },
+          "values": {
+            "SPY": 1,
+            "XLC": 0.9232475201653684,
+            "XLK": 1.1466675844343097,
+            "XLV": 0.838512498523619
+          },
+          "beta_model": {
+            "benchmark": "SPY",
+            "estimation_window": {
+              "start": "2019-12-02",
+              "end": "2020-11-30",
+              "observations": 252
+            },
+            "estimator": "OLS_COV_VARIANCE_SAMPLE_V1",
+            "as_of": "2021-03-31",
+            "information_cutoff": "2021-03-31",
+            "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356"
+          }
+        },
+        "previous_holdings": {
+          "as_of": "2021-03-31",
+          "information_cutoff": "2021-03-31",
+          "provenance": {
+            "data_hash": "cb66a7da0c42c00ae0800465ad4182abdee03d82ce7ff3a9e6cacaa89966a188",
+            "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+            "source_ids": [
+              "reports/cl02/adjusted-closes.csv",
+              "SPY"
+            ],
+            "data_available_at": "2021-03-31",
+            "model": {
+              "id": "sample-covariance-beta",
+              "version": "pit-asset-beta-covariance-1.0.0"
+            }
+          },
+          "units": "fraction_of_risk_capital",
+          "asset_weights": {
+            "SPY": 0.2528032476222383,
+            "XLC": 0.24774235787365587,
+            "XLK": 0.2463653111423692,
+            "XLV": 0.25308908336173647
+          }
+        },
+        "constraints": {
+          "asset_bounds": {},
+          "group_caps": [],
+          "max_active_names": null,
+          "turnover_cap": null
+        },
+        "objective": {
+          "type": "EQUAL_WEIGHT"
+        },
+        "solver": {
+          "feasibility_tolerance": 1e-10,
+          "stationarity_tolerance": 1e-9,
+          "psd_tolerance": 1e-12,
+          "symmetry_tolerance": 1e-12,
+          "erc_relative_tolerance": 1e-8,
+          "max_iterations": 10000,
+          "max_faces": 100000,
+          "max_supports": 4096
+        }
+      },
+      "result": {
+        "status": "VALID",
+        "errors": [],
+        "warnings": [],
+        "input_hash": "50a5aaf205e49d1f9bd85115950123b55553822272b986f722e116d1c91c6f73",
+        "result_id": "assets_00ebe6c292c3333f3087ab504b29dadc62fec823edca31a30daa5e2c45b801b4",
+        "objective": {
+          "type": "EQUAL_WEIGHT"
+        },
+        "objective_version": "1.0.0",
+        "weights": {
+          "SPY": 0.25,
+          "XLC": 0.25,
+          "XLK": 0.25,
+          "XLV": 0.25
+        },
+        "objective_value": 0,
+        "diagnostics": {
+          "variance": 0.0004351725499772619,
+          "annualized_volatility": 0.331154771359662,
+          "beta_sleeve": 0.9771069007808243,
+          "marginal_risk": {
+            "SPY": 0.00043350590125300765,
+            "XLC": 0.00041756824289154726,
+            "XLK": 0.0005164150979050206,
+            "XLV": 0.00037320095785947215
+          },
+          "risk_contributions": {
+            "SPY": 0.00010837647531325191,
+            "XLC": 0.00010439206072288681,
+            "XLK": 0.00012910377447625514,
+            "XLV": 0.00009330023946486804
+          },
+          "risk_contribution_fractions": {
+            "SPY": 0.2490425356997234,
+            "XLC": 0.23988659378524996,
+            "XLK": 0.29667260603409135,
+            "XLV": 0.2143982644809353
+          },
+          "gross_exposure": 1,
+          "net_exposure": 1,
+          "hhi": 0.25,
+          "effective_number_weights": 4,
+          "largest_weight": 0.25,
+          "top3_share": 0.75,
+          "turnover_gross_l1": 0.011784661967949722,
+          "active_bounds": [],
+          "covariance_effective_rank": 1.348230483151786,
+          "pca_effective_risk_bets": 1.0040270759681844,
+          "eigenvalues": [
+            0.0017661289772557195,
+            0.00007510645081645503,
+            0.00003204939708799864,
+            0.000015163086991568681
+          ],
+          "pca_risk_shares": [
+            0.9995736081757558,
+            0.00026844322537272465,
+            0.00015755511639934487,
+            3.934824721058716e-7
+          ]
+        },
+        "sleeve": {
+          "schema_version": "allocation-core-1.1.0",
+          "allocation_mode": "ASSETS",
+          "as_of": "2021-04-01",
+          "information_cutoff": "2021-03-31",
+          "provenance": {
+            "data_hash": "cb66a7da0c42c00ae0800465ad4182abdee03d82ce7ff3a9e6cacaa89966a188",
+            "configuration_hash": "2bd872d4304797fc7a182b591064c3d9c5c07fdb2b6d52bd6c70437cb1db3680",
+            "source_ids": [
+              "reports/cl02/adjusted-closes.csv",
+              "SPY"
+            ],
+            "data_available_at": "2021-03-31",
+            "model": {
+              "id": "assets-allocation-1.0.0",
+              "version": "1.0.0"
+            }
+          },
+          "input_snapshot_id": "snapshot_50a5aaf205e49d1f9bd85115950123b55553822272b986f722e116d1c91c6f73",
+          "status": "VALID",
+          "asset_weight_units": "fraction_of_risk_capital",
+          "asset_weights_risk_sleeve": {
+            "SPY": 0.25,
+            "XLC": 0.25,
+            "XLK": 0.25,
+            "XLV": 0.25
+          },
+          "gross_exposure": 1,
+          "net_exposure": 1,
+          "estimated_market_beta": 0.9771069007808243,
+          "estimated_volatility": 0.331154771359662,
+          "asset_market_betas": {
+            "SPY": 1,
+            "XLC": 0.9232475201653684,
+            "XLK": 1.1466675844343097,
+            "XLV": 0.838512498523619
+          },
+          "beta_model": {
+            "benchmark": "SPY",
+            "estimation_window": {
+              "start": "2019-12-02",
+              "end": "2020-11-30",
+              "observations": 252
+            },
+            "estimator": "OLS_COV_VARIANCE_SAMPLE_V1",
+            "as_of": "2021-03-31",
+            "information_cutoff": "2021-03-31",
+            "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356"
+          },
+          "risk_model_provenance": {
+            "as_of": "2021-03-31",
+            "information_cutoff": "2021-03-31",
+            "provenance": {
+              "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+              "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+              "source_ids": [
+                "reports/cl02/adjusted-closes.csv",
+                "SPY"
+              ],
+              "data_available_at": "2020-11-30",
+              "model": {
+                "id": "sample-covariance-beta",
+                "version": "pit-asset-beta-covariance-1.0.0"
+              }
+            }
+          },
+          "risk_measurement_status": "AVAILABLE",
+          "explicit_unallocated_risk_budget": 0,
+          "convention": {
+            "kind": "LONG_ONLY_FULLY_INVESTED",
+            "funding": "NET_ONE_WITH_GLOBAL_CASH",
+            "mandate": {
+              "allow_short": false,
+              "allow_leverage": false,
+              "allow_external_financing": false,
+              "max_gross_exposure": 1,
+              "min_net_exposure": 1,
+              "max_net_exposure": 1
+            }
+          },
+          "turnover_estimate": 0.011784661967949722,
+          "mode_specific_details": {
+            "allocation_mode": "ASSETS",
+            "asset_decision_weights": {
+              "SPY": 0.25,
+              "XLC": 0.25,
+              "XLK": 0.25,
+              "XLV": 0.25
+            }
+          },
+          "warnings": [],
+          "errors": [],
+          "allocation_id": "allocation_9b71a31a687108aae850349b4d40f8e08175b16ac6c7d22f3644ad1a3320a1a0"
+        },
+        "solver": {
+          "method": "EXPLICIT_EQUAL_WEIGHT_V1",
+          "iterations": 0,
+          "faces_examined": 0,
+          "supports_examined": 1,
+          "stationarity_residual": null,
+          "convergence_tolerance": 1e-9,
+          "constraint_tolerance": 1e-10,
+          "converged": true
+        }
+      }
+    },
+    "sleeve": {
+      "schema_version": "allocation-core-1.1.0",
+      "allocation_mode": "ASSETS",
+      "as_of": "2021-04-01",
+      "information_cutoff": "2021-03-31",
+      "provenance": {
+        "data_hash": "cb66a7da0c42c00ae0800465ad4182abdee03d82ce7ff3a9e6cacaa89966a188",
+        "configuration_hash": "2bd872d4304797fc7a182b591064c3d9c5c07fdb2b6d52bd6c70437cb1db3680",
+        "source_ids": [
+          "reports/cl02/adjusted-closes.csv",
+          "SPY"
+        ],
+        "data_available_at": "2021-03-31",
+        "model": {
+          "id": "assets-allocation-1.0.0",
+          "version": "1.0.0"
+        }
+      },
+      "input_snapshot_id": "snapshot_50a5aaf205e49d1f9bd85115950123b55553822272b986f722e116d1c91c6f73",
+      "status": "VALID",
+      "asset_weight_units": "fraction_of_risk_capital",
+      "asset_weights_risk_sleeve": {
+        "SPY": 0.25,
+        "XLC": 0.25,
+        "XLK": 0.25,
+        "XLV": 0.25
+      },
+      "gross_exposure": 1,
+      "net_exposure": 1,
+      "estimated_market_beta": 0.9771069007808243,
+      "estimated_volatility": 0.331154771359662,
+      "asset_market_betas": {
+        "SPY": 1,
+        "XLC": 0.9232475201653684,
+        "XLK": 1.1466675844343097,
+        "XLV": 0.838512498523619
+      },
+      "beta_model": {
+        "benchmark": "SPY",
+        "estimation_window": {
+          "start": "2019-12-02",
+          "end": "2020-11-30",
+          "observations": 252
+        },
+        "estimator": "OLS_COV_VARIANCE_SAMPLE_V1",
+        "as_of": "2021-03-31",
+        "information_cutoff": "2021-03-31",
+        "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356"
+      },
+      "risk_model_provenance": {
+        "as_of": "2021-03-31",
+        "information_cutoff": "2021-03-31",
+        "provenance": {
+          "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+          "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+          "source_ids": [
+            "reports/cl02/adjusted-closes.csv",
+            "SPY"
+          ],
+          "data_available_at": "2020-11-30",
+          "model": {
+            "id": "sample-covariance-beta",
+            "version": "pit-asset-beta-covariance-1.0.0"
+          }
+        }
+      },
+      "risk_measurement_status": "AVAILABLE",
+      "explicit_unallocated_risk_budget": 0,
+      "convention": {
+        "kind": "LONG_ONLY_FULLY_INVESTED",
+        "funding": "NET_ONE_WITH_GLOBAL_CASH",
+        "mandate": {
+          "allow_short": false,
+          "allow_leverage": false,
+          "allow_external_financing": false,
+          "max_gross_exposure": 1,
+          "min_net_exposure": 1,
+          "max_net_exposure": 1
+        }
+      },
+      "turnover_estimate": 0.011784661967949722,
+      "mode_specific_details": {
+        "allocation_mode": "ASSETS",
+        "asset_decision_weights": {
+          "SPY": 0.25,
+          "XLC": 0.25,
+          "XLK": 0.25,
+          "XLV": 0.25
+        }
+      },
+      "warnings": [],
+      "errors": [],
+      "allocation_id": "allocation_9b71a31a687108aae850349b4d40f8e08175b16ac6c7d22f3644ad1a3320a1a0"
+    },
+    "signal_gate": null,
+    "signal_status": "NOT_REQUIRED",
+    "robustness_gate": {
+      "schema_version": "allocation-gates-1.0.3",
+      "gate_type": "PORTFOLIO_ROBUSTNESS",
+      "gate_id": "gate_378bae23ad82574acc6c5d64379ed8ba27cb3d411e6ca9039ee0e53b1a0d9e0b",
+      "policy_id": "AL06_QA_PORTFOLIO_ROBUSTNESS",
+      "policy_version": "1.0.0",
+      "as_of": "2021-04-01",
+      "information_cutoff": "2021-03-31",
+      "status": "PASS",
+      "eligible_for_allocation": false,
+      "eligible_for_promotion": true,
+      "components": [
+        {
+          "check": "CERTIFIED_NATIVE_INPUT",
+          "category": "HARD",
+          "status": "PASS",
+          "value": [],
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "ALLOCATION_STATUS_VALID",
+          "category": "HARD",
+          "status": "PASS",
+          "value": "VALID",
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": "Computed allocator status must be VALID"
+        },
+        {
+          "check": "PIT",
+          "category": "HARD",
+          "status": "PASS",
+          "value": true,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "FINITE_WEIGHTS_EXPOSURES",
+          "category": "HARD",
+          "status": "PASS",
+          "value": true,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "IDS_UNIQUE",
+          "category": "HARD",
+          "status": "PASS",
+          "value": true,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "CANONICAL_HASHES",
+          "category": "HARD",
+          "status": "PASS",
+          "value": true,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": "Source payload/canonical allocator identity must reconcile"
+        },
+        {
+          "check": "CAPITAL_CONVENTION",
+          "category": "HARD",
+          "status": "PASS",
+          "value": true,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": "Long-only asset/factor q or nonnegative fully allocated strategy a; signed H is separate"
+        },
+        {
+          "check": "DECISION_AXIS_COMPLETE",
+          "category": "HARD",
+          "status": "PASS",
+          "value": true,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "CONSTRAINT_RECONCILIATION",
+          "category": "HARD",
+          "status": "PASS",
+          "value": {
+            "SPY:min": 0.25,
+            "SPY:max": 0.75,
+            "XLC:min": 0.25,
+            "XLC:max": 0.75,
+            "XLK:min": 0.25,
+            "XLK:max": 0.75,
+            "XLV:min": 0.25,
+            "XLV:max": 0.75
+          },
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "SOLVER_CONVERGENCE",
+          "category": "HARD",
+          "status": "PASS",
+          "value": true,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": "Convergence/KKT tolerance is supplied by the certified objective"
+        },
+        {
+          "check": "MAPPING_RESIDUAL",
+          "category": "HARD",
+          "status": "PASS",
+          "value": null,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "NO_HIDDEN_FALLBACK",
+          "category": "HARD",
+          "status": "PASS",
+          "value": true,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "RISK_ARTIFACT_AVAILABLE",
+          "category": "HARD",
+          "status": "PASS",
+          "value": true,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": "Required current-position covariance artifact unavailable"
+        },
+        {
+          "check": "BETA_RISK_RECONCILIATION",
+          "category": "HARD",
+          "status": "PASS",
+          "value": {
+            "reported_position_beta": 0.9771069007808243,
+            "derived_asset_dot_beta": 0.9771069007808243,
+            "reported_return_beta": null,
+            "derived_strategy_dot_beta": null
+          },
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": "Position beta and strategy-return beta reconcile independently, never substituted"
+        },
+        {
+          "check": "RISK_RECONCILIATION",
+          "category": "HARD",
+          "status": "PASS",
+          "value": {
+            "reported_vol": 0.331154771359662,
+            "recalculated_vol": 0.331154771359662
+          },
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "CONTROLLER_COMPATIBILITY",
+          "category": "HARD",
+          "status": "PASS",
+          "value": true,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": "Signed/non-net-one/external financing cannot enter long-only controller"
+        },
+        {
+          "check": "CONTROLLER_PROJECTION_BASIS",
+          "category": "HARD",
+          "status": "PASS",
+          "value": {
+            "weights_match": true,
+            "risk_match": true,
+            "snapshot_linked": true
+          },
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": "Controller projection must be the SAME unscaled allocation and current risk; no alternative sleeve"
+        },
+        {
+          "check": "TARGET_RISK_FEASIBILITY",
+          "category": "HARD",
+          "status": "PASS",
+          "value": "VALID",
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": ""
+        },
+        {
+          "check": "NO_UNAUTHORIZED_CLIPPING",
+          "category": "HARD",
+          "status": "PASS",
+          "value": {
+            "beta_sleeve": 0.9771069007808243,
+            "vol_sleeve": 0.331154771359662,
+            "requested_metric": "MARKET_BETA",
+            "requested_target": 0.3,
+            "requested_multiplier": 0.30702884173703454,
+            "feasible_multiplier_interval": {
+              "lower": 0,
+              "upper": 1
+            },
+            "achieved_multiplier": 0.30702884173703454,
+            "expected_final_beta": 0.3,
+            "expected_final_vol": 0.10167406588624951,
+            "implied_implementation_cash": 0.6929711582629654,
+            "target_clipped": false,
+            "reported_target_clipped": null,
+            "unauthorized_clipping": false,
+            "report_consistent": true,
+            "status": "VALID",
+            "constraint_failures": [],
+            "controller": "LONG_ONLY_NO_LEVERAGE_V1",
+            "allocation_and_mandate_unchanged": true
+          },
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": "Keep requested/achieved risk; no unauthorized clipping or false controller report"
+        },
+        {
+          "check": "largest_weight",
+          "category": "POLICY",
+          "status": "PASS",
+          "value": 0.25,
+          "threshold": {
+            "operator": "MAX",
+            "value": 1,
+            "units": "NORMALIZED_EXPOSURE_FRACTION"
+          },
+          "observations": 4,
+          "methodology": "LONG_ONLY_NET_ONE_CAPITAL_WEIGHTS",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "top3_share",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 0.75,
+          "threshold": null,
+          "observations": 4,
+          "methodology": "LONG_ONLY_NET_ONE_CAPITAL_WEIGHTS",
+          "details": {
+            "diagnostic_only": true,
+            "details": null
+          },
+          "reason": null
+        },
+        {
+          "check": "hhi",
+          "category": "POLICY",
+          "status": "PASS",
+          "value": 0.25,
+          "threshold": {
+            "operator": "MAX",
+            "value": 1,
+            "units": "DIMENSIONLESS"
+          },
+          "observations": 4,
+          "methodology": "LONG_ONLY_NET_ONE_CAPITAL_WEIGHTS",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "effective_weights",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 4,
+          "threshold": null,
+          "observations": 4,
+          "methodology": "LONG_ONLY_NET_ONE_CAPITAL_WEIGHTS",
+          "details": {
+            "diagnostic_only": true,
+            "details": null
+          },
+          "reason": null
+        },
+        {
+          "check": "covariance_rank",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 1.348230483151786,
+          "threshold": null,
+          "observations": 4,
+          "methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "basis": "CURRENT_ASSET_COVARIANCE",
+              "diagnostics": {
+                "eigenvalues": [
+                  0.0017661289772557195,
+                  0.00007510645081645503,
+                  0.00003204939708799864,
+                  0.000015163086991568681
+                ],
+                "covariance_rank": 1.348230483151786,
+                "pc1_share": 0.9352277952127103,
+                "pca_bets": 1.0040270759681844,
+                "smallest_eigenvalue": 0.000015163086991568681,
+                "condition_number": 116.47555529014389,
+                "condition_status": "FINITE",
+                "variance": 0.0004351725499772619,
+                "annualized_volatility": 0.331154771359662,
+                "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+                "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+              }
+            }
+          },
+          "reason": null
+        },
+        {
+          "check": "pc1_share",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 0.9352277952127103,
+          "threshold": null,
+          "observations": 4,
+          "methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "basis": "CURRENT_ASSET_COVARIANCE",
+              "diagnostics": {
+                "eigenvalues": [
+                  0.0017661289772557195,
+                  0.00007510645081645503,
+                  0.00003204939708799864,
+                  0.000015163086991568681
+                ],
+                "covariance_rank": 1.348230483151786,
+                "pc1_share": 0.9352277952127103,
+                "pca_bets": 1.0040270759681844,
+                "smallest_eigenvalue": 0.000015163086991568681,
+                "condition_number": 116.47555529014389,
+                "condition_status": "FINITE",
+                "variance": 0.0004351725499772619,
+                "annualized_volatility": 0.331154771359662,
+                "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+                "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+              }
+            }
+          },
+          "reason": null
+        },
+        {
+          "check": "pca_bets",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 1.0040270759681844,
+          "threshold": null,
+          "observations": 4,
+          "methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "basis": "CURRENT_ASSET_COVARIANCE",
+              "diagnostics": {
+                "eigenvalues": [
+                  0.0017661289772557195,
+                  0.00007510645081645503,
+                  0.00003204939708799864,
+                  0.000015163086991568681
+                ],
+                "covariance_rank": 1.348230483151786,
+                "pc1_share": 0.9352277952127103,
+                "pca_bets": 1.0040270759681844,
+                "smallest_eigenvalue": 0.000015163086991568681,
+                "condition_number": 116.47555529014389,
+                "condition_status": "FINITE",
+                "variance": 0.0004351725499772619,
+                "annualized_volatility": 0.331154771359662,
+                "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+                "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+              }
+            }
+          },
+          "reason": null
+        },
+        {
+          "check": "condition_number",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 116.47555529014389,
+          "threshold": null,
+          "observations": 4,
+          "methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "basis": "CURRENT_ASSET_COVARIANCE",
+              "diagnostics": {
+                "eigenvalues": [
+                  0.0017661289772557195,
+                  0.00007510645081645503,
+                  0.00003204939708799864,
+                  0.000015163086991568681
+                ],
+                "covariance_rank": 1.348230483151786,
+                "pc1_share": 0.9352277952127103,
+                "pca_bets": 1.0040270759681844,
+                "smallest_eigenvalue": 0.000015163086991568681,
+                "condition_number": 116.47555529014389,
+                "condition_status": "FINITE",
+                "variance": 0.0004351725499772619,
+                "annualized_volatility": 0.331154771359662,
+                "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+                "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+              }
+            }
+          },
+          "reason": null
+        },
+        {
+          "check": "smallest_eigenvalue",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 0.000015163086991568681,
+          "threshold": null,
+          "observations": 4,
+          "methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "basis": "CURRENT_ASSET_COVARIANCE",
+              "diagnostics": {
+                "eigenvalues": [
+                  0.0017661289772557195,
+                  0.00007510645081645503,
+                  0.00003204939708799864,
+                  0.000015163086991568681
+                ],
+                "covariance_rank": 1.348230483151786,
+                "pc1_share": 0.9352277952127103,
+                "pca_bets": 1.0040270759681844,
+                "smallest_eigenvalue": 0.000015163086991568681,
+                "condition_number": 116.47555529014389,
+                "condition_status": "FINITE",
+                "variance": 0.0004351725499772619,
+                "annualized_volatility": 0.331154771359662,
+                "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+                "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+              }
+            }
+          },
+          "reason": null
+        },
+        {
+          "check": "solver_iterations",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 0,
+          "threshold": null,
+          "observations": null,
+          "methodology": "CERTIFIED_SOLVER_REPORTED_NOT_RECOMPUTED",
+          "details": {
+            "diagnostic_only": true,
+            "details": null
+          },
+          "reason": null
+        },
+        {
+          "check": "kkt_residual",
+          "category": "WARNING",
+          "status": "INSUFFICIENT_DATA",
+          "value": null,
+          "threshold": null,
+          "observations": null,
+          "methodology": "CERTIFIED_SOLVER_REPORTED",
+          "details": {
+            "diagnostic_only": true,
+            "details": null
+          },
+          "reason": "Required diagnostic unavailable"
+        },
+        {
+          "check": "active_constraint_count",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 0,
+          "threshold": null,
+          "observations": null,
+          "methodology": "UNSCALED_MATERIAL_CONSTRAINT_SLACKS",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "SPY:min": 0.25,
+              "SPY:max": 0.75,
+              "XLC:min": 0.25,
+              "XLC:max": 0.75,
+              "XLK:min": 0.25,
+              "XLK:max": 0.75,
+              "XLV:min": 0.25,
+              "XLV:max": 0.75
+            }
+          },
+          "reason": null
+        },
+        {
+          "check": "min_constraint_slack",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 0.25,
+          "threshold": null,
+          "observations": null,
+          "methodology": "UNSCALED_CONSTRAINT_SLACKS",
+          "details": {
+            "diagnostic_only": true,
+            "details": null
+          },
+          "reason": null
+        },
+        {
+          "check": "SENSITIVITY_BASE_AND_HASH",
+          "category": "HARD",
+          "status": "PASS",
+          "value": "ced634bb845eaab260386748559eafa29a07d1028c102c454cbb836b382fa920",
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": null
+        },
+        {
+          "check": "REQUIRED_SENSITIVITY_FAMILIES",
+          "category": "HARD",
+          "status": "PASS",
+          "value": [],
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": "Missing certified sensitivity; gate generates no perturbations"
+        },
+        {
+          "check": "REQUIRED_SENSITIVITY_OUTCOMES",
+          "category": "POLICY",
+          "status": "PASS",
+          "value": [],
+          "threshold": null,
+          "observations": 2,
+          "methodology": "DECLARED_REQUIRED_STRESS_FAMILIES",
+          "details": [
+            "COVARIANCE"
+          ],
+          "reason": "Required perturbation outcomes must be available; failure cannot be averaged away"
+        },
+        {
+          "check": "allocation_l1",
+          "category": "POLICY",
+          "status": "PASS",
+          "value": 0,
+          "threshold": {
+            "operator": "MAX",
+            "value": 2,
+            "units": "GROSS_L1_RISK_CAPITAL_FRACTION"
+          },
+          "observations": 2,
+          "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+          "details": {
+            "required_families": [
+              "COVARIANCE"
+            ],
+            "missing": [],
+            "failed_outcomes": [],
+            "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+            "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+            "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+          },
+          "reason": null
+        },
+        {
+          "check": "single_weight_change",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 0,
+          "threshold": null,
+          "observations": 2,
+          "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "required_families": [
+                "COVARIANCE"
+              ],
+              "missing": [],
+              "failed_outcomes": [],
+              "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+              "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+              "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+            }
+          },
+          "reason": null
+        },
+        {
+          "check": "beta_change",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 0,
+          "threshold": null,
+          "observations": 2,
+          "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "required_families": [
+                "COVARIANCE"
+              ],
+              "missing": [],
+              "failed_outcomes": [],
+              "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+              "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+              "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+            }
+          },
+          "reason": null
+        },
+        {
+          "check": "return_beta_change",
+          "category": "WARNING",
+          "status": "INSUFFICIENT_DATA",
+          "value": null,
+          "threshold": null,
+          "observations": 2,
+          "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "required_families": [
+                "COVARIANCE"
+              ],
+              "missing": [],
+              "failed_outcomes": [],
+              "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+              "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+              "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+            }
+          },
+          "reason": "Sensitivity metric unavailable"
+        },
+        {
+          "check": "vol_change",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 0.006089453007525281,
+          "threshold": null,
+          "observations": 2,
+          "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "required_families": [
+                "COVARIANCE"
+              ],
+              "missing": [],
+              "failed_outcomes": [],
+              "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+              "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+              "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+            }
+          },
+          "reason": null
+        },
+        {
+          "check": "factor_residual_change",
+          "category": "WARNING",
+          "status": "INSUFFICIENT_DATA",
+          "value": null,
+          "threshold": null,
+          "observations": 2,
+          "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "required_families": [
+                "COVARIANCE"
+              ],
+              "missing": [],
+              "failed_outcomes": [],
+              "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+              "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+              "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+            }
+          },
+          "reason": "Sensitivity metric unavailable"
+        },
+        {
+          "check": "position_exposure_change",
+          "category": "WARNING",
+          "status": "INSUFFICIENT_DATA",
+          "value": null,
+          "threshold": null,
+          "observations": 2,
+          "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "required_families": [
+                "COVARIANCE"
+              ],
+              "missing": [],
+              "failed_outcomes": [],
+              "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+              "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+              "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+            }
+          },
+          "reason": "Sensitivity metric unavailable"
+        },
+        {
+          "check": "objective_degradation",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 0,
+          "threshold": null,
+          "observations": 2,
+          "methodology": "SUPPLIED_CERTIFIED_SENSITIVITY_ARTIFACT_V1",
+          "details": {
+            "diagnostic_only": true,
+            "details": {
+              "required_families": [
+                "COVARIANCE"
+              ],
+              "missing": [],
+              "failed_outcomes": [],
+              "methodology": "FROZEN_CERTIFIED_AL03_AL04_AL05_STRESS_READ_ONLY_V1",
+              "beta_basis": "CURRENT_POSITION_BETA_FOR_STRATEGIES; RETURN_BETA_SEPARATE",
+              "vol_basis": "UNSCALED_ASSET_VOLATILITY"
+            }
+          },
+          "reason": null
+        },
+        {
+          "check": "sleeve_turnover",
+          "category": "WARNING",
+          "status": "PASS",
+          "value": 0.011784661967949722,
+          "threshold": null,
+          "observations": null,
+          "methodology": "SEPARATE_GROSS_L1_TURNOVER_NOT_EXECUTED_NAV_TRADES",
+          "details": {
+            "diagnostic_only": true,
+            "details": null
+          },
+          "reason": null
+        },
+        {
+          "check": "strategy_turnover",
+          "category": "WARNING",
+          "status": "INSUFFICIENT_DATA",
+          "value": null,
+          "threshold": null,
+          "observations": null,
+          "methodology": "SEPARATE_GROSS_L1_TURNOVER_NOT_EXECUTED_NAV_TRADES",
+          "details": {
+            "diagnostic_only": true,
+            "details": null
+          },
+          "reason": "Required diagnostic unavailable"
+        },
+        {
+          "check": "instrument_turnover",
+          "category": "WARNING",
+          "status": "INSUFFICIENT_DATA",
+          "value": null,
+          "threshold": null,
+          "observations": null,
+          "methodology": "SEPARATE_GROSS_L1_TURNOVER_NOT_EXECUTED_NAV_TRADES",
+          "details": {
+            "diagnostic_only": true,
+            "details": null
+          },
+          "reason": "Required diagnostic unavailable"
+        },
+        {
+          "check": "incremental_cost",
+          "category": "WARNING",
+          "status": "INSUFFICIENT_DATA",
+          "value": null,
+          "threshold": null,
+          "observations": null,
+          "methodology": "DECLARED_EXTERNAL_INCREMENTAL_COST_ONLY",
+          "details": {
+            "diagnostic_only": true,
+            "details": null
+          },
+          "reason": "Incremental cost basis not supplied"
+        },
+        {
+          "check": "OBSERVER_PURITY",
+          "category": "HARD",
+          "status": "PASS",
+          "value": true,
+          "threshold": null,
+          "observations": null,
+          "methodology": "allocation-gates-1.0.3",
+          "details": null,
+          "reason": null
+        }
+      ],
+      "hard_failures": [],
+      "policy_failures": [],
+      "warnings": [],
+      "errors": [],
+      "diagnostics": {
+        "mode": "ASSETS",
+        "asset_concentration": {
+          "basis": "LONG_ONLY_NET_ONE_CAPITAL_WEIGHTS",
+          "nominal_assets": 4,
+          "largest_weight": 0.25,
+          "top3_share": 0.75,
+          "hhi": 0.25,
+          "effective_weights": 4,
+          "gross": 1,
+          "net": 1
+        },
+        "asset_risk_breadth": {
+          "eigenvalues": [
+            0.0017661289772557195,
+            0.00007510645081645503,
+            0.00003204939708799864,
+            0.000015163086991568681
+          ],
+          "covariance_rank": 1.348230483151786,
+          "pc1_share": 0.9352277952127103,
+          "pca_bets": 1.0040270759681844,
+          "smallest_eigenvalue": 0.000015163086991568681,
+          "condition_number": 116.47555529014389,
+          "condition_status": "FINITE",
+          "variance": 0.0004351725499772619,
+          "annualized_volatility": 0.331154771359662,
+          "pca_methodology": "AL03_COVARIANCE_PCA_ENTROPY_V1_NOT_MINIMUM_TORSION",
+          "repeated_eigenvalue_caveat": "Portfolio PCA bets can depend on basis in repeated eigenspaces"
+        },
+        "strategy_risk_breadth": null,
+        "solver": {
+          "converged": true,
+          "iterations": 0,
+          "residual": null,
+          "tolerance": 1e-9,
+          "constraints": {
+            "SPY:min": 0.25,
+            "SPY:max": 0.75,
+            "XLC:min": 0.25,
+            "XLC:max": 0.75,
+            "XLK:min": 0.25,
+            "XLK:max": 0.75,
+            "XLV:min": 0.25,
+            "XLV:max": 0.75
+          },
+          "active_constraint_count": 0
+        },
+        "sensitivities": {
+          "rows": [
+            {
+              "scenario": "covariance-diagonal-shrink-0.01",
+              "family": "COVARIANCE",
+              "status": "VALID",
+              "allocation_l1": 0,
+              "max_weight_change": 0,
+              "beta_change": 0,
+              "vol_change": -0.0012088995647701606,
+              "residual_change": null,
+              "exposure_l1": null,
+              "objective_degradation": 0,
+              "return_beta_change": null
+            },
+            {
+              "scenario": "covariance-diagonal-shrink-0.05",
+              "family": "COVARIANCE",
+              "status": "VALID",
+              "allocation_l1": 0,
+              "max_weight_change": 0,
+              "beta_change": 0,
+              "vol_change": -0.006089453007525281,
+              "residual_change": null,
+              "exposure_l1": null,
+              "objective_degradation": 0,
+              "return_beta_change": null
+            }
+          ],
+          "required_families": [
+            "COVARIANCE"
+          ],
+          "missing_families": []
+        },
+        "turnover": {
+          "sleeve": 0.011784661967949722,
+          "strategy": null,
+          "instrument": null
+        },
+        "costs": {
+          "incremental": null,
+          "embedded": "NOT_A_STRATEGY_HISTORY"
+        },
+        "risk_mandate_compatibility": {
+          "beta_sleeve": 0.9771069007808243,
+          "vol_sleeve": 0.331154771359662,
+          "requested_metric": "MARKET_BETA",
+          "requested_target": 0.3,
+          "requested_multiplier": 0.30702884173703454,
+          "feasible_multiplier_interval": {
+            "lower": 0,
+            "upper": 1
+          },
+          "achieved_multiplier": 0.30702884173703454,
+          "expected_final_beta": 0.3,
+          "expected_final_vol": 0.10167406588624951,
+          "implied_implementation_cash": 0.6929711582629654,
+          "target_clipped": false,
+          "reported_target_clipped": null,
+          "unauthorized_clipping": false,
+          "report_consistent": true,
+          "status": "VALID",
+          "constraint_failures": [],
+          "controller": "LONG_ONLY_NO_LEVERAGE_V1",
+          "allocation_and_mandate_unchanged": true
+        },
+        "mode_specific": {
+          "objective": {
+            "type": "EQUAL_WEIGHT"
+          },
+          "risk_artifact": {
+            "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+            "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+            "source_ids": [
+              "reports/cl02/adjusted-closes.csv",
+              "SPY"
+            ],
+            "data_available_at": "2020-11-30",
+            "model": {
+              "id": "sample-covariance-beta",
+              "version": "pit-asset-beta-covariance-1.0.0"
+            }
+          }
+        },
+        "mapping": null,
+        "correlation": null
+      },
+      "semantic_input_hash": "f89b14fd11476f6cff6f10e0d1a2472bbd55c3c0d4f0cc5cb0aafc4a6f7fa0f8",
+      "policy_hash": "338577e9ab58db38cbe8fb6bdf01fd61f3e0dafb1f6a2dc53adecd9fcf905d76",
+      "source_hashes": {
+        "source_payload": "90b6f2d048e50259e46a7319db56556db5193859a0fb31b60074ee9a3d8dae17",
+        "allocation_result_id": "assets_00ebe6c292c3333f3087ab504b29dadc62fec823edca31a30daa5e2c45b801b4",
+        "controller_snapshot": "snapshot_50a5aaf205e49d1f9bd85115950123b55553822272b986f722e116d1c91c6f73"
+      },
+      "no_routing_or_execution": true
+    },
+    "projection": {
+      "status": "VALID",
+      "portfolio": {
+        "schema_version": "allocation-risk-1.1.0",
+        "controller": "LONG_ONLY_NO_LEVERAGE_V1",
+        "status": "VALID",
+        "semantics": "SYSTEMATIC_RISK",
+        "mandate_hash": "6760f4a333c8e5db6a608eb26d4ce80ec1a6a7ac44b0726580883d66a1331c8e",
+        "allocation_id": "allocation_9b71a31a687108aae850349b4d40f8e08175b16ac6c7d22f3644ad1a3320a1a0",
+        "requested_target": {
+          "metric": "MARKET_BETA",
+          "target": 0.3,
+          "lower_bound": null,
+          "upper_bound": null
+        },
+        "exposure_multiplier": 0.30702884173703454,
+        "total_asset_weights": {
+          "SPY": 0.07675721043425864,
+          "XLC": 0.07675721043425864,
+          "XLK": 0.07675721043425864,
+          "XLV": 0.07675721043425864
+        },
+        "implied_cash_weight": 0.6929711582629654,
+        "expected_final_beta": 0.3,
+        "expected_final_volatility": 0.10167406588624951,
+        "beta_sleeve": 0.9771069007808243,
+        "volatility_sleeve": 0.331154771359662,
+        "beta_model": {
+          "benchmark": "SPY",
+          "estimation_window": {
+            "start": "2019-12-02",
+            "end": "2020-11-30",
+            "observations": 252
+          },
+          "estimator": "OLS_COV_VARIANCE_SAMPLE_V1",
+          "as_of": "2021-03-31",
+          "information_cutoff": "2021-03-31",
+          "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356"
+        },
+        "risk_model_provenance": {
+          "as_of": "2021-03-31",
+          "information_cutoff": "2021-03-31",
+          "provenance": {
+            "data_hash": "4b2afefe530a5bd3d56449015c461e6fad1e986887c8af8e7fd8f686fe679356",
+            "configuration_hash": "6076fca7f22f764acd711a20478a4a0d12f48cc797ce971de11a520b8eaac827",
+            "source_ids": [
+              "reports/cl02/adjusted-closes.csv",
+              "SPY"
+            ],
+            "data_available_at": "2020-11-30",
+            "model": {
+              "id": "sample-covariance-beta",
+              "version": "pit-asset-beta-covariance-1.0.0"
+            }
+          }
+        },
+        "gross_exposure": 0.30702884173703454,
+        "net_exposure": 0.30702884173703454,
+        "explicit_unallocated_risk_budget": 0,
+        "target_clipped": false,
+        "constraint_failures": [],
+        "warnings": [],
+        "as_of": "2021-04-01",
+        "information_cutoff": "2021-03-31",
+        "provenance": {
+          "data_hash": "4ccd08bce86dcc5318405ccebd653bcd5fa914cf5f99f69ce9ad07b74e118d27",
+          "configuration_hash": "5b7714dc17b69a0e01c3942eda8926ac8dab640a583d5424fb1a17c66ac9ac82",
+          "source_ids": [
+            "SPY",
+            "reports/cl02/adjusted-closes.csv"
+          ],
+          "data_available_at": "2021-03-31",
+          "model": {
+            "id": "ExposureController",
+            "version": "LONG_ONLY_NO_LEVERAGE_V1"
+          }
+        },
+        "composition_id": "composition_5e0e9540132da01dcbe6ea287a92a34b0c0e87788461faa60d1a884879a1f490"
+      },
+      "errors": []
+    },
+    "final_target": {
+      "decision_context_id": "decision_fbf87cdab9ffd778e349d0058fd8c48225224d304766fa9e045bfac1d0fc58ab",
+      "risk_mandate_hash": "6760f4a333c8e5db6a608eb26d4ce80ec1a6a7ac44b0726580883d66a1331c8e",
+      "allocation_id": "allocation_9b71a31a687108aae850349b4d40f8e08175b16ac6c7d22f3644ad1a3320a1a0",
+      "robustness_gate_id": "gate_378bae23ad82574acc6c5d64379ed8ba27cb3d411e6ca9039ee0e53b1a0d9e0b",
+      "composition_id": "composition_5e0e9540132da01dcbe6ea287a92a34b0c0e87788461faa60d1a884879a1f490",
+      "final_asset_weights": {
+        "SPY": 0.07675721043425864,
+        "XLC": 0.07675721043425864,
+        "XLK": 0.07675721043425864,
+        "XLV": 0.07675721043425864
+      },
+      "implementation_cash": 0.6929711582629654,
+      "expected_final_beta": 0.3,
+      "expected_final_volatility": 0.10167406588624951,
+      "gross_exposure": 0.30702884173703454,
+      "net_exposure": 0.30702884173703454,
+      "execution": {
+        "date": "2021-04-05",
+        "convention": "next_close",
+        "rebalance_frequency": "monthly"
+      },
+      "status": "VALID",
+      "provenance": {
+        "information_prices_hash": "d809672ee0e548865ecc3834c3d678f0a565a21758a0c42b5d2523c0054134ae",
+        "source_ids": [
+          "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/selections/1.json"
+        ],
+        "bundle_hash": "14f9945f5379edfc58f2fe2faca007917ebfb6d9f60f43922899656f8b39f09b",
+        "code_version": "canonical-research-pipeline-1.0.2"
+      },
+      "target_id": "target_926a979c6bde2e0fe5c4760bc86250e13b4663e2bb6a77d42c94ec19476da662"
+    },
+    "source_unchanged": true
+  }
+}

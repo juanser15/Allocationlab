@@ -1,0 +1,123 @@
+{
+  "block": "BANK-01",
+  "status": "PASS",
+  "scope": "MECHANICAL_RESEARCH_CERTIFICATION_ONLY",
+  "version": "active-set-bank-1.0.0",
+  "criteria": [
+    {
+      "id": "01",
+      "criterion": "PROMOTED / ACTIVE / ALLOCATED remain distinct",
+      "status": "PASS",
+      "evidence": "tests 01\u201303, 22, 37, 65; activation-results.csv"
+    },
+    {
+      "id": "02",
+      "criterion": "Correlation estimates are point-in-time",
+      "status": "PASS",
+      "evidence": "tests 09 (63/126/252), 19, 44, 54, 55, 62; independent NumPy oracle"
+    },
+    {
+      "id": "03",
+      "criterion": "Dynamic clusters are causal",
+      "status": "PASS",
+      "evidence": "tests 11, 19, 30, 31, 57; independent SciPy linkage replay"
+    },
+    {
+      "id": "04",
+      "criterion": "Same-asset strategies remain distinct",
+      "status": "PASS",
+      "evidence": "tests 05\u201308, 33; underlying-concentration.csv"
+    },
+    {
+      "id": "05",
+      "criterion": "Cross-market same-family diversification is preserved",
+      "status": "PASS",
+      "evidence": "tests 04, 15, 53; family diagnostics"
+    },
+    {
+      "id": "06",
+      "criterion": "Correlation never automatically retires",
+      "status": "PASS",
+      "evidence": "tests 03, 06, 30, 65; unchanged promotion states"
+    },
+    {
+      "id": "07",
+      "criterion": "Representative selection is explicit and deterministic",
+      "status": "PASS",
+      "evidence": "test 13 (five selectors), 14, 51, 52"
+    },
+    {
+      "id": "08",
+      "criterion": "Strategy and underlying diversification remain distinct",
+      "status": "PASS",
+      "evidence": "tests 10, 32\u201335; NumPy eigen/PCA and HHI oracle"
+    },
+    {
+      "id": "09",
+      "criterion": "No allocation or RiskMandate mutation",
+      "status": "PASS",
+      "evidence": "tests 02, 36, 37, 64; static runtime import/call boundary"
+    },
+    {
+      "id": "10",
+      "criterion": "Future data cannot rewrite historical active sets",
+      "status": "PASS",
+      "evidence": "tests 19\u201321, 26, 43\u201345, 54, 55"
+    },
+    {
+      "id": "11",
+      "criterion": "Clustering and input-order reproducibility",
+      "status": "PASS",
+      "evidence": "tests 12, 13, 38, 57; reproducibility.json; hash-verification.json"
+    },
+    {
+      "id": "12",
+      "criterion": "Historical replay valid or explicitly blocked",
+      "status": "PASS",
+      "evidence": "BLOCKED_MISSING_STRATEGY_HISTORY; blockers.csv; AL05 frozen artifact evidence"
+    },
+    {
+      "id": "13",
+      "criterion": "Independent known-answer verification",
+      "status": "PASS",
+      "evidence": "71/71 TS cases; 544/544 NumPy/SciPy/storage/preservation checks"
+    },
+    {
+      "id": "14",
+      "criterion": "Strict typecheck",
+      "status": "PASS",
+      "evidence": "typecheck-certification.log; exit 0; all new TS and imported certified dependencies"
+    },
+    {
+      "id": "15",
+      "criterion": "git diff --check",
+      "status": "PASS",
+      "evidence": "diff-check.log; exit 0; additional new-source whitespace checks"
+    },
+    {
+      "id": "16",
+      "criterion": "Previous baselines unchanged",
+      "status": "PASS",
+      "evidence": "preservation.json: 9031 frozen files byte-identical; original branch/commit/status retained"
+    }
+  ],
+  "tests": {
+    "pass": 71,
+    "fail": 0
+  },
+  "independent_checks": {
+    "pass": 544,
+    "fail": 0
+  },
+  "synthetic_decisions": 108,
+  "historical_replay": "BLOCKED_MISSING_STRATEGY_HISTORY",
+  "historical_governance": "BLOCKED_MISSING_HISTORICAL_PROMOTION_GOVERNANCE",
+  "code_hash": "54a705f58cc3b1158b87c035a8b28915d3cad66cf6cf448a74f001bf75f30b99",
+  "manifest_hash": "e738afa12609186cef42e83783d601c23674f146455e089c9dcf34d39fc8d47e",
+  "reproducibility_status": "PASS",
+  "preserved_files": 9031,
+  "no_production_changes": true,
+  "no_real_promotions": true,
+  "no_allocations_created": true,
+  "no_follow_on_block_opened": true
+}

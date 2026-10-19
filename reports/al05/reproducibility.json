@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "compared_files": 17,
+  "changed_files": [],
+  "method": "rerun offline certification with identical frozen inputs/source; byte hashes of manifest, JSON and CSV economics",
+  "hashes": {
+    "reports/al05/alpha-allocation-results.csv": "833a97b441f4a6057247401050153702a77e420299a815b14fd8a71bee33f067",
+    "reports/al05/alpha-beta-diagnostics.csv": "b4e2297257f2d6f08eace3a585a04f947e1d601d68e5e7187d5b4103e616418e",
+    "reports/al05/alpha-diversification.csv": "e6451b352e27be43d31106df729108464e69d8f7ec49191ebef40ab819eb69e5",
+    "reports/al05/alpha-position-aggregation.csv": "09cb58ebee69964cb11c99eb94bd4ff63dc97e0d71d2f21737ab6c21f97cb8a1",
+    "reports/al05/alpha-return-risk.csv": "2e013f89d108cbd978f9512fc60a0e15a0ca689a96795727d3e8a5672bc3c15f",
+    "reports/al05/alpha-sensitivity.csv": "ea4c6814a6c1adc208ea878798804888cc8262e7b8b84d9648776761daf662b4",
+    "reports/al05/certification-summary.json": "9a3c103a1dc0057de8e6062d54ed3274a1006c529e657f478bc0d03073d649bc",
+    "reports/al05/controller-compatibility.csv": "0cfde47f3737953fdd9d0f2bb15e0e231fcd099241b1f13fe5213a80d0e66472",
+    "reports/al05/economic-replay.csv": "14f1c7d56df78a5e8965e7a2d4b19899a39c290aab1ec3c5c2cd72b29fbb3f20",
+    "reports/al05/family-attribution.csv": "e87a37886eac5e3fb5657a6c909a013429d6487683dd5f0fad83288de0e1f3fe",
+    "reports/al05/instrument-contributions.csv": "b7784df0b38215fa446b6477c80a51d45755430db1673aaac515c358cd8f4290",
+    "reports/al05/manifest.json": "40aa9ba2aabc7be5d499d51f63d69d20ce043ac5281011a9a062bf7204a25c8c",
+    "reports/al05/sensitivity-results.json": "d9326d9ab790b504d5bc751e76780d7fb989fa3eff748e01c23a37da57cc3c76",
+    "reports/al05/strategy-attribution.csv": "628d6833205af66a1fbb3ea1281e978f491ccc64b64e8daa79d52f3e8632a6c2",
+    "reports/al05/synthetic-inputs.json": "f6c2ecea3722b87ca13345d9d44c4a6951d13a8f8c27ac9c328dd01dc678d833",
+    "reports/al05/synthetic-results.json": "17fb5224c165fb3facb274b6eacb9d818891773418913090e80f63019c102a1e",
+    "reports/al05/underlying-attribution.csv": "8378fd86846c83487a5a556dfc6e463c555edfa3bc95504ec1c2fe18155d0409"
+  }
+}

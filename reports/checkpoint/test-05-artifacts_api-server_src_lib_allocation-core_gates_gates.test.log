@@ -1,0 +1,52 @@
+PASS A new canonical high-quality structure PASS (not Node3 certified)
+PASS B zero dispersion mandatory FAIL
+PASS B near-zero dispersion independently calculated FAIL
+PASS C PC1 concentration exact collinear oracle FAIL
+PASS D stable Spearman ranking PASS; independent dispersion/PCA oracle
+PASS E reversed rankings Spearman -1 FAIL
+PASS F changing universe explicit intersection/minimum coverage
+PASS G insufficient coverage policy returns INSUFFICIENT_DATA, no imputation
+PASS G coverage can explicitly FAIL according to policy
+PASS H future ranking payload ignored before hash/validation
+PASS H past-dated late-published ranking cannot enter sample
+PASS I same canonical data/policy gate ID and output identical
+PASS J signal FAIL creates no fallback weights or cash
+PASS K diversified certified asset solution PASS
+PASS L valid solver but concentration POLICY FAIL
+PASS M optimizer numerical failure HARD FAIL, no averaging
+PASS N exact factor target residual breach HARD FAIL
+PASS O approximate factor residual explicit allowed policy PASS
+PASS O approximate residual explicitly disallowed policy FAIL
+PASS P high sensitivity mandatory policy FAIL
+PASS Q correlated strategies retained; optional warning keeps PASS
+PASS Q correlation explicit mandatory threshold FAIL without pruning
+PASS R multiple strategies on SPY trigger mapped asset concentration
+PASS S signed strategy exposure compatibility HARD FAIL/promotion false
+PASS T unauthorized controller clipping FAIL
+PASS T explicit mandate AND gate CLIP permission retains requested/achieved
+PASS U future computed allocation mutation cannot alter historical gate
+PASS U a future risk artifact in current bundle is rejected
+PASS V key reorder identical result; asset-axis reorder same economics/gate ID
+PASS V signal asset/feature/history reorder yields canonical result
+PASS W gates do not change q/a/x/RiskMandate/source artifacts
+PASS declared rebalance clock rejects implicit daily evaluation
+PASS signal return/factor units rejected
+PASS stale coverage counts explicit, no forward-fill
+PASS missing required sensitivity returns INSUFFICIENT_DATA
+PASS mandatory mode-specific check cannot disappear and permit PASS
+PASS failed stress cannot be averaged into mandatory max sensitivity
+PASS optional failed sensitivity emits warning, not hard failure
+PASS high conditioning alone is diagnostic, explicit threshold makes FAIL
+PASS embedded/incremental cost units are not interchangeable
+PASS explicit hidden fallback and source tampering cannot promote
+PASS future computed result timestamp rejected even with old valid inputs
+PASS solver convergence must be boolean, residual nonnegative
+PASS same-underlying identity duplicates rejected separately from correlation
+PASS backdated current ranking is stale against decision information cutoff
+PASS old signal matrix cannot certify current PCA concentration
+PASS external strategy internal execution convention is not allocator fallback
+PASS controller projection cannot silently use a different portfolio
+PASS compatible strategy exposure without asset-risk artifacts is INSUFFICIENT_DATA
+PASS V strategy order permutation retains economic canonical gate ID
+PASS explicitly allowed clipping remains a prominent warning
+PASS reported beta must reconcile to the supplied asset beta vector

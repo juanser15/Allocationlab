@@ -1,0 +1,175 @@
+{
+  "schema_version": "cl02-export-targets-1.0.0",
+  "exporter_path": "reports/cl02/export-and-plot.py",
+  "exporter_sha256": "ab377d4081fd6789697e5cd64a1d8b0dd6badd7632e0d737369691c164a46ee2",
+  "source_read_entirely": true,
+  "working_directory": "repository root (root = Path(\"reports/cl02\")); no chdir or command-line arguments",
+  "local_imports": [],
+  "external_packages": [
+    "matplotlib",
+    "matplotlib.pyplot"
+  ],
+  "standard_library_imports": [
+    "csv",
+    "hashlib",
+    "json",
+    "math",
+    "statistics",
+    "datetime",
+    "pathlib",
+    "io"
+  ],
+  "independent_inputs": [
+    "reports/cl02/manifest.json",
+    "reports/cl02/metrics.json",
+    "reports/cl02/verification.json",
+    "reports/cl02/A_0bps.ledger.jsonl",
+    "reports/cl02/A_5bps.ledger.jsonl",
+    "reports/cl02/B_0bps.ledger.jsonl",
+    "reports/cl02/B_5bps.ledger.jsonl",
+    "reports/cl02/B_control_0bps.ledger.jsonl",
+    "reports/cl02/B_control_5bps.ledger.jsonl",
+    "reports/cl02/A_0bps.targets.csv",
+    "reports/cl02/A_5bps.targets.csv",
+    "reports/cl02/B_0bps.targets.csv",
+    "reports/cl02/B_5bps.targets.csv",
+    "reports/cl02/B_control_0bps.targets.csv",
+    "reports/cl02/B_control_5bps.targets.csv"
+  ],
+  "input_source_hashes": [
+    {
+      "path": "reports/cl02/manifest.json",
+      "bytes": 11846,
+      "sha256": "396a9e408971027d45ca079dc87131e54a4d43105677b143f54cb717e1c65bba"
+    },
+    {
+      "path": "reports/cl02/metrics.json",
+      "bytes": 6163,
+      "sha256": "4650652f19cad510d6fe056f00edec397ac3236546b80700b5d59402e9a46dc2"
+    },
+    {
+      "path": "reports/cl02/verification.json",
+      "bytes": 1741,
+      "sha256": "fd88207d33365660bfee53edc78b010603eb43e6573d7c007bd8024fe90338c4"
+    },
+    {
+      "path": "reports/cl02/A_0bps.ledger.jsonl",
+      "bytes": 1031842,
+      "sha256": "5db56ea80843601cba2649063435eb922a2caa25de6400062ec58521c96b205b"
+    },
+    {
+      "path": "reports/cl02/A_5bps.ledger.jsonl",
+      "bytes": 1036189,
+      "sha256": "24a376cd2c6c4307c94692aa7482ae6e00982d78137ad4f928a59e6c641e1f39"
+    },
+    {
+      "path": "reports/cl02/B_0bps.ledger.jsonl",
+      "bytes": 1156368,
+      "sha256": "065614bb402b0a1d3674b1aa42fdfacc69e4d53238077808159ffb9726f48aba"
+    },
+    {
+      "path": "reports/cl02/B_5bps.ledger.jsonl",
+      "bytes": 1157621,
+      "sha256": "5316f7fb15c8f96da01f0bc2bdd809c3584fe14d808339e3ed4cbd55c2afbc8f"
+    },
+    {
+      "path": "reports/cl02/B_control_0bps.ledger.jsonl",
+      "bytes": 1157534,
+      "sha256": "c29b433947bae9fc26cb3b13bf9808116b61ca5ac19b487cb421322c6c12a03c"
+    },
+    {
+      "path": "reports/cl02/B_control_5bps.ledger.jsonl",
+      "bytes": 1158607,
+      "sha256": "ae2be5c41d98559ab24da71bbbd293fd1c6cfe042ab441231b0386dcb4b6598b"
+    },
+    {
+      "path": "reports/cl02/A_0bps.targets.csv",
+      "bytes": 4163,
+      "sha256": "620490f49e21fd0b24ba0cf1a9aed55a1ecfe1c3392fcb5d12ffb96e83223940"
+    },
+    {
+      "path": "reports/cl02/A_5bps.targets.csv",
+      "bytes": 4163,
+      "sha256": "620490f49e21fd0b24ba0cf1a9aed55a1ecfe1c3392fcb5d12ffb96e83223940"
+    },
+    {
+      "path": "reports/cl02/B_0bps.targets.csv",
+      "bytes": 6308,
+      "sha256": "69f69a3d4a2aae1a6df2aa8abc365c44824502c34ef4d1b74dd04445596f1c01"
+    },
+    {
+      "path": "reports/cl02/B_5bps.targets.csv",
+      "bytes": 6308,
+      "sha256": "69f69a3d4a2aae1a6df2aa8abc365c44824502c34ef4d1b74dd04445596f1c01"
+    },
+    {
+      "path": "reports/cl02/B_control_0bps.targets.csv",
+      "bytes": 7208,
+      "sha256": "0a94f7cd7dabb469091f994e7d1ce428bf143f5cf2d0888e3a75203acec5edbf"
+    },
+    {
+      "path": "reports/cl02/B_control_5bps.targets.csv",
+      "bytes": 7208,
+      "sha256": "0a94f7cd7dabb469091f994e7d1ce428bf143f5cf2d0888e3a75203acec5edbf"
+    }
+  ],
+  "source_file_hashed_as_input": "reports/cl02/export-and-plot.py",
+  "conditional_existing_output_reads": [
+    "postprocessing-manifest.json via read_text for structural guard",
+    "six ledger.standard.csv via Path.read_text in write_once and CSV-open after creation",
+    "metric-verification.json and metrics.md via Path.read_text in write_once"
+  ],
+  "all_outputs": [
+    "reports/cl02/postprocessing-manifest.json",
+    "reports/cl02/A_0bps.ledger.standard.csv",
+    "reports/cl02/A_5bps.ledger.standard.csv",
+    "reports/cl02/B_0bps.ledger.standard.csv",
+    "reports/cl02/B_5bps.ledger.standard.csv",
+    "reports/cl02/B_control_0bps.ledger.standard.csv",
+    "reports/cl02/B_control_5bps.ledger.standard.csv",
+    "reports/cl02/metric-verification.json",
+    "reports/cl02/equity-drawdown-exposure-0bps.png",
+    "reports/cl02/equity-drawdown-exposure-5bps.png",
+    "reports/cl02/metrics.md"
+  ],
+  "write_once_targets": [
+    "reports/cl02/A_0bps.ledger.standard.csv",
+    "reports/cl02/A_5bps.ledger.standard.csv",
+    "reports/cl02/B_0bps.ledger.standard.csv",
+    "reports/cl02/B_5bps.ledger.standard.csv",
+    "reports/cl02/B_control_0bps.ledger.standard.csv",
+    "reports/cl02/B_control_5bps.ledger.standard.csv",
+    "reports/cl02/metric-verification.json",
+    "reports/cl02/metrics.md"
+  ],
+  "direct_json_write_targets": [
+    "reports/cl02/postprocessing-manifest.json (only if absent)"
+  ],
+  "image_outputs": [
+    "reports/cl02/equity-drawdown-exposure-0bps.png",
+    "reports/cl02/equity-drawdown-exposure-5bps.png"
+  ],
+  "csv_outputs": [
+    "reports/cl02/A_0bps.ledger.standard.csv",
+    "reports/cl02/A_5bps.ledger.standard.csv",
+    "reports/cl02/B_0bps.ledger.standard.csv",
+    "reports/cl02/B_5bps.ledger.standard.csv",
+    "reports/cl02/B_control_0bps.ledger.standard.csv",
+    "reports/cl02/B_control_5bps.ledger.standard.csv"
+  ],
+  "json_outputs": [
+    "reports/cl02/postprocessing-manifest.json",
+    "reports/cl02/metric-verification.json"
+  ],
+  "text_outputs": [
+    "reports/cl02/metrics.md"
+  ],
+  "AST_write_call_lines": [
+    93,
+    130,
+    32,
+    86,
+    38,
+    121
+  ]
+}

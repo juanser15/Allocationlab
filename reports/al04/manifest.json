@@ -1,0 +1,135 @@
+{
+  "block": "AL04",
+  "engine_version": "factor-implementation-1.0.2",
+  "experiment": "SYNTHETIC_MECHANICAL_CERTIFICATION_NO_ALPHA",
+  "data_hash": "1ce55240282282c6ee5672b3e537f43318cf3a19eca6cc1d2a01e7bd9192534f",
+  "fixtures": [
+    {
+      "id": "square-exact",
+      "input_hash": "8e2a1ff0fc04032488f62966b8fe28191fb98591bd8cd3b57ad67448beb581d6"
+    },
+    {
+      "id": "underdetermined-specific",
+      "input_hash": "3a3416fcce787c32aca780cd4adac54db300fe7cf9b829da8ba4ad8b0d71dcfa"
+    },
+    {
+      "id": "underdetermined-total",
+      "input_hash": "bfd868f66d99a0ceaccab00df8b2130cad3c55c2bc3cc4e6d56759694a4565a6"
+    },
+    {
+      "id": "underdetermined-turnover",
+      "input_hash": "70f1f6b7ab4a63beff0db461497fc00697cad56f0ae2e4a49ff5bebfe412399e"
+    },
+    {
+      "id": "impossible-exact",
+      "input_hash": "3d66e8906ed4c976e7f48a1d6786d5c966d86093896e7fc7063535a97255fb03"
+    },
+    {
+      "id": "explicit-approximate",
+      "input_hash": "d10a45f151aca3625b3a7a6aa96e4e31736200e82a0d449d3874d244c92faafc"
+    },
+    {
+      "id": "approximate-lexicographic",
+      "input_hash": "cb8f7e4eb1560cdc233bc5ab65a043182e3470e82dacb0b934cc5712755ea72f"
+    },
+    {
+      "id": "singular-W-explicit-unpenalized-factor",
+      "input_hash": "caeb6d3f88c32327163ef712732e064dc10213aaf7a006eabc5dbc52151083f1"
+    },
+    {
+      "id": "negative-risk-contribution",
+      "input_hash": "9cc9fb02d7589e32a016c936e1f6279c6d88bdea867d0fbcfb6256667c01eca6"
+    },
+    {
+      "id": "rank-deficient-B-no-inverse",
+      "input_hash": "40c003ad55440fe50eeeaa043a779410e58782a2543cc96d667c5cbb64b1a120"
+    },
+    {
+      "id": "overdetermined-inconsistent",
+      "input_hash": "abaae547ab20106243ebceae1df169bcd730666bd0b9fd6a3b50d51564fee60e"
+    },
+    {
+      "id": "asset-bound-active",
+      "input_hash": "1945143ae6546f5cdcfe7363aaa7025652edfe48195b9f17ec59c2e45b0b24c6"
+    },
+    {
+      "id": "group-cap-active",
+      "input_hash": "9a3af1294b9e511cdc575dd6a597ea3464e5681e5ce1dd3e83e52d9cb1ecc112"
+    },
+    {
+      "id": "cardinality-two",
+      "input_hash": "0536f0591af41c9f666ec585f574a715af4b3fba713e3b02a74801eda1a65e3e"
+    },
+    {
+      "id": "turnover-cap-active",
+      "input_hash": "74d76e7758593e2c617d03c63b6e962585abb307679647475c482a845a312348"
+    },
+    {
+      "id": "explicit-zero-specific",
+      "input_hash": "20db2a8f2620e211e2186588e46701308ef4c7dfc23b64add2595ab40c113e99"
+    },
+    {
+      "id": "full-specific-covariance",
+      "input_hash": "229461ff611bfd8fb781d743a28aa0e46a91418a31216461457a881424472ed6"
+    },
+    {
+      "id": "unequal-W-tracking",
+      "input_hash": "ffc0cc20faef9d9aeaed85f07eff8ccabf8a00af49237202f176ac52503477c3"
+    },
+    {
+      "id": "statistical-standardized-shock-units",
+      "input_hash": "3857c48c2d4601549af96cc6fd8dfbbd4719a1982b406e4b616f3b428701b2f3"
+    },
+    {
+      "id": "within-tolerance-symmetric-specific-model",
+      "input_hash": "bcf8b63bd042bd566a308eabef9f865dee68c7bf5f3a54ef637fd4d1c01fe605"
+    }
+  ],
+  "solver": {
+    "feasibility_tolerance": 1e-10,
+    "stationarity_tolerance": 1e-9,
+    "psd_tolerance": 1e-12,
+    "symmetry_tolerance": 1e-12,
+    "erc_relative_tolerance": 1e-8,
+    "max_iterations": 10000,
+    "max_faces": 100000,
+    "max_supports": 4096,
+    "factor_tolerance": 1e-9,
+    "rank_tolerance": 1e-12,
+    "tracking_tie_tolerance": 1e-12,
+    "secondary_tie_tolerance": 1e-12
+  },
+  "sensitivity": {
+    "version": "factor-local-sensitivity-1.0.1",
+    "target_delta_multiplier": 0.02,
+    "loading_delta_multiplier": 0.01,
+    "unit_scale_rule": "DIMENSIONLESS:1; DAILY_RETURN_LOADING:max absolute loading in that factor row; zero row explicitly NO_NONZERO_LOADING_SCALE",
+    "factor_covariance_scale": [
+      0.95,
+      1.05
+    ],
+    "specific_risk_scale": [
+      0.95,
+      1.05
+    ]
+  },
+  "code_hashes": {
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts": "674986899e25102a12a2f300933dd592e612719d2ab8bf997d6c5782c84e072c",
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts": "29bc238ebde9d61835e1e2881f837645c016a641a4bbd18ded788a85dbf30c86",
+    "artifacts/api-server/src/lib/allocation-core/contracts.ts": "cfeb3b171b7bd19a1cd198865b18c46b73864b9a03c66c34423d420206934e8a",
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/certify.ts": "351b7d39c978657a487d566f375de79c79a128cec72e614f957256273d5eeb3c",
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/contracts.ts": "7f475bc8142669eb84be1183a5b1113e624c8ffd74a864bccb0c0b9e1c399d54",
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.test.ts": "05fb415d0a12cfb44b5183dc850141f9cd0aea9362a0d8098fbea24332241d63",
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.ts": "12f65ba6fd55745303406e0a1fd86a0b57dcf8806b205bc380bc85e9a42d86a5",
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/fixtures.ts": "f679bfc6c08f849808d0b53acd77b7cb72903369b51b1933e27a434eb9cfff4a",
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/sensitivity.ts": "5ad225c28a0352050f1fd8d285f010de3f7b9b6f29089bf4c7b73d6e0a354521",
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/solver.ts": "16ae52d6512e2eb28e7bc363b63b5ff07c84f90e0eaf145c2e665a2a21f7d279",
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/validation.ts": "5bdd9d75f47482b445264b4ca8c0c70daea12d542d967f6385bc7913282912bc",
+    "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts": "5905a1b9e6d6b868ec1c0d4f96367160329663b15d9ee2da86403839b7dc9dc0",
+    "artifacts/api-server/src/lib/allocation-core/validation.ts": "31bc8f62dc6452c14139bbd09229947f6d1e8b31d51206ea32cd228afdd40a0f"
+  },
+  "baseline_checkpoint_hash": "ff8e72e259de7d938edd17895ec065b73dce0d8a8c29c5933260f823e44ffb44",
+  "historical_replay": "BLOCKED_MISSING_CANONICAL_FACTOR_ARTIFACTS",
+  "backtester_executions": 0
+}

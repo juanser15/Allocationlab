@@ -1,0 +1,650 @@
+{
+  "status": "PASS",
+  "methodology": "PIPE03_INDEPENDENT_ARITHMETIC_PERSISTED_REPLAY_1.0.0",
+  "passed": 159,
+  "failed": 0,
+  "checks": [
+    {
+      "criterion": "active universe and covariance projection same-family-markets_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity same-family-markets_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle same-family-markets_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation same-family-markets_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability same-family-markets_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash same-family-markets_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure same-family-markets_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary same-family-markets_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection same-family-markets_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity same-family-markets_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle same-family-markets_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation same-family-markets_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability same-family-markets_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash same-family-markets_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure same-family-markets_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary same-family-markets_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection same-family-markets_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity same-family-markets_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle same-family-markets_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation same-family-markets_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability same-family-markets_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash same-family-markets_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure same-family-markets_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary same-family-markets_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection same-asset_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity same-asset_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle same-asset_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation same-asset_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability same-asset_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash same-asset_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure same-asset_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary same-asset_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection same-asset_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity same-asset_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle same-asset_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation same-asset_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability same-asset_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash same-asset_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure same-asset_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary same-asset_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection same-asset_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity same-asset_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle same-asset_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation same-asset_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability same-asset_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash same-asset_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure same-asset_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary same-asset_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection high-correlation_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity high-correlation_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle high-correlation_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation high-correlation_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability high-correlation_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash high-correlation_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure high-correlation_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary high-correlation_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection high-correlation_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity high-correlation_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle high-correlation_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation high-correlation_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability high-correlation_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash high-correlation_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure high-correlation_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary high-correlation_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection high-correlation_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity high-correlation_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle high-correlation_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation high-correlation_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability high-correlation_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash high-correlation_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure high-correlation_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary high-correlation_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection high-correlation_CAP1_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity high-correlation_CAP1_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle high-correlation_CAP1_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation high-correlation_CAP1_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability high-correlation_CAP1_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash high-correlation_CAP1_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure high-correlation_CAP1_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary high-correlation_CAP1_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection high-correlation_CAP1_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity high-correlation_CAP1_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle high-correlation_CAP1_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation high-correlation_CAP1_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability high-correlation_CAP1_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash high-correlation_CAP1_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure high-correlation_CAP1_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary high-correlation_CAP1_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection high-correlation_CAP1_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity high-correlation_CAP1_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle high-correlation_CAP1_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation high-correlation_CAP1_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability high-correlation_CAP1_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash high-correlation_CAP1_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure high-correlation_CAP1_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary high-correlation_CAP1_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection regime-ineligible_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity regime-ineligible_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle regime-ineligible_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation regime-ineligible_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability regime-ineligible_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash regime-ineligible_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure regime-ineligible_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary regime-ineligible_PRESERVE_EQUAL_CAPITAL",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection regime-ineligible_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity regime-ineligible_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle regime-ineligible_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation regime-ineligible_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability regime-ineligible_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash regime-ineligible_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure regime-ineligible_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary regime-ineligible_PRESERVE_MIN_VARIANCE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection regime-ineligible_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity regime-ineligible_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle regime-ineligible_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation regime-ineligible_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability regime-ineligible_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash regime-ineligible_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure regime-ineligible_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary regime-ineligible_PRESERVE_ERC",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection ACTIVE_ZERO_ALLOCATION",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity ACTIVE_ZERO_ALLOCATION",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle ACTIVE_ZERO_ALLOCATION",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation ACTIVE_ZERO_ALLOCATION",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability ACTIVE_ZERO_ALLOCATION",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash ACTIVE_ZERO_ALLOCATION",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure ACTIVE_ZERO_ALLOCATION",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary ACTIVE_ZERO_ALLOCATION",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection ROBUSTNESS_THRESHOLD_FAILURE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity ROBUSTNESS_THRESHOLD_FAILURE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle ROBUSTNESS_THRESHOLD_FAILURE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation ROBUSTNESS_THRESHOLD_FAILURE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability ROBUSTNESS_THRESHOLD_FAILURE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash ROBUSTNESS_THRESHOLD_FAILURE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure ROBUSTNESS_THRESHOLD_FAILURE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary ROBUSTNESS_THRESHOLD_FAILURE",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection RESIDUAL_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity RESIDUAL_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle RESIDUAL_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation RESIDUAL_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability RESIDUAL_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash RESIDUAL_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure RESIDUAL_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary RESIDUAL_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection SIGNED_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity SIGNED_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "closed-form independent strategy allocation oracle SIGNED_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent H a gross net contribution residual beta reconciliation SIGNED_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "exact allocator gate and RiskMandate immutability SIGNED_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent lambda target risk and single implementation cash SIGNED_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure SIGNED_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary SIGNED_CONTROLLER_BLOCK",
+      "status": "PASS"
+    },
+    {
+      "criterion": "active universe and covariance projection INACTIVE_POSITIVE_MIN",
+      "status": "PASS"
+    },
+    {
+      "criterion": "source configuration and frozen active-policy governance identity INACTIVE_POSITIVE_MIN",
+      "status": "PASS"
+    },
+    {
+      "criterion": "existing router no approval no fallback preserves primary failure INACTIVE_POSITIVE_MIN",
+      "status": "PASS"
+    },
+    {
+      "criterion": "stage sequence market cutoff and nonexecution boundary INACTIVE_POSITIVE_MIN",
+      "status": "PASS"
+    },
+    {
+      "criterion": "CSV RFC4180 JSON roundtrip referential counts stage journal",
+      "status": "PASS"
+    },
+    {
+      "criterion": "all certified baselines and production byte-identical",
+      "status": "PASS"
+    },
+    {
+      "criterion": "no Bank computation optimizer math search promotion or execution in integration",
+      "status": "PASS"
+    }
+  ],
+  "tolerances": {
+    "default_absolute_relative": 1e-09,
+    "optimizer_weights_absolute": 2e-08,
+    "variance_absolute": 1e-13
+  },
+  "historical_replay": "BLOCKED_MISSING_STRATEGY_HISTORY"
+}

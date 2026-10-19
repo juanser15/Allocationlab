@@ -1,0 +1,8 @@
+{
+  "research/pipeline/cli.ts": "679a532d82ea155427c0df204cbc3b5104cbc5d9ac039ab0909877c00ad6f4b5",
+  "research/pipeline/contracts.ts": "d152f1f4abbf4947594219e9bcc62a1b8b3f5f082ecf54dd83090f9b6300ccca",
+  "research/pipeline/data.ts": "00443adcb7369a564cdc349b1edda1cb682cbe014f9f007f7aaa6591e60e9523",
+  "research/pipeline/decision.ts": "35c7747998cc63726e720e22c3596a182500743c850c2254000b9276c5a0359c",
+  "research/pipeline/execution.ts": "0b81fa84bb7d4de6cde81127ce331c3c0c2783bc601e020d45f7b3f82f38057d",
+  "research/pipeline/fixtures.ts": "c0c34556e408a36190cb04ff3e6c5688b13f267a72249efc4e229640f30e03de"
+}

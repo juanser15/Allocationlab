@@ -1,0 +1,57 @@
+[
+  {
+    "path": "reports/cl02/postprocessing-manifest.json",
+    "size": 1302,
+    "sha256": "245a5c56015db95b2041c2a76015fd80ac45b2f2c97bec2184f729b9e706d699"
+  },
+  {
+    "path": "reports/cl02/A_0bps.ledger.standard.csv",
+    "size": 755478,
+    "sha256": "615bfc5ced0e3c5d5f0537881e78c9fa93529d20c5f6c42ddda810e5478f05f4"
+  },
+  {
+    "path": "reports/cl02/A_5bps.ledger.standard.csv",
+    "size": 761057,
+    "sha256": "d02876e4f39795e4e75bd876d46bb33cd5cc672be5f254ce837b2c738fb082c5"
+  },
+  {
+    "path": "reports/cl02/B_0bps.ledger.standard.csv",
+    "size": 944842,
+    "sha256": "54a955ff73af58fcf351441cf62b87ce6db942dc6f4fc84b70e056dc70b3720d"
+  },
+  {
+    "path": "reports/cl02/B_5bps.ledger.standard.csv",
+    "size": 946122,
+    "sha256": "c89586ae656109c03df354e41f00f7f93669b1dfbb652e2a85258811048fdc4d"
+  },
+  {
+    "path": "reports/cl02/B_control_0bps.ledger.standard.csv",
+    "size": 962344,
+    "sha256": "03b777a2c7def7ce48824cb41ad59da4fb4f058a80303e243743d2b786e031e6"
+  },
+  {
+    "path": "reports/cl02/B_control_5bps.ledger.standard.csv",
+    "size": 963474,
+    "sha256": "5e9a5b63ff9fe132ac90745db8564bd5fba606244486bce96709ec67318b2fea"
+  },
+  {
+    "path": "reports/cl02/metric-verification.json",
+    "size": 2645,
+    "sha256": "cfc5396993a524b9e5be2fccdbf3508607430820914258ccc7daee08f886479d"
+  },
+  {
+    "path": "reports/cl02/equity-drawdown-exposure-0bps.png",
+    "size": 369380,
+    "sha256": "5dd1f82d9414f9dcc72ee95764b40f467b3cd31d12fe5b2e433b8c504b0a1ba2"
+  },
+  {
+    "path": "reports/cl02/equity-drawdown-exposure-5bps.png",
+    "size": 370876,
+    "sha256": "a3332680c7e5aeaa212857750aacc93437c5acc864846354c279fb448268b373"
+  },
+  {
+    "path": "reports/cl02/metrics.md",
+    "size": 971,
+    "sha256": "142d03449e2cb91595c4e87e57906ca2fe76be54e25496285d89ec94e6bb3934"
+  }
+]

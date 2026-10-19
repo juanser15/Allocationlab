@@ -1,0 +1,3 @@
+"outer_fold","candidate_id","previous_candidate_id","changed","objective","winning_rank"
+"0","are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638","","","{""type"":""EQUAL_WEIGHT""}","1"
+"1","are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638","are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638","false","{""type"":""EQUAL_WEIGHT""}","1"

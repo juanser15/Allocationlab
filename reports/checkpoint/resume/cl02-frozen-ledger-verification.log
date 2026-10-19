@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/tmp/allocation-checkpoint-validation-m_jyo5xw/reports/cl02/export-and-plot.py", line 86, in <module>
+    write_once(output, stream.getvalue())
+  File "/tmp/allocation-checkpoint-validation-m_jyo5xw/reports/cl02/export-and-plot.py", line 36, in write_once
+    assert path.read_text() == content, str(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: reports/cl02/A_0bps.ledger.standard.csv

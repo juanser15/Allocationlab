@@ -1,0 +1,26 @@
+# AL-03 — read-only B2 mapping
+
+B2 stays frozen. No production adapter, optimizer execution, route or UI changes. Source: `artifacts/api-server/src/lib/allocation-b2.ts` at checkpoint commit `1163a0b574b573004372a3a2fc8752810dea7ef9`; pending calculator/CL/AL work preserved by SHA256.
+
+| Existing object / location | Canonical destination | Compatibility / action for a future adapter |
+|---|---|---|
+| `AllocationRepresentation`, lines 24-25; CAPITAL_LONG_ONLY/SIGNED_OVERLAY | ASSETS mode + separate sleeve convention | asset_returns can map with explicit tradable IDs/units; signals are not asset returns or alpha-stream returns. Signed overlay is outside AL03. |
+| `AllocationModel.mu/sigma`, lines 102+; forecast/risk preparation within optimizePreparedSnapshot | External ExpectedReturns / CovarianceRiskModel | Axis, daily units, decision universe, strict prior cutoff, availability, model/version and source/config/data hashes must be supplied. AL03 never estimates mu or covariance inside its optimizer. No B2 fitting imported. |
+| `minimum_variance`, lines 35-37, 786-788, 914 | MIN_VARIANCE | B2 minimizes 0.5*w'Sigma*w; AL03 minimizes q'Sigma*q. The factor 0.5 does not change an optimum over the same feasible set. B2's feasible set includes cash, so its current result is not the fully invested AL03 solution. |
+| `regularized_mean_variance`, lines 35-37, 786-800, 914-939 | MEAN_VARIANCE only after removing extra terms | B2 objective is gamma/2*w'Sigma*w - mu'w + eta/2*w'w - dailyCashYield*masterCash, plus optional robust haircut, economic/slippage/turnover preference and rebalance penalties. AL03 uses only q'mu - gamma/2*q'Sigma*q with gamma explicit. It is not a rename of B2's full objective. |
+| No EW/MAX_SHARPE/ERC B2 objective variants (enum at 35-37) | Explicit new research-only registry | No hidden equivalence or objective switching. These are separately tested AL03 objectives, not B2 refactoring. |
+| `capital_budget`, lines 360-368 | sum(q)=1 | B2 has n+1 variables, w plus master cash, and sum(w)+cash=1. Remove the cash coordinate when designing a future sleeve adapter; do not divide B2's mixed-budget weights by their sum and pretend the objective is equivalent. |
+| `master_cash_nonnegative`, line 368; `totalCash` constraint, 390-397 | RiskMandate constraints + ExposureController | Must disappear from the sleeve decision problem. Total cash uses `[...d,1]`, mixing stream residual and master cash. It is not a q bound. No second downstream cash decision is permitted. |
+| `dailyCashYield`, line 75, objective linear term 799-800; `masterCashReturn`, 918-919 | No allocation objective counterpart | Cash yield may be an execution assumption downstream; it cannot be a q objective input or variable. Legacy cash/risk policies remain LEGACY RISK_FRACTION adapters. |
+| `candidateBounds`, 363-377; underlying `assetBounds`, 379-389 | Sleeve asset bounds | Algebra reusable only with sleeve units and direct ASSETS identity mapping. Stream-capital bounds are different from tradable instrument weights. |
+| `groupCaps`, 398-407 | Sleeve group/sector caps | Sum of declared q members <= cap; IDs and units must be reconstructed. Signed group gross caps are a separate contract, not the long-only counterpart. |
+| D5 abs-trade auxiliaries, 770-785, cost penalty 796-800 | Potential future cost-aware allocation, not AL03 | B2 uses underlying total NAV trade weights and amortized economic/slippage/preference penalties. AL03 optional turnover cap is gross L1 distance vs previous sleeve q; actual trade turnover/costs are measured separately in the replay ledger. Units cannot be copied silently. |
+| Rebalance Hessian/linear modifications, 789-803, penalty 920+ | Optional future regularization, not AL03 | These alter q relative to a reference book. They are not equal to AL03's hard turnover cap and are not implemented here. |
+| `weights=x.slice(0,n)`, `masterCash=x[n]`, `H*weights`, `totalCash=masterCash+d'w`, 902-911 | q + explicit mapping + separate controller | B2 jointly changes relative composition and risky capital. H mapping changes instrument composition and beta_sleeve; masterCash changes invested fraction, hence an implicit exposure multiplier. A future adapter must separate these decisions with new certification. |
+| B3 consumes B2 assetWeights/masterCash/totalCash (`b3-policy.ts:1014-1034`, existing AL01 mapping) | Consume canonical sleeve then one ExposureController | No B3 changes or adapter in AL03. Legacy output is not primary MARKET_BETA mandate implementation. |
+
+## Attribution boundary
+
+AL03 changes q and therefore beta_sleeve=q'beta_assets, q'Sigma*q and concentration. It never chooses target beta, lambda, cash or total NAV exposure. At each research rebalance the same immutable RiskMandate is composed with all three q values using unchanged AL01 `composeMandatedPortfolio`. The controller alone produces lambda=target_beta/beta_sleeve and implied cash. Changing q can change cash indirectly through this identity; that is risk implementation, not a second cash optimization.
+
+No old B2 output was run or used as an oracle. Semantic mapping is based solely on the bounded code inspection above. A production adapter remains unimplemented and requires separately authorized work; AL03 does not open that block.

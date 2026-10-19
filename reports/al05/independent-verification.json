@@ -1,0 +1,836 @@
+{
+  "status": "PASS",
+  "oracle": "independent NumPy + SciPy SLSQP; closed-form diagonal ERC/EQUAL; no engine calls",
+  "tolerances": {
+    "objective_absolute": 2e-09,
+    "accounting_absolute": 1e-12,
+    "weights_equal_erc": 3e-08,
+    "diagnostics": 2e-09
+  },
+  "checks": [
+    {
+      "case": "EQUAL_CAPITAL",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MIN_VARIANCE",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "ERC",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MEAN_VARIANCE",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MAX_SHARPE",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-opposing",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "internal-residual",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "same-underlying-distinct-instance",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-shared-asset-cap",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-net-band",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-net-gross-cap",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-family-cap",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "underlying-strategy-group-cap",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-sector-net-cap",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "max-active-two",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-turnover-cap",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "impossible-bounds",
+      "status": "PASS",
+      "scope": "explicit expected failure preserved"
+    },
+    {
+      "case": "missing-mu-mv",
+      "status": "PASS",
+      "scope": "explicit expected failure preserved"
+    },
+    {
+      "case": "missing-mu-sharpe",
+      "status": "PASS",
+      "scope": "explicit expected failure preserved"
+    },
+    {
+      "case": "incremental-instrument-cost",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "negative-excess-sharpe",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "perfectly-correlated-preserved",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "EQUAL_CAPITAL:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "EQUAL_CAPITAL:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "EQUAL_CAPITAL:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "EQUAL_CAPITAL:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "EQUAL_CAPITAL:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "EQUAL_CAPITAL:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MIN_VARIANCE:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MIN_VARIANCE:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MIN_VARIANCE:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MIN_VARIANCE:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MIN_VARIANCE:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MIN_VARIANCE:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "ERC:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "ERC:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "ERC:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "explicit expected failure preserved"
+    },
+    {
+      "case": "ERC:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "ERC:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "ERC:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MEAN_VARIANCE:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MEAN_VARIANCE:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MEAN_VARIANCE:mu_scale:0.9",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MEAN_VARIANCE:mu_scale:1.1",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MEAN_VARIANCE:mu_rank_preserving_noise:0.001",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MEAN_VARIANCE:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MEAN_VARIANCE:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MEAN_VARIANCE:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MEAN_VARIANCE:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MAX_SHARPE:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MAX_SHARPE:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MAX_SHARPE:mu_scale:0.9",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MAX_SHARPE:mu_scale:1.1",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MAX_SHARPE:mu_rank_preserving_noise:0.001",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MAX_SHARPE:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MAX_SHARPE:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MAX_SHARPE:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "MAX_SHARPE:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-opposing:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-opposing:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-opposing:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "explicit expected failure preserved"
+    },
+    {
+      "case": "signed-opposing:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-opposing:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-opposing:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "internal-residual:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "internal-residual:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "internal-residual:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "explicit expected failure preserved"
+    },
+    {
+      "case": "internal-residual:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "internal-residual:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "internal-residual:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "same-underlying-distinct-instance:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "same-underlying-distinct-instance:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "same-underlying-distinct-instance:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "same-underlying-distinct-instance:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "same-underlying-distinct-instance:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "same-underlying-distinct-instance:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-shared-asset-cap:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-shared-asset-cap:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-shared-asset-cap:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-shared-asset-cap:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-shared-asset-cap:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-shared-asset-cap:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-net-band:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-net-band:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-net-band:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-net-band:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-net-band:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "signed-net-band:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-net-gross-cap:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-net-gross-cap:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-net-gross-cap:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-net-gross-cap:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-net-gross-cap:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-net-gross-cap:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-family-cap:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-family-cap:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-family-cap:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-family-cap:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-family-cap:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-family-cap:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "underlying-strategy-group-cap:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "underlying-strategy-group-cap:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "underlying-strategy-group-cap:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "underlying-strategy-group-cap:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "underlying-strategy-group-cap:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "underlying-strategy-group-cap:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-sector-net-cap:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-sector-net-cap:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-sector-net-cap:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-sector-net-cap:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-sector-net-cap:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "post-map-sector-net-cap:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "max-active-two:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "max-active-two:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "max-active-two:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "max-active-two:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "max-active-two:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "max-active-two:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-turnover-cap:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-turnover-cap:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-turnover-cap:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-turnover-cap:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-turnover-cap:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-turnover-cap:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "incremental-instrument-cost:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "incremental-instrument-cost:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "incremental-instrument-cost:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "incremental-instrument-cost:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "incremental-instrument-cost:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "incremental-instrument-cost:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "incremental-instrument-cost:incremental_actual_notional_cost_bps:0",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "incremental-instrument-cost:incremental_actual_notional_cost_bps:10",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "negative-excess-sharpe:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "negative-excess-sharpe:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "negative-excess-sharpe:mu_scale:0.9",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "negative-excess-sharpe:mu_scale:1.1",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "negative-excess-sharpe:mu_rank_preserving_noise:0.001",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "negative-excess-sharpe:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "negative-excess-sharpe:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "negative-excess-sharpe:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "negative-excess-sharpe:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "perfectly-correlated-preserved:covariance_diagonal_shrink:0.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "perfectly-correlated-preserved:covariance_diagonal_shrink:0.05",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "perfectly-correlated-preserved:first_strategy_max_bound:0.4",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "perfectly-correlated-preserved:first_strategy_max_bound:0.8",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "perfectly-correlated-preserved:H_column_exposure_scale:0.99",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "perfectly-correlated-preserved:H_column_exposure_scale:1.01",
+      "status": "PASS",
+      "scope": "independent optimization/risk/H/constraints/costs"
+    },
+    {
+      "case": "strategy-attribution.csv",
+      "status": "PASS",
+      "scope": "independent attribution reconciliation"
+    },
+    {
+      "case": "family-attribution.csv",
+      "status": "PASS",
+      "scope": "independent attribution reconciliation"
+    },
+    {
+      "case": "alpha-allocation-results.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 59
+    },
+    {
+      "case": "alpha-beta-diagnostics.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 22
+    },
+    {
+      "case": "alpha-diversification.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 22
+    },
+    {
+      "case": "alpha-position-aggregation.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 43
+    },
+    {
+      "case": "alpha-return-risk.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 22
+    },
+    {
+      "case": "alpha-sensitivity.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 125
+    },
+    {
+      "case": "controller-compatibility.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 22
+    },
+    {
+      "case": "economic-replay.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 5
+    },
+    {
+      "case": "family-attribution.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 38
+    },
+    {
+      "case": "instrument-contributions.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 120
+    },
+    {
+      "case": "strategy-attribution.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 50
+    },
+    {
+      "case": "underlying-attribution.csv",
+      "status": "PASS",
+      "scope": "CSV round-trip / referential IDs / expected counts",
+      "rows": 43
+    },
+    {
+      "case": "manifest code hashes",
+      "status": "PASS",
+      "scope": "frozen before performance, exact source bytes"
+    }
+  ],
+  "passed": 162,
+  "failed": 0
+}

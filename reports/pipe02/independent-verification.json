@@ -1,0 +1,61 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "criterion": "Independent logical routing oracle and exact target equality",
+      "status": "PASS",
+      "evidence": {
+        "records": 303,
+        "actions": {
+          "NO_NEW_TARGET": 102,
+          "BLOCKED": 101,
+          "USE_PRIMARY_TARGET": 98,
+          "HOLD_PREVIOUS_CERTIFIED_TARGET": 1,
+          "USE_PREAPPROVED_FALLBACK": 1
+        },
+        "no_original_router_calls": true
+      }
+    },
+    {
+      "criterion": "Independent promotion thresholds and temporal lifecycle",
+      "status": "PASS",
+      "evidence": {
+        "evaluations": 10,
+        "additional_known_answers": 8,
+        "transitions": 36,
+        "actual_promotions": 0
+      }
+    },
+    {
+      "criterion": "Frozen evidence byte hashes and copied metrics / PIPE01 identity",
+      "status": "PASS",
+      "evidence": {
+        "frozen_source_hashes": 118,
+        "exact_PIPE01_targets": 96,
+        "performance_recalculated": false
+      }
+    },
+    {
+      "criterion": "Persistence / RFC4180 / JSON roundtrip / no target on rejection",
+      "status": "PASS",
+      "evidence": {
+        "CSV_counts": {
+          "bank-registry.csv": 10,
+          "promotion-evaluations.csv": 10,
+          "failure-summary.csv": 205,
+          "fallback-usage.csv": 2,
+          "blockers.csv": 4,
+          "replay-comparison.csv": 96,
+          "bank-status-history.csv": 36,
+          "fallback-registry.csv": 1,
+          "routing-decisions.csv": 303,
+          "promotion-decisions.csv": 6
+        },
+        "unique_routing_business_keys": 303
+      }
+    }
+  ],
+  "financial_model_runs": 0,
+  "backtests": 0,
+  "original_router_calls": 0
+}

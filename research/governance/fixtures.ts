@@ -1,0 +1,49 @@
+/** Clearly synthetic governance clocks/authorizations; no financial model or run. */
+import {readFileSync} from 'node:fs';
+import {canonicalHash,seal} from './common';
+import {evaluatePromotion} from './promotion';
+import {proposeEvent} from './bank';
+import type {Authority,BankDefinition,BankRegistry,CertifiedTarget,DataHealth,FallbackDefinition,Identity,PromotionDecision,PromotionEvidence,PromotionPolicy,RoutingInput,RoutingPolicy,Scope} from './contracts';
+import type {FinalPortfolioTarget} from '../pipeline/contracts';
+export const SYNTHETIC_ACTOR='PIPE02_QA_AUTHORIZED_ACTOR_NOT_A_REAL_PROMOTION';
+export const point=(at:string)=>({as_of:at,information_cutoff:at,provenance:{data_hash:canonicalHash({label:'SYNTHETIC_GOVERNANCE_NOT_MARKET_DATA'}),configuration_hash:canonicalHash({version:'PIPE02_DECLARED_QA'}),source_ids:['PIPE02_SYNTHETIC_KNOWN_ANSWER'],available_at:at}});
+export function policy(at='2027-01-01T00:00:00Z',scope:Scope='QA_ONLY'):PromotionPolicy{
+ return seal({...point(at),promotion_policy_id:'PIPE02_EXPLICIT_MECHANICAL_POLICY',version:'1.0.0',scope,eligible_modes:['ASSETS','FACTORS','STRATEGY_STREAMS'] as PromotionPolicy['eligible_modes'],required_certifications:['AL07','PIPE01'],required_gates:['PORTFOLIO_ROBUSTNESS'],minimum_oos_folds:2,minimum_observations:20,economic_hurdles:{},required_robustness_status:'PASS' as const,required_reproducibility_status:'PASS' as const,allowed_unresolved_blockers:[],manual_approval_required:true,authority_id:scope==='QA_ONLY'?'QA_AUTHORITY':'EXTERNAL_MANUAL_AUTHORITY'});
+}
+export function evidence(identity:Identity,at='2027-01-01T00:00:00Z',scope:Scope='QA_ONLY'):PromotionEvidence{
+ return seal({...point(at),evidence_id:'evidence_'+canonicalHash({identity,at,scope}),scope,identity,frozen_campaign_id:'SYNTHETIC_CERTIFIED_ARTIFACT_FIXTURE',refs:[{source_id:'SYNTHETIC_FROZEN_PERFORMANCE',path:'SYNTHETIC_INLINE_NOT_MARKET_DATA',sha256:canonicalHash({fixture:true}),available_at:at}],observations:100,oos_folds:3,metrics:{cagr:.05,capm_alpha:.001,psr:.6,max_drawdown:.1,average_beta:.3,downside_beta:.32,tail_beta:.35,turnover:.4},certifications:{AL07:'PASS',PIPE01:'PASS'},gate_statuses:{PORTFOLIO_ROBUSTNESS:'PASS',SIGNAL_QUALITY:'NOT_REQUIRED'},robustness_status:'PASS',reproducibility_status:'PASS',cost_scenario_bps:5,risk_mandate_hashes:[canonicalHash({synthetic_mandate:true})],code_hashes:[canonicalHash({synthetic_code:true})],data_hashes:[canonicalHash({synthetic_data:true})],blockers:[]});
+}
+export function authority(at='2027-01-01T00:00:00Z'):Authority{
+ return seal({...point(at),authority_id:'QA_AUTHORITY',scope:'QA_ONLY' as const,kind:'QA_SIMULATION' as const,actor_refs:[SYNTHETIC_ACTOR],allowed_actions:['APPROVE','REJECT','DEFER','SUSPEND','RESUME','RETIRE','ACTIVATE','DEACTIVATE'] as Authority['allowed_actions'],valid_from:at,valid_until:null});
+}
+export function routingPolicy(at='2027-01-01T00:00:00Z'):RoutingPolicy{
+ const rules:RoutingPolicy['rules']={};for(const c of ['SIGNAL_GATE_FAIL','SIGNAL_INSUFFICIENT_DATA','ALLOCATION_FAILURE','ROBUSTNESS_GATE_FAIL','RISK_TARGET_INFEASIBLE','MISSING_ARTIFACT','PROMOTION_NOT_ALLOWED','ENTRY_INACTIVE','DATA_STALE'] as const)rules[c]={action:'NO_NEW_TARGET',fallback_hash:null};rules.PRIMARY_PIPELINE_PASS={action:'USE_PRIMARY_TARGET',fallback_hash:null};
+ return seal({...point(at),routing_policy_id:'PIPE02_DECLARED_QA_ROUTING',version:'1.0.0',scope:'QA_ONLY' as const,condition_priority:['PROMOTION_NOT_ALLOWED','ENTRY_INACTIVE','DATA_STALE','SIGNAL_GATE_FAIL','SIGNAL_INSUFFICIENT_DATA','ALLOCATION_FAILURE','ROBUSTNESS_GATE_FAIL','RISK_TARGET_INFEASIBLE','MISSING_ARTIFACT','PRIMARY_PIPELINE_PASS'] as RoutingPolicy['condition_priority'],rules,primary_max_age_days:10000,maximum_data_age_days:1,accepted_data_health_kinds:['SYNTHETIC_INFORMATION_SET'] as RoutingPolicy['accepted_data_health_kinds'],hold:{maximum_target_age_days:2,require_current_data_health:true,risk_mandate_must_match:true,require_mechanical_recertification:false,recertification_checks:['PIT','MECHANICAL'],maximum_consecutive_holds:2,on_invalid:'NO_NEW_TARGET' as const},fallback:{allow_different_preapproved_risk_mandate:true,on_invalid:'BLOCKED' as const},required_certifications:['PIPE01'],required_gates:['PORTFOLIO_ROBUSTNESS']});
+}
+export function health(at:string):DataHealth{return seal({...point(at),health_id:'QA_DECLARED_HEALTH_'+at,kind:'SYNTHETIC_INFORMATION_SET' as const,status:'HEALTHY' as const,data_as_of:at});}
+export function approval(e:PromotionEvidence,p:PromotionPolicy,v:ReturnType<typeof evaluatePromotion>,a:Authority,at:string,decision:PromotionDecision['decision']='APPROVE'):PromotionDecision{
+ const body={scope:e.scope,identity:e.identity,evidence_hash:e.hash,policy_hash:p.hash,evaluation_hash:v.hash,decision,authorized_by:SYNTHETIC_ACTOR,authority_hash:a.hash,decision_time:at,available_at:at,reason:'SYNTHETIC explicit authority fixture; not actual research promotion'};
+ return seal({decision_id:'approval_'+canonicalHash(body),...body});
+}
+export function register(reg:BankRegistry,identity:Identity,e:PromotionEvidence,p:PromotionPolicy,a:Authority,prefix:string,base='2027-01-01',approved=true,labels={underlying_ids:['SPY'],market_tags:['SYNTHETIC'],region_tags:['DECLARED']}){
+ const def:BankDefinition=seal({as_of:base+'T00:00:00Z',information_cutoff:base+'T00:00:00Z',provenance:{...e.provenance,configuration_hash:canonicalHash({identity,labels,entry_id:prefix,evidence_hash:e.hash})},entry_id:prefix,entry_type:'ALLOCATION_CONFIGURATION' as const,scope:e.scope,identity,strategy_family_id:null,...labels,analysis_references:{strategy_returns:null,correlations:null,clusters:null,marginal_diversification:null},valid_from:base+'T00:00:00Z',valid_until:null,evidence_hash:e.hash});reg.definitions.push(def);reg.evidence.push(e);if(!reg.policies.some(x=>x.hash===p.hash))reg.policies.push(p);if(!reg.authorities.some(x=>x.hash===a.hash))reg.authorities.push(a);
+ const v=evaluatePromotion(e,p,base+'T00:01:00Z');reg.evaluations.push(v);
+ reg.events.push(proposeEvent(reg,def.entry_id,'VALIDATE',base+'T00:02:00Z',{reason:'Frozen mechanical certification'}));
+ reg.events.push(proposeEvent(reg,def.entry_id,'MAKE_PROMOTABLE',base+'T00:03:00Z',{evaluation_hash:v.hash,reason:'Explicit policy PASS, not promotion'}));
+ if(approved){const d=approval(e,p,v,a,base+'T00:04:00Z');reg.decisions.push(d);reg.events.push(proposeEvent(reg,def.entry_id,'APPROVE',base+'T00:04:00Z',{promotion_decision_hash:d.hash,reason:'Separate explicit QA authorization'}));reg.events.push(proposeEvent(reg,def.entry_id,'ACTIVATE',base+'T00:05:00Z',{actor_ref:SYNTHETIC_ACTOR,authority_hash:a.hash,activation_reason:'ACTIVE',reason:'Externally supplied QA activation'}));}
+ return{def,evaluation:v};
+}
+export function fixture(){
+ const at='2027-01-01T00:06:00Z',p=policy(),a=authority(),reg:BankRegistry={definitions:[],events:[],evidence:[],policies:[],evaluations:[],decisions:[],authorities:[]},certificates:CertifiedTarget[]=[];
+ const source=JSON.parse(readFileSync('reports/pipe01/synthetic-e2e.json','utf8')) as Array<{mode:string;result:{decisions:Array<{final_target:FinalPortfolioTarget}>}}>;
+ for(const [id,mode]of [['A','ASSETS'],['F','FACTORS']] as const){
+  const old=source.find(f=>f.mode===mode)!.result.decisions[0].final_target,{target_id,...oldBody}=old;
+  const targetBody={...oldBody,decision_context_id:'SYNTHETIC_CONTEXT_'+id,risk_mandate_hash:canonicalHash({synthetic_preapproved_mandate:id}),execution:{...old.execution,date:'2027-01-02'}};const target={...targetBody,target_id:'target_'+canonicalHash(targetBody)};
+  const identity:Identity={artifact_id:'SYNTHETIC_'+id,version:'1',candidate_id:'SYNTHETIC_CANDIDATE_'+id,allocation_mode:mode,configuration_hash:canonicalHash({synthetic_allocation:id})},{hash,...packet}=evidence(identity),e=seal({...packet,risk_mandate_hashes:[target.risk_mandate_hash]});register(reg,identity,e,p,a,'ENTRY_'+id,'2027-01-01',true,{underlying_ids:Object.keys(target.final_asset_weights).sort(),market_tags:['SYNTHETIC'],region_tags:[]});
+  certificates.push(seal({...point('2027-01-01T00:00:00Z'),certificate_id:'CERT_'+id,scope:'QA_ONLY' as const,identity,origin_decision_date:'2027-01-01',target,target_hash:canonicalHash(target),certification_status:'VALID' as const,certifications:{PIPE01:'PASS'},gate_statuses:{PORTFOLIO_ROBUSTNESS:'PASS',SIGNAL_QUALITY:'NOT_REQUIRED'},source:{source_id:'SYNTHETIC_PIT_CERTIFICATE_'+id,path:'SYNTHETIC_INLINE_BORROWED_PIPE01_TARGET_VALUES',sha256:canonicalHash(old),available_at:'2026-10-15'}}));
+ }
+ const cert=certificates[0],fallback:FallbackDefinition=seal({...point('2027-01-01T00:05:00Z'),fallback_id:'PREAPPROVED_F',version:'1',scope:'QA_ONLY' as const,fallback_type:'FROZEN_CERTIFIED_TARGET' as const,allocation_configuration:certificates[1].identity,risk_mandate_hash:certificates[1].target.risk_mandate_hash,risk_mandate_policy_ref:'SYNTHETIC_DECLARED_F_POLICY',gate_requirements:['PORTFOLIO_ROBUSTNESS'],required_certifications:['PIPE01'],certification_evidence_hash:reg.definitions[1].evidence_hash,bank_entry_id:'ENTRY_F',target_certificate_hash:certificates[1].hash,valid_from:'2027-01-01T00:05:00Z',valid_until:null});
+ const primary=seal({decision_context_id:cert.target.decision_context_id,origin_decision_date:cert.origin_decision_date,candidate_id:cert.identity.candidate_id,risk_mandate_hash:cert.target.risk_mandate_hash,status:'VALID',reason:null,target_certificate_hash:cert.hash});
+ const input:RoutingInput={routing_stream_id:'SYNTHETIC_STREAM',scope:'QA_ONLY',as_of:at,information_cutoff:at,primary,primary_entry_id:'ENTRY_A',policy:routingPolicy(),registry:reg,certificates,fallbacks:[fallback],previous_target_hash:null,previous_routes:[],data_health:health(at),recertifications:[]};
+ return{input,reg,policy:p,authority:a,primary_certificate:cert,fallback};
+}

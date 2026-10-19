@@ -1,0 +1,313 @@
+{
+  "block": "AL02",
+  "status": "PASS",
+  "criteria": [
+    {
+      "id": 1,
+      "criterion": "PIT beta estimator",
+      "status": "PASS",
+      "evidence": "estimators.ts + 63/126/252 and mutation tests"
+    },
+    {
+      "id": 2,
+      "criterion": "Sleeve beta/covariance volatility reconcile",
+      "status": "PASS",
+      "evidence": "q beta/vol tests + pit-estimates.csv"
+    },
+    {
+      "id": 3,
+      "criterion": "Existing exposure controller replay",
+      "status": "PASS",
+      "evidence": "controller-replay.csv + 8 beta cases + vol case"
+    },
+    {
+      "id": 4,
+      "criterion": "Inherited benchmark drawdown state",
+      "status": "PASS",
+      "evidence": "Inherited drawdown test + market-risk-metrics-1.1.0"
+    },
+    {
+      "id": 5,
+      "criterion": "Conditioned betas and captures known-answer",
+      "status": "PASS",
+      "evidence": "8 conditional NumPy oracle tests + captures"
+    },
+    {
+      "id": 6,
+      "criterion": "CAPM OLS/HAC independent oracle",
+      "status": "PASS",
+      "evidence": "4 OLS/HAC oracle tests + independent-verification.json"
+    },
+    {
+      "id": 7,
+      "criterion": "Treynor-Mazuy independent oracle",
+      "status": "PASS",
+      "evidence": "SciPy/Toeplitz oracle + independent-verification.json"
+    },
+    {
+      "id": 8,
+      "criterion": "CVaR and capital efficiency",
+      "status": "PASS",
+      "evidence": "CVaR/efficiency tests + capital-efficiency-cl02.csv"
+    },
+    {
+      "id": 9,
+      "criterion": "Six frozen CL02 ledgers replayed without backtester",
+      "status": "PASS",
+      "evidence": "replay-verification.json"
+    },
+    {
+      "id": 10,
+      "criterion": "Retrospective constant-beta diagnostic",
+      "status": "PASS",
+      "evidence": "constant-beta-diagnostic.json"
+    },
+    {
+      "id": 11,
+      "criterion": "No look-ahead in estimators/state",
+      "status": "PASS",
+      "evidence": "Future mutations PIT/regression/state tests"
+    },
+    {
+      "id": 12,
+      "criterion": "Reproducible input/config/output hashes",
+      "status": "PASS",
+      "evidence": "manifest.json + reproducibility-verification.json"
+    },
+    {
+      "id": 13,
+      "criterion": "Strict typecheck",
+      "status": "PASS",
+      "evidence": "typecheck.txt"
+    },
+    {
+      "id": 14,
+      "criterion": "git diff --check",
+      "status": "PASS",
+      "evidence": "diff-check.txt + source-whitespace.json"
+    },
+    {
+      "id": 15,
+      "criterion": "CL/AL01/production preservation",
+      "status": "PASS",
+      "evidence": "preservation.json"
+    }
+  ],
+  "tests": {
+    "total": 42,
+    "pass": 42,
+    "fail": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "PIT exact asset beta, common covariance and q beta/vol, window 63",
+        "status": "PASS"
+      },
+      {
+        "name": "PIT exact asset beta, common covariance and q beta/vol, window 126",
+        "status": "PASS"
+      },
+      {
+        "name": "PIT exact asset beta, common covariance and q beta/vol, window 252",
+        "status": "PASS"
+      },
+      {
+        "name": "Future mutations and decision-day rows never enter estimator/hash, internal mutation does",
+        "status": "PASS"
+      },
+      {
+        "name": "Insufficient/missing history, zero market variance and invalid configuration fail",
+        "status": "PASS"
+      },
+      {
+        "name": "Controller target 0.3, controlled beta 0.8",
+        "status": "PASS"
+      },
+      {
+        "name": "Controller target 0.3, controlled beta 1.2",
+        "status": "PASS"
+      },
+      {
+        "name": "Controller target 0.5, controlled beta 0.8",
+        "status": "PASS"
+      },
+      {
+        "name": "Controller target 0.5, controlled beta 1.2",
+        "status": "PASS"
+      },
+      {
+        "name": "Controller target 0.7, controlled beta 0.8",
+        "status": "PASS"
+      },
+      {
+        "name": "Controller target 0.7, controlled beta 1.2",
+        "status": "PASS"
+      },
+      {
+        "name": "Controller target 0.9, controlled beta 0.8",
+        "status": "PASS"
+      },
+      {
+        "name": "Controller target 0.9, controlled beta 1.2",
+        "status": "PASS"
+      },
+      {
+        "name": "Estimated sleeve beta is not realized forward beta",
+        "status": "PASS"
+      },
+      {
+        "name": "CAPM coefficients, R2, covariance, SE and t-stats vs independent SciPy/Toeplitz oracle OLS",
+        "status": "PASS"
+      },
+      {
+        "name": "CAPM coefficients, R2, covariance, SE and t-stats vs independent SciPy/Toeplitz oracle HAC",
+        "status": "PASS"
+      },
+      {
+        "name": "TREYNOR_MAZUY coefficients, R2, covariance, SE and t-stats vs independent SciPy/Toeplitz oracle OLS",
+        "status": "PASS"
+      },
+      {
+        "name": "TREYNOR_MAZUY coefficients, R2, covariance, SE and t-stats vs independent SciPy/Toeplitz oracle HAC",
+        "status": "PASS"
+      },
+      {
+        "name": "HAC finite-sample correction explicit; future regression pairs don't alter earlier fit",
+        "status": "PASS"
+      },
+      {
+        "name": "Conditional full vs independent numpy state/covariance oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Conditional upside vs independent numpy state/covariance oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Conditional downside vs independent numpy state/covariance oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Conditional DD5 vs independent numpy state/covariance oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Conditional DD10 vs independent numpy state/covariance oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Conditional DD20 vs independent numpy state/covariance oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Conditional Q5 vs independent numpy state/covariance oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Conditional Q1 vs independent numpy state/covariance oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Inherited drawdown: sample begins below earlier peak; version 1.0 remains different",
+        "status": "PASS"
+      },
+      {
+        "name": "Conditional state/estimates ignore future peaks and future paired returns",
+        "status": "PASS"
+      },
+      {
+        "name": "upside capture uses geometric subset oracle, distinct from beta",
+        "status": "PASS"
+      },
+      {
+        "name": "downside capture uses geometric subset oracle, distinct from beta",
+        "status": "PASS"
+      },
+      {
+        "name": "Rolling 63 matches independent pairwise covariance",
+        "status": "PASS"
+      },
+      {
+        "name": "Rolling 126 matches independent pairwise covariance",
+        "status": "PASS"
+      },
+      {
+        "name": "CVaR worst empirical tail with fractional boundary; no percentile/tail confusion",
+        "status": "PASS"
+      },
+      {
+        "name": "Basic CAGR calendar convention, sample volatility, drawdown and final index known answers",
+        "status": "PASS"
+      },
+      {
+        "name": "Capital efficiency ratios, zero-beta failure, matched-CAGR and same-beta reference",
+        "status": "PASS"
+      },
+      {
+        "name": "Constant-beta retrospective diagnostic equals exact target market covariance, no book/backtest",
+        "status": "PASS"
+      },
+      {
+        "name": "Reproducibility: same canonical input/config gives same output hash; price returns explicit",
+        "status": "PASS"
+      },
+      {
+        "name": "Exact constant-beta model has no identifiable residual-noise t-statistics",
+        "status": "PASS"
+      },
+      {
+        "name": "Volatility mandate scales a covariance-PIT sleeve, not a supplied volatility placeholder",
+        "status": "PASS"
+      },
+      {
+        "name": "Nonfinite PIT configuration rejects as INVALID_INPUT without fabricating a valid hash",
+        "status": "PASS"
+      },
+      {
+        "name": "Overflow in efficiency ratio is NUMERICAL_FAILURE, never VALID Infinity",
+        "status": "PASS"
+      }
+    ]
+  },
+  "conditional_methodology": "market-risk-metrics-1.1.0",
+  "regression_methodology": "risk-attribution-regression-1.0.1",
+  "default_HAC_lag": 5,
+  "HAC_small_sample_correction": false,
+  "observed_ledgers": 6,
+  "scorecards": 8,
+  "rows_per_original_ledger": 1823,
+  "controller_replay_cases": 1392,
+  "controller_infeasible_cases_preserved": 302,
+  "backtester_executions": 0,
+  "optimizer_executions": 0,
+  "baseline_files_unchanged": 2856,
+  "strict_typecheck_exit_code": 0,
+  "git_diff_check_exit_code": 0,
+  "alpha_or_skill_claim": false,
+  "pre_post_regressions": [
+    {
+      "criterion": "Exact residual inference",
+      "before": "FAIL",
+      "after": "PASS",
+      "evidence": "pre-inference-fix-tests.txt + tests-final.txt"
+    },
+    {
+      "criterion": "Nonfinite PIT config and ratio overflow",
+      "before": "FAIL",
+      "after": "PASS",
+      "evidence": "pre-input-guard-fix-tests.txt + tests-final.txt"
+    }
+  ],
+  "limitations": [
+    "Frozen adjusted-close snapshot provenance/dividend/vintage not independently certified; numerical PIT filtering only",
+    "RF/cash reference 0 constant from CL02, not a historical Treasury series; economic alpha/cash inference limited",
+    "Same previously analyzed 2019-2026 sample, not a new holdout or alpha discovery",
+    "Counterfactual is retrospective daily constant-weight frictionless SPY index, no trades ledger/costs; startup differs from CL02 initial cash/next-close fills",
+    "Forward controlled sleeve beta is a fixed-q daily-return risk proxy, not a new executed trading book",
+    "Primary no-leverage controller may be INFEASIBLE; 302 such cases retained, no clipping",
+    "HAC default lag 5/no finite-sample correction declared, no significance/multiple-testing claim",
+    "Zero numerical residual leaves regression coefficients but no identifiable noise t-statistics",
+    "Same-CAGR match is monotone frictionless SPY diagnostic on [0,1]; unavailable matches return INSUFFICIENT_DATA",
+    "No optimizers/quality gates/UI/API/AL03 or production connection"
+  ]
+}

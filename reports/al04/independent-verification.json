@@ -1,0 +1,121 @@
+{
+  "status": "PASS",
+  "method": "Independent NumPy identities/eigh + SciPy HiGHS feasibility/turnover LP (N auxiliaries) + SLSQP constrained quadratic oracle; unique base q also compared; no engine functions called",
+  "fixtures": [
+    {
+      "fixture": "square-exact",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "underdetermined-specific",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "underdetermined-total",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "underdetermined-turnover",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "impossible-exact",
+      "status": "PASS",
+      "expected": "INFEASIBLE"
+    },
+    {
+      "fixture": "explicit-approximate",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "approximate-lexicographic",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "singular-W-explicit-unpenalized-factor",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "negative-risk-contribution",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "rank-deficient-B-no-inverse",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "overdetermined-inconsistent",
+      "status": "PASS",
+      "expected": "INFEASIBLE"
+    },
+    {
+      "fixture": "asset-bound-active",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "group-cap-active",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "cardinality-two",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "turnover-cap-active",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "explicit-zero-specific",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "full-specific-covariance",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "unequal-W-tracking",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "statistical-standardized-shock-units",
+      "status": "PASS",
+      "expected": "VALID"
+    },
+    {
+      "fixture": "within-tolerance-symmetric-specific-model",
+      "status": "PASS",
+      "expected": "VALID"
+    }
+  ],
+  "stress_rows_checked": 154,
+  "row_counts": {
+    "factor-implementation-results.csv": 20,
+    "factor-risk-diagnostics.csv": 20,
+    "factor-residuals.csv": 27,
+    "factor-diversification.csv": 20,
+    "factor-sensitivity.csv": 154
+  },
+  "tolerance": {
+    "absolute": 1e-09,
+    "relative": 1e-07,
+    "unique_scipy_weights_absolute": 3e-07
+  },
+  "real_backtests": 0,
+  "historical_replay": "BLOCKED_MISSING_CANONICAL_FACTOR_ARTIFACTS"
+}

@@ -1,0 +1,315 @@
+{
+  "status": "PASS",
+  "classification": "CL02_WRITE_ONCE_UNIVERSAL_NEWLINE_FALSE_POSITIVE",
+  "export_outputs_byte_identical": 11,
+  "scenario_count": 6,
+  "intervals_per_scenario": 1823,
+  "total_intervals": 10938,
+  "ledger_reuses": 6,
+  "new_backtests": 0,
+  "accounting_checks": "Existing CL02 runner: NAV continuity; held-position P&L; cash interest; actual notional/fees; share rollforward; cash book; equity rollforward; NAV=cash+SPY; net P&L; execution timing; held quantities; no short/leverage; targets applied once",
+  "fee_convention": "actual absolute instrument fill notional * declared bps / 10000; 0 and 5bps; slippage zero",
+  "metric_verification": "six original independently recomputed metric records PASS; export metric evidence reproduced byte-identically",
+  "manifest_id": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+  "manifest_file_hash_checks": [
+    {
+      "path": "artifacts/api-server/src/lib/calculator.ts",
+      "expected_sha256": "c0e64df753f97c69390a146e72f05b5f1915e9f9532512e9076f6284677c57bc",
+      "actual_sha256": "c0e64df753f97c69390a146e72f05b5f1915e9f9532512e9076f6284677c57bc",
+      "match": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/factor-library.ts",
+      "expected_sha256": "bf40ba169f6b014a4ef81e08315bd7df562da32875dfc95f0e80fa4393908e60",
+      "actual_sha256": "bf40ba169f6b014a4ef81e08315bd7df562da32875dfc95f0e80fa4393908e60",
+      "match": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/d6-trace.ts",
+      "expected_sha256": "06bbd44ff21d4487664e9e19f9ebb56190238d14b60560f6ba88e65d1beb82ab",
+      "actual_sha256": "06bbd44ff21d4487664e9e19f9ebb56190238d14b60560f6ba88e65d1beb82ab",
+      "match": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/calculator.a1.db-shim.ts",
+      "expected_sha256": "5a3fd0e46267ac223e0f8d2c743ff653b8f56613603f6eaf01f366f4691af2a2",
+      "actual_sha256": "5a3fd0e46267ac223e0f8d2c743ff653b8f56613603f6eaf01f366f4691af2a2",
+      "match": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/calculator.a1.test.ts",
+      "expected_sha256": "f8c975d2e0658a0d2097cf190858ecd9f4cd47ac3ff9b92b8ce51cbd63f8c390",
+      "actual_sha256": "f8c975d2e0658a0d2097cf190858ecd9f4cd47ac3ff9b92b8ce51cbd63f8c390",
+      "match": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/calculator.cl01.test.ts",
+      "expected_sha256": "3303c5820cf6742b7bf276da9a46807f91bdd4d4652b310e7ac0e0b8d30feac9",
+      "actual_sha256": "3303c5820cf6742b7bf276da9a46807f91bdd4d4652b310e7ac0e0b8d30feac9",
+      "match": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/calculator.cl01-regressions.test.ts",
+      "expected_sha256": "3b6fae23e137f80c08b146a7e0e932dcad2613cc14888983ddce3edd98203c31",
+      "actual_sha256": "3b6fae23e137f80c08b146a7e0e932dcad2613cc14888983ddce3edd98203c31",
+      "match": true
+    },
+    {
+      "path": "reports/CL01_capital_layer.md",
+      "expected_sha256": "4e39c943d181d8cafb0252c5a85f6e8bad53131a779fd95127ed6e51f32ac3f1",
+      "actual_sha256": "4e39c943d181d8cafb0252c5a85f6e8bad53131a779fd95127ed6e51f32ac3f1",
+      "match": true
+    },
+    {
+      "path": "package.json",
+      "expected_sha256": "e64b6248f89ea4873bcdf7dc17bf18a3b92d1ffc12eb528c8f158e4ca8ac16cd",
+      "actual_sha256": "e64b6248f89ea4873bcdf7dc17bf18a3b92d1ffc12eb528c8f158e4ca8ac16cd",
+      "match": true
+    },
+    {
+      "path": "artifacts/api-server/package.json",
+      "expected_sha256": "aed0956344954b45f7e9384d8bbb162b1fc0db8ef37290122e5b933638ff4eb3",
+      "actual_sha256": "aed0956344954b45f7e9384d8bbb162b1fc0db8ef37290122e5b933638ff4eb3",
+      "match": true
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "expected_sha256": "722057fdb1b2fd4f6ff9819628bb53549ab0bca3ac2207d81129cd2b3061f842",
+      "actual_sha256": "722057fdb1b2fd4f6ff9819628bb53549ab0bca3ac2207d81129cd2b3061f842",
+      "match": true
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "expected_sha256": "93e6db6345768119ed2729c407865a7d45a0e3afa623d200662b258d16b75819",
+      "actual_sha256": "93e6db6345768119ed2729c407865a7d45a0e3afa623d200662b258d16b75819",
+      "match": true
+    },
+    {
+      "path": "reports/cl02/research-runner.ts",
+      "expected_sha256": "8a231078570695fec473563250ed031cec01ede5c072ef0f009ad120eb1b4218",
+      "actual_sha256": "8a231078570695fec473563250ed031cec01ede5c072ef0f009ad120eb1b4218",
+      "match": true
+    },
+    {
+      "path": "reports/cl02/render.py",
+      "expected_sha256": "cfc0201dc6e6abf8a9f410f460dc96f8662ce7c8681add7beac48adb0bfb4c89",
+      "actual_sha256": "cfc0201dc6e6abf8a9f410f460dc96f8662ce7c8681add7beac48adb0bfb4c89",
+      "match": true
+    },
+    {
+      "path": "reports/oct2026-backtests/assets-preparation.response.json",
+      "expected_sha256": "9e88df9da23bfe3ca068f00d90b08f5967de63e14f0a74226a6e95307c72dfb0",
+      "actual_sha256": "9e88df9da23bfe3ca068f00d90b08f5967de63e14f0a74226a6e95307c72dfb0",
+      "match": true
+    },
+    {
+      "path": "reports/oct2026-legacy-sector-diagnostic/configuration-snapshot.json",
+      "expected_sha256": "036d701024bd0a48391efb3db50075befee6c8ff5ae23f9606b859170e7fc81d",
+      "actual_sha256": "036d701024bd0a48391efb3db50075befee6c8ff5ae23f9606b859170e7fc81d",
+      "match": true
+    },
+    {
+      "path": "reports/oct2026-backtests/freeze.json",
+      "expected_sha256": "4d2ecf288c6cf0ef93b0a2df2618ac6c2a54888d8932d8e24afbf2f873925e23",
+      "actual_sha256": "4d2ecf288c6cf0ef93b0a2df2618ac6c2a54888d8932d8e24afbf2f873925e23",
+      "match": true
+    },
+    {
+      "path": "reports/oct2026-equity-real/AB-prep.response.json",
+      "expected_sha256": "bdfaff54bee52df67c363bc4d3e1e29269531bd960f016c52cb0b7484a239d39",
+      "actual_sha256": "bdfaff54bee52df67c363bc4d3e1e29269531bd960f016c52cb0b7484a239d39",
+      "match": true
+    },
+    {
+      "path": "reports/oct2026-equity-real/live-refresh.response.json",
+      "expected_sha256": "0bcf084116016927187fd306d7707bfe9553f0ef6198d87565ac0dca72d35c19",
+      "actual_sha256": "0bcf084116016927187fd306d7707bfe9553f0ef6198d87565ac0dca72d35c19",
+      "match": true
+    },
+    {
+      "path": "reports/cl02/checkpoint.branch.txt",
+      "expected_sha256": "4c7a03f2c9a663a0678eef8293f7609a609c92a6b3bccb2e556301f8b290c7f2",
+      "actual_sha256": "4c7a03f2c9a663a0678eef8293f7609a609c92a6b3bccb2e556301f8b290c7f2",
+      "match": true
+    },
+    {
+      "path": "reports/cl02/checkpoint.commit.txt",
+      "expected_sha256": "eddfc684a0638a933c0505a72c95efd9ddd9d869f3641afa910007ac02b175cf",
+      "actual_sha256": "eddfc684a0638a933c0505a72c95efd9ddd9d869f3641afa910007ac02b175cf",
+      "match": true
+    },
+    {
+      "path": "reports/cl02/checkpoint.status.txt",
+      "expected_sha256": "f7e60c4d75457c0cf13bbc1d7fa2d56d52219de25ce84e1c14c747ae1aba9f59",
+      "actual_sha256": "f7e60c4d75457c0cf13bbc1d7fa2d56d52219de25ce84e1c14c747ae1aba9f59",
+      "match": true
+    },
+    {
+      "path": "reports/cl02/checkpoint.calculator.patch",
+      "expected_sha256": "a087d1dbf3d1aea5dfe67552a33d0934470ced06d4cd0b6eece036ad06ce0e2c",
+      "actual_sha256": "a087d1dbf3d1aea5dfe67552a33d0934470ced06d4cd0b6eece036ad06ce0e2c",
+      "match": true
+    }
+  ],
+  "source_code_modified": false,
+  "read_only_runner_guard": {
+    "read_only_guard": true,
+    "write_attempts": 0
+  },
+  "runner_summary": {
+    "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+    "runs": 6,
+    "intervalsPerRun": 1823,
+    "allVerified": true
+  },
+  "existing_scenario_results": [
+    {
+      "id": "A_0bps",
+      "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+      "status": "PASS",
+      "invalidReason": null,
+      "checkedIntervals": 1823,
+      "feeConvention": "actual absolute fill notional",
+      "costBps": 0,
+      "slippageBps": 0
+    },
+    {
+      "id": "A_5bps",
+      "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+      "status": "PASS",
+      "invalidReason": null,
+      "checkedIntervals": 1823,
+      "feeConvention": "actual absolute fill notional",
+      "costBps": 5,
+      "slippageBps": 0
+    },
+    {
+      "id": "B_0bps",
+      "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+      "status": "PASS",
+      "invalidReason": null,
+      "checkedIntervals": 1823,
+      "feeConvention": "actual absolute fill notional",
+      "costBps": 0,
+      "slippageBps": 0
+    },
+    {
+      "id": "B_5bps",
+      "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+      "status": "PASS",
+      "invalidReason": null,
+      "checkedIntervals": 1823,
+      "feeConvention": "actual absolute fill notional",
+      "costBps": 5,
+      "slippageBps": 0
+    },
+    {
+      "id": "B_control_0bps",
+      "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+      "status": "PASS",
+      "invalidReason": null,
+      "checkedIntervals": 1823,
+      "feeConvention": "actual absolute fill notional",
+      "costBps": 0,
+      "slippageBps": 0
+    },
+    {
+      "id": "B_control_5bps",
+      "manifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+      "status": "PASS",
+      "invalidReason": null,
+      "checkedIntervals": 1823,
+      "feeConvention": "actual absolute fill notional",
+      "costBps": 5,
+      "slippageBps": 0
+    }
+  ],
+  "existing_metric_results": [
+    {
+      "id": "A_0bps",
+      "status": "PASS",
+      "independentlyRecomputed": {
+        "CAGR": 0.15559051004884838,
+        "annualizedVolatility": 0.19604090574851385,
+        "Sharpe": 0.8385613196623662,
+        "maxDrawdown": -0.33717256724185285,
+        "meanTargetSPYAllLedgerCloses": 0.9994514536478333,
+        "meanEffectiveSPYBeginning": 0.9989029072956664,
+        "totalCosts": 0,
+        "grossTurnover": 1.0
+      }
+    },
+    {
+      "id": "A_5bps",
+      "status": "PASS",
+      "independentlyRecomputed": {
+        "CAGR": 0.1555109250963096,
+        "annualizedVolatility": 0.19604122380712652,
+        "Sharpe": 0.8382075725803677,
+        "maxDrawdown": -0.33717256724185285,
+        "meanTargetSPYAllLedgerCloses": 0.9994514536478333,
+        "meanEffectiveSPYBeginning": 0.9989029072956664,
+        "totalCosts": 49.97501249375384,
+        "grossTurnover": 0.9995002498750625
+      }
+    },
+    {
+      "id": "B_0bps",
+      "status": "PASS",
+      "independentlyRecomputed": {
+        "CAGR": 0.13348645015637595,
+        "annualizedVolatility": 0.16432284816681775,
+        "Sharpe": 0.8475375143294472,
+        "maxDrawdown": -0.28410685071251107,
+        "meanTargetSPYAllLedgerCloses": 0.8583284914975315,
+        "meanEffectiveSPYBeginning": 0.8583715004115455,
+        "totalCosts": 0,
+        "grossTurnover": 2.0873519913774783
+      }
+    },
+    {
+      "id": "B_5bps",
+      "status": "PASS",
+      "independentlyRecomputed": {
+        "CAGR": 0.1333234818664939,
+        "annualizedVolatility": 0.16432229231886059,
+        "Sharpe": 0.8466614702346077,
+        "maxDrawdown": -0.28411278354226643,
+        "meanTargetSPYAllLedgerCloses": 0.8583284914975315,
+        "meanEffectiveSPYBeginning": 0.8583715004115455,
+        "totalCosts": 137.6947830669123,
+        "grossTurnover": 2.087016366533397
+      }
+    },
+    {
+      "id": "B_control_0bps",
+      "status": "PASS",
+      "independentlyRecomputed": {
+        "CAGR": 0.13416760091047264,
+        "annualizedVolatility": 0.1672793241666002,
+        "Sharpe": 0.8391132082841488,
+        "maxDrawdown": -0.29331353931615756,
+        "meanTargetSPYAllLedgerCloses": 0.8583284914975402,
+        "meanEffectiveSPYBeginning": 0.8583815777008589,
+        "totalCosts": 0,
+        "grossTurnover": 1.2589240652270273
+      }
+    },
+    {
+      "id": "B_control_5bps",
+      "status": "PASS",
+      "independentlyRecomputed": {
+        "CAGR": 0.1340692535543948,
+        "annualizedVolatility": 0.16727927283358004,
+        "Sharpe": 0.8385930302971005,
+        "maxDrawdown": -0.29331759548884784,
+        "meanTargetSPYAllLedgerCloses": 0.8583284914975402,
+        "meanEffectiveSPYBeginning": 0.8583815777008589,
+        "totalCosts": 72.69678214929414,
+        "grossTurnover": 1.2586064097226641
+      }
+    }
+  ],
+  "temporary_bundle_module_resolution": "Existing API-server packages linked; no new dependencies or source edits",
+  "conclusion": "All export outputs reproduced exactly; original files unchanged. The old in-place guard compares universal-newline-normalized text against CRLF. No numerical/accounting drift evidenced."
+}

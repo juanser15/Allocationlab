@@ -1,0 +1,181 @@
+{
+  "block": "AL06",
+  "schema_version": "1.0.0",
+  "implementation_version": "allocation-gates-1.0.3",
+  "status": "PASS",
+  "scope": "MECHANICAL_CERTIFICATION_OF_NEW_CANONICAL_SIGNAL_GATE_AND_PORTFOLIO_OBSERVER; NOT_LEGACY_EQUIVALENCE",
+  "criterion_count": 15,
+  "certified_criteria": 14,
+  "blocked_criteria": 1,
+  "failed_criteria": 0,
+  "user_authorized_source_availability_exception": {
+    "criterion": 2,
+    "status": "BLOCKED_SOURCE_NOT_AVAILABLE",
+    "does_not_fail_mechanical_certification": true,
+    "direction": "User confirmed source comes from a previous Seven-Node Portfolio Framework ZIP; do not guess formulas/thresholds. Certify remaining available mechanics; legacy mapping pending original source."
+  },
+  "criteria": [
+    {
+      "id": 1,
+      "criterion": "Separate SignalQualityGate and PortfolioRobustnessGate contracts",
+      "status": "PASS",
+      "evidence": "gates/contracts.ts; separate signal.ts / portfolio.ts entrypoints"
+    },
+    {
+      "id": 2,
+      "criterion": "Exact legacy Node-3 formulas/thresholds audited",
+      "status": "BLOCKED_SOURCE_NOT_AVAILABLE",
+      "evidence": "node3-audit-evidence.json; AL06_existing_signal_gate_mapping.md; source not present in current repository"
+    },
+    {
+      "id": 3,
+      "criterion": "Gate outputs never change allocations",
+      "status": "PASS",
+      "evidence": "test W; readonly source hashes; source snapshots retained"
+    },
+    {
+      "id": 4,
+      "criterion": "Signal gate causal / PIT",
+      "status": "PASS",
+      "evidence": "H/U, late-publication, stale current ranking/matrix cases; new canonical methodology only"
+    },
+    {
+      "id": 5,
+      "criterion": "Declared allocation/rebalance gate evaluation clock",
+      "status": "PASS",
+      "evidence": "undeclared daily decision rejected; 177 historical allocation dates"
+    },
+    {
+      "id": 6,
+      "criterion": "Hard failures cannot be averaged away",
+      "status": "PASS",
+      "evidence": "M/N/S/T; separate hard/policy/warning arrays; mandatory sensitivity failure cases"
+    },
+    {
+      "id": 7,
+      "criterion": "Concentration / risk-breadth semantics distinct",
+      "status": "PASS",
+      "evidence": "concentration-diagnostics.csv; risk-breadth-diagnostics.csv; independent covariance oracle"
+    },
+    {
+      "id": 8,
+      "criterion": "Consume supplied sensitivity correctly",
+      "status": "PASS",
+      "evidence": "AL03/04/05 source hashes; missing/failed stress tests; sensitivity-diagnostics.csv"
+    },
+    {
+      "id": 9,
+      "criterion": "ASSETS / FACTORS / STRATEGY_STREAMS supported",
+      "status": "PASS",
+      "evidence": "573 frozen observations: 531 / 20 / 22"
+    },
+    {
+      "id": 10,
+      "criterion": "RiskMandate/controller compatibility without target mutation",
+      "status": "PASS",
+      "evidence": "projection identity / beta / clipping / signed scope cases; risk-mandate-compatibility.csv"
+    },
+    {
+      "id": 11,
+      "criterion": "No fallback in either gate",
+      "status": "PASS",
+      "evidence": "J/W and source fallback rejection; no allocator/router/backtest calls"
+    },
+    {
+      "id": 12,
+      "criterion": "Independent known-answer verification",
+      "status": "PASS",
+      "evidence": "52 JS cases; 590 independent checks; independent-verification.json"
+    },
+    {
+      "id": 13,
+      "criterion": "Strict typecheck",
+      "status": "PASS",
+      "evidence": "typecheck.log; exit 0; isolated research module plus transitive TypeScript dependencies"
+    },
+    {
+      "id": 14,
+      "criterion": "git diff --check",
+      "status": "PASS",
+      "evidence": "diff-check.json/log; tracked exit 0 and new untracked-text checks"
+    },
+    {
+      "id": 15,
+      "criterion": "All prior baselines unchanged",
+      "status": "PASS",
+      "evidence": "checkpoint.json; preservation.json; 3196 SHA256 matches; branch/commit unchanged"
+    }
+  ],
+  "legacy_source_status": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+  "legacy_historical_replay": "BLOCKED_MISSING_LEGACY_NODE3_SOURCE",
+  "signal_methodology": "CANONICAL_SIGNAL_STRUCTURE_1.0.0",
+  "signal_legacy_compatibility": "NOT_CERTIFIED",
+  "tests": {
+    "passed": 52,
+    "failed": 0,
+    "skipped": 0,
+    "case_evidence": "test-results.json"
+  },
+  "independent_verification": {
+    "passed": 590,
+    "failed": 0,
+    "oracle": "independent NumPy/SciPy and explicit formulas; no original gate/selection/controller calls",
+    "evidence": "independent-verification.json"
+  },
+  "replay": {
+    "portfolio_observations": 573,
+    "asset_historical_observations": 531,
+    "unique_asset_decision_dates": 177,
+    "by_mode": {
+      "ASSETS": {
+        "PASS": 531
+      },
+      "FACTORS": {
+        "FAIL": 7,
+        "PASS": 13
+      },
+      "STRATEGY_STREAMS": {
+        "FAIL": 8,
+        "PASS": 14
+      }
+    },
+    "signal_reference_cases": 5,
+    "legacy_signal_replay": "BLOCKED_MISSING_LEGACY_NODE3_SOURCE",
+    "node3_formula_audit": "BLOCKED_SOURCE_NOT_AVAILABLE",
+    "optimizer_calls": 0,
+    "backtests": 0,
+    "observations_hash": "3f60853a52b05e974d55581d00536a0f8f3cc60f6b8200d3930931c52af4745b",
+    "signal_reference_hash": "cf90914871166b58a5cc0250ea4e9e43395ab291fd26617209d3359233380e7b"
+  },
+  "replay_outcomes_are_not_test_failures": true,
+  "reproducibility": {
+    "status": "PASS",
+    "identical_output_files": 17,
+    "evidence": "reproducibility.json"
+  },
+  "preservation": {
+    "status": "PASS",
+    "files": 3196,
+    "evidence": "preservation.json"
+  },
+  "strict_typecheck": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "git_diff_check": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "optimizer_calls": 0,
+  "backtests": 0,
+  "promotion_or_execution": false,
+  "limitations": [
+    "Legacy Node-3 formulas/windows/thresholds/state logic and history unavailable; no 1:1 compatibility certification.",
+    "QA thresholds certify observer plumbing and declared policy behavior; not institutional investment recommendations or robustness guarantees.",
+    "Frozen historical inputs are retrospectively replayed research information sets, not independently authenticated historical vendor/publication vintages.",
+    "Seven charts; missing legacy historical gate curve represented by explicit blocker JSON.",
+    "No cost, turnover sensitivity or signed financing artifacts invented. Missing mandatory data remain insufficient or fail as specified by policy.",
+    "PCA risk bets can depend on the basis within repeated eigenvalue eigenspaces; not minimum-torsion ENB.",
+    "No profitability/alpha/significance claim; no production integration or AL-07."
+  ]
+}

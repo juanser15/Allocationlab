@@ -1,0 +1,130 @@
+{
+  "outer_fold": 1,
+  "candidate_id": "are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638",
+  "ranking": [
+    {
+      "candidate_id": "are_4fb32eeefb197c782c29a08ae5ab0b4dc390c1385ab9719205677c162bd81638",
+      "status": "VALID",
+      "rank": 1,
+      "metrics": {
+        "cagr": 0.054127194086069474,
+        "annualized_volatility": 0.06526320013533791,
+        "max_drawdown": -0.09374786722408723,
+        "cvar_95": 0.010540187801484921,
+        "final_index": 117.17098385792251,
+        "calendar_days": 1098,
+        "observations": 756,
+        "sharpe": 0.8420937075669905,
+        "sortino": 1.1561899540358276,
+        "max_drawdown_adjusted": 0.5773698718573326,
+        "beta": 0.2803786187545121,
+        "downside_beta": 0.27623261096888035,
+        "tail_beta": 0.25529311009312067,
+        "alpha": 0.010838424692595959,
+        "turnover": 0.27618752158242776,
+        "costs": 0.04288486434573231,
+        "mean_risky_allocation": 0.2886482793721266,
+        "mean_cash": 0.7113517206278734
+      },
+      "reason": null
+    },
+    {
+      "candidate_id": "are_8a6fc8b346e0c30b9931e9ec3ab83be8945d6dc1822264921a4783f17d324f51",
+      "status": "VALID",
+      "rank": 2,
+      "metrics": {
+        "cagr": 0.0526919033257125,
+        "annualized_volatility": 0.06546532304970674,
+        "max_drawdown": -0.09546330499019362,
+        "cvar_95": 0.010585599150115659,
+        "final_index": 116.69203871134874,
+        "calendar_days": 1098,
+        "observations": 756,
+        "sharpe": 0.8188368034028362,
+        "sortino": 1.1233156689343942,
+        "max_drawdown_adjusted": 0.5519597643421755,
+        "beta": 0.2814565239374243,
+        "downside_beta": 0.278117873194977,
+        "tail_beta": 0.2583533962871109,
+        "alpha": 0.009316495351953981,
+        "turnover": 0.2752559326891652,
+        "costs": 0.04265726993020186,
+        "mean_risky_allocation": 0.29365368942357867,
+        "mean_cash": 0.7063463105764213
+      },
+      "reason": null
+    },
+    {
+      "candidate_id": "are_4b4f96904b64df7f0d43de9d071e2b76d79bf9dd5c56e032e3e17a98abbbf826",
+      "status": "VALID",
+      "rank": 3,
+      "metrics": {
+        "cagr": 0.04057796881941811,
+        "annualized_volatility": 0.06751410840043498,
+        "max_drawdown": -0.10688467096556364,
+        "cvar_95": 0.010927867462140434,
+        "final_index": 112.70165530275167,
+        "calendar_days": 1098,
+        "observations": 756,
+        "sharpe": 0.6241891367926768,
+        "sortino": 0.8554230614919942,
+        "max_drawdown_adjusted": 0.37964254792431007,
+        "beta": 0.2865317816925601,
+        "downside_beta": 0.28911241993898873,
+        "tail_beta": 0.2800298696795792,
+        "alpha": -0.002945970583945192,
+        "turnover": 0.5111630485536828,
+        "costs": 0.07805740962686486,
+        "mean_risky_allocation": 0.3194821022398375,
+        "mean_cash": 0.6805178977601625
+      },
+      "reason": null
+    },
+    {
+      "candidate_id": "are_496ecdee3a1565f1f4e475aac0a196f71b053319e66e24cdbac55fca926637a7",
+      "status": "BLOCKED",
+      "rank": null,
+      "metrics": null,
+      "reason": "BLOCKED_MISSING_STRATEGY_ARTIFACTS"
+    },
+    {
+      "candidate_id": "are_70e7366d93b32e74beaad716bbbb3cf6fd744032ab89cadbe2749f001f8676e3",
+      "status": "BLOCKED",
+      "rank": null,
+      "metrics": null,
+      "reason": "BLOCKED_MISSING_PIT_EXPECTED_RETURNS"
+    },
+    {
+      "candidate_id": "are_74495b9355c7b4ef023e7cc439a5195f3c744bd05c053ce5a2025b9c47380279",
+      "status": "BLOCKED",
+      "rank": null,
+      "metrics": null,
+      "reason": "BLOCKED_MISSING_PIT_EXPECTED_RETURNS"
+    },
+    {
+      "candidate_id": "are_8e900de5f1ee0da8be9cd3c93c52c69ac0a2cd396873ab21cb4155213dad2cd3",
+      "status": "BLOCKED",
+      "rank": null,
+      "metrics": null,
+      "reason": "BLOCKED_MISSING_FACTOR_ARTIFACTS"
+    }
+  ],
+  "selection_input_hash": "37c12fa17e7c086e81b686e959d5b7e1915dcc9fcc5e803c7b54550ef37e8703",
+  "allowed_end_exclusive": "2021-01-01",
+  "input_job_ids": [
+    "a44f807f59a9f1d2112a7099be18bd120900455e98361b6702d97f56d7e8ba36",
+    "2ea48d195b6c130dfd652d074e02f514f5d92a3f112f2f13d91e55091bfa60ab",
+    "cafa2d01d2a0e7f40d301f30a158ca5a2e6625715c31e430d86dec43da93755a",
+    "3812095830546b02ed75c2ad4924eba160e29df1d7e63504e29fbb97d402050e",
+    "b41cbe6e14bd12442a6ab67dc8345edc7ee3bc17ce01d49274fd7b37f02828ee",
+    "608c1e4c1f733de156862b320bdaa04510e38faed3842ce52f08acfa5e6814f9",
+    "04a65bef8cf93e48d3c1c587d4aab2f798d53a87afe3ddf5343b996c70dd3463",
+    "a614522c9b50364e15556ceb55ca9deb764146af7dfd58931e17ab5417133cec",
+    "2d9696d207cd26e70103b134e1b767b7f9b84b94b0a3286c23af7677f93e4368",
+    "2f9a87d9ab988785b0fb9a68ac36a985264a3d6528723ce50f4760130eeefdea",
+    "559519c5e198de1b6d0709b92924c1008af04b66bbf3abbaed621b6f1ac82bec",
+    "4d9e68801c546935ee53fd61faf25053b08bb89b306cd37458e0f521c0551345",
+    "619def4af69312dfed1b591b6a2d1482529ff7c920e312f4cdd53a30aa8ef85a",
+    "850a79db44eb24852fce0b2e012d09fad4ca75e1d8d99bf670b31f87a027a655"
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "status": "PASS",
+  "checks": {
+    "universe_and_warmup": "PASS",
+    "pit_covariance_beta_and_objectives": "PASS",
+    "pca_and_diagnostics": "PASS",
+    "immutable_shared_mandate": "PASS",
+    "local_sensitivity": "PASS",
+    "all_five_objectives_synthetic_sensitivity": "PASS",
+    "metrics_conditional_rolling_capm_hac": "PASS",
+    "real_ledger_accounting_execution": "PASS",
+    "persistence_rfc4180": "PASS"
+  },
+  "allocations_independently_reconstructed": 531,
+  "ledger_rows_reconciled": 44484,
+  "scorecards": [
+    {
+      "candidate": "EQUAL_WEIGHT_RAW_0bps",
+      "status": "PASS",
+      "observations": 3707
+    },
+    {
+      "candidate": "EQUAL_WEIGHT_RAW_5bps",
+      "status": "PASS",
+      "observations": 3707
+    },
+    {
+      "candidate": "EQUAL_WEIGHT_BETA_NORMALIZED_0bps",
+      "status": "PASS",
+      "observations": 3707
+    },
+    {
+      "candidate": "EQUAL_WEIGHT_BETA_NORMALIZED_5bps",
+      "status": "PASS",
+      "observations": 3707
+    },
+    {
+      "candidate": "MIN_VARIANCE_RAW_0bps",
+      "status": "PASS",
+      "observations": 3707
+    },
+    {
+      "candidate": "MIN_VARIANCE_RAW_5bps",
+      "status": "PASS",
+      "observations": 3707
+    },
+    {
+      "candidate": "MIN_VARIANCE_BETA_NORMALIZED_0bps",
+      "status": "PASS",
+      "observations": 3707
+    },
+    {
+      "candidate": "MIN_VARIANCE_BETA_NORMALIZED_5bps",
+      "status": "PASS",
+      "observations": 3707
+    },
+    {
+      "candidate": "ERC_RAW_0bps",
+      "status": "PASS",
+      "observations": 3707
+    },
+    {
+      "candidate": "ERC_RAW_5bps",
+      "status": "PASS",
+      "observations": 3707
+    },
+    {
+      "candidate": "ERC_BETA_NORMALIZED_0bps",
+      "status": "PASS",
+      "observations": 3707
+    },
+    {
+      "candidate": "ERC_BETA_NORMALIZED_5bps",
+      "status": "PASS",
+      "observations": 3707
+    }
+  ],
+  "tolerances": {
+    "absolute": 1e-09,
+    "relative": 1e-07,
+    "erc_weights_absolute": 2e-08
+  },
+  "method": "NumPy sample covariance/eigh, independent support min-var, SciPy root ERC, SVD CAPM + HAC score covariance"
+}

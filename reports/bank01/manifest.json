@@ -1,0 +1,39 @@
+{
+  "version": "active-set-bank-1.0.0",
+  "scope": "QA_ONLY",
+  "label": "SYNTHETIC_INFRASTRUCTURE_CERTIFICATION_NOT_HISTORICAL_PERFORMANCE",
+  "code_hash": "54a705f58cc3b1158b87c035a8b28915d3cad66cf6cf448a74f001bf75f30b99",
+  "source": {
+    "research/bank/adapters.ts": "88d098e4c61bf5758f6b0cbbb458e42e7ae577fa5fd15d96210e5c200d0b8bdc",
+    "research/bank/bank.test.ts": "2c4a68b4cfb789b96fb5e5864fe7f298968309fd0cd5a157cd2797abe43f621b",
+    "research/bank/cli.ts": "6a12c4be7e4c7c8b70dd8dc235d8bd22614adcab6d74aaa8f01d97e6b530f8af",
+    "research/bank/contracts.ts": "7641c7497fcb5a1c0ef2af87e56fe81d52ae29c524c93577f28b174db85e1fcf",
+    "research/bank/engine.ts": "b08706f27c9f715fc4425d6a55ff5836361d9a9ff2774fe4ec8b6d12f1fcbf75",
+    "research/bank/fixtures.ts": "7411f1c9ad1a38484cadce4b4915e579e31e2c09b37db8ca96424c0a899e5e39",
+    "research/bank/statistics.ts": "2ec72c8e9195758c1d83657ebef25181ab651b0f5b648fedb4038f90bd620929",
+    "research/bank/storage.ts": "4e2d3e2c7347d2dc964c64e80b39adcda30fdd561b84d5844d7535deddffc016",
+    "research/bank/validation.ts": "93a399dabcda5f8d4fb527ecc59881d6b0d29dd28a58d3b9e75c684750bbb3b8"
+  },
+  "dependencies": {
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts": "674986899e25102a12a2f300933dd592e612719d2ab8bf997d6c5782c84e072c",
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts": "29bc238ebde9d61835e1e2881f837645c016a641a4bbd18ded788a85dbf30c86",
+    "artifacts/api-server/src/lib/allocation-core/contracts.ts": "cfeb3b171b7bd19a1cd198865b18c46b73864b9a03c66c34423d420206934e8a",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts": "c48be987b0d5660d7cb172e16604e3ced785d87df94158e75d334291eee9bff8",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/fixtures.ts": "96cceaf2ae35f8f5e4acc1ecbb323fcfc6be6309ff7fedbff4077c6fdc8ccd5b",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts": "2fa5c2752e305c17733d6717123708345435e38a43945cca04319af743505948",
+    "artifacts/api-server/src/lib/allocation-core/validation.ts": "31bc8f62dc6452c14139bbd09229947f6d1e8b31d51206ea32cd228afdd40a0f",
+    "research/capital/spec.ts": "44e1c382b1029c99eb137d3a139590a1d8090f8ad24b726325bc567571cd352f",
+    "research/capital/storage.ts": "ce0f0df6dbc9a69f8f5e4525e3bf04f181fd87dbbf2ed7104734c61240d29dd2",
+    "research/governance/bank.ts": "76100d2e0cb2ff110a049528666e07ed46b657aa656176f56353240389a0bd16",
+    "research/governance/common.ts": "415aa7fa8f9f5468999021c862254fc7e4b61a109aaa198f55e91e7b1d616edd",
+    "research/governance/promotion.ts": "cf11c1ec2fb0306dc8d41a07615dfa9d3880c05c650db43947086a91b3e725c6"
+  },
+  "input_hash": "e821a1b6a9fe16f15a94baabedcba26a50b015441bf2ca5759a4ae883057b779",
+  "checkpoint_hash": "10d0d485c5ac16de845bce9a0031af439812480a4bb519dabdf983abbf5baf1c",
+  "decision_count": 108,
+  "policy_selection": "DECLARED_BEFORE_DIAGNOSTICS_NO_SEARCH",
+  "historical_replay": "BLOCKED_MISSING_STRATEGY_HISTORY",
+  "historical_governance": "NO_REAL_PROMOTIONS_IN_FROZEN_PIPE02",
+  "clocks": "ONLY_EXPLICIT_FIXTURE_DECISION_DATES; NO_IMPLICIT_DAILY_EVALUATION",
+  "hash": "e738afa12609186cef42e83783d601c23674f146455e089c9dcf34d39fc8d47e"
+}

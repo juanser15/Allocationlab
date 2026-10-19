@@ -1,0 +1,18 @@
+{
+  "source": "Independent NumPy moments/ddof1 SD and SciPy normal CDF, Bailey/Lopez-de-Prado PSR equation",
+  "values": [
+    -0.04,
+    -0.01,
+    0.005,
+    0.015,
+    0.03,
+    0.05,
+    0.06
+  ],
+  "benchmark_annual_sharpe": 0.5,
+  "observed_daily_sharpe": 0.45295880929339477,
+  "skewness": -0.26343292625752057,
+  "kurtosis_non_excess": 2.06119187454323,
+  "z": 0.9528947155518728,
+  "probability": 0.8296782910876868
+}

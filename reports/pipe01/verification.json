@@ -1,0 +1,190 @@
+{
+  "status": "PASS",
+  "version": "canonical-research-pipeline-1.0.2",
+  "tests": {
+    "passed": 39,
+    "failed": 0,
+    "skipped": 0
+  },
+  "independent_blocks": 20,
+  "criteria": [
+    {
+      "id": 1,
+      "criterion": "canonical_stage_order",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 2,
+      "criterion": "preserve_upstream_semantics",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 3,
+      "criterion": "single_risk_mandate",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 4,
+      "criterion": "no_double_cash",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 5,
+      "criterion": "sleeve_vs_nav_units",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 6,
+      "criterion": "gate_cannot_change_q",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 7,
+      "criterion": "expected_vs_realized_risk",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 8,
+      "criterion": "pit_no_lookahead",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 9,
+      "criterion": "execution_accounting",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 10,
+      "criterion": "AL07_replay_reconciles",
+      "status": "PASS",
+      "evidence": [
+        "replay-comparison.csv",
+        "replay-source-hashes.json"
+      ]
+    },
+    {
+      "id": 11,
+      "criterion": "factor_synthetic_E2E",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 12,
+      "criterion": "strategy_synthetic_E2E",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 13,
+      "criterion": "resume_idempotence",
+      "status": "PASS",
+      "evidence": [
+        "resume-evidence.json",
+        "pause-evidence.json",
+        "reproducibility.json"
+      ]
+    },
+    {
+      "id": 14,
+      "criterion": "strict_typecheck",
+      "status": "PASS",
+      "evidence": [
+        "typecheck-delivery.log",
+        "commands.json"
+      ]
+    },
+    {
+      "id": 15,
+      "criterion": "git_diff_check",
+      "status": "PASS",
+      "evidence": [
+        "diff-check.json"
+      ]
+    },
+    {
+      "id": 16,
+      "criterion": "baselines_unchanged",
+      "status": "PASS",
+      "evidence": [
+        "checkpoint.json",
+        "preservation.json"
+      ]
+    }
+  ],
+  "counts": {
+    "status": "PASS",
+    "campaigns": 2,
+    "outer_jobs": 8,
+    "execution_books": 16,
+    "unique_decisions": 96,
+    "decision_rows": 192,
+    "execution_rows": 4040,
+    "accounting_checks": 4040,
+    "exact_replay_checks": 208,
+    "stage_rows": 1152,
+    "failures": 0,
+    "source_code_hash": "03ca93a5c62b859ca555e8069a38ced5418d84f0963335f52f1f61d65595d090",
+    "raw_and_normalized": true,
+    "search_runs": 0,
+    "research_index_not_continuous_live_account": true,
+    "economic_winner_claim": false,
+    "canonical_decision_rows": 96,
+    "canonical_final_targets": 96,
+    "canonical_stage_rows": 960,
+    "raw_diagnostic_rows": 96,
+    "recorded_synthetic_expected_failures": 16
+  },
+  "limitations": [
+    "Historical factor/strategy bundles missing; synthetic E2E only",
+    "Legacy Node3 source/history unavailable; canonical signal methodology only",
+    "Signed-financing controller outside scope",
+    "Constant zero research cash yield/risk-free; no historical cash-yield certification",
+    "Book-level atomic commit; uncommitted pure simulation may recompute after process crash",
+    "No live-account continuity; independent NAV100 outer sleeves",
+    "Research infrastructure only; no alpha/economic winner/promotion or PIPE02"
+  ],
+  "candidate_search_runs": 0,
+  "research_network_or_production_service_access": false
+}

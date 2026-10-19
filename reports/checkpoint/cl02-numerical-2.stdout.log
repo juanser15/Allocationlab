@@ -1,0 +1,7 @@
+A_0bps: 1823 intervals; actual-notional fees/book/timing PASS; reused
+A_5bps: 1823 intervals; actual-notional fees/book/timing PASS; reused
+B_0bps: 1823 intervals; actual-notional fees/book/timing PASS; reused
+B_5bps: 1823 intervals; actual-notional fees/book/timing PASS; reused
+B_control_0bps: 1823 intervals; actual-notional fees/book/timing PASS; reused
+B_control_5bps: 1823 intervals; actual-notional fees/book/timing PASS; reused
+{"manifestId":"4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f","runs":6,"intervalsPerRun":1823,"allVerified":true}

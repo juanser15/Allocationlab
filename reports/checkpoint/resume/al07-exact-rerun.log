@@ -1,0 +1,30 @@
+PASS A traditional exact half-open fold boundaries
+PASS B nested inner folds contained; outer data cannot enter selector
+PASS C rolling eliminates old history; expanding anchors origin; gaps explicit
+PASS D every economically relevant candidate field changes ID
+PASS E irrelevant key order does not change candidate identity
+PASS F reproducible random search; seed required; without replacement
+PASS G budgets 1/2/10/50/100/200 and exact explicit reduction
+PASS H dry-run executes zero backtests and requires explicit run guard
+PASS I resume after 0/1/mid jobs and before summary never duplicates completed jobs
+PASS J missing PIT mu blocked, no historical-mean fallback
+PASS K gate FAIL preserved; no fallback or substitute winner
+PASS L raw and normalized same q, scaling only in controller
+PASS M original RiskMandates and all source inputs remain unchanged
+PASS N certified costs actual instrument notional, not doubled
+PASS O PSR independent symmetric oracle probability 0.5 and degeneracy
+PASS P infeasible native bounds preserved with no equal-weight fallback
+PASS Q outer mutation leakage trap: historical inner selection unchanged
+PASS R cache changes only for relevant historical identity; corrupt cache rejected
+PASS S same campaign repeated identical economic outputs/hashes
+PASS PSR nonzero independent SciPy oracle; annual benchmark converted to daily
+PASS required SignalQualityGate PASS and FAIL preserved with no bypass
+PASS selection facade rejects even unused outer prices / snapshot hashes
+PASS actual future mutation leaves historical decisions/cache intact; past mutation recalculates
+PASS separate risk-recalibration clock freezes each outer model; explicit expanding inner override
+PASS all seven selection metrics explicit; utility and lexicographic declaration validated
+PASS selection rejects forged VALID attempt with a failed mandatory gate
+PASS certified FACTORS routing and exact residual, without changing mandate
+PASS certified STRATEGY_STREAMS routing; economic map/history absence explicitly blocked
+PASS original future model metadata cannot be hidden by decision-envelope republication
+PASS future signal/root metadata rejected before republication; future rankings do not miss cache

@@ -1,0 +1,22 @@
+{
+  "input_hash": "ed3088ee88a46ce49f16ea8dac685cab7415590cfa586b50911849810f1f12f3",
+  "value_hash": "103af7af1f35bf3048a9a164d5b44dc732993327d804215c384b7e4002c4304b",
+  "value": {
+    "candidate_id": "are_496ecdee3a1565f1f4e475aac0a196f71b053319e66e24cdbac55fca926637a7",
+    "outer_fold": 1,
+    "inner_fold": null,
+    "stage": "control",
+    "scenario_bps": 0,
+    "job_id": "4e0d77f053a02dea4feeac392c14f755a8164fceec3347f2b7981a7247781125",
+    "interval_start": "2021-01-01",
+    "interval_end": "2022-01-01",
+    "information_identity": "ed3088ee88a46ce49f16ea8dac685cab7415590cfa586b50911849810f1f12f3",
+    "status": "BLOCKED",
+    "reason": "BLOCKED_MISSING_STRATEGY_ARTIFACTS",
+    "decisions": [],
+    "tracks": {
+      "RAW": null,
+      "NORMALIZED": null
+    }
+  }
+}

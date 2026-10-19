@@ -1,0 +1,46 @@
+PASS A promoted active strategies reach certified AL05 on exact bank axis
+PASS B inactive absent from mu Sigma H constraints and output; frozen reasons retained
+PASS C ACTIVE strategy may receive exactly zero capital and stays in bank
+PASS D cluster-limited entries remain in immutable promoted bank
+PASS E same family different markets remains five distinct strategy axes
+PASS F same underlying remains five return streams; H*a aggregates after allocation
+PASS G future ActiveSet activation correlation retirement mutation cannot change past result
+PASS H missing active stream blocks; never shrink or add eligibility to fit catalog
+PASS I certified allocation cannot mutate bank definition or frozen active artifact
+PASS J robustness receives exact AL05 result, hash and weights unchanged
+PASS K RiskMandate exact hash/value unchanged from request to composition and router
+PASS L internal residual remains separate, no final/global cash for incompatible sleeve
+PASS M PIPE02 keeps exact primary robustness failure under explicit NO_NEW_TARGET
+PASS N identical frozen inputs yield identical IDs hashes stages and targets
+PASS O durable resume: zero duplicate decisions and zero repeated allocator runs
+PASS P signed H retains algebraic netting, blocked controller and no fake cash
+PASS Q active-only principal covariance equals independent selected source matrix
+PASS R inactive positive minimum is infeasible, no constraint relaxation
+PASS S inactive held capital blocks prior-axis normalization or invented exits
+PASS T compatible final weights satisfy lambda*q beta and a single cash residue
+PASS U same q under target beta .3 and .6; only controller changes
+PASS V no second cash or direct eligibility override accepted
+PASS W future covariance histories maps and beta versions ignored, never backdated
+PASS X tampered frozen membership rejected; never silently recalculates BANK clusters
+PASS Y inactive-only family underlying and asset constraints explicitly projected
+PASS Z inactive instrument positive floor cannot disappear from implementation constraints
+PASS AA original source config cannot change objective under same candidate identity
+PASS AB stage order ties active set to PIPE01 and router without execution
+PASS AC no promotion: valid new target is mechanically certified but router retains missing approval
+PASS AD resume preserves failed decisions without allocator retry
+PASS AE relevant old snapshot or code change conflicts with completed decision
+PASS AF corrupt durable record never consumed silently
+PASS AG frozen strategy gates and mandate metadata cannot advance decision cutoff
+PASS AH future registry records cannot rewrite past routing result
+PASS AI input/strategy ordering cannot change economic allocations or target
+PASS AJ independent inverse-variance oracle on active strategy return space
+PASS AK independent ERC diagonal oracle 1/sigma with equal contributions
+PASS AL independent equal-capital oracle and exact normalized risk identity
+PASS AM constraint-blocked decisions still persist bank exclusions and approval state
+PASS AN frozen preapproved PIPE02 control returns exact original target; no new approval
+PASS AO interrupted resume at zero one half and final decision has no duplicates
+PASS AP failed boundary record also binds actual invalid historical input identity
+PASS AQ resealing an edited ActiveSet cannot impersonate the frozen source record
+PASS AR false source SHA cannot attest a valid-looking ActiveSet payload
+PASS AS governance target certificate references fixed source configuration not daily compiled ID
+PASS AT source configuration must explicitly bind certified BANK policy and version

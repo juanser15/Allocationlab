@@ -1,0 +1,1808 @@
+{
+  "inputs": {
+    "artifacts/api-server/src/lib/allocation-core/contracts.ts": {
+      "bytes": 15877,
+      "imports": [],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/validation.ts": {
+      "bytes": 32096,
+      "imports": [
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/governance/common.ts": {
+      "bytes": 2049,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/validation"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/governance/promotion.ts": {
+      "bytes": 5752,
+      "imports": [
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "./common"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/governance/bank.ts": {
+      "bytes": 7974,
+      "imports": [
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "./common"
+        },
+        {
+          "path": "research/governance/promotion.ts",
+          "kind": "import-statement",
+          "original": "./promotion"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/governance/router.ts": {
+      "bytes": 15283,
+      "imports": [
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "./common"
+        },
+        {
+          "path": "research/governance/bank.ts",
+          "kind": "import-statement",
+          "original": "./bank"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts": {
+      "bytes": 13778,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "./validation"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts": {
+      "bytes": 2930,
+      "imports": [],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts": {
+      "bytes": 2412,
+      "imports": [],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/solver.ts": {
+      "bytes": 2757,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+          "kind": "import-statement",
+          "original": "./numerics"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts": {
+      "bytes": 20057,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/contracts.ts",
+          "kind": "import-statement",
+          "original": "../contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+          "kind": "import-statement",
+          "original": "./numerics"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/solver.ts",
+          "kind": "import-statement",
+          "original": "./solver"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/contracts.ts": {
+      "bytes": 5638,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/contracts"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/validation.ts": {
+      "bytes": 15044,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/numerics"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/solver.ts": {
+      "bytes": 4129,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/numerics"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.ts": {
+      "bytes": 18068,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/contracts.ts",
+          "kind": "import-statement",
+          "original": "../contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/numerics"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "./validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/solver.ts",
+          "kind": "import-statement",
+          "original": "./solver"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts": {
+      "bytes": 7316,
+      "imports": [],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts": {
+      "bytes": 17490,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/numerics"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/solver.ts": {
+      "bytes": 10190,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/solver.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/solver"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/numerics"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.ts": {
+      "bytes": 13350,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/contracts.ts",
+          "kind": "import-statement",
+          "original": "../contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/numerics"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "./validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/solver.ts",
+          "kind": "import-statement",
+          "original": "./solver"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/gates/contracts.ts": {
+      "bytes": 4826,
+      "imports": [],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/gates/common.ts": {
+      "bytes": 9183,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/gates/signal.ts": {
+      "bytes": 11441,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/numerics"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/common.ts",
+          "kind": "import-statement",
+          "original": "./common"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/gates/portfolio.ts": {
+      "bytes": 36957,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts",
+          "kind": "import-statement",
+          "original": "../risk-mandate"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/contracts.ts",
+          "kind": "import-statement",
+          "original": "../contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/numerics"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "../factors-engine/validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "../factors-engine/contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "../strategy-engine/contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/solver.ts",
+          "kind": "import-statement",
+          "original": "../strategy-engine/solver"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "../strategy-engine/validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/common.ts",
+          "kind": "import-statement",
+          "original": "./common"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/gates/adapters.ts": {
+      "bytes": 3773,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/portfolio.ts",
+          "kind": "import-statement",
+          "original": "./portfolio"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/capital/spec.ts": {
+      "bytes": 9733,
+      "imports": [
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "research/allocation/contracts.ts": {
+      "bytes": 5272,
+      "imports": [],
+      "format": "esm"
+    },
+    "research/allocation/spec.ts": {
+      "bytes": 5981,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/validation"
+        },
+        {
+          "path": "research/capital/spec.ts",
+          "kind": "import-statement",
+          "original": "../capital/spec"
+        },
+        {
+          "path": "research/allocation/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/sensitivity.ts": {
+      "bytes": 3138,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "./engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/sensitivity.ts": {
+      "bytes": 3902,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "./engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "./validation"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/sensitivity.ts": {
+      "bytes": 3673,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "./engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "./validation"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/capital/storage.ts": {
+      "bytes": 2988,
+      "imports": [
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "research/capital/spec.ts",
+          "kind": "import-statement",
+          "original": "./spec"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/allocation/decision.ts": {
+      "bytes": 17137,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/assets-engine/engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/sensitivity.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/assets-engine/sensitivity"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/factors-engine/validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/strategy-engine/validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/factors-engine/engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/sensitivity.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/factors-engine/sensitivity"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/strategy-engine/engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/sensitivity.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/strategy-engine/sensitivity"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/signal.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/signal"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/portfolio.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/portfolio"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/adapters.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/adapters"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/common.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/common"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/risk-mandate"
+        },
+        {
+          "path": "research/allocation/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        },
+        {
+          "path": "research/capital/storage.ts",
+          "kind": "import-statement",
+          "original": "../capital/storage"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/d6-trace.ts": {
+      "bytes": 2371,
+      "imports": [
+        {
+          "path": "node:async_hooks",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:url",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/calculator.a1.db-shim.ts": {
+      "bytes": 249,
+      "imports": [],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/factor-library.ts": {
+      "bytes": 10129,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/calculator.a1.db-shim.ts",
+          "kind": "import-statement",
+          "original": "@workspace/db"
+        },
+        {
+          "path": "drizzle-orm",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/calculator.ts": {
+      "bytes": 136452,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/d6-trace.ts",
+          "kind": "import-statement",
+          "original": "./d6-trace"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/factor-library.ts",
+          "kind": "import-statement",
+          "original": "./factor-library"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/pipeline/contracts.ts": {
+      "bytes": 4428,
+      "imports": [],
+      "format": "esm"
+    },
+    "research/pipeline/decision.ts": {
+      "bytes": 15973,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/risk-mandate"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/assets-engine/engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/factors-engine/engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/strategy-engine/engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/signal.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/signal"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/portfolio.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/portfolio"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/adapters.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/adapters"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/common.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/common"
+        },
+        {
+          "path": "research/allocation/spec.ts",
+          "kind": "import-statement",
+          "original": "../allocation/spec"
+        },
+        {
+          "path": "research/allocation/decision.ts",
+          "kind": "import-statement",
+          "original": "../allocation/decision"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/calculator.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/calculator"
+        },
+        {
+          "path": "research/pipeline/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/bank/adapters.ts": {
+      "bytes": 3754,
+      "imports": [
+        {
+          "path": "research/governance/bank.ts",
+          "kind": "import-statement",
+          "original": "../governance/bank"
+        },
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "../governance/common"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/strategy-engine/validation"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/active-pipeline/sources.ts": {
+      "bytes": 2285,
+      "imports": [
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "../governance/common"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/active-pipeline/projection.ts": {
+      "bytes": 11486,
+      "imports": [
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "../governance/common"
+        },
+        {
+          "path": "research/bank/adapters.ts",
+          "kind": "import-statement",
+          "original": "../bank/adapters"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/strategy-engine/validation"
+        },
+        {
+          "path": "research/allocation/spec.ts",
+          "kind": "import-statement",
+          "original": "../allocation/spec"
+        },
+        {
+          "path": "research/pipeline/decision.ts",
+          "kind": "import-statement",
+          "original": "../pipeline/decision"
+        },
+        {
+          "path": "research/active-pipeline/sources.ts",
+          "kind": "import-statement",
+          "original": "./sources"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/active-pipeline/contracts.ts": {
+      "bytes": 2508,
+      "imports": [],
+      "format": "esm"
+    },
+    "research/active-pipeline/engine.ts": {
+      "bytes": 7888,
+      "imports": [
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "../governance/common"
+        },
+        {
+          "path": "research/governance/router.ts",
+          "kind": "import-statement",
+          "original": "../governance/router"
+        },
+        {
+          "path": "research/pipeline/decision.ts",
+          "kind": "import-statement",
+          "original": "../pipeline/decision"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/portfolio.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/portfolio"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/adapters.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/adapters"
+        },
+        {
+          "path": "research/active-pipeline/projection.ts",
+          "kind": "import-statement",
+          "original": "./projection"
+        },
+        {
+          "path": "research/active-pipeline/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/active-pipeline/storage.ts": {
+      "bytes": 2325,
+      "imports": [
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "../governance/common"
+        },
+        {
+          "path": "research/active-pipeline/projection.ts",
+          "kind": "import-statement",
+          "original": "./projection"
+        },
+        {
+          "path": "research/active-pipeline/engine.ts",
+          "kind": "import-statement",
+          "original": "./engine"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/fixtures.ts": {
+      "bytes": 8582,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "../assets-engine/contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "./validation"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/risk-analytics/estimators.ts": {
+      "bytes": 5421,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/artifacts.ts": {
+      "bytes": 3366,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/estimators.ts",
+          "kind": "import-statement",
+          "original": "../risk-analytics/estimators"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/risk-analytics/analytics.ts": {
+      "bytes": 11320,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/estimators.ts",
+          "kind": "import-statement",
+          "original": "./estimators"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics.ts": {
+      "bytes": 6602,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/contracts.ts",
+          "kind": "import-statement",
+          "original": "../contracts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts",
+          "kind": "import-statement",
+          "original": "../risk-mandate"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/analytics.ts",
+          "kind": "import-statement",
+          "original": "./analytics"
+        }
+      ],
+      "format": "esm"
+    },
+    "artifacts/api-server/src/lib/allocation-core/gates/fixtures.ts": {
+      "bytes": 4129,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/common.ts",
+          "kind": "import-statement",
+          "original": "./common"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/signal.ts",
+          "kind": "import-statement",
+          "original": "./signal"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/allocation/fixtures.ts": {
+      "bytes": 5994,
+      "imports": [
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/artifacts.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/assets-engine/artifacts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/assets-engine/engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/sensitivity.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/assets-engine/sensitivity"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/fixtures.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/fixtures"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/adapters.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/adapters"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/calculator.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/calculator"
+        },
+        {
+          "path": "research/allocation/spec.ts",
+          "kind": "import-statement",
+          "original": "./spec"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/common.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/common"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/pipeline/fixtures.ts": {
+      "bytes": 3695,
+      "imports": [
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/artifacts.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/assets-engine/artifacts"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/assets-engine/engine"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/fixtures.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/fixtures"
+        },
+        {
+          "path": "research/allocation/fixtures.ts",
+          "kind": "import-statement",
+          "original": "../allocation/fixtures"
+        },
+        {
+          "path": "research/allocation/spec.ts",
+          "kind": "import-statement",
+          "original": "../allocation/spec"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/validation"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/common.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/common"
+        },
+        {
+          "path": "research/pipeline/decision.ts",
+          "kind": "import-statement",
+          "original": "./decision"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/governance/fixtures.ts": {
+      "bytes": 9833,
+      "imports": [
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "./common"
+        },
+        {
+          "path": "research/governance/promotion.ts",
+          "kind": "import-statement",
+          "original": "./promotion"
+        },
+        {
+          "path": "research/governance/bank.ts",
+          "kind": "import-statement",
+          "original": "./bank"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/active-pipeline/fixtures.ts": {
+      "bytes": 9106,
+      "imports": [
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "../governance/common"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/fixtures.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/strategy-engine/fixtures"
+        },
+        {
+          "path": "research/pipeline/fixtures.ts",
+          "kind": "import-statement",
+          "original": "../pipeline/fixtures"
+        },
+        {
+          "path": "research/allocation/fixtures.ts",
+          "kind": "import-statement",
+          "original": "../allocation/fixtures"
+        },
+        {
+          "path": "research/allocation/spec.ts",
+          "kind": "import-statement",
+          "original": "../allocation/spec"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/fixtures.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/fixtures"
+        },
+        {
+          "path": "research/governance/fixtures.ts",
+          "kind": "import-statement",
+          "original": "../governance/fixtures"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/gates/common.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/gates/common"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/active-pipeline/integration.test.ts": {
+      "bytes": 20817,
+      "imports": [
+        {
+          "path": "node:assert/strict",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:os",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "../governance/common"
+        },
+        {
+          "path": "research/active-pipeline/engine.ts",
+          "kind": "import-statement",
+          "original": "./engine"
+        },
+        {
+          "path": "research/active-pipeline/projection.ts",
+          "kind": "import-statement",
+          "original": "./projection"
+        },
+        {
+          "path": "research/active-pipeline/storage.ts",
+          "kind": "import-statement",
+          "original": "./storage"
+        },
+        {
+          "path": "research/active-pipeline/fixtures.ts",
+          "kind": "import-statement",
+          "original": "./fixtures"
+        },
+        {
+          "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts",
+          "kind": "import-statement",
+          "original": "../../artifacts/api-server/src/lib/allocation-core/strategy-engine/validation"
+        },
+        {
+          "path": "research/governance/router.ts",
+          "kind": "import-statement",
+          "original": "../governance/router"
+        }
+      ],
+      "format": "esm"
+    },
+    "research/active-pipeline/cli.ts": {
+      "bytes": 8826,
+      "imports": [
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "research/governance/common.ts",
+          "kind": "import-statement",
+          "original": "../governance/common"
+        },
+        {
+          "path": "research/capital/storage.ts",
+          "kind": "import-statement",
+          "original": "../capital/storage"
+        },
+        {
+          "path": "research/active-pipeline/fixtures.ts",
+          "kind": "import-statement",
+          "original": "./fixtures"
+        },
+        {
+          "path": "research/active-pipeline/storage.ts",
+          "kind": "import-statement",
+          "original": "./storage"
+        },
+        {
+          "path": "research/active-pipeline/contracts.ts",
+          "kind": "import-statement",
+          "original": "./contracts"
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    }
+  },
+  "outputs": {
+    "artifacts/api-server/dist/pipe03/integration.test.mjs": {
+      "imports": [
+        {
+          "path": "node:assert/strict",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:os",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:async_hooks",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:url",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "drizzle-orm",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "exports": [],
+      "entryPoint": "research/active-pipeline/integration.test.ts",
+      "inputs": {
+        "research/active-pipeline/integration.test.ts": {
+          "bytesInOutput": 22191
+        },
+        "artifacts/api-server/src/lib/allocation-core/validation.ts": {
+          "bytesInOutput": 18578
+        },
+        "artifacts/api-server/src/lib/allocation-core/contracts.ts": {
+          "bytesInOutput": 459
+        },
+        "research/governance/common.ts": {
+          "bytesInOutput": 1661
+        },
+        "research/governance/promotion.ts": {
+          "bytesInOutput": 5672
+        },
+        "research/governance/bank.ts": {
+          "bytesInOutput": 6561
+        },
+        "research/governance/router.ts": {
+          "bytesInOutput": 16504
+        },
+        "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts": {
+          "bytesInOutput": 12418
+        },
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts": {
+          "bytesInOutput": 592
+        },
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts": {
+          "bytesInOutput": 2690
+        },
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/solver.ts": {
+          "bytesInOutput": 2284
+        },
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts": {
+          "bytesInOutput": 21704
+        },
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/contracts.ts": {
+          "bytesInOutput": 220
+        },
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/validation.ts": {
+          "bytesInOutput": 14808
+        },
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/solver.ts": {
+          "bytesInOutput": 4179
+        },
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.ts": {
+          "bytesInOutput": 18572
+        },
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts": {
+          "bytesInOutput": 170
+        },
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts": {
+          "bytesInOutput": 17006
+        },
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/solver.ts": {
+          "bytesInOutput": 11518
+        },
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.ts": {
+          "bytesInOutput": 12956
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/contracts.ts": {
+          "bytesInOutput": 41
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/common.ts": {
+          "bytesInOutput": 9152
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/signal.ts": {
+          "bytesInOutput": 12021
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/portfolio.ts": {
+          "bytesInOutput": 37531
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/adapters.ts": {
+          "bytesInOutput": 1465
+        },
+        "research/allocation/spec.ts": {
+          "bytesInOutput": 52
+        },
+        "research/allocation/decision.ts": {
+          "bytesInOutput": 267
+        },
+        "artifacts/api-server/src/lib/d6-trace.ts": {
+          "bytesInOutput": 498
+        },
+        "artifacts/api-server/src/lib/factor-library.ts": {
+          "bytesInOutput": 3315
+        },
+        "artifacts/api-server/src/lib/calculator.ts": {
+          "bytesInOutput": 290
+        },
+        "research/pipeline/contracts.ts": {
+          "bytesInOutput": 52
+        },
+        "research/pipeline/decision.ts": {
+          "bytesInOutput": 15002
+        },
+        "research/bank/adapters.ts": {
+          "bytesInOutput": 1219
+        },
+        "research/active-pipeline/sources.ts": {
+          "bytesInOutput": 1872
+        },
+        "research/active-pipeline/projection.ts": {
+          "bytesInOutput": 11366
+        },
+        "research/active-pipeline/contracts.ts": {
+          "bytesInOutput": 44
+        },
+        "research/active-pipeline/engine.ts": {
+          "bytesInOutput": 7491
+        },
+        "research/active-pipeline/storage.ts": {
+          "bytesInOutput": 2119
+        },
+        "research/active-pipeline/fixtures.ts": {
+          "bytesInOutput": 8170
+        },
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/fixtures.ts": {
+          "bytesInOutput": 4766
+        },
+        "research/pipeline/fixtures.ts": {
+          "bytesInOutput": 2505
+        },
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/artifacts.ts": {
+          "bytesInOutput": 1482
+        },
+        "artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics.ts": {
+          "bytesInOutput": 794
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/fixtures.ts": {
+          "bytesInOutput": 4070
+        },
+        "research/allocation/fixtures.ts": {
+          "bytesInOutput": 1595
+        },
+        "research/governance/fixtures.ts": {
+          "bytesInOutput": 1797
+        }
+      },
+      "bytes": 322481
+    },
+    "artifacts/api-server/dist/pipe03/cli.mjs": {
+      "imports": [
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:async_hooks",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:url",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "drizzle-orm",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "exports": [],
+      "entryPoint": "research/active-pipeline/cli.ts",
+      "inputs": {
+        "research/active-pipeline/cli.ts": {
+          "bytesInOutput": 9196
+        },
+        "artifacts/api-server/src/lib/allocation-core/validation.ts": {
+          "bytesInOutput": 18582
+        },
+        "artifacts/api-server/src/lib/allocation-core/contracts.ts": {
+          "bytesInOutput": 459
+        },
+        "research/governance/common.ts": {
+          "bytesInOutput": 1661
+        },
+        "research/capital/storage.ts": {
+          "bytesInOutput": 1905
+        },
+        "research/capital/spec.ts": {
+          "bytesInOutput": 288
+        },
+        "research/active-pipeline/fixtures.ts": {
+          "bytesInOutput": 8177
+        },
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts": {
+          "bytesInOutput": 592
+        },
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts": {
+          "bytesInOutput": 170
+        },
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts": {
+          "bytesInOutput": 2690
+        },
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts": {
+          "bytesInOutput": 17004
+        },
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/fixtures.ts": {
+          "bytesInOutput": 4765
+        },
+        "research/pipeline/fixtures.ts": {
+          "bytesInOutput": 2505
+        },
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/artifacts.ts": {
+          "bytesInOutput": 1482
+        },
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/solver.ts": {
+          "bytesInOutput": 2284
+        },
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts": {
+          "bytesInOutput": 21707
+        },
+        "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts": {
+          "bytesInOutput": 12418
+        },
+        "artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics.ts": {
+          "bytesInOutput": 794
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/contracts.ts": {
+          "bytesInOutput": 41
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/common.ts": {
+          "bytesInOutput": 9152
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/signal.ts": {
+          "bytesInOutput": 12021
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/fixtures.ts": {
+          "bytesInOutput": 4068
+        },
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/contracts.ts": {
+          "bytesInOutput": 220
+        },
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/validation.ts": {
+          "bytesInOutput": 14815
+        },
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/solver.ts": {
+          "bytesInOutput": 11521
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/portfolio.ts": {
+          "bytesInOutput": 37555
+        },
+        "artifacts/api-server/src/lib/allocation-core/gates/adapters.ts": {
+          "bytesInOutput": 1476
+        },
+        "artifacts/api-server/src/lib/d6-trace.ts": {
+          "bytesInOutput": 513
+        },
+        "artifacts/api-server/src/lib/factor-library.ts": {
+          "bytesInOutput": 3315
+        },
+        "artifacts/api-server/src/lib/calculator.ts": {
+          "bytesInOutput": 290
+        },
+        "research/allocation/spec.ts": {
+          "bytesInOutput": 52
+        },
+        "research/allocation/fixtures.ts": {
+          "bytesInOutput": 1595
+        },
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/solver.ts": {
+          "bytesInOutput": 4183
+        },
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.ts": {
+          "bytesInOutput": 18569
+        },
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.ts": {
+          "bytesInOutput": 12958
+        },
+        "research/allocation/decision.ts": {
+          "bytesInOutput": 267
+        },
+        "research/pipeline/contracts.ts": {
+          "bytesInOutput": 52
+        },
+        "research/pipeline/decision.ts": {
+          "bytesInOutput": 15002
+        },
+        "research/governance/promotion.ts": {
+          "bytesInOutput": 5672
+        },
+        "research/governance/bank.ts": {
+          "bytesInOutput": 6561
+        },
+        "research/governance/fixtures.ts": {
+          "bytesInOutput": 1797
+        },
+        "research/active-pipeline/storage.ts": {
+          "bytesInOutput": 2190
+        },
+        "research/bank/adapters.ts": {
+          "bytesInOutput": 1225
+        },
+        "research/active-pipeline/sources.ts": {
+          "bytesInOutput": 1899
+        },
+        "research/active-pipeline/projection.ts": {
+          "bytesInOutput": 11391
+        },
+        "research/governance/router.ts": {
+          "bytesInOutput": 16506
+        },
+        "research/active-pipeline/contracts.ts": {
+          "bytesInOutput": 44
+        },
+        "research/active-pipeline/engine.ts": {
+          "bytesInOutput": 7491
+        }
+      },
+      "bytes": 311989
+    }
+  }
+}

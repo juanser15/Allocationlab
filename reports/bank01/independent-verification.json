@@ -1,0 +1,2190 @@
+{
+  "status": "PASS",
+  "methodology": "BANK01_INDEPENDENT_NUMPY_SCIPY_CSV_REPLAY_1.0.0",
+  "tolerances": {
+    "absolute": 1e-10,
+    "relative": 1e-10,
+    "PCA_bets_absolute": 2e-08
+  },
+  "checks": [
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle high-correlation_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters high-correlation_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay high-correlation_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle high-correlation_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle high-correlation_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-family-markets_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-family-markets_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-family-markets_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-family-markets_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-family-markets_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle same-asset_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters same-asset_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay same-asset_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle same-asset_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle same-asset_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle changing-clusters_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters changing-clusters_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay changing-clusters_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle changing-clusters_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle changing-clusters_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle reentry_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters reentry_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay reentry_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle reentry_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle reentry_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle negative-same-asset_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters negative-same-asset_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay negative-same-asset_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle negative-same-asset_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle negative-same-asset_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle crisis_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters crisis_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay crisis_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle crisis_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle crisis_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle missing-data_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters missing-data_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay missing-data_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle missing-data_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle missing-data_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_PRESERVE 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_PRESERVE 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_PRESERVE 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_PRESERVE 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_PRESERVE 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_PRESERVE 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_CAP1 2019-04-25",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_CAP1 2019-07-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_CAP1 2019-10-10",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_CAP1 2020-01-02",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_CAP1 2020-03-26",
+      "status": "PASS"
+    },
+    {
+      "criterion": "sample covariance and Pearson oracle regime-ineligible_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "SciPy independent hierarchical clusters regime-ineligible_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent eligibility and active-set replay regime-ineligible_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "NumPy eigen entropy and PCA-risk-bets oracle regime-ineligible_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "separate underlying exposure reference oracle regime-ineligible_CAP1 2020-06-18",
+      "status": "PASS"
+    },
+    {
+      "criterion": "independent full ACTIVE INACTIVE ACTIVE roundtrip with constant promotion",
+      "status": "PASS"
+    },
+    {
+      "criterion": "RFC4180 row counts IDs immutable records and JSON round-trip",
+      "status": "PASS"
+    },
+    {
+      "criterion": "all prior certified baseline files byte-identical",
+      "status": "PASS"
+    },
+    {
+      "criterion": "bank runtime has no allocation promotion target routing network or execution calls",
+      "status": "PASS"
+    }
+  ],
+  "pass": 544,
+  "fail": 0,
+  "historical_replay": "BLOCKED_MISSING_STRATEGY_HISTORY"
+}

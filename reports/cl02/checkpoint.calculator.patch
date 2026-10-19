@@ -1,0 +1,57 @@
+diff --git a/artifacts/api-server/src/lib/calculator.ts b/artifacts/api-server/src/lib/calculator.ts
+index 414649c..c928e09 100644
+--- a/artifacts/api-server/src/lib/calculator.ts
++++ b/artifacts/api-server/src/lib/calculator.ts
+@@ -724,10 +724,14 @@ export function constructAllocation(factorData: EtfFactorData[], etfs: EtfEntry[
+ 
+   const cashTarget = clamp(cashMin + (cashMax - cashMin) * 0.5 + ((50 - regime.composite) / 50) * (cashMax - cashMin) * 0.5, cashMin, cashMax);
+   const investedBudget = 1 - cashTarget;
++  const cashOnly = investedBudget === 0;
++  if (cashOnly && minEtfWeight > 0) {
++    throw new AllocationConstraintError("Constraint set infeasible: a 100% cash allocation cannot satisfy a positive minimum ETF weight.");
++  }
+ 
+-  const eligible = factorData.filter(f => { const e = etfMap.get(f.ticker); return e && e.enabled && f.factorScores.composite >= minInclusionThreshold; });
++  const eligible = cashOnly ? [] : factorData.filter(f => { const e = etfMap.get(f.ticker); return e && e.enabled && f.factorScores.composite >= minInclusionThreshold; });
+   eligible.sort((a, b) => b.factorScores.composite - a.factorScores.composite);
+-  if (eligible.length < targetActiveEtfs) {
++  if (!cashOnly && eligible.length < targetActiveEtfs) {
+     throw new AllocationConstraintError(
+       `Constraint set infeasible: required ${targetActiveEtfs} active ETFs with current eligibility leaves only ${eligible.length} eligible assets.`,
+     );
+@@ -750,7 +754,7 @@ export function constructAllocation(factorData: EtfFactorData[], etfs: EtfEntry[
+   // active count still means each selected ETF must hold a positive weight.
+   const inclusionFloor = minEtfWeight > 0 ? minEtfWeight : Math.min(1e-10, investedBudget / (2 * targetActiveEtfs));
+   weights = applyFinalWeightConstraints(weights, inclusionFloor, maxEtfWeight, investedBudget);
+-  validateFinalAllocation(weights, topN.map((f) => f.ticker), minEtfWeight, maxEtfWeight, investedBudget, targetActiveEtfs);
++  validateFinalAllocation(weights, topN.map((f) => f.ticker), minEtfWeight, maxEtfWeight, investedBudget, cashOnly ? 0 : targetActiveEtfs);
+ 
+   const results: AllocationResult[] = [];
+   for (const f of factorData) {
+@@ -1993,21 +1997,22 @@ export function runBacktestEngine(
+       const etfsForSignal = etfs.map((e) => ({
+         ...e, priorWeight: rebalanceLog.length ? (priorWeights.get(e.ticker) ?? 0) : e.priorWeight,
+       }));
++      const informationRows = priceRows.filter((item) => item.date < row.date);
+       const signalInputs = targetWeightsForSignal
+-        ? { regime: computeRegime(priceRows.filter((item) => item.date < row.date), enabledTickers),
+-            allocations: [] as AllocationResult[], lookbackDays: priceRows.filter((item) => item.date < row.date).length }
++        ? { regime: computeRegime(informationRows, enabledTickers),
++            allocations: [] as AllocationResult[], lookbackDays: informationRows.length }
+         : computeSignalAsOf(priceRows, row.date, enabledTickers, etfsForSignal, constraints, factorSet);
+       const { regime, allocations, lookbackDays } = signalInputs;
+       let explicitTarget: Record<string, number> | null | undefined;
+       if (targetWeightsForSignal) {
+         if (initialState?.d5GrossTradeCosts || initialState?.provideTargetContext) {
+           const quantities = Object.freeze(Object.fromEntries([...shares]));
+-          explicitTarget = targetWeightsForSignal(row.date, priceRows, Object.freeze({
++          explicitTarget = targetWeightsForSignal(row.date, informationRows, Object.freeze({
+             asOf: prevRow.date, quantities, cash: beginningCash, nav: beginningNav,
+           }));
+         } else {
+           // Preserve the legacy callback invocation contract when D5 is omitted.
+-          explicitTarget = targetWeightsForSignal(row.date, priceRows);
++          explicitTarget = targetWeightsForSignal(row.date, informationRows);
+         }
+       }
+       if (targetWeightsForSignal && explicitTarget === null) {

@@ -1,0 +1,3543 @@
+{
+  "status": "PASS",
+  "scope": "NEW_CANONICAL_SIGNAL_AND_FROZEN_PORTFOLIO_MECHANICS; legacy audit BLOCKED_SOURCE_NOT_AVAILABLE",
+  "passed": 590,
+  "failed": 0,
+  "oracle": "Independent NumPy covariance/eigh + SciPy average rank + explicit constraint/feasibility/threshold formulas",
+  "tolerance_absolute": 2e-08,
+  "checks": [
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-04-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-07-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-09-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2012-12-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-06-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-09-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2013-12-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-02-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-03-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-06-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-09-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-11-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2014-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-02-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-03-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-08-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-11-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2015-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-01-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-05-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-10-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2016-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-04-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-07-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-10-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2017-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-04-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-07-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-09-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2018-12-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-06-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-09-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2019-12-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-02-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-03-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-08-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-11-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2020-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-01-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-05-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-08-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2021-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-05-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-10-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2022-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-04-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-07-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-10-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2023-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-06-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-09-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2024-12-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-02-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-03-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-06-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-09-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-11-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2025-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2026-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2026-02-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2026-03-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2026-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2026-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2026-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2026-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2026-08-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|EQUAL_WEIGHT|2026-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-04-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-07-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-09-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2012-12-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-06-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-09-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2013-12-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-02-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-03-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-06-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-09-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-11-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2014-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-02-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-03-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-08-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-11-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2015-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-01-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-05-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-10-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2016-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-04-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-07-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-10-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2017-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-04-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-07-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-09-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2018-12-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-06-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-09-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2019-12-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-02-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-03-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-08-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-11-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2020-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-01-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-05-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-08-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2021-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-05-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-10-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2022-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-04-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-07-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-10-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2023-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-06-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-09-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2024-12-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-02-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-03-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-06-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-09-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-11-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2025-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2026-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2026-02-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2026-03-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2026-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2026-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2026-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2026-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2026-08-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|ERC|2026-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-04-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-07-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-09-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2012-12-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-06-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-09-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2013-12-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-02-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-03-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-06-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-09-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-11-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2014-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-02-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-03-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-08-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-11-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2015-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-01-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-05-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-10-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2016-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-04-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-07-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-10-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2017-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-04-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-07-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-09-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2018-12-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-06-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-09-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2019-12-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-02-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-03-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-08-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-11-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2020-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-01-04",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-05-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-08-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2021-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-05-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-10-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2022-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-01-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-04-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-07-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-10-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2023-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-02-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-03-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-06-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-09-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-11-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2024-12-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-02-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-03-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-06-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-08-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-09-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-10-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-11-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2025-12-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2026-01-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2026-02-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2026-03-02",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2026-04-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2026-05-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2026-06-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2026-07-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2026-08-03",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL03|MIN_VARIANCE|2026-09-01",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|square-exact",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|underdetermined-specific",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|underdetermined-total",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|underdetermined-turnover",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|impossible-exact",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|explicit-approximate",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|approximate-lexicographic",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|singular-W-explicit-unpenalized-factor",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|negative-risk-contribution",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|rank-deficient-B-no-inverse",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|overdetermined-inconsistent",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|asset-bound-active",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|group-cap-active",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|cardinality-two",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|turnover-cap-active",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|explicit-zero-specific",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|full-specific-covariance",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|unequal-W-tracking",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|statistical-standardized-shock-units",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL04|within-tolerance-symmetric-specific-model",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|EQUAL_CAPITAL",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|MIN_VARIANCE",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|ERC",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|MEAN_VARIANCE",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|MAX_SHARPE",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|signed-opposing",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|internal-residual",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|same-underlying-distinct-instance",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|post-map-shared-asset-cap",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|signed-net-band",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|post-net-gross-cap",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|strategy-family-cap",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|underlying-strategy-group-cap",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|post-map-sector-net-cap",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|max-active-two",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|strategy-turnover-cap",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|impossible-bounds",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|missing-mu-mv",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|missing-mu-sharpe",
+      "status": "PASS",
+      "verified_gate_outcome": "FAIL",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|incremental-instrument-cost",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|negative-excess-sharpe",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "AL05|perfectly-correlated-preserved",
+      "status": "PASS",
+      "verified_gate_outcome": "PASS",
+      "scope": "independent constraints/PCA/concentration/sensitivity/risk feasibility/outcome; no gate calls"
+    },
+    {
+      "case": "SYNTHETIC_STRUCTURED",
+      "status": "PASS",
+      "scope": "independent new canonical signal formula oracle; no legacy Node3 compatibility claim"
+    },
+    {
+      "case": "SYNTHETIC_LOW_DISPERSION",
+      "status": "PASS",
+      "scope": "independent new canonical signal formula oracle; no legacy Node3 compatibility claim"
+    },
+    {
+      "case": "SYNTHETIC_COLLINEAR_FEATURES",
+      "status": "PASS",
+      "scope": "independent new canonical signal formula oracle; no legacy Node3 compatibility claim"
+    },
+    {
+      "case": "SYNTHETIC_UNSTABLE_RANKS",
+      "status": "PASS",
+      "scope": "independent new canonical signal formula oracle; no legacy Node3 compatibility claim"
+    },
+    {
+      "case": "SYNTHETIC_MISSING_SCORE",
+      "status": "PASS",
+      "scope": "independent new canonical signal formula oracle; no legacy Node3 compatibility claim"
+    },
+    {
+      "case": "signal-gate-results.csv",
+      "status": "PASS",
+      "scope": "RFC4180 parse/count",
+      "rows": 5
+    },
+    {
+      "case": "concentration-diagnostics.csv",
+      "status": "PASS",
+      "scope": "RFC4180 parse/count",
+      "rows": 573
+    },
+    {
+      "case": "portfolio-gate-components.csv",
+      "status": "PASS",
+      "scope": "RFC4180 parse/count",
+      "rows": 27541
+    },
+    {
+      "case": "risk-breadth-diagnostics.csv",
+      "status": "PASS",
+      "scope": "RFC4180 parse/count",
+      "rows": 573
+    },
+    {
+      "case": "portfolio-gate-results.csv",
+      "status": "PASS",
+      "scope": "RFC4180 parse/count",
+      "rows": 573
+    },
+    {
+      "case": "risk-mandate-compatibility.csv",
+      "status": "PASS",
+      "scope": "RFC4180 parse/count",
+      "rows": 573
+    },
+    {
+      "case": "sensitivity-diagnostics.csv",
+      "status": "PASS",
+      "scope": "RFC4180 parse/count",
+      "rows": 573
+    },
+    {
+      "case": "turnover-cost-diagnostics.csv",
+      "status": "PASS",
+      "scope": "RFC4180 parse/count",
+      "rows": 573
+    },
+    {
+      "case": "strategy-correlation-diagnostics.csv",
+      "status": "PASS",
+      "scope": "RFC4180 parse/count",
+      "rows": 22
+    },
+    {
+      "case": "signal-gate-components.csv",
+      "status": "PASS",
+      "scope": "RFC4180 parse/count",
+      "rows": 60
+    },
+    {
+      "case": "solver-diagnostics.csv",
+      "status": "PASS",
+      "scope": "RFC4180 parse/count",
+      "rows": 573
+    },
+    {
+      "case": "manifest and immutable source hashes",
+      "status": "PASS"
+    }
+  ]
+}

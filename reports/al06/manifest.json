@@ -1,0 +1,2347 @@
+{
+  "block": "AL06",
+  "version": "allocation-gates-1.0.3",
+  "scope": "OBSERVERS_ONLY_NO_OPTIMIZERS_NO_BACKTESTS",
+  "input_hash": "f655b403ebef3b76ed81c2a269962bff2874c3e9d609e6dcc2c76c9177a2f8c1",
+  "node3": "LEGACY_NODE3_SOURCE_NOT_PRESENT_IN_CURRENT_REPOSITORY",
+  "legacy_signal_history": "BLOCKED_MISSING_LEGACY_NODE3_SOURCE",
+  "code_hashes": {
+    "artifacts/api-server/src/lib/allocation-core/gates/adapters.ts": "3136b99437dbc6a540bcdc763594f4a09c72b4af719e3780f1bd676f2430101d",
+    "artifacts/api-server/src/lib/allocation-core/gates/common.ts": "b2e5f95b9a796af11e569899acbc6b2c42c6f3754e941775739f9496fc52bdbc",
+    "artifacts/api-server/src/lib/allocation-core/gates/contracts.ts": "e1a3af29b9c24f0f3ed59613608c49ff6152cdc8019316bcd5c0d2ee97e7f49d",
+    "artifacts/api-server/src/lib/allocation-core/gates/fixtures.ts": "9ab2db22ed623a9c29da143f4e635c6b38fdcdc97538a55e343043de04ca1607",
+    "artifacts/api-server/src/lib/allocation-core/gates/gates.test.ts": "66947c610fcb39823a8bf8a57243f2c2bf50ff9a17543816009c3be5ac90a750",
+    "artifacts/api-server/src/lib/allocation-core/gates/independent.py": "9a50760d621972088a84a14316ae440b88030ff2beb47577b9660a02072336df",
+    "artifacts/api-server/src/lib/allocation-core/gates/portfolio.ts": "2527e0f9440599883a6f2b287c0ffb743eb6fab2105f2ecd46f6926774266fb4",
+    "artifacts/api-server/src/lib/allocation-core/gates/render.py": "e497677e532c6ecb7a97e1d48ccc49b35dfae91d5ba4abef05daab2e3beef2b6",
+    "artifacts/api-server/src/lib/allocation-core/gates/replay.ts": "75f0918621e1be4120c7aace816ec22097f41d7d9fe4fa6bdf077e160df107dc",
+    "artifacts/api-server/src/lib/allocation-core/gates/signal.ts": "1e4635d337774869903e8b4bdb22011dbd6259fcf10e430374def1d5ffac3759"
+  },
+  "reused_code_hashes": {
+    "artifacts/api-server/src/lib/allocation-core/contracts.ts": "cfeb3b171b7bd19a1cd198865b18c46b73864b9a03c66c34423d420206934e8a",
+    "artifacts/api-server/src/lib/allocation-core/validation.ts": "31bc8f62dc6452c14139bbd09229947f6d1e8b31d51206ea32cd228afdd40a0f",
+    "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts": "5905a1b9e6d6b868ec1c0d4f96367160329663b15d9ee2da86403839b7dc9dc0",
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts": "674986899e25102a12a2f300933dd592e612719d2ab8bf997d6c5782c84e072c",
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts": "29bc238ebde9d61835e1e2881f837645c016a641a4bbd18ded788a85dbf30c86",
+    "artifacts/api-server/src/lib/allocation-core/assets-engine/solver.ts": "edb8166320b3cde9e51d0a85ca6c0ba6d4f5c6586c5c6abc621ffffd5ab0fd9b",
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/contracts.ts": "7f475bc8142669eb84be1183a5b1113e624c8ffd74a864bccb0c0b9e1c399d54",
+    "artifacts/api-server/src/lib/allocation-core/factors-engine/validation.ts": "5bdd9d75f47482b445264b4ca8c0c70daea12d542d967f6385bc7913282912bc",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts": "c48be987b0d5660d7cb172e16604e3ced785d87df94158e75d334291eee9bff8",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts": "2fa5c2752e305c17733d6717123708345435e38a43945cca04319af743505948",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/solver.ts": "d5c197ce96b7309102591d118189340ba553324d17da5d1307fb0b260edfdbb1",
+    "artifacts/api-server/src/lib/allocation-core/strategy-engine/fixtures.ts": "96cceaf2ae35f8f5e4acc1ecbb323fcfc6be6309ff7fedbff4077c6fdc8ccd5b",
+    "artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics.ts": "4c7c9e5445a64ee222e8c69cf2a4e7f60207180fdf9b3473bc07157280b56c08",
+    "artifacts/api-server/src/lib/allocation-core/risk-analytics/analytics.ts": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6",
+    "artifacts/api-server/src/lib/allocation-core/risk-analytics/estimators.ts": "d1de31f4b74846dcc8022e2c197b31d6311ce8e5e380b5f9bd65297d41698770"
+  },
+  "frozen_source_hashes": {
+    "reports/al03/allocation-inputs.json": "f3008b7089c2f8454b8ddac3dbcd4b6c67f353ffb6fea3514c6a9731e2b6cec1",
+    "reports/al03/allocation-solves.json": "15c223d735dd91954a9a7529a0501a68819c3e90bbd2d6dd535b177da20004bb",
+    "reports/al03/controller-results.json": "4f38223e65ed0b5061e145d37de678c3f2bf27377d3f9b1064bbde31dd02ac2f",
+    "reports/al03/sensitivity.csv": "c51cd8d82972ba2974c42aa77ddfb96877786db593caad11289b348b90f7b787",
+    "reports/al03/synthetic-objective-results.json": "456ff499fbce29ce62f348593edb2e7a6859ff23af331ec239c99b46078aabe7",
+    "reports/al04/synthetic-fixtures.json": "7d4b216336dd06acc94506c5782d847f5ae224096ac0663b9b79e61a35a90643",
+    "reports/al04/sensitivity-details.json": "9b495594b5b562264813aeb8e57ae42a8a50f7603f61b2e13cb9990c4ac10737",
+    "reports/al05/synthetic-results.json": "17fb5224c165fb3facb274b6eacb9d818891773418913090e80f63019c102a1e",
+    "reports/al05/sensitivity-results.json": "d9326d9ab790b504d5bc751e76780d7fb989fa3eff748e01c23a37da57cc3c76"
+  },
+  "gate_policies_frozen": [
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-01-03",
+      "policy_hash": "855edfa0e4cbdcef169bfc067f34829dee9b9ebd08d0aa5167e2a264bd366ae2"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-02-01",
+      "policy_hash": "036c1b593fadbbdd1f324465aaabbe560d41b6f81a083ab09104e28abdcdf5fa"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-03-01",
+      "policy_hash": "6615ec6d68cea7bbef44bb8c4527d00d7ad8440e16a2274fb64bdb97e38757fa"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-04-02",
+      "policy_hash": "5d96e31b09d97ca7e8101b1d7d72c1fcad86ae865cb1d2d5d75c5b93f04c45f9"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-05-01",
+      "policy_hash": "4dec3b1522991c07c4a5010a813896bd4252879779cf15d17af4cf503ebb88f5"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-06-01",
+      "policy_hash": "32b2391a696154b16c1cdb355f5a11babfb1d3d34bd72916dd83cb856d600b42"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-07-02",
+      "policy_hash": "0820653697d9a617c22104f69cf14c5c1da8acabd1d3d24ccb4fe20ef46cc92c"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-08-01",
+      "policy_hash": "c320524027a4228dd4fcc34e08d9abeb19b5cb4cc68fcd4cb2c27d5e0c6b0970"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-09-04",
+      "policy_hash": "d08e4a60790f2270967b22554f75369b64964a79d9f7a4c5753a8da6f46d86d2"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-10-01",
+      "policy_hash": "b01477f6e0576ecd126b3e5db4cd97dbed828fb790830d31a5d666e15a72b163"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-11-01",
+      "policy_hash": "0b69235c2a687b42254ca2a0abbd4f63383c335e68e2b4aab6cf606e34400cf3"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2012-12-03",
+      "policy_hash": "6f8a12730697cfbe013b8bd7fceb9bae4ea360d9bb38cdfef342c1c15a97513d"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-01-02",
+      "policy_hash": "f702e0e6db36413de5ebf277af8a27a0b710983c21fac8922de7962e976b0871"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-02-01",
+      "policy_hash": "020fb9ba03b72d61a683fb58af9bf420a3e5e418ddb34e7187b38d0c367c2f5c"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-03-01",
+      "policy_hash": "ddc1a212ac4914eb81bc4e2eb665249998d175209e9d2341bbce756074d7facf"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-04-01",
+      "policy_hash": "a3a486419fb33ba1b5a59cbf92b18cab2d5121468ad3134478954a1d167c814c"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-05-01",
+      "policy_hash": "4c62b9208edf9a24c8be23deb9290a6a0b903de90cff24004d70f013eea86f9c"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-06-03",
+      "policy_hash": "66c3d73eb5c74a03bc9267c0642407c253a954d9788d760c65bb209a8f123245"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-07-01",
+      "policy_hash": "3fc9fa1833902993c6cac35c347acbcce45929b262160bbc341f79adab2df9e3"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-08-01",
+      "policy_hash": "292872d1472fa6fd4da22ad2b2040641d83cba683e566269f8a2b5d4e37628f2"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-09-03",
+      "policy_hash": "ac93f33de2126049690c07ac4eed524c757a1c80f61ca5451598c9c5f49ce1b5"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-10-01",
+      "policy_hash": "7771d3a6fdb6925197bf444a8f0a42003d2dad246201ba9872a59cc5c94f47f7"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-11-01",
+      "policy_hash": "a2cffd1aeded71aaa3577f69ca87d87153edd3f22667a6aa3a118194b4166a72"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2013-12-02",
+      "policy_hash": "38635d025554bc70f244da84bead01d6e6077493bee2b58c5a82fdcafdc489ac"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-01-02",
+      "policy_hash": "9122347d13b0c83a42f00d51928aa6199e1516d8c1997acea3ad9ec4e4a25c94"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-02-03",
+      "policy_hash": "856ea58171f4dcca2582cbb548d543137c3fc6246a08b4f387f3b6ef351ada2f"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-03-03",
+      "policy_hash": "8809d36e2580738222107f1cb0bd96959a7a057330ec6e722c7dae7296692a8e"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-04-01",
+      "policy_hash": "e95dc61147eef2c263cae3b7f9f1c2cdcbb3d5c1336e61beb2fab392dfe2930f"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-05-01",
+      "policy_hash": "14d4a560220b822c8cd92f86c22d933fdf3348cdbdda8f756a397ecdae76800e"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-06-02",
+      "policy_hash": "3d5c18016eaffd86a203d389029bafd3731b388b330bd21b6f7c750e3973f639"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-07-01",
+      "policy_hash": "7b63bef924bf0834e3dcd2d7d6dfff707d79cf1810eb95110d6356d21d6df613"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-08-01",
+      "policy_hash": "8a04f62ff179319d83d5d020ed2bcaf494714a508ea1d0d5ad4ac3833d449e75"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-09-02",
+      "policy_hash": "46a9a9c15631f8222d29d141e8ecca56612e6693dcaf9068bb1c218c292add71"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-10-01",
+      "policy_hash": "d746e16005c061f07445d1d43111343fdd75b315cd3e854b711e92e938fc35d1"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-11-03",
+      "policy_hash": "89ff42624961abd79aa92deee8968f3ac06282919defed11f32ca05365344134"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2014-12-01",
+      "policy_hash": "4266508cb0117663df7c3cae0e65d822ce32448b1aaccf4cfefc7fae42f6dad2"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-01-02",
+      "policy_hash": "a721ecbbd7459fe71f102b39abc2d08f57ea759d7e6ebbfca2b1a6be3a987b2e"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-02-02",
+      "policy_hash": "69d8715388b0cca5f3708343af2aaa35fc44533580e14d334147f321bfee7595"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-03-02",
+      "policy_hash": "1b28be3442169e868b3cec592ce3bbadfbd77b337829a3c4ac6b163197a58eb5"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-04-01",
+      "policy_hash": "f252fba9a44663ecc48ed01946b452ae764e6fc16651ca529e16683307fc6a79"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-05-01",
+      "policy_hash": "ce7b0b5d6c1bb8a17b8f110a6262229d62748fb6634d3dbf63797f7811cba5eb"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-06-01",
+      "policy_hash": "203da0224190c93674f345a5b00cb12850466ed984573071c1e6553d02bfa6de"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-07-01",
+      "policy_hash": "04ff0da3f4623b540d25b3b93d70573c5cf6e5ed94c509ce03ff59a381e25a3f"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-08-03",
+      "policy_hash": "e35da28b075817cea805317c7079cba51915325ff4dda49bd62a84189f7d93e5"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-09-01",
+      "policy_hash": "50fa4b1dabfbe1dbbf2ac77d28f7abbdfd550c52d802ebac65b50c1ba128c7b5"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-10-01",
+      "policy_hash": "74b05bb41a378404c1e30f5375c1c98dd81831205841ef522a89d2ca8e86833f"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-11-02",
+      "policy_hash": "be5b7e83ed6be55923629d1ae9117b8ef06132900e23f9b92df475ad55c32c9d"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2015-12-01",
+      "policy_hash": "c2daa38f4dfdc5b6ad3a4d046f0cfcef1f41555cd2329309386a2058b0f73121"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-01-04",
+      "policy_hash": "2edcd8a38801a08aa60c300a30dccb5178689735b7a8aabd362f7fb923600af7"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-02-01",
+      "policy_hash": "de64c8ca5c3038e43fe7f71e04040fce97199b7b8ce98a1e45cdc627d9721da2"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-03-01",
+      "policy_hash": "75f0bf89a342fb2757c4bba3085ede1b505a9aedaf8834cf714f2613209532ca"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-04-01",
+      "policy_hash": "74deab80e6f0dc31a04833de7e298e1117e7005640b17c6a714d36673c260501"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-05-02",
+      "policy_hash": "2f98ac3d285181892c338635f242c47c5f570ceb08af6ca48ec9793fcb6d13de"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-06-01",
+      "policy_hash": "5af00f7e32ea7b0a0e9c706461532759eb6988128a759515c9f64ff0c31f901a"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-07-01",
+      "policy_hash": "811c871856e624f90897fd72fe114d968264db5787fc36e657cb26a372d9b3ad"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-08-01",
+      "policy_hash": "e445027c70bc27ea4e9b0fb2b2cda3e8df55cf59ed6f1e4d45db1c63abba8d8e"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-09-01",
+      "policy_hash": "12bec27c3b202a88044b1b31396d50ac91a736f9731895633f9a18a37c5b63d4"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-10-03",
+      "policy_hash": "91dae13f79078a646caf2ff59947f8f9a3a9e29debf3be1664349a4a1ca48ad8"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-11-01",
+      "policy_hash": "12a21777c9e5f4afb2b9ec9a73a0f5f8a0ab047ccf9a61754ec587cc9ca17748"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2016-12-01",
+      "policy_hash": "d9eda8d4d868819eeeff02e247a522c9f0d62ea04e34db0a5548a255e4d870bb"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-01-03",
+      "policy_hash": "93e8526ce051cf015d7c9d1cc5bff74f21a223a5553658644ca40f15049ded8a"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-02-01",
+      "policy_hash": "34433d82f28105605bcff089f07c386cde8609a958e5dbaeaa9697228990d335"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-03-01",
+      "policy_hash": "26e7ac45f85680d2588c58a9c6c8e866bc1ea4131eb3cac331a96095e7f4c307"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-04-03",
+      "policy_hash": "c0a5eaa3ca30d96b3c9f86294c92c28770e2199ed4b5cfec285943179626adf8"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-05-01",
+      "policy_hash": "403689c84c8b0ee0812bf201c14d71528ed1f4de490af9b404a836e3e3f7d3fe"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-06-01",
+      "policy_hash": "24f717677490a0a105374c1b94d901515062eead6361a825c2d2fc2eadb253b8"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-07-03",
+      "policy_hash": "7d0c3559b9f6e64ac0a5ff5f596c4e7cf361ce334537d6c5db4434a9079875ca"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-08-01",
+      "policy_hash": "cff174522bf409e78b37ba254cb3c3d2317e7b5644002f7ebca9ce895194e2fc"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-09-01",
+      "policy_hash": "d398c4e5b90773b3412a2efb6492e2dc1ac6b7aad8c253c15da02c004bb47651"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-10-02",
+      "policy_hash": "20073d20f03af482320e88f4040b029510f0a63f6ad5d80b5f002b401addec37"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-11-01",
+      "policy_hash": "c887f0de37a0541a827db32d52366be60e3b310601f7d1ef228aca426cc81ab3"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2017-12-01",
+      "policy_hash": "d348c6b576630d8e22240da92c6073127a0f06c7b6638c3436e47034e95b7a1b"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-01-02",
+      "policy_hash": "de80428089b5b2caf55f4fd67e412cef2f928a10264c0c418aed80fdce8b6b84"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-02-01",
+      "policy_hash": "b75b4525269796c3cdc49cbc425ed5efc03c1381cd1a5c2ed0f5899c1568d15e"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-03-01",
+      "policy_hash": "10cac1e15a6219a97b2bdd1c0b5a792d1ea5660023b4127fd8ea047d932a3c32"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-04-02",
+      "policy_hash": "7e0000847e366aa22c47fdc1c67cf008f2f209320f052a99290453183ded2007"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-05-01",
+      "policy_hash": "ae3a48b9805e97375e6837bfa29d3cc80fca87334c97a77d92546f427af193a3"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-06-01",
+      "policy_hash": "4448653d1226f2c12663f30936446953adb12eb5731780eb16c7860b66615aa4"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-07-02",
+      "policy_hash": "b26c7c933f286881a0e582a9f26da81f55374c8f8deaa86fcfd8213a6c0829f5"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-08-01",
+      "policy_hash": "9dcd0e4fe3779c6a7dcba005f882d4281fffcea6ec0356d5b1119fbb4497dd49"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-09-04",
+      "policy_hash": "a2b2406d71f57614c64b56700431467941b0420e789783e6bd41209d90270d1f"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-10-01",
+      "policy_hash": "2035759a1ed5376be27912f7a64045838e683db2ff51564497677ee8641575a6"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-11-01",
+      "policy_hash": "4ef1ca014f7a9d6a5e5a584a7b0d957b83032517f2a78d9a9d8d6ed4651863f6"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2018-12-03",
+      "policy_hash": "f37cb4e72f4df88401ad92e71813798c155151a42144c4a551695cc741bac789"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-01-02",
+      "policy_hash": "608a8a349bc33fcdc1c47f7aebe9113a09ad565493a29c60abc0a97da82b4aa9"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-02-01",
+      "policy_hash": "71c4ec732d99250b0f90279a35cb196a628ec82e3877ecbce25ee616c2c6cadc"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-03-01",
+      "policy_hash": "b5d54583fbe3f61320691214142f2006e21da414ea985efc12deff89abaca107"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-04-01",
+      "policy_hash": "2f1284c816113443855b6a9ef8094e5600f3b1851e428fd05365b3ea366a8a03"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-05-01",
+      "policy_hash": "470250128095115f746d0b5090ce3131116c8c8faa71f95ac73b8a25cc63f74e"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-06-03",
+      "policy_hash": "37e03270494091b74c00e171718a6d998348212b7de13c011b1d3b8be2662d67"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-07-01",
+      "policy_hash": "57f56997ba3833f447b45198e78da3be20b54ffd6ee87f980bda7340d1c5c572"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-08-01",
+      "policy_hash": "2528d4e30528060252aa0f044866f0ed0db0f314e3359b95a06f73ae37297b47"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-09-03",
+      "policy_hash": "279257e051863a01a4a0b9e4f81d0adb155bc08906351d7c1c3a34e97685fb55"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-10-01",
+      "policy_hash": "91eaf091eb32d66214224440995b3ae84342336407ad7789ff8db6f0f3bea636"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-11-01",
+      "policy_hash": "876934902c5c071078b2d9997b62b2e886eadf85fb25d0064da5dd1a0aefcc0e"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2019-12-02",
+      "policy_hash": "3248eb7100600660652ebc54505fb0a98370400269486cf4950d4515b2002938"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-01-02",
+      "policy_hash": "9e4a6ebb1bf8425e4f46ae68e3063b7121cbb81e8a0a94788a7f5e029e345e17"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-02-03",
+      "policy_hash": "0e573e7efa1526fc60a0a9f2e421bb8619b6c259b00e88fd039655444e155efb"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-03-02",
+      "policy_hash": "44bc728d9a538a2c6e32c2c5ce85fbd85cb316570a3ebcbd3407d89a5c877fa9"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-04-01",
+      "policy_hash": "531c3b50b0655f8cf1ce48332c263f31a520133da387e49f2f63d4a5ba4f9ec1"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-05-01",
+      "policy_hash": "1a33c50a979ef66499b1bc39cb2d16ae3fac5e64a87f6380c7a607945a2c896b"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-06-01",
+      "policy_hash": "fa2a3a47cc111a11667f026b663799f1d35e2572104e1611a82027e6168741a6"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-07-01",
+      "policy_hash": "c8e2405780abaf5bfdef2733ff06d7f6c504c91b35a849c099ec69b3908d02f7"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-08-03",
+      "policy_hash": "e464f79ae0328a717f5cf20b869401a3311fce3f6e1a986d8395c7b0c3b564ea"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-09-01",
+      "policy_hash": "6a124f47de28608b7e01b4e4c558923e748c361e44c1c715963e5e5d008a2461"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-10-01",
+      "policy_hash": "4afaaa87a3a1fcbe6f8b5aed0cc3ac3d97061a5a37f4822a4727545a1fff7538"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-11-02",
+      "policy_hash": "7d27a736e7b249ff11a59207d258314047c03fc065c8c6bc9565d86c3ab86dc6"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2020-12-01",
+      "policy_hash": "805d2d3b5033449eda40d1dc82b9cde1d6e4f61ee00b8509993b58b689c16065"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-01-04",
+      "policy_hash": "22400c34f4daf35d85dee9811c7196eb7ba4a44622a2520b7a348e34cf4b1154"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-02-01",
+      "policy_hash": "8bfbe5379efe99b395c1c0ea7b553fd2256867e0661ed361870aedbe2901d9c1"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-03-01",
+      "policy_hash": "e0e243a8a39c70eebfbcc1dec8b589dba60d677188e028c357a245bf2dadd5dd"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-04-01",
+      "policy_hash": "338577e9ab58db38cbe8fb6bdf01fd61f3e0dafb1f6a2dc53adecd9fcf905d76"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-05-03",
+      "policy_hash": "6bdc3a2b49721d811081fc1b76b2b863e46fe05e2b74ac7a70a82d2fef74591b"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-06-01",
+      "policy_hash": "f3645fb3403ca285f9ace5a9ce133e7aee144a0c8b9ac3deef1fb23c92cd0f41"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-07-01",
+      "policy_hash": "bf3feff5cd79c83cf3820e17073e7bcebcc203520f41e81674b428437c909b09"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-08-02",
+      "policy_hash": "82cbc062aa9ec5c15b37c4a4263596b89c1e075e9451152885519a516651ea1a"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-09-01",
+      "policy_hash": "3281d285c7745322449240b04880518b7a35ae1ad743384adf647592ab16552f"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-10-01",
+      "policy_hash": "6b5590620320f916bd8250a992a457f7cf050b48181a6a9ab92a8b1c2d9f0dbf"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-11-01",
+      "policy_hash": "17da1ed9d5ccea935471a9bf6e8bbcbf94eff9a48e515b437092de4767ace8dc"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2021-12-01",
+      "policy_hash": "9582255264cb84f38959bafc0a96924eef057f11e1eca7dd229c608b89ad7c08"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-01-03",
+      "policy_hash": "6a3fe6b7c1156f9fed72f817935cb8c282690d125b8779a31386784fa5826022"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-02-01",
+      "policy_hash": "6f379cbe88ff869d47de9fcef8c5ebf4381cffce96c7a214ce42c2c702d33a5e"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-03-01",
+      "policy_hash": "ba8458aa43ee90a9d3b82182d044eb0bdd82a5040d9a162cdf8e7fba3b8522b2"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-04-01",
+      "policy_hash": "e5886790829bdc0abdfc9ed8a97f33a2fcefbfa315536b1fa7fbb1b5eb3ebec9"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-05-02",
+      "policy_hash": "e22344dbde2eccbcf2d60e1eb53a1b448ff268ccd0d9674687aac0904e013caf"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-06-01",
+      "policy_hash": "d6e45521a9958a745a0ef47a4f6a631f6f3111186556d750741d6e4b169ecaf9"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-07-01",
+      "policy_hash": "deb6eace3ca034e5e9931783851def7870df1db8496a5ef248235336f15b34a9"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-08-01",
+      "policy_hash": "7400c2f6f9cd29b0353dc1a463a6b1f6e4f7c76ecb7f4937361d3dd0f83bb297"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-09-01",
+      "policy_hash": "4a683237b9a40a84e583c0480a45ebe4cd98d08e0617014f4bec0597859d8e03"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-10-03",
+      "policy_hash": "fb426e03b676d22d5307247eff3873f8788eb1f63fa4d9e1b9acd5ece41dd009"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-11-01",
+      "policy_hash": "70b613bc2bcbdfd548bd30c8cd1333c3885eae495fb27075b67f906c3bdd62c2"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2022-12-01",
+      "policy_hash": "16784fa4d6ba6e4dceda06c4c30ff2a96822d81f0a0ba95d5a5c803400f7761e"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-01-03",
+      "policy_hash": "8445e0aaf33af47dc25331d621abe02ce302f9f1b033ac2cad3f94563c1dc7b4"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-02-01",
+      "policy_hash": "55def7e22153f164a74cb19ea41507fd748074770002254b461845196e3500df"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-03-01",
+      "policy_hash": "51e35753c1b186080deb3e16c680dbdd0dc05598f95da1d69ada7331d38c2741"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-04-03",
+      "policy_hash": "b1f04b36f1b3ca044db02ae76ffeb6959a2d4c3300936a2967c86192a4235587"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-05-01",
+      "policy_hash": "931fdb274bde065de1a96ce997c4d6f17af894d0750b398ee957e5c091b16bd7"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-06-01",
+      "policy_hash": "910c39ea05feaef09ceee674843d8911d411434f35de4b5b2f5c80809a067587"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-07-03",
+      "policy_hash": "80c785f7c268653eb1b8b1653d41f04b30a1708460e543da6fe9993734726a2d"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-08-01",
+      "policy_hash": "ab5055109859f29f2df5315d90e3e13a92a49a91f7f2e1b282599cab0f343737"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-09-01",
+      "policy_hash": "9f7b7d46daf683f1bcf4a8d4d1562fd6414278a0d1a6e8e80097079e57e65bf9"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-10-02",
+      "policy_hash": "ab4ae4610a7d00e79c518bf98a966e3922c4236577a35648a6e9775cd49a5d15"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-11-01",
+      "policy_hash": "c63796d470dbb3e983a26bb4ef1059adc58c159e92a41a6a3576a7151f7fa528"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2023-12-01",
+      "policy_hash": "6c47bb50bc53ae29d34aa33c3fd3d055b47077f2af7bdbf347adbcb6d070d32b"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-01-02",
+      "policy_hash": "b926d36f9acdc43919672060d7783f162a2e7f456fc9809bd6c610ad57dbd80a"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-02-01",
+      "policy_hash": "1c609dd623fb8b90e1898acdf77c5d4a069d593b5b6926804df373b59bebfbb1"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-03-01",
+      "policy_hash": "7435a4731fff563d3ad39c09bb69012f179a85a6e2fba13853f7e6b58751fdf5"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-04-01",
+      "policy_hash": "cde7bcb885303ffb1e365a708edb821812bb4a0d62c947a0fedd75b5fbe48e9c"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-05-01",
+      "policy_hash": "97e0a08a0e743007980485614dcf9c0c277757fcba49bc90e4fba30564a2bbe1"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-06-03",
+      "policy_hash": "197616215372d13a8dbaf8187e48ee985b5756b76b63f313516bd4d10f4568c3"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-07-01",
+      "policy_hash": "b63f3417412f07dadaa628ef4bbbc20c6d86647598d043271fd7c9c8b8a54ed5"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-08-01",
+      "policy_hash": "a3ed0a89d97ad246c9bfc67dc89114d87e9b5b469506acdcbd11edc40e2de56f"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-09-03",
+      "policy_hash": "c46ea62a8761e5cb5cff1c6d49c544cc2005b9455e768dd8caa83163ac2c009e"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-10-01",
+      "policy_hash": "9ad4027901209b6ca4eaa8d243318a7704224f425caf8184dc5180e85bb10096"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-11-01",
+      "policy_hash": "5ba80b6fe3e531d861b9a8f63c8129ca553c3f8be9ee903b119e65f5b1f6f28a"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2024-12-02",
+      "policy_hash": "85bda28226e21ffc34c393bbf4d04e14662647485490190c09d1302379ad3f99"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-01-02",
+      "policy_hash": "a73675f3857551f546a1d4d6d0ab549460eb9f5b728f0cdb3d1d758b82b74cf8"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-02-03",
+      "policy_hash": "2b209dc26058df044898b7b4fe67328faf6ba37be7cd45f1c6ad771e90662f18"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-03-03",
+      "policy_hash": "2ab7b0b4201955e45a5aa2c3f1a76435a9652c280e06c9c1c8d7d62314077beb"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-04-01",
+      "policy_hash": "9ba4496fe779e75e681bff89c7e5210c49671e832fedc3730cc5f52c9aa230b5"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-05-01",
+      "policy_hash": "32e49b8e430ce48d024fd1e6cf8fc714f199afe90df2451047ad11fad027a59a"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-06-02",
+      "policy_hash": "568dbbf93aa6b5641e61ec5618ef52907562441ac20e49021c3647cddbf8567f"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-07-01",
+      "policy_hash": "9c6de2b283be9e12f38eda98fc8b7be4c2e19c10509bc25a8d46bee9d163d0ad"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-08-01",
+      "policy_hash": "9dccb4064f5582fa14c51d47f544ae885d5722fcbc4693c55783dabb3a975ae2"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-09-02",
+      "policy_hash": "03930d15d7f9cc878f546048507790f61d76b10e109986ee395f39b998ad34bc"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-10-01",
+      "policy_hash": "a56ca4c41a35852c5d489b911e3ec25f038360919882eece5d6ef5eb84f71c66"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-11-03",
+      "policy_hash": "f261d413dc9c27b9f6c631e66b0db43e3c861309fac43fab463317648bc904a7"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2025-12-01",
+      "policy_hash": "783b1a8d2ccfd9c7db214b680b80ca94a51b4008fc6b6e1b111f183b8ddf4ef1"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2026-01-02",
+      "policy_hash": "43b0924bcd8e40b9d1c58aa8f9ee6aafd1a7a00b2ece7ea2a952c499d8aeb7d6"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2026-02-02",
+      "policy_hash": "d0e6a46d45c3d92b91a19e90a1c1575e7d3fe12b04f75eb70696780763e511e1"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2026-03-02",
+      "policy_hash": "eb602cf3e2f2e8c0537df6d8ee1b3fcfa18c1b179396c30897041840e5a18a06"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2026-04-01",
+      "policy_hash": "afa41bb60e8a87b5d8c4080b3660815fd704d3b356933b2627d7f0341d080348"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2026-05-01",
+      "policy_hash": "c5bd7b71b349aa6fe01148c9c1efcd44721d84e72f40452f28eba4d18fc285bc"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2026-06-01",
+      "policy_hash": "9ab0404f94a5ee78013613cd1bbeee8b2c704ec6064e8bf8306eaf55dcdf34c4"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2026-07-01",
+      "policy_hash": "1761f17d6ddef9a1f5814cbd85fa4c6d40de732b147155af01bec1d2eed10091"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2026-08-03",
+      "policy_hash": "28addb62480d16fa42042c541214542dad6f278befdff2da39ed1ae92c5ed056"
+    },
+    {
+      "case_id": "AL03|EQUAL_WEIGHT|2026-09-01",
+      "policy_hash": "9e1c90f524247122b80744edf0c4ba20d3f9f8aa94547d03bc7314b95791955d"
+    },
+    {
+      "case_id": "AL03|ERC|2012-01-03",
+      "policy_hash": "855edfa0e4cbdcef169bfc067f34829dee9b9ebd08d0aa5167e2a264bd366ae2"
+    },
+    {
+      "case_id": "AL03|ERC|2012-02-01",
+      "policy_hash": "036c1b593fadbbdd1f324465aaabbe560d41b6f81a083ab09104e28abdcdf5fa"
+    },
+    {
+      "case_id": "AL03|ERC|2012-03-01",
+      "policy_hash": "6615ec6d68cea7bbef44bb8c4527d00d7ad8440e16a2274fb64bdb97e38757fa"
+    },
+    {
+      "case_id": "AL03|ERC|2012-04-02",
+      "policy_hash": "5d96e31b09d97ca7e8101b1d7d72c1fcad86ae865cb1d2d5d75c5b93f04c45f9"
+    },
+    {
+      "case_id": "AL03|ERC|2012-05-01",
+      "policy_hash": "4dec3b1522991c07c4a5010a813896bd4252879779cf15d17af4cf503ebb88f5"
+    },
+    {
+      "case_id": "AL03|ERC|2012-06-01",
+      "policy_hash": "32b2391a696154b16c1cdb355f5a11babfb1d3d34bd72916dd83cb856d600b42"
+    },
+    {
+      "case_id": "AL03|ERC|2012-07-02",
+      "policy_hash": "0820653697d9a617c22104f69cf14c5c1da8acabd1d3d24ccb4fe20ef46cc92c"
+    },
+    {
+      "case_id": "AL03|ERC|2012-08-01",
+      "policy_hash": "c320524027a4228dd4fcc34e08d9abeb19b5cb4cc68fcd4cb2c27d5e0c6b0970"
+    },
+    {
+      "case_id": "AL03|ERC|2012-09-04",
+      "policy_hash": "d08e4a60790f2270967b22554f75369b64964a79d9f7a4c5753a8da6f46d86d2"
+    },
+    {
+      "case_id": "AL03|ERC|2012-10-01",
+      "policy_hash": "b01477f6e0576ecd126b3e5db4cd97dbed828fb790830d31a5d666e15a72b163"
+    },
+    {
+      "case_id": "AL03|ERC|2012-11-01",
+      "policy_hash": "0b69235c2a687b42254ca2a0abbd4f63383c335e68e2b4aab6cf606e34400cf3"
+    },
+    {
+      "case_id": "AL03|ERC|2012-12-03",
+      "policy_hash": "6f8a12730697cfbe013b8bd7fceb9bae4ea360d9bb38cdfef342c1c15a97513d"
+    },
+    {
+      "case_id": "AL03|ERC|2013-01-02",
+      "policy_hash": "f702e0e6db36413de5ebf277af8a27a0b710983c21fac8922de7962e976b0871"
+    },
+    {
+      "case_id": "AL03|ERC|2013-02-01",
+      "policy_hash": "020fb9ba03b72d61a683fb58af9bf420a3e5e418ddb34e7187b38d0c367c2f5c"
+    },
+    {
+      "case_id": "AL03|ERC|2013-03-01",
+      "policy_hash": "ddc1a212ac4914eb81bc4e2eb665249998d175209e9d2341bbce756074d7facf"
+    },
+    {
+      "case_id": "AL03|ERC|2013-04-01",
+      "policy_hash": "a3a486419fb33ba1b5a59cbf92b18cab2d5121468ad3134478954a1d167c814c"
+    },
+    {
+      "case_id": "AL03|ERC|2013-05-01",
+      "policy_hash": "4c62b9208edf9a24c8be23deb9290a6a0b903de90cff24004d70f013eea86f9c"
+    },
+    {
+      "case_id": "AL03|ERC|2013-06-03",
+      "policy_hash": "66c3d73eb5c74a03bc9267c0642407c253a954d9788d760c65bb209a8f123245"
+    },
+    {
+      "case_id": "AL03|ERC|2013-07-01",
+      "policy_hash": "3fc9fa1833902993c6cac35c347acbcce45929b262160bbc341f79adab2df9e3"
+    },
+    {
+      "case_id": "AL03|ERC|2013-08-01",
+      "policy_hash": "292872d1472fa6fd4da22ad2b2040641d83cba683e566269f8a2b5d4e37628f2"
+    },
+    {
+      "case_id": "AL03|ERC|2013-09-03",
+      "policy_hash": "ac93f33de2126049690c07ac4eed524c757a1c80f61ca5451598c9c5f49ce1b5"
+    },
+    {
+      "case_id": "AL03|ERC|2013-10-01",
+      "policy_hash": "7771d3a6fdb6925197bf444a8f0a42003d2dad246201ba9872a59cc5c94f47f7"
+    },
+    {
+      "case_id": "AL03|ERC|2013-11-01",
+      "policy_hash": "a2cffd1aeded71aaa3577f69ca87d87153edd3f22667a6aa3a118194b4166a72"
+    },
+    {
+      "case_id": "AL03|ERC|2013-12-02",
+      "policy_hash": "38635d025554bc70f244da84bead01d6e6077493bee2b58c5a82fdcafdc489ac"
+    },
+    {
+      "case_id": "AL03|ERC|2014-01-02",
+      "policy_hash": "9122347d13b0c83a42f00d51928aa6199e1516d8c1997acea3ad9ec4e4a25c94"
+    },
+    {
+      "case_id": "AL03|ERC|2014-02-03",
+      "policy_hash": "856ea58171f4dcca2582cbb548d543137c3fc6246a08b4f387f3b6ef351ada2f"
+    },
+    {
+      "case_id": "AL03|ERC|2014-03-03",
+      "policy_hash": "8809d36e2580738222107f1cb0bd96959a7a057330ec6e722c7dae7296692a8e"
+    },
+    {
+      "case_id": "AL03|ERC|2014-04-01",
+      "policy_hash": "e95dc61147eef2c263cae3b7f9f1c2cdcbb3d5c1336e61beb2fab392dfe2930f"
+    },
+    {
+      "case_id": "AL03|ERC|2014-05-01",
+      "policy_hash": "14d4a560220b822c8cd92f86c22d933fdf3348cdbdda8f756a397ecdae76800e"
+    },
+    {
+      "case_id": "AL03|ERC|2014-06-02",
+      "policy_hash": "3d5c18016eaffd86a203d389029bafd3731b388b330bd21b6f7c750e3973f639"
+    },
+    {
+      "case_id": "AL03|ERC|2014-07-01",
+      "policy_hash": "7b63bef924bf0834e3dcd2d7d6dfff707d79cf1810eb95110d6356d21d6df613"
+    },
+    {
+      "case_id": "AL03|ERC|2014-08-01",
+      "policy_hash": "8a04f62ff179319d83d5d020ed2bcaf494714a508ea1d0d5ad4ac3833d449e75"
+    },
+    {
+      "case_id": "AL03|ERC|2014-09-02",
+      "policy_hash": "46a9a9c15631f8222d29d141e8ecca56612e6693dcaf9068bb1c218c292add71"
+    },
+    {
+      "case_id": "AL03|ERC|2014-10-01",
+      "policy_hash": "d746e16005c061f07445d1d43111343fdd75b315cd3e854b711e92e938fc35d1"
+    },
+    {
+      "case_id": "AL03|ERC|2014-11-03",
+      "policy_hash": "89ff42624961abd79aa92deee8968f3ac06282919defed11f32ca05365344134"
+    },
+    {
+      "case_id": "AL03|ERC|2014-12-01",
+      "policy_hash": "4266508cb0117663df7c3cae0e65d822ce32448b1aaccf4cfefc7fae42f6dad2"
+    },
+    {
+      "case_id": "AL03|ERC|2015-01-02",
+      "policy_hash": "a721ecbbd7459fe71f102b39abc2d08f57ea759d7e6ebbfca2b1a6be3a987b2e"
+    },
+    {
+      "case_id": "AL03|ERC|2015-02-02",
+      "policy_hash": "69d8715388b0cca5f3708343af2aaa35fc44533580e14d334147f321bfee7595"
+    },
+    {
+      "case_id": "AL03|ERC|2015-03-02",
+      "policy_hash": "1b28be3442169e868b3cec592ce3bbadfbd77b337829a3c4ac6b163197a58eb5"
+    },
+    {
+      "case_id": "AL03|ERC|2015-04-01",
+      "policy_hash": "f252fba9a44663ecc48ed01946b452ae764e6fc16651ca529e16683307fc6a79"
+    },
+    {
+      "case_id": "AL03|ERC|2015-05-01",
+      "policy_hash": "ce7b0b5d6c1bb8a17b8f110a6262229d62748fb6634d3dbf63797f7811cba5eb"
+    },
+    {
+      "case_id": "AL03|ERC|2015-06-01",
+      "policy_hash": "203da0224190c93674f345a5b00cb12850466ed984573071c1e6553d02bfa6de"
+    },
+    {
+      "case_id": "AL03|ERC|2015-07-01",
+      "policy_hash": "04ff0da3f4623b540d25b3b93d70573c5cf6e5ed94c509ce03ff59a381e25a3f"
+    },
+    {
+      "case_id": "AL03|ERC|2015-08-03",
+      "policy_hash": "e35da28b075817cea805317c7079cba51915325ff4dda49bd62a84189f7d93e5"
+    },
+    {
+      "case_id": "AL03|ERC|2015-09-01",
+      "policy_hash": "50fa4b1dabfbe1dbbf2ac77d28f7abbdfd550c52d802ebac65b50c1ba128c7b5"
+    },
+    {
+      "case_id": "AL03|ERC|2015-10-01",
+      "policy_hash": "74b05bb41a378404c1e30f5375c1c98dd81831205841ef522a89d2ca8e86833f"
+    },
+    {
+      "case_id": "AL03|ERC|2015-11-02",
+      "policy_hash": "be5b7e83ed6be55923629d1ae9117b8ef06132900e23f9b92df475ad55c32c9d"
+    },
+    {
+      "case_id": "AL03|ERC|2015-12-01",
+      "policy_hash": "c2daa38f4dfdc5b6ad3a4d046f0cfcef1f41555cd2329309386a2058b0f73121"
+    },
+    {
+      "case_id": "AL03|ERC|2016-01-04",
+      "policy_hash": "2edcd8a38801a08aa60c300a30dccb5178689735b7a8aabd362f7fb923600af7"
+    },
+    {
+      "case_id": "AL03|ERC|2016-02-01",
+      "policy_hash": "de64c8ca5c3038e43fe7f71e04040fce97199b7b8ce98a1e45cdc627d9721da2"
+    },
+    {
+      "case_id": "AL03|ERC|2016-03-01",
+      "policy_hash": "75f0bf89a342fb2757c4bba3085ede1b505a9aedaf8834cf714f2613209532ca"
+    },
+    {
+      "case_id": "AL03|ERC|2016-04-01",
+      "policy_hash": "74deab80e6f0dc31a04833de7e298e1117e7005640b17c6a714d36673c260501"
+    },
+    {
+      "case_id": "AL03|ERC|2016-05-02",
+      "policy_hash": "2f98ac3d285181892c338635f242c47c5f570ceb08af6ca48ec9793fcb6d13de"
+    },
+    {
+      "case_id": "AL03|ERC|2016-06-01",
+      "policy_hash": "5af00f7e32ea7b0a0e9c706461532759eb6988128a759515c9f64ff0c31f901a"
+    },
+    {
+      "case_id": "AL03|ERC|2016-07-01",
+      "policy_hash": "811c871856e624f90897fd72fe114d968264db5787fc36e657cb26a372d9b3ad"
+    },
+    {
+      "case_id": "AL03|ERC|2016-08-01",
+      "policy_hash": "e445027c70bc27ea4e9b0fb2b2cda3e8df55cf59ed6f1e4d45db1c63abba8d8e"
+    },
+    {
+      "case_id": "AL03|ERC|2016-09-01",
+      "policy_hash": "12bec27c3b202a88044b1b31396d50ac91a736f9731895633f9a18a37c5b63d4"
+    },
+    {
+      "case_id": "AL03|ERC|2016-10-03",
+      "policy_hash": "91dae13f79078a646caf2ff59947f8f9a3a9e29debf3be1664349a4a1ca48ad8"
+    },
+    {
+      "case_id": "AL03|ERC|2016-11-01",
+      "policy_hash": "12a21777c9e5f4afb2b9ec9a73a0f5f8a0ab047ccf9a61754ec587cc9ca17748"
+    },
+    {
+      "case_id": "AL03|ERC|2016-12-01",
+      "policy_hash": "d9eda8d4d868819eeeff02e247a522c9f0d62ea04e34db0a5548a255e4d870bb"
+    },
+    {
+      "case_id": "AL03|ERC|2017-01-03",
+      "policy_hash": "93e8526ce051cf015d7c9d1cc5bff74f21a223a5553658644ca40f15049ded8a"
+    },
+    {
+      "case_id": "AL03|ERC|2017-02-01",
+      "policy_hash": "34433d82f28105605bcff089f07c386cde8609a958e5dbaeaa9697228990d335"
+    },
+    {
+      "case_id": "AL03|ERC|2017-03-01",
+      "policy_hash": "26e7ac45f85680d2588c58a9c6c8e866bc1ea4131eb3cac331a96095e7f4c307"
+    },
+    {
+      "case_id": "AL03|ERC|2017-04-03",
+      "policy_hash": "c0a5eaa3ca30d96b3c9f86294c92c28770e2199ed4b5cfec285943179626adf8"
+    },
+    {
+      "case_id": "AL03|ERC|2017-05-01",
+      "policy_hash": "403689c84c8b0ee0812bf201c14d71528ed1f4de490af9b404a836e3e3f7d3fe"
+    },
+    {
+      "case_id": "AL03|ERC|2017-06-01",
+      "policy_hash": "24f717677490a0a105374c1b94d901515062eead6361a825c2d2fc2eadb253b8"
+    },
+    {
+      "case_id": "AL03|ERC|2017-07-03",
+      "policy_hash": "7d0c3559b9f6e64ac0a5ff5f596c4e7cf361ce334537d6c5db4434a9079875ca"
+    },
+    {
+      "case_id": "AL03|ERC|2017-08-01",
+      "policy_hash": "cff174522bf409e78b37ba254cb3c3d2317e7b5644002f7ebca9ce895194e2fc"
+    },
+    {
+      "case_id": "AL03|ERC|2017-09-01",
+      "policy_hash": "d398c4e5b90773b3412a2efb6492e2dc1ac6b7aad8c253c15da02c004bb47651"
+    },
+    {
+      "case_id": "AL03|ERC|2017-10-02",
+      "policy_hash": "20073d20f03af482320e88f4040b029510f0a63f6ad5d80b5f002b401addec37"
+    },
+    {
+      "case_id": "AL03|ERC|2017-11-01",
+      "policy_hash": "c887f0de37a0541a827db32d52366be60e3b310601f7d1ef228aca426cc81ab3"
+    },
+    {
+      "case_id": "AL03|ERC|2017-12-01",
+      "policy_hash": "d348c6b576630d8e22240da92c6073127a0f06c7b6638c3436e47034e95b7a1b"
+    },
+    {
+      "case_id": "AL03|ERC|2018-01-02",
+      "policy_hash": "de80428089b5b2caf55f4fd67e412cef2f928a10264c0c418aed80fdce8b6b84"
+    },
+    {
+      "case_id": "AL03|ERC|2018-02-01",
+      "policy_hash": "b75b4525269796c3cdc49cbc425ed5efc03c1381cd1a5c2ed0f5899c1568d15e"
+    },
+    {
+      "case_id": "AL03|ERC|2018-03-01",
+      "policy_hash": "10cac1e15a6219a97b2bdd1c0b5a792d1ea5660023b4127fd8ea047d932a3c32"
+    },
+    {
+      "case_id": "AL03|ERC|2018-04-02",
+      "policy_hash": "7e0000847e366aa22c47fdc1c67cf008f2f209320f052a99290453183ded2007"
+    },
+    {
+      "case_id": "AL03|ERC|2018-05-01",
+      "policy_hash": "ae3a48b9805e97375e6837bfa29d3cc80fca87334c97a77d92546f427af193a3"
+    },
+    {
+      "case_id": "AL03|ERC|2018-06-01",
+      "policy_hash": "4448653d1226f2c12663f30936446953adb12eb5731780eb16c7860b66615aa4"
+    },
+    {
+      "case_id": "AL03|ERC|2018-07-02",
+      "policy_hash": "b26c7c933f286881a0e582a9f26da81f55374c8f8deaa86fcfd8213a6c0829f5"
+    },
+    {
+      "case_id": "AL03|ERC|2018-08-01",
+      "policy_hash": "9dcd0e4fe3779c6a7dcba005f882d4281fffcea6ec0356d5b1119fbb4497dd49"
+    },
+    {
+      "case_id": "AL03|ERC|2018-09-04",
+      "policy_hash": "a2b2406d71f57614c64b56700431467941b0420e789783e6bd41209d90270d1f"
+    },
+    {
+      "case_id": "AL03|ERC|2018-10-01",
+      "policy_hash": "2035759a1ed5376be27912f7a64045838e683db2ff51564497677ee8641575a6"
+    },
+    {
+      "case_id": "AL03|ERC|2018-11-01",
+      "policy_hash": "4ef1ca014f7a9d6a5e5a584a7b0d957b83032517f2a78d9a9d8d6ed4651863f6"
+    },
+    {
+      "case_id": "AL03|ERC|2018-12-03",
+      "policy_hash": "f37cb4e72f4df88401ad92e71813798c155151a42144c4a551695cc741bac789"
+    },
+    {
+      "case_id": "AL03|ERC|2019-01-02",
+      "policy_hash": "608a8a349bc33fcdc1c47f7aebe9113a09ad565493a29c60abc0a97da82b4aa9"
+    },
+    {
+      "case_id": "AL03|ERC|2019-02-01",
+      "policy_hash": "71c4ec732d99250b0f90279a35cb196a628ec82e3877ecbce25ee616c2c6cadc"
+    },
+    {
+      "case_id": "AL03|ERC|2019-03-01",
+      "policy_hash": "b5d54583fbe3f61320691214142f2006e21da414ea985efc12deff89abaca107"
+    },
+    {
+      "case_id": "AL03|ERC|2019-04-01",
+      "policy_hash": "2f1284c816113443855b6a9ef8094e5600f3b1851e428fd05365b3ea366a8a03"
+    },
+    {
+      "case_id": "AL03|ERC|2019-05-01",
+      "policy_hash": "470250128095115f746d0b5090ce3131116c8c8faa71f95ac73b8a25cc63f74e"
+    },
+    {
+      "case_id": "AL03|ERC|2019-06-03",
+      "policy_hash": "37e03270494091b74c00e171718a6d998348212b7de13c011b1d3b8be2662d67"
+    },
+    {
+      "case_id": "AL03|ERC|2019-07-01",
+      "policy_hash": "57f56997ba3833f447b45198e78da3be20b54ffd6ee87f980bda7340d1c5c572"
+    },
+    {
+      "case_id": "AL03|ERC|2019-08-01",
+      "policy_hash": "2528d4e30528060252aa0f044866f0ed0db0f314e3359b95a06f73ae37297b47"
+    },
+    {
+      "case_id": "AL03|ERC|2019-09-03",
+      "policy_hash": "279257e051863a01a4a0b9e4f81d0adb155bc08906351d7c1c3a34e97685fb55"
+    },
+    {
+      "case_id": "AL03|ERC|2019-10-01",
+      "policy_hash": "91eaf091eb32d66214224440995b3ae84342336407ad7789ff8db6f0f3bea636"
+    },
+    {
+      "case_id": "AL03|ERC|2019-11-01",
+      "policy_hash": "876934902c5c071078b2d9997b62b2e886eadf85fb25d0064da5dd1a0aefcc0e"
+    },
+    {
+      "case_id": "AL03|ERC|2019-12-02",
+      "policy_hash": "3248eb7100600660652ebc54505fb0a98370400269486cf4950d4515b2002938"
+    },
+    {
+      "case_id": "AL03|ERC|2020-01-02",
+      "policy_hash": "9e4a6ebb1bf8425e4f46ae68e3063b7121cbb81e8a0a94788a7f5e029e345e17"
+    },
+    {
+      "case_id": "AL03|ERC|2020-02-03",
+      "policy_hash": "0e573e7efa1526fc60a0a9f2e421bb8619b6c259b00e88fd039655444e155efb"
+    },
+    {
+      "case_id": "AL03|ERC|2020-03-02",
+      "policy_hash": "44bc728d9a538a2c6e32c2c5ce85fbd85cb316570a3ebcbd3407d89a5c877fa9"
+    },
+    {
+      "case_id": "AL03|ERC|2020-04-01",
+      "policy_hash": "531c3b50b0655f8cf1ce48332c263f31a520133da387e49f2f63d4a5ba4f9ec1"
+    },
+    {
+      "case_id": "AL03|ERC|2020-05-01",
+      "policy_hash": "1a33c50a979ef66499b1bc39cb2d16ae3fac5e64a87f6380c7a607945a2c896b"
+    },
+    {
+      "case_id": "AL03|ERC|2020-06-01",
+      "policy_hash": "fa2a3a47cc111a11667f026b663799f1d35e2572104e1611a82027e6168741a6"
+    },
+    {
+      "case_id": "AL03|ERC|2020-07-01",
+      "policy_hash": "c8e2405780abaf5bfdef2733ff06d7f6c504c91b35a849c099ec69b3908d02f7"
+    },
+    {
+      "case_id": "AL03|ERC|2020-08-03",
+      "policy_hash": "e464f79ae0328a717f5cf20b869401a3311fce3f6e1a986d8395c7b0c3b564ea"
+    },
+    {
+      "case_id": "AL03|ERC|2020-09-01",
+      "policy_hash": "6a124f47de28608b7e01b4e4c558923e748c361e44c1c715963e5e5d008a2461"
+    },
+    {
+      "case_id": "AL03|ERC|2020-10-01",
+      "policy_hash": "4afaaa87a3a1fcbe6f8b5aed0cc3ac3d97061a5a37f4822a4727545a1fff7538"
+    },
+    {
+      "case_id": "AL03|ERC|2020-11-02",
+      "policy_hash": "7d27a736e7b249ff11a59207d258314047c03fc065c8c6bc9565d86c3ab86dc6"
+    },
+    {
+      "case_id": "AL03|ERC|2020-12-01",
+      "policy_hash": "805d2d3b5033449eda40d1dc82b9cde1d6e4f61ee00b8509993b58b689c16065"
+    },
+    {
+      "case_id": "AL03|ERC|2021-01-04",
+      "policy_hash": "22400c34f4daf35d85dee9811c7196eb7ba4a44622a2520b7a348e34cf4b1154"
+    },
+    {
+      "case_id": "AL03|ERC|2021-02-01",
+      "policy_hash": "8bfbe5379efe99b395c1c0ea7b553fd2256867e0661ed361870aedbe2901d9c1"
+    },
+    {
+      "case_id": "AL03|ERC|2021-03-01",
+      "policy_hash": "e0e243a8a39c70eebfbcc1dec8b589dba60d677188e028c357a245bf2dadd5dd"
+    },
+    {
+      "case_id": "AL03|ERC|2021-04-01",
+      "policy_hash": "338577e9ab58db38cbe8fb6bdf01fd61f3e0dafb1f6a2dc53adecd9fcf905d76"
+    },
+    {
+      "case_id": "AL03|ERC|2021-05-03",
+      "policy_hash": "6bdc3a2b49721d811081fc1b76b2b863e46fe05e2b74ac7a70a82d2fef74591b"
+    },
+    {
+      "case_id": "AL03|ERC|2021-06-01",
+      "policy_hash": "f3645fb3403ca285f9ace5a9ce133e7aee144a0c8b9ac3deef1fb23c92cd0f41"
+    },
+    {
+      "case_id": "AL03|ERC|2021-07-01",
+      "policy_hash": "bf3feff5cd79c83cf3820e17073e7bcebcc203520f41e81674b428437c909b09"
+    },
+    {
+      "case_id": "AL03|ERC|2021-08-02",
+      "policy_hash": "82cbc062aa9ec5c15b37c4a4263596b89c1e075e9451152885519a516651ea1a"
+    },
+    {
+      "case_id": "AL03|ERC|2021-09-01",
+      "policy_hash": "3281d285c7745322449240b04880518b7a35ae1ad743384adf647592ab16552f"
+    },
+    {
+      "case_id": "AL03|ERC|2021-10-01",
+      "policy_hash": "6b5590620320f916bd8250a992a457f7cf050b48181a6a9ab92a8b1c2d9f0dbf"
+    },
+    {
+      "case_id": "AL03|ERC|2021-11-01",
+      "policy_hash": "17da1ed9d5ccea935471a9bf6e8bbcbf94eff9a48e515b437092de4767ace8dc"
+    },
+    {
+      "case_id": "AL03|ERC|2021-12-01",
+      "policy_hash": "9582255264cb84f38959bafc0a96924eef057f11e1eca7dd229c608b89ad7c08"
+    },
+    {
+      "case_id": "AL03|ERC|2022-01-03",
+      "policy_hash": "6a3fe6b7c1156f9fed72f817935cb8c282690d125b8779a31386784fa5826022"
+    },
+    {
+      "case_id": "AL03|ERC|2022-02-01",
+      "policy_hash": "6f379cbe88ff869d47de9fcef8c5ebf4381cffce96c7a214ce42c2c702d33a5e"
+    },
+    {
+      "case_id": "AL03|ERC|2022-03-01",
+      "policy_hash": "ba8458aa43ee90a9d3b82182d044eb0bdd82a5040d9a162cdf8e7fba3b8522b2"
+    },
+    {
+      "case_id": "AL03|ERC|2022-04-01",
+      "policy_hash": "e5886790829bdc0abdfc9ed8a97f33a2fcefbfa315536b1fa7fbb1b5eb3ebec9"
+    },
+    {
+      "case_id": "AL03|ERC|2022-05-02",
+      "policy_hash": "e22344dbde2eccbcf2d60e1eb53a1b448ff268ccd0d9674687aac0904e013caf"
+    },
+    {
+      "case_id": "AL03|ERC|2022-06-01",
+      "policy_hash": "d6e45521a9958a745a0ef47a4f6a631f6f3111186556d750741d6e4b169ecaf9"
+    },
+    {
+      "case_id": "AL03|ERC|2022-07-01",
+      "policy_hash": "deb6eace3ca034e5e9931783851def7870df1db8496a5ef248235336f15b34a9"
+    },
+    {
+      "case_id": "AL03|ERC|2022-08-01",
+      "policy_hash": "7400c2f6f9cd29b0353dc1a463a6b1f6e4f7c76ecb7f4937361d3dd0f83bb297"
+    },
+    {
+      "case_id": "AL03|ERC|2022-09-01",
+      "policy_hash": "4a683237b9a40a84e583c0480a45ebe4cd98d08e0617014f4bec0597859d8e03"
+    },
+    {
+      "case_id": "AL03|ERC|2022-10-03",
+      "policy_hash": "fb426e03b676d22d5307247eff3873f8788eb1f63fa4d9e1b9acd5ece41dd009"
+    },
+    {
+      "case_id": "AL03|ERC|2022-11-01",
+      "policy_hash": "70b613bc2bcbdfd548bd30c8cd1333c3885eae495fb27075b67f906c3bdd62c2"
+    },
+    {
+      "case_id": "AL03|ERC|2022-12-01",
+      "policy_hash": "16784fa4d6ba6e4dceda06c4c30ff2a96822d81f0a0ba95d5a5c803400f7761e"
+    },
+    {
+      "case_id": "AL03|ERC|2023-01-03",
+      "policy_hash": "8445e0aaf33af47dc25331d621abe02ce302f9f1b033ac2cad3f94563c1dc7b4"
+    },
+    {
+      "case_id": "AL03|ERC|2023-02-01",
+      "policy_hash": "55def7e22153f164a74cb19ea41507fd748074770002254b461845196e3500df"
+    },
+    {
+      "case_id": "AL03|ERC|2023-03-01",
+      "policy_hash": "51e35753c1b186080deb3e16c680dbdd0dc05598f95da1d69ada7331d38c2741"
+    },
+    {
+      "case_id": "AL03|ERC|2023-04-03",
+      "policy_hash": "b1f04b36f1b3ca044db02ae76ffeb6959a2d4c3300936a2967c86192a4235587"
+    },
+    {
+      "case_id": "AL03|ERC|2023-05-01",
+      "policy_hash": "931fdb274bde065de1a96ce997c4d6f17af894d0750b398ee957e5c091b16bd7"
+    },
+    {
+      "case_id": "AL03|ERC|2023-06-01",
+      "policy_hash": "910c39ea05feaef09ceee674843d8911d411434f35de4b5b2f5c80809a067587"
+    },
+    {
+      "case_id": "AL03|ERC|2023-07-03",
+      "policy_hash": "80c785f7c268653eb1b8b1653d41f04b30a1708460e543da6fe9993734726a2d"
+    },
+    {
+      "case_id": "AL03|ERC|2023-08-01",
+      "policy_hash": "ab5055109859f29f2df5315d90e3e13a92a49a91f7f2e1b282599cab0f343737"
+    },
+    {
+      "case_id": "AL03|ERC|2023-09-01",
+      "policy_hash": "9f7b7d46daf683f1bcf4a8d4d1562fd6414278a0d1a6e8e80097079e57e65bf9"
+    },
+    {
+      "case_id": "AL03|ERC|2023-10-02",
+      "policy_hash": "ab4ae4610a7d00e79c518bf98a966e3922c4236577a35648a6e9775cd49a5d15"
+    },
+    {
+      "case_id": "AL03|ERC|2023-11-01",
+      "policy_hash": "c63796d470dbb3e983a26bb4ef1059adc58c159e92a41a6a3576a7151f7fa528"
+    },
+    {
+      "case_id": "AL03|ERC|2023-12-01",
+      "policy_hash": "6c47bb50bc53ae29d34aa33c3fd3d055b47077f2af7bdbf347adbcb6d070d32b"
+    },
+    {
+      "case_id": "AL03|ERC|2024-01-02",
+      "policy_hash": "b926d36f9acdc43919672060d7783f162a2e7f456fc9809bd6c610ad57dbd80a"
+    },
+    {
+      "case_id": "AL03|ERC|2024-02-01",
+      "policy_hash": "1c609dd623fb8b90e1898acdf77c5d4a069d593b5b6926804df373b59bebfbb1"
+    },
+    {
+      "case_id": "AL03|ERC|2024-03-01",
+      "policy_hash": "7435a4731fff563d3ad39c09bb69012f179a85a6e2fba13853f7e6b58751fdf5"
+    },
+    {
+      "case_id": "AL03|ERC|2024-04-01",
+      "policy_hash": "cde7bcb885303ffb1e365a708edb821812bb4a0d62c947a0fedd75b5fbe48e9c"
+    },
+    {
+      "case_id": "AL03|ERC|2024-05-01",
+      "policy_hash": "97e0a08a0e743007980485614dcf9c0c277757fcba49bc90e4fba30564a2bbe1"
+    },
+    {
+      "case_id": "AL03|ERC|2024-06-03",
+      "policy_hash": "197616215372d13a8dbaf8187e48ee985b5756b76b63f313516bd4d10f4568c3"
+    },
+    {
+      "case_id": "AL03|ERC|2024-07-01",
+      "policy_hash": "b63f3417412f07dadaa628ef4bbbc20c6d86647598d043271fd7c9c8b8a54ed5"
+    },
+    {
+      "case_id": "AL03|ERC|2024-08-01",
+      "policy_hash": "a3ed0a89d97ad246c9bfc67dc89114d87e9b5b469506acdcbd11edc40e2de56f"
+    },
+    {
+      "case_id": "AL03|ERC|2024-09-03",
+      "policy_hash": "c46ea62a8761e5cb5cff1c6d49c544cc2005b9455e768dd8caa83163ac2c009e"
+    },
+    {
+      "case_id": "AL03|ERC|2024-10-01",
+      "policy_hash": "9ad4027901209b6ca4eaa8d243318a7704224f425caf8184dc5180e85bb10096"
+    },
+    {
+      "case_id": "AL03|ERC|2024-11-01",
+      "policy_hash": "5ba80b6fe3e531d861b9a8f63c8129ca553c3f8be9ee903b119e65f5b1f6f28a"
+    },
+    {
+      "case_id": "AL03|ERC|2024-12-02",
+      "policy_hash": "85bda28226e21ffc34c393bbf4d04e14662647485490190c09d1302379ad3f99"
+    },
+    {
+      "case_id": "AL03|ERC|2025-01-02",
+      "policy_hash": "a73675f3857551f546a1d4d6d0ab549460eb9f5b728f0cdb3d1d758b82b74cf8"
+    },
+    {
+      "case_id": "AL03|ERC|2025-02-03",
+      "policy_hash": "2b209dc26058df044898b7b4fe67328faf6ba37be7cd45f1c6ad771e90662f18"
+    },
+    {
+      "case_id": "AL03|ERC|2025-03-03",
+      "policy_hash": "2ab7b0b4201955e45a5aa2c3f1a76435a9652c280e06c9c1c8d7d62314077beb"
+    },
+    {
+      "case_id": "AL03|ERC|2025-04-01",
+      "policy_hash": "9ba4496fe779e75e681bff89c7e5210c49671e832fedc3730cc5f52c9aa230b5"
+    },
+    {
+      "case_id": "AL03|ERC|2025-05-01",
+      "policy_hash": "32e49b8e430ce48d024fd1e6cf8fc714f199afe90df2451047ad11fad027a59a"
+    },
+    {
+      "case_id": "AL03|ERC|2025-06-02",
+      "policy_hash": "568dbbf93aa6b5641e61ec5618ef52907562441ac20e49021c3647cddbf8567f"
+    },
+    {
+      "case_id": "AL03|ERC|2025-07-01",
+      "policy_hash": "9c6de2b283be9e12f38eda98fc8b7be4c2e19c10509bc25a8d46bee9d163d0ad"
+    },
+    {
+      "case_id": "AL03|ERC|2025-08-01",
+      "policy_hash": "9dccb4064f5582fa14c51d47f544ae885d5722fcbc4693c55783dabb3a975ae2"
+    },
+    {
+      "case_id": "AL03|ERC|2025-09-02",
+      "policy_hash": "03930d15d7f9cc878f546048507790f61d76b10e109986ee395f39b998ad34bc"
+    },
+    {
+      "case_id": "AL03|ERC|2025-10-01",
+      "policy_hash": "a56ca4c41a35852c5d489b911e3ec25f038360919882eece5d6ef5eb84f71c66"
+    },
+    {
+      "case_id": "AL03|ERC|2025-11-03",
+      "policy_hash": "f261d413dc9c27b9f6c631e66b0db43e3c861309fac43fab463317648bc904a7"
+    },
+    {
+      "case_id": "AL03|ERC|2025-12-01",
+      "policy_hash": "783b1a8d2ccfd9c7db214b680b80ca94a51b4008fc6b6e1b111f183b8ddf4ef1"
+    },
+    {
+      "case_id": "AL03|ERC|2026-01-02",
+      "policy_hash": "43b0924bcd8e40b9d1c58aa8f9ee6aafd1a7a00b2ece7ea2a952c499d8aeb7d6"
+    },
+    {
+      "case_id": "AL03|ERC|2026-02-02",
+      "policy_hash": "d0e6a46d45c3d92b91a19e90a1c1575e7d3fe12b04f75eb70696780763e511e1"
+    },
+    {
+      "case_id": "AL03|ERC|2026-03-02",
+      "policy_hash": "eb602cf3e2f2e8c0537df6d8ee1b3fcfa18c1b179396c30897041840e5a18a06"
+    },
+    {
+      "case_id": "AL03|ERC|2026-04-01",
+      "policy_hash": "afa41bb60e8a87b5d8c4080b3660815fd704d3b356933b2627d7f0341d080348"
+    },
+    {
+      "case_id": "AL03|ERC|2026-05-01",
+      "policy_hash": "c5bd7b71b349aa6fe01148c9c1efcd44721d84e72f40452f28eba4d18fc285bc"
+    },
+    {
+      "case_id": "AL03|ERC|2026-06-01",
+      "policy_hash": "9ab0404f94a5ee78013613cd1bbeee8b2c704ec6064e8bf8306eaf55dcdf34c4"
+    },
+    {
+      "case_id": "AL03|ERC|2026-07-01",
+      "policy_hash": "1761f17d6ddef9a1f5814cbd85fa4c6d40de732b147155af01bec1d2eed10091"
+    },
+    {
+      "case_id": "AL03|ERC|2026-08-03",
+      "policy_hash": "28addb62480d16fa42042c541214542dad6f278befdff2da39ed1ae92c5ed056"
+    },
+    {
+      "case_id": "AL03|ERC|2026-09-01",
+      "policy_hash": "9e1c90f524247122b80744edf0c4ba20d3f9f8aa94547d03bc7314b95791955d"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-01-03",
+      "policy_hash": "855edfa0e4cbdcef169bfc067f34829dee9b9ebd08d0aa5167e2a264bd366ae2"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-02-01",
+      "policy_hash": "036c1b593fadbbdd1f324465aaabbe560d41b6f81a083ab09104e28abdcdf5fa"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-03-01",
+      "policy_hash": "6615ec6d68cea7bbef44bb8c4527d00d7ad8440e16a2274fb64bdb97e38757fa"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-04-02",
+      "policy_hash": "5d96e31b09d97ca7e8101b1d7d72c1fcad86ae865cb1d2d5d75c5b93f04c45f9"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-05-01",
+      "policy_hash": "4dec3b1522991c07c4a5010a813896bd4252879779cf15d17af4cf503ebb88f5"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-06-01",
+      "policy_hash": "32b2391a696154b16c1cdb355f5a11babfb1d3d34bd72916dd83cb856d600b42"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-07-02",
+      "policy_hash": "0820653697d9a617c22104f69cf14c5c1da8acabd1d3d24ccb4fe20ef46cc92c"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-08-01",
+      "policy_hash": "c320524027a4228dd4fcc34e08d9abeb19b5cb4cc68fcd4cb2c27d5e0c6b0970"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-09-04",
+      "policy_hash": "d08e4a60790f2270967b22554f75369b64964a79d9f7a4c5753a8da6f46d86d2"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-10-01",
+      "policy_hash": "b01477f6e0576ecd126b3e5db4cd97dbed828fb790830d31a5d666e15a72b163"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-11-01",
+      "policy_hash": "0b69235c2a687b42254ca2a0abbd4f63383c335e68e2b4aab6cf606e34400cf3"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2012-12-03",
+      "policy_hash": "6f8a12730697cfbe013b8bd7fceb9bae4ea360d9bb38cdfef342c1c15a97513d"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-01-02",
+      "policy_hash": "f702e0e6db36413de5ebf277af8a27a0b710983c21fac8922de7962e976b0871"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-02-01",
+      "policy_hash": "020fb9ba03b72d61a683fb58af9bf420a3e5e418ddb34e7187b38d0c367c2f5c"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-03-01",
+      "policy_hash": "ddc1a212ac4914eb81bc4e2eb665249998d175209e9d2341bbce756074d7facf"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-04-01",
+      "policy_hash": "a3a486419fb33ba1b5a59cbf92b18cab2d5121468ad3134478954a1d167c814c"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-05-01",
+      "policy_hash": "4c62b9208edf9a24c8be23deb9290a6a0b903de90cff24004d70f013eea86f9c"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-06-03",
+      "policy_hash": "66c3d73eb5c74a03bc9267c0642407c253a954d9788d760c65bb209a8f123245"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-07-01",
+      "policy_hash": "3fc9fa1833902993c6cac35c347acbcce45929b262160bbc341f79adab2df9e3"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-08-01",
+      "policy_hash": "292872d1472fa6fd4da22ad2b2040641d83cba683e566269f8a2b5d4e37628f2"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-09-03",
+      "policy_hash": "ac93f33de2126049690c07ac4eed524c757a1c80f61ca5451598c9c5f49ce1b5"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-10-01",
+      "policy_hash": "7771d3a6fdb6925197bf444a8f0a42003d2dad246201ba9872a59cc5c94f47f7"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-11-01",
+      "policy_hash": "a2cffd1aeded71aaa3577f69ca87d87153edd3f22667a6aa3a118194b4166a72"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2013-12-02",
+      "policy_hash": "38635d025554bc70f244da84bead01d6e6077493bee2b58c5a82fdcafdc489ac"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-01-02",
+      "policy_hash": "9122347d13b0c83a42f00d51928aa6199e1516d8c1997acea3ad9ec4e4a25c94"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-02-03",
+      "policy_hash": "856ea58171f4dcca2582cbb548d543137c3fc6246a08b4f387f3b6ef351ada2f"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-03-03",
+      "policy_hash": "8809d36e2580738222107f1cb0bd96959a7a057330ec6e722c7dae7296692a8e"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-04-01",
+      "policy_hash": "e95dc61147eef2c263cae3b7f9f1c2cdcbb3d5c1336e61beb2fab392dfe2930f"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-05-01",
+      "policy_hash": "14d4a560220b822c8cd92f86c22d933fdf3348cdbdda8f756a397ecdae76800e"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-06-02",
+      "policy_hash": "3d5c18016eaffd86a203d389029bafd3731b388b330bd21b6f7c750e3973f639"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-07-01",
+      "policy_hash": "7b63bef924bf0834e3dcd2d7d6dfff707d79cf1810eb95110d6356d21d6df613"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-08-01",
+      "policy_hash": "8a04f62ff179319d83d5d020ed2bcaf494714a508ea1d0d5ad4ac3833d449e75"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-09-02",
+      "policy_hash": "46a9a9c15631f8222d29d141e8ecca56612e6693dcaf9068bb1c218c292add71"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-10-01",
+      "policy_hash": "d746e16005c061f07445d1d43111343fdd75b315cd3e854b711e92e938fc35d1"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-11-03",
+      "policy_hash": "89ff42624961abd79aa92deee8968f3ac06282919defed11f32ca05365344134"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2014-12-01",
+      "policy_hash": "4266508cb0117663df7c3cae0e65d822ce32448b1aaccf4cfefc7fae42f6dad2"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-01-02",
+      "policy_hash": "a721ecbbd7459fe71f102b39abc2d08f57ea759d7e6ebbfca2b1a6be3a987b2e"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-02-02",
+      "policy_hash": "69d8715388b0cca5f3708343af2aaa35fc44533580e14d334147f321bfee7595"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-03-02",
+      "policy_hash": "1b28be3442169e868b3cec592ce3bbadfbd77b337829a3c4ac6b163197a58eb5"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-04-01",
+      "policy_hash": "f252fba9a44663ecc48ed01946b452ae764e6fc16651ca529e16683307fc6a79"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-05-01",
+      "policy_hash": "ce7b0b5d6c1bb8a17b8f110a6262229d62748fb6634d3dbf63797f7811cba5eb"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-06-01",
+      "policy_hash": "203da0224190c93674f345a5b00cb12850466ed984573071c1e6553d02bfa6de"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-07-01",
+      "policy_hash": "04ff0da3f4623b540d25b3b93d70573c5cf6e5ed94c509ce03ff59a381e25a3f"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-08-03",
+      "policy_hash": "e35da28b075817cea805317c7079cba51915325ff4dda49bd62a84189f7d93e5"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-09-01",
+      "policy_hash": "50fa4b1dabfbe1dbbf2ac77d28f7abbdfd550c52d802ebac65b50c1ba128c7b5"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-10-01",
+      "policy_hash": "74b05bb41a378404c1e30f5375c1c98dd81831205841ef522a89d2ca8e86833f"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-11-02",
+      "policy_hash": "be5b7e83ed6be55923629d1ae9117b8ef06132900e23f9b92df475ad55c32c9d"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2015-12-01",
+      "policy_hash": "c2daa38f4dfdc5b6ad3a4d046f0cfcef1f41555cd2329309386a2058b0f73121"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-01-04",
+      "policy_hash": "2edcd8a38801a08aa60c300a30dccb5178689735b7a8aabd362f7fb923600af7"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-02-01",
+      "policy_hash": "de64c8ca5c3038e43fe7f71e04040fce97199b7b8ce98a1e45cdc627d9721da2"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-03-01",
+      "policy_hash": "75f0bf89a342fb2757c4bba3085ede1b505a9aedaf8834cf714f2613209532ca"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-04-01",
+      "policy_hash": "74deab80e6f0dc31a04833de7e298e1117e7005640b17c6a714d36673c260501"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-05-02",
+      "policy_hash": "2f98ac3d285181892c338635f242c47c5f570ceb08af6ca48ec9793fcb6d13de"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-06-01",
+      "policy_hash": "5af00f7e32ea7b0a0e9c706461532759eb6988128a759515c9f64ff0c31f901a"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-07-01",
+      "policy_hash": "811c871856e624f90897fd72fe114d968264db5787fc36e657cb26a372d9b3ad"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-08-01",
+      "policy_hash": "e445027c70bc27ea4e9b0fb2b2cda3e8df55cf59ed6f1e4d45db1c63abba8d8e"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-09-01",
+      "policy_hash": "12bec27c3b202a88044b1b31396d50ac91a736f9731895633f9a18a37c5b63d4"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-10-03",
+      "policy_hash": "91dae13f79078a646caf2ff59947f8f9a3a9e29debf3be1664349a4a1ca48ad8"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-11-01",
+      "policy_hash": "12a21777c9e5f4afb2b9ec9a73a0f5f8a0ab047ccf9a61754ec587cc9ca17748"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2016-12-01",
+      "policy_hash": "d9eda8d4d868819eeeff02e247a522c9f0d62ea04e34db0a5548a255e4d870bb"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-01-03",
+      "policy_hash": "93e8526ce051cf015d7c9d1cc5bff74f21a223a5553658644ca40f15049ded8a"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-02-01",
+      "policy_hash": "34433d82f28105605bcff089f07c386cde8609a958e5dbaeaa9697228990d335"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-03-01",
+      "policy_hash": "26e7ac45f85680d2588c58a9c6c8e866bc1ea4131eb3cac331a96095e7f4c307"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-04-03",
+      "policy_hash": "c0a5eaa3ca30d96b3c9f86294c92c28770e2199ed4b5cfec285943179626adf8"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-05-01",
+      "policy_hash": "403689c84c8b0ee0812bf201c14d71528ed1f4de490af9b404a836e3e3f7d3fe"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-06-01",
+      "policy_hash": "24f717677490a0a105374c1b94d901515062eead6361a825c2d2fc2eadb253b8"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-07-03",
+      "policy_hash": "7d0c3559b9f6e64ac0a5ff5f596c4e7cf361ce334537d6c5db4434a9079875ca"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-08-01",
+      "policy_hash": "cff174522bf409e78b37ba254cb3c3d2317e7b5644002f7ebca9ce895194e2fc"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-09-01",
+      "policy_hash": "d398c4e5b90773b3412a2efb6492e2dc1ac6b7aad8c253c15da02c004bb47651"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-10-02",
+      "policy_hash": "20073d20f03af482320e88f4040b029510f0a63f6ad5d80b5f002b401addec37"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-11-01",
+      "policy_hash": "c887f0de37a0541a827db32d52366be60e3b310601f7d1ef228aca426cc81ab3"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2017-12-01",
+      "policy_hash": "d348c6b576630d8e22240da92c6073127a0f06c7b6638c3436e47034e95b7a1b"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-01-02",
+      "policy_hash": "de80428089b5b2caf55f4fd67e412cef2f928a10264c0c418aed80fdce8b6b84"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-02-01",
+      "policy_hash": "b75b4525269796c3cdc49cbc425ed5efc03c1381cd1a5c2ed0f5899c1568d15e"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-03-01",
+      "policy_hash": "10cac1e15a6219a97b2bdd1c0b5a792d1ea5660023b4127fd8ea047d932a3c32"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-04-02",
+      "policy_hash": "7e0000847e366aa22c47fdc1c67cf008f2f209320f052a99290453183ded2007"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-05-01",
+      "policy_hash": "ae3a48b9805e97375e6837bfa29d3cc80fca87334c97a77d92546f427af193a3"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-06-01",
+      "policy_hash": "4448653d1226f2c12663f30936446953adb12eb5731780eb16c7860b66615aa4"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-07-02",
+      "policy_hash": "b26c7c933f286881a0e582a9f26da81f55374c8f8deaa86fcfd8213a6c0829f5"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-08-01",
+      "policy_hash": "9dcd0e4fe3779c6a7dcba005f882d4281fffcea6ec0356d5b1119fbb4497dd49"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-09-04",
+      "policy_hash": "a2b2406d71f57614c64b56700431467941b0420e789783e6bd41209d90270d1f"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-10-01",
+      "policy_hash": "2035759a1ed5376be27912f7a64045838e683db2ff51564497677ee8641575a6"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-11-01",
+      "policy_hash": "4ef1ca014f7a9d6a5e5a584a7b0d957b83032517f2a78d9a9d8d6ed4651863f6"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2018-12-03",
+      "policy_hash": "f37cb4e72f4df88401ad92e71813798c155151a42144c4a551695cc741bac789"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-01-02",
+      "policy_hash": "608a8a349bc33fcdc1c47f7aebe9113a09ad565493a29c60abc0a97da82b4aa9"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-02-01",
+      "policy_hash": "71c4ec732d99250b0f90279a35cb196a628ec82e3877ecbce25ee616c2c6cadc"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-03-01",
+      "policy_hash": "b5d54583fbe3f61320691214142f2006e21da414ea985efc12deff89abaca107"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-04-01",
+      "policy_hash": "2f1284c816113443855b6a9ef8094e5600f3b1851e428fd05365b3ea366a8a03"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-05-01",
+      "policy_hash": "470250128095115f746d0b5090ce3131116c8c8faa71f95ac73b8a25cc63f74e"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-06-03",
+      "policy_hash": "37e03270494091b74c00e171718a6d998348212b7de13c011b1d3b8be2662d67"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-07-01",
+      "policy_hash": "57f56997ba3833f447b45198e78da3be20b54ffd6ee87f980bda7340d1c5c572"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-08-01",
+      "policy_hash": "2528d4e30528060252aa0f044866f0ed0db0f314e3359b95a06f73ae37297b47"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-09-03",
+      "policy_hash": "279257e051863a01a4a0b9e4f81d0adb155bc08906351d7c1c3a34e97685fb55"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-10-01",
+      "policy_hash": "91eaf091eb32d66214224440995b3ae84342336407ad7789ff8db6f0f3bea636"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-11-01",
+      "policy_hash": "876934902c5c071078b2d9997b62b2e886eadf85fb25d0064da5dd1a0aefcc0e"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2019-12-02",
+      "policy_hash": "3248eb7100600660652ebc54505fb0a98370400269486cf4950d4515b2002938"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-01-02",
+      "policy_hash": "9e4a6ebb1bf8425e4f46ae68e3063b7121cbb81e8a0a94788a7f5e029e345e17"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-02-03",
+      "policy_hash": "0e573e7efa1526fc60a0a9f2e421bb8619b6c259b00e88fd039655444e155efb"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-03-02",
+      "policy_hash": "44bc728d9a538a2c6e32c2c5ce85fbd85cb316570a3ebcbd3407d89a5c877fa9"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-04-01",
+      "policy_hash": "531c3b50b0655f8cf1ce48332c263f31a520133da387e49f2f63d4a5ba4f9ec1"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-05-01",
+      "policy_hash": "1a33c50a979ef66499b1bc39cb2d16ae3fac5e64a87f6380c7a607945a2c896b"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-06-01",
+      "policy_hash": "fa2a3a47cc111a11667f026b663799f1d35e2572104e1611a82027e6168741a6"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-07-01",
+      "policy_hash": "c8e2405780abaf5bfdef2733ff06d7f6c504c91b35a849c099ec69b3908d02f7"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-08-03",
+      "policy_hash": "e464f79ae0328a717f5cf20b869401a3311fce3f6e1a986d8395c7b0c3b564ea"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-09-01",
+      "policy_hash": "6a124f47de28608b7e01b4e4c558923e748c361e44c1c715963e5e5d008a2461"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-10-01",
+      "policy_hash": "4afaaa87a3a1fcbe6f8b5aed0cc3ac3d97061a5a37f4822a4727545a1fff7538"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-11-02",
+      "policy_hash": "7d27a736e7b249ff11a59207d258314047c03fc065c8c6bc9565d86c3ab86dc6"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2020-12-01",
+      "policy_hash": "805d2d3b5033449eda40d1dc82b9cde1d6e4f61ee00b8509993b58b689c16065"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-01-04",
+      "policy_hash": "22400c34f4daf35d85dee9811c7196eb7ba4a44622a2520b7a348e34cf4b1154"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-02-01",
+      "policy_hash": "8bfbe5379efe99b395c1c0ea7b553fd2256867e0661ed361870aedbe2901d9c1"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-03-01",
+      "policy_hash": "e0e243a8a39c70eebfbcc1dec8b589dba60d677188e028c357a245bf2dadd5dd"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-04-01",
+      "policy_hash": "338577e9ab58db38cbe8fb6bdf01fd61f3e0dafb1f6a2dc53adecd9fcf905d76"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-05-03",
+      "policy_hash": "6bdc3a2b49721d811081fc1b76b2b863e46fe05e2b74ac7a70a82d2fef74591b"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-06-01",
+      "policy_hash": "f3645fb3403ca285f9ace5a9ce133e7aee144a0c8b9ac3deef1fb23c92cd0f41"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-07-01",
+      "policy_hash": "bf3feff5cd79c83cf3820e17073e7bcebcc203520f41e81674b428437c909b09"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-08-02",
+      "policy_hash": "82cbc062aa9ec5c15b37c4a4263596b89c1e075e9451152885519a516651ea1a"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-09-01",
+      "policy_hash": "3281d285c7745322449240b04880518b7a35ae1ad743384adf647592ab16552f"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-10-01",
+      "policy_hash": "6b5590620320f916bd8250a992a457f7cf050b48181a6a9ab92a8b1c2d9f0dbf"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-11-01",
+      "policy_hash": "17da1ed9d5ccea935471a9bf6e8bbcbf94eff9a48e515b437092de4767ace8dc"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2021-12-01",
+      "policy_hash": "9582255264cb84f38959bafc0a96924eef057f11e1eca7dd229c608b89ad7c08"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-01-03",
+      "policy_hash": "6a3fe6b7c1156f9fed72f817935cb8c282690d125b8779a31386784fa5826022"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-02-01",
+      "policy_hash": "6f379cbe88ff869d47de9fcef8c5ebf4381cffce96c7a214ce42c2c702d33a5e"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-03-01",
+      "policy_hash": "ba8458aa43ee90a9d3b82182d044eb0bdd82a5040d9a162cdf8e7fba3b8522b2"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-04-01",
+      "policy_hash": "e5886790829bdc0abdfc9ed8a97f33a2fcefbfa315536b1fa7fbb1b5eb3ebec9"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-05-02",
+      "policy_hash": "e22344dbde2eccbcf2d60e1eb53a1b448ff268ccd0d9674687aac0904e013caf"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-06-01",
+      "policy_hash": "d6e45521a9958a745a0ef47a4f6a631f6f3111186556d750741d6e4b169ecaf9"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-07-01",
+      "policy_hash": "deb6eace3ca034e5e9931783851def7870df1db8496a5ef248235336f15b34a9"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-08-01",
+      "policy_hash": "7400c2f6f9cd29b0353dc1a463a6b1f6e4f7c76ecb7f4937361d3dd0f83bb297"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-09-01",
+      "policy_hash": "4a683237b9a40a84e583c0480a45ebe4cd98d08e0617014f4bec0597859d8e03"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-10-03",
+      "policy_hash": "fb426e03b676d22d5307247eff3873f8788eb1f63fa4d9e1b9acd5ece41dd009"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-11-01",
+      "policy_hash": "70b613bc2bcbdfd548bd30c8cd1333c3885eae495fb27075b67f906c3bdd62c2"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2022-12-01",
+      "policy_hash": "16784fa4d6ba6e4dceda06c4c30ff2a96822d81f0a0ba95d5a5c803400f7761e"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-01-03",
+      "policy_hash": "8445e0aaf33af47dc25331d621abe02ce302f9f1b033ac2cad3f94563c1dc7b4"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-02-01",
+      "policy_hash": "55def7e22153f164a74cb19ea41507fd748074770002254b461845196e3500df"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-03-01",
+      "policy_hash": "51e35753c1b186080deb3e16c680dbdd0dc05598f95da1d69ada7331d38c2741"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-04-03",
+      "policy_hash": "b1f04b36f1b3ca044db02ae76ffeb6959a2d4c3300936a2967c86192a4235587"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-05-01",
+      "policy_hash": "931fdb274bde065de1a96ce997c4d6f17af894d0750b398ee957e5c091b16bd7"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-06-01",
+      "policy_hash": "910c39ea05feaef09ceee674843d8911d411434f35de4b5b2f5c80809a067587"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-07-03",
+      "policy_hash": "80c785f7c268653eb1b8b1653d41f04b30a1708460e543da6fe9993734726a2d"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-08-01",
+      "policy_hash": "ab5055109859f29f2df5315d90e3e13a92a49a91f7f2e1b282599cab0f343737"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-09-01",
+      "policy_hash": "9f7b7d46daf683f1bcf4a8d4d1562fd6414278a0d1a6e8e80097079e57e65bf9"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-10-02",
+      "policy_hash": "ab4ae4610a7d00e79c518bf98a966e3922c4236577a35648a6e9775cd49a5d15"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-11-01",
+      "policy_hash": "c63796d470dbb3e983a26bb4ef1059adc58c159e92a41a6a3576a7151f7fa528"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2023-12-01",
+      "policy_hash": "6c47bb50bc53ae29d34aa33c3fd3d055b47077f2af7bdbf347adbcb6d070d32b"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-01-02",
+      "policy_hash": "b926d36f9acdc43919672060d7783f162a2e7f456fc9809bd6c610ad57dbd80a"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-02-01",
+      "policy_hash": "1c609dd623fb8b90e1898acdf77c5d4a069d593b5b6926804df373b59bebfbb1"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-03-01",
+      "policy_hash": "7435a4731fff563d3ad39c09bb69012f179a85a6e2fba13853f7e6b58751fdf5"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-04-01",
+      "policy_hash": "cde7bcb885303ffb1e365a708edb821812bb4a0d62c947a0fedd75b5fbe48e9c"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-05-01",
+      "policy_hash": "97e0a08a0e743007980485614dcf9c0c277757fcba49bc90e4fba30564a2bbe1"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-06-03",
+      "policy_hash": "197616215372d13a8dbaf8187e48ee985b5756b76b63f313516bd4d10f4568c3"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-07-01",
+      "policy_hash": "b63f3417412f07dadaa628ef4bbbc20c6d86647598d043271fd7c9c8b8a54ed5"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-08-01",
+      "policy_hash": "a3ed0a89d97ad246c9bfc67dc89114d87e9b5b469506acdcbd11edc40e2de56f"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-09-03",
+      "policy_hash": "c46ea62a8761e5cb5cff1c6d49c544cc2005b9455e768dd8caa83163ac2c009e"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-10-01",
+      "policy_hash": "9ad4027901209b6ca4eaa8d243318a7704224f425caf8184dc5180e85bb10096"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-11-01",
+      "policy_hash": "5ba80b6fe3e531d861b9a8f63c8129ca553c3f8be9ee903b119e65f5b1f6f28a"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2024-12-02",
+      "policy_hash": "85bda28226e21ffc34c393bbf4d04e14662647485490190c09d1302379ad3f99"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-01-02",
+      "policy_hash": "a73675f3857551f546a1d4d6d0ab549460eb9f5b728f0cdb3d1d758b82b74cf8"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-02-03",
+      "policy_hash": "2b209dc26058df044898b7b4fe67328faf6ba37be7cd45f1c6ad771e90662f18"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-03-03",
+      "policy_hash": "2ab7b0b4201955e45a5aa2c3f1a76435a9652c280e06c9c1c8d7d62314077beb"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-04-01",
+      "policy_hash": "9ba4496fe779e75e681bff89c7e5210c49671e832fedc3730cc5f52c9aa230b5"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-05-01",
+      "policy_hash": "32e49b8e430ce48d024fd1e6cf8fc714f199afe90df2451047ad11fad027a59a"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-06-02",
+      "policy_hash": "568dbbf93aa6b5641e61ec5618ef52907562441ac20e49021c3647cddbf8567f"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-07-01",
+      "policy_hash": "9c6de2b283be9e12f38eda98fc8b7be4c2e19c10509bc25a8d46bee9d163d0ad"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-08-01",
+      "policy_hash": "9dccb4064f5582fa14c51d47f544ae885d5722fcbc4693c55783dabb3a975ae2"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-09-02",
+      "policy_hash": "03930d15d7f9cc878f546048507790f61d76b10e109986ee395f39b998ad34bc"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-10-01",
+      "policy_hash": "a56ca4c41a35852c5d489b911e3ec25f038360919882eece5d6ef5eb84f71c66"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-11-03",
+      "policy_hash": "f261d413dc9c27b9f6c631e66b0db43e3c861309fac43fab463317648bc904a7"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2025-12-01",
+      "policy_hash": "783b1a8d2ccfd9c7db214b680b80ca94a51b4008fc6b6e1b111f183b8ddf4ef1"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2026-01-02",
+      "policy_hash": "43b0924bcd8e40b9d1c58aa8f9ee6aafd1a7a00b2ece7ea2a952c499d8aeb7d6"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2026-02-02",
+      "policy_hash": "d0e6a46d45c3d92b91a19e90a1c1575e7d3fe12b04f75eb70696780763e511e1"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2026-03-02",
+      "policy_hash": "eb602cf3e2f2e8c0537df6d8ee1b3fcfa18c1b179396c30897041840e5a18a06"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2026-04-01",
+      "policy_hash": "afa41bb60e8a87b5d8c4080b3660815fd704d3b356933b2627d7f0341d080348"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2026-05-01",
+      "policy_hash": "c5bd7b71b349aa6fe01148c9c1efcd44721d84e72f40452f28eba4d18fc285bc"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2026-06-01",
+      "policy_hash": "9ab0404f94a5ee78013613cd1bbeee8b2c704ec6064e8bf8306eaf55dcdf34c4"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2026-07-01",
+      "policy_hash": "1761f17d6ddef9a1f5814cbd85fa4c6d40de732b147155af01bec1d2eed10091"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2026-08-03",
+      "policy_hash": "28addb62480d16fa42042c541214542dad6f278befdff2da39ed1ae92c5ed056"
+    },
+    {
+      "case_id": "AL03|MIN_VARIANCE|2026-09-01",
+      "policy_hash": "9e1c90f524247122b80744edf0c4ba20d3f9f8aa94547d03bc7314b95791955d"
+    },
+    {
+      "case_id": "AL04|square-exact",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|underdetermined-specific",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|underdetermined-total",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|underdetermined-turnover",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|impossible-exact",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|explicit-approximate",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|approximate-lexicographic",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|singular-W-explicit-unpenalized-factor",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|negative-risk-contribution",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|rank-deficient-B-no-inverse",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|overdetermined-inconsistent",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|asset-bound-active",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|group-cap-active",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|cardinality-two",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|turnover-cap-active",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|explicit-zero-specific",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|full-specific-covariance",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|unequal-W-tracking",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|statistical-standardized-shock-units",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL04|within-tolerance-symmetric-specific-model",
+      "policy_hash": "492f777ddf16a4ecc4b3c9068a114f3b16730863aff4b0e3ce33cd958ba7cc61"
+    },
+    {
+      "case_id": "AL05|EQUAL_CAPITAL",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|MIN_VARIANCE",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|ERC",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|MEAN_VARIANCE",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|MAX_SHARPE",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|signed-opposing",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|internal-residual",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|same-underlying-distinct-instance",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|post-map-shared-asset-cap",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|signed-net-band",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|post-net-gross-cap",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|strategy-family-cap",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|underlying-strategy-group-cap",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|post-map-sector-net-cap",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|max-active-two",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|strategy-turnover-cap",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|impossible-bounds",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|missing-mu-mv",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|missing-mu-sharpe",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|incremental-instrument-cost",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|negative-excess-sharpe",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    },
+    {
+      "case_id": "AL05|perfectly-correlated-preserved",
+      "policy_hash": "45802d7af241ad86646cdb82c86d208cda6a5f35cc158b9b75a910eba2baabf7"
+    }
+  ],
+  "qa_thresholds_declared_before_observation": true,
+  "thresholds_tuned_using_performance": false,
+  "optimizer_calls": 0,
+  "backtests": 0
+}

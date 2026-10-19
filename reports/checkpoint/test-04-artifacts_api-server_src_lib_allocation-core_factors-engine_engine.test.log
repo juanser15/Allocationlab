@@ -1,0 +1,52 @@
+PASS SYNTHETIC Square exact B yields known q and factor exposures do not sum one
+PASS SYNTHETIC Underdetermined min-specific oracle inverse variances within exact face
+PASS SYNTHETIC Underdetermined min-total oracle inverse variances within exact face
+PASS SYNTHETIC Underdetermined TURNOVER secondary preserves feasible previous q exactly
+PASS SYNTHETIC Unattainable exact target remains INFEASIBLE, no approximate fallback
+PASS SYNTHETIC Approximate target independently enumerated endpoint oracle and explicit residual
+PASS SYNTHETIC Approximate lexicographic risk cannot trade tracking for lower variance
+PASS SYNTHETIC Singular W leaves explicitly unpenalized factor free under secondary risk
+PASS SYNTHETIC Negative target implementable with negative B row under long-only q
+PASS SYNTHETIC Signed factor contributions retained; entropy and concentration undefined
+PASS SYNTHETIC Risk identity independently expanded B Phi B plus full D
+PASS SYNTHETIC Statistical shock/loading units reconcile to daily asset variance with independent oracle
+PASS SYNTHETIC Rank-deficient B valid with declared secondary, no direct inverse
+PASS SYNTHETIC Overdetermined conflicting equations explicitly INFEASIBLE
+PASS SYNTHETIC Factor and asset permutation economic equivalence square-exact
+PASS SYNTHETIC Factor and asset permutation economic equivalence underdetermined-specific
+PASS SYNTHETIC Factor and asset permutation economic equivalence negative-risk-contribution
+PASS SYNTHETIC Same factor q under two RiskMandates; no mandate mutations or hidden cash
+PASS SYNTHETIC Global cash/risk field rejected global_cash
+PASS SYNTHETIC Global cash/risk field rejected masterCash
+PASS SYNTHETIC Global cash/risk field rejected totalCash
+PASS SYNTHETIC Global cash/risk field rejected cash_yield
+PASS SYNTHETIC Global cash/risk field rejected target_beta
+PASS SYNTHETIC Global cash/risk field rejected exposure_multiplier
+PASS SYNTHETIC Scoring FactorDefinition and percentile/capital units cannot masquerade as target/B
+PASS SYNTHETIC Explicit beta diagnostic does not equal factor loading/exposure or sum q
+PASS SYNTHETIC Missing D never becomes zero; explicitly zero D has known risk share
+PASS SYNTHETIC Phi/D/W PSD, dimensions, units and model hashes independently guarded
+PASS SYNTHETIC No pseudoinverse implementation mode or hidden tracking-risk lambda accepted
+PASS SYNTHETIC Asset bounds and group caps enforce known constrained q
+PASS SYNTHETIC Gross-L1 turnover cap and cardinality have exact independent oracles
+PASS SYNTHETIC Unequal W approximate objective independent derivative on constrained edge
+PASS SYNTHETIC Zero total variance returns undefined risk shares/entropy, not invented ENB
+PASS SYNTHETIC Malformed/nonfinite inputs reject without throws or invented envelope metadata
+PASS SYNTHETIC Explicit workload limits fail without silently truncated faces/supports
+PASS SYNTHETIC Future artifact availability rejected target
+PASS SYNTHETIC Future artifact availability rejected loadings
+PASS SYNTHETIC Future artifact availability rejected risk_model
+PASS SYNTHETIC Future artifact availability rejected beta_estimates
+PASS SYNTHETIC Future artifact availability rejected tracking_metric
+PASS SYNTHETIC Future mutation cannot alter historical factor selection/fit B
+PASS SYNTHETIC Future mutation cannot alter historical factor selection/fit Phi
+PASS SYNTHETIC Future mutation cannot alter historical factor selection/fit D
+PASS SYNTHETIC Future mutation cannot alter historical factor selection/fit target
+PASS SYNTHETIC Decision-day cutoff disallowed and ambiguous same-as-of snapshots do not auto-select
+PASS SYNTHETIC Sensitivity reproducible and base input/result immutable; expected infeasibilities retained
+PASS SYNTHETIC Boundary loading-plus retains exact no-short q=[0,1] negative-risk-contribution
+PASS SYNTHETIC Boundary loading-plus retains exact no-short q=[0,1] rank-deficient-B-no-inverse
+PASS SYNTHETIC Same canonical input produces same factor IDs/hash/output
+PASS SYNTHETIC Within-tolerance D asymmetry uses explicit symmetric covariance oracle
+PASS SYNTHETIC Within-tolerance Phi/W asymmetry preserves symmetric quadratic and Euler definition
+{"total":51,"pass":51,"fail":0,"skipped":0}

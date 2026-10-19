@@ -1,0 +1,24 @@
+✔ CL03 SYNTHETIC — traditional/rolling and expanding clocks produce exact outer folds (2.515088ms)
+✔ CL03 SYNTHETIC — nested inner folds stay in outer training and inherit/override window type (0.568864ms)
+✔ CL03 SYNTHETIC — grid product, explicit reduction and strict <=200 budget (14.491707ms)
+✔ CL03 SYNTHETIC — seeded random is reproducible, unique and requires a seed (3.858971ms)
+✔ CL03 SYNTHETIC — candidate IDs are stable under object-key reorder and change for changed config (0.570947ms)
+✔ CL03 SYNTHETIC — outer test never enters inner fit, normalization, ranking or candidate generation (95.944936ms)
+✔ CL03 SYNTHETIC — future observations cannot change past selections in either mode (1086.072373ms)
+✔ CL03 SYNTHETIC — rolling fit removes old observations; expanding retains prior training (556.506741ms)
+✔ CL03 SYNTHETIC — independent rebalance, recalibration, step and test clocks (50.687888ms)
+✔ CL03 SYNTHETIC — twenty policies share one fit per information set (148.555955ms)
+✔ CL03 SYNTHETIC — cache cannot cross training bounds or information cutoffs and detects tampering (0.744408ms)
+✔ CL03 SYNTHETIC — interruption/resume does not duplicate completed valid, invalid or failed jobs (231.043903ms)
+✔ CL03 SYNTHETIC — invalid/failed candidates are preserved alongside winners (138.456376ms)
+✔ CL03 SYNTHETIC — selection respects all metrics, constraints and deterministic tie-breakers (0.617247ms)
+✔ CL03 SYNTHETIC — concatenation contains only outer test returns, never inner/train returns (194.33532ms)
+✔ CL03 SYNTHETIC DELIBERATE OVERFIT — traditional looks better; nested selection fails on outer OOS (196.49894ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2733.645372

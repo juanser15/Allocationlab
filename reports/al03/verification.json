@@ -1,0 +1,530 @@
+{
+  "block": "AL03",
+  "status": "PASS",
+  "criteria": [
+    {
+      "id": 1,
+      "criterion": "No global cash variable",
+      "status": "PASS",
+      "evidence": "engine.ts strict input contract; cash/target/lambda injection tests for all 5 objectives"
+    },
+    {
+      "id": 2,
+      "criterion": "All objectives known-answer",
+      "status": "PASS",
+      "evidence": "44 individual cases + NumPy/SciPy independent oracles"
+    },
+    {
+      "id": 3,
+      "criterion": "PIT/no lookahead",
+      "status": "PASS",
+      "evidence": "Future mutation test; strict prior AL02 window; covariance/forecast PIT rejection"
+    },
+    {
+      "id": 4,
+      "criterion": "Explicit infeasibility",
+      "status": "PASS",
+      "evidence": "Impossible bounds, ERC incompatibility, singular variance and workload/nonconvergence cases"
+    },
+    {
+      "id": 5,
+      "criterion": "Beta/vol AL02 reconciliation",
+      "status": "PASS",
+      "evidence": "q beta and q covariance tests; 531 independent PIT reconstructions"
+    },
+    {
+      "id": 6,
+      "criterion": "Diversification independently verified",
+      "status": "PASS",
+      "evidence": "NumPy eigh/entropy/HHI for 531 allocations and synthetic fixtures"
+    },
+    {
+      "id": 7,
+      "criterion": "Reproducible sensitivity",
+      "status": "PASS",
+      "evidence": "1062 historical +19 all-objective synthetic stress rows; identical output hashes"
+    },
+    {
+      "id": 8,
+      "criterion": "Explicit universe/inception handling",
+      "status": "PASS",
+      "evidence": "universe-history.csv; actual first observation +252 complete aligned returns; independent oracle"
+    },
+    {
+      "id": 9,
+      "criterion": "Raw and beta-normalized replay",
+      "status": "PASS",
+      "evidence": "12 valid campaigns: EW/MIN_VARIANCE/ERC x RAW/NORMALIZED x0/5bps; historical MV/MAX_SHARPE blocked for missing canonical mu"
+    },
+    {
+      "id": 10,
+      "criterion": "RiskMandate unchanged",
+      "status": "PASS",
+      "evidence": "Shared immutable .30 mandate hash at every rebalance across objectives; controller tests"
+    },
+    {
+      "id": 11,
+      "criterion": "B2 mapping complete",
+      "status": "PASS",
+      "evidence": "reports/AL03_B2_mapping.md; read-only source mapping"
+    },
+    {
+      "id": 12,
+      "criterion": "Independent verification",
+      "status": "PASS",
+      "evidence": "independent-verification.json: 531 allocations +44484 ledger rows +12 scorecards"
+    },
+    {
+      "id": 13,
+      "criterion": "Strict typecheck",
+      "status": "PASS",
+      "evidence": "typecheck.txt exit0, strict noEmit all new TS and transitive imports"
+    },
+    {
+      "id": 14,
+      "criterion": "git diff --check",
+      "status": "PASS",
+      "evidence": "diff-check.txt exit0; source-whitespace.json"
+    },
+    {
+      "id": 15,
+      "criterion": "Baselines unchanged",
+      "status": "PASS",
+      "evidence": "preservation.json 2929/2929 hashes unchanged"
+    }
+  ],
+  "tests": {
+    "total": 44,
+    "pass": 44,
+    "fail": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "Diagonal inverse-variance minimum variance oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Two asset mean-variance exact derivative oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Identical assets symmetric solution EQUAL_WEIGHT",
+        "status": "PASS"
+      },
+      {
+        "name": "Identical assets symmetric solution MIN_VARIANCE",
+        "status": "PASS"
+      },
+      {
+        "name": "Identical assets symmetric solution ERC",
+        "status": "PASS"
+      },
+      {
+        "name": "ERC diagonal inverse-volatility oracle and RC conservation",
+        "status": "PASS"
+      },
+      {
+        "name": "MAX_SHARPE diagonal tangency with explicitly supplied rf oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Independent SciPy constrained MIN_VARIANCE and NumPy PCA oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Independent SciPy constrained MEAN_VARIANCE and NumPy PCA oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Independent SciPy constrained MAX_SHARPE and NumPy PCA oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Independent SciPy constrained ERC and NumPy PCA oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Impossible bounds explicit EQUAL_WEIGHT",
+        "status": "PASS"
+      },
+      {
+        "name": "Impossible bounds explicit MIN_VARIANCE",
+        "status": "PASS"
+      },
+      {
+        "name": "Impossible bounds explicit ERC",
+        "status": "PASS"
+      },
+      {
+        "name": "Finite but non-PSD covariance rejected",
+        "status": "PASS"
+      },
+      {
+        "name": "Asymmetric covariance and mismatched axis rejected",
+        "status": "PASS"
+      },
+      {
+        "name": "Zero variance asset min-var known-answer and ERC explicit insufficient",
+        "status": "PASS"
+      },
+      {
+        "name": "Zero risk positive-return MAX_SHARPE explicitly unavailable",
+        "status": "PASS"
+      },
+      {
+        "name": "Nonpositive excess MAX_SHARPE exact vertex and bounded independent grid oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Zero excess positive variance MAX_SHARPE equals zero, not insufficient",
+        "status": "PASS"
+      },
+      {
+        "name": "Positive return zero variance across cardinality supports cannot be hidden by a finite candidate",
+        "status": "PASS"
+      },
+      {
+        "name": "Permutation economic invariance EQUAL_WEIGHT",
+        "status": "PASS"
+      },
+      {
+        "name": "Permutation economic invariance MIN_VARIANCE",
+        "status": "PASS"
+      },
+      {
+        "name": "Permutation economic invariance ERC",
+        "status": "PASS"
+      },
+      {
+        "name": "Constraint gross-L1 turnover cap exact two-asset oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "Cardinality max-two names exact diagonal support oracle",
+        "status": "PASS"
+      },
+      {
+        "name": "ERC nonconvergence has no equal-weight fallback",
+        "status": "PASS"
+      },
+      {
+        "name": "Explicit exhaustive workload safety limit never truncates supports/faces",
+        "status": "PASS"
+      },
+      {
+        "name": "No cash decision accepted by EQUAL_WEIGHT",
+        "status": "PASS"
+      },
+      {
+        "name": "No cash decision accepted by MIN_VARIANCE",
+        "status": "PASS"
+      },
+      {
+        "name": "No cash decision accepted by MEAN_VARIANCE",
+        "status": "PASS"
+      },
+      {
+        "name": "No cash decision accepted by MAX_SHARPE",
+        "status": "PASS"
+      },
+      {
+        "name": "No cash decision accepted by ERC",
+        "status": "PASS"
+      },
+      {
+        "name": "Mu-required objectives reject null; no forecast generation or rf default",
+        "status": "PASS"
+      },
+      {
+        "name": "Forecast and covariance future availability explicitly rejected",
+        "status": "PASS"
+      },
+      {
+        "name": "Malformed inputs/NaN/Infinity return INVALID_INPUT rather than throw",
+        "status": "PASS"
+      },
+      {
+        "name": "Same q, different mandates: only controller changes, immutable mandate",
+        "status": "PASS"
+      },
+      {
+        "name": "PIT future mutation leaves covariance, betas, q, IDs and sensitivity unchanged",
+        "status": "PASS"
+      },
+      {
+        "name": "Sleeve beta/vol reconcile with independent unchanged AL02 same information set",
+        "status": "PASS"
+      },
+      {
+        "name": "PCA effective rank/ENB are entropy diagnostics, not minimum torsion",
+        "status": "PASS"
+      },
+      {
+        "name": "Eigen reconstruction known-answer offdiagonal",
+        "status": "PASS"
+      },
+      {
+        "name": "Sensitivity deterministic gamma/covariance/mu paths without changing base",
+        "status": "PASS"
+      },
+      {
+        "name": "Universe warmup excludes absent observations rather than backfilling",
+        "status": "PASS"
+      },
+      {
+        "name": "Canonical same input yields identical result ID and full output",
+        "status": "PASS"
+      }
+    ]
+  },
+  "replay": {
+    "status": "PASS",
+    "backtests_expected": 12,
+    "campaigns_valid": 12,
+    "checks": [
+      {
+        "candidate": "EQUAL_WEIGHT_RAW_0bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 1.6916601452976465e-10,
+        "ledger_sha256": "6ca59eac3df89eaa266325cfdf8e252fee9085b0a07a7c0dd167f1ab9809736d"
+      },
+      {
+        "candidate": "EQUAL_WEIGHT_RAW_5bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 2.405506904779031e-10,
+        "ledger_sha256": "95aaaf5d6bd16b19d4a4f75f4d616082c5550d45c7994e625dbc2c48895670d7"
+      },
+      {
+        "candidate": "EQUAL_WEIGHT_BETA_NORMALIZED_0bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 4.3655745685100555e-11,
+        "ledger_sha256": "7807a444021a287184fd342f6c1d8f90ce055473dd4dfd2a80ea9ba7b71e957f"
+      },
+      {
+        "candidate": "EQUAL_WEIGHT_BETA_NORMALIZED_5bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 5.820766091346741e-11,
+        "ledger_sha256": "2b9a04889c5d3e59685ba938f46840aa9628588eb3f2ab67db58845b19556604"
+      },
+      {
+        "candidate": "MIN_VARIANCE_RAW_0bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 3.5652192309498787e-10,
+        "ledger_sha256": "0e88fd23a95cba30b5c4fbfd8f5a8ad1333a44c53ed42742873b48d3a460829a"
+      },
+      {
+        "candidate": "MIN_VARIANCE_RAW_5bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 3.6332892250356963e-10,
+        "ledger_sha256": "308e3711fc29ecf03599fe97b51681b48c11120f1357cb9eb4c7fc9eb43854df"
+      },
+      {
+        "candidate": "MIN_VARIANCE_BETA_NORMALIZED_0bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 4.3655745685100555e-11,
+        "ledger_sha256": "749789e3857d23599d6a9be68ee4ec9ac4f766592bc539a369c370d00bc65a2c"
+      },
+      {
+        "candidate": "MIN_VARIANCE_BETA_NORMALIZED_5bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 5.820766091346741e-11,
+        "ledger_sha256": "27f35479828992bf2bd1c4069bd0a1d037d84ec5c70ce4b25e7c41879b343fa3"
+      },
+      {
+        "candidate": "ERC_RAW_0bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 2.764863893389702e-10,
+        "ledger_sha256": "78a7c2963dbcfcda30819350c95aa19e4c4e8d8308811406cf6cdb0295139814"
+      },
+      {
+        "candidate": "ERC_RAW_5bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 2.707816193492363e-10,
+        "ledger_sha256": "f5ffda6a11026a7f18c99f06ca0e20c7310c5ec6bb3f2e8c7038a402f2065956"
+      },
+      {
+        "candidate": "ERC_BETA_NORMALIZED_0bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 5.820766091346741e-11,
+        "ledger_sha256": "6760d0946b92b2095b7162b9bcae1f8646790e02fb59cfb91b211c766be1a395"
+      },
+      {
+        "candidate": "ERC_BETA_NORMALIZED_5bps",
+        "ledger_rows": 3707,
+        "max_accounting_error": 5.820766091346741e-11,
+        "ledger_sha256": "79cc65d1e351e1f6f7bfc711e21395a16c73a75b552e3ba0b8039d2a5d60dd55"
+      }
+    ],
+    "allocation_count": 531,
+    "allocation_failures": 0,
+    "controller_failures": 0,
+    "sensitivity_failures": 0
+  },
+  "independent_verification": {
+    "status": "PASS",
+    "checks": {
+      "universe_and_warmup": "PASS",
+      "pit_covariance_beta_and_objectives": "PASS",
+      "pca_and_diagnostics": "PASS",
+      "immutable_shared_mandate": "PASS",
+      "local_sensitivity": "PASS",
+      "all_five_objectives_synthetic_sensitivity": "PASS",
+      "metrics_conditional_rolling_capm_hac": "PASS",
+      "real_ledger_accounting_execution": "PASS",
+      "persistence_rfc4180": "PASS"
+    },
+    "allocations_independently_reconstructed": 531,
+    "ledger_rows_reconciled": 44484,
+    "scorecards": [
+      {
+        "candidate": "EQUAL_WEIGHT_RAW_0bps",
+        "status": "PASS",
+        "observations": 3707
+      },
+      {
+        "candidate": "EQUAL_WEIGHT_RAW_5bps",
+        "status": "PASS",
+        "observations": 3707
+      },
+      {
+        "candidate": "EQUAL_WEIGHT_BETA_NORMALIZED_0bps",
+        "status": "PASS",
+        "observations": 3707
+      },
+      {
+        "candidate": "EQUAL_WEIGHT_BETA_NORMALIZED_5bps",
+        "status": "PASS",
+        "observations": 3707
+      },
+      {
+        "candidate": "MIN_VARIANCE_RAW_0bps",
+        "status": "PASS",
+        "observations": 3707
+      },
+      {
+        "candidate": "MIN_VARIANCE_RAW_5bps",
+        "status": "PASS",
+        "observations": 3707
+      },
+      {
+        "candidate": "MIN_VARIANCE_BETA_NORMALIZED_0bps",
+        "status": "PASS",
+        "observations": 3707
+      },
+      {
+        "candidate": "MIN_VARIANCE_BETA_NORMALIZED_5bps",
+        "status": "PASS",
+        "observations": 3707
+      },
+      {
+        "candidate": "ERC_RAW_0bps",
+        "status": "PASS",
+        "observations": 3707
+      },
+      {
+        "candidate": "ERC_RAW_5bps",
+        "status": "PASS",
+        "observations": 3707
+      },
+      {
+        "candidate": "ERC_BETA_NORMALIZED_0bps",
+        "status": "PASS",
+        "observations": 3707
+      },
+      {
+        "candidate": "ERC_BETA_NORMALIZED_5bps",
+        "status": "PASS",
+        "observations": 3707
+      }
+    ],
+    "tolerances": {
+      "absolute": 1e-09,
+      "relative": 1e-07,
+      "erc_weights_absolute": 2e-08
+    },
+    "method": "NumPy sample covariance/eigh, independent support min-var, SciPy root ERC, SVD CAPM + HAC score covariance"
+  },
+  "preservation": {
+    "status": "PASS",
+    "files_frozen": 2929,
+    "files_unchanged": 2929,
+    "changed": [],
+    "branch": "work",
+    "commit": "1163a0b574b573004372a3a2fc8752810dea7ef9"
+  },
+  "historical_objectives_evaluated": [
+    "EQUAL_WEIGHT",
+    "MIN_VARIANCE",
+    "ERC"
+  ],
+  "historical_objectives_blocked": {
+    "MEAN_VARIANCE": "No canonical historical ExpectedReturns for SPY/XLK/XLV/XLC at each cutoff",
+    "MAX_SHARPE": "Same missing externally supplied mu artifact; no historical-mean substitute"
+  },
+  "all_five_objectives_synthetic_certified": true,
+  "sensitivity": {
+    "historical_rows": 1062,
+    "synthetic_rows": 19
+  },
+  "solver": {
+    "deterministic": true,
+    "random_starts": false,
+    "silent_fallback": false,
+    "default_max_faces": 100000,
+    "default_max_supports": 4096,
+    "erc_max_iterations": 10000
+  },
+  "alpha_or_winner_claim": false,
+  "limitations": [
+    "Exact active-face solver intended for small universes; larger constrained workloads explicitly fail, never truncate",
+    "Exact Equal Weight/ERC reject incompatible bounds/cardinality/turnover; do not project or approximate silently",
+    "PCA entropy ENB is not minimum torsion ENB; degenerate eigenvector basis can matter",
+    "Cash/RF constant zero research reference; costs assumed 0/5bps, no measured broker costs",
+    "Today-fixed ETF universe/snapshot vintages/dividend/provider accuracy not independently certified",
+    "Target beta equalized ex ante; realized beta not identical",
+    "Historical MV/MAX_SHARPE missing canonical mu artifacts; blocked only those replay candidates",
+    "Previously inspected data, not new holdout or alpha discovery",
+    "MAX_SHARPE positive-return zero-variance supports imply undefined/unbounded finite Sharpe; rejected even if another support is finite"
+  ],
+  "objective_versions": {
+    "EQUAL_WEIGHT": "1.0.0",
+    "MIN_VARIANCE": "1.0.0",
+    "MEAN_VARIANCE": "1.0.0",
+    "MAX_SHARPE": "1.0.1",
+    "ERC": "1.0.0"
+  },
+  "pre_post_evidence": [
+    {
+      "stage": "initial fixtures",
+      "pass": 37,
+      "fail": 4,
+      "evidence": "tests-first.txt",
+      "cause": "Synthetic artifact shared covariance by reference; corrected ownership"
+    },
+    {
+      "stage": "canonical integration",
+      "pass": 40,
+      "fail": 1,
+      "evidence": "tests-after-fixture-fix.txt",
+      "cause": "Snapshot ID missing canonical prefix; corrected new engine"
+    },
+    {
+      "stage": "Sharpe boundary",
+      "pass": 41,
+      "fail": 3,
+      "evidence": "pre-sharpe-boundary-hardening-tests.txt",
+      "cause": "Nonpositive Sharpe unsupported and positive zero-variance cardinality support hidden by finite support; exact vertex proof and global undefined-risk rejection added"
+    },
+    {
+      "stage": "final",
+      "pass": 44,
+      "fail": 0,
+      "evidence": "tests-final.txt"
+    }
+  ],
+  "synthetic_test_tolerances": {
+    "default_absolute": 1e-08,
+    "constrained_scipy_weights_absolute": 3e-07,
+    "constrained_pca_absolute": 2e-06
+  }
+}

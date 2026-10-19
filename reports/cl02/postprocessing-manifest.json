@@ -1,0 +1,16 @@
+{
+  "purpose": "RFC4180 exports, independent ledger metric verification and charts; no performance re-run",
+  "experimentManifestId": "4419fc3d9904ec01406d5813bc2c918c6db872f6ff61f9b7faf256b962f6478f",
+  "sources": {
+    "reports/cl02/export-and-plot.py": "ab377d4081fd6789697e5cd64a1d8b0dd6badd7632e0d737369691c164a46ee2",
+    "reports/cl02/manifest.json": "396a9e408971027d45ca079dc87131e54a4d43105677b143f54cb717e1c65bba",
+    "reports/cl02/metrics.json": "4650652f19cad510d6fe056f00edec397ac3236546b80700b5d59402e9a46dc2",
+    "reports/cl02/verification.json": "fd88207d33365660bfee53edc78b010603eb43e6573d7c007bd8024fe90338c4",
+    "reports/cl02/A_0bps.ledger.jsonl": "5db56ea80843601cba2649063435eb922a2caa25de6400062ec58521c96b205b",
+    "reports/cl02/A_5bps.ledger.jsonl": "24a376cd2c6c4307c94692aa7482ae6e00982d78137ad4f928a59e6c641e1f39",
+    "reports/cl02/B_0bps.ledger.jsonl": "065614bb402b0a1d3674b1aa42fdfacc69e4d53238077808159ffb9726f48aba",
+    "reports/cl02/B_5bps.ledger.jsonl": "5316f7fb15c8f96da01f0bc2bdd809c3584fe14d808339e3ed4cbd55c2afbc8f",
+    "reports/cl02/B_control_0bps.ledger.jsonl": "c29b433947bae9fc26cb3b13bf9808116b61ca5ac19b487cb421322c6c12a03c",
+    "reports/cl02/B_control_5bps.ledger.jsonl": "ae2be5c41d98559ab24da71bbbd293fd1c6cfe042ab441231b0386dcb4b6598b"
+  }
+}

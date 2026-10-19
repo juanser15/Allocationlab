@@ -1,0 +1,191 @@
+{
+  "status": "PASS",
+  "version": "promotion-routing-1.0.2",
+  "tests": {
+    "passed": 37,
+    "failed": 0,
+    "skipped": 0
+  },
+  "independent_routing_records": 303,
+  "exact_PIPE01_archival_targets": 96,
+  "independent_canonical_hash_checks": {
+    "status": "PASS",
+    "canonical_seals": 2524,
+    "target_ids": 462,
+    "journal_envelopes": 366,
+    "original_governance_imports": 0
+  },
+  "criteria": [
+    {
+      "id": 1,
+      "criterion": "PROMOTABLE_distinct_from_PROMOTED",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 2,
+      "criterion": "PROMOTED_distinct_from_ACTIVE",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 3,
+      "criterion": "frozen_research_evidence_only",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 4,
+      "criterion": "deterministic_PIT_routing",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 5,
+      "criterion": "primary_failure_preserved",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 6,
+      "criterion": "no_dynamic_fallback_generation",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 7,
+      "criterion": "no_silent_cash_beta_equal_weight_fallback",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 8,
+      "criterion": "hold_staleness_enforced",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 9,
+      "criterion": "immutable_preapproved_fallback_identity",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 10,
+      "criterion": "target_and_RiskMandate_immutable",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 11,
+      "criterion": "future_registry_cannot_rewrite_history",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 12,
+      "criterion": "bank_contract_no_active_set_or_pruning",
+      "status": "PASS",
+      "evidence": [
+        "test-results.json",
+        "independent-verification.json"
+      ]
+    },
+    {
+      "id": 13,
+      "criterion": "no_broker_order_or_live_execution_scope",
+      "status": "PASS",
+      "evidence": [
+        "boundary-verification.json",
+        "build-metafile.json"
+      ]
+    },
+    {
+      "id": 14,
+      "criterion": "resume_idempotence",
+      "status": "PASS",
+      "evidence": [
+        "resume-evidence.json",
+        "reproducibility.json",
+        "independent-hashes.json"
+      ]
+    },
+    {
+      "id": 15,
+      "criterion": "strict_typecheck",
+      "status": "PASS",
+      "evidence": [
+        "typecheck-release.log",
+        "commands.json"
+      ]
+    },
+    {
+      "id": 16,
+      "criterion": "git_diff_check",
+      "status": "PASS",
+      "evidence": [
+        "diff-check.json"
+      ]
+    },
+    {
+      "id": 17,
+      "criterion": "prior_baselines_unchanged",
+      "status": "PASS",
+      "evidence": [
+        "checkpoint.json",
+        "preservation.json"
+      ]
+    }
+  ],
+  "actual_research_promotions": 0,
+  "all_APPROVE_records_QA_ONLY": true,
+  "optimizer_calls": 0,
+  "research_search_runs": 0,
+  "backtests": 0,
+  "broker_connections": 0,
+  "live_or_paper_execution": false,
+  "baseline_files": 7406,
+  "limitations": [
+    "QA archival identity replay is not ex ante approval",
+    "Original 2020-2021 governance unavailable: BLOCKED",
+    "Current real entries PROMOTABLE/INACTIVE without authorized approval",
+    "Archive integrity does not establish current market-data health",
+    "PSR pooled scalar and average-beta scalar not invented; demanding them defers evaluation",
+    "Input actor/time metadata are trusted external references, not an identity/signature system",
+    "Local atomic research journal, not distributed production infrastructure",
+    "No active-set selection/correlation pruning or economic alpha certification"
+  ]
+}

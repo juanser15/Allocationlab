@@ -1,0 +1,21 @@
+{
+  "version": "promotion-routing-1.0.2",
+  "code_hashes": {
+    "research/governance/bank.ts": "76100d2e0cb2ff110a049528666e07ed46b657aa656176f56353240389a0bd16",
+    "research/governance/cli.ts": "38eacdc15b57247fc91f41e935a60d10ca064cf6386458f286c7b39a3cae289d",
+    "research/governance/common.ts": "415aa7fa8f9f5468999021c862254fc7e4b61a109aaa198f55e91e7b1d616edd",
+    "research/governance/contracts.ts": "da0e64c7d4e2c6130f979e7aae18979e65247fe0987fa0455c87ca2b678e5ba8",
+    "research/governance/data.ts": "a08ffe9998f92772cde9907a46293967f0ea90c378a6db2634b601d6ad4569e0",
+    "research/governance/fixtures.ts": "ed8f1082b3a933671e92827290f51b793e47de3f43e3986d5a2b13ad737e1114",
+    "research/governance/promotion.ts": "cf11c1ec2fb0306dc8d41a07615dfa9d3880c05c650db43947086a91b3e725c6",
+    "research/governance/router.ts": "788bfab11b2b544943934f3b0970da45d62c102fc726529124794573fa703d5a",
+    "research/governance/storage.ts": "459de9cf89b070e1227c971b53cf708c92b646e311f1a76cd9de080e642d463b"
+  },
+  "source_catalog_hash": "c28d09284bb5b1d945d740e1a0da8279c36a5c552b1be199f68983ea010f3181",
+  "jobs": 303,
+  "financial_model_runs": 0,
+  "search_runs": 0,
+  "backtests": 0,
+  "scope": "Offline research governance; QA approvals are not real promotions",
+  "as_of": "2026-10-17T00:06:00Z"
+}

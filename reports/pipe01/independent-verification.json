@@ -1,0 +1,344 @@
+{
+  "status": "PASS",
+  "passed": 20,
+  "failed": 0,
+  "absolute_tolerance": 1e-09,
+  "artifact_comparison": "EXACT decoded JSON equality, no numerical tolerance",
+  "checks": [
+    {
+      "criterion": "AL07_REAL_NESTED_ROLLING_0_0bps_NORMALIZED",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 253,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.07371200959787583,
+          "annualized_volatility": 0.08987909834191322,
+          "max_drawdown": -0.09272684850296431,
+          "cvar_95": 0.014561746777763148,
+          "final_index": 107.38688266837046,
+          "beta": 0.2645496881035096
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_NESTED_ROLLING_0_0bps_RAW",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 253,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.2508247901560239,
+          "annualized_volatility": 0.3301942819785831,
+          "max_drawdown": -0.3065376200518277,
+          "cvar_95": 0.052995235286881825,
+          "final_index": 125.13997447378615,
+          "beta": 0.9746695741207115
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_NESTED_ROLLING_0_5bps_NORMALIZED",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 253,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.07347094350652217,
+          "annualized_volatility": 0.08987892643810855,
+          "max_drawdown": -0.09273464366169049,
+          "cvar_95": 0.014561746777763148,
+          "final_index": 107.36272303654812,
+          "beta": 0.26455788862351326
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_NESTED_ROLLING_0_5bps_RAW",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 253,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.25007836076569223,
+          "annualized_volatility": 0.33019441224353746,
+          "max_drawdown": -0.30654049484199286,
+          "cvar_95": 0.052995235286881825,
+          "final_index": 125.06514392883392,
+          "beta": 0.9747011003021663
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_NESTED_ROLLING_1_0bps_NORMALIZED",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 252,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.07918158802608932,
+          "annualized_volatility": 0.04055440744131012,
+          "max_drawdown": -0.02048368932711997,
+          "cvar_95": 0.005710043747639454,
+          "final_index": 107.91253014469211,
+          "beta": 0.29761698893128025
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_NESTED_ROLLING_1_0bps_RAW",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 252,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.27321323380776996,
+          "annualized_volatility": 0.131638642223144,
+          "max_drawdown": -0.06666015563280125,
+          "cvar_95": 0.01858069274289269,
+          "final_index": 127.30027537562303,
+          "beta": 0.9664443731919253
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_NESTED_ROLLING_1_5bps_NORMALIZED",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 252,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.07896340280711533,
+          "annualized_volatility": 0.040555379437989966,
+          "max_drawdown": -0.02049065730571964,
+          "cvar_95": 0.005710605273095922,
+          "final_index": 107.89072769245418,
+          "beta": 0.29755655878284565
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_NESTED_ROLLING_1_5bps_RAW",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 252,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.27247078015572335,
+          "annualized_volatility": 0.1316422763433317,
+          "max_drawdown": -0.06666374865174296,
+          "cvar_95": 0.01858099269902719,
+          "final_index": 127.226093079196,
+          "beta": 0.9662553091816145
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_TRADITIONAL_EXPANDING_0_0bps_NORMALIZED",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 253,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.07371200959787583,
+          "annualized_volatility": 0.08987909834191322,
+          "max_drawdown": -0.09272684850296431,
+          "cvar_95": 0.014561746777763148,
+          "final_index": 107.38688266837046,
+          "beta": 0.2645496881035096
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_TRADITIONAL_EXPANDING_0_0bps_RAW",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 253,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.2508247901560239,
+          "annualized_volatility": 0.3301942819785831,
+          "max_drawdown": -0.3065376200518277,
+          "cvar_95": 0.052995235286881825,
+          "final_index": 125.13997447378615,
+          "beta": 0.9746695741207115
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_TRADITIONAL_EXPANDING_0_5bps_NORMALIZED",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 253,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.07347094350652217,
+          "annualized_volatility": 0.08987892643810855,
+          "max_drawdown": -0.09273464366169049,
+          "cvar_95": 0.014561746777763148,
+          "final_index": 107.36272303654812,
+          "beta": 0.26455788862351326
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_TRADITIONAL_EXPANDING_0_5bps_RAW",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 253,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.25007836076569223,
+          "annualized_volatility": 0.33019441224353746,
+          "max_drawdown": -0.30654049484199286,
+          "cvar_95": 0.052995235286881825,
+          "final_index": 125.06514392883392,
+          "beta": 0.9747011003021663
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_TRADITIONAL_EXPANDING_1_0bps_NORMALIZED",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 252,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.07918158802608932,
+          "annualized_volatility": 0.04055440744131012,
+          "max_drawdown": -0.02048368932711997,
+          "cvar_95": 0.005710043747639454,
+          "final_index": 107.91253014469211,
+          "beta": 0.29761698893128025
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_TRADITIONAL_EXPANDING_1_0bps_RAW",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 252,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.27321323380776996,
+          "annualized_volatility": 0.131638642223144,
+          "max_drawdown": -0.06666015563280125,
+          "cvar_95": 0.01858069274289269,
+          "final_index": 127.30027537562303,
+          "beta": 0.9664443731919253
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_TRADITIONAL_EXPANDING_1_5bps_NORMALIZED",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 252,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.07896340280711533,
+          "annualized_volatility": 0.040555379437989966,
+          "max_drawdown": -0.02049065730571964,
+          "cvar_95": 0.005710605273095922,
+          "final_index": 107.89072769245418,
+          "beta": 0.29755655878284565
+        }
+      }
+    },
+    {
+      "criterion": "AL07_REAL_TRADITIONAL_EXPANDING_1_5bps_RAW",
+      "status": "PASS",
+      "evidence": {
+        "intervals": 252,
+        "decisions": 12,
+        "exact_AL07_match": true,
+        "accounting_oracle": "PIECEWISE_LINEAR_CLOSED_FORM",
+        "metrics": {
+          "cagr": 0.27247078015572335,
+          "annualized_volatility": 0.1316422763433317,
+          "max_drawdown": -0.06666374865174296,
+          "cvar_95": 0.01858099269902719,
+          "final_index": 127.226093079196,
+          "beta": 0.9662553091816145
+        }
+      }
+    },
+    {
+      "criterion": "SYNTHETIC ASSETS",
+      "status": "PASS",
+      "evidence": {
+        "ledger_intervals": 4,
+        "label": "SYNTHETIC"
+      }
+    },
+    {
+      "criterion": "SYNTHETIC FACTORS",
+      "status": "PASS",
+      "evidence": {
+        "ledger_intervals": 4,
+        "label": "SYNTHETIC"
+      }
+    },
+    {
+      "criterion": "SYNTHETIC STRATEGY_STREAMS",
+      "status": "PASS",
+      "evidence": {
+        "ledger_intervals": 4,
+        "label": "SYNTHETIC"
+      }
+    },
+    {
+      "criterion": "Persistence / RFC4180 / JSON / source preservation",
+      "status": "PASS",
+      "evidence": {
+        "CSV_rows": {
+          "accounting-reconciliation.csv": 4040,
+          "blockers.csv": 4,
+          "decision-ledger-tracks.csv": 192,
+          "decision-ledger.csv": 96,
+          "execution-ledger.csv": 4040,
+          "failure-summary.csv": 16,
+          "final-targets-tracks.csv": 192,
+          "final-targets.csv": 96,
+          "oos-equity.csv": 4040,
+          "realized-attribution.csv": 16,
+          "replay-comparison.csv": 208,
+          "risk-reconciliation.csv": 192
+        },
+        "contexts": 96,
+        "stages": 960,
+        "no_duplicate_stage_ids": true
+      }
+    }
+  ]
+}

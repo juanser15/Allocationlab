@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "original_frozen_inventory_files": 10138,
+  "original_inventory_digest": "8b6d4fc2c563792c65964e0e7bdfbf9c9ebc6a687554a04d73353bb92dfdd095",
+  "original_file_changes": [],
+  "selected_existing_files": 500,
+  "selected_source_test_fixture_config_edits": 0,
+  "calculator": {
+    "working_tree_sha256": "c0e64df753f97c69390a146e72f05b5f1915e9f9532512e9076f6284677c57bc",
+    "base_HEAD_sha256": "ed9c69727b9fb2698315f68ab6c238d00abccaf95b7dda374a6374e585ed7597",
+    "checkpoint_content_expected_sha256": "c0e64df753f97c69390a146e72f05b5f1915e9f9532512e9076f6284677c57bc",
+    "correction_unchanged": true
+  },
+  "preview_worktree_head": "f191b0cea64f7e8fc8038f5d39fa3933b92c81f2",
+  "preview_worktree_status": "",
+  "index_empty_before_staging": true,
+  "scope": "Only checkpoint reports and Git metadata may change; original financial/production/UI source and certified artifacts unchanged."
+}

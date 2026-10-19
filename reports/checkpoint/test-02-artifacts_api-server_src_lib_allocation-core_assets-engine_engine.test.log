@@ -1,0 +1,45 @@
+PASS SYNTHETIC Diagonal inverse-variance minimum variance oracle
+PASS SYNTHETIC Two asset mean-variance exact derivative oracle
+PASS SYNTHETIC Identical assets symmetric solution EQUAL_WEIGHT
+PASS SYNTHETIC Identical assets symmetric solution MIN_VARIANCE
+PASS SYNTHETIC Identical assets symmetric solution ERC
+PASS SYNTHETIC ERC diagonal inverse-volatility oracle and RC conservation
+PASS SYNTHETIC MAX_SHARPE diagonal tangency with explicitly supplied rf oracle
+PASS SYNTHETIC Independent SciPy constrained MIN_VARIANCE and NumPy PCA oracle
+PASS SYNTHETIC Independent SciPy constrained MEAN_VARIANCE and NumPy PCA oracle
+PASS SYNTHETIC Independent SciPy constrained MAX_SHARPE and NumPy PCA oracle
+PASS SYNTHETIC Independent SciPy constrained ERC and NumPy PCA oracle
+PASS SYNTHETIC Impossible bounds explicit EQUAL_WEIGHT
+PASS SYNTHETIC Impossible bounds explicit MIN_VARIANCE
+PASS SYNTHETIC Impossible bounds explicit ERC
+PASS SYNTHETIC Finite but non-PSD covariance rejected
+PASS SYNTHETIC Asymmetric covariance and mismatched axis rejected
+PASS SYNTHETIC Zero variance asset min-var known-answer and ERC explicit insufficient
+PASS SYNTHETIC Zero risk positive-return MAX_SHARPE explicitly unavailable
+PASS SYNTHETIC Nonpositive excess MAX_SHARPE exact vertex and bounded independent grid oracle
+PASS SYNTHETIC Zero excess positive variance MAX_SHARPE equals zero, not insufficient
+PASS SYNTHETIC Positive return zero variance across cardinality supports cannot be hidden by a finite candidate
+PASS SYNTHETIC Permutation economic invariance EQUAL_WEIGHT
+PASS SYNTHETIC Permutation economic invariance MIN_VARIANCE
+PASS SYNTHETIC Permutation economic invariance ERC
+PASS SYNTHETIC Constraint gross-L1 turnover cap exact two-asset oracle
+PASS SYNTHETIC Cardinality max-two names exact diagonal support oracle
+PASS SYNTHETIC ERC nonconvergence has no equal-weight fallback
+PASS SYNTHETIC Explicit exhaustive workload safety limit never truncates supports/faces
+PASS SYNTHETIC No cash decision accepted by EQUAL_WEIGHT
+PASS SYNTHETIC No cash decision accepted by MIN_VARIANCE
+PASS SYNTHETIC No cash decision accepted by MEAN_VARIANCE
+PASS SYNTHETIC No cash decision accepted by MAX_SHARPE
+PASS SYNTHETIC No cash decision accepted by ERC
+PASS SYNTHETIC Mu-required objectives reject null; no forecast generation or rf default
+PASS SYNTHETIC Forecast and covariance future availability explicitly rejected
+PASS SYNTHETIC Malformed inputs/NaN/Infinity return INVALID_INPUT rather than throw
+PASS SYNTHETIC Same q, different mandates: only controller changes, immutable mandate
+PASS SYNTHETIC PIT future mutation leaves covariance, betas, q, IDs and sensitivity unchanged
+PASS SYNTHETIC Sleeve beta/vol reconcile with independent unchanged AL02 same information set
+PASS SYNTHETIC PCA effective rank/ENB are entropy diagnostics, not minimum torsion
+PASS SYNTHETIC Eigen reconstruction known-answer offdiagonal
+PASS SYNTHETIC Sensitivity deterministic gamma/covariance/mu paths without changing base
+PASS SYNTHETIC Universe warmup excludes absent observations rather than backfilling
+PASS SYNTHETIC Canonical same input yields identical result ID and full output
+{"total":44,"pass":44,"fail":0,"skipped":0}
