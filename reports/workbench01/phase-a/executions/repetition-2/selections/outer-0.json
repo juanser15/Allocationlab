@@ -1,0 +1,14 @@
+{
+  "outer_fold": 0,
+  "train_start": "2020-01-01",
+  "train_end": "2022-01-01",
+  "test_start": "2022-01-01",
+  "test_end": "2023-01-01",
+  "selection_metric": "net_sharpe",
+  "selection_cost_bps": 5,
+  "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+  "score": 1.0240384351042453,
+  "rank": 1,
+  "scoring_hash": "202feba1b2238a72371c40aa7b92ff4ddde9ebd77557b687982c555c2ca87752",
+  "status": "SELECTED"
+}

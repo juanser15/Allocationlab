@@ -1,0 +1,171 @@
+{
+  "contract_version": "workbench-reproducibility-1.0.0",
+  "status": "PASS",
+  "scope": "Two fresh-root executions of the same committed capital campaign; Run A and Run B are the 0-bps and 5-bps scenario subruns within each campaign.",
+  "code_commit": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+  "code_hash": "94a2c94f0cf7a096865a7d5a8284aa1141f23b62a49685e8d3e3502afd830dcf",
+  "data_snapshot": {
+    "path": "reports/cl02/adjusted-closes.csv",
+    "sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+    "parsed_data_hash": "f7436db75e7c6ed35938e6248c48c162c051cd8a99457a5c386910b36f6c743e",
+    "parsed_rows": 4023,
+    "coverage_start": "2010-10-01",
+    "coverage_end": "2026-09-30",
+    "provenance_status": "VENDOR_AUTHENTICITY_AND_VINTAGE_UNVERIFIED"
+  },
+  "configuration": {
+    "path": "configs/capital-research/acceptance-traditional.json",
+    "experiment_id": "cl03-acceptance-traditional",
+    "experiment_hash": "803c0c5bbe79c9d47a72f7a22a6709b82a00eb34c5e83d79b44b9f988bc6ceef",
+    "identical_between_repetitions": true,
+    "random_seed": "NOT_APPLICABLE"
+  },
+  "engine_versions": {
+    "capital_engine": "capital-research-1.0.1",
+    "model_current_regime": "production-regime-adapter-1",
+    "policy_cash_band": "current-cash-policy-1",
+    "policy_constant": "fixed-risk-policy-1"
+  },
+  "repetitions": [
+    {
+      "id": "repetition-1",
+      "root": "reports/workbench01/phase-a/executions/repetition-1",
+      "exit_code": 0,
+      "runtime_ms": 29065,
+      "complete": true,
+      "new_jobs": 24,
+      "reused_jobs": 0,
+      "model_fit_misses": 50,
+      "model_fits_succeeded": 50,
+      "prediction_misses": 72,
+      "failed_jobs": 0,
+      "invalid_jobs": 0
+    },
+    {
+      "id": "repetition-2",
+      "root": "reports/workbench01/phase-a/executions/repetition-2",
+      "exit_code": 0,
+      "runtime_ms": 29271,
+      "complete": true,
+      "new_jobs": 24,
+      "reused_jobs": 0,
+      "model_fit_misses": 50,
+      "model_fits_succeeded": 50,
+      "prediction_misses": 72,
+      "failed_jobs": 0,
+      "invalid_jobs": 0
+    }
+  ],
+  "fresh_recalculation_evidence": {
+    "separate_output_roots": true,
+    "persisted_job_reuse_between_repetitions": false,
+    "new_jobs_each_repetition": 24,
+    "reused_jobs_each_repetition": 0,
+    "note": "Fit and prediction cache hits within a campaign are expected sharing across jobs; they are distinct from persisted job reuse."
+  },
+  "file_set_comparison": {
+    "same_relative_file_set": true,
+    "files_per_repetition": 165,
+    "byte_identical_files": 164,
+    "different_files": [
+      "progress.json"
+    ],
+    "aggregate_sha256_excluding_progress_json_repetition_1": "168921b82aeb09ec9d41559cdd4971c60c2717bf43832e00fa203109980f42a9",
+    "aggregate_sha256_excluding_progress_json_repetition_2": "168921b82aeb09ec9d41559cdd4971c60c2717bf43832e00fa203109980f42a9",
+    "aggregate_equal": true,
+    "nondeterministic_fields": [
+      {
+        "path": "progress.json#/telemetry/elapsed_ms",
+        "reason": "Measured wall-clock telemetry"
+      },
+      {
+        "path": "progress.json#/telemetry/peak_rss_kib",
+        "reason": "Measured process-memory telemetry"
+      }
+    ],
+    "unexplained_differences": []
+  },
+  "matching_artifact_hashes": {
+    "manifest.json": "e5ab33b490b7c1d2bd4d26c649f951bdd951ce29b788bffd839b1713a856bfe2",
+    "summary.json": "b28ba1863c9c7273b67666b882b1ce2673235c44f81ae583b7b342cb0425ec5c",
+    "oos-equity.csv": "b7ff17df18b60dee9c8aca8fc0173d0eadcb167c61009480f93e8928309552e0",
+    "oos-ledger.csv": "98161b9a1721f0ebf14949fde6c5c651c91744515cadb40eb894d875887feeaf",
+    "outer-results.csv": "58359cabcbecfcdd8738e57d695577ac8cf96be377619a07586ac3d4f6ca5787",
+    "candidate-rankings.csv": "e27b4a448c4eee81828f2abf9d04bfbf22b99ca25c5eed67532cb110dda27fd8",
+    "selected-by-fold.csv": "a7e02d51dc1fc5d01efc476e2665b36ea1f153cb03ef32fea94a7ae5d89904bf"
+  },
+  "run_a": {
+    "run_id": "rr_c79425cd86a09cb3e781cb321e0a214bdb0656aad55b385f840ccc8db9dd0b26",
+    "transaction_cost_bps": 0,
+    "same_run_identity_between_repetitions": true,
+    "same_job_hashes_between_repetitions": true,
+    "same_result_hashes_between_repetitions": true,
+    "same_time_series": true,
+    "same_metrics": true,
+    "same_weights_or_positions": true,
+    "same_warnings": true,
+    "same_blockers": true,
+    "selected_equity_rows_sha256": "7e743b11a56f143c7851ec5c612e6412421d9a06dc1fd0ab14a82df0ad2ba472",
+    "selected_ledger_rows_sha256": "2b490559834cd08baeb4f0f5f4135a887b31eaaaf5c4de0acf52e6fb64b77ba1",
+    "outer_job_bundle_sha256": "850e93805d5d112a462410290739a572ecb685ca81b528bacb7e9c0c8eea3069"
+  },
+  "run_b": {
+    "run_id": "rr_55feebe25c27106d37f313091575a4e9ac9c38aa88c61c5e4bac1f4c6555658d",
+    "transaction_cost_bps": 5,
+    "same_run_identity_between_repetitions": true,
+    "same_job_hashes_between_repetitions": true,
+    "same_result_hashes_between_repetitions": true,
+    "same_time_series": true,
+    "same_metrics": true,
+    "same_weights_or_positions": true,
+    "same_warnings": true,
+    "same_blockers": true,
+    "selected_equity_rows_sha256": "7ae56880aa37360af79a97524a6e1adf222932e5d6eee79f5317ad71e6227114",
+    "selected_ledger_rows_sha256": "1a14a2475d87c94f63d2f8e5d48a2719d8b57550ec28153032808166d4c71d0e",
+    "outer_job_bundle_sha256": "b818ef3376925eeef9f7225ed791d83ae4e84172dce38714ddbf09f69cc4d1a6"
+  },
+  "parameter_change_verification": {
+    "declared_changed_field": "/transaction_cost_bps",
+    "run_a_value": 0,
+    "run_b_value": 5,
+    "normalized_identity_payload_diff": [
+      "/transaction_cost_bps"
+    ],
+    "research_run_identity_changed": true,
+    "paired_scenario_jobs": 12,
+    "pairs_with_identical_non_scenario_identity": 12,
+    "pairs_with_identical_targets": 12,
+    "pairs_with_identical_fit_keys": 12,
+    "pairs_with_changed_job_hash": 12,
+    "pairs_with_changed_result_hash": 12,
+    "pairs_with_changed_financial_metrics": 12,
+    "run_a_total_cost": 0,
+    "run_b_total_cost": 0.1130073297533634,
+    "run_b_cost_formula": "absolute_traded_notional * 5 / 10000",
+    "cost_reconciliation_failures": 0,
+    "parameter_status": "APPLIED_NOT_IGNORED",
+    "stale_cache_reused": false
+  },
+  "identity_boundary": {
+    "research_run_id": "Scenario-level identity derived from the normalized ResearchRunSpec; changes with transaction_cost_bps.",
+    "engine_job_hash": "Scenario-level engine identity; all 12 paired hashes change.",
+    "engine_experiment_hash": "Campaign-level identity; intentionally common because the committed campaign contains both cost scenarios.",
+    "shared_engine_experiment_hash": "803c0c5bbe79c9d47a72f7a22a6709b82a00eb34c5e83d79b44b9f988bc6ceef"
+  },
+  "pit_verification": {
+    "label": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+    "targets_checked": 528,
+    "information_cutoff_not_before_signal_failures": 0,
+    "outer_fit_cutoff_not_before_outer_oos_failures": 0,
+    "execution": "NEXT_CLOSE_AFTER_STRICT_PREVIOUS_CLOSE_INFORMATION",
+    "unqualified_pit_safe": false,
+    "limitations": [
+      "Adjusted-close vendor authenticity and historical vendor vintages were not independently verified.",
+      "Historical universe-membership and governance vintages are absent.",
+      "Promotion and activation state are not applicable to this capital path."
+    ]
+  },
+  "warnings_and_blockers_equal": true,
+  "unexplained_differences": [],
+  "conclusion": "Financial results and identities are deterministic for the declared configuration, data snapshot, code commit, engine versions, and non-applicable seed. Only runtime telemetry differs."
+}

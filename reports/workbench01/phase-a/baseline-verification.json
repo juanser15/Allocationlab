@@ -1,0 +1,606 @@
+{
+  "schema_version": "workbench01-baseline-verification-1.0.0",
+  "generated_for": "ALLOCATION LAB WORKBENCH-01 PHASE A",
+  "repository": "juanser15/Allocationlab",
+  "branch": "workbench-v1",
+  "code_commit": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+  "complete": true,
+  "certified_baseline_complete": true,
+  "module_record_count": 16,
+  "certification_count": 15,
+  "runtime": {
+    "node": "v24.19.0",
+    "pnpm": "11.25.0",
+    "python": "Python 3.12.14",
+    "os": "Debian GNU/Linux 13 (trixie), Linux 6.18.55 x86_64",
+    "package_manager_declaration": "No packageManager field is present in the root package.json; the root preinstall guard requires pnpm.",
+    "dependency_installation_status": "PRESENT_AND_USABLE; pnpm list --depth=0 --recursive exited 0, existing artifacts/api-server/node_modules supplies esbuild and scripts/node_modules supplies tsx; no installation or lockfile change was required for this audit.",
+    "lockfile": "pnpm-lock.yaml",
+    "workspace_file": "pnpm-workspace.yaml"
+  },
+  "tracking_verification": {
+    "method": "Every source, test, local dependency, configuration and local data path listed below was resolved against `git ls-tree -r HEAD -- <path>`.",
+    "result": "PASS",
+    "required_runtime_file_only_outside_committed_tree": false,
+    "uncommitted_runtime_dependencies": [],
+    "notes": [
+      "Generated report outputs and build products are not treated as runtime inputs unless a module explicitly reads a frozen report artifact.",
+      "Some BANK-01 and PIPE-03 empirical-history candidates are intentionally blocked by missing full historical inputs; their committed synthetic certification inputs and executable source are complete.",
+      "AL-06 has two separately executable certified components, so it is represented by two module records while retaining one certification identifier."
+    ]
+  },
+  "modules": [
+    {
+      "module": "CL-01",
+      "component": "Capital layer and corrected backtest engine",
+      "source_entry_points": [
+        "artifacts/api-server/src/lib/calculator.ts"
+      ],
+      "test_entry_points": [
+        "artifacts/api-server/src/lib/calculator.cl01.test.ts",
+        "artifacts/api-server/src/lib/calculator.cl01-regressions.test.ts"
+      ],
+      "local_dependencies": [
+        "artifacts/api-server/src/lib/factor-library.ts",
+        "artifacts/api-server/src/lib/d6-trace.ts",
+        "artifacts/api-server/src/lib/calculator.a1.db-shim.ts",
+        "artifacts/api-server/package.json"
+      ],
+      "data_dependencies": [],
+      "configuration_files": [],
+      "runnable_commands": [
+        "cd artifacts/api-server && ./node_modules/.bin/esbuild src/lib/calculator.cl01.test.ts src/lib/calculator.cl01-regressions.test.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./src/lib/calculator.a1.db-shim.ts --outdir=dist/cl01 --out-extension:.js=.mjs",
+        "node artifacts/api-server/dist/cl01/calculator.cl01.test.mjs && node artifacts/api-server/dist/cl01/calculator.cl01-regressions.test.mjs"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "CL-02",
+      "component": "Frozen empirical capital replay and export",
+      "source_entry_points": [
+        "reports/cl02/research-runner.ts"
+      ],
+      "test_entry_points": [
+        "reports/cl02/export-and-plot.py",
+        "reports/cl02/verification.json"
+      ],
+      "local_dependencies": [
+        "artifacts/api-server/src/lib/calculator.ts",
+        "artifacts/api-server/src/lib/factor-library.ts",
+        "artifacts/api-server/src/lib/d6-trace.ts",
+        "artifacts/api-server/src/lib/calculator.a1.db-shim.ts"
+      ],
+      "data_dependencies": [
+        "reports/oct2026-backtests/assets-preparation.response.json",
+        "reports/oct2026-backtests/freeze.json",
+        "reports/oct2026-equity-real/AB-prep.response.json",
+        "reports/oct2026-equity-real/live-refresh.response.json",
+        "reports/cl02/adjusted-closes.csv"
+      ],
+      "configuration_files": [
+        "reports/cl02/configuration.json",
+        "reports/cl02/manifest.json"
+      ],
+      "runnable_commands": [
+        "Build reports/cl02/research-runner.ts with the existing artifacts/api-server esbuild setup, then execute the resulting Node bundle from repository root.",
+        "python reports/cl02/export-and-plot.py"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "CL-03",
+      "component": "Capital research engine",
+      "source_entry_points": [
+        "research/capital/cli.ts",
+        "research/capital/engine.ts"
+      ],
+      "test_entry_points": [
+        "research/capital/engine.test.ts"
+      ],
+      "local_dependencies": [
+        "research/capital/spec.ts",
+        "research/capital/registry.ts",
+        "research/capital/metrics.ts",
+        "research/capital/storage.ts",
+        "artifacts/api-server/src/lib/calculator.ts"
+      ],
+      "data_dependencies": [
+        "reports/cl02/adjusted-closes.csv"
+      ],
+      "configuration_files": [
+        "configs/capital-research/acceptance-traditional.json",
+        "configs/capital-research/acceptance-nested.json",
+        "configs/capital-research/budget-200.json"
+      ],
+      "runnable_commands": [
+        "cd artifacts/api-server && ./node_modules/.bin/esbuild ../../research/capital/engine.test.ts ../../research/capital/cli.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./src/lib/calculator.a1.db-shim.ts --outdir=dist/cl03",
+        "node artifacts/api-server/dist/cl03/engine.test.js",
+        "node artifacts/api-server/dist/cl03/cli.js configs/capital-research/acceptance-traditional.json --dry-run",
+        "node artifacts/api-server/dist/cl03/cli.js configs/capital-research/acceptance-traditional.json --run"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "CL-04",
+      "component": "Capital engine validation and hardening",
+      "source_entry_points": [
+        "research/capital/qa-campaign.ts",
+        "research/capital/qa.ts"
+      ],
+      "test_entry_points": [
+        "research/capital/validation.test.ts",
+        "research/capital/hardening-regressions.test.ts"
+      ],
+      "local_dependencies": [
+        "research/capital/engine.ts",
+        "research/capital/spec.ts",
+        "research/capital/registry.ts",
+        "research/capital/storage.ts",
+        "research/capital/oracle.ts"
+      ],
+      "data_dependencies": [],
+      "configuration_files": [],
+      "runnable_commands": [
+        "Build research/capital/validation.test.ts and research/capital/qa-campaign.ts with the CL-04 esbuild command documented in research/capital/README.md.",
+        "node artifacts/api-server/dist/cl04/validation.test.js",
+        "node artifacts/api-server/dist/cl04/qa-campaign.js 200",
+        "python research/capital/replay.py reports/cl04/scale-200"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "AL-01",
+      "component": "Canonical allocation contracts, risk mandate and exposure composition",
+      "source_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/contracts.ts",
+        "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts",
+        "artifacts/api-server/src/lib/allocation-core/composition.ts"
+      ],
+      "test_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/contracts.test.ts",
+        "artifacts/api-server/src/lib/allocation-core/amendment-a.test.ts"
+      ],
+      "local_dependencies": [
+        "artifacts/api-server/src/lib/allocation-core/validation.ts",
+        "artifacts/api-server/src/lib/allocation-core/adapters.ts",
+        "artifacts/api-server/src/lib/allocation-core/risk-metrics.ts"
+      ],
+      "data_dependencies": [],
+      "configuration_files": [],
+      "runnable_commands": [
+        "Bundle the two AL-01 test entries with artifacts/api-server/node_modules/.bin/esbuild and execute the resulting Node bundles."
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "AL-02",
+      "component": "Risk analytics and exposure-controller diagnostics",
+      "source_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/risk-analytics/analytics.ts",
+        "artifacts/api-server/src/lib/allocation-core/risk-analytics/replay-cl02.ts"
+      ],
+      "test_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/risk-analytics/analytics.test.ts",
+        "artifacts/api-server/src/lib/allocation-core/risk-analytics/independent-check.py"
+      ],
+      "local_dependencies": [
+        "artifacts/api-server/src/lib/allocation-core/risk-analytics/estimators.ts",
+        "artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics.ts",
+        "artifacts/api-server/src/lib/allocation-core/validation.ts"
+      ],
+      "data_dependencies": [
+        "reports/cl02/adjusted-closes.csv",
+        "reports/cl02/A_0bps.ledger.jsonl",
+        "reports/cl02/A_5bps.ledger.jsonl",
+        "reports/cl02/B_0bps.ledger.jsonl",
+        "reports/cl02/B_5bps.ledger.jsonl",
+        "reports/al02/input-snapshot.json",
+        "reports/al02/oracle-fixtures.json"
+      ],
+      "configuration_files": [
+        "reports/al02/manifest.json",
+        "reports/al02/input-hashes.json"
+      ],
+      "runnable_commands": [
+        "Bundle artifacts/api-server/src/lib/allocation-core/risk-analytics/analytics.test.ts and replay-cl02.ts with the existing esbuild binary, then execute the Node bundles.",
+        "python artifacts/api-server/src/lib/allocation-core/risk-analytics/independent-check.py"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "AL-03",
+      "component": "Asset allocation engine",
+      "source_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts",
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/replay.ts"
+      ],
+      "test_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.test.ts",
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/independent.py",
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/oracles.py"
+      ],
+      "local_dependencies": [
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts",
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/solver.ts",
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/artifacts.ts",
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/sensitivity.ts",
+        "artifacts/api-server/src/lib/allocation-core/contracts.ts",
+        "artifacts/api-server/src/lib/allocation-core/validation.ts"
+      ],
+      "data_dependencies": [
+        "reports/al03/allocation-inputs.json",
+        "reports/al03/oracle-fixtures.json"
+      ],
+      "configuration_files": [
+        "reports/al03/manifest.json"
+      ],
+      "runnable_commands": [
+        "Bundle assets-engine/engine.test.ts and assets-engine/replay.ts with the existing esbuild binary and execute the resulting Node bundles.",
+        "python artifacts/api-server/src/lib/allocation-core/assets-engine/independent.py reports/al03"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "AL-04",
+      "component": "Factor allocation and implementation engine",
+      "source_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.ts",
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/certify.ts"
+      ],
+      "test_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.test.ts",
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/independent.py"
+      ],
+      "local_dependencies": [
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/contracts.ts",
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/solver.ts",
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/validation.ts",
+        "artifacts/api-server/src/lib/allocation-core/factors-engine/sensitivity.ts",
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts"
+      ],
+      "data_dependencies": [
+        "reports/al04/synthetic-fixtures.json"
+      ],
+      "configuration_files": [
+        "reports/al04/manifest.json"
+      ],
+      "runnable_commands": [
+        "Bundle factors-engine/engine.test.ts and factors-engine/certify.ts with the existing esbuild binary and execute the resulting Node bundles.",
+        "python artifacts/api-server/src/lib/allocation-core/factors-engine/independent.py reports/al04"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "AL-05",
+      "component": "Strategy-stream allocation and aggregation engine",
+      "source_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.ts",
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/certify.ts"
+      ],
+      "test_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.test.ts",
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/independent.py"
+      ],
+      "local_dependencies": [
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts",
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/solver.ts",
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts",
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/history.ts",
+        "artifacts/api-server/src/lib/allocation-core/strategy-engine/analytics.ts",
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts"
+      ],
+      "data_dependencies": [
+        "reports/al05/synthetic-results.json",
+        "reports/al05/blocked-artifacts.json"
+      ],
+      "configuration_files": [
+        "reports/al05/manifest.json"
+      ],
+      "runnable_commands": [
+        "cd artifacts/api-server && ./node_modules/.bin/esbuild src/lib/allocation-core/strategy-engine/engine.test.ts src/lib/allocation-core/strategy-engine/certify.ts --bundle --platform=node --format=esm --packages=external --outdir=dist/al05 --out-extension:.js=.mjs",
+        "node artifacts/api-server/dist/al05/engine.test.mjs reports/al05",
+        "node artifacts/api-server/dist/al05/certify.mjs reports/al05",
+        "python artifacts/api-server/src/lib/allocation-core/strategy-engine/independent.py reports/al05"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS",
+      "empirical_history_note": "The committed synthetic certification is complete; empirical strategy-history replay is separately blocked and explicitly recorded in reports/al05/blocked-artifacts.json."
+    },
+    {
+      "module": "AL-06-SIGNAL",
+      "certification_id": "AL-06",
+      "component": "Signal-quality gate",
+      "source_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/gates/signal.ts"
+      ],
+      "test_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/gates/gates.test.ts",
+        "artifacts/api-server/src/lib/allocation-core/gates/independent.py"
+      ],
+      "local_dependencies": [
+        "artifacts/api-server/src/lib/allocation-core/gates/contracts.ts",
+        "artifacts/api-server/src/lib/allocation-core/gates/common.ts",
+        "artifacts/api-server/src/lib/allocation-core/gates/adapters.ts"
+      ],
+      "data_dependencies": [
+        "reports/al06/signal-reference-bundles.json"
+      ],
+      "configuration_files": [
+        "reports/al06/manifest.json"
+      ],
+      "runnable_commands": [
+        "Build and execute artifacts/api-server/src/lib/allocation-core/gates/gates.test.ts; the shared AL-06 test entry exercises the signal gate."
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "AL-06-PORTFOLIO",
+      "certification_id": "AL-06",
+      "component": "Portfolio-robustness gate",
+      "source_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/gates/portfolio.ts",
+        "artifacts/api-server/src/lib/allocation-core/gates/replay.ts"
+      ],
+      "test_entry_points": [
+        "artifacts/api-server/src/lib/allocation-core/gates/gates.test.ts",
+        "artifacts/api-server/src/lib/allocation-core/gates/independent.py"
+      ],
+      "local_dependencies": [
+        "artifacts/api-server/src/lib/allocation-core/gates/contracts.ts",
+        "artifacts/api-server/src/lib/allocation-core/gates/common.ts",
+        "artifacts/api-server/src/lib/allocation-core/gates/adapters.ts",
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts"
+      ],
+      "data_dependencies": [
+        "reports/al06/observation-bundles.json",
+        "reports/al03/sensitivity.csv"
+      ],
+      "configuration_files": [
+        "reports/al06/manifest.json"
+      ],
+      "runnable_commands": [
+        "cd artifacts/api-server && ./node_modules/.bin/esbuild src/lib/allocation-core/gates/gates.test.ts src/lib/allocation-core/gates/replay.ts --bundle --platform=node --format=esm --packages=external --outdir=dist/al06 --out-extension:.js=.mjs",
+        "node artifacts/api-server/dist/al06/gates.test.mjs reports/al06",
+        "node artifacts/api-server/dist/al06/replay.mjs reports/al06",
+        "python artifacts/api-server/src/lib/allocation-core/gates/independent.py reports/al06"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "AL-07",
+      "component": "Allocation research engine",
+      "source_entry_points": [
+        "research/allocation/cli.ts",
+        "research/allocation/engine.ts"
+      ],
+      "test_entry_points": [
+        "research/allocation/engine.test.ts",
+        "research/allocation/independent.py"
+      ],
+      "local_dependencies": [
+        "research/allocation/contracts.ts",
+        "research/allocation/spec.ts",
+        "research/allocation/decision.ts",
+        "research/allocation/data.ts",
+        "research/allocation/analytics.ts",
+        "research/allocation/diagnostics.ts",
+        "artifacts/api-server/src/lib/allocation-core"
+      ],
+      "data_dependencies": [
+        "reports/cl02/adjusted-closes.csv",
+        "reports/al03/allocation-inputs.json",
+        "reports/al03/allocation-solves.json",
+        "reports/al03/controller-results.json",
+        "reports/al03/sensitivity.csv",
+        "reports/al05/blocked-artifacts.json"
+      ],
+      "configuration_files": [
+        "research/allocation/fixtures.ts",
+        "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING/manifest.json",
+        "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING/manifest.json"
+      ],
+      "runnable_commands": [
+        "Build research/allocation/engine.test.ts and research/allocation/cli.ts with the existing esbuild binary and execute the resulting Node bundles.",
+        "python research/allocation/independent.py reports/al07"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "PIPE-01",
+      "component": "Canonical end-to-end research pipeline",
+      "source_entry_points": [
+        "research/pipeline/cli.ts",
+        "research/pipeline/decision.ts",
+        "research/pipeline/execution.ts"
+      ],
+      "test_entry_points": [
+        "research/pipeline/pipeline.test.ts",
+        "research/pipeline/independent.py"
+      ],
+      "local_dependencies": [
+        "research/pipeline/contracts.ts",
+        "research/pipeline/data.ts",
+        "research/pipeline/fixtures.ts",
+        "research/allocation",
+        "artifacts/api-server/src/lib/allocation-core",
+        "artifacts/api-server/src/lib/calculator.ts"
+      ],
+      "data_dependencies": [
+        "reports/cl02/adjusted-closes.csv",
+        "reports/al03/allocation-inputs.json",
+        "reports/al03/allocation-solves.json",
+        "reports/al03/controller-results.json",
+        "reports/al07/campaigns/AL07_REAL_NESTED_ROLLING",
+        "reports/al07/campaigns/AL07_REAL_TRADITIONAL_EXPANDING"
+      ],
+      "configuration_files": [
+        "reports/pipe01/replay-source-hashes.json"
+      ],
+      "runnable_commands": [
+        "./artifacts/api-server/node_modules/.bin/esbuild research/pipeline/pipeline.test.ts research/pipeline/cli.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./artifacts/api-server/src/lib/calculator.a1.db-shim.ts --outdir=artifacts/api-server/dist/pipe01 --out-extension:.js=.mjs",
+        "node artifacts/api-server/dist/pipe01/pipeline.test.mjs reports/pipe01",
+        "node artifacts/api-server/dist/pipe01/cli.mjs",
+        "python research/pipeline/independent.py reports/pipe01"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "PIPE-02",
+      "component": "Promotion, routing and fallback governance",
+      "source_entry_points": [
+        "research/governance/cli.ts",
+        "research/governance/promotion.ts",
+        "research/governance/router.ts",
+        "research/governance/bank.ts"
+      ],
+      "test_entry_points": [
+        "research/governance/governance.test.ts",
+        "research/governance/independent.py"
+      ],
+      "local_dependencies": [
+        "research/governance/contracts.ts",
+        "research/governance/common.ts",
+        "research/governance/data.ts",
+        "research/governance/storage.ts",
+        "research/capital/storage.ts"
+      ],
+      "data_dependencies": [
+        "reports/al07",
+        "reports/pipe01",
+        "reports/al06"
+      ],
+      "configuration_files": [
+        "research/governance/fixtures.ts",
+        "reports/pipe02/manifest.json"
+      ],
+      "runnable_commands": [
+        "./artifacts/api-server/node_modules/.bin/esbuild research/governance/governance.test.ts research/governance/cli.ts --bundle --platform=node --format=esm --packages=external --metafile=reports/pipe02/build-metafile.json --outdir=artifacts/api-server/dist/pipe02 --out-extension:.js=.mjs",
+        "node artifacts/api-server/dist/pipe02/governance.test.mjs reports/pipe02",
+        "node artifacts/api-server/dist/pipe02/cli.mjs --certify",
+        "python research/governance/independent.py reports/pipe02"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS"
+    },
+    {
+      "module": "PIPE-03",
+      "component": "Dynamic active-set integration pipeline",
+      "source_entry_points": [
+        "research/active-pipeline/cli.ts",
+        "research/active-pipeline/engine.ts",
+        "research/active-pipeline/projection.ts"
+      ],
+      "test_entry_points": [
+        "research/active-pipeline/integration.test.ts",
+        "research/active-pipeline/independent.py"
+      ],
+      "local_dependencies": [
+        "research/active-pipeline/contracts.ts",
+        "research/active-pipeline/sources.ts",
+        "research/active-pipeline/storage.ts",
+        "research/bank",
+        "research/governance",
+        "research/pipeline",
+        "research/allocation"
+      ],
+      "data_dependencies": [
+        "reports/bank01/synthetic-results.json",
+        "reports/pipe01/verification.json",
+        "reports/pipe02/verification.json",
+        "reports/al05/verification.json",
+        "reports/al06/verification.json"
+      ],
+      "configuration_files": [
+        "research/active-pipeline/fixtures.ts",
+        "reports/pipe03/build-metafile.json"
+      ],
+      "runnable_commands": [
+        "./artifacts/api-server/node_modules/.bin/esbuild research/active-pipeline/integration.test.ts research/active-pipeline/cli.ts --bundle --platform=node --format=esm --packages=external --alias:@workspace/db=./artifacts/api-server/src/lib/calculator.a1.db-shim.ts --metafile=reports/pipe03/build-metafile.json --outdir=artifacts/api-server/dist/pipe03 --out-extension:.js=.mjs",
+        "node artifacts/api-server/dist/pipe03/integration.test.mjs reports/pipe03/test-results.json",
+        "node artifacts/api-server/dist/pipe03/cli.mjs",
+        "python research/active-pipeline/independent.py reports/pipe03"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS",
+      "empirical_history_note": "The committed synthetic integration baseline is complete; empirical strategy history and historical PIT governance remain explicit capability blockers."
+    },
+    {
+      "module": "BANK-01",
+      "component": "Dynamic Signal and Strategy Bank",
+      "source_entry_points": [
+        "research/bank/cli.ts",
+        "research/bank/engine.ts"
+      ],
+      "test_entry_points": [
+        "research/bank/bank.test.ts",
+        "research/bank/independent.py"
+      ],
+      "local_dependencies": [
+        "research/bank/contracts.ts",
+        "research/bank/statistics.ts",
+        "research/bank/validation.ts",
+        "research/bank/storage.ts",
+        "research/bank/adapters.ts",
+        "research/governance/common.ts",
+        "research/governance/bank.ts",
+        "research/governance/promotion.ts",
+        "artifacts/api-server/src/lib/allocation-core/validation.ts",
+        "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+        "research/capital/storage.ts"
+      ],
+      "data_dependencies": [
+        "reports/bank01/synthetic-inputs.json",
+        "reports/al05/blocked-artifacts.json",
+        "reports/pipe02/bank-registry-full.json"
+      ],
+      "configuration_files": [
+        "research/bank/fixtures.ts",
+        "reports/bank01/build-metafile.json"
+      ],
+      "runnable_commands": [
+        "./artifacts/api-server/node_modules/.bin/esbuild research/bank/bank.test.ts research/bank/cli.ts --bundle --platform=node --format=esm --packages=external --metafile=reports/bank01/build-metafile.json --outdir=artifacts/api-server/dist/bank01 --out-extension:.js=.mjs",
+        "node artifacts/api-server/dist/bank01/bank.test.mjs reports/bank01/test-results.json",
+        "node artifacts/api-server/dist/bank01/cli.mjs",
+        "python research/bank/independent.py reports/bank01"
+      ],
+      "tracked_in_head": true,
+      "depends_on_uncommitted_file": false,
+      "status": "PASS",
+      "empirical_history_note": "BANK-01's committed executable baseline is synthetic QA. Empirical replay is explicitly blocked by missing full strategy history and historical promotion governance, not by an uncommitted dependency silently required by the certified executable."
+    }
+  ],
+  "conclusion": {
+    "status": "PASS",
+    "baseline_incomplete": false,
+    "stop_condition": null,
+    "statement": "Actual committed source and test entry points exist for CL-01 through CL-04, AL-01 through AL-07, PIPE-01 through PIPE-03 and BANK-01. All local runtime inputs identified for their certified scope are tracked in HEAD."
+  }
+}

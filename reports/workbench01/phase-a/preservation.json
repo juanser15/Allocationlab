@@ -1,0 +1,121 @@
+{
+  "schema_version": "workbench01-preservation-1.0.0",
+  "status": "PASS",
+  "repository": "juanser15/Allocationlab",
+  "branch": "workbench-v1",
+  "required_checkpoint": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+  "observed_head_before": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+  "observed_head_after": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+  "expected_parent": "1163a0b574b573004372a3a2fc8752810dea7ef9",
+  "observed_parent": "1163a0b574b573004372a3a2fc8752810dea7ef9",
+  "head_unchanged": true,
+  "allowed_change_root": "reports/workbench01/phase-a/**",
+  "tracked_tree_preservation": {
+    "scope": "Every one of the 1,689 paths tracked by HEAD. This is a superset of every certified source, test, configuration, dataset and report artifact.",
+    "path_count": 1689,
+    "git_tree_object_before": "81c58c692affcbf4ee9d7d11f024769a4b51c987",
+    "git_tree_object_after": "81c58c692affcbf4ee9d7d11f024769a4b51c987",
+    "content_manifest_algorithm": "For each tracked path in lexical order: path UTF-8, NUL, SHA-256(file bytes) lowercase hex, LF; SHA-256 the concatenation. Symlink bytes are the link target.",
+    "content_manifest_sha256_before": "d289161cc172d4ca4bed3a9e907978c4fb6d94e4f24697620cab79842be83fb5",
+    "content_manifest_sha256_after": "d289161cc172d4ca4bed3a9e907978c4fb6d94e4f24697620cab79842be83fb5",
+    "files_matching_before_hash": 1689,
+    "files_with_changed_hash": 0,
+    "changed_paths": [],
+    "missing_paths": [],
+    "method_note": "The before manifest is the verified checkpoint worktree. At final verification git diff reported no tracked or staged change, every tracked path was present, and the same canonical manifest was recomputed after Phase A. The two equal aggregate hashes record the before/after content identity of every certified file."
+  },
+  "toolchain_file_preservation": {
+    "pnpm_lock_sha256_before": "93e6db6345768119ed2729c407865a7d45a0e3afa623d200662b258d16b75819",
+    "pnpm_lock_sha256_after": "93e6db6345768119ed2729c407865a7d45a0e3afa623d200662b258d16b75819",
+    "package_workspace_manifest_count": 10,
+    "package_workspace_manifest_sha256_before": "c400b329e156081db7bf3b93df02e9942b0eab8de1010af63232f8e46b4ea976",
+    "package_workspace_manifest_sha256_after": "c400b329e156081db7bf3b93df02e9942b0eab8de1010af63232f8e46b4ea976",
+    "package_workspace_paths": [
+      "artifacts/allocation-lab/package.json",
+      "artifacts/api-server/package.json",
+      "artifacts/mockup-sandbox/package.json",
+      "lib/api-client-react/package.json",
+      "lib/api-spec/package.json",
+      "lib/api-zod/package.json",
+      "lib/db/package.json",
+      "package.json",
+      "pnpm-workspace.yaml",
+      "scripts/package.json"
+    ],
+    "lockfile_changed": false,
+    "package_manifest_changed": false,
+    "installation_performed": false
+  },
+  "boundary_checks": {
+    "git_diff_check_exit_code": 0,
+    "tracked_worktree_diff_paths": [],
+    "staged_diff_paths": [],
+    "status_entries": ["?? reports/workbench01/"],
+    "all_status_entries_within_allowed_root": true,
+    "source_files_changed": [],
+    "test_files_changed": [],
+    "certified_datasets_changed": [],
+    "ui_files_added_or_changed": [],
+    "api_files_added_or_changed": [],
+    "deployment_files_added_or_changed": [],
+    "commits_created": 0,
+    "push_performed": false,
+    "deployment_performed": false
+  },
+  "phase_a_evidence": {
+    "files_before_this_preservation_record": 351,
+    "bytes_before_this_preservation_record": 33188801,
+    "evidence_attributes": {
+      "path": "reports/workbench01/phase-a/.gitattributes",
+      "sha256": "22482131edcc45abd32f55da90b1cba67c63cd4318de2bb2e910e893b0933b1f",
+      "rule": "*.csv -diff",
+      "purpose": "Preserve engine-emitted CRLF CSV bytes and their certified hashes while allowing git diff --check to treat the immutable evidence as binary."
+    },
+    "repetition_1": {
+      "files": 165,
+      "full_tree_manifest_sha256": "0d28d148c79962876bca7d0366aef37518ee83861a68c819b2aa98601cb8856c"
+    },
+    "repetition_2": {
+      "files": 165,
+      "full_tree_manifest_sha256": "59359ea0cbb6b9d78cccc88d4054cd1a20e9db7acf4ec501f13bfbcabd84ed0b"
+    },
+    "financial_artifact_manifest_excluding_progress_json_repetition_1": "168921b82aeb09ec9d41559cdd4971c60c2717bf43832e00fa203109980f42a9",
+    "financial_artifact_manifest_excluding_progress_json_repetition_2": "168921b82aeb09ec9d41559cdd4971c60c2717bf43832e00fa203109980f42a9",
+    "test_evidence_files": 5,
+    "test_evidence_manifest_sha256": "ab5caa4880f17a041f47a91b309c02e69ca68de3165bf5d33c36e079cbc0bcd6"
+  },
+  "deliverable_hashes": {
+    "baseline-verification.json": "f10302bdf1ab853e2c638eb46b6b1f7426d93ad0c11f9f4496f3ebc3b2b56632",
+    "capability-map.json": "4973cb5c24fff80375f37ad3ca307e52fa83997fd7a551fc82a0e8ff172171fb",
+    "capability-map.md": "4f6993a592610820adf916dbb22da32f31023664a1ae12470450e42c230ac23e",
+    "selected-path.md": "eeaeca880caabbe56d4f0eb67007cdc9be171f0ec80450f938ffb33106a4127a",
+    "empirical-execution-proof.md": "b5297d09204909d39a81db91dd485279406ddc9ffb1146807da5837e18974599",
+    "run-a-spec.json": "3621fff5b7107933008346d611b19fdc7ef4a914cb28dfa5c3c5880b15f54580",
+    "run-b-spec.json": "d1725a22e101a77e3d55913ad74ff1471b7168b01353b4994534f6a2e40c994f",
+    "run-a-result-summary.json": "58b419a9cd8349c187ee0d33b5d35bca9d3ba25273afaa8cff4ebbee0e2d4261",
+    "run-b-result-summary.json": "2bd78eb4cbd900a7de8ecb7e7333fb5514c632a4ba361c6475741952d67f4c48",
+    "reproducibility.json": "7673999f1c9ce75b7ef2874fc9ab22d7808c592e4d66403632b5a518cfe380a1",
+    "research-run-spec.schema.json": "e3960e42bd865cb7ad2325c22d7ee37af1bad9a4916892abfb3fd2b0e334dea3",
+    "research-run-result.schema.json": "995ad20d1f7fee1a4f60894db524e726691c58e5441b8ac1d799f6b08ec05630",
+    "research-run-contract.md": "2265bf2d5b19059700a53e12c00a62f5ff86bf649a1d8f3264559a37abf82cc2",
+    "blocked-modes.json": "e9011baee6fd9e3ffd8e5884517e57ab1bd2fb484494a794ea56051bd46ac009",
+    "phase-b-scope-recommendation.md": "3ce2a38365fa02c6d889383a877a04085ea526aea62628d4ca41dc04f19dd69e"
+  },
+  "validation": {
+    "all_json_files_parsed_before_this_record": 321,
+    "json_schemas_meta_valid": true,
+    "run_a_spec_schema_valid": true,
+    "run_b_spec_schema_valid": true,
+    "run_a_result_schema_valid": true,
+    "run_b_result_schema_valid": true,
+    "run_id_recomputation_valid": true,
+    "normalized_identity_payload_diff": ["/transaction_cost_bps"],
+    "empirical_local_inputs_checked": 25,
+    "empirical_untracked_inputs": [],
+    "repetition_relative_file_sets_equal": true,
+    "repetition_byte_identical_files": 164,
+    "declared_nondeterministic_files": ["progress.json"],
+    "unexplained_differences": []
+  },
+  "conclusion": "All checkpoint-tracked files, including certified source, tests, datasets, package manifests and lockfile, retain their before hashes. Every new file is under reports/workbench01/phase-a/**."
+}

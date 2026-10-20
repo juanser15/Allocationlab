@@ -1,0 +1,191 @@
+{
+  "passed": 46,
+  "failed": 0,
+  "skipped": 0,
+  "cases": [
+    {
+      "case": "A promoted active strategies reach certified AL05 on exact bank axis",
+      "status": "PASS"
+    },
+    {
+      "case": "B inactive absent from mu Sigma H constraints and output; frozen reasons retained",
+      "status": "PASS"
+    },
+    {
+      "case": "C ACTIVE strategy may receive exactly zero capital and stays in bank",
+      "status": "PASS"
+    },
+    {
+      "case": "D cluster-limited entries remain in immutable promoted bank",
+      "status": "PASS"
+    },
+    {
+      "case": "E same family different markets remains five distinct strategy axes",
+      "status": "PASS"
+    },
+    {
+      "case": "F same underlying remains five return streams; H*a aggregates after allocation",
+      "status": "PASS"
+    },
+    {
+      "case": "G future ActiveSet activation correlation retirement mutation cannot change past result",
+      "status": "PASS"
+    },
+    {
+      "case": "H missing active stream blocks; never shrink or add eligibility to fit catalog",
+      "status": "PASS"
+    },
+    {
+      "case": "I certified allocation cannot mutate bank definition or frozen active artifact",
+      "status": "PASS"
+    },
+    {
+      "case": "J robustness receives exact AL05 result, hash and weights unchanged",
+      "status": "PASS"
+    },
+    {
+      "case": "K RiskMandate exact hash/value unchanged from request to composition and router",
+      "status": "PASS"
+    },
+    {
+      "case": "L internal residual remains separate, no final/global cash for incompatible sleeve",
+      "status": "PASS"
+    },
+    {
+      "case": "M PIPE02 keeps exact primary robustness failure under explicit NO_NEW_TARGET",
+      "status": "PASS"
+    },
+    {
+      "case": "N identical frozen inputs yield identical IDs hashes stages and targets",
+      "status": "PASS"
+    },
+    {
+      "case": "O durable resume: zero duplicate decisions and zero repeated allocator runs",
+      "status": "PASS"
+    },
+    {
+      "case": "P signed H retains algebraic netting, blocked controller and no fake cash",
+      "status": "PASS"
+    },
+    {
+      "case": "Q active-only principal covariance equals independent selected source matrix",
+      "status": "PASS"
+    },
+    {
+      "case": "R inactive positive minimum is infeasible, no constraint relaxation",
+      "status": "PASS"
+    },
+    {
+      "case": "S inactive held capital blocks prior-axis normalization or invented exits",
+      "status": "PASS"
+    },
+    {
+      "case": "T compatible final weights satisfy lambda*q beta and a single cash residue",
+      "status": "PASS"
+    },
+    {
+      "case": "U same q under target beta .3 and .6; only controller changes",
+      "status": "PASS"
+    },
+    {
+      "case": "V no second cash or direct eligibility override accepted",
+      "status": "PASS"
+    },
+    {
+      "case": "W future covariance histories maps and beta versions ignored, never backdated",
+      "status": "PASS"
+    },
+    {
+      "case": "X tampered frozen membership rejected; never silently recalculates BANK clusters",
+      "status": "PASS"
+    },
+    {
+      "case": "Y inactive-only family underlying and asset constraints explicitly projected",
+      "status": "PASS"
+    },
+    {
+      "case": "Z inactive instrument positive floor cannot disappear from implementation constraints",
+      "status": "PASS"
+    },
+    {
+      "case": "AA original source config cannot change objective under same candidate identity",
+      "status": "PASS"
+    },
+    {
+      "case": "AB stage order ties active set to PIPE01 and router without execution",
+      "status": "PASS"
+    },
+    {
+      "case": "AC no promotion: valid new target is mechanically certified but router retains missing approval",
+      "status": "PASS"
+    },
+    {
+      "case": "AD resume preserves failed decisions without allocator retry",
+      "status": "PASS"
+    },
+    {
+      "case": "AE relevant old snapshot or code change conflicts with completed decision",
+      "status": "PASS"
+    },
+    {
+      "case": "AF corrupt durable record never consumed silently",
+      "status": "PASS"
+    },
+    {
+      "case": "AG frozen strategy gates and mandate metadata cannot advance decision cutoff",
+      "status": "PASS"
+    },
+    {
+      "case": "AH future registry records cannot rewrite past routing result",
+      "status": "PASS"
+    },
+    {
+      "case": "AI input/strategy ordering cannot change economic allocations or target",
+      "status": "PASS"
+    },
+    {
+      "case": "AJ independent inverse-variance oracle on active strategy return space",
+      "status": "PASS"
+    },
+    {
+      "case": "AK independent ERC diagonal oracle 1/sigma with equal contributions",
+      "status": "PASS"
+    },
+    {
+      "case": "AL independent equal-capital oracle and exact normalized risk identity",
+      "status": "PASS"
+    },
+    {
+      "case": "AM constraint-blocked decisions still persist bank exclusions and approval state",
+      "status": "PASS"
+    },
+    {
+      "case": "AN frozen preapproved PIPE02 control returns exact original target; no new approval",
+      "status": "PASS"
+    },
+    {
+      "case": "AO interrupted resume at zero one half and final decision has no duplicates",
+      "status": "PASS"
+    },
+    {
+      "case": "AP failed boundary record also binds actual invalid historical input identity",
+      "status": "PASS"
+    },
+    {
+      "case": "AQ resealing an edited ActiveSet cannot impersonate the frozen source record",
+      "status": "PASS"
+    },
+    {
+      "case": "AR false source SHA cannot attest a valid-looking ActiveSet payload",
+      "status": "PASS"
+    },
+    {
+      "case": "AS governance target certificate references fixed source configuration not daily compiled ID",
+      "status": "PASS"
+    },
+    {
+      "case": "AT source configuration must explicitly bind certified BANK policy and version",
+      "status": "PASS"
+    }
+  ]
+}

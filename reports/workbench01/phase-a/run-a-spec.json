@@ -1,0 +1,142 @@
+{
+  "$schema": "./research-run-spec.schema.json",
+  "contract_version": "workbench-research-run-spec-1.0.0-draft",
+  "run_id": "rr_c79425cd86a09cb3e781cb321e0a214bdb0656aad55b385f840ccc8db9dd0b26",
+  "created_at": "2026-10-20T11:22:49Z",
+  "research_mode": "CAPITAL_MARKET_EXPOSURE",
+  "execution_scope": "EMPIRICAL",
+  "universe": {
+    "operated": ["SPY"],
+    "information": ["XLK", "XLC", "XLRE", "XLI", "XLY", "XLF", "XLU", "XLE", "XLV", "XLB", "EEM", "EWJ", "AAXJ", "EWG", "EUFN", "SPY", "GLD", "TLT", "IEF", "VNQ", "EFA", "DBC"],
+    "user_change_supported": true,
+    "support_note": "The Campaign contract accepts risk_asset and reference_universe. This proof uses the committed acceptance configuration unchanged."
+  },
+  "start_date": "2020-01-01",
+  "end_date": "2024-01-01",
+  "information_cutoff_policy": {
+    "signal_rule": "Every market row supplied to predict has row.date < signalDate.",
+    "execution_rule": "next_close",
+    "fit_rule": "Fit rows are bounded by [training_start, training_end); the fitted model is frozen through each OOS fold.",
+    "data_vintage_status": "NOT_INDEPENDENTLY_ESTABLISHED",
+    "pit_label": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED"
+  },
+  "benchmark": "NOT_SUPPORTED",
+  "strategy_or_allocator_id": "capital-research-grid-selector",
+  "strategy_or_allocator_version": "capital-research-1.0.1",
+  "parameters": {
+    "saved_configuration_reference": {
+      "path": "configs/capital-research/acceptance-traditional.json",
+      "sha256": "9ad484bc22d2120f583b08fe1a951d22ddb34525f8c89feee28a813a336c1c64"
+    },
+    "backend_experiment_id": "cl03-acceptance-traditional",
+    "search_method": "grid",
+    "candidate_budget": 200,
+    "candidate_space": [
+      {
+        "base": {
+          "model_family": "current_regime",
+          "input_set": ["XLK", "XLC", "XLRE", "XLI", "XLY", "XLF", "XLU", "XLE", "XLV", "XLB", "EEM", "EWJ", "AAXJ", "EWG", "EUFN", "SPY", "GLD", "TLT", "IEF", "VNQ", "EFA", "DBC"],
+          "transformations": [{"name": "identity"}],
+          "model_parameters": {"lookback_rows": 252},
+          "exposure_policy": "cash_band",
+          "exposure_parameters": {"cash_min": 0.1, "cash_max": 0.2}
+        },
+        "axes": {
+          "exposure_parameters.cash_min": [0.1, 0.2],
+          "exposure_parameters.cash_max": [0.2, 0.4]
+        }
+      },
+      {
+        "base": {
+          "model_family": "current_regime",
+          "input_set": ["XLK", "XLC", "XLRE", "XLI", "XLY", "XLF", "XLU", "XLE", "XLV", "XLB", "EEM", "EWJ", "AAXJ", "EWG", "EUFN", "SPY", "GLD", "TLT", "IEF", "VNQ", "EFA", "DBC"],
+          "transformations": [{"name": "identity"}],
+          "model_parameters": {"lookback_rows": 252},
+          "exposure_policy": "constant",
+          "exposure_parameters": {"risk": 1}
+        }
+      }
+    ],
+    "model_family": "current_regime",
+    "model_version": "production-regime-adapter-1",
+    "model_parameters": {"lookback_rows": 252},
+    "transformations": [{"name": "identity"}],
+    "exposure_policies": {
+      "cash_band": "current-cash-policy-1",
+      "constant": "fixed-risk-policy-1"
+    },
+    "candidate_space_hash": "f6c6316d66c14f03ec9f3ce583ee6cef6bf5d427aa46fbbd37da06372f4a7d72",
+    "selection_metric": "net_sharpe",
+    "selection_cost_bps": 5,
+    "backend_cost_scenarios_bps": [0, 5],
+    "cash_yield_daily": 0,
+    "reference_yield_daily": 0,
+    "slippage_bps": 0,
+    "initial_nav_per_fold": 100,
+    "inner_validation_clock": {"train_months": 12, "test_months": 6, "step_months": 6, "status_for_traditional_run": "CONFIGURED_BUT_NOT_USED"},
+    "warmup_rows": 252,
+    "max_jobs": 2000,
+    "shorting": false,
+    "leverage": false
+  },
+  "rebalance_frequency": "monthly",
+  "transaction_cost_bps": 0,
+  "expected_return_method": "NOT_APPLICABLE",
+  "covariance_method": "NOT_APPLICABLE",
+  "risk_mandate": "NOT_APPLICABLE",
+  "constraints": {
+    "max_turnover_annualized": 8,
+    "max_drawdown_absolute": 0.6,
+    "min_mean_beginning_risky_exposure": 0,
+    "max_mean_beginning_risky_exposure": 1
+  },
+  "validation_protocol": {
+    "mode": "traditional",
+    "window_type": "rolling",
+    "selection_basis": "training scores at 5 bps",
+    "outer_oos_aggregation": "Concatenate two independent validation sleeves by daily return; each sleeve starts NAV=100 cash.",
+    "outer_folds": [
+      {"outer_fold": 0, "training_start": "2020-01-01", "training_end_exclusive": "2022-01-01", "outer_oos_start": "2022-01-01", "outer_oos_end_exclusive": "2023-01-01"},
+      {"outer_fold": 1, "training_start": "2021-01-01", "training_end_exclusive": "2023-01-01", "outer_oos_start": "2023-01-01", "outer_oos_end_exclusive": "2024-01-01"}
+    ]
+  },
+  "walk_forward_configuration": {
+    "train_months": 24,
+    "test_months": 12,
+    "step_months": 12,
+    "recalibration_frequency": "monthly",
+    "overlapping_tests": false
+  },
+  "random_seed": "NOT_APPLICABLE",
+  "data_snapshot": {
+    "snapshot_id": "cl02-adjusted-closes-b4a4fa0e0ddb",
+    "path": "reports/cl02/adjusted-closes.csv",
+    "sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+    "parsed_data_hash": "f7436db75e7c6ed35938e6248c48c162c051cd8a99457a5c386910b36f6c743e",
+    "observations": 4023,
+    "coverage_start": "2010-10-01",
+    "coverage_end": "2026-09-30",
+    "as_of": "2026-10-13T13:36:42.846Z",
+    "as_of_status": "AVAILABLE_EXTERNAL_METADATA_NOT_ENGINE_BOUND",
+    "price_convention": "adjusted close",
+    "provenance_status": "VENDOR_AUTHENTICITY_UNVERIFIED"
+  },
+  "engine_versions": {
+    "capital_engine": "capital-research-1.0.1",
+    "model_current_regime": "production-regime-adapter-1",
+    "policy_cash_band": "current-cash-policy-1",
+    "policy_constant": "fixed-risk-policy-1",
+    "code_hash": "94a2c94f0cf7a096865a7d5a8284aa1141f23b62a49685e8d3e3502afd830dcf"
+  },
+  "code_commit": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+  "requested_by": "ALLOCATION_LAB_WORKBENCH_01_OWNER",
+  "storage_policy": {
+    "kind": "IMMUTABLE_LOCAL_EVIDENCE",
+    "campaign_roots": [
+      "reports/workbench01/phase-a/executions/repetition-1",
+      "reports/workbench01/phase-a/executions/repetition-2"
+    ],
+    "scenario_selector": "DERIVED_FROM_TRANSACTION_COST_BPS",
+    "reuse_policy": "No shared cache between repetitions; immutable artifacts reject identity mismatch."
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "$schema": "./research-run-result.schema.json",
+  "contract_version": "workbench-research-run-result-1.0.0-draft",
+  "run_id": "rr_c79425cd86a09cb3e781cb321e0a214bdb0656aad55b385f840ccc8db9dd0b26",
+  "status": "SUCCESS",
+  "started_at": "FUTURE_NOT_IMPLEMENTED",
+  "completed_at": "FUTURE_NOT_IMPLEMENTED",
+  "input_spec_reference": "reports/workbench01/phase-a/run-a-spec.json",
+  "stage": "OUTER_OOS_AGGREGATE",
+  "result_artifacts": [
+    {"path": "reports/workbench01/phase-a/executions/repetition-1/summary.json", "sha256": "b28ba1863c9c7273b67666b882b1ce2673235c44f81ae583b7b342cb0425ec5c", "selector": "outer_oos[scenario=0]"},
+    {"path": "reports/workbench01/phase-a/executions/repetition-1/oos-equity.csv", "sha256": "b7ff17df18b60dee9c8aca8fc0173d0eadcb167c61009480f93e8928309552e0", "selector": "scenario=0", "selected_rows_sha256": "7e743b11a56f143c7851ec5c612e6412421d9a06dc1fd0ab14a82df0ad2ba472"},
+    {"path": "reports/workbench01/phase-a/executions/repetition-1/oos-ledger.csv", "sha256": "98161b9a1721f0ebf14949fde6c5c651c91744515cadb40eb894d875887feeaf", "selector": "scenario=0", "selected_rows_sha256": "2b490559834cd08baeb4f0f5f4135a887b31eaaaf5c4de0acf52e6fb64b77ba1"},
+    {"path": "reports/workbench01/phase-a/executions/repetition-1/selected-by-fold.csv", "sha256": "a7e02d51dc1fc5d01efc476e2665b36ea1f153cb03ef32fea94a7ae5d89904bf"}
+  ],
+  "metrics": {
+    "observations": 501,
+    "cagr": 0.035854467043460625,
+    "net_sharpe": 0.30496407414649523,
+    "max_drawdown": -0.191148358059128,
+    "return_drawdown_ratio": 0.18757402578561386,
+    "annualized_volatility": 0.1546685294257783,
+    "gross_turnover": 2.321457669865068,
+    "annualized_turnover": 1.1676793069979983,
+    "mean_beginning_risky_exposure": 0.8566549034132027,
+    "final_research_index": 107.25445949277757,
+    "economic_claim": "NONE"
+  },
+  "time_series": {
+    "status": "AVAILABLE",
+    "artifact": "reports/workbench01/phase-a/executions/repetition-1/oos-equity.csv",
+    "selector": "scenario=0",
+    "observations": 501,
+    "sha256": "7e743b11a56f143c7851ec5c612e6412421d9a06dc1fd0ab14a82df0ad2ba472"
+  },
+  "weights_or_positions": {
+    "status": "AVAILABLE_AT_DAILY_LEDGER_LEVEL",
+    "artifact": "reports/workbench01/phase-a/executions/repetition-1/oos-ledger.csv",
+    "selector": "scenario=0",
+    "meaning": "Beginning/ending SPY positions and cash in independent OOS sleeves; these are not final multi-asset NAV weights."
+  },
+  "trades_or_rebalances": {
+    "status": "AVAILABLE_AT_DAILY_LEDGER_LEVEL",
+    "artifact": "reports/workbench01/phase-a/executions/repetition-1/oos-ledger.csv",
+    "selector": "scenario=0",
+    "execution": "next_close"
+  },
+  "costs": {
+    "transaction_cost_bps": 0,
+    "total_actual_notional_cost": 0,
+    "slippage_bps": 0,
+    "gross_and_net_distinction": "Net equals gross only because the explicitly stored transaction cost is zero."
+  },
+  "risk_diagnostics": {
+    "max_drawdown": -0.191148358059128,
+    "annualized_volatility": 0.1546685294257783,
+    "mean_beginning_risky_exposure": 0.8566549034132027,
+    "expected_beta": "NOT_SUPPORTED",
+    "realized_beta": "NOT_SUPPORTED"
+  },
+  "validation_diagnostics": {
+    "mode": "traditional",
+    "outer_folds": 2,
+    "selected_candidates": ["c_8bd28f4f8b5e8e7d2077e17c", "c_aa16f813288e415fae34648c"],
+    "job_hashes": ["a8fb23f245e6ffe5a310f469437083a5ec30f2cb8fdbaa9865d0c68f3f028ebb", "395197080db418ddc362b9c98ce4a20a627a2fb19a0703dadaf3a93f2b90f74f"],
+    "result_hashes": ["492d17d3ea8e526907559c10a8b695fba0baa497a0be86cc4460a8a63c19c4a5", "3e6b699de23c371bbc3b0a5b201777bc62591bf863056944164ac488cb5c1bbf"],
+    "outer_job_bundle_sha256": "850e93805d5d112a462410290739a572ecb685ca81b528bacb7e9c0c8eea3069",
+    "dsr": "NOT_SUPPORTED",
+    "pit_diagnostics": {
+      "label": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+      "decision_date": "Per prediction/target record; represented by signalDate in execution evidence.",
+      "information_cutoff": "Per prediction cache record; required to be strictly earlier than signalDate.",
+      "decision_records_checked": 528,
+      "information_cutoff_violations": 0,
+      "fit_cutoff_violations": 0,
+      "fold_intervals": [
+        {"outer_fold": 0, "training_start": "2020-01-01", "training_end_exclusive": "2022-01-01", "validation_start": "NOT_APPLICABLE", "validation_end_exclusive": "NOT_APPLICABLE", "outer_oos_start": "2022-01-01", "outer_oos_end_exclusive": "2023-01-01"},
+        {"outer_fold": 1, "training_start": "2021-01-01", "training_end_exclusive": "2023-01-01", "validation_start": "NOT_APPLICABLE", "validation_end_exclusive": "NOT_APPLICABLE", "outer_oos_start": "2023-01-01", "outer_oos_end_exclusive": "2024-01-01"}
+      ],
+      "data_snapshot_as_of": "2026-10-13T13:36:42.846Z",
+      "data_snapshot_as_of_status": "AVAILABLE_EXTERNAL_METADATA_NOT_ENGINE_BOUND",
+      "pit_mechanics_status": "VERIFIED_STRICT_CUTOFF",
+      "pit_data_status": "BLOCKED_MISSING_HISTORICAL_DATA_AVAILABILITY",
+      "promotion_state_as_of": "NOT_APPLICABLE",
+      "activation_state_as_of": "NOT_APPLICABLE"
+    }
+  },
+  "warnings": [
+    "Frozen adjusted-close observations are empirical, but vendor authenticity and point-in-time data vintage are not independently verified.",
+    "Traditional candidate selection uses training scores; it is not inner-OOS model selection.",
+    "Outer folds are independent sleeves reset to NAV 100; the aggregate index is not a continuous carried-position account.",
+    "No benchmark-relative alpha or significance claim is supported."
+  ],
+  "blockers": [],
+  "error_class": null,
+  "error_message": null,
+  "provenance": {
+    "code_commit": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+    "code_hash": "94a2c94f0cf7a096865a7d5a8284aa1141f23b62a49685e8d3e3502afd830dcf",
+    "data_sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+    "parsed_data_hash": "f7436db75e7c6ed35938e6248c48c162c051cd8a99457a5c386910b36f6c743e",
+    "experiment_hash": "803c0c5bbe79c9d47a72f7a22a6709b82a00eb34c5e83d79b44b9f988bc6ceef",
+    "engine_version": "capital-research-1.0.1"
+  },
+  "reproducibility": {
+    "status": "PASS",
+    "repeat_root": "reports/workbench01/phase-a/executions/repetition-2",
+    "same_run_identity": true,
+    "same_job_hashes": true,
+    "same_result_hashes": true,
+    "same_time_series_hash": true,
+    "same_ledger_hash": true,
+    "same_metrics": true,
+    "nondeterministic_fields": ["progress.telemetry.elapsed_ms", "progress.telemetry.peak_rss_kib"]
+  },
+  "execution": {
+    "exit_code": 0,
+    "runtime_ms_repetition_1": 29065,
+    "runtime_ms_repetition_2": 29271,
+    "whole_campaign_new_jobs_each_repetition": 24,
+    "whole_campaign_reused_jobs_each_repetition": 0
+  }
+}

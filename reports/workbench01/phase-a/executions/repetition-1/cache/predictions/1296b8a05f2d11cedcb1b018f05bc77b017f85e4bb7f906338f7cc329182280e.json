@@ -1,0 +1,129 @@
+{
+  "key": "1296b8a05f2d11cedcb1b018f05bc77b017f85e4bb7f906338f7cc329182280e",
+  "parts": {
+    "cache_contract": "capital-research-1.0.1",
+    "fitted_key": "deaa1d7993cf00dfd67fc146d4f5df4ee654b7f790ae8c8ad9cf4d9e2c4c31c2",
+    "data_hash": "f5b4950e043771dd826062e95afcabe937148cd49291d27386cb2bce9a0e1c71",
+    "model_family": "current_regime",
+    "model_parameters": {
+      "lookback_rows": 252
+    },
+    "input_set": [
+      "XLK",
+      "XLC",
+      "XLRE",
+      "XLI",
+      "XLY",
+      "XLF",
+      "XLU",
+      "XLE",
+      "XLV",
+      "XLB",
+      "EEM",
+      "EWJ",
+      "AAXJ",
+      "EWG",
+      "EUFN",
+      "SPY",
+      "GLD",
+      "TLT",
+      "IEF",
+      "VNQ",
+      "EFA",
+      "DBC"
+    ],
+    "transformations": [
+      {
+        "name": "identity"
+      }
+    ],
+    "information_cutoff": "2021-01-29",
+    "market_information_hash": "f5b4950e043771dd826062e95afcabe937148cd49291d27386cb2bce9a0e1c71"
+  },
+  "value": {
+    "state": {
+      "trend": 64.55,
+      "breadth": 40.91,
+      "volatility": 38.42,
+      "liquidity": 63.76,
+      "composite": 51.99,
+      "label": "Neutral",
+      "components": [
+        {
+          "key": "trend",
+          "label": "Trend",
+          "score": 64.55,
+          "method": "computed",
+          "description": "11/22 ETFs above 50d MA; 19/22 above 200d MA"
+        },
+        {
+          "key": "breadth",
+          "label": "Breadth",
+          "score": 40.91,
+          "method": "computed",
+          "description": "9 advancing vs 13 declining over 20 days"
+        },
+        {
+          "key": "volatility",
+          "label": "Volatility",
+          "score": 38.42,
+          "method": "computed",
+          "description": "Avg 20d realized vol: 20.4% annualized (lower = better)"
+        },
+        {
+          "key": "liquidity",
+          "label": "Liquidity",
+          "score": 63.76,
+          "method": "computed",
+          "description": "Proxy via short-term cross-sectional return dispersion (lower = tighter spreads)"
+        },
+        {
+          "key": "credit",
+          "label": "Credit",
+          "score": 49.32,
+          "method": "proxy",
+          "description": "XLF 20d momentum relative to universe median"
+        },
+        {
+          "key": "commodities",
+          "label": "Commodities",
+          "score": 59.36,
+          "method": "proxy",
+          "description": "XLE + XLB relative strength vs universe"
+        },
+        {
+          "key": "cross_asset",
+          "label": "Cross-Asset Confirmation",
+          "score": 56.13,
+          "method": "proxy",
+          "description": "Avg pairwise 20d return correlation: moderate"
+        },
+        {
+          "key": "dollar",
+          "label": "Dollar",
+          "score": null,
+          "method": "unavailable",
+          "description": "Requires FX price data (DXY/UUP). Not in current price upload."
+        },
+        {
+          "key": "rates",
+          "label": "Rates",
+          "score": null,
+          "method": "unavailable",
+          "description": "Requires Treasury yield data (IEF, TLT). Not in current price upload."
+        },
+        {
+          "key": "earnings_revision",
+          "label": "Earnings Revision",
+          "score": null,
+          "method": "unavailable",
+          "description": "Requires EPS consensus data. Not derivable from prices."
+        }
+      ],
+      "confidence": 100,
+      "drivers": "Headwinds from Volatility."
+    },
+    "score": 0.5199
+  },
+  "value_hash": "7b9f4e15df80a3d04d10aa5894747f8ef866bbef146146977ff80d4a89caf972"
+}

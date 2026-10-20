@@ -1,0 +1,95 @@
+[
+  {
+    "base": {
+      "model_family": "current_regime",
+      "input_set": [
+        "XLK",
+        "XLC",
+        "XLRE",
+        "XLI",
+        "XLY",
+        "XLF",
+        "XLU",
+        "XLE",
+        "XLV",
+        "XLB",
+        "EEM",
+        "EWJ",
+        "AAXJ",
+        "EWG",
+        "EUFN",
+        "SPY",
+        "GLD",
+        "TLT",
+        "IEF",
+        "VNQ",
+        "EFA",
+        "DBC"
+      ],
+      "transformations": [
+        {
+          "name": "identity"
+        }
+      ],
+      "model_parameters": {
+        "lookback_rows": 252
+      },
+      "exposure_policy": "cash_band",
+      "exposure_parameters": {
+        "cash_min": 0.1,
+        "cash_max": 0.2
+      }
+    },
+    "axes": {
+      "exposure_parameters.cash_min": [
+        0.1,
+        0.2
+      ],
+      "exposure_parameters.cash_max": [
+        0.2,
+        0.4
+      ]
+    }
+  },
+  {
+    "base": {
+      "model_family": "current_regime",
+      "input_set": [
+        "XLK",
+        "XLC",
+        "XLRE",
+        "XLI",
+        "XLY",
+        "XLF",
+        "XLU",
+        "XLE",
+        "XLV",
+        "XLB",
+        "EEM",
+        "EWJ",
+        "AAXJ",
+        "EWG",
+        "EUFN",
+        "SPY",
+        "GLD",
+        "TLT",
+        "IEF",
+        "VNQ",
+        "EFA",
+        "DBC"
+      ],
+      "transformations": [
+        {
+          "name": "identity"
+        }
+      ],
+      "model_parameters": {
+        "lookback_rows": 252
+      },
+      "exposure_policy": "constant",
+      "exposure_parameters": {
+        "risk": 1
+      }
+    }
+  }
+]

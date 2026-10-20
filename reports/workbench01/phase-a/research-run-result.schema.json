@@ -1,0 +1,408 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://allocation-lab.local/contracts/research-run-result.schema.json",
+  "title": "Allocation Lab ResearchRunResult",
+  "description": "Phase A result envelope derived from committed backend behavior. Every output family is required; an unavailable family must carry an explicit sentinel or blocker instead of disappearing.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "run_id",
+    "status",
+    "started_at",
+    "completed_at",
+    "input_spec_reference",
+    "stage",
+    "result_artifacts",
+    "metrics",
+    "time_series",
+    "weights_or_positions",
+    "trades_or_rebalances",
+    "costs",
+    "risk_diagnostics",
+    "validation_diagnostics",
+    "warnings",
+    "blockers",
+    "error_class",
+    "error_message",
+    "provenance",
+    "reproducibility"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Schema locator; display metadata excluded from run identity.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Phase A evidence adapter",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "contract_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Version of this result envelope, not the financial engine version.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Phase A evidence adapter",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^rr_[0-9a-f]{64}$",
+      "description": "Identity of the normalized ResearchRunSpec whose result this is.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "SHA-256 identity defined in research-run-contract.md",
+      "x-current-support-status": "FUTURE_NOT_IMPLEMENTED_IN_BACKEND; PHASE_A_CONTRACT_PROOF_ONLY"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PENDING", "RUNNING", "SUCCESS", "FAILED", "BLOCKED"],
+      "description": "Terminal or in-progress execution state. SUCCESS describes mechanics only and is not an economic endorsement.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Capital campaign/job status translated by the evidence adapter",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "started_at": {
+      "$ref": "#/$defs/executionTimestamp",
+      "description": "Execution start time, or an explicit backend limitation sentinel.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Backend execution telemetry",
+      "x-current-support-status": "FUTURE_NOT_IMPLEMENTED"
+    },
+    "completed_at": {
+      "$ref": "#/$defs/executionTimestamp",
+      "description": "Execution completion time, or an explicit backend limitation sentinel.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Backend execution telemetry",
+      "x-current-support-status": "FUTURE_NOT_IMPLEMENTED"
+    },
+    "input_spec_reference": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Immutable reference to the normalized ResearchRunSpec.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Evidence artifact path",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "stage": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Most specific backend stage represented by this envelope.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Capital job stage or audited module stage",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "result_artifacts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/artifactReference" },
+      "description": "Auditable output artifacts. An empty array is valid only when blockers or errors explain the absence.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Persisted campaign/job files",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "metrics": {
+      "oneOf": [
+        { "$ref": "#/$defs/explicitUnavailable" },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": ["number", "string", "null"]
+          }
+        }
+      ],
+      "description": "Mode-specific metrics with units and meanings defined by the producing engine; unsupported metrics use an explicit sentinel.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "research/capital/metrics.ts or the selected module result contract",
+      "x-current-support-status": "SUPPORTED_WITH_MODE_SPECIFIC_FIELDS"
+    },
+    "time_series": {
+      "oneOf": [
+        { "$ref": "#/$defs/explicitUnavailable" },
+        { "$ref": "#/$defs/timeSeriesReference" }
+      ],
+      "description": "Research index or other dated series, distinguished from static metrics.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Capital oos-equity.csv for the proven path",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "weights_or_positions": {
+      "oneOf": [
+        { "$ref": "#/$defs/explicitUnavailable" },
+        { "$ref": "#/$defs/ledgerReference" }
+      ],
+      "description": "Dated risky-sleeve weights or actual NAV positions; the meaning property must identify which one is supplied.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Capital oos-ledger.csv for the proven path",
+      "x-current-support-status": "SUPPORTED_WITH_LIMITS"
+    },
+    "trades_or_rebalances": {
+      "oneOf": [
+        { "$ref": "#/$defs/explicitUnavailable" },
+        { "$ref": "#/$defs/tradeReference" }
+      ],
+      "description": "Executed trades or target rebalance events, including the execution convention.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Backtest daily ledger and rebalance records",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "costs": {
+      "oneOf": [
+        { "$ref": "#/$defs/explicitUnavailable" },
+        { "$ref": "#/$defs/costResult" }
+      ],
+      "description": "Explicit cost assumption and realized cost totals; zero is a recorded numeric value, never an omitted default.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Backtest actual-notional fee ledger",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "risk_diagnostics": {
+      "oneOf": [
+        { "$ref": "#/$defs/explicitUnavailable" },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "number" },
+              { "type": "string" },
+              { "type": "null" }
+            ]
+          }
+        }
+      ],
+      "description": "Mode-specific drawdown, volatility, exposure, beta, or mandate diagnostics. Expected and realized beta remain separate fields when available.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Selected engine metrics and risk diagnostics",
+      "x-current-support-status": "SUPPORTED_WITH_LIMITS"
+    },
+    "validation_diagnostics": {
+      "oneOf": [
+        { "$ref": "#/$defs/explicitUnavailable" },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": true
+        }
+      ],
+      "description": "Diagnostics for in-sample, validation/inner-OOS, and outer-OOS stages without merging those stages.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Capital selection, job hashes, fold results, and PIT evidence",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Non-fatal limitations that constrain interpretation.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Backend warnings plus evidence-adapter qualification",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "type": "string", "pattern": "^BLOCKED_[A-Z0-9_]+$" },
+          { "$ref": "#/$defs/blocker" }
+        ]
+      },
+      "description": "Exact reasons execution or interpretation is blocked. SUCCESS normally has an empty array.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Engine reason codes and audited blocker registry",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "error_class": {
+      "type": ["string", "null"],
+      "description": "Stable error category for FAILED results; null otherwise.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Caught execution error class",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "error_message": {
+      "type": ["string", "null"],
+      "description": "Human-readable execution error for FAILED results; null otherwise.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Caught execution error message",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance",
+      "description": "Code, data, engine, and campaign identities needed to audit the result.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Campaign manifest, config, Git, and data hashes",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "reproducibility": {
+      "oneOf": [
+        { "$ref": "#/$defs/explicitUnavailable" },
+        { "$ref": "#/$defs/reproducibility" }
+      ],
+      "description": "Repeat-run comparison, including named nondeterministic telemetry fields.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Independent campaign roots and artifact hashes",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["number", "string", "boolean", "null"]
+      },
+      "description": "Optional process evidence such as exit code, runtime, and new/reused job counts; excluded from run identity.",
+      "x-source": "DERIVED",
+      "x-backend-mapping": "Shell and progress telemetry",
+      "x-current-support-status": "SUPPORTED"
+    }
+  },
+  "$defs": {
+    "explicitUnavailable": {
+      "type": "string",
+      "oneOf": [
+        { "enum": ["NOT_SUPPORTED", "NOT_APPLICABLE", "FUTURE_NOT_IMPLEMENTED"] },
+        { "pattern": "^BLOCKED_MISSING_[A-Z0-9_]+$" }
+      ]
+    },
+    "executionTimestamp": {
+      "oneOf": [
+        { "type": "string", "format": "date-time", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T.*(?:Z|[+-][0-9]{2}:[0-9]{2})$" },
+        { "type": "string", "enum": ["FUTURE_NOT_IMPLEMENTED", "NOT_APPLICABLE"] }
+      ]
+    },
+    "artifactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "selector": { "type": "string", "minLength": 1 },
+        "selected_rows_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "media_type": { "type": "string", "minLength": 1 }
+      }
+    },
+    "timeSeriesReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "artifact", "observations", "sha256"],
+      "properties": {
+        "status": { "type": "string", "enum": ["AVAILABLE"] },
+        "artifact": { "type": "string", "minLength": 1 },
+        "selector": { "type": "string", "minLength": 1 },
+        "observations": { "type": "integer", "minimum": 0 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "meaning": { "type": "string", "minLength": 1 }
+      }
+    },
+    "ledgerReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "artifact", "meaning"],
+      "properties": {
+        "status": { "type": "string", "enum": ["AVAILABLE", "AVAILABLE_AT_DAILY_LEDGER_LEVEL"] },
+        "artifact": { "type": "string", "minLength": 1 },
+        "selector": { "type": "string", "minLength": 1 },
+        "meaning": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "tradeReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "artifact", "execution"],
+      "properties": {
+        "status": { "type": "string", "enum": ["AVAILABLE", "AVAILABLE_AT_DAILY_LEDGER_LEVEL"] },
+        "artifact": { "type": "string", "minLength": 1 },
+        "selector": { "type": "string", "minLength": 1 },
+        "execution": { "type": "string", "enum": ["same_close", "next_close", "next_open"] },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "costResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transaction_cost_bps", "total_actual_notional_cost", "slippage_bps", "gross_and_net_distinction"],
+      "properties": {
+        "transaction_cost_bps": { "type": "number", "minimum": 0 },
+        "total_actual_notional_cost": { "type": "number", "minimum": 0 },
+        "slippage_bps": { "type": "number", "minimum": 0 },
+        "gross_and_net_distinction": { "type": "string", "minLength": 1 }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "explanation", "missing", "what_remains_valid", "cannot_conclude", "minimum_remediation"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^BLOCKED_[A-Z0-9_]+$" },
+        "explanation": { "type": "string", "minLength": 1 },
+        "missing": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "what_remains_valid": { "type": "string", "minLength": 1 },
+        "cannot_conclude": { "type": "string", "minLength": 1 },
+        "minimum_remediation": { "type": "string", "minLength": 1 }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "number", "boolean", "null"]
+      },
+      "required": ["code_commit", "code_hash", "data_sha256", "engine_version"],
+      "properties": {
+        "code_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "code_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "data_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "parsed_data_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "experiment_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "engine_version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "reproducibility": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "boolean" },
+          { "type": "number" },
+          { "type": "null" },
+          { "type": "array", "items": { "type": "string" } }
+        ]
+      },
+      "required": ["status", "same_run_identity", "nondeterministic_fields"],
+      "properties": {
+        "status": { "type": "string", "enum": ["PASS", "FAIL", "NOT_RUN"] },
+        "repeat_root": { "type": "string", "minLength": 1 },
+        "same_run_identity": { "type": "boolean" },
+        "same_job_hashes": { "type": "boolean" },
+        "same_result_hashes": { "type": "boolean" },
+        "same_time_series_hash": { "type": "boolean" },
+        "same_ledger_hash": { "type": "boolean" },
+        "same_metrics": { "type": "boolean" },
+        "nondeterministic_fields": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "SUCCESS" } }, "required": ["status"] },
+      "then": {
+        "properties": {
+          "error_class": { "type": "null" },
+          "error_message": { "type": "null" },
+          "blockers": { "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "FAILED" } }, "required": ["status"] },
+      "then": {
+        "properties": {
+          "error_class": { "type": "string", "minLength": 1 },
+          "error_message": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "BLOCKED" } }, "required": ["status"] },
+      "then": { "properties": { "blockers": { "minItems": 1 } } }
+    }
+  ],
+  "x-no-silent-output-policy": "Every required output family must be an object/array or the exact sentinel NOT_SUPPORTED, NOT_APPLICABLE, FUTURE_NOT_IMPLEMENTED, or BLOCKED_MISSING_<REASON>.",
+  "x-current-empirical-mapping": "research/capital/engine.ts runCampaign outputs plus research/capital/metrics.ts and persisted CSV/JSON artifacts"
+}

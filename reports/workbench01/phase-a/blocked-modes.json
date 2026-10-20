@@ -1,0 +1,107 @@
+{
+  "schema_version": "workbench01-blocked-modes-1.0.0",
+  "as_of_commit": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+  "principle": "A mechanical synthetic certification or frozen replay remains valid within its stated scope, but it is not promoted to an empirical configurable capability.",
+  "blocked_modes": [
+    {
+      "mode": "Empirical factor allocation and FACTORS end-to-end pipeline",
+      "blocker_code": "BLOCKED_MISSING_CANONICAL_FACTOR_ARTIFACTS",
+      "human_explanation": "The repository has a certified factor implementation engine, but no complete dated stream of economic factor targets, tradable FACTORS_BY_ASSETS loadings, factor covariance, specific risk and tracking metric available at each historical decision.",
+      "missing_data_artifact_contract": ["dated FactorExposureTarget", "dated tradable loading matrix B", "compatible Phi", "explicit D", "tracking metric", "publication/availability metadata for each decision"],
+      "what_remains_valid": "AL-04 synthetic optimization, validation, PIT selector mechanics, sensitivities and independent numerical certification.",
+      "what_cannot_be_concluded": "No empirical factor backtest, factor allocation history, factor alpha, historical gate outcome or end-to-end factor portfolio result can be claimed.",
+      "minimum_remediation": "Commit a versioned, hashed, complete PIT factor-artifact history with units, axes, provenance and availability timestamps, then execute the existing allocator and validation orchestration without substituting feature definitions for economic factor portfolios.",
+      "evidence_paths": ["reports/AL04_factor_mapping.md", "reports/AL04_factor_allocation.md", "reports/AL07_allocation_research_engine.md"]
+    },
+    {
+      "mode": "Empirical strategy-stream allocation",
+      "blocker_code": "BLOCKED_MISSING_CANONICAL_ALPHA_STREAM_ARTIFACTS",
+      "human_explanation": "The strategy allocator requires canonical strategy-instance histories and dated position maps. The available legacy response is one short current snapshot and two preparation bundles are Git LFS pointers, not usable committed payloads.",
+      "missing_data_artifact_contract": ["complete NET strategy unit-NAV histories", "dated position maps", "versioned definitions/configurations", "PIT covariance/expected-return/beta/risk bundles", "availability metadata"],
+      "what_remains_valid": "AL-05 strategy identity, allocation, mapping, residual-capital, constraints, risk diagnostics and temporal-selection mechanics on synthetic fixtures.",
+      "what_cannot_be_concluded": "No historical strategy allocation, costs, mapped book, performance, alpha or strategy ranking can be claimed.",
+      "minimum_remediation": "Materialize and commit or otherwise identify immutable canonical payloads for the missing histories/maps, with version and publication time, and add a committed empirical loader for the existing AL-05 Input contract.",
+      "evidence_paths": ["reports/AL05_alpha_mapping.md", "reports/AL05_alpha_streams.md", "reports/al05/blocked-artifacts.json"]
+    },
+    {
+      "mode": "Signal / Strategy Bank empirical replay",
+      "blocker_code": "BLOCKED_MISSING_STRATEGY_HISTORY",
+      "human_explanation": "BANK-01 has no committed empirical loader or complete NET PIT return and mapping history from which to calculate historical correlations, clusters and active membership.",
+      "missing_data_artifact_contract": ["NET strategy returns", "dated maps", "versioned entry definitions", "data-availability metadata", "PIT risk envelopes", "empirical Input orchestrator"],
+      "what_remains_valid": "Deterministic synthetic BANK-01 eligibility, correlation, clustering, redundancy, temporal visibility, immutable IDs and resume behavior.",
+      "what_cannot_be_concluded": "No real strategy was historically active, redundant, diversified or eligible; no empirical bank history exists.",
+      "minimum_remediation": "Supply a canonical committed historical strategy dataset and a loader that maps it into the existing BANK-01 Input contract at explicit decision dates and cutoffs.",
+      "evidence_paths": ["reports/BANK01_active_set.md", "reports/BANK01_methodology.md", "reports/bank01/manifest.json"]
+    },
+    {
+      "mode": "Historical promotion, activation and Dynamic Active Set",
+      "blocker_code": "BLOCKED_MISSING_HISTORICAL_PIT_GOVERNANCE",
+      "human_explanation": "PIPE-02 contains no real ex-ante promotion history for the empirical 2020-2021 period; QA approvals cannot be backdated into historical governance. PIPE-03 therefore has only synthetic bank states.",
+      "missing_data_artifact_contract": ["historical promotion evidence as available then", "dated approval authority", "promotion events", "activation/suspension state history", "historical routing policy", "market-health observations"],
+      "what_remains_valid": "PIPE-02 exact archival target byte comparison and synthetic lifecycle/routing logic; PIPE-03 synthetic projection and integration mechanics. PROMOTED, ACTIVE and ALLOCATED remain separate states.",
+      "what_cannot_be_concluded": "No target or strategy can be described as historically promoted/active, and no empirical dynamic active-set or governed end-to-end result can be claimed.",
+      "minimum_remediation": "Commit immutable contemporaneous governance events, evidence, policies, authority and activation histories with effective/available timestamps, then replay them under the existing temporal registry contract.",
+      "evidence_paths": ["reports/PIPE02_bank_boundary.md", "reports/PIPE02_promotion_routing_fallback.md", "reports/PIPE03_active_set_integration.md"]
+    },
+    {
+      "mode": "Empirical MEAN_VARIANCE and MAX_SHARPE asset allocation",
+      "blocker_code": "BLOCKED_MISSING_PIT_EXPECTED_RETURNS",
+      "human_explanation": "These objectives consume expected returns, and the committed empirical allocation snapshot does not contain a canonical dated expected-return stream. The engine intentionally refuses to infer one or default it to zero.",
+      "missing_data_artifact_contract": ["versioned expected-return vectors", "axis and units", "training window", "information cutoff", "publication/availability timestamp", "model/configuration hashes"],
+      "what_remains_valid": "Synthetic MEAN_VARIANCE/MAX_SHARPE mechanics and empirical EQUAL_WEIGHT, MIN_VARIANCE and ERC paths.",
+      "what_cannot_be_concluded": "No empirical mean-variance or maximum-Sharpe weights, selection result or performance can be reported.",
+      "minimum_remediation": "Commit an ex-ante PIT expected-return producer/output contract and its dated artifacts, then expose them through the existing AL-03/AL-07 source adapter.",
+      "evidence_paths": ["reports/AL03_assets_allocation.md", "reports/AL07_allocation_research_engine.md"]
+    },
+    {
+      "mode": "Historical signal-quality gate replay",
+      "blocker_code": "BLOCKED_MISSING_LEGACY_NODE3_SOURCE",
+      "human_explanation": "The repository lacks the original Node-3 signal-gate source and its historical ranking/feature publication stream. The new canonical gate is mechanically certified but cannot establish legacy equivalence or historical outcomes.",
+      "missing_data_artifact_contract": ["legacy Node-3 implementation", "historical score/ranking snapshots", "feature matrices", "publication times", "original gate policies/state"],
+      "what_remains_valid": "The isolated canonical AL-06 signal gate, synthetic PCA/coverage/dispersion/rank-stability tests and cutoff enforcement.",
+      "what_cannot_be_concluded": "No historical signal-quality PASS/FAIL, legacy-equivalence claim or empirical signal eligibility conclusion is available.",
+      "minimum_remediation": "Recover and commit the original implementation and historical inputs, or explicitly approve a new methodology and generate genuinely dated PIT inputs prospectively; do not relabel the synthetic canonical gate as legacy replay.",
+      "evidence_paths": ["reports/AL06_existing_signal_gate_mapping.md", "reports/AL06_signal_quality_gate.md"]
+    },
+    {
+      "mode": "Signed, leveraged or non-net-one strategy implementation",
+      "blocker_code": "BLOCKED_BY_SIGNED_EXPOSURE_CONTROLLER_SCOPE",
+      "human_explanation": "The certified ExposureController and execution paths cover the declared long-only/net-one scope. A signed strategy exposure cannot be converted into implementation cash as 1 minus net exposure without a financing contract.",
+      "missing_data_artifact_contract": ["signed financing/margin contract", "borrow and financing costs", "gross/net exposure mandate", "signed execution and accounting semantics"],
+      "what_remains_valid": "Long-only ASSETS allocation, supported pure long-only mapped strategy fixtures and the separation of internal residual from implementation cash.",
+      "what_cannot_be_concluded": "No leveraged, short, market-neutral or signed mapped portfolio can be treated as executable under the current controller.",
+      "minimum_remediation": "Define and certify a distinct signed financing/controller/execution contract with explicit gross, net, cash, collateral, borrow and fee accounting.",
+      "evidence_paths": ["reports/AL01_allocation_contracts.md", "reports/AL05_alpha_streams.md", "reports/AL07_allocation_research_engine.md"]
+    },
+    {
+      "mode": "Deflated Sharpe Ratio / multiple-testing significance",
+      "blocker_code": "NOT_IMPLEMENTED",
+      "human_explanation": "The research engines expose PSR diagnostics but do not implement DSR or a multiple-testing correction. They explicitly avoid turning the selected Sharpe into a significance claim.",
+      "missing_data_artifact_contract": ["DSR estimator contract", "trial-count/correlation definition", "non-normality estimator", "predeclared inference protocol"],
+      "what_remains_valid": "Observed metrics, per-fold distributions, PSR under its declared assumptions and mechanical selection behavior.",
+      "what_cannot_be_concluded": "No statistical significance, robust profitability or alpha claim follows from candidate selection.",
+      "minimum_remediation": "Specify, independently validate and predeclare an inference contract before using DSR; retain all candidate trials and dependence assumptions.",
+      "evidence_paths": ["research/capital/README.md", "reports/AL07_allocation_research_engine.md"]
+    },
+    {
+      "mode": "Standalone CL-01 research run",
+      "blocker_code": "BLOCKED_MISSING_CONTRACT",
+      "human_explanation": "runBacktestEngine is callable and fully used downstream, but CL-01 by itself has no committed configuration normalization, dataset identity, output-root, provenance and run-identity contract.",
+      "missing_data_artifact_contract": ["standalone run specification", "dataset loader/snapshot identity", "normalized default expansion", "artifact and provenance layout"],
+      "what_remains_valid": "Backtest accounting, execution timing, cost fields and downstream empirical uses.",
+      "what_cannot_be_concluded": "An arbitrary direct library call is not by itself an auditable ResearchRun.",
+      "minimum_remediation": "Use the Phase-A ResearchRun contract through a thin adapter around the unchanged engine, or continue to invoke it through an existing certified orchestration path.",
+      "evidence_paths": ["artifacts/api-server/src/lib/calculator.ts", "reports/CL01_capital_layer.md"]
+    },
+    {
+      "mode": "Configurable PIPE-01 end-to-end rerun",
+      "blocker_code": "BLOCKED_MISSING_CONTRACT",
+      "human_explanation": "PIPE-01 recalculates financial stages and books, but its empirical loader accepts only fixed AL-07 selected jobs; its CLI exposes no dates, universe, objective, mandate or cost input and does not rerun candidate selection.",
+      "missing_data_artifact_contract": ["user run request mapped to pipeline context/bundles", "new selection/search orchestration", "configurable financial CLI/adapter", "non-hardcoded output root"],
+      "what_remains_valid": "Exact frozen empirical ASSETS replay, PIT checks, accounting, gates, controller and 0/5-bps reconciliation.",
+      "what_cannot_be_concluded": "PIPE-01 cannot currently support configure-change-rerun as a standalone product backend.",
+      "minimum_remediation": "Add a thin, non-financial adapter that consumes a normalized ResearchRunSpec and invokes an already executable upstream research path; do not modify certified financial stages.",
+      "evidence_paths": ["research/pipeline/data.ts", "research/pipeline/cli.ts", "reports/PIPE01_end_to_end_pipeline.md"]
+    }
+  ]
+}

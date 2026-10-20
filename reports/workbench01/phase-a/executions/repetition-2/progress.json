@@ -1,0 +1,16 @@
+{
+  "experiment_hash": "803c0c5bbe79c9d47a72f7a22a6709b82a00eb34c5e83d79b44b9f988bc6ceef",
+  "paused": false,
+  "complete": true,
+  "new_jobs": 24,
+  "reused_jobs": 0,
+  "telemetry": {
+    "model_fit_misses": 50,
+    "model_fits_succeeded": 50,
+    "model_fit_hits": 434,
+    "prediction_misses": 72,
+    "prediction_hits": 456,
+    "elapsed_ms": 29269.119195000003,
+    "peak_rss_kib": 401276
+  }
+}

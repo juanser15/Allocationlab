@@ -1,0 +1,164 @@
+{
+  "scope": "SYNTHETIC; certified modules and real runBacktestEngine; independent arithmetic oracles; no function mocks",
+  "passed": 39,
+  "failed": 0,
+  "skipped": 0,
+  "cases": [
+    {
+      "case": "A complete SYNTHETIC ASSETS path, certified modules and actual accounting",
+      "status": "PASS"
+    },
+    {
+      "case": "B complete SYNTHETIC FACTORS path, certified modules and actual accounting",
+      "status": "PASS"
+    },
+    {
+      "case": "C complete SYNTHETIC STRATEGY_STREAMS path, certified modules and actual accounting",
+      "status": "PASS"
+    },
+    {
+      "case": "D mandatory signal FAIL stops before allocator, no fallback/weights",
+      "status": "PASS"
+    },
+    {
+      "case": "E explicit nonforecast NOT_REQUIRED only; forecast exemption rejected",
+      "status": "PASS"
+    },
+    {
+      "case": "F impossible native bounds stop allocator before gate/controller",
+      "status": "PASS"
+    },
+    {
+      "case": "G robustness policy FAIL prevents controller and target",
+      "status": "PASS"
+    },
+    {
+      "case": "H infeasible beta request rejected by certified gate feasibility; no executable target",
+      "status": "PASS"
+    },
+    {
+      "case": "I target beta .3/.6 leaves exact allocator q/id invariant; only exposure changes",
+      "status": "PASS"
+    },
+    {
+      "case": "J context cannot contain a second cash target/override",
+      "status": "PASS"
+    },
+    {
+      "case": "K internal stream residual remains internal and never becomes global cash",
+      "status": "PASS"
+    },
+    {
+      "case": "L PIT trap: future price mutation cannot alter prior context/stages/target",
+      "status": "PASS"
+    },
+    {
+      "case": "L PIT trap: future covariance mutation cannot alter prior context/stages/target",
+      "status": "PASS"
+    },
+    {
+      "case": "L PIT trap: future beta mutation cannot alter prior context/stages/target",
+      "status": "PASS"
+    },
+    {
+      "case": "L PIT trap: future signal mutation cannot alter prior context/stages/target",
+      "status": "PASS"
+    },
+    {
+      "case": "L PIT trap: future gate mutation cannot alter prior context/stages/target",
+      "status": "PASS"
+    },
+    {
+      "case": "L PIT trap: future RiskMandate mutation cannot alter prior context/stages/target",
+      "status": "PASS"
+    },
+    {
+      "case": "M execution next_close uses prior-close inputs, cannot earn pre-fill P&L",
+      "status": "PASS"
+    },
+    {
+      "case": "N expected PIT beta vs realized forward beta remain separately named/different",
+      "status": "PASS"
+    },
+    {
+      "case": "O independent closed-form post-cost NAV/fees/cash/positions at 0 and 5bps",
+      "status": "PASS"
+    },
+    {
+      "case": "P same canonical inputs reproduce IDs, stages and hashes across clean directories",
+      "status": "PASS"
+    },
+    {
+      "case": "Q resume after 0/1/mid decisions, 1 book and last-book-before-summary; no duplicate completed execution",
+      "status": "PASS"
+    },
+    {
+      "case": "R persisted AL07 candidate lock cannot be replaced",
+      "status": "PASS"
+    },
+    {
+      "case": "S upstream artifacts and RiskMandate are byte/economically unchanged",
+      "status": "PASS"
+    },
+    {
+      "case": "T corrupt completed state is rejected; config/code identity not silently reused",
+      "status": "PASS"
+    },
+    {
+      "case": "U failed decisions are durable and not rerun on resume",
+      "status": "PASS"
+    },
+    {
+      "case": "V missing canonical input is blocked, not substituted",
+      "status": "PASS"
+    },
+    {
+      "case": "W accounting corruption is detected independently of book VALID label",
+      "status": "PASS"
+    },
+    {
+      "case": "X fill-price mutation changes realized NAV but never frozen targets",
+      "status": "PASS"
+    },
+    {
+      "case": "Y root/native future metadata is rejected, not republished as past",
+      "status": "PASS"
+    },
+    {
+      "case": "Z no implicit trades between fills or fictitious terminal liquidation",
+      "status": "PASS"
+    },
+    {
+      "case": "AA required signal PASS reaches target with identical decision cutoff",
+      "status": "PASS"
+    },
+    {
+      "case": "AB downstream target tampering cannot bypass passed robustness",
+      "status": "PASS"
+    },
+    {
+      "case": "AC decision envelope cannot replace the selected candidate gate policy",
+      "status": "PASS"
+    },
+    {
+      "case": "AD decision envelope cannot introduce undeclared cost scenario",
+      "status": "PASS"
+    },
+    {
+      "case": "AE context previous holdings and eligible universe must match the native input",
+      "status": "PASS"
+    },
+    {
+      "case": "AF future ranking inside a supplied signal history cannot change a past canonical decision",
+      "status": "PASS"
+    },
+    {
+      "case": "AG future ranking cannot invalidate a completed historical decision cache entry",
+      "status": "PASS"
+    },
+    {
+      "case": "AH execution failure never emits later accounting/attribution stage",
+      "status": "PASS"
+    }
+  ]
+}

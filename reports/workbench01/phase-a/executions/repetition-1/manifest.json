@@ -1,0 +1,207 @@
+{
+  "engine_version": "capital-research-1.0.1",
+  "experiment_id": "cl03-acceptance-traditional",
+  "experiment_hash": "803c0c5bbe79c9d47a72f7a22a6709b82a00eb34c5e83d79b44b9f988bc6ceef",
+  "campaign": {
+    "experiment_id": "cl03-acceptance-traditional",
+    "validation_mode": "traditional",
+    "window_type": "rolling",
+    "dates": {
+      "start": "2020-01-01",
+      "end_exclusive": "2024-01-01"
+    },
+    "train_months": 24,
+    "test_months": 12,
+    "step_months": 12,
+    "inner_train_months": 12,
+    "inner_test_months": 6,
+    "inner_step_months": 6,
+    "rebalance_frequency": "monthly",
+    "recalibration_frequency": "monthly",
+    "search_method": "grid",
+    "candidate_budget": 200,
+    "candidate_space": [
+      {
+        "base": {
+          "model_family": "current_regime",
+          "input_set": [
+            "XLK",
+            "XLC",
+            "XLRE",
+            "XLI",
+            "XLY",
+            "XLF",
+            "XLU",
+            "XLE",
+            "XLV",
+            "XLB",
+            "EEM",
+            "EWJ",
+            "AAXJ",
+            "EWG",
+            "EUFN",
+            "SPY",
+            "GLD",
+            "TLT",
+            "IEF",
+            "VNQ",
+            "EFA",
+            "DBC"
+          ],
+          "transformations": [
+            {
+              "name": "identity"
+            }
+          ],
+          "model_parameters": {
+            "lookback_rows": 252
+          },
+          "exposure_policy": "cash_band",
+          "exposure_parameters": {
+            "cash_min": 0.1,
+            "cash_max": 0.2
+          }
+        },
+        "axes": {
+          "exposure_parameters.cash_min": [
+            0.1,
+            0.2
+          ],
+          "exposure_parameters.cash_max": [
+            0.2,
+            0.4
+          ]
+        }
+      },
+      {
+        "base": {
+          "model_family": "current_regime",
+          "input_set": [
+            "XLK",
+            "XLC",
+            "XLRE",
+            "XLI",
+            "XLY",
+            "XLF",
+            "XLU",
+            "XLE",
+            "XLV",
+            "XLB",
+            "EEM",
+            "EWJ",
+            "AAXJ",
+            "EWG",
+            "EUFN",
+            "SPY",
+            "GLD",
+            "TLT",
+            "IEF",
+            "VNQ",
+            "EFA",
+            "DBC"
+          ],
+          "transformations": [
+            {
+              "name": "identity"
+            }
+          ],
+          "model_parameters": {
+            "lookback_rows": 252
+          },
+          "exposure_policy": "constant",
+          "exposure_parameters": {
+            "risk": 1
+          }
+        }
+      }
+    ],
+    "selection_metric": "net_sharpe",
+    "constraints": {
+      "max_turnover": 8,
+      "max_drawdown": 0.6,
+      "min_exposure": 0,
+      "max_exposure": 1
+    },
+    "transaction_cost_bps": [
+      0,
+      5
+    ],
+    "selection_cost_bps": 5,
+    "cash_yield": {
+      "type": "constant",
+      "daily": 0,
+      "reference_daily": 0
+    },
+    "risk_asset": "SPY",
+    "reference_universe": [
+      "XLK",
+      "XLC",
+      "XLRE",
+      "XLI",
+      "XLY",
+      "XLF",
+      "XLU",
+      "XLE",
+      "XLV",
+      "XLB",
+      "EEM",
+      "EWJ",
+      "AAXJ",
+      "EWG",
+      "EUFN",
+      "SPY",
+      "GLD",
+      "TLT",
+      "IEF",
+      "VNQ",
+      "EFA",
+      "DBC"
+    ],
+    "data_csv": "reports/cl02/adjusted-closes.csv",
+    "data_sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+    "data_provenance": "Persisted adjusted-close CSV; vendor authenticity unverified. Neither vendor verification nor synthetic origin is established.",
+    "warmup_rows": 252,
+    "max_jobs": 2000
+  },
+  "data_hash": "f7436db75e7c6ed35938e6248c48c162c051cd8a99457a5c386910b36f6c743e",
+  "original_csv_hash": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+  "code_hash": "94a2c94f0cf7a096865a7d5a8284aa1141f23b62a49685e8d3e3502afd830dcf",
+  "registry": {
+    "models": {
+      "current_regime": "production-regime-adapter-1"
+    },
+    "policies": {
+      "cash_band": "current-cash-policy-1",
+      "constant": "fixed-risk-policy-1"
+    }
+  },
+  "plan": {
+    "unique_candidates": 5,
+    "cartesian_size": 5,
+    "outer_folds": 2,
+    "inner_folds": 0,
+    "model_fits_estimated_upper_bound": 50,
+    "backtests_estimated": 24,
+    "cost_scenarios": [
+      0,
+      5
+    ],
+    "total_jobs_estimated": 74,
+    "estimation": "Backtests exact maximum incl. invalid candidates; fits upper bound before winner identities/cache. Prediction cache entries are not model fits.",
+    "candidate_definition_hash": "f6c6316d66c14f03ec9f3ce583ee6cef6bf5d427aa46fbbd37da06372f4a7d72",
+    "max_jobs": 2000
+  },
+  "protocol": {
+    "execution": "next_close",
+    "signal_cutoff": "strict previous close",
+    "costs": "actual absolute fill notional; D5",
+    "learned_parameters": "training-only; frozen during each inner/outer OOS",
+    "preprocessing": "model-owned, fitted only through training cutoff",
+    "recalibration": "independent calendar within traditional training; final train fit frozen for each OOS window",
+    "books": "independent validation sleeves; each fold starts NAV=100 cash, entry costs included, no fictitious end liquidation",
+    "oos_curve": "compounded outer test daily returns only, not a continuous carried holdings account; gaps remain gaps",
+    "CAGR": "compounded return annualized by 252/observed sessions; gaps excluded, not calendar CAGR",
+    "constraints_turnover": "annualized gross actual notional/pretrade NAV",
+    "DSR": "NOT_IMPLEMENTED"
+  }
+}

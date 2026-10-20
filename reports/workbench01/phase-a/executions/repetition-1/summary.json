@@ -1,0 +1,349 @@
+{
+  "experiment_id": "cl03-acceptance-traditional",
+  "experiment_hash": "803c0c5bbe79c9d47a72f7a22a6709b82a00eb34c5e83d79b44b9f988bc6ceef",
+  "validation_mode": "traditional",
+  "status": "COMPLETE",
+  "candidate_definitions_hash": "f6c6316d66c14f03ec9f3ce583ee6cef6bf5d427aa46fbbd37da06372f4a7d72",
+  "unique_candidates": 5,
+  "total_backtest_jobs": 24,
+  "failed_jobs": 0,
+  "invalid_jobs": 0,
+  "selection_distribution": [
+    {
+      "outer_fold": 0,
+      "valid": 5,
+      "evaluated": 5,
+      "min": 0.9529020849857287,
+      "median": 0.9755032114915624,
+      "max": 1.0240384351042453
+    },
+    {
+      "outer_fold": 1,
+      "valid": 5,
+      "evaluated": 5,
+      "min": 0.22598362722486454,
+      "median": 0.23933517661953943,
+      "max": 0.24735527858767498
+    }
+  ],
+  "outer_oos": [
+    {
+      "scenario": 0,
+      "observations": 501,
+      "cagr": 0.035854467043460625,
+      "net_sharpe": 0.30496407414649523,
+      "max_drawdown": -0.191148358059128,
+      "return_drawdown_ratio": 0.18757402578561386,
+      "volatility": 0.1546685294257783,
+      "turnover": 2.321457669865068,
+      "turnover_annualized": 1.1676793069979983,
+      "costs": 0,
+      "exposure": 0.8566549034132027,
+      "final_index": 107.25445949277757
+    },
+    {
+      "scenario": 5,
+      "observations": 501,
+      "cagr": 0.035249977711973246,
+      "net_sharpe": 0.3011888473152739,
+      "max_drawdown": -0.19162665108551424,
+      "return_drawdown_ratio": 0.1839513319900518,
+      "volatility": 0.15466908349475517,
+      "turnover": 2.320629024530165,
+      "turnover_annualized": 1.16726250335649,
+      "costs": 0.1130073297533634,
+      "exposure": 0.8566549034132028,
+      "final_index": 107.13006040048703
+    }
+  ],
+  "selected_by_fold": [
+    {
+      "outer_fold": 0,
+      "train_start": "2020-01-01",
+      "train_end": "2022-01-01",
+      "test_start": "2022-01-01",
+      "test_end": "2023-01-01",
+      "selection_metric": "net_sharpe",
+      "selection_cost_bps": 5,
+      "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+      "score": 1.0240384351042453,
+      "rank": 1,
+      "scoring_hash": "202feba1b2238a72371c40aa7b92ff4ddde9ebd77557b687982c555c2ca87752",
+      "status": "SELECTED"
+    },
+    {
+      "outer_fold": 1,
+      "train_start": "2021-01-01",
+      "train_end": "2023-01-01",
+      "test_start": "2023-01-01",
+      "test_end": "2024-01-01",
+      "selection_metric": "net_sharpe",
+      "selection_cost_bps": 5,
+      "candidate_id": "c_aa16f813288e415fae34648c",
+      "score": 0.24735527858767498,
+      "rank": 1,
+      "scoring_hash": "d61550ecf0e549e504598a09e20fc6b5bc5fee57646fcd1b72d9d5c4ee84b810",
+      "status": "SELECTED"
+    }
+  ],
+  "stability": [
+    {
+      "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+      "model_family": "current_regime",
+      "selection_count": 0,
+      "selection_frequency": 0,
+      "spec": {
+        "model_family": "current_regime",
+        "input_set": [
+          "XLK",
+          "XLC",
+          "XLRE",
+          "XLI",
+          "XLY",
+          "XLF",
+          "XLU",
+          "XLE",
+          "XLV",
+          "XLB",
+          "EEM",
+          "EWJ",
+          "AAXJ",
+          "EWG",
+          "EUFN",
+          "SPY",
+          "GLD",
+          "TLT",
+          "IEF",
+          "VNQ",
+          "EFA",
+          "DBC"
+        ],
+        "transformations": [
+          {
+            "name": "identity"
+          }
+        ],
+        "model_parameters": {
+          "lookback_rows": 252
+        },
+        "exposure_policy": "cash_band",
+        "exposure_parameters": {
+          "cash_min": 0.2,
+          "cash_max": 0.2
+        },
+        "rebalance_frequency": "monthly",
+        "recalibration_frequency": "monthly"
+      }
+    },
+    {
+      "candidate_id": "c_8332586a96d72c52828a005e",
+      "model_family": "current_regime",
+      "selection_count": 0,
+      "selection_frequency": 0,
+      "spec": {
+        "model_family": "current_regime",
+        "input_set": [
+          "XLK",
+          "XLC",
+          "XLRE",
+          "XLI",
+          "XLY",
+          "XLF",
+          "XLU",
+          "XLE",
+          "XLV",
+          "XLB",
+          "EEM",
+          "EWJ",
+          "AAXJ",
+          "EWG",
+          "EUFN",
+          "SPY",
+          "GLD",
+          "TLT",
+          "IEF",
+          "VNQ",
+          "EFA",
+          "DBC"
+        ],
+        "transformations": [
+          {
+            "name": "identity"
+          }
+        ],
+        "model_parameters": {
+          "lookback_rows": 252
+        },
+        "exposure_policy": "cash_band",
+        "exposure_parameters": {
+          "cash_min": 0.2,
+          "cash_max": 0.4
+        },
+        "rebalance_frequency": "monthly",
+        "recalibration_frequency": "monthly"
+      }
+    },
+    {
+      "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+      "model_family": "current_regime",
+      "selection_count": 1,
+      "selection_frequency": 0.5,
+      "spec": {
+        "model_family": "current_regime",
+        "input_set": [
+          "XLK",
+          "XLC",
+          "XLRE",
+          "XLI",
+          "XLY",
+          "XLF",
+          "XLU",
+          "XLE",
+          "XLV",
+          "XLB",
+          "EEM",
+          "EWJ",
+          "AAXJ",
+          "EWG",
+          "EUFN",
+          "SPY",
+          "GLD",
+          "TLT",
+          "IEF",
+          "VNQ",
+          "EFA",
+          "DBC"
+        ],
+        "transformations": [
+          {
+            "name": "identity"
+          }
+        ],
+        "model_parameters": {
+          "lookback_rows": 252
+        },
+        "exposure_policy": "cash_band",
+        "exposure_parameters": {
+          "cash_min": 0.1,
+          "cash_max": 0.4
+        },
+        "rebalance_frequency": "monthly",
+        "recalibration_frequency": "monthly"
+      }
+    },
+    {
+      "candidate_id": "c_aa16f813288e415fae34648c",
+      "model_family": "current_regime",
+      "selection_count": 1,
+      "selection_frequency": 0.5,
+      "spec": {
+        "model_family": "current_regime",
+        "input_set": [
+          "XLK",
+          "XLC",
+          "XLRE",
+          "XLI",
+          "XLY",
+          "XLF",
+          "XLU",
+          "XLE",
+          "XLV",
+          "XLB",
+          "EEM",
+          "EWJ",
+          "AAXJ",
+          "EWG",
+          "EUFN",
+          "SPY",
+          "GLD",
+          "TLT",
+          "IEF",
+          "VNQ",
+          "EFA",
+          "DBC"
+        ],
+        "transformations": [
+          {
+            "name": "identity"
+          }
+        ],
+        "model_parameters": {
+          "lookback_rows": 252
+        },
+        "exposure_policy": "constant",
+        "exposure_parameters": {
+          "risk": 1
+        },
+        "rebalance_frequency": "monthly",
+        "recalibration_frequency": "monthly"
+      }
+    },
+    {
+      "candidate_id": "c_e028713b249e51fa3843d778",
+      "model_family": "current_regime",
+      "selection_count": 0,
+      "selection_frequency": 0,
+      "spec": {
+        "model_family": "current_regime",
+        "input_set": [
+          "XLK",
+          "XLC",
+          "XLRE",
+          "XLI",
+          "XLY",
+          "XLF",
+          "XLU",
+          "XLE",
+          "XLV",
+          "XLB",
+          "EEM",
+          "EWJ",
+          "AAXJ",
+          "EWG",
+          "EUFN",
+          "SPY",
+          "GLD",
+          "TLT",
+          "IEF",
+          "VNQ",
+          "EFA",
+          "DBC"
+        ],
+        "transformations": [
+          {
+            "name": "identity"
+          }
+        ],
+        "model_parameters": {
+          "lookback_rows": 252
+        },
+        "exposure_policy": "cash_band",
+        "exposure_parameters": {
+          "cash_min": 0.1,
+          "cash_max": 0.2
+        },
+        "rebalance_frequency": "monthly",
+        "recalibration_frequency": "monthly"
+      }
+    }
+  ],
+  "family_selection_frequency": [
+    {
+      "family": "current_regime",
+      "count": 2
+    }
+  ],
+  "cache": {
+    "persisted_model_artifacts": 50,
+    "persisted_prediction_artifacts": 72
+  },
+  "DSR": "NOT_IMPLEMENTED",
+  "limitations": [
+    "Nested outer OOS is selection-overfitting diagnostic, not proof of economic robustness.",
+    "No significance test; no invented DSR.",
+    "Independent fold sleeves reset cash/NAV, count entry fees; no assumed free liquidation or continuous-account NAV claim.",
+    "Only disjoint inner/outer tests supported; step can exceed horizon, leaving explicit observation gaps.",
+    "Stateless current regime is the only real model family; model calibration clock is retained for future families.",
+    "Traditional training scores are not OOS. Traditional candidate correlations unavailable; nested similarities use aligned inner OOS only."
+  ]
+}

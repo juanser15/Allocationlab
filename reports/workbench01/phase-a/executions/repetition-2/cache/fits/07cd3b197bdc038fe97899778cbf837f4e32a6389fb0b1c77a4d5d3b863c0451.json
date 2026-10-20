@@ -1,0 +1,52 @@
+{
+  "key": "07cd3b197bdc038fe97899778cbf837f4e32a6389fb0b1c77a4d5d3b863c0451",
+  "parts": {
+    "cache_contract": "capital-research-1.0.1",
+    "data_hash": "e6686d00306ccb267ca64d64ed5dcdadbc213f792a5a1d9bc7402a60be9e7681",
+    "model_family": "current_regime",
+    "model_parameters": {
+      "lookback_rows": 252
+    },
+    "input_set": [
+      "XLK",
+      "XLC",
+      "XLRE",
+      "XLI",
+      "XLY",
+      "XLF",
+      "XLU",
+      "XLE",
+      "XLV",
+      "XLB",
+      "EEM",
+      "EWJ",
+      "AAXJ",
+      "EWG",
+      "EUFN",
+      "SPY",
+      "GLD",
+      "TLT",
+      "IEF",
+      "VNQ",
+      "EFA",
+      "DBC"
+    ],
+    "transformations": [
+      {
+        "name": "identity"
+      }
+    ],
+    "recalibration_frequency": "monthly",
+    "model_version": "production-regime-adapter-1",
+    "training_start": "2021-01-01",
+    "training_end": "2022-10-03",
+    "information_cutoff": "2022-09-30",
+    "information_hash": "e6686d00306ccb267ca64d64ed5dcdadbc213f792a5a1d9bc7402a60be9e7681",
+    "outer_fold": 1,
+    "inner_fold": null
+  },
+  "value": {
+    "estimator": "stateless production computeRegime"
+  },
+  "value_hash": "6b42a4c2a70d20dc92dd1353c34c65b457335520fbb31a132ffe6bc2ffbb7407"
+}

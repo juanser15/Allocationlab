@@ -1,0 +1,128 @@
+{
+  "scope": "SYNTHETIC known-answer; real certified modules and backtester, no mocks",
+  "passed": 30,
+  "failed": 0,
+  "skipped": 0,
+  "cases": [
+    {
+      "case": "A traditional exact half-open fold boundaries",
+      "status": "PASS"
+    },
+    {
+      "case": "B nested inner folds contained; outer data cannot enter selector",
+      "status": "PASS"
+    },
+    {
+      "case": "C rolling eliminates old history; expanding anchors origin; gaps explicit",
+      "status": "PASS"
+    },
+    {
+      "case": "D every economically relevant candidate field changes ID",
+      "status": "PASS"
+    },
+    {
+      "case": "E irrelevant key order does not change candidate identity",
+      "status": "PASS"
+    },
+    {
+      "case": "F reproducible random search; seed required; without replacement",
+      "status": "PASS"
+    },
+    {
+      "case": "G budgets 1/2/10/50/100/200 and exact explicit reduction",
+      "status": "PASS"
+    },
+    {
+      "case": "H dry-run executes zero backtests and requires explicit run guard",
+      "status": "PASS"
+    },
+    {
+      "case": "I resume after 0/1/mid jobs and before summary never duplicates completed jobs",
+      "status": "PASS"
+    },
+    {
+      "case": "J missing PIT mu blocked, no historical-mean fallback",
+      "status": "PASS"
+    },
+    {
+      "case": "K gate FAIL preserved; no fallback or substitute winner",
+      "status": "PASS"
+    },
+    {
+      "case": "L raw and normalized same q, scaling only in controller",
+      "status": "PASS"
+    },
+    {
+      "case": "M original RiskMandates and all source inputs remain unchanged",
+      "status": "PASS"
+    },
+    {
+      "case": "N certified costs actual instrument notional, not doubled",
+      "status": "PASS"
+    },
+    {
+      "case": "O PSR independent symmetric oracle probability 0.5 and degeneracy",
+      "status": "PASS"
+    },
+    {
+      "case": "P infeasible native bounds preserved with no equal-weight fallback",
+      "status": "PASS"
+    },
+    {
+      "case": "Q outer mutation leakage trap: historical inner selection unchanged",
+      "status": "PASS"
+    },
+    {
+      "case": "R cache changes only for relevant historical identity; corrupt cache rejected",
+      "status": "PASS"
+    },
+    {
+      "case": "S same campaign repeated identical economic outputs/hashes",
+      "status": "PASS"
+    },
+    {
+      "case": "PSR nonzero independent SciPy oracle; annual benchmark converted to daily",
+      "status": "PASS"
+    },
+    {
+      "case": "required SignalQualityGate PASS and FAIL preserved with no bypass",
+      "status": "PASS"
+    },
+    {
+      "case": "selection facade rejects even unused outer prices / snapshot hashes",
+      "status": "PASS"
+    },
+    {
+      "case": "actual future mutation leaves historical decisions/cache intact; past mutation recalculates",
+      "status": "PASS"
+    },
+    {
+      "case": "separate risk-recalibration clock freezes each outer model; explicit expanding inner override",
+      "status": "PASS"
+    },
+    {
+      "case": "all seven selection metrics explicit; utility and lexicographic declaration validated",
+      "status": "PASS"
+    },
+    {
+      "case": "selection rejects forged VALID attempt with a failed mandatory gate",
+      "status": "PASS"
+    },
+    {
+      "case": "certified FACTORS routing and exact residual, without changing mandate",
+      "status": "PASS"
+    },
+    {
+      "case": "certified STRATEGY_STREAMS routing; economic map/history absence explicitly blocked",
+      "status": "PASS"
+    },
+    {
+      "case": "original future model metadata cannot be hidden by decision-envelope republication",
+      "status": "PASS"
+    },
+    {
+      "case": "future signal/root metadata rejected before republication; future rankings do not miss cache",
+      "status": "PASS"
+    }
+  ]
+}

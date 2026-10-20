@@ -1,0 +1,475 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://allocation-lab.local/contracts/research-run-spec.schema.json",
+  "title": "Allocation Lab ResearchRunSpec",
+  "description": "Canonical Phase A research request contract derived from backend behavior audited at commit b9950f7cbe128f9d761597a5e216d777cc3059a3. An accepted field does not imply that every audited mode implements it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "run_id",
+    "created_at",
+    "research_mode",
+    "execution_scope",
+    "universe",
+    "start_date",
+    "end_date",
+    "information_cutoff_policy",
+    "benchmark",
+    "strategy_or_allocator_id",
+    "strategy_or_allocator_version",
+    "parameters",
+    "rebalance_frequency",
+    "transaction_cost_bps",
+    "expected_return_method",
+    "covariance_method",
+    "risk_mandate",
+    "constraints",
+    "validation_protocol",
+    "walk_forward_configuration",
+    "random_seed",
+    "data_snapshot",
+    "engine_versions",
+    "code_commit",
+    "requested_by",
+    "storage_policy"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Display-only schema locator.",
+      "x-source": "DERIVED",
+      "x-validation-rules": "When present, it identifies the schema used to validate the record.",
+      "x-backend-mapping": "Evidence-adapter metadata; excluded from run identity.",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "contract_version": {
+      "const": "workbench-research-run-spec-1.0.0-draft",
+      "description": "Version of the research-run interchange contract, distinct from financial engine versions.",
+      "x-source": "EXPLICIT_ENGINE_DEFAULT",
+      "x-validation-rules": "Must equal this Phase A draft version.",
+      "x-backend-mapping": "Evidence-adapter metadata; excluded from run identity.",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^rr_[0-9a-f]{64}$",
+      "description": "Deterministic identity of the normalized economic request and its reproducibility inputs.",
+      "x-source": "DERIVED",
+      "x-validation-rules": "rr_ followed by the lowercase SHA-256 defined in research-run-contract.md.",
+      "x-backend-mapping": "Workbench identity; scenario jobs retain separate engine job_hash values.",
+      "x-current-support-status": "FUTURE_NOT_IMPLEMENTED_IN_BACKEND; PHASE_A_CONTRACT_PROOF_ONLY"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC time when the immutable request record was created; it does not affect financial output.",
+      "x-source": "DERIVED",
+      "x-validation-rules": "RFC 3339 timestamp normalized to UTC with a Z suffix.",
+      "x-backend-mapping": "Request-record metadata; excluded from run identity.",
+      "x-current-support-status": "FUTURE_NOT_IMPLEMENTED_IN_BACKEND; PHASE_A_EVIDENCE_CAPTURE_ONLY"
+    },
+    "research_mode": {
+      "type": "string",
+      "enum": [
+        "CAPITAL_MARKET_EXPOSURE",
+        "ASSET_ALLOCATION",
+        "FACTOR_ALLOCATION",
+        "STRATEGY_STREAM_ALLOCATION",
+        "SIGNAL_QUALITY_GATE",
+        "PORTFOLIO_ROBUSTNESS_GATE",
+        "TRADITIONAL_WALK_FORWARD",
+        "NESTED_WALK_FORWARD",
+        "SIGNAL_STRATEGY_BANK",
+        "DYNAMIC_ACTIVE_SET",
+        "END_TO_END_PIPELINE"
+      ],
+      "description": "Financial research domain whose committed implementation is requested; the value alone does not imply empirical support.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "Must use the uppercase contract enum.",
+      "x-backend-mapping": "CAPITAL_MARKET_EXPOSURE maps to research/capital/engine.ts runCampaign; other mappings are capability-gated before dispatch.",
+      "x-current-support-status": {
+        "CAPITAL_MARKET_EXPOSURE": "EXECUTABLE_EMPIRICAL",
+        "ASSET_ALLOCATION": "EXECUTABLE_EMPIRICAL",
+        "FACTOR_ALLOCATION": "EXECUTABLE_SYNTHETIC_ONLY",
+        "STRATEGY_STREAM_ALLOCATION": "EXECUTABLE_SYNTHETIC_ONLY",
+        "SIGNAL_QUALITY_GATE": "EXECUTABLE_SYNTHETIC_ONLY",
+        "PORTFOLIO_ROBUSTNESS_GATE": "EMPIRICAL_WITHIN_AUDITED_AL07_PATH",
+        "TRADITIONAL_WALK_FORWARD": "EXECUTABLE_EMPIRICAL",
+        "NESTED_WALK_FORWARD": "EXECUTABLE_EMPIRICAL",
+        "SIGNAL_STRATEGY_BANK": "EXECUTABLE_SYNTHETIC_ONLY",
+        "DYNAMIC_ACTIVE_SET": "EXECUTABLE_SYNTHETIC_ONLY",
+        "END_TO_END_PIPELINE": "REPLAY_OF_FROZEN_EMPIRICAL_ARTIFACT"
+      }
+    },
+    "execution_scope": {
+      "type": "string",
+      "enum": ["EMPIRICAL", "SYNTHETIC_TEST", "FROZEN_REPLAY"],
+      "description": "Separates recalculation from historical observations, synthetic mechanical tests, and frozen empirical replay.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "EMPIRICAL is valid only when all ten Phase A empirical criteria pass.",
+      "x-backend-mapping": "Capability gate before engine dispatch.",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "universe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operated", "information", "user_change_supported", "support_note"],
+      "properties": {
+        "operated": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "information": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "user_change_supported": { "type": "boolean" },
+        "support_note": { "type": "string", "minLength": 1 }
+      },
+      "description": "Separates instruments that receive capital from instruments used only for prediction or reference information.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "Both arrays are explicit, nonempty, unique, and order-preserving; order is part of identity because the current engine hashes arrays in supplied order.",
+      "x-backend-mapping": "Capital Campaign.risk_asset and Campaign.reference_universe; allocation modes map to their allocator-universe contracts.",
+      "x-current-support-status": "SUPPORTED_WITH_MODE_SPECIFIC_LIMITS"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Inclusive start of the requested validation schedule, not necessarily the first emitted OOS observation.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "YYYY-MM-DD; earlier than end_date and inside data coverage. Capital month boundaries must fall on day 01.",
+      "x-backend-mapping": "Capital Campaign.dates.start.",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Exclusive end of the requested validation schedule.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "YYYY-MM-DD; later than start_date and no later than snapshot coverage permits. Capital month boundaries must fall on day 01.",
+      "x-backend-mapping": "Capital Campaign.dates.end_exclusive.",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "information_cutoff_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signal_rule", "execution_rule", "fit_rule", "data_vintage_status", "pit_label"],
+      "properties": {
+        "signal_rule": { "type": "string", "minLength": 1 },
+        "execution_rule": { "type": "string", "enum": ["same_close", "next_close", "next_open"] },
+        "fit_rule": { "type": "string", "minLength": 1 },
+        "data_vintage_status": {
+          "type": "string",
+          "enum": ["VERIFIED", "NOT_INDEPENDENTLY_ESTABLISHED", "BLOCKED_MISSING_PIT_DATA"]
+        },
+        "pit_label": {
+          "type": "string",
+          "enum": ["PIT_SAFE", "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED", "NOT_PIT_SAFE", "BLOCKED_MISSING_PIT_DATA"]
+        }
+      },
+      "description": "Declares which information may be visible for fitting, prediction, allocation, and execution.",
+      "x-source": "SAVED_CONFIGURATION",
+      "x-validation-rules": "PIT_SAFE is forbidden unless every applicable PIT evidence field defined in the contract is present and verified. The Phase A capital proof uses PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED.",
+      "x-backend-mapping": "Capital predictor cutoff checks, fit-window bounds, and calculator executionTiming.",
+      "x-current-support-status": "PIT_MECHANICS_SUPPORTED_DATA_VINTAGE_UNVERIFIED"
+    },
+    "benchmark": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "object", "minProperties": 1, "additionalProperties": true }
+      ],
+      "description": "Comparison series or policy; NOT_SUPPORTED is the explicit sentinel when no benchmark result exists.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "Must never be omitted.",
+      "x-backend-mapping": "No benchmark output exists in the selected capital engine.",
+      "x-current-support-status": "NOT_SUPPORTED_FOR_SELECTED_PATH"
+    },
+    "strategy_or_allocator_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable identifier of the strategy, selector, or allocator being executed.",
+      "x-source": "DERIVED",
+      "x-validation-rules": "Must resolve to committed callable source; derived contract labels must be declared as such.",
+      "x-backend-mapping": "capital-research-grid-selector is a derived contract label for the capital campaign selector; selected candidate IDs are emitted in ResearchRunResult.",
+      "x-current-support-status": "SUPPORTED_AS_DERIVED_CONTRACT_LABEL"
+    },
+    "strategy_or_allocator_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Semantic version of the selected strategy or allocator.",
+      "x-source": "DERIVED",
+      "x-validation-rules": "Must match the executing implementation and be repeated in provenance.",
+      "x-backend-mapping": "Capital ENGINE_VERSION.",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "parameters": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": true,
+      "description": "Complete, explicitly expanded mode-specific model and economic parameter set.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "No silent defaults. Every result-affecting engine default is expanded before hashing; JSON forbids nonfinite numbers.",
+      "x-backend-mapping": "Capital candidate specification, policy grid, selection metric, yields, slippage, and fold initialization.",
+      "x-current-support-status": "SUPPORTED_WITH_MODE_SPECIFIC_VALIDATION"
+    },
+    "rebalance_frequency": {
+      "type": "string",
+      "enum": ["monthly", "quarterly", "yearly", "once", "NOT_APPLICABLE"],
+      "description": "Cadence at which risky exposure or portfolio targets may be refreshed.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "Must be a cadence implemented by the selected mode; capital candidates accept monthly or quarterly.",
+      "x-backend-mapping": "Capital Campaign.rebalance_frequency and CandidateSpec.rebalance_frequency.",
+      "x-current-support-status": "SUPPORTED_WITH_MODE_SPECIFIC_VALUES"
+    },
+    "transaction_cost_bps": {
+      "type": "number",
+      "minimum": 0,
+      "description": "One-way cost charged on absolute traded notional, in basis points.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "Required, finite, and nonnegative. Zero costs are encoded as numeric 0. The selected adapter maps one scalar to a committed cost scenario.",
+      "x-backend-mapping": "Capital job scenario and calculator BacktestConfig.transactionCostBps.",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "expected_return_method": {
+      "$ref": "#/$defs/methodOrSentinel",
+      "description": "Expected-return method where an allocator objective requires one.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "Explicit object when used; NOT_APPLICABLE for the selected capital path. FUTURE_NOT_IMPLEMENTED never authorizes execution.",
+      "x-backend-mapping": "No expected-return estimate is consumed by the selected capital engine.",
+      "x-current-support-status": "NOT_APPLICABLE_FOR_SELECTED_PATH"
+    },
+    "covariance_method": {
+      "$ref": "#/$defs/methodOrSentinel",
+      "description": "Covariance method and version where portfolio allocation requires one.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "Explicit object when used; a method name cannot substitute for a PIT covariance artifact.",
+      "x-backend-mapping": "No covariance estimate is consumed by the selected capital engine.",
+      "x-current-support-status": "NOT_APPLICABLE_FOR_SELECTED_PATH"
+    },
+    "risk_mandate": {
+      "oneOf": [
+        { "type": "string", "enum": ["NOT_APPLICABLE", "NOT_SUPPORTED", "FUTURE_NOT_IMPLEMENTED"] },
+        { "type": "object", "minProperties": 1, "additionalProperties": true }
+      ],
+      "description": "Versioned limits, cash rules, and exposure rules where an allocation mode consumes a RiskMandate.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "Expanded and versioned when used; explicit sentinel otherwise.",
+      "x-backend-mapping": "The selected capital path uses exposure-policy parameters, not allocation-core RiskMandate.",
+      "x-current-support-status": "NOT_APPLICABLE_FOR_SELECTED_PATH"
+    },
+    "constraints": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": true,
+      "description": "Feasibility and acceptance bounds applied to candidates or allocations.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "All active bounds and units are explicit; defaults are expanded.",
+      "x-backend-mapping": "Capital Campaign.constraints or allocation-core constraints, depending on mode.",
+      "x-current-support-status": "SUPPORTED_WITH_MODE_SPECIFIC_VALIDATION"
+    },
+    "validation_protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "window_type", "selection_basis", "outer_oos_aggregation", "outer_folds"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["traditional", "nested"] },
+        "window_type": { "type": "string", "enum": ["rolling", "expanding"] },
+        "selection_basis": { "type": "string", "minLength": 1 },
+        "outer_oos_aggregation": { "type": "string", "minLength": 1 },
+        "outer_folds": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/outerFold" }
+        }
+      },
+      "description": "Defines how fitting, selection, validation or inner OOS, and outer OOS remain separate.",
+      "x-source": "SAVED_CONFIGURATION",
+      "x-validation-rules": "Ranges are half-open; training_end_exclusive is no later than outer_oos_start. Fold order is material and preserved.",
+      "x-backend-mapping": "Capital validation_mode, window_type, fold builder, and selection rule.",
+      "x-current-support-status": "TRADITIONAL_AND_NESTED_SUPPORTED"
+    },
+    "walk_forward_configuration": {
+      "oneOf": [
+        { "type": "string", "enum": ["NOT_APPLICABLE", "FUTURE_NOT_IMPLEMENTED"] },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["train_months", "test_months", "step_months", "recalibration_frequency", "overlapping_tests"],
+          "properties": {
+            "train_months": { "type": "integer", "minimum": 1 },
+            "test_months": { "type": "integer", "minimum": 1 },
+            "step_months": { "type": "integer", "minimum": 1 },
+            "recalibration_frequency": { "type": "string", "enum": ["monthly", "quarterly", "yearly", "once"] },
+            "overlapping_tests": { "type": "boolean" }
+          }
+        }
+      ],
+      "description": "Walk-forward window lengths and recalibration cadence.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "Object required for traditional/nested execution; current capital engine rejects overlapping test windows.",
+      "x-backend-mapping": "Capital train_months, test_months, step_months, and recalibration_frequency.",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "random_seed": {
+      "oneOf": [
+        { "type": "number" },
+        {
+          "type": "string",
+          "not": { "enum": ["NOT_APPLICABLE", "FUTURE_NOT_IMPLEMENTED"] },
+          "minLength": 1
+        },
+        { "type": "string", "enum": ["NOT_APPLICABLE", "FUTURE_NOT_IMPLEMENTED"] }
+      ],
+      "description": "Seed controlling stochastic search or engine behavior.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "Included in identity whenever randomness applies; NOT_APPLICABLE for deterministic execution.",
+      "x-backend-mapping": "Capital Campaign.random_seed for random search; the selected grid path is deterministic.",
+      "x-current-support-status": "SUPPORTED_WHEN_RANDOM_SEARCH_IS_USED"
+    },
+    "data_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["snapshot_id", "path", "sha256", "parsed_data_hash", "observations", "coverage_start", "coverage_end", "as_of", "as_of_status", "price_convention", "provenance_status"],
+      "properties": {
+        "snapshot_id": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "parsed_data_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "observations": { "type": "integer", "minimum": 1 },
+        "coverage_start": { "type": "string", "format": "date" },
+        "coverage_end": { "type": "string", "format": "date" },
+        "as_of": { "type": "string", "format": "date-time" },
+        "as_of_status": { "type": "string", "enum": ["ENGINE_BOUND", "AVAILABLE_EXTERNAL_METADATA_NOT_ENGINE_BOUND", "FUTURE_NOT_IMPLEMENTED"] },
+        "price_convention": { "type": "string", "minLength": 1 },
+        "provenance_status": {
+          "type": "string",
+          "enum": ["VERIFIED", "VENDOR_AUTHENTICITY_UNVERIFIED", "BLOCKED_MISSING_PIT_DATA"]
+        }
+      },
+      "description": "Immutable identity, coverage, and provenance qualification of every historical input used by the run.",
+      "x-source": "SAVED_CONFIGURATION",
+      "x-validation-rules": "Local input is committed; bytes and parsed observations match their hashes; coverage_start is no later than coverage_end.",
+      "x-backend-mapping": "Campaign.data_csv, data_sha256, committed bytes, parser result, and source metadata.",
+      "x-current-support-status": "SUPPORTED_WITH_VENDOR_AUTHENTICITY_LIMITATION"
+    },
+    "engine_versions": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string", "minLength": 1 },
+      "description": "Versions and code identity of every engine, model, and policy contributing to the result.",
+      "x-source": "DERIVED",
+      "x-validation-rules": "All contributing components are explicit; the entire object participates in identity.",
+      "x-backend-mapping": "Capital ENGINE_VERSION, model/policy registry versions, and aggregate code hash.",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "code_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$",
+      "description": "Git commit supplying committed executable source and inputs.",
+      "x-source": "DERIVED",
+      "x-validation-rules": "Full lowercase 40-character Git object ID.",
+      "x-backend-mapping": "git rev-parse HEAD.",
+      "x-current-support-status": "SUPPORTED"
+    },
+    "requested_by": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Audit identity of the requester; it does not alter financial output.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "Explicit nonempty value.",
+      "x-backend-mapping": "Request metadata; excluded from run identity.",
+      "x-current-support-status": "FUTURE_NOT_IMPLEMENTED_IN_BACKEND; PHASE_A_EVIDENCE_CAPTURE_ONLY"
+    },
+    "storage_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "campaign_roots", "scenario_selector", "reuse_policy"],
+      "properties": {
+        "kind": { "type": "string", "const": "IMMUTABLE_LOCAL_EVIDENCE" },
+        "campaign_roots": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "scenario_selector": { "type": "string", "minLength": 1 },
+        "reuse_policy": { "type": "string", "minLength": 1 }
+      },
+      "description": "Persistence and cache policy for auditable evidence; it does not alter economics.",
+      "x-source": "USER_SUPPLIED",
+      "x-validation-rules": "All output roots are explicit and immutable records reject identity mismatch.",
+      "x-backend-mapping": "runCampaign root and capital immutable artifact store.",
+      "x-current-support-status": "SUPPORTED"
+    }
+  },
+  "$defs": {
+    "methodOrSentinel": {
+      "oneOf": [
+        { "type": "string", "enum": ["NOT_APPLICABLE", "NOT_SUPPORTED", "FUTURE_NOT_IMPLEMENTED"] },
+        { "type": "object", "minProperties": 1, "additionalProperties": true }
+      ]
+    },
+    "outerFold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outer_fold", "training_start", "training_end_exclusive", "outer_oos_start", "outer_oos_end_exclusive"],
+      "properties": {
+        "outer_fold": { "type": "integer", "minimum": 0 },
+        "training_start": { "type": "string", "format": "date" },
+        "training_end_exclusive": { "type": "string", "format": "date" },
+        "validation_start": {
+          "oneOf": [
+            { "type": "string", "format": "date" },
+            { "const": "NOT_APPLICABLE" }
+          ]
+        },
+        "validation_end_exclusive": {
+          "oneOf": [
+            { "type": "string", "format": "date" },
+            { "const": "NOT_APPLICABLE" }
+          ]
+        },
+        "outer_oos_start": { "type": "string", "format": "date" },
+        "outer_oos_end_exclusive": { "type": "string", "format": "date" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "execution_scope": { "const": "EMPIRICAL" } }, "required": ["execution_scope"] },
+      "then": {
+        "properties": {
+          "data_snapshot": {
+            "properties": {
+              "provenance_status": { "not": { "const": "BLOCKED_MISSING_PIT_DATA" } }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "information_cutoff_policy": {
+            "properties": { "pit_label": { "const": "PIT_SAFE" } },
+            "required": ["pit_label"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "information_cutoff_policy": {
+            "properties": { "data_vintage_status": { "const": "VERIFIED" } }
+          }
+        }
+      }
+    }
+  ],
+  "x-default-policy": "NO_SILENT_DEFAULTS: expand every result-affecting default before canonicalization; explicitly encode transaction_cost_bps as 0 when costs are zero.",
+  "x-current-empirical-mapping": "research/capital/engine.ts runCampaign and its committed Campaign configuration"
+}
