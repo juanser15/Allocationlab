@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "browser": "Chromium",
+  "production_build_reviewed": true,
+  "checks": [
+    {"width": 360, "viewport_width": 360, "document_width": 360, "page_overflow": false, "advanced_details_collapsed": true},
+    {"width": 390, "viewport_width": 390, "document_width": 390, "page_overflow": false, "advanced_details_collapsed": true},
+    {"width": 430, "viewport_width": 430, "document_width": 430, "page_overflow": false, "advanced_details_collapsed": true},
+    {"width": 768, "viewport_width": 768, "document_width": 768, "page_overflow": false, "advanced_details_collapsed": true},
+    {"width": 1440, "viewport_width": 1440, "document_width": 1440, "page_overflow": false, "advanced_details_collapsed": true}
+  ],
+  "workflow_review": {
+    "deterministic_api_browser_campaign": "PASS",
+    "real_api_browser_campaign_at_1440": "PASS",
+    "access_run_rerun_alternative_compare": "PASS",
+    "tables_scroll_within_container": true,
+    "permanent_sidebar_present": false,
+    "dominant_primary_chart": true,
+    "comparison_uses_neutral_labels": true
+  }
+}

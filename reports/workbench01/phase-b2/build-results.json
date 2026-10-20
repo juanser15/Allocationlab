@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "frontend_typecheck": {
+    "command": "node_modules/.bin/tsc -p artifacts/allocation-lab/tsconfig.json --noEmit",
+    "exit_code": 0
+  },
+  "backend_typecheck": {
+    "command": "node_modules/.bin/tsc -p artifacts/api-server/tsconfig.json --noEmit",
+    "exit_code": 0
+  },
+  "frontend_production_build": {
+    "command": "PORT=4173 BASE_PATH=/ vite build --config vite.config.ts",
+    "exit_code": 0,
+    "modules_transformed": 2558,
+    "javascript_bytes": 1926260,
+    "javascript_gzip_bytes": 510640,
+    "warnings": [
+      "existing source-map location warnings in shared UI primitives",
+      "Vite chunk-size advisory above 500 kB"
+    ]
+  },
+  "backend_build": {
+    "command": "node artifacts/api-server/build.mjs",
+    "exit_code": 0,
+    "workbench_worker_built": true
+  },
+  "bundle_security_scan": {
+    "preview_token_environment_name_absent": true,
+    "test_secret_sentinel_absent": true
+  },
+  "git_diff_check": "PASS"
+}

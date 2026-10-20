@@ -13,6 +13,7 @@ import {
   RESEARCH_BOUNDARY,
   STORAGE_CLASSIFICATION,
 } from "./lib/workbench/contracts";
+import { createWorkbenchPreviewAccess } from "./lib/workbench/preview-access";
 
 const app: Express = express();
 const WORKBENCH_MAX_BODY_BYTES = 16 * 1024;
@@ -43,6 +44,10 @@ app.use(
     },
   }),
 );
+// The Workbench is an executable research preview. Authenticate its entire
+// API boundary before CORS, body parsing, or route dispatch. Other API routes
+// retain their existing access assumptions.
+app.use("/api/workbench", createWorkbenchPreviewAccess());
 app.use(cors());
 // Workbench run specifications are intentionally small. Parse them with the
 // service's tighter bound before the broader upload-oriented API parser.

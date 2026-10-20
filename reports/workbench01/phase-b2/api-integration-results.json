@@ -1,0 +1,70 @@
+{
+  "status": "PASS",
+  "execution_path": "REAL_PHASE_B1_API_AND_CERTIFIED_EMPIRICAL_ENGINE",
+  "authenticated": true,
+  "temporary_store": "ISOLATED_TMP_DIRECTORY",
+  "browser_api_integration": {
+    "status": "PASS",
+    "browser": "Chromium",
+    "frontend": "Vite production preview",
+    "api": "real authenticated Express API",
+    "same_origin_contract": true,
+    "no_page_overflow": true
+  },
+  "run_a": {
+    "transaction_cost_bps": 0,
+    "run_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+    "execution_attempt_id": "ea_c07841fe-40e4-4a87-80fb-c49d3a9912f0",
+    "status": "SUCCESS",
+    "oos_observations": 501,
+    "final_research_index": 107.25445949277757,
+    "realized_transaction_cost": 0,
+    "financial_result_hash": "426533ad89ffb1ad72246a8c8ecdb2a6e7ad8e9d1c50f8e6db713d36e1af7e0d"
+  },
+  "run_a_rerun": {
+    "run_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+    "execution_attempt_id": "ea_ca004265-8d64-451d-b09c-1cfada50d5d0",
+    "status": "SUCCESS",
+    "attempt_history_count": 2,
+    "same_run_id": true,
+    "different_attempt_id": true,
+    "same_normalized_spec": true,
+    "same_financial_result_hash": true,
+    "same_metrics": true,
+    "same_time_series": true
+  },
+  "run_b": {
+    "transaction_cost_bps": 5,
+    "run_id": "rr_26db2418c42692c261ddb63cbfc7b7bd47844ff17e4de5926066d037906e240f",
+    "execution_attempt_id": "ea_0bf09fa2-8782-438c-9162-e9b629fbbff4",
+    "status": "SUCCESS",
+    "oos_observations": 501,
+    "final_research_index": 107.13006040048703,
+    "realized_transaction_cost": 0.1130073297533634,
+    "financial_result_hash": "ed95b4e9782f942905539d37f3a655358e7f106c8162f6a905985288f53f40b8"
+  },
+  "compare": {
+    "calculation": "READ_ONLY_NO_RECALCULATION",
+    "spec_difference_paths": ["/transaction_cost_bps"],
+    "transaction_cost_difference_bps": 5,
+    "oos_observation_difference": 0,
+    "final_research_index_difference": -0.12439909229054535,
+    "realized_cost_difference": 0.1130073297533634,
+    "attempt_counts_unchanged": true,
+    "winner_declared": false
+  },
+  "browser_receipts": {
+    "run_a_run_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+    "run_a_attempt_id": "ea_c3cca02a-db46-4914-88c0-73abbadb9f7c",
+    "run_a_rerun_attempt_id": "ea_a6681b6a-a962-4b43-8a64-f634928f9b35",
+    "run_b_run_id": "rr_26db2418c42692c261ddb63cbfc7b7bd47844ff17e4de5926066d037906e240f",
+    "run_b_attempt_id": "ea_80d1230f-5672-4a18-ae6f-7123b9422a7c",
+    "rerun_same_run_id": true,
+    "rerun_new_attempt_id": true
+  },
+  "boundaries": {
+    "research": "RESEARCH_ONLY",
+    "storage": "TEMPORARY_RESEARCH_STORAGE",
+    "pit": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED"
+  }
+}

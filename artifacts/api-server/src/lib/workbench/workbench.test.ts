@@ -36,6 +36,7 @@ import {
 } from "./identity";
 import { WorkbenchRunStore, WorkbenchRunStoreError } from "./run-store";
 import { WorkbenchService, createWorkbenchService } from "./service";
+import { WORKBENCH_PREVIEW_TOKEN_ENV } from "./preview-access";
 import { createWorkbenchRouter } from "../../routes/workbench";
 import apiApp from "../../app";
 
@@ -675,6 +676,8 @@ test("concurrent-abuse bound caps immutable attempts without making the run unre
 });
 
 test("integrated application returns labelled JSON for parser and route-boundary failures", async (t) => {
+  const previousPreviewToken = process.env[WORKBENCH_PREVIEW_TOKEN_ENV];
+  delete process.env[WORKBENCH_PREVIEW_TOKEN_ENV];
   const server = apiApp.listen(0);
   await once(server, "listening");
   const address = server.address();
@@ -682,6 +685,32 @@ test("integrated application returns labelled JSON for parser and route-boundary
   const baseUrl = `http://127.0.0.1:${address.port}`;
   t.after(() => new Promise<void>((resolveClose, rejectClose) => server.close((error) =>
     error ? rejectClose(error) : resolveClose())));
+  t.after(() => {
+    if (previousPreviewToken === undefined) delete process.env[WORKBENCH_PREVIEW_TOKEN_ENV];
+    else process.env[WORKBENCH_PREVIEW_TOKEN_ENV] = previousPreviewToken;
+  });
+
+  const unconfigured = await fetch(`${baseUrl}/api/workbench/capabilities`);
+  assert.equal(unconfigured.status, 503);
+  assert.equal(((await unconfigured.json()) as any).error.code, "WORKBENCH_PREVIEW_ACCESS_NOT_CONFIGURED");
+
+  process.env[WORKBENCH_PREVIEW_TOKEN_ENV] = "phase-b2-injected-test-token";
+  const unauthorized = await fetch(`${baseUrl}/api/workbench/capabilities`);
+  assert.equal(unauthorized.status, 401);
+  assert.equal(((await unauthorized.json()) as any).error.code, "WORKBENCH_PREVIEW_UNAUTHORIZED");
+
+  const wrong = await fetch(`${baseUrl}/api/workbench/capabilities`, {
+    headers: { authorization: "Bearer wrong-token" },
+  });
+  assert.equal(wrong.status, 401);
+
+  const authorized = await fetch(`${baseUrl}/api/workbench/capabilities`, {
+    headers: { authorization: "Bearer phase-b2-injected-test-token" },
+  });
+  assert.equal(authorized.status, 200);
+
+  const unrelated = await fetch(`${baseUrl}/api/phase-b2-unrelated-route-probe`);
+  assert.notEqual(unrelated.status, 401, "preview access must not alter unrelated API routes");
 
   const cases: Array<{ path: string; init?: RequestInit; status: number; code: string }> = [
     {
@@ -728,7 +757,10 @@ test("integrated application returns labelled JSON for parser and route-boundary
   ];
 
   for (const expected of cases) {
-    const response = await fetch(`${baseUrl}${expected.path}`, expected.init);
+    const init = expected.init ?? {};
+    const headers = new Headers(init.headers);
+    headers.set("authorization", "Bearer phase-b2-injected-test-token");
+    const response = await fetch(`${baseUrl}${expected.path}`, { ...init, headers });
     const text = await response.text();
     assert.equal(response.status, expected.status, text);
     assert.match(response.headers.get("content-type") ?? "", /^application\/json/);

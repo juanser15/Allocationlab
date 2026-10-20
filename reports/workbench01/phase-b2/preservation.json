@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "starting_head": "a4fa2cb1e49b1ece715bfa62e8dde38d8fc29829",
+  "branch": "workbench-v1",
+  "certified_backend_and_datasets": {
+    "files_checked": 483,
+    "changed_files": 0,
+    "content_manifest_sha256": "f950441ba1203d0c3c6e9ad78607e6f5e6c130e0f1cab69f46ba903ad58e60fd",
+    "mode_manifest_sha256": "9d58acd7e01d8c783eb2d2364574c28ecc1da25b09578b15e8b81123328e316d"
+  },
+  "phase_a_evidence": {
+    "files_checked": 352,
+    "changed_files": 0,
+    "content_manifest_sha256": "ff059a5ff0c17e559c5853162f7b4f9a2cddc60a3f7fbf7047d47adc9dbe7157",
+    "mode_manifest_sha256": "50c8753285ae0d6475778d1e92e563cba1ef475bc84374f094cb23201651585e"
+  },
+  "phase_b1_financial_execution_and_reports": {
+    "files_checked": 22,
+    "changed_files": 0,
+    "content_manifest_sha256": "7fd6b3142e96f249c49d37e3d71054764a36a3533d99da736de26a4e30262478",
+    "mode_manifest_sha256": "c3becb6b444248b1a2a4776ecb9bf972c99921bd259edcbc36ddd227753135f7"
+  },
+  "authorized_phase_b1_integration_changes": [
+    "artifacts/api-server/src/app.ts",
+    "artifacts/api-server/src/lib/workbench/workbench.test.ts"
+  ],
+  "new_api_integration_files": [
+    "artifacts/api-server/src/lib/workbench/preview-access.ts",
+    "artifacts/api-server/src/lib/workbench/workbench-b2.integration.test.ts"
+  ],
+  "pnpm_lock_sha256": "93e6db6345768119ed2729c407865a7d45a0e3afa623d200662b258d16b75819",
+  "lockfile_changed": false,
+  "package_manifests_changed": false,
+  "certified_financial_math_changed": false,
+  "phase_b1_calculation_outputs_changed": false,
+  "git_diff_check": "PASS"
+}

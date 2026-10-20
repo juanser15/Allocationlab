@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "frontend_contract_tests": {
+    "command": "esbuild src/lib/workbench.test.ts; node --test dist/workbench.test.mjs",
+    "total": 7,
+    "passed": 7,
+    "failed": 0,
+    "duration_ms": 91.25204,
+    "coverage": [
+      "capabilities and mandatory limits",
+      "strict five-field submission",
+      "bounded terminal polling and 429 behavior",
+      "actual result values, chart and no invented metrics",
+      "immutable rerun and attempt evidence",
+      "read-only neutral comparison",
+      "collapsed audit details, no trading controls and legacy routes"
+    ]
+  },
+  "backend_workbench_tests": {
+    "total": 12,
+    "passed": 11,
+    "failed": 0,
+    "skipped": 1,
+    "skip_reason": "the long empirical case is executed separately through the authenticated integration campaign",
+    "duration_ms": 804.104348,
+    "access_control": {
+      "missing_configuration_503": "PASS",
+      "missing_or_wrong_token_401": "PASS",
+      "injected_test_token_200": "PASS",
+      "unrelated_route_unchanged": "PASS"
+    }
+  },
+  "empirical_api_acceptance": {
+    "status": "PASS",
+    "tests": 1,
+    "duration_ms": 86606.7,
+    "run_a_run_b_rerun_compare": "PASS"
+  },
+  "browser_acceptance": {
+    "responsive_widths": [360, 390, 430, 768, 1440],
+    "mocked_deterministic_flow": "PASS",
+    "real_authenticated_api_flow": "PASS"
+  },
+  "security_and_boundaries": {
+    "strict_input_and_payload_limits": "PASS",
+    "path_and_store_confinement": "PASS",
+    "concurrency_and_attempt_bounds": "PASS",
+    "bundle_secret_scan": "PASS",
+    "broker_order_authorization_controls_absent": "PASS"
+  }
+}

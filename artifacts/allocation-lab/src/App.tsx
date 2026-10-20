@@ -12,6 +12,7 @@ import { SettingsDrawerProvider } from "@/context/settings-drawer-context";
 import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
 import { UxPreferencesProvider } from "@/context/ux-preferences-context";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
+import WorkbenchPage from "@/pages/workbench";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,7 +23,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function Router() {
+function LegacyRouter() {
   return (
     <AppLayout>
       <SettingsDrawer />
@@ -46,6 +47,15 @@ function Router() {
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
+  );
+}
+
+function Router() {
+  return (
+    <Switch>
+      <Route path="/workbench" component={WorkbenchPage} />
+      <Route><LegacyRouter /></Route>
+    </Switch>
   );
 }
 
