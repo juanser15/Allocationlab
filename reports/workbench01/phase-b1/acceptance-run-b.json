@@ -1,0 +1,106 @@
+{
+  "schema_version": "workbench-b1-acceptance-run-1.0.0",
+  "run_label": "RUN_B",
+  "evidence_kind": "LIVE_EMPIRICAL_API_EXECUTION",
+  "api_request": {
+    "method": "POST",
+    "path": "/api/workbench/runs",
+    "body": {
+      "research_mode": "CAPITAL_MARKET_EXPOSURE",
+      "execution_scope": "EMPIRICAL",
+      "universe": "SPY",
+      "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+      "transaction_cost_bps": 5
+    },
+    "poll_path": "/api/workbench/runs/rr_26db2418c42692c261ddb63cbfc7b7bd47844ff17e4de5926066d037906e240f"
+  },
+  "boundaries": {
+    "research_boundary": "RESEARCH_ONLY",
+    "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+    "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+    "economic_claim": "NONE"
+  },
+  "identity": {
+    "run_id": "rr_26db2418c42692c261ddb63cbfc7b7bd47844ff17e4de5926066d037906e240f",
+    "execution_attempt_id": "ea_5af7a964-6c06-4d26-a37d-6f125b7791bd",
+    "attempt_source": "SUBMIT",
+    "status": "SUCCESS",
+    "stage": "OUTER_OOS_AGGREGATE"
+  },
+  "timing": {
+    "requested_at": "2026-10-20T11:51:34.528Z",
+    "started_at": "2026-10-20T11:51:34.532Z",
+    "completed_at": "2026-10-20T11:52:03.112Z",
+    "elapsed_ms_from_status_timestamps": 28580
+  },
+  "normalized_spec_summary": {
+    "research_mode": "CAPITAL_MARKET_EXPOSURE",
+    "execution_scope": "EMPIRICAL",
+    "operated_universe": ["SPY"],
+    "start_date": "2020-01-01",
+    "end_date_exclusive": "2024-01-01",
+    "benchmark": "NOT_SUPPORTED",
+    "strategy_or_allocator_id": "capital-research-grid-selector",
+    "strategy_or_allocator_version": "capital-research-1.0.1",
+    "rebalance_frequency": "monthly",
+    "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+    "transaction_cost_bps": 5,
+    "random_seed": "NOT_APPLICABLE"
+  },
+  "result": {
+    "oos_observations": 501,
+    "final_research_index": 107.13006040048703,
+    "realized_transaction_cost": 0.1130073297533634,
+    "transaction_cost_bps": 5,
+    "cagr": 0.035249977711973246,
+    "net_sharpe": 0.3011888473152739,
+    "max_drawdown": -0.19162665108551424,
+    "annualized_volatility": 0.15466908349475517,
+    "gross_turnover": 2.320629024530165,
+    "annualized_turnover": 1.16726250335649,
+    "mean_beginning_risky_exposure": 0.8566549034132028
+  },
+  "engine_execution": {
+    "whole_campaign_new_jobs": 24,
+    "whole_campaign_reused_jobs": 0,
+    "artifact_file_count": 165,
+    "artifact_total_bytes": 15907773,
+    "selected_candidates": [
+      "c_8bd28f4f8b5e8e7d2077e17c",
+      "c_aa16f813288e415fae34648c"
+    ],
+    "job_hashes": [
+      "2888c51b5b6a01eaf0f04b90ac4b20bfccefd65c9e954984ea5f33ac99639383",
+      "099f436164943ae4afb9a8cfe1c637b34619929ad08d140f73d74c7a3b833bc7"
+    ],
+    "result_hashes": [
+      "ae05e63cd2f7da9e587f76c82314b592c8e29b475c7fc3745d0c8a577a8c4e7d",
+      "b86c96cec3f8a8381823f103bec30f480240214e24892dc607ca650a3bd010f0"
+    ]
+  },
+  "hashes": {
+    "financial_result_hash": "ed95b4e9782f942905539d37f3a655358e7f106c8162f6a905985288f53f40b8",
+    "runtime_hash": "23236440ddd5a8a835455b1818e84ca5ce55e92814678a968c4b483dfb980db9",
+    "full_campaign_financial_artifact_hash": "238912aac6a74bf4eed41157a86c313e63b5e23a877e338602cc9878f81cb6c6",
+    "selected_equity_rows_sha256": "7ae56880aa37360af79a97524a6e1adf222932e5d6eee79f5317ad71e6227114",
+    "selected_ledger_rows_sha256": "1a14a2475d87c94f63d2f8e5d48a2719d8b57550ec28153032808166d4c71d0e"
+  },
+  "provenance": {
+    "certified_engine_commit": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+    "engine_version": "capital-research-1.0.1",
+    "adapter_version": "workbench-b1-capital-adapter-1.0.0",
+    "code_hash": "94a2c94f0cf7a096865a7d5a8284aa1141f23b62a49685e8d3e3502afd830dcf",
+    "campaign_config_sha256": "9ad484bc22d2120f583b08fe1a951d22ddb34525f8c89feee28a813a336c1c64",
+    "data_sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+    "parsed_data_hash": "f7436db75e7c6ed35938e6248c48c162c051cd8a99457a5c386910b36f6c743e",
+    "experiment_hash": "803c0c5bbe79c9d47a72f7a22a6709b82a00eb34c5e83d79b44b9f988bc6ceef"
+  },
+  "acceptance": {
+    "fresh_recalculation": true,
+    "nonzero_realized_cost": true,
+    "cost_parameter_applied": true,
+    "actual_historical_observations_used": true,
+    "warnings_preserved": true,
+    "blockers": []
+  }
+}

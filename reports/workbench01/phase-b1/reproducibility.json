@@ -1,0 +1,77 @@
+{
+  "schema_version": "workbench-b1-reproducibility-1.0.0",
+  "status": "PASS",
+  "scope": "Run A and its explicit API rerun in separate immutable attempt roots",
+  "research_boundary": "RESEARCH_ONLY",
+  "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+  "run_identity": {
+    "run_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+    "original_execution_attempt_id": "ea_5f2567ef-7d3c-42d4-8a3e-21c7184aca57",
+    "rerun_execution_attempt_id": "ea_468bda47-7551-405e-bcf9-90e60dc9576a",
+    "same_run_id": true,
+    "different_execution_attempt_id": true,
+    "same_normalized_spec": true,
+    "transaction_cost_bps": 0
+  },
+  "fresh_execution": {
+    "separate_attempt_roots": true,
+    "new_jobs_original": 24,
+    "new_jobs_rerun": 24,
+    "reused_jobs_original": 0,
+    "reused_jobs_rerun": 0,
+    "persisted_job_cache_shared": false
+  },
+  "financial_equality": {
+    "financial_result_hash_original": "426533ad89ffb1ad72246a8c8ecdb2a6e7ad8e9d1c50f8e6db713d36e1af7e0d",
+    "financial_result_hash_rerun": "426533ad89ffb1ad72246a8c8ecdb2a6e7ad8e9d1c50f8e6db713d36e1af7e0d",
+    "same_financial_result_hash": true,
+    "same_full_campaign_financial_artifact_hash": true,
+    "full_campaign_financial_artifact_hash": "238912aac6a74bf4eed41157a86c313e63b5e23a877e338602cc9878f81cb6c6",
+    "same_metrics": true,
+    "same_costs": true,
+    "same_oos_observation_count": true,
+    "same_final_research_index": true,
+    "same_selected_equity_rows_hash": true,
+    "selected_equity_rows_sha256": "7e743b11a56f143c7851ec5c612e6412421d9a06dc1fd0ab14a82df0ad2ba472",
+    "same_selected_ledger_rows_hash": true,
+    "selected_ledger_rows_sha256": "2b490559834cd08baeb4f0f5f4135a887b31eaaaf5c4de0acf52e6fb64b77ba1",
+    "same_job_hashes": true,
+    "same_result_hashes": true,
+    "same_warnings": true,
+    "same_blockers": true
+  },
+  "runtime_separation": {
+    "runtime_hash_original": "9ab9b140a8e1c17d8f90a8de485f3a5785eba82fa0123b613a45b2f80b69b9f8",
+    "runtime_hash_rerun": "7af22bff12350ed48c385cdf687bdb0d155d1fca2b5674cd433ee298194cae2a",
+    "runtime_hashes_equal": false,
+    "expected_nondeterministic_fields": [
+      "timestamps",
+      "memory readings",
+      "runtime counters",
+      "progress.json",
+      "logs",
+      "execution_attempt_id"
+    ],
+    "runtime_fields_in_financial_hash": false,
+    "unexplained_financial_differences": []
+  },
+  "parameter_change_proof": {
+    "run_a_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+    "run_b_id": "rr_26db2418c42692c261ddb63cbfc7b7bd47844ff17e4de5926066d037906e240f",
+    "run_ids_differ": true,
+    "normalized_spec_diff": ["/transaction_cost_bps"],
+    "financial_result_hashes_differ": true,
+    "run_a_realized_cost": 0,
+    "run_b_realized_cost": 0.1130073297533634,
+    "parameter_status": "APPLIED_NOT_IGNORED",
+    "campaign_experiment_hash_shared_by_design": "803c0c5bbe79c9d47a72f7a22a6709b82a00eb34c5e83d79b44b9f988bc6ceef"
+  },
+  "provenance": {
+    "certified_engine_commit": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+    "engine_version": "capital-research-1.0.1",
+    "adapter_version": "workbench-b1-capital-adapter-1.0.0",
+    "code_hash": "94a2c94f0cf7a096865a7d5a8284aa1141f23b62a49685e8d3e3502afd830dcf",
+    "data_sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+    "parsed_data_hash": "f7436db75e7c6ed35938e6248c48c162c051cd8a99457a5c386910b36f6c743e"
+  }
+}

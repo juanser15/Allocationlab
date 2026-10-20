@@ -1,0 +1,132 @@
+{
+  "schema_version": "workbench-b1-test-results-1.0.0",
+  "status": "PASS",
+  "runtime": {
+    "node": "v24.19.0",
+    "pnpm": "11.25.0",
+    "python": "3.12.14"
+  },
+  "checks": [
+    {
+      "name": "strict API server typecheck",
+      "command": "./node_modules/.bin/tsc -p artifacts/api-server/tsconfig.json --noEmit",
+      "status": "PASS",
+      "exit_code": 0
+    },
+    {
+      "name": "server and fixed worker build",
+      "command": "node artifacts/api-server/build.mjs",
+      "status": "PASS",
+      "exit_code": 0,
+      "outputs": [
+        "artifacts/api-server/dist/index.mjs",
+        "artifacts/api-server/dist/workbench-run-worker.mjs"
+      ]
+    },
+    {
+      "name": "Workbench test bundle",
+      "command": "artifacts/api-server/node_modules/.bin/esbuild artifacts/api-server/src/lib/workbench/workbench.test.ts --bundle --platform=node --format=esm --outfile=artifacts/api-server/dist/workbench.test.mjs --external:*.node --external:pino --external:pino-http --external:pino-pretty --external:thread-stream --sourcemap --banner:js='import { createRequire as __testCreateRequire } from \"node:module\"; import __testPath from \"node:path\"; import __testUrl from \"node:url\"; globalThis.require = __testCreateRequire(import.meta.url); globalThis.__filename = __testUrl.fileURLToPath(import.meta.url); globalThis.__dirname = __testPath.dirname(globalThis.__filename);'",
+      "status": "PASS",
+      "exit_code": 0
+    },
+    {
+      "name": "fast Workbench contract, route, store, security and fake-output suite",
+      "command": "DATABASE_URL=postgresql://workbench:workbench@127.0.0.1:65432/workbench VALIDATION_JOB_WORKER_DISABLED=1 node --test artifacts/api-server/dist/workbench.test.mjs",
+      "status": "PASS",
+      "tests": 12,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 1,
+      "skip_reason": "The empirical campaign is gated for the separate full acceptance invocation.",
+      "duration_ms": 804.709815
+    },
+    {
+      "name": "full empirical API acceptance suite",
+      "command": "DATABASE_URL=postgresql://workbench:workbench@127.0.0.1:65432/workbench VALIDATION_JOB_WORKER_DISABLED=1 WORKBENCH_EMPIRICAL_ACCEPTANCE=1 node --test artifacts/api-server/dist/workbench.test.mjs",
+      "status": "PASS",
+      "tests": 12,
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 86938.707623
+    },
+    {
+      "name": "full built-server API campaign",
+      "command": "Built Express server; POST/poll Run A, POST/poll Run B, POST/poll Run A rerun, GET compare",
+      "status": "PASS",
+      "run_a_status": "SUCCESS",
+      "run_b_status": "SUCCESS",
+      "run_a_rerun_status": "SUCCESS",
+      "compare_status": "PASS"
+    },
+    {
+      "name": "built-server Workbench JSON parser boundary",
+      "command": "Exercise malformed JSON, oversized form input, unsupported JSON charset, corrupt deflate input and malformed URL encoding against the integrated Express application",
+      "status": "PASS",
+      "invalid_json_status": 400,
+      "invalid_json_code": "INVALID_REQUEST_BODY",
+      "oversized_json_status": 413,
+      "oversized_json_code": "PAYLOAD_TOO_LARGE",
+      "unsupported_charset_status": 415,
+      "unsupported_charset_code": "UNSUPPORTED_MEDIA_TYPE",
+      "corrupt_compression_status": 400,
+      "corrupt_compression_code": "INVALID_REQUEST_BODY",
+      "malformed_path_status": 400,
+      "malformed_path_code": "INVALID_REQUEST_PATH",
+      "mandatory_boundary_labels_preserved": true,
+      "stack_trace_exposed": false
+    },
+    {
+      "name": "whitespace validation at test time",
+      "command": "git diff --check",
+      "status": "PASS",
+      "exit_code": 0
+    }
+  ],
+  "required_test_coverage": {
+    "A_capabilities_one_empirical_path": "PASS",
+    "B_no_synthetic_empirical_advertisement": "PASS",
+    "C_same_spec_same_run_id": "PASS",
+    "D_cost_changes_run_id": "PASS",
+    "E_unsupported_field_rejected": "PASS",
+    "F_unsupported_universe_rejected": "PASS",
+    "G_unsupported_mode_rejected": "PASS",
+    "H_explicit_transaction_cost_required": "PASS",
+    "I_running_duplicate_not_reexecuted": "PASS",
+    "J_successful_duplicate_reuses_latest_success": "PASS",
+    "K_rerun_new_attempt_same_run": "PASS",
+    "L_failure_immutable_and_preserved": "PASS",
+    "M_path_traversal_rejected": "PASS",
+    "N_arbitrary_command_injection_impossible": "PASS",
+    "O_store_excludes_certified_paths": "PASS",
+    "P_run_a_rerun_reproduces": "PASS_EMPIRICAL",
+    "Q_run_b_cost_applied": "PASS_EMPIRICAL",
+    "R_compare_reads_immutable_results": "PASS",
+    "S_pit_classification_preserved": "PASS",
+    "T_no_broker_order_or_capital_authorization_contract": "PASS"
+  },
+  "additional_security_regressions": {
+    "unexpected_query_parameters_rejected": "PASS",
+    "fixed_field_metadata_complete": "PASS_23_FIXED_FIELDS",
+    "repository_discovery_from_unrelated_git_cwd": "PASS_FAIL_CLOSED",
+    "shared_temporary_root_rejected": "PASS",
+    "capacity_blocker_metadata_amplification_prevented": "PASS",
+    "per_run_attempt_cap_preserves_readability": "PASS",
+    "missing_terminal_result_surfaces_error": "PASS",
+    "failed_result_exposes_safe_diagnostic_reference": "PASS",
+    "integrated_parser_and_route_errors_are_labelled_json": "PASS"
+  },
+  "empirical_expected_values": {
+    "run_a_financial_result_hash": "426533ad89ffb1ad72246a8c8ecdb2a6e7ad8e9d1c50f8e6db713d36e1af7e0d",
+    "run_b_financial_result_hash": "ed95b4e9782f942905539d37f3a655358e7f106c8162f6a905985288f53f40b8",
+    "run_a_and_rerun_hash_equal": true,
+    "run_b_realized_transaction_cost": 0.1130073297533634,
+    "observations_each": 501
+  },
+  "test_fixture_boundary": {
+    "fast_suite_uses_bounded_fake_engine_artifacts": true,
+    "fake_artifacts_used_as_empirical_evidence": false,
+    "full_acceptance_uses_committed_empirical_engine_and_data": true
+  },
+  "tooling_note": "The managed pnpm wrapper attempted an unnecessary dependency-status install and could not write its default home store. Existing frozen workspace dependencies were used directly; no package, lockfile, or dependency state was changed."
+}

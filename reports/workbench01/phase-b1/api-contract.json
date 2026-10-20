@@ -1,0 +1,214 @@
+{
+  "schema_version": "workbench-phase-b1-api-contract-1.0.0",
+  "base_path": "/api/workbench",
+  "framework": "Express 5",
+  "research_boundary": "RESEARCH_ONLY",
+  "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+  "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+  "authentication_assumption": "The existing server has no global authentication middleware; Workbench follows the current internal-application API assumption.",
+  "common_response_fields": {
+    "research_boundary": "RESEARCH_ONLY",
+    "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+    "storage_classification": "TEMPORARY_RESEARCH_STORAGE"
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/capabilities",
+      "side_effect": "NONE",
+      "success_status": 200,
+      "returns": [
+        "supported research modes",
+        "supported universe",
+        "supported validation method",
+        "editable fields",
+        "fixed fields",
+        "blocked modes",
+        "data coverage",
+        "PIT classification",
+        "engine identity",
+        "temporary storage status",
+        "real-money boundary",
+        "execution limits"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/runs",
+      "max_json_body_bytes": 16384,
+      "request": {
+        "type": "object",
+        "additional_properties": false,
+        "required": [
+          "research_mode",
+          "execution_scope",
+          "universe",
+          "validation_protocol",
+          "transaction_cost_bps"
+        ],
+        "properties": {
+          "research_mode": {
+            "const": "CAPITAL_MARKET_EXPOSURE"
+          },
+          "execution_scope": {
+            "const": "EMPIRICAL"
+          },
+          "universe": {
+            "const": "SPY"
+          },
+          "validation_protocol": {
+            "const": "TRADITIONAL_WALK_FORWARD"
+          },
+          "transaction_cost_bps": {
+            "type": "number",
+            "enum": [0, 5],
+            "explicit_value_required": true
+          }
+        }
+      },
+      "responses": {
+        "200": "Existing terminal execution is reused without starting work; a prior latest successful attempt is preferred for a normal resubmission.",
+        "202": "A new attempt is RUNNING, or the matching PENDING/RUNNING attempt is returned.",
+        "400": "The strict submission contract failed.",
+        "413": "JSON request body exceeded 16 KiB.",
+        "415": "Request body media type or JSON encoding is unsupported.",
+        "429": "Execution capacity or the 100-attempt per-run bound prevents a new execution. One capacity BLOCKED attempt is reused for repeated requests against the same active lease.",
+        "500": "Safe unexpected-error envelope; no client stack trace."
+      },
+      "idempotency": {
+        "same_normalized_spec": "Same deterministic run_id.",
+        "matching_pending_or_running": "Return the existing attempt; do not start another process.",
+        "matching_success": "Return the latest successful attempt by default.",
+        "failed_or_blocked_without_success": "Return the latest immutable terminal attempt; do not silently retry.",
+        "explicit_retry": "Use POST /runs/:runId/rerun."
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/runs",
+      "query_parameters": [],
+      "side_effect": "NONE",
+      "success_status": 200,
+      "returns": "Bounded run summaries with latest status and successful-attempt reference."
+    },
+    {
+      "method": "GET",
+      "path": "/runs/:runId",
+      "path_parameter": {
+        "runId": "^rr_[0-9a-f]{64}$"
+      },
+      "query_parameters": [],
+      "side_effect": "NONE",
+      "success_status": 200,
+      "returns": [
+        "complete stored ResearchRunSpec",
+        "immutable attempt history",
+        "latest status and attempt",
+        "latest terminal result or explicit availability sentinel",
+        "latest successful result when one exists",
+        "warnings",
+        "blockers",
+        "provenance"
+      ],
+      "not_found_status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/runs/:runId/rerun",
+      "path_parameter": {
+        "runId": "^rr_[0-9a-f]{64}$"
+      },
+      "request": {
+        "type": "object",
+        "max_properties": 0,
+        "meaning": "Reuse the immutable stored normalized specification."
+      },
+      "responses": {
+        "202": "A new execution_attempt_id is created under the same run_id and execution starts.",
+        "400": "Request contains fields or run_id is malformed.",
+        "404": "Run does not exist.",
+        "429": "Execution capacity or the 100-attempt per-run bound prevents a new execution; repeated requests against the same active lease reuse its immutable BLOCKED attempt."
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/compare",
+      "query": {
+        "additional_parameters": false,
+        "required": {
+          "leftRunId": "^rr_[0-9a-f]{64}$",
+          "rightRunId": "^rr_[0-9a-f]{64}$"
+        }
+      },
+      "side_effect": "READ_ONLY_NO_RECALCULATION",
+      "success_status": 200,
+      "requires": "A successful immutable attempt for both run IDs.",
+      "returns": [
+        "run IDs",
+        "selected successful attempt IDs",
+        "spec differences",
+        "financial-input differences",
+        "transaction-cost difference",
+        "OOS-observation difference",
+        "final research-index difference",
+        "realized-cost difference",
+        "financial-result hashes",
+        "comparability warnings"
+      ],
+      "forbidden_conclusions": [
+        "winner",
+        "recommendation"
+      ],
+      "conflict_status": 409
+    }
+  ],
+  "run_identity": {
+    "format": "rr_<lowercase SHA-256>",
+    "input": "Canonical normalized supported ResearchRunSpec including data, certified-engine and adapter identities.",
+    "canonicalization": {
+      "object_keys": "Recursive UTF-16 lexical ordering",
+      "dates": "Canonical YYYY-MM-DD values fixed by the normalized spec",
+      "numbers": "Finite JSON shortest representation; negative zero becomes zero",
+      "nulls": "Explicit null preserved; undefined rejected",
+      "arrays": "Order preserved and sparse arrays rejected",
+      "defaults": "All supported fixed values expanded before hashing",
+      "enums": "Exact declared case"
+    },
+    "excluded_display_metadata": [
+      "$schema",
+      "contract_version",
+      "run_id",
+      "created_at",
+      "requested_by",
+      "storage_policy"
+    ]
+  },
+  "execution_attempt_identity": {
+    "format": "ea_<UUID-v4>",
+    "semantics": "One immutable physical attempt; reruns keep run_id and receive a distinct attempt ID."
+  },
+  "status_model": [
+    "PENDING",
+    "RUNNING",
+    "SUCCESS",
+    "FAILED",
+    "BLOCKED"
+  ],
+  "result_semantics": {
+    "financial_result_hash": "Scenario-specific hash of actual financial outputs and identities; excludes runtime telemetry and attempt metadata.",
+    "runtime_hash": "Separate hash of progress telemetry.",
+    "unavailable_output": "NOT_SUPPORTED or a precise BLOCKED value; in-progress latest results use NOT_AVAILABLE_WHILE_PENDING_OR_RUNNING.",
+    "success_meaning": "Execution mechanics completed; it is not promotion, authorization, allocation, a recommendation, or an economic claim."
+  },
+  "safe_error_shape": {
+    "research_boundary": "RESEARCH_ONLY",
+    "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+    "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+    "error": {
+      "code": "stable machine-readable code",
+      "message": "safe client message",
+      "issues": "optional validation issues"
+    },
+    "stack_trace_exposed": false
+  }
+}

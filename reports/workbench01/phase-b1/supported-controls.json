@@ -1,0 +1,452 @@
+{
+  "schema_version": "workbench-phase-b1-supported-controls-1.0.0",
+  "research_boundary": "RESEARCH_ONLY",
+  "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+  "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+  "execution_allowlist": {
+    "research_mode": "CAPITAL_MARKET_EXPOSURE",
+    "execution_scope": "EMPIRICAL",
+    "universe": "SPY",
+    "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+    "engine_entry_point": "research/capital/engine.ts::runCampaign",
+    "certified_engine_commit": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+    "engine_version": "capital-research-1.0.1",
+    "adapter_version": "workbench-b1-capital-adapter-1.0.0"
+  },
+  "submission_contract": {
+    "additional_properties": false,
+    "required_fields": [
+      "research_mode",
+      "execution_scope",
+      "universe",
+      "validation_protocol",
+      "transaction_cost_bps"
+    ],
+    "explicit_defaults": "All fixed values are expanded into the stored normalized ResearchRunSpec before identity calculation; transaction_cost_bps has no default."
+  },
+  "editable_fields": [
+    {
+      "field": "transaction_cost_bps",
+      "editable": true,
+      "required": true,
+      "type": "number",
+      "allowed_values": [0, 5],
+      "validation_rule": "Finite and exactly 0 or 5. NaN, infinity, negative values, and other finite values are rejected.",
+      "default_source": "USER_SUPPLIED",
+      "financial_meaning": "One-way fee in basis points charged on actual absolute traded notional.",
+      "backend_mapping": "The adapter executes the unchanged committed dual-scenario [0,5] campaign in a fresh attempt root and selects the requested scenario from actual engine outputs.",
+      "identity_effect": "Included in canonical ResearchRunSpec identity; changing 0 to 5 changes run_id.",
+      "unsupported_reason": null
+    }
+  ],
+  "fixed_fields": [
+    {
+      "field": "research_mode",
+      "editable": false,
+      "value": "CAPITAL_MARKET_EXPOSURE",
+      "type": "string",
+      "validation_rule": "Must equal CAPITAL_MARKET_EXPOSURE.",
+      "default_source": "USER_SUPPLIED",
+      "financial_meaning": "Researches a time-varying SPY risky sleeve using the certified capital exposure campaign.",
+      "backend_mapping": "research/capital/engine.ts::runCampaign",
+      "unsupported_reason": "Other research modes are outside the Phase B1 execution allowlist."
+    },
+    {
+      "field": "execution_scope",
+      "editable": false,
+      "value": "EMPIRICAL",
+      "type": "string",
+      "validation_rule": "Must equal EMPIRICAL.",
+      "default_source": "USER_SUPPLIED",
+      "financial_meaning": "Uses the committed adjusted-close historical observations rather than a synthetic fixture or frozen-result replay.",
+      "backend_mapping": "Committed reports/cl02/adjusted-closes.csv observations",
+      "unsupported_reason": "Synthetic and frozen-replay execution scopes are not accepted by the Phase B1 service."
+    },
+    {
+      "field": "universe",
+      "editable": false,
+      "value": "SPY",
+      "type": "string",
+      "validation_rule": "Must equal SPY.",
+      "default_source": "USER_SUPPLIED",
+      "financial_meaning": "SPY is the sole operated risky asset whose exposure and cash sleeve determine the research index.",
+      "backend_mapping": "Campaign.risk_asset",
+      "unsupported_reason": "No additional operated universe is certified for Phase B1."
+    },
+    {
+      "field": "information_universe",
+      "editable": false,
+      "value": [
+        "XLK",
+        "XLC",
+        "XLRE",
+        "XLI",
+        "XLY",
+        "XLF",
+        "XLU",
+        "XLE",
+        "XLV",
+        "XLB",
+        "EEM",
+        "EWJ",
+        "AAXJ",
+        "EWG",
+        "EUFN",
+        "SPY",
+        "GLD",
+        "TLT",
+        "IEF",
+        "VNQ",
+        "EFA",
+        "DBC"
+      ],
+      "type": "array",
+      "validation_rule": "Must match the committed ordered 22-symbol reference universe.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "Historical observations supplied to the current-regime model as its information set.",
+      "backend_mapping": "Campaign.reference_universe and candidate input_set",
+      "unsupported_reason": "Candidate definitions and input ordering remain fixed to the committed campaign."
+    },
+    {
+      "field": "validation_protocol",
+      "editable": false,
+      "value": "TRADITIONAL_WALK_FORWARD",
+      "type": "string",
+      "validation_rule": "Must equal TRADITIONAL_WALK_FORWARD.",
+      "default_source": "USER_SUPPLIED",
+      "financial_meaning": "Selects on each training window and evaluates the selected candidate on the following outer OOS window.",
+      "backend_mapping": "Campaign.validation_mode=traditional",
+      "unsupported_reason": "Nested walk-forward is outside Phase B1."
+    },
+    {
+      "field": "start_date",
+      "editable": false,
+      "value": "2020-01-01",
+      "type": "string",
+      "validation_rule": "Must equal the ISO date 2020-01-01.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "Inclusive beginning of the committed research campaign and its first training window.",
+      "backend_mapping": "Campaign.dates.start",
+      "unsupported_reason": "Phase B1 may not alter the committed validation windows."
+    },
+    {
+      "field": "end_date",
+      "editable": false,
+      "value": "2024-01-01",
+      "type": "string",
+      "validation_rule": "Must equal the exclusive ISO date 2024-01-01.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "Exclusive end of the committed campaign and final outer OOS window.",
+      "backend_mapping": "Campaign.dates.end_exclusive",
+      "unsupported_reason": "Phase B1 may not alter the committed validation windows."
+    },
+    {
+      "field": "information_cutoff_policy",
+      "editable": false,
+      "value": {
+        "signal_rule": "market rows supplied to predict have date before signalDate",
+        "execution_rule": "next_close",
+        "fit_rule": "training rows are bounded by [training_start, training_end_exclusive)",
+        "data_vintage_status": "NOT_INDEPENDENTLY_ESTABLISHED"
+      },
+      "type": "object",
+      "validation_rule": "Must preserve the certified strict training/signal/execution cutoff rules and unverified data-vintage status.",
+      "default_source": "DERIVED",
+      "financial_meaning": "Defines which observations may inform each historical decision and when the resulting exposure is executed.",
+      "backend_mapping": "Capital engine fold construction, model fit/predict contract and calculator next-close execution",
+      "unsupported_reason": "Phase B1 does not expose alternate cutoff or execution timing rules."
+    },
+    {
+      "field": "benchmark",
+      "editable": false,
+      "value": "NOT_SUPPORTED",
+      "type": "string",
+      "validation_rule": "Must remain NOT_SUPPORTED.",
+      "default_source": "DERIVED",
+      "financial_meaning": "No benchmark-relative return or attribution is produced by this engine path.",
+      "backend_mapping": "No capital-engine benchmark output",
+      "unsupported_reason": "The selected engine does not produce a benchmark-relative result."
+    },
+    {
+      "field": "strategy_or_allocator_id",
+      "editable": false,
+      "value": "capital-research-grid-selector",
+      "type": "string",
+      "validation_rule": "Must equal capital-research-grid-selector.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "Identifies the committed candidate grid and training-score selector that chooses each fold's exposure policy.",
+      "backend_mapping": "Committed campaign candidate_space, search and selection_metric",
+      "unsupported_reason": "Candidate definitions and selection semantics are certified fixed inputs."
+    },
+    {
+      "field": "strategy_or_allocator_version",
+      "editable": false,
+      "value": "capital-research-1.0.1",
+      "type": "string",
+      "validation_rule": "Must equal capital-research-1.0.1.",
+      "default_source": "DERIVED",
+      "financial_meaning": "Identifies the certified capital research engine semantics used by the grid selector.",
+      "backend_mapping": "research/capital/engine.ts VERSION",
+      "unsupported_reason": "Engine-version selection is not a Phase B1 user control."
+    },
+    {
+      "field": "selection_metric",
+      "editable": false,
+      "value": "net_sharpe",
+      "type": "string",
+      "validation_rule": "Must equal net_sharpe.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "Ranks valid training-window candidates by their net Sharpe score at the fixed selection cost.",
+      "backend_mapping": "Campaign.selection_metric",
+      "unsupported_reason": "Phase B1 does not expose an allocator objective or selection-metric control."
+    },
+    {
+      "field": "model_and_candidate_configuration",
+      "editable": false,
+      "value": {
+        "search_method": "grid",
+        "candidate_space_hash": "f6c6316d66c14f03ec9f3ce583ee6cef6bf5d427aa46fbbd37da06372f4a7d72",
+        "model_family": "current_regime",
+        "model_version": "production-regime-adapter-1",
+        "lookback_rows": 252,
+        "transformations": [
+          "identity"
+        ],
+        "candidate_definitions": {
+          "cash_band": {
+            "cash_min": [
+              0.1,
+              0.2
+            ],
+            "cash_max": [
+              0.2,
+              0.4
+            ]
+          },
+          "constant": {
+            "risk": 1
+          }
+        },
+        "warmup_rows": 252,
+        "candidate_budget": 200,
+        "max_jobs": 2000
+      },
+      "type": "object",
+      "validation_rule": "Must match the committed candidate-space hash, model, lookback, policies and execution bounds.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "Defines the deterministic regime-model candidates and exposure policies evaluated inside each training fold.",
+      "backend_mapping": "Campaign.search, candidate_space, candidate_budget, warmup_rows and max_jobs",
+      "unsupported_reason": "Model, lookback, candidate, warmup and job-budget changes are outside Phase B1."
+    },
+    {
+      "field": "constraints",
+      "editable": false,
+      "value": {
+        "max_turnover_annualized": 8,
+        "max_drawdown_absolute": 0.6,
+        "min_mean_beginning_risky_exposure": 0,
+        "max_mean_beginning_risky_exposure": 1,
+        "shorting": false,
+        "leverage": false
+      },
+      "type": "object",
+      "validation_rule": "Must match the committed turnover, drawdown, exposure, shorting and leverage constraints.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "Sets the validity gates and long-only unlevered exposure bounds used by the campaign.",
+      "backend_mapping": "Campaign.constraints, shorting policy and leverage policy",
+      "unsupported_reason": "Constraint editing is outside Phase B1."
+    },
+    {
+      "field": "walk_forward_configuration",
+      "editable": false,
+      "value": {
+        "train_months": 24,
+        "test_months": 12,
+        "step_months": 12,
+        "recalibration_frequency": "monthly",
+        "window_type": "rolling",
+        "overlapping_tests": false
+      },
+      "type": "object",
+      "validation_rule": "Must match the committed 24/12/12 rolling traditional walk-forward clock.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "Defines the training and outer OOS calendar used to select and evaluate candidates without future rows.",
+      "backend_mapping": "Campaign train_months, test_months, step_months, recalibration_frequency and window_type",
+      "unsupported_reason": "Date-window and walk-forward-clock editing is outside Phase B1."
+    },
+    {
+      "field": "cost_and_yield_configuration",
+      "editable": false,
+      "value": {
+        "selection_cost_bps": 5,
+        "backend_cost_scenarios_bps": [
+          0,
+          5
+        ],
+        "slippage_bps": 0,
+        "cash_yield_daily": 0,
+        "reference_yield_daily": 0,
+        "initial_nav_per_fold": 100
+      },
+      "type": "object",
+      "validation_rule": "Must match the committed selector cost, dual output scenarios, zero yields/slippage and initial fold NAV.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "Defines fixed campaign economics surrounding the one editable output-scenario transaction cost.",
+      "backend_mapping": "Campaign selection_cost_bps, transaction_cost_bps, slippage/yields and initial_nav",
+      "unsupported_reason": "Only the returned transaction-cost scenario is editable in Phase B1."
+    },
+    {
+      "field": "expected_return_method",
+      "editable": false,
+      "value": "NOT_APPLICABLE",
+      "type": "string",
+      "validation_rule": "Must remain NOT_APPLICABLE.",
+      "default_source": "DERIVED",
+      "financial_meaning": "This exposure-policy campaign does not consume an asset expected-return vector.",
+      "backend_mapping": "No expected-return input in the selected capital engine path",
+      "unsupported_reason": "Expected-return model selection is unavailable for this research mode."
+    },
+    {
+      "field": "covariance_method",
+      "editable": false,
+      "value": "NOT_APPLICABLE",
+      "type": "string",
+      "validation_rule": "Must remain NOT_APPLICABLE.",
+      "default_source": "DERIVED",
+      "financial_meaning": "This single-risk-asset exposure-policy campaign does not optimize from an asset covariance matrix.",
+      "backend_mapping": "No covariance-method input in the selected capital engine path",
+      "unsupported_reason": "Covariance-method selection is unavailable for this research mode."
+    },
+    {
+      "field": "risk_mandate",
+      "editable": false,
+      "value": "NOT_APPLICABLE",
+      "type": "string",
+      "validation_rule": "Must remain NOT_APPLICABLE.",
+      "default_source": "DERIVED",
+      "financial_meaning": "No separate allocator risk-mandate object is consumed; fixed campaign exposure constraints apply.",
+      "backend_mapping": "No risk-mandate input in the selected capital engine path",
+      "unsupported_reason": "Risk-mandate editing is unavailable for this research mode."
+    },
+    {
+      "field": "rebalance_frequency",
+      "editable": false,
+      "value": "monthly",
+      "type": "string",
+      "validation_rule": "Must equal monthly.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "The exposure policy may rebalance on the committed monthly schedule.",
+      "backend_mapping": "Campaign.rebalance_frequency",
+      "unsupported_reason": "Phase B1 does not expose cadence changes."
+    },
+    {
+      "field": "selection_cost_bps",
+      "editable": false,
+      "value": 5,
+      "type": "number",
+      "validation_rule": "Must equal 5 finite basis points.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "Training-score candidate selection is evaluated using a fixed five-basis-point cost assumption.",
+      "backend_mapping": "Campaign.selection_cost_bps",
+      "unsupported_reason": "Selection economics remain fixed while the requested output scenario changes."
+    },
+    {
+      "field": "candidate_budget",
+      "editable": false,
+      "value": 200,
+      "type": "number",
+      "validation_rule": "Must equal the committed positive integer 200.",
+      "default_source": "SAVED_CONFIGURATION",
+      "financial_meaning": "Bounds the committed grid candidate enumeration; it is not a financial preference control.",
+      "backend_mapping": "Campaign.candidate_budget",
+      "unsupported_reason": "No arbitrary candidate-budget control is exposed in Phase B1."
+    },
+    {
+      "field": "random_seed",
+      "editable": false,
+      "value": "NOT_APPLICABLE",
+      "type": "string",
+      "validation_rule": "Must remain NOT_APPLICABLE.",
+      "default_source": "EXPLICIT_ENGINE_DEFAULT",
+      "financial_meaning": "The committed exhaustive grid path has no stochastic selection step requiring a seed.",
+      "backend_mapping": "Deterministic campaign enumeration and capital engine",
+      "unsupported_reason": "The selected engine path has no random-seed input."
+    }
+  ],
+  "data_snapshot": {
+    "snapshot_id": "cl02-adjusted-closes-b4a4fa0e0ddb",
+    "path": "reports/cl02/adjusted-closes.csv",
+    "sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+    "parsed_data_hash": "f7436db75e7c6ed35938e6248c48c162c051cd8a99457a5c386910b36f6c743e",
+    "observations": 4023,
+    "coverage_start": "2010-10-01",
+    "coverage_end": "2026-09-30",
+    "configured_run_start": "2020-01-01",
+    "configured_run_end_exclusive": "2024-01-01",
+    "provenance_status": "VENDOR_AUTHENTICITY_AND_DATA_VINTAGE_UNVERIFIED"
+  },
+  "unsupported_submission_fields": {
+    "behavior": "REJECTED_AS_UNEXPECTED_FIELD",
+    "examples": [
+      "start_date",
+      "end_date",
+      "benchmark",
+      "candidate_budget",
+      "selection_cost_bps",
+      "strategy",
+      "command",
+      "path",
+      "output_root"
+    ]
+  },
+  "blocked_modes": [
+    {
+      "mode": "FACTOR_ALLOCATION",
+      "blocker_code": "BLOCKED_MISSING_CANONICAL_FACTOR_ARTIFACTS"
+    },
+    {
+      "mode": "STRATEGY_STREAM_ALLOCATION",
+      "blocker_code": "BLOCKED_MISSING_CANONICAL_ALPHA_STREAM_ARTIFACTS"
+    },
+    {
+      "mode": "SIGNAL_STRATEGY_BANK",
+      "blocker_code": "BLOCKED_MISSING_STRATEGY_HISTORY"
+    },
+    {
+      "mode": "DYNAMIC_ACTIVE_SET",
+      "blocker_code": "BLOCKED_MISSING_HISTORICAL_PIT_GOVERNANCE"
+    },
+    {
+      "mode": "MEAN_VARIANCE_OR_MAX_SHARPE_ALLOCATION",
+      "blocker_code": "BLOCKED_MISSING_PIT_EXPECTED_RETURNS"
+    },
+    {
+      "mode": "SIGNAL_QUALITY_GATE_REPLAY",
+      "blocker_code": "BLOCKED_MISSING_LEGACY_NODE3_SOURCE"
+    },
+    {
+      "mode": "SIGNED_OR_LEVERAGED_IMPLEMENTATION",
+      "blocker_code": "BLOCKED_BY_SIGNED_EXPOSURE_CONTROLLER_SCOPE"
+    },
+    {
+      "mode": "DEFLATED_SHARPE_RATIO",
+      "blocker_code": "NOT_IMPLEMENTED"
+    },
+    {
+      "mode": "STANDALONE_CL01",
+      "blocker_code": "BLOCKED_MISSING_CONTRACT"
+    },
+    {
+      "mode": "CONFIGURABLE_END_TO_END_PIPELINE",
+      "blocker_code": "BLOCKED_MISSING_CONTRACT"
+    },
+    {
+      "mode": "ASSET_ALLOCATION",
+      "blocker_code": "OUTSIDE_PHASE_B1_EXECUTION_ALLOWLIST"
+    },
+    {
+      "mode": "NESTED_WALK_FORWARD",
+      "blocker_code": "OUTSIDE_PHASE_B1_EXECUTION_ALLOWLIST"
+    }
+  ]
+}

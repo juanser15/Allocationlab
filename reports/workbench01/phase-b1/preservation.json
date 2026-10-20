@@ -1,0 +1,251 @@
+{
+  "schema_version": "workbench01-phase-b1-preservation-1.0.0",
+  "status": "PASS",
+  "repository": "juanser15/Allocationlab",
+  "branch": "workbench-v1",
+  "certified_checkpoint": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+  "phase_a_commit": "e3486a14ff11bdb7a8d6f3f64fbb2ba6102728f7",
+  "observed_head_before_phase_b1_commit": "e3486a14ff11bdb7a8d6f3f64fbb2ba6102728f7",
+  "checkpoint_chain": {
+    "phase_a_parent": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+    "phase_a_subject": "Document Workbench Phase A capability audit",
+    "phase_a_parent_matches_certified_checkpoint": true
+  },
+  "manifest_algorithms": {
+    "content": "For each path in lexical order: path UTF-8, NUL, SHA-256(file bytes) lowercase hex, LF; SHA-256 the concatenation. Symlink bytes are the link target.",
+    "mode_aware": "For each path in lexical order: path UTF-8, NUL, Git mode, NUL, SHA-256(file bytes) lowercase hex, LF; SHA-256 the concatenation."
+  },
+  "phase_a_evidence_preservation": {
+    "path": "reports/workbench01/phase-a/**",
+    "commit": "e3486a14ff11bdb7a8d6f3f64fbb2ba6102728f7",
+    "git_tree_object": "6a82e7bee3a7448eee1c372bfee618cc22a80b1e",
+    "path_count_at_commit": 352,
+    "path_count_in_worktree": 352,
+    "bytes_at_commit": 33195741,
+    "bytes_in_worktree": 33195741,
+    "content_manifest_sha256_at_commit": "ff059a5ff0c17e559c5853162f7b4f9a2cddc60a3f7fbf7047d47adc9dbe7157",
+    "content_manifest_sha256_in_worktree": "ff059a5ff0c17e559c5853162f7b4f9a2cddc60a3f7fbf7047d47adc9dbe7157",
+    "mode_aware_manifest_sha256_at_commit": "50c8753285ae0d6475778d1e92e563cba1ef475bc84374f094cb23201651585e",
+    "mode_aware_manifest_sha256_in_worktree": "50c8753285ae0d6475778d1e92e563cba1ef475bc84374f094cb23201651585e",
+    "missing_paths": [],
+    "changed_paths": [],
+    "unchanged": true
+  },
+  "certified_financial_scope": {
+    "description": "Certified financial source, tests, configurations, committed empirical data and certification artifacts frozen before Phase B1.",
+    "path_selectors": {
+      "prefixes": [
+        "artifacts/api-server/src/lib/allocation-core/**",
+        "research/capital/**",
+        "research/allocation/**",
+        "research/pipeline/**",
+        "research/governance/**",
+        "research/bank/**",
+        "research/active-pipeline/**",
+        "configs/capital-research/**",
+        "reports/cl02/**",
+        "reports/al01/**",
+        "reports/al02/**",
+        "reports/al03/**",
+        "reports/al04/**",
+        "reports/al05/**",
+        "reports/al06/**",
+        "reports/al07/**",
+        "reports/pipe01/**",
+        "reports/pipe02/**",
+        "reports/pipe03/**",
+        "reports/bank01/**"
+      ],
+      "exact_paths": [
+        "artifacts/api-server/src/lib/calculator.ts",
+        "artifacts/api-server/src/lib/calculator.cl01.test.ts",
+        "artifacts/api-server/src/lib/calculator.cl01-regressions.test.ts",
+        "artifacts/api-server/src/lib/calculator.a1.db-shim.ts",
+        "artifacts/api-server/src/lib/factor-library.ts",
+        "artifacts/api-server/src/lib/d6-trace.ts",
+        "reports/oct2026-backtests/assets-preparation.response.json",
+        "reports/oct2026-backtests/freeze.json",
+        "reports/oct2026-equity-real/AB-prep.response.json",
+        "reports/oct2026-equity-real/live-refresh.response.json"
+      ]
+    },
+    "path_count_before": 483,
+    "path_count_after": 483,
+    "bytes_before": 253086893,
+    "bytes_after": 253086893,
+    "content_manifest_sha256_before": "f950441ba1203d0c3c6e9ad78607e6f5e6c130e0f1cab69f46ba903ad58e60fd",
+    "content_manifest_sha256_after": "f950441ba1203d0c3c6e9ad78607e6f5e6c130e0f1cab69f46ba903ad58e60fd",
+    "mode_aware_manifest_sha256_before": "9d58acd7e01d8c783eb2d2364574c28ecc1da25b09578b15e8b81123328e316d",
+    "mode_aware_manifest_sha256_after": "9d58acd7e01d8c783eb2d2364574c28ecc1da25b09578b15e8b81123328e316d",
+    "missing_paths": [],
+    "changed_paths": [],
+    "certified_source_or_data_drift": false
+  },
+  "whole_checkpoint_sentinel": {
+    "scope": "Every one of the 1,689 paths tracked by the certified checkpoint. New Phase A and Phase B1 paths are recorded separately.",
+    "path_count_before": 1689,
+    "path_count_present_after": 1689,
+    "bytes_before": 520747075,
+    "bytes_after": 520752307,
+    "git_tree_object_before": "81c58c692affcbf4ee9d7d11f024769a4b51c987",
+    "content_manifest_sha256_before": "d289161cc172d4ca4bed3a9e907978c4fb6d94e4f24697620cab79842be83fb5",
+    "content_manifest_sha256_after": "6083efa0e51626de8f94e39433b30fdfc7ee2dd9dc93ec001c18b693d7177d72",
+    "mode_aware_manifest_sha256_before": "676dd089455284c14237e0f84dad52d0783774361004ae32711f05e58746a04a",
+    "mode_aware_manifest_sha256_after": "d81bbf14696a64dae95ad2a08ea4088286c9a1984b1b140526cb86bb8270e73f",
+    "missing_paths": [],
+    "changed_checkpoint_path_count": 3,
+    "authorized_integration_exceptions": [
+      {
+        "path": "artifacts/api-server/build.mjs",
+        "purpose": "Bundle the fixed Workbench execution worker and map its unused database dependency to the existing calculator shim.",
+        "mode_before": "100644",
+        "mode_after": "100644",
+        "git_blob_oid_before": "ca5fa79bcc190745d05e166eac81d0a181f98ca7",
+        "bytes_before": 3581,
+        "bytes_after": 4685,
+        "sha256_before": "201c7ca18a5c745e3e3c426b85d8539089c02065fdfb3d8d00b492790e914d3b",
+        "sha256_after": "d3d9081d2a6a7e8d232fdb74a1fc49db7708ca30d4fb95a009672e0a35a5d2c4"
+      },
+      {
+        "path": "artifacts/api-server/src/app.ts",
+        "purpose": "Apply the Workbench-only 16 KiB JSON parser and safe labelled error envelopes before the existing broader API parser.",
+        "mode_before": "100644",
+        "mode_after": "100644",
+        "git_blob_oid_before": "22f99045ef3e2c6d7b02dd6a793978774d8c8d84",
+        "bytes_before": 831,
+        "bytes_after": 4887,
+        "sha256_before": "71472d1238e9931402449350ed6bd7911c5084aa354a275dc9ee431ebd322a17",
+        "sha256_after": "31ccd6d5ca606251141f43fc5b6e73d7cf966ad6d594c11e6d30c2e55fa8e05f"
+      },
+      {
+        "path": "artifacts/api-server/src/routes/index.ts",
+        "purpose": "Register the Workbench router with the existing API router.",
+        "mode_before": "100644",
+        "mode_after": "100644",
+        "git_blob_oid_before": "3e60024f88bb6f890e62860a777e7b7fd408c44a",
+        "bytes_before": 2539,
+        "bytes_after": 2611,
+        "sha256_before": "65f3a720bd81e28a7e7661b89324c4d0827bb4d7930f704597a349e282a01ba9",
+        "sha256_after": "b0055070ec826e80fd9d16e36bf7f48c0ec481937995520922b319bd36d52a74"
+      }
+    ],
+    "unauthorized_changed_checkpoint_paths": [],
+    "aggregate_change_explained_by_authorized_integration_exceptions": true
+  },
+  "toolchain_file_preservation": {
+    "node_version": "v24.19.0",
+    "pnpm_version": "11.25.0",
+    "python_version": "3.12.14",
+    "pnpm_lock_sha256_before": "93e6db6345768119ed2729c407865a7d45a0e3afa623d200662b258d16b75819",
+    "pnpm_lock_sha256_after": "93e6db6345768119ed2729c407865a7d45a0e3afa623d200662b258d16b75819",
+    "package_workspace_manifest_count": 10,
+    "package_workspace_manifest_bytes_before": 16591,
+    "package_workspace_manifest_bytes_after": 16591,
+    "package_workspace_manifest_sha256_before": "c400b329e156081db7bf3b93df02e9942b0eab8de1010af63232f8e46b4ea976",
+    "package_workspace_manifest_sha256_after": "c400b329e156081db7bf3b93df02e9942b0eab8de1010af63232f8e46b4ea976",
+    "package_workspace_mode_aware_sha256_before": "64261e92a02512f9b2217f90409b6743b3eaa9094a7af01d3aaf92756516c6c4",
+    "package_workspace_mode_aware_sha256_after": "64261e92a02512f9b2217f90409b6743b3eaa9094a7af01d3aaf92756516c6c4",
+    "package_workspace_paths": [
+      "artifacts/allocation-lab/package.json",
+      "artifacts/api-server/package.json",
+      "artifacts/mockup-sandbox/package.json",
+      "lib/api-client-react/package.json",
+      "lib/api-spec/package.json",
+      "lib/api-zod/package.json",
+      "lib/db/package.json",
+      "package.json",
+      "pnpm-workspace.yaml",
+      "scripts/package.json"
+    ],
+    "lockfile_changed": false,
+    "package_or_workspace_manifest_changed": false,
+    "dependency_installation_performed": false,
+    "dependency_state_changed": false,
+    "tooling_note": "The managed pnpm wrapper attempted an unnecessary dependency-status install and failed before mutation because its default home store was unwritable. Existing frozen workspace dependencies were invoked directly."
+  },
+  "phase_b1_change_inventory": {
+    "modified_existing_paths": [
+      "artifacts/api-server/build.mjs",
+      "artifacts/api-server/src/app.ts",
+      "artifacts/api-server/src/routes/index.ts"
+    ],
+    "new_workbench_source_and_test_paths": [
+      "artifacts/api-server/src/lib/workbench/capabilities.ts",
+      "artifacts/api-server/src/lib/workbench/contracts.ts",
+      "artifacts/api-server/src/lib/workbench/execution-adapter.ts",
+      "artifacts/api-server/src/lib/workbench/identity.ts",
+      "artifacts/api-server/src/lib/workbench/run-store.ts",
+      "artifacts/api-server/src/lib/workbench/service.ts",
+      "artifacts/api-server/src/lib/workbench/workbench.test.ts",
+      "artifacts/api-server/src/routes/workbench.ts",
+      "artifacts/api-server/src/workbench-run-worker.ts"
+    ],
+    "new_phase_b1_report_paths": [
+      "reports/workbench01/phase-b1/acceptance-run-a-rerun.json",
+      "reports/workbench01/phase-b1/acceptance-run-a.json",
+      "reports/workbench01/phase-b1/acceptance-run-b.json",
+      "reports/workbench01/phase-b1/api-contract.json",
+      "reports/workbench01/phase-b1/compare-a-b.json",
+      "reports/workbench01/phase-b1/execution-adapter.md",
+      "reports/workbench01/phase-b1/phase-b2-readiness.md",
+      "reports/workbench01/phase-b1/preservation.json",
+      "reports/workbench01/phase-b1/reproducibility.json",
+      "reports/workbench01/phase-b1/run-store-contract.md",
+      "reports/workbench01/phase-b1/security-boundary.md",
+      "reports/workbench01/phase-b1/server-integration-map.md",
+      "reports/workbench01/phase-b1/supported-controls.json",
+      "reports/workbench01/phase-b1/test-results.json"
+    ],
+    "modified_existing_path_count": 3,
+    "new_workbench_source_and_test_path_count": 9,
+    "new_phase_b1_report_path_count": 14,
+    "all_changes_within_authorized_phase_b1_paths": true
+  },
+  "boundary_checks": {
+    "git_diff_check_exit_code": 0,
+    "phase_a_evidence_modified": false,
+    "certified_financial_source_or_data_modified": false,
+    "certified_tests_modified": false,
+    "committed_historical_datasets_modified": false,
+    "package_manifests_modified": false,
+    "lockfile_modified": false,
+    "ui_paths_added_or_modified": [],
+    "deployment_paths_added_or_modified": [],
+    "database_schema_or_persistence_paths_added_or_modified": [],
+    "existing_api_files_modified_beyond_authorized_integration_paths": [],
+    "source_changes_limited_to_workbench_service_and_minimum_api_integration": true,
+    "temporary_run_outputs_written_to_certified_paths": false
+  },
+  "validation": {
+    "strict_typecheck": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "production_build": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "fast_suite": {
+      "status": "PASS",
+      "tests": 12,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 1,
+      "duration_ms": 804.709815
+    },
+    "full_empirical_suite": {
+      "status": "PASS",
+      "tests": 12,
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 86938.707623
+    },
+    "built_server_api_campaign": "PASS",
+    "workbench_json_parser_boundary": "PASS",
+    "empirical_run_a_and_rerun_financial_hash_equal": true,
+    "empirical_run_b_realized_transaction_cost_nonzero": true,
+    "validation_evidence": "reports/workbench01/phase-b1/test-results.json"
+  },
+  "conclusion": "Phase A evidence, the 483-file certified financial/data scope, the dependency lockfile and every package/workspace manifest remain unchanged. The only checkpoint-tracked changes are the three authorized API integration files, and all other additions are confined to the new Workbench service/test paths and Phase B1 reports. No baseline drift was detected."
+}

@@ -122,6 +122,37 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
     `,
     },
   });
+
+  // The Workbench campaign runs in a fixed child process so the Express
+  // event loop can continue serving status polls. Bundle it separately: the
+  // empirical path uses only pure calculator functions, so the existing A1
+  // DB shim prevents an unused database connection from entering the worker.
+  await esbuild({
+    entryPoints: {
+      "workbench-run-worker": path.resolve(artifactDir, "src/workbench-run-worker.ts"),
+    },
+    platform: "node",
+    bundle: true,
+    format: "esm",
+    outdir: distDir,
+    outExtension: { ".js": ".mjs" },
+    logLevel: "info",
+    alias: {
+      "@workspace/db": path.resolve(artifactDir, "src/lib/calculator.a1.db-shim.ts"),
+    },
+    external: ["*.node"],
+    sourcemap: "linked",
+    banner: {
+      js: `import { createRequire as __bannerCrReq } from 'node:module';
+import __bannerPath from 'node:path';
+import __bannerUrl from 'node:url';
+
+globalThis.require = __bannerCrReq(import.meta.url);
+globalThis.__filename = __bannerUrl.fileURLToPath(import.meta.url);
+globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
+    `,
+    },
+  });
 }
 
 buildAll().catch((err) => {

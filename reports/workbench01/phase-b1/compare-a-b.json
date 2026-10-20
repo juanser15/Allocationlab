@@ -1,0 +1,62 @@
+{
+  "schema_version": "workbench-b1-compare-1.0.0",
+  "evidence_kind": "READ_ONLY_API_COMPARISON",
+  "api_request": {
+    "method": "GET",
+    "path": "/api/workbench/compare",
+    "query": {
+      "leftRunId": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+      "rightRunId": "rr_26db2418c42692c261ddb63cbfc7b7bd47844ff17e4de5926066d037906e240f"
+    }
+  },
+  "research_boundary": "RESEARCH_ONLY",
+  "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+  "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+  "comparison_id": "cmp_01ab4484d0399118116edd6343db6e855234845f30a47e4298bda211c118180a",
+  "calculation": "READ_ONLY_NO_RECALCULATION",
+  "left": {
+    "run_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+    "execution_attempt_id": "ea_468bda47-7551-405e-bcf9-90e60dc9576a",
+    "transaction_cost_bps": 0,
+    "financial_result_hash": "426533ad89ffb1ad72246a8c8ecdb2a6e7ad8e9d1c50f8e6db713d36e1af7e0d"
+  },
+  "right": {
+    "run_id": "rr_26db2418c42692c261ddb63cbfc7b7bd47844ff17e4de5926066d037906e240f",
+    "execution_attempt_id": "ea_5af7a964-6c06-4d26-a37d-6f125b7791bd",
+    "transaction_cost_bps": 5,
+    "financial_result_hash": "ed95b4e9782f942905539d37f3a655358e7f106c8162f6a905985288f53f40b8"
+  },
+  "spec_differences": [
+    {
+      "path": "/transaction_cost_bps",
+      "left": 0,
+      "right": 5
+    }
+  ],
+  "financial_input_differences": [
+    {
+      "path": "/transaction_cost_bps",
+      "left": 0,
+      "right": 5
+    }
+  ],
+  "differences": {
+    "transaction_cost_bps": 5,
+    "oos_observations": 0,
+    "final_research_index": -0.12439909229054535,
+    "realized_transaction_cost": 0.1130073297533634
+  },
+  "acceptance": {
+    "exactly_one_normalized_spec_difference": true,
+    "declared_difference_path": "/transaction_cost_bps",
+    "immutable_results_read": true,
+    "research_recalculated_by_compare": false,
+    "winner_declared": false,
+    "recommendation_declared": false,
+    "status": "PASS"
+  },
+  "warnings": [
+    "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+    "Comparison reports mechanical differences and does not rank, recommend, or declare a winner."
+  ]
+}

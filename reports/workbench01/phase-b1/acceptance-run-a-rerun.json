@@ -1,0 +1,86 @@
+{
+  "schema_version": "workbench-b1-acceptance-rerun-1.0.0",
+  "run_label": "RUN_A_RERUN",
+  "evidence_kind": "LIVE_EMPIRICAL_API_EXECUTION",
+  "api_request": {
+    "method": "POST",
+    "path": "/api/workbench/runs/rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26/rerun",
+    "body": {}
+  },
+  "boundaries": {
+    "research_boundary": "RESEARCH_ONLY",
+    "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+    "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+    "economic_claim": "NONE"
+  },
+  "identity": {
+    "run_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+    "original_execution_attempt_id": "ea_5f2567ef-7d3c-42d4-8a3e-21c7184aca57",
+    "rerun_execution_attempt_id": "ea_468bda47-7551-405e-bcf9-90e60dc9576a",
+    "attempt_source": "RERUN",
+    "same_run_id": true,
+    "different_execution_attempt_id": true,
+    "status": "SUCCESS",
+    "stage": "OUTER_OOS_AGGREGATE"
+  },
+  "timing": {
+    "requested_at": "2026-10-20T11:52:12.306Z",
+    "started_at": "2026-10-20T11:52:12.309Z",
+    "completed_at": "2026-10-20T11:52:40.573Z",
+    "elapsed_ms_from_status_timestamps": 28264
+  },
+  "normalized_spec_summary": {
+    "research_mode": "CAPITAL_MARKET_EXPOSURE",
+    "execution_scope": "EMPIRICAL",
+    "operated_universe": ["SPY"],
+    "start_date": "2020-01-01",
+    "end_date_exclusive": "2024-01-01",
+    "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+    "transaction_cost_bps": 0,
+    "same_as_run_a": true
+  },
+  "result": {
+    "oos_observations": 501,
+    "final_research_index": 107.25445949277757,
+    "realized_transaction_cost": 0,
+    "transaction_cost_bps": 0,
+    "whole_campaign_new_jobs": 24,
+    "whole_campaign_reused_jobs": 0,
+    "artifact_file_count": 165,
+    "artifact_total_bytes": 15907767
+  },
+  "hashes": {
+    "financial_result_hash": "426533ad89ffb1ad72246a8c8ecdb2a6e7ad8e9d1c50f8e6db713d36e1af7e0d",
+    "run_a_financial_result_hash": "426533ad89ffb1ad72246a8c8ecdb2a6e7ad8e9d1c50f8e6db713d36e1af7e0d",
+    "same_financial_result_hash": true,
+    "runtime_hash": "7af22bff12350ed48c385cdf687bdb0d155d1fca2b5674cd433ee298194cae2a",
+    "run_a_runtime_hash": "9ab9b140a8e1c17d8f90a8de485f3a5785eba82fa0123b613a45b2f80b69b9f8",
+    "runtime_hash_expected_to_differ": true,
+    "full_campaign_financial_artifact_hash": "238912aac6a74bf4eed41157a86c313e63b5e23a877e338602cc9878f81cb6c6",
+    "selected_equity_rows_sha256": "7e743b11a56f143c7851ec5c612e6412421d9a06dc1fd0ab14a82df0ad2ba472",
+    "selected_ledger_rows_sha256": "2b490559834cd08baeb4f0f5f4135a887b31eaaaf5c4de0acf52e6fb64b77ba1"
+  },
+  "selected_engine_evidence": {
+    "job_hashes": [
+      "a8fb23f245e6ffe5a310f469437083a5ec30f2cb8fdbaa9865d0c68f3f028ebb",
+      "395197080db418ddc362b9c98ce4a20a627a2fb19a0703dadaf3a93f2b90f74f"
+    ],
+    "result_hashes": [
+      "492d17d3ea8e526907559c10a8b695fba0baa497a0be86cc4460a8a63c19c4a5",
+      "3e6b699de23c371bbc3b0a5b201777bc62591bf863056944164ac488cb5c1bbf"
+    ],
+    "same_as_run_a": true
+  },
+  "acceptance": {
+    "same_normalized_spec": true,
+    "fresh_attempt_root": true,
+    "no_persisted_job_reuse": true,
+    "same_financial_outputs": true,
+    "same_metrics": true,
+    "same_time_series_hash": true,
+    "same_ledger_hash": true,
+    "same_warnings": true,
+    "same_blockers": true,
+    "status": "PASS"
+  }
+}
