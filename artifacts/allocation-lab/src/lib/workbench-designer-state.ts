@@ -13,13 +13,13 @@ export type DesignForm = Record<(typeof DESIGN_FIELDS)[number], string>;
 export const emptyDesign = (): DesignForm =>
   Object.fromEntries(DESIGN_FIELDS.map((field) => [field, ""])) as DesignForm;
 export const FIELD_LABELS: Record<keyof DesignForm, string> = {
-  evaluation_start: "Out-of-Sample Start",
-  evaluation_end_exclusive: "Out-of-Sample End",
-  window_type: "Walk-Forward Type",
+  evaluation_start: "From",
+  evaluation_end_exclusive: "To",
+  window_type: "Type",
   training_window_months: "Training Window",
-  rebalance_frequency: "Rebalance Frequency",
-  transaction_cost_bps: "OOS Transaction Cost",
-  selection_cost_bps: "Model-Selection Cost",
+  rebalance_frequency: "Rebalance",
+  transaction_cost_bps: "Trading Costs",
+  selection_cost_bps: "Candidate-ranking cost (advanced)",
 };
 export function readDesign(
   form: DesignForm,
@@ -67,9 +67,7 @@ export function readDesign(
       errors.push(`${FIELD_LABELS[key]} must be a calendar-quarter start.`);
   }
   if (r.evaluation_start >= r.evaluation_end_exclusive)
-    errors.push(
-      "Out-of-Sample End (exclusive) must follow Out-of-Sample Start.",
-    );
+    errors.push("To (not included) must follow From.");
   if (
     r.evaluation_start < caps.supported_evaluation_start_min ||
     r.evaluation_end_exclusive > caps.supported_evaluation_end_max
@@ -94,6 +92,20 @@ export function readDesign(
         `${FIELD_LABELS[key]} must be at least ${caps.transaction_cost_rules.minimum} bps.`,
       );
   return errors.length ? { errors } : { request: r, errors };
+}
+/** Standard product mapping. The API retains distinct cost fields. Both are
+ * explicitly derived from the single cost value the user entered. */
+export function readStandardDesign(form: DesignForm, caps: CapabilitiesV2) {
+  const parsed = readDesign(
+    { ...form, selection_cost_bps: form.transaction_cost_bps },
+    caps,
+  );
+  return {
+    ...parsed,
+    errors: parsed.errors.filter(
+      (e) => !e.startsWith(FIELD_LABELS.selection_cost_bps),
+    ),
+  };
 }
 export const sameRequest = (a: SubmissionV2, b: SubmissionV2) =>
   Object.keys(submissionV2Schema.shape).every(

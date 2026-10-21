@@ -48,19 +48,23 @@ import {
 import {
   FIELD_LABELS,
   canRunPlan,
-  derivedTiming,
   emptyDesign,
   executionMatchesPlan,
   foldGeometry,
   latestSuccess,
   planMatchesRequest,
-  readDesign,
+  readStandardDesign,
   temporallyComparable,
   type DesignForm,
   type ExpectedPlanV2,
 } from "@/lib/workbench-designer-state";
+import {
+  CapitalModelSummary,
+  CapitalExposureResults,
+} from "./capital-exposure-results";
 import "./workbench.css";
 import "./workbench-designer.css";
+import "./capital-exposure.css";
 
 const terminal = (s: string | null | undefined) =>
   ["SUCCESS", "FAILED", "BLOCKED"].includes(s ?? "");
@@ -83,7 +87,7 @@ function Access({ accept }: { accept: (token: string) => void }) {
       <section className="workbench-access-panel">
         <div className="workbench-mark">AL</div>
         <p className="workbench-eyebrow">Allocation Lab · Owner preview</p>
-        <h1>Walk-Forward Research Designer</h1>
+        <h1>Capital Exposure &amp; Cash Management</h1>
         <p>
           Enter your preview token to design and run historical market-exposure
           research.
@@ -121,11 +125,14 @@ function Header({ signOut }: { signOut: () => void }) {
     <header className="workbench-header">
       <div>
         <p className="workbench-eyebrow">Allocation Lab · Empirical research</p>
-        <h1>Walk-Forward Research Designer</h1>
+        <h1>Capital Exposure &amp; Cash Management</h1>
         <p className="workbench-lede">
-          What research design do you want to test? Define the evaluation
-          period, review the exact folds, then run the SPY market-exposure
-          model.
+          Test a dynamic SPY/cash exposure rule through walk-forward analysis
+          and compare it with passive and beta-matched controls.
+        </p>
+        <p className="ce-scope">
+          This stage tests SPY versus cash exposure. It does not allocate
+          capital among ETFs.
         </p>
       </div>
       <Button variant="outline" onClick={signOut}>
@@ -206,14 +213,22 @@ function ErrorNotice({ error }: { error: unknown }) {
       (typeof issues[k] === "string" &&
         /^\d{4}-\d{2}-\d{2}$/.test(String(issues[k]))),
   );
+  const historyMessage =
+    [
+      "INSUFFICIENT_TRAINING_HISTORY",
+      "INSUFFICIENT_MODEL_WARMUP_HISTORY",
+    ].includes(e.code) &&
+    typeof issues.requested_training_window_months === "number"
+      ? `Not enough historical information is available for a ${issues.requested_training_window_months}-month training window. For this configuration, choose a later backtest start.`
+      : undefined;
   return (
     <div className="wd-error" role="alert">
       <strong>
         {e.status === 401
           ? "Preview access denied"
-          : "Research request blocked"}
+          : "Backtest request needs attention"}
       </strong>
-      <p>{e.message}</p>
+      <p>{historyMessage ?? e.message}</p>
       <p>
         {recovery[e.code] ??
           (e.status === 401
@@ -276,79 +291,20 @@ function Facts({ entries }: { entries: Array<[string, ReactNode]> }) {
     </dl>
   );
 }
-function DatasetRules({ c }: { c: CapabilitiesV2 }) {
-  return (
-    <div className="wd-data-rules">
-      <h3>Available empirical data</h3>
-      <Facts
-        entries={[
-          ["First observation", c.data_first_observation],
-          ["Last observation", c.data_last_observation],
-          [
-            "Earliest evaluation boundary (conditional)",
-            c.supported_evaluation_start_min,
-          ],
-          [
-            "Latest evaluation boundary (exclusive)",
-            c.supported_evaluation_end_max,
-          ],
-          ["Window types", c.supported_window_types.map(label).join(", ")],
-          [
-            "Rebalance frequencies",
-            c.supported_rebalance_frequencies.map(label).join(", "),
-          ],
-        ]}
-      />
-      <p>{c.evaluation_start_min_rule}</p>
-      <p>
-        {c.date_rules.month_start_required
-          ? "Use month-start boundaries. "
-          : ""}
-        {c.date_rules.quarterly_start === "CALENDAR_QUARTER_START"
-          ? "Quarterly designs use calendar-quarter starts. "
-          : ""}
-        Only complete folds are accepted. Dates are never moved automatically.
-      </p>
-      <p>
-        Training: positive integer months, up to{" "}
-        {c.training_window_rules.maximum_months}; at least{" "}
-        {c.training_window_rules.minimum_training_observations} training
-        observations. The current model fit is{" "}
-        {c.training_window_rules.model_fit.toLowerCase()}. Candidate-score
-        eligibility is checked by the engine.
-      </p>
-      <p>
-        Model warmup:{" "}
-        {c.training_window_rules.model_warmup_observations_before_training}{" "}
-        complete observations before training, separate from your training
-        window.
-      </p>
-      <p>
-        Both costs are required finite values ≥{" "}
-        {c.transaction_cost_rules.minimum} bps, without rounding. They have
-        separate economic meanings.
-      </p>
-      <p>
-        One research worker · up to {c.resource_limits.max_jobs} estimated jobs
-        · {c.resource_limits.timeout_ms / 1000}s execution bound.
-      </p>
-    </div>
-  );
-}
 const help: Record<keyof DesignForm, string> = {
   evaluation_start:
-    "First period evaluated after training. Training history comes before this date.",
-  evaluation_end_exclusive: "Exclusive boundary: this date is not evaluated.",
+    "The system creates one out-of-sample period at each rebalance date inside the selected backtest period.",
+  evaluation_end_exclusive:
+    "To is an exclusive boundary: the selected date is not included.",
   window_type:
-    "Rolling keeps a constant training length. Expanding keeps its initial start while history grows.",
+    "Rolling moves a fixed training window forward. Expanding keeps its initial training start.",
   training_window_months:
-    "Historical information before each decision date; initial history for expanding designs.",
+    "Historical information used before each decision date.",
   rebalance_frequency:
-    "Each rebalance starts a new OOS fold and recalibrates/reselects the model.",
+    "The exposure policy is reselected at every portfolio rebalance.",
   transaction_cost_bps:
-    "Cost applied to the selected strategy during out-of-sample evaluation.",
-  selection_cost_bps:
-    "Cost assumption used when ranking candidates during training.",
+    "Applied both when ranking policies and when evaluating the selected policy.",
+  selection_cost_bps: "Advanced candidate-ranking assumption.",
 };
 function DesignInputs({
   form,
@@ -359,75 +315,88 @@ function DesignInputs({
   c: CapabilitiesV2;
   change: (key: keyof DesignForm, value: string) => void;
 }) {
-  return (
-    <div className="wd-form-grid">
-      {DESIGN_FIELDS.map((key) => {
-        const options =
-          key === "window_type"
-            ? c.supported_window_types
-            : key === "rebalance_frequency"
-              ? c.supported_rebalance_frequencies
-              : undefined;
-        const isDate = key.startsWith("evaluation_");
-        return (
-          <div
-            className={`wd-field ${key === "rebalance_frequency" ? "wd-wide" : ""}`}
-            key={key}
+  const field = (key: keyof DesignForm) => {
+    const options =
+      key === "window_type"
+        ? c.supported_window_types
+        : key === "rebalance_frequency"
+          ? c.supported_rebalance_frequencies
+          : undefined;
+    const isDate = key.startsWith("evaluation_");
+    return (
+      <div className="wd-field" key={key}>
+        <label htmlFor={key}>
+          {FIELD_LABELS[key]}
+          {key === "training_window_months"
+            ? " (months)"
+            : key === "transaction_cost_bps"
+              ? " (bps)"
+              : ""}
+        </label>
+        {options ? (
+          <select
+            id={key}
+            value={form[key]}
+            required
+            onChange={(e) => change(key, e.target.value)}
+            aria-describedby={`${key}-help`}
           >
-            <label htmlFor={key}>
-              {FIELD_LABELS[key]}
-              {key.endsWith("_bps")
-                ? " (bps)"
-                : key === "training_window_months"
-                  ? " (months)"
-                  : key === "evaluation_end_exclusive"
-                    ? " (exclusive)"
-                    : ""}
-            </label>
-            {options ? (
-              <select
-                id={key}
-                value={form[key]}
-                onChange={(e) => change(key, e.target.value)}
-                aria-describedby={`${key}-help`}
-                required
-              >
-                <option value="">
-                  Choose{" "}
-                  {key === "window_type" ? "a window type" : "a frequency"}
-                </option>
-                {options.map((o) => (
-                  <option key={o} value={o}>
-                    {label(o)}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <Input
-                id={key}
-                type={isDate ? "date" : "number"}
-                value={form[key]}
-                onChange={(e) => change(key, e.target.value)}
-                required
-                {...(isDate
-                  ? {
-                      min: c.supported_evaluation_start_min,
-                      max: c.supported_evaluation_end_max,
-                    }
-                  : key === "training_window_months"
-                    ? {
-                        min: 1,
-                        max: c.training_window_rules.maximum_months,
-                        step: 1,
-                      }
-                    : { min: c.transaction_cost_rules.minimum, step: "any" })}
-                aria-describedby={`${key}-help`}
-              />
-            )}
-            <p id={`${key}-help`}>{help[key]}</p>
-          </div>
-        );
-      })}
+            <option value="">
+              Choose {key === "window_type" ? "a type" : "a frequency"}
+            </option>
+            {options.map((o) => (
+              <option key={o} value={o}>
+                {label(o)}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <Input
+            id={key}
+            type={isDate ? "date" : "number"}
+            value={form[key]}
+            required
+            onChange={(e) => change(key, e.target.value)}
+            aria-describedby={`${key}-help`}
+            {...(isDate
+              ? {
+                  min: c.supported_evaluation_start_min,
+                  max: c.supported_evaluation_end_max,
+                }
+              : key === "training_window_months"
+                ? {
+                    min: 1,
+                    max: c.training_window_rules.maximum_months,
+                    step: 1,
+                  }
+                : { min: c.transaction_cost_rules.minimum, step: "any" })}
+          />
+        )}
+        <p id={`${key}-help`}>{help[key]}</p>
+      </div>
+    );
+  };
+  return (
+    <div className="ce-form-groups">
+      <fieldset>
+        <legend>Backtest Period</legend>
+        <div className="wd-form-grid">
+          {field("evaluation_start")}
+          {field("evaluation_end_exclusive")}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Walk-Forward</legend>
+        <div className="wd-form-grid">
+          {field("window_type")}
+          {field("training_window_months")}
+          {field("rebalance_frequency")}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Costs</legend>
+        {field("transaction_cost_bps")}
+      </fieldset>
     </div>
   );
 }
@@ -644,23 +613,31 @@ function DesignSummary({
   spec: SubmissionV2;
   count?: number;
 }) {
+  const standard = spec.transaction_cost_bps === spec.selection_cost_bps;
   return (
-    <Facts
-      entries={[
-        [
-          "OOS evaluation (end exclusive)",
-          `${spec.evaluation_start} → ${spec.evaluation_end_exclusive}`,
-        ],
-        ["Walk-forward type", label(spec.window_type)],
-        ["Training window", monthLabel(spec.training_window_months)],
-        ["Rebalance", label(spec.rebalance_frequency)],
-        ["OOS cost", `${spec.transaction_cost_bps} bps`],
-        ["Model-selection cost", `${spec.selection_cost_bps} bps`],
-        ...(count === undefined
-          ? []
-          : [["Fold count", count] as [string, ReactNode]]),
-      ]}
-    />
+    <>
+      <Facts
+        entries={[
+          [
+            "Backtest Period (To not included)",
+            `${spec.evaluation_start} → ${spec.evaluation_end_exclusive}`,
+          ],
+          ["Type", label(spec.window_type)],
+          ["Training Window", monthLabel(spec.training_window_months)],
+          ["Rebalance", label(spec.rebalance_frequency)],
+          ["Trading Costs", `${spec.transaction_cost_bps} bps`],
+          ...(count === undefined
+            ? []
+            : [["Periods", count] as [string, ReactNode]]),
+        ]}
+      />
+      {!standard && (
+        <p className="wd-muted">
+          This historical advanced run uses a separate candidate-ranking cost
+          assumption. See Advanced Audit Details.
+        </p>
+      )}
+    </>
   );
 }
 function IndexChart({
@@ -838,173 +815,41 @@ function ResultPanel({
   newerAttemptPending: boolean;
 }) {
   const r = latestSuccess(detail);
-  if (mismatch)
-    return (
-      <Section id="results" step="05" title="Results withheld">
+  return (
+    <Section id="results" step="05" title="Backtest results">
+      {mismatch ? (
         <ErrorNotice
           error={
             new DesignerApiError(
               409,
               "PLAN_EXECUTION_MISMATCH",
-              "The execution does not match the reviewed fold plan.",
+              "The execution does not match the reviewed walk-forward structure. Results are withheld.",
             )
           }
         />
-        {detail && <Attempts detail={detail} />}
-      </Section>
-    );
-  const m = r && typeof r.metrics !== "string" ? r.metrics : undefined;
-  const c = r && typeof r.costs !== "string" ? r.costs : undefined;
-  const validation =
-    r && typeof r.validation_diagnostics !== "string"
-      ? r.validation_diagnostics
-      : undefined;
-  const metricNames: Array<[string, string, boolean]> = [
-    ["cagr", "CAGR", true],
-    ["net_sharpe", "Net Sharpe", false],
-    ["max_drawdown", "Max Drawdown", true],
-    ["annualized_volatility", "Annualized Volatility", true],
-    ["gross_turnover", "Turnover (engine units)", false],
-    ["mean_beginning_risky_exposure", "Mean Risky Exposure", true],
-  ];
-  return (
-    <Section id="results" step="05" title="Research results">
-      {!r || !m || !c ? (
+      ) : !r || !detail ? (
         <p className="workbench-empty">
-          Preview and run a design to inspect recalculated results.
+          Preview the walk-forward structure and run a backtest to inspect
+          results.
         </p>
       ) : (
         <>
-          {(detail!.latest_status !== "SUCCESS" || newerAttemptPending) && (
+          {(detail.latest_status !== "SUCCESS" || newerAttemptPending) && (
             <div className="wd-notice">
-              Latest attempt:{" "}
+              The latest attempt is{" "}
               {newerAttemptPending
-                ? "New attempt submitted; refreshing status"
-                : detail!.latest_status}
-              . The separately labelled earlier successful result is shown
-              below; it does not replace the latest attempt.
+                ? "still being refreshed"
+                : detail.latest_status}
+              . An earlier successful result remains separately visible below.
             </div>
           )}
           <p className="wd-plan-verified">
             {verified
-              ? "Reviewed and executed fold plans match."
-              : "Exact execution fold plan returned by the engine."}
+              ? "The completed backtest matches the reviewed structure."
+              : "Showing the exact completed walk-forward structure."}
           </p>
-          <DesignSummary spec={detail!.spec} count={r.evaluation?.fold_count} />
-          <div className="workbench-result-summary wd-metrics">
-            <div>
-              <span>OOS Observations</span>
-              <strong>{m.observations}</strong>
-            </div>
-            <div>
-              <span>Final Research Index</span>
-              <strong title={String(m.final_research_index)}>
-                {number(m.final_research_index, 8)}
-              </strong>
-            </div>
-            <div>
-              <span>Realized Simulated Cost</span>
-              <strong title={String(c.realized_transaction_cost)}>
-                {number(c.realized_transaction_cost, 8)}
-              </strong>
-            </div>
-            {metricNames
-              .filter(([k]) => m[k] !== undefined)
-              .map(([k, name, pct]) => (
-                <div key={k}>
-                  <span>{name}</span>
-                  <strong>
-                    {typeof m[k] === "number"
-                      ? pct
-                        ? new Intl.NumberFormat("en", {
-                            style: "percent",
-                            maximumFractionDigits: 3,
-                          }).format(m[k] as number)
-                        : number(m[k] as number, 6)
-                      : "Not available from engine"}
-                  </strong>
-                </div>
-              ))}
-          </div>
-          <h3 className="wd-chart-title">OOS research index through time</h3>
-          <IndexChart a={points(r)} folds={validation?.exact_fold_plan} />
-          <p className="wd-muted">
-            Actual returned daily values; no smoothing or missing-period
-            interpolation. Transaction costs apply to actual traded notional
-            under the certified engine convention.
-          </p>
-          <h3 className="wd-chart-title">Fold-by-fold result inspection</h3>
-          {validation?.exact_fold_plan.map((f) => {
-            const job = validation.selected_jobs.find(
-              (j) => j.outer_fold === f.fold_id,
-            );
-            return (
-              <details className="wd-fold-result" key={f.fold_id}>
-                <summary>
-                  Fold {f.fold_id} · {f.oos_start} → {f.oos_end_exclusive}{" "}
-                  (exclusive)
-                </summary>
-                <Facts
-                  entries={[
-                    [
-                      "Training interval",
-                      `${f.training_start} → ${f.training_end_exclusive} (exclusive)`,
-                    ],
-                    ["Information cutoff", f.information_cutoff],
-                    ["Decision date", f.decision_date],
-                    [
-                      "OOS interval",
-                      `${f.oos_start} → ${f.oos_end_exclusive} (exclusive)`,
-                    ],
-                    [
-                      "Selected candidate",
-                      job?.candidate_id ?? "NOT_SUPPORTED",
-                    ],
-                    ["OOS calendar observations", f.oos_observations],
-                  ]}
-                />
-                <Audit>
-                  <p>Fit keys</p>
-                  {job?.fit_keys.map((k) => (
-                    <code key={k}>{k}</code>
-                  ))}
-                  <p>Job hash</p>
-                  <code>{job?.job_hash ?? "NOT_SUPPORTED"}</code>
-                  <p>Result hash</p>
-                  <code>{job?.result_hash ?? "NOT_SUPPORTED"}</code>
-                </Audit>
-              </details>
-            );
-          })}
-          <p className="wd-muted">
-            Fold calendar observations and engine OOS return observations are
-            distinct; no return count is inferred from calendar rows.
-          </p>
-          <Audit>
-            <Facts
-              entries={[
-                ["run_id", r.run_id],
-                ["execution_attempt_id", r.execution_attempt_id],
-                ["Financial-result hash", r.financial_result_hash],
-              ]}
-            />
-            <pre>
-              {JSON.stringify(
-                { provenance: r.provenance, artifacts: r.result_artifacts },
-                null,
-                2,
-              )}
-            </pre>
-          </Audit>
-          <div className="wd-warnings">
-            <h3>Result warnings</h3>
-            {r.warnings.map((w) => (
-              <p key={w}>{w}</p>
-            ))}
-            {r.blockers.map((b, i) => (
-              <p key={i}>{JSON.stringify(b)}</p>
-            ))}
-          </div>
+          <DesignSummary spec={detail.spec} count={r.evaluation?.fold_count} />
+          <CapitalExposureResults result={r} />
         </>
       )}
       {detail && <Attempts detail={detail} />}
@@ -1028,7 +873,7 @@ function Comparison({
   busy: boolean;
 }) {
   return (
-    <Section id="compare" step="06" title="Compare research designs">
+    <Section id="compare" step="06" title="Compare backtests">
       <p>
         Select exactly two successful designs in temporary history. Comparison
         reads immutable results without recalculating research.
@@ -1084,16 +929,27 @@ function Comparison({
                 </tr>
               </thead>
               <tbody>
-                {payload.comparison.financial_input_differences.map((d) => (
-                  <tr key={d.path}>
-                    <td>
-                      {FIELD_LABELS[d.path.slice(1) as keyof DesignForm] ??
-                        d.path}
-                    </td>
-                    <td>{String(d.left)}</td>
-                    <td>{String(d.right)}</td>
-                  </tr>
-                ))}
+                {payload.comparison.financial_input_differences
+                  .filter(
+                    (d) =>
+                      !(
+                        d.path === "/selection_cost_bps" &&
+                        payload.left.spec.selection_cost_bps ===
+                          payload.left.spec.transaction_cost_bps &&
+                        payload.right.spec.selection_cost_bps ===
+                          payload.right.spec.transaction_cost_bps
+                      ),
+                  )
+                  .map((d) => (
+                    <tr key={d.path}>
+                      <td>
+                        {FIELD_LABELS[d.path.slice(1) as keyof DesignForm] ??
+                          d.path}
+                      </td>
+                      <td>{String(d.left)}</td>
+                      <td>{String(d.right)}</td>
+                    </tr>
+                  ))}
                 <tr>
                   <td>Fold count</td>
                   <td>
@@ -1132,7 +988,7 @@ function Comparison({
                     payload.comparison.realized_cost_difference,
                   ],
                   [
-                    "OOS cost assumption (bps)",
+                    "Trading Costs (bps)",
                     payload.comparison.transaction_cost_difference_bps,
                   ],
                 ].map(([name, v]) => (
@@ -1146,7 +1002,13 @@ function Comparison({
           </div>
           <div className="wd-warnings">
             {payload.comparison.warnings.map((w) => (
-              <p key={w}>{w}</p>
+              <p key={w}>
+                {w === "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED"
+                  ? "Data vintage has not been independently verified."
+                  : w.includes("Independent fold sleeves")
+                    ? "Each period starts with a fresh simulated portfolio; the research index compounds the period returns."
+                    : w}
+              </p>
             ))}
           </div>
           <Audit title="Advanced comparison audit">
@@ -1188,12 +1050,12 @@ function History({
               <tr>
                 {[
                   "Created",
-                  "OOS range (end exclusive)",
+                  "Backtest Period (To not included)",
                   "Type",
                   "Training",
                   "Rebalance",
-                  "OOS cost",
-                  "Selection cost",
+                  "Trading Costs",
+
                   "Folds",
                   "Status",
                   "Final index",
@@ -1217,7 +1079,7 @@ function History({
                     <td>{r.spec.training_window_months} months</td>
                     <td>{label(r.spec.rebalance_frequency)}</td>
                     <td>{r.spec.transaction_cost_bps} bps</td>
-                    <td>{r.spec.selection_cost_bps} bps</td>
+
                     <td>{result?.evaluation?.fold_count ?? "Not returned"}</td>
                     <td>{r.latest_status}</td>
                     <td>
@@ -1283,12 +1145,20 @@ function Designer({ token, signOut }: { token: string; signOut: () => void }) {
     queryFn: () => client.getCapabilities(),
     retry: false,
   });
-  const problems = caps.data ? capabilityProblemsV2(caps.data) : [];
+  const problems = caps.data
+    ? [
+        ...capabilityProblemsV2(caps.data),
+        ...(caps.data.model_definition &&
+        caps.data.benchmark_methodology_version
+          ? []
+          : ["Capital Exposure model and benchmark metadata"]),
+      ]
+    : [];
   const ready = !!caps.data && !problems.length;
   const parsed = useMemo(
     () =>
       caps.data
-        ? readDesign(form, caps.data)
+        ? readStandardDesign(form, caps.data)
         : { errors: ["Load capabilities first."] },
     [form, caps.data],
   );
@@ -1558,7 +1428,6 @@ function Designer({ token, signOut }: { token: string; signOut: () => void }) {
       </main>
     );
   const c = caps.data!;
-  const timing = derivedTiming(c, form.rebalance_frequency);
   const p = preview?.plan;
   const status =
     active?.latest_attempt?.execution_attempt_id ===
@@ -1601,28 +1470,23 @@ function Designer({ token, signOut }: { token: string; signOut: () => void }) {
         <ErrorNotice key={i} error={e} />
       ))}
       <div className="wd-design-layout">
-        <Section id="configure" step="01" title="Define your research design">
-          <p className="wd-context">
-            SPY · Historical empirical research · Traditional walk-forward ·
-            Certified market-exposure model
+        <Section id="configure" step="01" title="Configure the backtest">
+          <p className="ce-data-line">
+            Data available:{" "}
+            {new Intl.DateTimeFormat("en", {
+              month: "short",
+              year: "numeric",
+              timeZone: "UTC",
+            }).format(new Date(c.data_first_observation))}{" "}
+            –{" "}
+            {new Intl.DateTimeFormat("en", {
+              month: "short",
+              year: "numeric",
+              timeZone: "UTC",
+            }).format(new Date(c.data_last_observation))}
           </p>
           <form onSubmit={previewSubmit} noValidate>
             <DesignInputs form={form} c={c} change={change} />
-            {timing && (
-              <div className="wd-timing" aria-label="Derived timing">
-                <h3>Derived timing · read only</h3>
-                <Facts
-                  entries={[
-                    ["OOS horizon", monthLabel(timing.oosMonths)],
-                    ["Step", monthLabel(timing.stepMonths)],
-                    [
-                      "Recalibration",
-                      `Every ${timing.recalibration} rebalance`,
-                    ],
-                  ]}
-                />
-              </div>
-            )}
             {parsed.errors.length > 0 && (
               <div className="wd-validation">
                 <p>Complete the design to preview:</p>
@@ -1641,13 +1505,12 @@ function Designer({ token, signOut }: { token: string; signOut: () => void }) {
               {planMutation.isPending ? "PLANNING…" : "PREVIEW WALK-FORWARD"}
             </Button>
             <p className="wd-muted">
-              Preview only constructs and validates folds. It does not run a
-              backtest.
+              Preview the walk-forward structure before running the backtest.
             </p>
           </form>
           {planMutation.error && <ErrorNotice error={planMutation.error} />}
         </Section>
-        <DatasetRules c={c} />
+        <CapitalModelSummary model={c.model_definition!} />
       </div>
       <div ref={planRef}>
         <Section
@@ -1686,39 +1549,34 @@ function Designer({ token, signOut }: { token: string; signOut: () => void }) {
           )}
         </Section>
       </div>
-      <Section id="review" step="03" title="Review before execution">
+      <Section id="review" step="03" title="Review before running">
         {p ? (
           <>
             <DesignSummary
               spec={p.normalized_request}
               count={p.number_of_folds}
             />
-            <Facts
-              entries={[
-                [
-                  "OOS horizon",
-                  monthLabel(p.derived_engine_calendar.test_months),
-                ],
-                ["Step", monthLabel(p.derived_engine_calendar.step_months)],
-                [
-                  "Recalibration",
-                  `Every ${p.derived_engine_calendar.recalibration_frequency} rebalance`,
-                ],
-                ["Estimated jobs", p.estimated_jobs.total_jobs_estimated],
-                ["First training date", p.first_training_date],
-                ["Last observed OOS date", p.last_oos_date],
-              ]}
-            />
+            <p className="ce-plan-copy">
+              At each rebalance, the system uses only prior information, selects
+              an exposure policy, applies it for the next rebalance period, then
+              advances and repeats.
+            </p>
             <div className="wd-warnings">
-              <h3>Plan warnings</h3>
+              <h3>Before you run</h3>
               {p.warnings.map((w) => (
-                <p key={w}>{w}</p>
+                <p key={w}>
+                  {w === "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED"
+                    ? "Data vintage has not been independently verified."
+                    : w.includes("Independent fold sleeves")
+                      ? "Each period starts with a fresh simulated portfolio; the research index compounds the period returns."
+                      : w}
+                </p>
               ))}
               <h3>Blockers</h3>
               {p.blockers.length ? (
                 p.blockers.map((b, i) => <p key={i}>{JSON.stringify(b)}</p>)
               ) : (
-                <p>None returned by the backend.</p>
+                <p>No blockers.</p>
               )}
             </div>
             <label className="wd-review-check">
@@ -1733,8 +1591,8 @@ function Designer({ token, signOut }: { token: string; signOut: () => void }) {
                 }
                 onChange={(e) => setAccepted(e.target.checked)}
               />
-              I have reviewed these exact training and OOS folds and both cost
-              assumptions.
+              I have reviewed the training and test periods and the Trading
+              Costs assumption.
             </label>
           </>
         ) : (
@@ -1751,18 +1609,16 @@ function Designer({ token, signOut }: { token: string; signOut: () => void }) {
               if (mayRun && p) submit.mutate(p);
             }}
           >
-            {submit.isPending ? "SUBMITTING…" : "RUN RESEARCH"}
+            {submit.isPending ? "SUBMITTING…" : "RUN BACKTEST"}
           </Button>
-          <p>
-            Runs only the normalized financial request returned by this plan.
-          </p>
+          <p>Runs exactly the backtest structure you reviewed.</p>
         </div>
       </Section>
       <div ref={statusRef}>
-        <Section id="run-status" step="04" title="Execution status">
+        <Section id="run-status" step="04" title="Backtest status">
           <div aria-live="polite">
             {!active && !receipt ? (
-              <p>No design has been submitted in this session.</p>
+              <p>No backtest has been submitted in this session.</p>
             ) : (
               <>
                 <div className="workbench-status">
@@ -1783,12 +1639,6 @@ function Designer({ token, signOut }: { token: string; signOut: () => void }) {
                     }
                   />
                 )}
-                <p>
-                  Stage:{" "}
-                  {active?.latest_attempt?.stage ??
-                    receipt?.stage ??
-                    "Not available"}
-                </p>
                 {receipt?.reused_existing_attempt && (
                   <p className="wd-notice">
                     Existing experiment reused. This submission did not start a

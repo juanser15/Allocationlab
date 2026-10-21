@@ -1,0 +1,143 @@
+{
+  "status": "PASS",
+  "starting_sha": "7ee5c52f2df4f969959a5a043bce6cba1840473f",
+  "counts": {
+    "passed": 61,
+    "failed": 0,
+    "skipped_in_fast_suite": 3
+  },
+  "suites": {
+    "backend_workbench_and_new_control_tests": {
+      "tests": 39,
+      "pass": 36,
+      "fail": 0,
+      "skipped": 3
+    },
+    "frontend_unit_tests": {
+      "tests": 22,
+      "pass": 22,
+      "fail": 0,
+      "skipped": 0
+    },
+    "real_b3c_api_empirical_regression": {
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    "real_pit_future_mutation_regression": {
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    "legacy_v1_authenticated_empirical_regression": {
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "fast_suite_skip_explanation": "Existing gated B3A full matrix, PIT and B1 empirical tests are skipped by the fast invocation. PIT runs separately, V1 B2 acceptance runs separately, and B3C executes four exact prior B3B specs plus reruns and four standard equal-cost browser specs plus reruns. No skipped test is counted as passing.",
+  "backend_sources": [
+    "calendar-v2.test.ts",
+    "pit-v2.test.ts",
+    "repository-root.test.ts",
+    "version-boundary.test.ts",
+    "workbench.test.ts",
+    "exposure-controls.test.ts",
+    "exposure-attribution.test.ts",
+    "workbench-b2.integration.test.ts"
+  ],
+  "new_backend_unit_cases": 7,
+  "new_frontend_unit_cases": 4,
+  "frontend_sources": [
+    "workbench-designer.test.ts",
+    "workbench.test.ts",
+    "capital-exposure.test.ts"
+  ],
+  "execution": {
+    "backend_test_bundle": "Existing esbuild with fixed node ESM bundle, native/pdfkit exclusions and createRequire banner; NODE_ENV=production LOG_LEVEL=silent. Calculator-only unit bundle uses the existing calculator DB shim.",
+    "api_acceptance_flag": "WORKBENCH_B3C_ACCEPTANCE=1",
+    "pit_flag": "WORKBENCH_B3A_PIT=1",
+    "legacy_flag": "WORKBENCH_B2_EMPIRICAL_ACCEPTANCE=1",
+    "browser_command": "PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright node artifacts/allocation-lab/tests/capital-exposure.browser.mjs",
+    "test_tokens": "Injected only at runtime; no token values included in reports or builds."
+  },
+  "typecheck": {
+    "backend": {
+      "status": "PASS",
+      "command": "node_modules/.bin/tsc -p artifacts/api-server/tsconfig.json --noEmit"
+    },
+    "frontend": {
+      "status": "PASS",
+      "command": "node_modules/.bin/tsc -p artifacts/allocation-lab/tsconfig.json --noEmit"
+    }
+  },
+  "build": {
+    "backend": {
+      "status": "PASS",
+      "command": "node artifacts/api-server/build.mjs",
+      "includes_actual_workbench_worker": true
+    },
+    "frontend": {
+      "status": "PASS",
+      "directory": "artifacts/allocation-lab",
+      "command": "PORT=5173 BASE_PATH=/ node_modules/.bin/vite build --config vite.config.ts",
+      "warning": "Vite reports the existing single-app bundle exceeds 500kB; no new package or unrelated code splitting was introduced."
+    }
+  },
+  "browser": {
+    "status": "PASS",
+    "version": "154.0.8037.57",
+    "checks": {
+      "primary_copy_and_single_cost": true,
+      "no_silent_defaults": true,
+      "data_is_one_capabilities_line": true,
+      "model_scope_and_baseline_visible": true,
+      "backend_authoritative_model_metadata": true,
+      "contextual_history_error_no_date_repair": true,
+      "edit_invalidates_review": true,
+      "single_cost_maps_both_wire_fields": true,
+      "three_real_aligned_tracks": true,
+      "beta_and_attribution_reconcile": true,
+      "every_case_reruns_all_hashes": true,
+      "compare_read_only_no_winner": true,
+      "mobile_tooltip_contained": true,
+      "no_v1_or_live_trading_controls": true,
+      "touch_mobile_review": true,
+      "no_preview_secret_in_build": true
+    },
+    "responsive_widths": [
+      360,
+      390,
+      430,
+      768,
+      1440
+    ],
+    "responsive_cases": 10,
+    "physical_android_tested": false,
+    "touch_emulated_android_sized_viewport": true,
+    "page_errors": [],
+    "evidence": "browser-acceptance.json"
+  },
+  "benchmark_properties": [
+    "Exactly aligned OOS dates and fold boundaries",
+    "Passive actual-notional next-close costs; no terminal liquidation",
+    "Constant matched-control maintenance NAV identity",
+    "Deterministic solver, extrema and infeasibility",
+    "Actual certified calculator passive oracle",
+    "Existing independent SciPy CAPM oracle",
+    "Exact prior dynamic metrics/run IDs/financial hashes preserved",
+    "No own-OOS data in fitting; future mutation cannot change prior selections",
+    "Both attribution identities reconcile",
+    "All four hashes reproduce on rerun",
+    "Original result.json bytes unchanged by enrichment",
+    "One visible cost maps both explicit V2 cost fields",
+    "Read-only compare creates no attempt",
+    "No V1 UI execution, broker controls or automatic alpha claim",
+    "No page overflow at all five widths; mobile tooltip contained"
+  ],
+  "preservation": "preservation.json",
+  "git_diff_check": "PASS"
+}

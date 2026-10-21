@@ -2,6 +2,9 @@ import { Router, type IRouter } from "express";
 import { WorkbenchServiceV2 } from "../lib/workbench/service-v2";
 import { boundaryV2, capabilitiesV2, loadDatasetV2, parseSubmissionV2, planCalendarV2, CalendarContractError } from "../lib/workbench/calendar-v2";
 import { safeError } from "./workbench";
+import { exposureModelDefinition } from "../lib/workbench/exposure-model-definition";
+import { enrichExposureRun } from "../lib/workbench/exposure-attribution";
+import { BENCHMARK_METHODOLOGY_VERSION } from "../lib/workbench/exposure-controls";
 
 export function createWorkbenchV2Router(): IRouter {
   const router = Router();
@@ -16,7 +19,7 @@ export function createWorkbenchV2Router(): IRouter {
     next();
   });
   router.get("/workbench/capabilities", (req, res) => {
-    try { res.json(capabilitiesV2()); } catch (error) { safeError(req, res, error); }
+    try { const data = loadDatasetV2(); res.json({ ...capabilitiesV2(data), model_definition: exposureModelDefinition(data), benchmark_methodology_version: BENCHMARK_METHODOLOGY_VERSION }); } catch (error) { safeError(req, res, error); }
   });
   router.post("/workbench/plan", (req, res) => {
     try { res.json(planCalendarV2(parseSubmissionV2(req.body), loadDatasetV2())); }
@@ -33,7 +36,7 @@ export function createWorkbenchV2Router(): IRouter {
     try { res.json(await (await service()).listRuns()); } catch (error) { safeError(req, res, error); }
   });
   router.get("/workbench/runs/:runId", async (req, res) => {
-    try { res.json(await (await service()).getRun(String(req.params.runId))); } catch (error) { safeError(req, res, error); }
+    try { const api = await service(); const run = await api.getRun(String(req.params.runId)); res.json(await enrichExposureRun(run, api.store)); } catch (error) { safeError(req, res, error); }
   });
   router.post("/workbench/runs/:runId/rerun", async (req, res) => {
     try {

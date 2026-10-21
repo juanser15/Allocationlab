@@ -1,5 +1,9 @@
 import { z } from "zod";
 import {
+  exposureModelSchema,
+  attributionFields,
+} from "./workbench-attribution-api";
+import {
   WorkbenchApiError,
   WORKBENCH_PIT_CLASSIFICATION,
   WORKBENCH_RESEARCH_BOUNDARY,
@@ -124,6 +128,8 @@ export const capabilitiesV2Schema = boundary
       max_output_bytes: z.number().int().positive(),
     }),
     warnings: z.array(z.string()),
+    model_definition: exposureModelSchema.optional(),
+    benchmark_methodology_version: z.string().optional(),
   })
   .passthrough();
 export type CapabilitiesV2 = z.infer<typeof capabilitiesV2Schema>;
@@ -224,6 +230,7 @@ const optionalMetric = z
   .optional();
 export const resultV2Schema = z
   .object({
+    ...attributionFields,
     contract_version: z.literal("workbench-research-run-result-2.0.0"),
     run_id: z.string(),
     execution_attempt_id: z.string(),

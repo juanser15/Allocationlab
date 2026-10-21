@@ -1,0 +1,2883 @@
+{
+  "status": "PASS",
+  "browser": "154.0.8037.57",
+  "checks": {
+    "primary_copy_and_single_cost": true,
+    "no_silent_defaults": true,
+    "data_is_one_capabilities_line": true,
+    "model_scope_and_baseline_visible": true,
+    "backend_authoritative_model_metadata": true,
+    "contextual_history_error_no_date_repair": true,
+    "edit_invalidates_review": true,
+    "single_cost_maps_both_wire_fields": true,
+    "three_real_aligned_tracks": true,
+    "beta_and_attribution_reconcile": true,
+    "every_case_reruns_all_hashes": true,
+    "compare_read_only_no_winner": true,
+    "mobile_tooltip_contained": true,
+    "no_v1_or_live_trading_controls": true,
+    "touch_mobile_review": true,
+    "no_preview_secret_in_build": true
+  },
+  "standard_mode_empirical_attempts": 8,
+  "matrix": [
+    {
+      "name": "rolling_monthly",
+      "request": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 0
+      },
+      "run_id": "rr_f26e92f72035d9d176a1d962b4afa0084d233f2575cf5a02918e9a9fcf0dd5a2",
+      "attempt_id": "ea_6d5ef18d-e659-4237-861f-54ccf5bc91c7",
+      "rerun_attempt_id": "ea_30c6f091-405a-4716-a22e-e3d89ed09ac2",
+      "dynamic_metrics": {
+        "annualized_turnover": 9.967181538461539,
+        "annualized_volatility": 0.15113820830266686,
+        "cagr": -0.4098261302107765,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2022-03-01",
+          "evaluation_start": "2022-01-01",
+          "fold_count": 2,
+          "rebalance_frequency": "MONTHLY",
+          "training_window_months": 24,
+          "window_type": "ROLLING"
+        },
+        "final_research_index": 92.1629622205388,
+        "gross_turnover": 1.54254,
+        "max_drawdown": -0.10113891977110934,
+        "mean_beginning_risky_exposure": 0.6863241337999073,
+        "net_sharpe": -3.4118119614528433,
+        "observations": 39,
+        "return_drawdown_ratio": -4.052111008682581
+      },
+      "benchmark_metrics": {
+        "DYNAMIC_EXPOSURE": {
+          "annualized_volatility": 0.15113820830266686,
+          "average_cash_allocation": 0.3136758662000927,
+          "average_risky_exposure": 0.6863241337999073,
+          "cagr": -0.4098261302107765,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5590509730987837
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5971320401363859
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5590509730987837
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.20617026635309157
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.1322979294354765,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.7330747104135007,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                7.417329123711936e-8,
+                0.0000033744894852301375
+              ],
+              [
+                0.0000033744894852301375,
+                0.00022993212706633968
+              ]
+            ],
+            "coefficients": [
+              -0.0005249917834741131,
+              0.7330747104135007
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.0005249917834741131,
+            "data_hash": "a9f30e5cc8ffa3fca9c76c9da6894610052d28f5d454f7020944d05d8e0ec0e9",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 39,
+            "r_squared": 0.9734300392672603,
+            "sample_end": "2022-02-28",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.06863163036619506,
+            "standard_error_daily": 0.0002723477395483931,
+            "standard_errors": [
+              0.0002723477395483931,
+              0.015163513018635876
+            ],
+            "status": "VALID",
+            "t_alpha": -1.9276524356128464,
+            "t_beta": 48.34464873097387,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.9276524356128464,
+              48.34464873097387
+            ]
+          },
+          "downside_beta": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7606610666413144
+          },
+          "downside_capture": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.762962753306142
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 26,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7443713462333468
+            },
+            "0.1": {
+              "observations": 3,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7301044114066615
+            },
+            "0.2": {
+              "observations": 0,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            }
+          },
+          "final_research_index": 92.1629622205388,
+          "full_sample_beta": {
+            "observations": 39,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7330747104135005
+          },
+          "gross_turnover": 1.54254,
+          "max_drawdown": -0.10113891977110934,
+          "net_sharpe": -3.4118119614528433,
+          "observations": 39,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 1,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            },
+            "0.05": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7891731687812947
+            }
+          },
+          "upside_beta": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.8062458470986218
+          },
+          "upside_capture": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.6530307641177882
+          }
+        },
+        "PASSIVE_SPY": {
+          "annualized_volatility": 0.19884664045856798,
+          "average_cash_allocation": 0.10256410256410253,
+          "average_risky_exposure": 0.8974358974358975,
+          "cagr": -0.4958182217153031,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5138673829278644
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5524831613399092
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5138673829278644
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.20608521079145442
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.16004183552591833,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.9648758379842632,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                1.472356153422063e-7,
+                0.00000761984105045433
+              ],
+              [
+                0.00000761984105045433,
+                0.00043007136234700133
+              ]
+            ],
+            "coefficients": [
+              -0.0006350866489123743,
+              0.9648758379842632
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.0006350866489123743,
+            "data_hash": "6f84b4a601cf04bfc343108b5180d396543a981489b0b19f7ca54d7a400088da",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 39,
+            "r_squared": 0.9742337138648614,
+            "sample_end": "2022-02-28",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.09669565924430874,
+            "standard_error_daily": 0.00038371293350916166,
+            "standard_errors": [
+              0.00038371293350916166,
+              0.02073816198092303
+            ],
+            "status": "VALID",
+            "t_alpha": -1.6551087895430838,
+            "t_beta": 46.52658412408243,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.6551087895430838,
+              46.52658412408243
+            ]
+          },
+          "downside_beta": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 1.0026365619050375
+          },
+          "downside_capture": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9986475551522406
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 26,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.9872174880311565
+            },
+            "0.1": {
+              "observations": 3,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            },
+            "0.2": {
+              "observations": 0,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            }
+          },
+          "final_research_index": 89.94392182138336,
+          "full_sample_beta": {
+            "observations": 39,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9648758379842626
+          },
+          "gross_turnover": 2,
+          "max_drawdown": -0.13080100250029514,
+          "net_sharpe": -3.3423653643236473,
+          "observations": 39,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 1,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            },
+            "0.05": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            }
+          },
+          "upside_beta": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 1.0649031150330501
+          },
+          "upside_capture": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.8627459925256173
+          }
+        },
+        "STATIC_MATCHED_BETA": {
+          "annualized_volatility": 0.15107585622145064,
+          "average_cash_allocation": 0.31816350381215475,
+          "average_risky_exposure": 0.6818364961878453,
+          "cagr": -0.40345597168648784,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5503613287367572
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5917195309171835
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5503613287367572
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.2060852107914543
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.12159349173600212,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.7330747104135008,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                8.498973761667251e-8,
+                0.000004398448636586249
+              ],
+              [
+                0.000004398448636586248,
+                0.00024825278963491927
+              ]
+            ],
+            "coefficients": [
+              -0.0004825138560952465,
+              0.7330747104135008
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.0004825138560952465,
+            "data_hash": "4bcb6c43ee76c08dada0a66119477f7bd9466427c47b43fc2de15235102bf9e6",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 39,
+            "r_squared": 0.9742337138648614,
+            "sample_end": "2022-02-28",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.07346555858093758,
+            "standard_error_daily": 0.0002915299943687999,
+            "standard_errors": [
+              0.0002915299943687999,
+              0.015756039782728378
+            ],
+            "status": "VALID",
+            "t_alpha": -1.6551087895430838,
+            "t_beta": 46.5265841240824,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.6551087895430838,
+              46.5265841240824
+            ]
+          },
+          "downside_beta": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7617638232127761
+          },
+          "downside_capture": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7582336823741566
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 26,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7500490173590473
+            },
+            "0.1": {
+              "observations": 3,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7597606671807418
+            },
+            "0.2": {
+              "observations": 0,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            }
+          },
+          "final_research_index": 92.31621848882764,
+          "full_sample_beta": {
+            "observations": 39,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7330747104135008
+          },
+          "gross_turnover": 1.5863750216472772,
+          "max_drawdown": -0.10057346560772706,
+          "net_sharpe": -3.3423653643236464,
+          "observations": 39,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 1,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            },
+            "0.05": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7597606671807413
+            }
+          },
+          "upside_beta": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.8090715011603601
+          },
+          "upside_capture": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.6560735389666098
+          }
+        }
+      },
+      "matched_beta_diagnostic": {
+        "absolute_tolerance": 1e-9,
+        "achieved_control_beta": {
+          "observations": 39,
+          "reason": null,
+          "status": "VALID",
+          "value": 0.7330747104135008
+        },
+        "best_attainable_lambda": 0.7597606671807416,
+        "dynamic_beta": {
+          "observations": 39,
+          "reason": null,
+          "status": "VALID",
+          "value": 0.7330747104135005
+        },
+        "explanation": "This control is constructed after observing the completed OOS path. It is a diagnostic benchmark, not an ex-ante investable strategy.",
+        "extrema": [
+          {
+            "beta": 0,
+            "lambda": 0
+          },
+          {
+            "beta": 0.9648758379842626,
+            "lambda": 1
+          }
+        ],
+        "label": "Retrospective matched-beta diagnostic",
+        "maximum_attainable_control_beta": 0.9648758379842626,
+        "minimum_attainable_control_beta": 0,
+        "remaining_beta_difference": 3.3306690738754696e-16,
+        "solver": "RATIONAL_BETA_CUBIC_ROOTS_QUARTIC_EXTREMA_BISECTION_80_V1",
+        "solver_coefficients": [
+          0,
+          0.9648758379842626,
+          0,
+          0
+        ],
+        "status": "MATCHED"
+      },
+      "attribution": {
+        "alpha_claim": "NONE",
+        "benchmark_methodology_version": "capital-exposure-controls-1.0.0",
+        "definitions": {
+          "exposure_level_effect": "Matched-beta control minus passive SPY.",
+          "timing_residual": "Dynamic minus matched-beta control at comparable realized market beta.",
+          "total_dynamic_effect": "Dynamic minus passive: combines exposure reduction and timing."
+        },
+        "explanation": "A positive timing residual is not automatically statistical alpha.",
+        "status": "AVAILABLE",
+        "units": "Differences of separately compounded CAGR/total returns; not a tradable long-short portfolio.",
+        "values": {
+          "exposure_level_effect_cagr_difference": 0.09236225002881526,
+          "exposure_level_effect_total_return_difference": 0.023722966674442847,
+          "timing_residual_cagr_difference": -0.006370158524288683,
+          "timing_residual_total_return_difference": -0.001532562682888372,
+          "total_dynamic_effect_cagr_difference": 0.08599209150452658,
+          "total_dynamic_effect_total_return_difference": 0.022190403991554475
+        }
+      },
+      "selected_policy_by_fold": [
+        {
+          "audit": {
+            "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+            "fit_keys": [
+              "f7359b3696abcfd2b48d8b5d67a75da3186c825601e1b724803acf3fe4d8e22b"
+            ],
+            "job_hash": "211a046d1e5dbc33c57205ee7d6bb4118cc8ccb441a36baef1e4201a4a471c54",
+            "result_hash": "edef2d1fb9983b5ef9c40cf578d1434ac015bd59e0e12f7efdd33bcc470545ae"
+          },
+          "average_oos_cash": 0.28830713970880884,
+          "average_oos_spy_exposure": 0.7116928602911912,
+          "decision_date": "2022-01-03",
+          "fold": 0,
+          "information_cutoff": "2021-12-31",
+          "oos_end_exclusive": "2022-02-01",
+          "oos_observations": 20,
+          "oos_start": "2022-01-01",
+          "parameters": {
+            "cash_max": 0.4,
+            "cash_min": 0.1
+          },
+          "realized_simulated_cost": 0,
+          "realized_turnover": 0.79881,
+          "regime_score": 66.27,
+          "selected_exposure_policy": "cash_band",
+          "target_cash_allocation": 0.20118999999999998,
+          "target_spy_exposure": 0.79881,
+          "training_end_exclusive": "2022-01-01",
+          "training_net_sharpe": 1.0267193337154121,
+          "training_start": "2020-01-01"
+        },
+        {
+          "audit": {
+            "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+            "fit_keys": [
+              "e6b350d53fe6ab1589a37b5630f8e9ee54cbab6e8d29032246950abb6e834589"
+            ],
+            "job_hash": "84fd2437d0843da7538b7a695b8f87e5e7ba0b5e7cb122481b05df13a51124d1",
+            "result_hash": "a2e907567ac3d06ff9d4817f1233ff780cd9db53a61e46b62e021c606e25dc2c"
+          },
+          "average_oos_cash": 0.3403797888224962,
+          "average_oos_spy_exposure": 0.6596202111775037,
+          "decision_date": "2022-02-01",
+          "fold": 1,
+          "information_cutoff": "2022-01-31",
+          "oos_end_exclusive": "2022-03-01",
+          "oos_observations": 19,
+          "oos_start": "2022-02-01",
+          "parameters": {
+            "cash_max": 0.4,
+            "cash_min": 0.1
+          },
+          "realized_simulated_cost": 0,
+          "realized_turnover": 0.74373,
+          "regime_score": 47.91,
+          "selected_exposure_policy": "cash_band",
+          "target_cash_allocation": 0.25627,
+          "target_spy_exposure": 0.74373,
+          "training_end_exclusive": "2022-02-01",
+          "training_net_sharpe": 0.8500637058103514,
+          "training_start": "2020-02-01"
+        }
+      ],
+      "hashes": {
+        "dynamic": "f5821b8b66511b7a6f82766db6aa8a2421f6d32e84110d3e9e27cdc22824b90d",
+        "passive": "89b62f8c05dafb380cf8ae20cbcbb240d8a0121da6d8be3798a165719eaa43a7",
+        "matched_beta": "caaadfbba9cd611de912f862e660b8331a533ae70e4832686f479339c62d7f1e",
+        "attribution": "5ed280587ac003f4dae805def472015957c12a7c871d3a8c86d88c39b3f1f28a"
+      },
+      "all_hashes_reproduce": true,
+      "dynamic_stored_result_unchanged": true,
+      "normalized_costs_equal": true,
+      "screenshot": "screenshots/rolling_monthly-results.png"
+    },
+    {
+      "name": "expanding_monthly",
+      "request": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "EXPANDING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 0
+      },
+      "run_id": "rr_75ad6ee5064fc7b725cba35f7cfc7871df434aefe3343162c108af3fd1d5114c",
+      "attempt_id": "ea_b343c073-8a80-4676-ace5-cdfa2d22b011",
+      "rerun_attempt_id": "ea_961f316c-024e-4319-b428-b777674347f1",
+      "dynamic_metrics": {
+        "annualized_turnover": 9.967181538461539,
+        "annualized_volatility": 0.15113820830266686,
+        "cagr": -0.4098261302107765,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2022-03-01",
+          "evaluation_start": "2022-01-01",
+          "fold_count": 2,
+          "rebalance_frequency": "MONTHLY",
+          "training_window_months": 24,
+          "window_type": "EXPANDING"
+        },
+        "final_research_index": 92.1629622205388,
+        "gross_turnover": 1.54254,
+        "max_drawdown": -0.10113891977110934,
+        "mean_beginning_risky_exposure": 0.6863241337999073,
+        "net_sharpe": -3.4118119614528433,
+        "observations": 39,
+        "return_drawdown_ratio": -4.052111008682581
+      },
+      "benchmark_metrics": {
+        "DYNAMIC_EXPOSURE": {
+          "annualized_volatility": 0.15113820830266686,
+          "average_cash_allocation": 0.3136758662000927,
+          "average_risky_exposure": 0.6863241337999073,
+          "cagr": -0.4098261302107765,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5590509730987837
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5971320401363859
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5590509730987837
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.20617026635309157
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.1322979294354765,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.7330747104135007,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                7.417329123711936e-8,
+                0.0000033744894852301375
+              ],
+              [
+                0.0000033744894852301375,
+                0.00022993212706633968
+              ]
+            ],
+            "coefficients": [
+              -0.0005249917834741131,
+              0.7330747104135007
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.0005249917834741131,
+            "data_hash": "a9f30e5cc8ffa3fca9c76c9da6894610052d28f5d454f7020944d05d8e0ec0e9",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 39,
+            "r_squared": 0.9734300392672603,
+            "sample_end": "2022-02-28",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.06863163036619506,
+            "standard_error_daily": 0.0002723477395483931,
+            "standard_errors": [
+              0.0002723477395483931,
+              0.015163513018635876
+            ],
+            "status": "VALID",
+            "t_alpha": -1.9276524356128464,
+            "t_beta": 48.34464873097387,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.9276524356128464,
+              48.34464873097387
+            ]
+          },
+          "downside_beta": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7606610666413144
+          },
+          "downside_capture": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.762962753306142
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 26,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7443713462333468
+            },
+            "0.1": {
+              "observations": 3,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7301044114066615
+            },
+            "0.2": {
+              "observations": 0,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            }
+          },
+          "final_research_index": 92.1629622205388,
+          "full_sample_beta": {
+            "observations": 39,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7330747104135005
+          },
+          "gross_turnover": 1.54254,
+          "max_drawdown": -0.10113891977110934,
+          "net_sharpe": -3.4118119614528433,
+          "observations": 39,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 1,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            },
+            "0.05": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7891731687812947
+            }
+          },
+          "upside_beta": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.8062458470986218
+          },
+          "upside_capture": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.6530307641177882
+          }
+        },
+        "PASSIVE_SPY": {
+          "annualized_volatility": 0.19884664045856798,
+          "average_cash_allocation": 0.10256410256410253,
+          "average_risky_exposure": 0.8974358974358975,
+          "cagr": -0.4958182217153031,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5138673829278644
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5524831613399092
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5138673829278644
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.20608521079145442
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.16004183552591833,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.9648758379842632,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                1.472356153422063e-7,
+                0.00000761984105045433
+              ],
+              [
+                0.00000761984105045433,
+                0.00043007136234700133
+              ]
+            ],
+            "coefficients": [
+              -0.0006350866489123743,
+              0.9648758379842632
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.0006350866489123743,
+            "data_hash": "6f84b4a601cf04bfc343108b5180d396543a981489b0b19f7ca54d7a400088da",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 39,
+            "r_squared": 0.9742337138648614,
+            "sample_end": "2022-02-28",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.09669565924430874,
+            "standard_error_daily": 0.00038371293350916166,
+            "standard_errors": [
+              0.00038371293350916166,
+              0.02073816198092303
+            ],
+            "status": "VALID",
+            "t_alpha": -1.6551087895430838,
+            "t_beta": 46.52658412408243,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.6551087895430838,
+              46.52658412408243
+            ]
+          },
+          "downside_beta": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 1.0026365619050375
+          },
+          "downside_capture": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9986475551522406
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 26,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.9872174880311565
+            },
+            "0.1": {
+              "observations": 3,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            },
+            "0.2": {
+              "observations": 0,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            }
+          },
+          "final_research_index": 89.94392182138336,
+          "full_sample_beta": {
+            "observations": 39,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9648758379842626
+          },
+          "gross_turnover": 2,
+          "max_drawdown": -0.13080100250029514,
+          "net_sharpe": -3.3423653643236473,
+          "observations": 39,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 1,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            },
+            "0.05": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            }
+          },
+          "upside_beta": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 1.0649031150330501
+          },
+          "upside_capture": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.8627459925256173
+          }
+        },
+        "STATIC_MATCHED_BETA": {
+          "annualized_volatility": 0.15107585622145064,
+          "average_cash_allocation": 0.31816350381215475,
+          "average_risky_exposure": 0.6818364961878453,
+          "cagr": -0.40345597168648784,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5503613287367572
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5917195309171835
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5503613287367572
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.2060852107914543
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.12159349173600212,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.7330747104135008,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                8.498973761667251e-8,
+                0.000004398448636586249
+              ],
+              [
+                0.000004398448636586248,
+                0.00024825278963491927
+              ]
+            ],
+            "coefficients": [
+              -0.0004825138560952465,
+              0.7330747104135008
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.0004825138560952465,
+            "data_hash": "4bcb6c43ee76c08dada0a66119477f7bd9466427c47b43fc2de15235102bf9e6",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 39,
+            "r_squared": 0.9742337138648614,
+            "sample_end": "2022-02-28",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.07346555858093758,
+            "standard_error_daily": 0.0002915299943687999,
+            "standard_errors": [
+              0.0002915299943687999,
+              0.015756039782728378
+            ],
+            "status": "VALID",
+            "t_alpha": -1.6551087895430838,
+            "t_beta": 46.5265841240824,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.6551087895430838,
+              46.5265841240824
+            ]
+          },
+          "downside_beta": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7617638232127761
+          },
+          "downside_capture": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7582336823741566
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 26,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7500490173590473
+            },
+            "0.1": {
+              "observations": 3,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7597606671807418
+            },
+            "0.2": {
+              "observations": 0,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            }
+          },
+          "final_research_index": 92.31621848882764,
+          "full_sample_beta": {
+            "observations": 39,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7330747104135008
+          },
+          "gross_turnover": 1.5863750216472772,
+          "max_drawdown": -0.10057346560772706,
+          "net_sharpe": -3.3423653643236464,
+          "observations": 39,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 1,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            },
+            "0.05": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7597606671807413
+            }
+          },
+          "upside_beta": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.8090715011603601
+          },
+          "upside_capture": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.6560735389666098
+          }
+        }
+      },
+      "matched_beta_diagnostic": {
+        "absolute_tolerance": 1e-9,
+        "achieved_control_beta": {
+          "observations": 39,
+          "reason": null,
+          "status": "VALID",
+          "value": 0.7330747104135008
+        },
+        "best_attainable_lambda": 0.7597606671807416,
+        "dynamic_beta": {
+          "observations": 39,
+          "reason": null,
+          "status": "VALID",
+          "value": 0.7330747104135005
+        },
+        "explanation": "This control is constructed after observing the completed OOS path. It is a diagnostic benchmark, not an ex-ante investable strategy.",
+        "extrema": [
+          {
+            "beta": 0,
+            "lambda": 0
+          },
+          {
+            "beta": 0.9648758379842626,
+            "lambda": 1
+          }
+        ],
+        "label": "Retrospective matched-beta diagnostic",
+        "maximum_attainable_control_beta": 0.9648758379842626,
+        "minimum_attainable_control_beta": 0,
+        "remaining_beta_difference": 3.3306690738754696e-16,
+        "solver": "RATIONAL_BETA_CUBIC_ROOTS_QUARTIC_EXTREMA_BISECTION_80_V1",
+        "solver_coefficients": [
+          0,
+          0.9648758379842626,
+          0,
+          0
+        ],
+        "status": "MATCHED"
+      },
+      "attribution": {
+        "alpha_claim": "NONE",
+        "benchmark_methodology_version": "capital-exposure-controls-1.0.0",
+        "definitions": {
+          "exposure_level_effect": "Matched-beta control minus passive SPY.",
+          "timing_residual": "Dynamic minus matched-beta control at comparable realized market beta.",
+          "total_dynamic_effect": "Dynamic minus passive: combines exposure reduction and timing."
+        },
+        "explanation": "A positive timing residual is not automatically statistical alpha.",
+        "status": "AVAILABLE",
+        "units": "Differences of separately compounded CAGR/total returns; not a tradable long-short portfolio.",
+        "values": {
+          "exposure_level_effect_cagr_difference": 0.09236225002881526,
+          "exposure_level_effect_total_return_difference": 0.023722966674442847,
+          "timing_residual_cagr_difference": -0.006370158524288683,
+          "timing_residual_total_return_difference": -0.001532562682888372,
+          "total_dynamic_effect_cagr_difference": 0.08599209150452658,
+          "total_dynamic_effect_total_return_difference": 0.022190403991554475
+        }
+      },
+      "selected_policy_by_fold": [
+        {
+          "audit": {
+            "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+            "fit_keys": [
+              "f7359b3696abcfd2b48d8b5d67a75da3186c825601e1b724803acf3fe4d8e22b"
+            ],
+            "job_hash": "f7b3238c7e72f80c776c34c1d948fecb0b4534681ba9b435c1f024c5a9b4d868",
+            "result_hash": "6800721d672e2d76d84a583a15e5d06c4095985cac6581e20caf475683b0bdf0"
+          },
+          "average_oos_cash": 0.28830713970880884,
+          "average_oos_spy_exposure": 0.7116928602911912,
+          "decision_date": "2022-01-03",
+          "fold": 0,
+          "information_cutoff": "2021-12-31",
+          "oos_end_exclusive": "2022-02-01",
+          "oos_observations": 20,
+          "oos_start": "2022-01-01",
+          "parameters": {
+            "cash_max": 0.4,
+            "cash_min": 0.1
+          },
+          "realized_simulated_cost": 0,
+          "realized_turnover": 0.79881,
+          "regime_score": 66.27,
+          "selected_exposure_policy": "cash_band",
+          "target_cash_allocation": 0.20118999999999998,
+          "target_spy_exposure": 0.79881,
+          "training_end_exclusive": "2022-01-01",
+          "training_net_sharpe": 1.0267193337154121,
+          "training_start": "2020-01-01"
+        },
+        {
+          "audit": {
+            "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+            "fit_keys": [
+              "c3e3afe058eaaadee755673ea74ef7e9d10d39add5210d4832ca293e9b910d41"
+            ],
+            "job_hash": "0af9cabe0b952367368150f190261f073610ccc0f41efa4d0cc03ad4caf1a1a9",
+            "result_hash": "fcc6db1e8352f6725f02d195ff4faea26de9ba8506c88e38eb5a0eee01a08bd7"
+          },
+          "average_oos_cash": 0.3403797888224962,
+          "average_oos_spy_exposure": 0.6596202111775037,
+          "decision_date": "2022-02-01",
+          "fold": 1,
+          "information_cutoff": "2022-01-31",
+          "oos_end_exclusive": "2022-03-01",
+          "oos_observations": 19,
+          "oos_start": "2022-02-01",
+          "parameters": {
+            "cash_max": 0.4,
+            "cash_min": 0.1
+          },
+          "realized_simulated_cost": 0,
+          "realized_turnover": 0.74373,
+          "regime_score": 47.91,
+          "selected_exposure_policy": "cash_band",
+          "target_cash_allocation": 0.25627,
+          "target_spy_exposure": 0.74373,
+          "training_end_exclusive": "2022-02-01",
+          "training_net_sharpe": 0.8754601656396511,
+          "training_start": "2020-01-01"
+        }
+      ],
+      "hashes": {
+        "dynamic": "0af55e3f0903134ee283d1ab995729221a097c79764f0c2d22141319b54ecdb1",
+        "passive": "79d151f660879dde3fbb0f6cc701a6822291ba34a11b9f59237351c3c2e63834",
+        "matched_beta": "12ca93c65ef469a73fca616d27460f5bc1b876f3df2b86f1f0ade8fde83290f5",
+        "attribution": "b2a1d15ad033b2810a2a24318cb329d3d8c7aec3557b512a6150b9a6036ca83c"
+      },
+      "all_hashes_reproduce": true,
+      "dynamic_stored_result_unchanged": true,
+      "normalized_costs_equal": true,
+      "screenshot": "screenshots/expanding_monthly-results.png"
+    },
+    {
+      "name": "rolling_quarterly",
+      "request": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-07-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "QUARTERLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 0
+      },
+      "run_id": "rr_db1eb277d91024d6ed2f7b38331afedb62b5110dcd742cfe9af57af6d3d1d2cc",
+      "attempt_id": "ea_97596e9a-622e-4ef6-81c8-18caf70be4db",
+      "rerun_attempt_id": "ea_7f92696a-504d-4d92-8185-b1909bd00246",
+      "dynamic_metrics": {
+        "annualized_turnover": 3.6580645161290324,
+        "annualized_volatility": 0.23363555376374864,
+        "cagr": -0.372041621000306,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2022-07-01",
+          "evaluation_start": "2022-01-01",
+          "fold_count": 2,
+          "rebalance_frequency": "QUARTERLY",
+          "training_window_months": 24,
+          "window_type": "ROLLING"
+        },
+        "final_research_index": 79.53699030790615,
+        "gross_turnover": 1.8,
+        "max_drawdown": -0.23030326595965445,
+        "mean_beginning_risky_exposure": 0.8652743976280309,
+        "net_sharpe": -1.8732348182484397,
+        "observations": 124,
+        "return_drawdown_ratio": -1.6154422276646392
+      },
+      "benchmark_metrics": {
+        "DYNAMIC_EXPOSURE": {
+          "annualized_volatility": 0.23363555376374864,
+          "average_cash_allocation": 0.13472560237196907,
+          "average_risky_exposure": 0.8652743976280309,
+          "cagr": -0.372041621000306,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.4048838794238451
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.4299695241419143
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.4048838794238451
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.2542599108262865
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.05087120228121176,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.9188847467321394,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                2.7951137789909698e-8,
+                6.103765882373123e-7
+              ],
+              [
+                6.103765882373123e-7,
+                0.0005940574265472503
+              ]
+            ],
+            "coefficients": [
+              -0.0002018698503222689,
+              0.9188847467321394
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.0002018698503222689,
+            "data_hash": "c0ada13ba3910273377da7c25a7ad84570c7fe00f73af6ead99d8b9bf6e3a566",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 124,
+            "r_squared": 0.9842094082961161,
+            "sample_end": "2022-06-30",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.04213085631945339,
+            "standard_error_daily": 0.0001671859377756087,
+            "standard_errors": [
+              0.0001671859377756087,
+              0.024373293305321918
+            ],
+            "status": "VALID",
+            "t_alpha": -1.2074571163587442,
+            "t_beta": 37.70047548443117,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.2074571163587442,
+              37.70047548443117
+            ]
+          },
+          "downside_beta": {
+            "observations": 69,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.970520363353269
+          },
+          "downside_capture": {
+            "observations": 69,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9123018835782316
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 105,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.9297939507689403
+            },
+            "0.1": {
+              "observations": 57,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.9679960286075663
+            },
+            "0.2": {
+              "observations": 9,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            }
+          },
+          "final_research_index": 79.53699030790615,
+          "full_sample_beta": {
+            "observations": 124,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9188847467321395
+          },
+          "gross_turnover": 1.8,
+          "max_drawdown": -0.23030326595965445,
+          "net_sharpe": -1.8732348182484397,
+          "observations": 124,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            },
+            "0.05": {
+              "observations": 7,
+              "reason": null,
+              "status": "VALID",
+              "value": 1.4227922304066927
+            }
+          },
+          "upside_beta": {
+            "observations": 55,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9475500427288751
+          },
+          "upside_capture": {
+            "observations": 55,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.8730176471844944
+          }
+        },
+        "PASSIVE_SPY": {
+          "annualized_volatility": 0.251538267379775,
+          "average_cash_allocation": 0.032258064516129004,
+          "average_risky_exposure": 0.967741935483871,
+          "cagr": -0.3856250081198149,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.3874114195280051
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.3984791750571421
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.3874114195280051
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.2527035207242988
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.036195297097244915,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.9953888519590707,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                1.051206069183861e-8,
+                3.6716508802422027e-7
+              ],
+              [
+                3.671650880242202e-7,
+                0.000013313741256457663
+              ]
+            ],
+            "coefficients": [
+              -0.00014363213133827346,
+              0.9953888519590707
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.00014363213133827346,
+            "data_hash": "a300ff398b6bdc61e37ab3781507042a10c6ced4972b1bae88ca231e52b4547e",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 124,
+            "r_squared": 0.996370148791609,
+            "sample_end": "2022-06-30",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.02583714191187793,
+            "standard_error_daily": 0.00010252834092015051,
+            "standard_errors": [
+              0.00010252834092015051,
+              0.003648799974848945
+            ],
+            "status": "VALID",
+            "t_alpha": -1.4009017414037233,
+            "t_beta": 272.7989637196482,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.4009017414037233,
+              272.7989637196482
+            ]
+          },
+          "downside_beta": {
+            "observations": 69,
+            "reason": null,
+            "status": "VALID",
+            "value": 1.0005553435224233
+          },
+          "downside_capture": {
+            "observations": 69,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9996292412042301
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 105,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            },
+            "0.1": {
+              "observations": 57,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            },
+            "0.2": {
+              "observations": 9,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            }
+          },
+          "final_research_index": 78.68570923445537,
+          "full_sample_beta": {
+            "observations": 124,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9953888519590708
+          },
+          "gross_turnover": 2,
+          "max_drawdown": -0.2385412978420387,
+          "net_sharpe": -1.8095893248277333,
+          "observations": 124,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            },
+            "0.05": {
+              "observations": 7,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            }
+          },
+          "upside_beta": {
+            "observations": 55,
+            "reason": null,
+            "status": "VALID",
+            "value": 1.024627547998665
+          },
+          "upside_capture": {
+            "observations": 55,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9744617236516435
+          }
+        },
+        "STATIC_MATCHED_BETA": {
+          "annualized_volatility": 0.23220541063906727,
+          "average_cash_allocation": 0.10663726890349878,
+          "average_risky_exposure": 0.8933627310965012,
+          "cagr": -0.3607295490066549,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.3925732256297969
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.4037884461151635
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.3925732256297969
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.25270352072429886
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.033413380449898576,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.9188847467321396,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                8.958275191096e-9,
+                3.128944928597677e-7
+              ],
+              [
+                3.128944928597677e-7,
+                0.000011345839935170174
+              ]
+            ],
+            "coefficients": [
+              -0.0001325927795630896,
+              0.9188847467321396
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.0001325927795630896,
+            "data_hash": "ebccfd31fccf22f01abf6b2e5845ec568ce2cfd1a0b406a8502396a20e78f3e2",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 124,
+            "r_squared": 0.996370148791609,
+            "sample_end": "2022-06-30",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.0238513376508606,
+            "standard_error_daily": 0.00009464816528119284,
+            "standard_errors": [
+              0.00009464816528119284,
+              0.0033683586411144186
+            ],
+            "status": "VALID",
+            "t_alpha": -1.400901741403714,
+            "t_beta": 272.79896371964935,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.400901741403714,
+              272.79896371964935
+            ]
+          },
+          "downside_beta": {
+            "observations": 69,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9236541494458039
+          },
+          "downside_capture": {
+            "observations": 69,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9224866269866103
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 105,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.923141488799719
+            },
+            "0.1": {
+              "observations": 57,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.9231414887997192
+            },
+            "0.2": {
+              "observations": 9,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.9231414887997188
+            }
+          },
+          "final_research_index": 80.238813984221,
+          "full_sample_beta": {
+            "observations": 124,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9188847467321393
+          },
+          "gross_turnover": 1.9551708851397562,
+          "max_drawdown": -0.2216116673480636,
+          "net_sharpe": -1.809589324827733,
+          "observations": 124,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.9231414887997192
+            },
+            "0.05": {
+              "observations": 7,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.9231414887997185
+            }
+          },
+          "upside_beta": {
+            "observations": 55,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9458762001246928
+          },
+          "upside_capture": {
+            "observations": 55,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.8997837174634414
+          }
+        }
+      },
+      "matched_beta_diagnostic": {
+        "absolute_tolerance": 1e-9,
+        "achieved_control_beta": {
+          "observations": 124,
+          "reason": null,
+          "status": "VALID",
+          "value": 0.9188847467321393
+        },
+        "best_attainable_lambda": 0.9231414887997188,
+        "dynamic_beta": {
+          "observations": 124,
+          "reason": null,
+          "status": "VALID",
+          "value": 0.9188847467321395
+        },
+        "explanation": "This control is constructed after observing the completed OOS path. It is a diagnostic benchmark, not an ex-ante investable strategy.",
+        "extrema": [
+          {
+            "beta": 0,
+            "lambda": 0
+          },
+          {
+            "beta": 0.9953888519590708,
+            "lambda": 1
+          }
+        ],
+        "label": "Retrospective matched-beta diagnostic",
+        "maximum_attainable_control_beta": 0.9953888519590708,
+        "minimum_attainable_control_beta": 0,
+        "remaining_beta_difference": -2.220446049250313e-16,
+        "solver": "RATIONAL_BETA_CUBIC_ROOTS_QUARTIC_EXTREMA_BISECTION_80_V1",
+        "solver_coefficients": [
+          0,
+          0.9953888519590708,
+          0,
+          0
+        ],
+        "status": "MATCHED"
+      },
+      "attribution": {
+        "alpha_claim": "NONE",
+        "benchmark_methodology_version": "capital-exposure-controls-1.0.0",
+        "definitions": {
+          "exposure_level_effect": "Matched-beta control minus passive SPY.",
+          "timing_residual": "Dynamic minus matched-beta control at comparable realized market beta.",
+          "total_dynamic_effect": "Dynamic minus passive: combines exposure reduction and timing."
+        },
+        "explanation": "A positive timing residual is not automatically statistical alpha.",
+        "status": "AVAILABLE",
+        "units": "Differences of separately compounded CAGR/total returns; not a tradable long-short portfolio.",
+        "values": {
+          "exposure_level_effect_cagr_difference": 0.024895459113160046,
+          "exposure_level_effect_total_return_difference": 0.015531047497656214,
+          "timing_residual_cagr_difference": -0.01131207199365114,
+          "timing_residual_total_return_difference": -0.007018236763148389,
+          "total_dynamic_effect_cagr_difference": 0.013583387119508905,
+          "total_dynamic_effect_total_return_difference": 0.008512810734507825
+        }
+      },
+      "selected_policy_by_fold": [
+        {
+          "audit": {
+            "candidate_id": "c_0cfc4e771e20360f25168021",
+            "fit_keys": [
+              "b9d30e8594f357f8fd998a05c376c6878d3185cbf597f2e4304e978b3442ec54"
+            ],
+            "job_hash": "d09e6df8e172d47922a5efc802427a968f108864b84ea2a25d163a66546e297c",
+            "result_hash": "8420ae421acf570f4da29146fda8dc531925b25547f1fb140671aafe40fb14ba"
+          },
+          "average_oos_cash": 0.23719314022780913,
+          "average_oos_spy_exposure": 0.7628068597721909,
+          "decision_date": "2022-01-03",
+          "fold": 0,
+          "information_cutoff": "2021-12-31",
+          "oos_end_exclusive": "2022-04-01",
+          "oos_observations": 62,
+          "oos_start": "2022-01-01",
+          "parameters": {
+            "cash_max": 0.2,
+            "cash_min": 0.2
+          },
+          "realized_simulated_cost": 0,
+          "realized_turnover": 0.8,
+          "regime_score": 66.27,
+          "selected_exposure_policy": "cash_band",
+          "target_cash_allocation": 0.19999999999999996,
+          "target_spy_exposure": 0.8,
+          "training_end_exclusive": "2022-01-01",
+          "training_net_sharpe": 0.9708192437170048,
+          "training_start": "2020-01-01"
+        },
+        {
+          "audit": {
+            "candidate_id": "c_99265f451627fb488b898650",
+            "fit_keys": [
+              "88a0eae1ab63e0fd8655446f9d0aa5704d865c38b6d92180e30eb1fe280ff63e"
+            ],
+            "job_hash": "6c61f797d2bd4fc4b7435e515f7e9e1557540bd344705cdc3ae3505e2671d549",
+            "result_hash": "4673b63f91226e9d0e6fca43860e93bf141f2c71fe8eed865fedaf1892731258"
+          },
+          "average_oos_cash": 0.032258064516129004,
+          "average_oos_spy_exposure": 0.967741935483871,
+          "decision_date": "2022-04-01",
+          "fold": 1,
+          "information_cutoff": "2022-03-31",
+          "oos_end_exclusive": "2022-07-01",
+          "oos_observations": 62,
+          "oos_start": "2022-04-01",
+          "parameters": {
+            "risk": 1
+          },
+          "realized_simulated_cost": 0,
+          "realized_turnover": 1,
+          "regime_score": 47.51,
+          "selected_exposure_policy": "constant",
+          "target_cash_allocation": 0,
+          "target_spy_exposure": 1,
+          "training_end_exclusive": "2022-04-01",
+          "training_net_sharpe": 1.8098188518674794,
+          "training_start": "2020-04-01"
+        }
+      ],
+      "hashes": {
+        "dynamic": "51da8bc5dae4c7bfb9cf4b425a7f5a4db44c4672cac998884e5db416435a78fa",
+        "passive": "9db623d106cc216708159489290cb2e40c914cc91fdb6d7ce4dd8f2b3c49ba4c",
+        "matched_beta": "84ad9cf70602c14a71f4f1590821e8806ad2da8fed0139f66dbc44e8dd60f94a",
+        "attribution": "6a768aa3f7f2e44f5fd36802bf863cc6f64b410d2416df8a5a46827397d7e6e6"
+      },
+      "all_hashes_reproduce": true,
+      "dynamic_stored_result_unchanged": true,
+      "normalized_costs_equal": true,
+      "screenshot": "screenshots/rolling_quarterly-results.png"
+    },
+    {
+      "name": "arbitrary_cost",
+      "request": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 3.125,
+        "selection_cost_bps": 3.125
+      },
+      "run_id": "rr_e7bcc313aed10ff04ca78a97871ef03eac83edfa2c76fbb0a2c3aa5c4eadb4c8",
+      "attempt_id": "ea_1c86a080-ea0e-4883-b337-c797b7e6f8fd",
+      "rerun_attempt_id": "ea_11422782-a9e4-4ddd-8b62-c5c24823deda",
+      "dynamic_metrics": {
+        "annualized_turnover": 9.964776747784171,
+        "annualized_volatility": 0.15109735343657854,
+        "cagr": -0.41166128992694906,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2022-03-01",
+          "evaluation_start": "2022-01-01",
+          "fold_count": 2,
+          "rebalance_frequency": "MONTHLY",
+          "training_window_months": 24,
+          "window_type": "ROLLING"
+        },
+        "final_research_index": 92.1185517039449,
+        "gross_turnover": 1.542167830014217,
+        "max_drawdown": -0.10157205347208109,
+        "mean_beginning_risky_exposure": 0.6863241337999072,
+        "net_sharpe": -3.433343654632709,
+        "observations": 39,
+        "return_drawdown_ratio": -4.05289915734648
+      },
+      "benchmark_metrics": {
+        "DYNAMIC_EXPOSURE": {
+          "annualized_volatility": 0.15109735343657854,
+          "average_cash_allocation": 0.3136758662000928,
+          "average_risky_exposure": 0.6863241337999072,
+          "cagr": -0.41166128992694906,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5619442589518657
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5998059366610674
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5619442589518657
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.2062576501219573
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.13567791965567605,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.732566056809223,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                7.766920570370857e-8,
+                0.0000035356075686563273
+              ],
+              [
+                0.0000035356075686563264,
+                0.00023810552756958978
+              ]
+            ],
+            "coefficients": [
+              -0.0005384044430780796,
+              0.732566056809223
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.0005384044430780796,
+            "data_hash": "7a58d7c21f1df1ab84b39d29b6044ab79fcbf08caec46111c63e808108a4d0ff",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 39,
+            "r_squared": 0.9726054010859082,
+            "sample_end": "2022-02-28",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.07023037262472918,
+            "standard_error_daily": 0.00027869195486003644,
+            "standard_errors": [
+              0.00027869195486003644,
+              0.015430668409683029
+            ],
+            "status": "VALID",
+            "t_alpha": -1.9318980461724304,
+            "t_beta": 47.47468076946844,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.9318980461724304,
+              47.47468076946844
+            ]
+          },
+          "downside_beta": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7586968354251771
+          },
+          "downside_capture": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7639728373949921
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 26,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7443713462333466
+            },
+            "0.1": {
+              "observations": 3,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7301044114066612
+            },
+            "0.2": {
+              "observations": 0,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            }
+          },
+          "final_research_index": 92.1185517039449,
+          "full_sample_beta": {
+            "observations": 39,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7325660568092227
+          },
+          "gross_turnover": 1.542167830014217,
+          "max_drawdown": -0.10157205347208109,
+          "net_sharpe": -3.433343654632709,
+          "observations": 39,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0.04819274468794428,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 1,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            },
+            "0.05": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7891731687812947
+            }
+          },
+          "upside_beta": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.8063869658463033
+          },
+          "upside_capture": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.6515963897122575
+          }
+        },
+        "PASSIVE_SPY": {
+          "annualized_volatility": 0.19879476565997453,
+          "average_cash_allocation": 0.10256410256410253,
+          "average_risky_exposure": 0.8974358974358975,
+          "cagr": -0.49784991777528054,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5163355453112567
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5547470512353125
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5163355453112567
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.20617619902550277
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.16443328648447983,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.9641984215422699,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                1.5358052305835471e-7,
+                0.00000794352048847401
+              ],
+              [
+                0.00000794352048847401,
+                0.0004477347183156474
+              ]
+            ],
+            "coefficients": [
+              -0.0006525130416050787,
+              0.9641984215422699
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.0006525130416050787,
+            "data_hash": "dcca745f96544138374bb6b40208b147a4adec0b235da0b4a73aa7f756606707",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 39,
+            "r_squared": 0.9733740196250544,
+            "sample_end": "2022-02-28",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.09875716448085048,
+            "standard_error_daily": 0.0003918935098446448,
+            "standard_errors": [
+              0.0003918935098446448,
+              0.02115974286979044
+            ],
+            "status": "VALID",
+            "t_alpha": -1.6650264044019236,
+            "t_beta": 45.56758687832859,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.6650264044019236,
+              45.56758687832859
+            ]
+          },
+          "downside_beta": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 1.0001777697519374
+          },
+          "downside_capture": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9999087980010153
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 26,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.9872174880311565
+            },
+            "0.1": {
+              "observations": 3,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            },
+            "0.2": {
+              "observations": 0,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            }
+          },
+          "final_research_index": 89.88773321002817,
+          "full_sample_beta": {
+            "observations": 39,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.9641984215422693
+          },
+          "gross_turnover": 1.9993751952514842,
+          "max_drawdown": -0.13134399733165047,
+          "net_sharpe": -3.363545924232305,
+          "observations": 39,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0.06248047485160888,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 1,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            },
+            "0.05": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 1
+            }
+          },
+          "upside_beta": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 1.0650928444372765
+          },
+          "upside_capture": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.8608133567458165
+          }
+        },
+        "STATIC_MATCHED_BETA": {
+          "annualized_volatility": 0.15103730956623931,
+          "average_cash_allocation": 0.31816753486661775,
+          "average_risky_exposure": 0.6818324651333822,
+          "cagr": -0.40536170855897335,
+          "capital_efficiency": {
+            "beta_denominator": "REALIZED_FULL_SAMPLE_BETA_NOT_EXPECTED_BETA",
+            "cagr_per_average_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5533449233569102
+            },
+            "cagr_per_average_spy_exposure": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.594518051409704
+            },
+            "explanation": "Lower average exposure may release capital for other independent strategies. This does not by itself establish market-timing skill.",
+            "methodology_version": "capital-efficiency-1.0.0",
+            "return_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": -0.5533449233569102
+            },
+            "volatility_per_unit_beta": {
+              "observations": 0,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.20617568635939806
+            }
+          },
+          "capm_alpha_diagnostic": {
+            "alpha_annualized": -0.12505845223989864,
+            "annualization": "Daily intercept and its standard error multiplied by 252; t-statistic unchanged.",
+            "beta": 0.732566056809223,
+            "claim": "DIAGNOSTIC_ONLY_NO_AUTOMATIC_ALPHA_CLAIM",
+            "coefficient_covariance": [
+              [
+                8.863467418544129e-8,
+                0.000004583973196471018
+              ],
+              [
+                0.000004583973196471018,
+                0.0002583371576406159
+              ]
+            ],
+            "coefficients": [
+              -0.0004962636993646771,
+              0.732566056809223
+            ],
+            "configuration": {
+              "hac_lags": 5,
+              "hac_small_sample_correction": false,
+              "standard_errors": "HAC_NEWEY_WEST"
+            },
+            "daily_alpha": -0.0004962636993646771,
+            "data_hash": "735afce19e6bf4f06c19d880907cd55ec47c88f8cba1ce77fcebb9894594bef2",
+            "errors": [],
+            "gamma": null,
+            "inference_reason": null,
+            "inference_status": "VALID",
+            "methodology_version": "risk-attribution-regression-1.0.1",
+            "model_spec": "rp-rf = alpha + beta*(rm-rf) + epsilon",
+            "observations": 39,
+            "r_squared": 0.9733788603169542,
+            "sample_end": "2022-02-28",
+            "sample_start": "2022-01-03",
+            "standard_error_annualized": 0.07502437170328229,
+            "standard_error_daily": 0.00029771576072731067,
+            "standard_errors": [
+              0.00029771576072731067,
+              0.016072870236538833
+            ],
+            "status": "VALID",
+            "t_alpha": -1.6669043592194104,
+            "t_beta": 45.57779948623386,
+            "t_gamma": null,
+            "t_statistics": [
+              -1.6669043592194104,
+              45.57779948623386
+            ]
+          },
+          "downside_beta": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7599491735543685
+          },
+          "downside_capture": {
+            "observations": 23,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7592463838721522
+          },
+          "drawdown_beta": {
+            "0.05": {
+              "observations": 26,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.750051466307901
+            },
+            "0.1": {
+              "observations": 3,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7597569897353667
+            },
+            "0.2": {
+              "observations": 0,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            }
+          },
+          "final_research_index": 92.27051497298429,
+          "full_sample_beta": {
+            "observations": 39,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.7325660568092228
+          },
+          "gross_turnover": 1.5860008898727473,
+          "max_drawdown": -0.10101673632361652,
+          "net_sharpe": -3.364398331093417,
+          "observations": 39,
+          "performance_methodology": "Certified capital summarize: 252 / OOS observations annualization and sample-variance net Sharpe; independent-sleeve returns compounded.",
+          "realized_simulated_cost": 0.049490511020042614,
+          "risk_configuration_hash": "75177467abd6fa0f16dc01d877d2e11acea23adc7e5d91ce6f59af82f967eb03",
+          "risk_methodology_version": "market-risk-metrics-1.1.0",
+          "tail_beta": {
+            "0.01": {
+              "observations": 1,
+              "reason": "Fewer than 2 pairs",
+              "status": "INSUFFICIENT_DATA",
+              "value": null
+            },
+            "0.05": {
+              "observations": 2,
+              "reason": null,
+              "status": "VALID",
+              "value": 0.7598132014979092
+            }
+          },
+          "upside_beta": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.8091597553814371
+          },
+          "upside_capture": {
+            "observations": 16,
+            "reason": null,
+            "status": "VALID",
+            "value": 0.65456147941024
+          }
+        }
+      },
+      "matched_beta_diagnostic": {
+        "absolute_tolerance": 1e-9,
+        "achieved_control_beta": {
+          "observations": 39,
+          "reason": null,
+          "status": "VALID",
+          "value": 0.7325660568092228
+        },
+        "best_attainable_lambda": 0.7597561754343403,
+        "dynamic_beta": {
+          "observations": 39,
+          "reason": null,
+          "status": "VALID",
+          "value": 0.7325660568092227
+        },
+        "explanation": "This control is constructed after observing the completed OOS path. It is a diagnostic benchmark, not an ex-ante investable strategy.",
+        "extrema": [
+          {
+            "beta": 0,
+            "lambda": 0
+          },
+          {
+            "beta": 0.9641984215422693,
+            "lambda": 1
+          }
+        ],
+        "label": "Retrospective matched-beta diagnostic",
+        "maximum_attainable_control_beta": 0.9641984215422693,
+        "minimum_attainable_control_beta": 0,
+        "remaining_beta_difference": 1.1102230246251565e-16,
+        "solver": "RATIONAL_BETA_CUBIC_ROOTS_QUARTIC_EXTREMA_BISECTION_80_V1",
+        "solver_coefficients": [
+          0,
+          0.9642552020899904,
+          -0.000056869026078807313,
+          -5.6816443484382234e-9
+        ],
+        "status": "MATCHED"
+      },
+      "attribution": {
+        "alpha_claim": "NONE",
+        "benchmark_methodology_version": "capital-exposure-controls-1.0.0",
+        "definitions": {
+          "exposure_level_effect": "Matched-beta control minus passive SPY.",
+          "timing_residual": "Dynamic minus matched-beta control at comparable realized market beta.",
+          "total_dynamic_effect": "Dynamic minus passive: combines exposure reduction and timing."
+        },
+        "explanation": "A positive timing residual is not automatically statistical alpha.",
+        "status": "AVAILABLE",
+        "units": "Differences of separately compounded CAGR/total returns; not a tradable long-short portfolio.",
+        "values": {
+          "exposure_level_effect_cagr_difference": 0.09248820921630718,
+          "exposure_level_effect_total_return_difference": 0.0238278176295611,
+          "timing_residual_cagr_difference": -0.006299581367975704,
+          "timing_residual_total_return_difference": -0.0015196326903937907,
+          "total_dynamic_effect_cagr_difference": 0.08618862784833148,
+          "total_dynamic_effect_total_return_difference": 0.022308184939167308
+        }
+      },
+      "selected_policy_by_fold": [
+        {
+          "audit": {
+            "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+            "fit_keys": [
+              "f7359b3696abcfd2b48d8b5d67a75da3186c825601e1b724803acf3fe4d8e22b"
+            ],
+            "job_hash": "04592e2b20c4cdd9eb8116e674a009e3ffafc83bde92ad1cca1f6b108db01a72",
+            "result_hash": "6dc84179f89ae8bc7d211c129807826aa523a0932d0cadd864b0ec62fe7ce841"
+          },
+          "average_oos_cash": 0.28830713970880884,
+          "average_oos_spy_exposure": 0.7116928602911912,
+          "decision_date": "2022-01-03",
+          "fold": 0,
+          "information_cutoff": "2021-12-31",
+          "oos_end_exclusive": "2022-02-01",
+          "oos_observations": 20,
+          "oos_start": "2022-01-01",
+          "parameters": {
+            "cash_max": 0.4,
+            "cash_min": 0.1
+          },
+          "realized_simulated_cost": 0.024956582635070397,
+          "realized_turnover": 0.7986106443222528,
+          "regime_score": 66.27,
+          "selected_exposure_policy": "cash_band",
+          "target_cash_allocation": 0.20118999999999998,
+          "target_spy_exposure": 0.79881,
+          "training_end_exclusive": "2022-01-01",
+          "training_net_sharpe": 1.0250440522900612,
+          "training_start": "2020-01-01"
+        },
+        {
+          "audit": {
+            "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+            "fit_keys": [
+              "e6b350d53fe6ab1589a37b5630f8e9ee54cbab6e8d29032246950abb6e834589"
+            ],
+            "job_hash": "f68e0ee2b0287dbc9fee4d654983c7d1948f3e05ada4885711832065fd0b3567",
+            "result_hash": "a5c729fa81444e51a04314ca473305dd3420db8babdadcf62880d74b65aaf892"
+          },
+          "average_oos_cash": 0.34037978882249653,
+          "average_oos_spy_exposure": 0.6596202111775035,
+          "decision_date": "2022-02-01",
+          "fold": 1,
+          "information_cutoff": "2022-01-31",
+          "oos_end_exclusive": "2022-03-01",
+          "oos_observations": 19,
+          "oos_start": "2022-02-01",
+          "parameters": {
+            "cash_max": 0.4,
+            "cash_min": 0.1
+          },
+          "realized_simulated_cost": 0.023236162052873884,
+          "realized_turnover": 0.7435571856919643,
+          "regime_score": 47.91,
+          "selected_exposure_policy": "cash_band",
+          "target_cash_allocation": 0.25627,
+          "target_spy_exposure": 0.74373,
+          "training_end_exclusive": "2022-02-01",
+          "training_net_sharpe": 0.8484917289739562,
+          "training_start": "2020-02-01"
+        }
+      ],
+      "hashes": {
+        "dynamic": "e415f9fb955904c69c05c6d364aa47a17cf3384df2060c3cd74f7e5a06ba4068",
+        "passive": "9d446d29589e4a8dc0017a2b7c868213f6ab9c9606ac2569bd2e72b47d098819",
+        "matched_beta": "bea371cafc822254ab1e8962e897e5fcaec65c4d5dfc93453e2abd4435af2367",
+        "attribution": "a9e32a20f992b07fe1dc6a3eaef62c30c8c3609bf7a625c275d062e0677868d9"
+      },
+      "all_hashes_reproduce": true,
+      "dynamic_stored_result_unchanged": true,
+      "normalized_costs_equal": true,
+      "screenshot": "screenshots/arbitrary_cost-results.png"
+    }
+  ],
+  "comparison": {
+    "research_boundary": "RESEARCH_ONLY",
+    "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+    "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+    "comparison_id": "cmp_b9645efcee501efa7efdaf8b77bbb3ce8b3cc818bd8fead5c3287fc24aa32376",
+    "calculation": "READ_ONLY_NO_RECALCULATION",
+    "left": {
+      "run_id": "rr_f26e92f72035d9d176a1d962b4afa0084d233f2575cf5a02918e9a9fcf0dd5a2",
+      "execution_attempt_id": "ea_30c6f091-405a-4716-a22e-e3d89ed09ac2",
+      "financial_result_hash": "f5821b8b66511b7a6f82766db6aa8a2421f6d32e84110d3e9e27cdc22824b90d"
+    },
+    "right": {
+      "run_id": "rr_e7bcc313aed10ff04ca78a97871ef03eac83edfa2c76fbb0a2c3aa5c4eadb4c8",
+      "execution_attempt_id": "ea_11422782-a9e4-4ddd-8b62-c5c24823deda",
+      "financial_result_hash": "e415f9fb955904c69c05c6d364aa47a17cf3384df2060c3cd74f7e5a06ba4068"
+    },
+    "spec_differences": [
+      {
+        "path": "/selection_cost_bps",
+        "left": 0,
+        "right": 3.125
+      },
+      {
+        "path": "/transaction_cost_bps",
+        "left": 0,
+        "right": 3.125
+      }
+    ],
+    "financial_input_differences": [
+      {
+        "path": "/transaction_cost_bps",
+        "left": 0,
+        "right": 3.125
+      },
+      {
+        "path": "/selection_cost_bps",
+        "left": 0,
+        "right": 3.125
+      }
+    ],
+    "transaction_cost_difference_bps": 3.125,
+    "oos_observation_difference": 0,
+    "final_research_index_difference": -0.044410516593899274,
+    "realized_cost_difference": 0.04819274468794428,
+    "warnings": [
+      "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+      "Comparison reports mechanical differences and does not rank, recommend, or declare a winner.",
+      "Research designs differ; fold calendars or selection economics may differ. These are mechanical comparisons only."
+    ],
+    "contract_version": "workbench-comparison-2.0.0"
+  },
+  "responsive": [
+    {
+      "width": 360,
+      "stage": "CONFIGURE_AND_PLAN",
+      "viewport": 360,
+      "document": 360,
+      "overflow": false,
+      "screenshot": "screenshots/plan-360.png"
+    },
+    {
+      "width": 390,
+      "stage": "CONFIGURE_AND_PLAN",
+      "viewport": 390,
+      "document": 390,
+      "overflow": false,
+      "screenshot": "screenshots/plan-390.png"
+    },
+    {
+      "width": 430,
+      "stage": "CONFIGURE_AND_PLAN",
+      "viewport": 430,
+      "document": 430,
+      "overflow": false,
+      "screenshot": "screenshots/plan-430.png"
+    },
+    {
+      "width": 768,
+      "stage": "CONFIGURE_AND_PLAN",
+      "viewport": 768,
+      "document": 768,
+      "overflow": false,
+      "screenshot": "screenshots/plan-768.png"
+    },
+    {
+      "width": 1440,
+      "stage": "CONFIGURE_AND_PLAN",
+      "viewport": 1440,
+      "document": 1440,
+      "overflow": false,
+      "screenshot": "screenshots/plan-1440.png"
+    },
+    {
+      "width": 360,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 360,
+      "document": 360,
+      "overflow": false,
+      "charts": [
+        {
+          "left": 16,
+          "right": 344,
+          "width": 328
+        },
+        {
+          "left": 16,
+          "right": 344,
+          "width": 328
+        },
+        {
+          "left": 16,
+          "right": 344,
+          "width": 328
+        }
+      ],
+      "screenshot": "screenshots/results-360.png"
+    },
+    {
+      "width": 390,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 390,
+      "document": 390,
+      "overflow": false,
+      "charts": [
+        {
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        {
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        {
+          "left": 16,
+          "right": 374,
+          "width": 358
+        }
+      ],
+      "screenshot": "screenshots/results-390.png"
+    },
+    {
+      "width": 430,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 430,
+      "document": 430,
+      "overflow": false,
+      "charts": [
+        {
+          "left": 16,
+          "right": 414,
+          "width": 398
+        },
+        {
+          "left": 16,
+          "right": 414,
+          "width": 398
+        },
+        {
+          "left": 16,
+          "right": 414,
+          "width": 398
+        }
+      ],
+      "screenshot": "screenshots/results-430.png"
+    },
+    {
+      "width": 768,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 768,
+      "document": 768,
+      "overflow": false,
+      "charts": [
+        {
+          "left": 30.71875,
+          "right": 737.28125,
+          "width": 706.5625
+        },
+        {
+          "left": 30.71875,
+          "right": 737.28125,
+          "width": 706.5625
+        },
+        {
+          "left": 30.71875,
+          "right": 737.28125,
+          "width": 706.5625
+        }
+      ],
+      "screenshot": "screenshots/results-768.png"
+    },
+    {
+      "width": 1440,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 1440,
+      "document": 1440,
+      "overflow": false,
+      "charts": [
+        {
+          "left": 57.59375,
+          "right": 1382.40625,
+          "width": 1324.8125
+        },
+        {
+          "left": 57.59375,
+          "right": 1382.40625,
+          "width": 1324.8125
+        },
+        {
+          "left": 57.59375,
+          "right": 1382.40625,
+          "width": 1324.8125
+        }
+      ],
+      "screenshot": "screenshots/results-1440.png"
+    }
+  ],
+  "screenshots": [
+    "screenshots/empty-desktop.png",
+    "screenshots/model-transparency-desktop.png",
+    "screenshots/plan-360.png",
+    "screenshots/plan-390.png",
+    "screenshots/plan-430.png",
+    "screenshots/plan-768.png",
+    "screenshots/plan-1440.png",
+    "screenshots/rolling_monthly-results.png",
+    "screenshots/expanding_monthly-results.png",
+    "screenshots/rolling_quarterly-results.png",
+    "screenshots/arbitrary_cost-results.png",
+    "screenshots/comparison-desktop.png",
+    "screenshots/results-360.png",
+    "screenshots/chart-viewport-360.png",
+    "screenshots/results-390.png",
+    "screenshots/chart-viewport-390.png",
+    "screenshots/results-430.png",
+    "screenshots/chart-viewport-430.png",
+    "screenshots/results-768.png",
+    "screenshots/chart-viewport-768.png",
+    "screenshots/results-1440.png",
+    "screenshots/chart-viewport-1440.png",
+    "screenshots/touch-mobile-fold-review.png"
+  ],
+  "page_errors": [],
+  "mobile_touch_emulation": true,
+  "physical_android_tested": false,
+  "alpha_claim": "NONE"
+}
