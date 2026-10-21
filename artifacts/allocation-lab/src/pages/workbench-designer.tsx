@@ -7,6 +7,11 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import {
+  safeFailureSchema,
+  readFailureConstraints,
+} from "@/lib/workbench-failure";
+import { FailureNotice } from "./workbench-failure-notice";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CartesianGrid,
@@ -192,6 +197,8 @@ function ErrorNotice({ error }: { error: unknown }) {
     typeof error.issues === "object"
       ? (error.issues as Record<string, unknown>)
       : {};
+  if (safeFailureSchema.safeParse(issues).success)
+    return <FailureNotice failure={issues} />;
   const safeKeys = [
     "fold_id",
     "requested_training_window_months",
@@ -774,7 +781,16 @@ function Attempts({ detail }: { detail: DetailV2 }) {
                   {STATUS_LABELS[a.status]} <small>{a.status}</small>
                   {latestSuccess(detail)?.execution_attempt_id ===
                     a.execution_attempt_id && <small>Latest successful</small>}
-                  {a.error_message && <p>{a.error_message}</p>}
+                  {a.status === "FAILED" ? (
+                    <FailureNotice
+                      failure={a}
+                      constraints={readFailureConstraints(
+                        detail.spec.model_definition,
+                      )}
+                    />
+                  ) : (
+                    a.error_message && <p>{a.error_message}</p>
+                  )}
                 </td>
                 <td>{formatTimestamp(a.requested_at)}</td>
                 <td>{formatTimestamp(a.completed_at)}</td>
@@ -1655,10 +1671,12 @@ function Designer({ token, signOut }: { token: string; signOut: () => void }) {
                   </div>
                 )}
                 {status === "FAILED" && (
-                  <p className="wd-error">
-                    {active?.latest_attempt?.error_message ??
-                      "The attempt failed. Evidence is preserved."}
-                  </p>
+                  <FailureNotice
+                    failure={active?.latest_attempt}
+                    constraints={readFailureConstraints(
+                      active?.spec.model_definition,
+                    )}
+                  />
                 )}
                 {timedOut && (
                   <p className="wd-notice">

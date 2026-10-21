@@ -1,0 +1,225 @@
+{
+  "status": "PASS",
+  "browser": "154.0.8037.57",
+  "actual_retained_attempt_id": "ea_889333d1-bac9-4a83-87db-7ada5f15202c",
+  "retained_status": "FAILED",
+  "safe_failure": {
+    "run_id": "rr_d6090eb6bfb1871d00bb33e94ecbf5adc4150a7be3cb008c16ada044c69cb57e",
+    "execution_attempt_id": "ea_889333d1-bac9-4a83-87db-7ada5f15202c",
+    "source": "SUBMIT",
+    "requested_at": "2026-10-21T07:56:31.208Z",
+    "status": "FAILED",
+    "stage": "EMPIRICAL_EXECUTION",
+    "started_at": "2026-10-21T07:56:31.211Z",
+    "completed_at": "2026-10-21T07:56:56.746Z",
+    "error_class": "NO_VALID_CANDIDATE",
+    "error_message": "All exposure policies were rejected in fold 0 by the configured research constraints.",
+    "blocker": null,
+    "runtime_diagnostic_reference": "runs/rr_d6090eb6bfb1871d00bb33e94ecbf5adc4150a7be3cb008c16ada044c69cb57e/attempts/ea_889333d1-bac9-4a83-87db-7ada5f15202c/diagnostic.json",
+    "failed_stage": "CANDIDATE_SELECTION",
+    "failed_fold_id": 0,
+    "failed_decision_date": "2019-10-01",
+    "safe_message": "All exposure policies were rejected in fold 0 by the configured research constraints.",
+    "actionable_explanation": "The 20-observation training interval produced defined net-Sharpe scores, but none passed the fixed constraints. Candidate-level constraint breaches are recorded below.",
+    "suggested_user_action": "Review the rejected constraint and training sample, then preview a revised design. No dates, training window, model, policies or constraints were changed automatically.",
+    "diagnostic_reference": "runs/rr_d6090eb6bfb1871d00bb33e94ecbf5adc4150a7be3cb008c16ada044c69cb57e/attempts/ea_889333d1-bac9-4a83-87db-7ada5f15202c/failure-diagnostic-v1.json",
+    "failure_diagnostic": {
+      "actionable_explanation": "The 20-observation training interval produced defined net-Sharpe scores, but none passed the fixed constraints. Candidate-level constraint breaches are recorded below.",
+      "candidates": [
+        {
+          "annualized_turnover": 10.079193664506839,
+          "average_exposure": 0.7224118797585678,
+          "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+          "constraint_status": "CONSTRAINT_REJECTED",
+          "exposure_policy": "cash_band",
+          "maximum_drawdown": -0.012075598466132154,
+          "parameters": {
+            "cash_max": 0.2,
+            "cash_min": 0.2
+          },
+          "selection_metric_value": 2.3776965280032205,
+          "training_observations": 20,
+          "validity_status": "VALID",
+          "violated_constraints": [
+            "MAXIMUM_ANNUALIZED_TURNOVER"
+          ]
+        },
+        {
+          "annualized_turnover": 8.684581371806042,
+          "average_exposure": 0.623605203968968,
+          "candidate_id": "c_8332586a96d72c52828a005e",
+          "constraint_status": "CONSTRAINT_REJECTED",
+          "exposure_policy": "cash_band",
+          "maximum_drawdown": -0.010432562389939504,
+          "parameters": {
+            "cash_max": 0.4,
+            "cash_min": 0.2
+          },
+          "selection_metric_value": 2.3729319991751243,
+          "training_observations": 20,
+          "validity_status": "VALID",
+          "violated_constraints": [
+            "MAXIMUM_ANNUALIZED_TURNOVER"
+          ]
+        },
+        {
+          "annualized_turnover": 9.247091309733321,
+          "average_exposure": 0.6635022159897473,
+          "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+          "constraint_status": "CONSTRAINT_REJECTED",
+          "exposure_policy": "cash_band",
+          "maximum_drawdown": -0.011096328533715893,
+          "parameters": {
+            "cash_max": 0.4,
+            "cash_min": 0.1
+          },
+          "selection_metric_value": 2.374855855835758,
+          "training_observations": 20,
+          "validity_status": "VALID",
+          "violated_constraints": [
+            "MAXIMUM_ANNUALIZED_TURNOVER"
+          ]
+        },
+        {
+          "annualized_turnover": 12.598740125987401,
+          "average_exposure": 0.9,
+          "candidate_id": "c_aa16f813288e415fae34648c",
+          "constraint_status": "CONSTRAINT_REJECTED",
+          "exposure_policy": "constant",
+          "maximum_drawdown": -0.015021853050214196,
+          "parameters": {
+            "risk": 1
+          },
+          "selection_metric_value": 2.3862600278625368,
+          "training_observations": 20,
+          "validity_status": "VALID",
+          "violated_constraints": [
+            "MAXIMUM_ANNUALIZED_TURNOVER"
+          ]
+        },
+        {
+          "annualized_turnover": 10.641691149557053,
+          "average_exposure": 0.7621613082046566,
+          "candidate_id": "c_e028713b249e51fa3843d778",
+          "constraint_status": "CONSTRAINT_REJECTED",
+          "exposure_policy": "cash_band",
+          "maximum_drawdown": -0.012735817868148813,
+          "parameters": {
+            "cash_max": 0.2,
+            "cash_min": 0.1
+          },
+          "selection_metric_value": 2.3796132854607124,
+          "training_observations": 20,
+          "validity_status": "VALID",
+          "violated_constraints": [
+            "MAXIMUM_ANNUALIZED_TURNOVER"
+          ]
+        }
+      ],
+      "contract_version": "workbench-failure-diagnostic-1.0.0",
+      "diagnostic_reference": "runs/rr_d6090eb6bfb1871d00bb33e94ecbf5adc4150a7be3cb008c16ada044c69cb57e/attempts/ea_889333d1-bac9-4a83-87db-7ada5f15202c/failure-diagnostic-v1.json",
+      "error_class": "NO_VALID_CANDIDATE",
+      "evidence_sha256": {
+        "diagnostic.json": "483c9cbcd45c863bd91307ae908f7ba62e833568f9d3df8fdc0d5c3cb061fe30",
+        "engine/jobs/c_69fa5817ae0c57dc27fa7fea/outer-0/inner-train/scenario-1.json": "bcb0a08db5958d924151101a49c0103ea2840b74199c9dbb0bd1ad4956a1aacc",
+        "engine/jobs/c_8332586a96d72c52828a005e/outer-0/inner-train/scenario-1.json": "2034a205691c5711908336bbb7754ad4d134158c679dd825487a93a5d70f2cd1",
+        "engine/jobs/c_8bd28f4f8b5e8e7d2077e17c/outer-0/inner-train/scenario-1.json": "566b06d32d54e1d72ecea8c3c4cc856f385123657aa58849970f251a08778360",
+        "engine/jobs/c_aa16f813288e415fae34648c/outer-0/inner-train/scenario-1.json": "1ea3008e1a169b0daac9529aeaeea21407e399113d173f106fd5dfe2caa0ef9b",
+        "engine/jobs/c_e028713b249e51fa3843d778/outer-0/inner-train/scenario-1.json": "378702d61d8d2e0b15e332c47ae39056a3a800de353a93b9c5a277300a20d5a9",
+        "engine/summary.json": "05174463eb1b41f264d5c9627d9cde0d78409980abc5170ef1fe67813e5979bf"
+      },
+      "failed_decision_date": "2019-10-01",
+      "failed_fold_id": 0,
+      "failed_stage": "CANDIDATE_SELECTION",
+      "private_content_exposed": false,
+      "private_diagnostic_reference": "runs/rr_d6090eb6bfb1871d00bb33e94ecbf5adc4150a7be3cb008c16ada044c69cb57e/attempts/ea_889333d1-bac9-4a83-87db-7ada5f15202c/diagnostic.json",
+      "safe_message": "All exposure policies were rejected in fold 0 by the configured research constraints.",
+      "suggested_user_action": "Review the rejected constraint and training sample, then preview a revised design. No dates, training window, model, policies or constraints were changed automatically."
+    }
+  },
+  "v2_result_contract_version": "workbench-research-run-result-2.0.0",
+  "safe_error_class": "NO_VALID_CANDIDATE",
+  "failed_fold_id": 0,
+  "failed_decision_date": "2019-10-01",
+  "exact_84_fold_preview_status": 422,
+  "no_execution_submission": true,
+  "run_disabled": true,
+  "fields_not_repaired": true,
+  "immutable_history_preserved": true,
+  "private_paths_or_stacks_exposed": false,
+  "page_errors": [],
+  "responsive": [
+    {
+      "width": 360,
+      "document": 360,
+      "overflow": false,
+      "stage": "RETAINED_FAILED_ATTEMPT"
+    },
+    {
+      "width": 390,
+      "document": 390,
+      "overflow": false,
+      "stage": "RETAINED_FAILED_ATTEMPT"
+    },
+    {
+      "width": 430,
+      "document": 430,
+      "overflow": false,
+      "stage": "RETAINED_FAILED_ATTEMPT"
+    },
+    {
+      "width": 768,
+      "document": 768,
+      "overflow": false,
+      "stage": "RETAINED_FAILED_ATTEMPT"
+    },
+    {
+      "width": 1440,
+      "document": 1440,
+      "overflow": false,
+      "stage": "RETAINED_FAILED_ATTEMPT"
+    },
+    {
+      "width": 360,
+      "document": 360,
+      "overflow": false,
+      "stage": "EXACT_84_FOLD_PREFLIGHT"
+    },
+    {
+      "width": 390,
+      "document": 390,
+      "overflow": false,
+      "stage": "EXACT_84_FOLD_PREFLIGHT"
+    },
+    {
+      "width": 430,
+      "document": 430,
+      "overflow": false,
+      "stage": "EXACT_84_FOLD_PREFLIGHT"
+    },
+    {
+      "width": 768,
+      "document": 768,
+      "overflow": false,
+      "stage": "EXACT_84_FOLD_PREFLIGHT"
+    },
+    {
+      "width": 1440,
+      "document": 1440,
+      "overflow": false,
+      "stage": "EXACT_84_FOLD_PREFLIGHT"
+    }
+  ],
+  "screenshots": [
+    "screenshots/retained-failure-360.png",
+    "screenshots/retained-failure-390.png",
+    "screenshots/retained-failure-430.png",
+    "screenshots/retained-failure-768.png",
+    "screenshots/retained-failure-1440.png",
+    "screenshots/blocked-preview-360.png",
+    "screenshots/blocked-preview-390.png",
+    "screenshots/blocked-preview-430.png",
+    "screenshots/blocked-preview-768.png",
+    "screenshots/blocked-preview-1440.png"
+  ]
+}

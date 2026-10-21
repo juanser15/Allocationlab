@@ -1,0 +1,123 @@
+{
+  "status": "PASS",
+  "starting_sha": "2404632e60f837dc564a64f3029e1abe92324f95",
+  "suites": {
+    "backend_workbench_and_new_preflight": {
+      "tests": 46,
+      "pass": 43,
+      "fail": 0,
+      "skipped": 3
+    },
+    "frontend": {
+      "tests": 27,
+      "pass": 27,
+      "fail": 0,
+      "skipped": 0
+    },
+    "production_api_empirical_matrix": {
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    "legacy_v1_empirical": {
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    "pit_future_mutation": {
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "passed": 73,
+  "failed": 0,
+  "gated_cases_skipped_in_fast_suite": 3,
+  "gated_explanation": "The fast suite skips existing full B3A matrix, PIT and B1 empirical gates. Actual PIT and V1 empirical tests run separately. This phase recalculates all 9 unique prior B3A/B3B/B3C V2 specs and executes the new 13-case matrix; no skip is counted as passing.",
+  "before_fix_production_reproduction": {
+    "status": "FAILURE_REPRODUCED",
+    "requested_folds": 84,
+    "elapsed_ms": 26001.091801,
+    "primary_cause": "NO_VALID_CANDIDATE",
+    "evidence": "before-fix-reproduction.json"
+  },
+  "production_api_matrix": {
+    "status": "PASS",
+    "blocked_before_execution": 6,
+    "successful_designs": 7,
+    "successful_designs_with_deterministic_rerun": 7,
+    "prior_unique_v2_regressions": 9,
+    "actual_financial_attempts": 23,
+    "unchanged_engine_worker_limits": true,
+    "evidence": "regression-matrix.json"
+  },
+  "typecheck": {
+    "backend": {
+      "status": "PASS",
+      "command": "node_modules/.bin/tsc -p artifacts/api-server/tsconfig.json --noEmit"
+    },
+    "frontend": {
+      "status": "PASS",
+      "command": "node_modules/.bin/tsc -p artifacts/allocation-lab/tsconfig.json --noEmit"
+    }
+  },
+  "production_builds": {
+    "backend": {
+      "status": "PASS",
+      "command": "node artifacts/api-server/build.mjs"
+    },
+    "frontend": {
+      "status": "PASS",
+      "command": "PORT=5173 BASE_PATH=/ artifacts/allocation-lab/node_modules/.bin/vite build --config artifacts/allocation-lab/vite.config.ts",
+      "warning": "Existing single-app Vite chunk exceeds 500kB; no unrelated bundling refactor."
+    }
+  },
+  "browser": {
+    "status": "PASS",
+    "browser_version": "154.0.8037.57",
+    "responsive_widths": [
+      360,
+      390,
+      430,
+      768,
+      1440
+    ],
+    "responsive_stages": 2,
+    "no_page_overflow": true,
+    "real_before_fix_failed_attempt_visible": true,
+    "actual_class_fold_date_constraint_and_action_visible": true,
+    "v2_result_contract_preserved": true,
+    "exact_84_fold_preview_422_run_disabled": true,
+    "input_values_unchanged": true,
+    "no_execution_submitted": true,
+    "evidence": "ui-failure-acceptance.json"
+  },
+  "privacy": {
+    "unauthorized": 401,
+    "raw_diagnostic_path": 404,
+    "full_diagnostic_private": true,
+    "no_stack_absolute_path_environment_or_secret_exposure": true,
+    "server_secret_name_absent_from_production_frontend_assets": true,
+    "api_evidence": "failure-contract-evidence.json"
+  },
+  "reproducibility_semantics": "Financial hashes and time-series points reproduce. Artifact references correctly differ by immutable execution_attempt_id; these are not financial differences.",
+  "pit": {
+    "status": "PASS",
+    "actual_historical_data": true,
+    "fit_contexts_checked": 38,
+    "prediction_contexts_checked": 38,
+    "first_fold_uses_no_own_oos_for_fit": true,
+    "second_fold_can_use_prior_oos": true,
+    "post_cutoff_mutation_start": "2022-02-01",
+    "unchanged_historical_selections": true,
+    "unchanged_fit_artifacts": 38,
+    "model": "STATELESS_PRODUCTION_REGIME",
+    "data_vintage_label": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED"
+  },
+  "git_diff_check": "PASS",
+  "preservation": "preservation.json",
+  "no_synthetic_substitution": true
+}

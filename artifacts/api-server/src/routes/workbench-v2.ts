@@ -5,6 +5,11 @@ import { safeError } from "./workbench";
 import { exposureModelDefinition } from "../lib/workbench/exposure-model-definition";
 import { enrichExposureRun } from "../lib/workbench/exposure-attribution";
 import { BENCHMARK_METHODOLOGY_VERSION } from "../lib/workbench/exposure-controls";
+import { validatedWorkbenchPlan, PREFLIGHT_VERSION } from "../lib/workbench/design-preflight";
+import { enrichFailureDiagnostics } from "../lib/workbench/failure-diagnostics";
+import { requestFromStored } from "../lib/workbench/service-v2";
+import { type NormalizedSpecV2 } from "../lib/workbench/calendar-v2";
+import { DEFAULT_STORE_LIMITS } from "../lib/workbench/run-store";
 
 export function createWorkbenchV2Router(): IRouter {
   const router = Router();
@@ -19,15 +24,17 @@ export function createWorkbenchV2Router(): IRouter {
     next();
   });
   router.get("/workbench/capabilities", (req, res) => {
-    try { const data = loadDatasetV2(); res.json({ ...capabilitiesV2(data), model_definition: exposureModelDefinition(data), benchmark_methodology_version: BENCHMARK_METHODOLOGY_VERSION }); } catch (error) { safeError(req, res, error); }
+    try { const data = loadDatasetV2(); res.json({ ...capabilitiesV2(data), model_definition: exposureModelDefinition(data), benchmark_methodology_version: BENCHMARK_METHODOLOGY_VERSION,
+      selection_preflight: { version: PREFLIGHT_VERSION, necessary_conditions_only: true, candidate_viability_guaranteed: false, financial_backtests_executed: 0 },
+      diagnostic_contract_version: "workbench-failure-diagnostic-1.0.0", max_engine_files: DEFAULT_STORE_LIMITS.maxEngineFiles }); } catch (error) { safeError(req, res, error); }
   });
   router.post("/workbench/plan", (req, res) => {
-    try { res.json(planCalendarV2(parseSubmissionV2(req.body), loadDatasetV2())); }
+    try { res.json(validatedWorkbenchPlan(parseSubmissionV2(req.body), loadDatasetV2())); }
     catch (error) { safeError(req, res, error); }
   });
   router.post("/workbench/runs", async (req, res) => {
     try {
-      parseSubmissionV2(req.body);
+      validatedWorkbenchPlan(parseSubmissionV2(req.body), loadDatasetV2());
       const receipt = await (await service()).submit(req.body);
       res.status(receipt.status === "BLOCKED" ? 429 : receipt.execution_requested || ["RUNNING", "PENDING"].includes(receipt.status) ? 202 : 200).json(receipt);
     } catch (error) { safeError(req, res, error); }
@@ -36,11 +43,14 @@ export function createWorkbenchV2Router(): IRouter {
     try { res.json(await (await service()).listRuns()); } catch (error) { safeError(req, res, error); }
   });
   router.get("/workbench/runs/:runId", async (req, res) => {
-    try { const api = await service(); const run = await api.getRun(String(req.params.runId)); res.json(await enrichExposureRun(run, api.store)); } catch (error) { safeError(req, res, error); }
+    try { const api = await service(); const run = await enrichFailureDiagnostics(await api.getRun(String(req.params.runId)), api.store); res.json(await enrichExposureRun(run, api.store)); } catch (error) { safeError(req, res, error); }
   });
   router.post("/workbench/runs/:runId/rerun", async (req, res) => {
     try {
       if (!req.body || typeof req.body !== "object" || Array.isArray(req.body) || Object.keys(req.body).length) throw new CalendarContractError("UNEXPECTED_RERUN_FIELDS", "Rerun requires an empty object.");
+      const api = await service(); const stored = await api.store.getRun(String(req.params.runId));
+      if ((stored.normalized_spec as NormalizedSpecV2).contract_version !== "workbench-research-run-spec-2.0.0") throw new CalendarContractError("INVALID_CONTRACT_VERSION", "This run uses another contract version.");
+      validatedWorkbenchPlan(requestFromStored(stored.normalized_spec as NormalizedSpecV2), loadDatasetV2());
       const receipt = await (await service()).rerun(String(req.params.runId));
       res.status(receipt.status === "BLOCKED" ? 429 : 202).json(receipt);
     } catch (error) { safeError(req, res, error); }

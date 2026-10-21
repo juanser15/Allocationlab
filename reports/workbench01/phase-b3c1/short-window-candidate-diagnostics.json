@@ -1,0 +1,190 @@
+{
+  "status": "VERIFIED_FROM_ACTUAL_SELECTED_SCENARIO_TRAINING_JOBS",
+  "primary_cause": "NO_VALID_CANDIDATE",
+  "failed_fold_id": 0,
+  "failed_decision_date": "2019-10-01",
+  "training_interval": {
+    "start": "2019-09-01",
+    "end_exclusive": "2019-10-01"
+  },
+  "training_observations": 20,
+  "selection_cost_bps": 1,
+  "all_candidates_have_defined_net_sharpe": true,
+  "all_jobs_valid": true,
+  "all_candidates_rejected_by_turnover": true,
+  "number_of_folds_with_no_eligible_candidate": 71,
+  "number_of_requested_folds": 84,
+  "candidates": [
+    {
+      "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+      "exposure_policy": "cash_band",
+      "parameters": {
+        "cash_min": 0.2,
+        "cash_max": 0.2
+      },
+      "training_observations": 20,
+      "selection_metric": "net_sharpe",
+      "selection_metric_value": 2.3776965280032205,
+      "undefined_reason": null,
+      "annualized_turnover": 10.079193664506839,
+      "maximum_drawdown": -0.012075598466132154,
+      "average_exposure": 0.7224118797585678,
+      "minimum_realized_exposure": 0,
+      "maximum_realized_exposure": 0.803868765442394,
+      "configured_constraints": {
+        "max_turnover": 8,
+        "max_drawdown": 0.6,
+        "min_exposure": 0,
+        "max_exposure": 1
+      },
+      "validity_status": "VALID",
+      "constraint_status": "CONSTRAINT_REJECTED",
+      "rejection_reasons": [
+        "ANNUALIZED_TURNOVER_EXCEEDS_MAXIMUM"
+      ],
+      "initial_target_spy_exposure": 0.8,
+      "initial_entry_turnover": 0.7999360051195904,
+      "initial_entry_annualized_turnover_lower_bound": 10.079193664506839,
+      "lower_bound_equals_actual_within_1e_12": true,
+      "training_first_signal_date": "2019-09-03",
+      "training_information_cutoff": "2019-08-30"
+    },
+    {
+      "candidate_id": "c_8332586a96d72c52828a005e",
+      "exposure_policy": "cash_band",
+      "parameters": {
+        "cash_min": 0.2,
+        "cash_max": 0.4
+      },
+      "training_observations": 20,
+      "selection_metric": "net_sharpe",
+      "selection_metric_value": 2.3729319991751243,
+      "undefined_reason": null,
+      "annualized_turnover": 8.684581371806042,
+      "maximum_drawdown": -0.010432562389939504,
+      "average_exposure": 0.623605203968968,
+      "minimum_realized_exposure": 0,
+      "maximum_realized_exposure": 0.6944923742141679,
+      "configured_constraints": {
+        "max_turnover": 8,
+        "max_drawdown": 0.6,
+        "min_exposure": 0,
+        "max_exposure": 1
+      },
+      "validity_status": "VALID",
+      "constraint_status": "CONSTRAINT_REJECTED",
+      "rejection_reasons": [
+        "ANNUALIZED_TURNOVER_EXCEEDS_MAXIMUM"
+      ],
+      "initial_target_spy_exposure": 0.6893,
+      "initial_entry_turnover": 0.6892524898258763,
+      "initial_entry_annualized_turnover_lower_bound": 8.684581371806042,
+      "lower_bound_equals_actual_within_1e_12": true,
+      "training_first_signal_date": "2019-09-03",
+      "training_information_cutoff": "2019-08-30"
+    },
+    {
+      "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+      "exposure_policy": "cash_band",
+      "parameters": {
+        "cash_min": 0.1,
+        "cash_max": 0.4
+      },
+      "training_observations": 20,
+      "selection_metric": "net_sharpe",
+      "selection_metric_value": 2.374855855835758,
+      "undefined_reason": null,
+      "annualized_turnover": 9.247091309733321,
+      "maximum_drawdown": -0.011096328533715893,
+      "average_exposure": 0.6635022159897473,
+      "minimum_realized_exposure": 0,
+      "maximum_realized_exposure": 0.7386790761848046,
+      "configured_constraints": {
+        "max_turnover": 8,
+        "max_drawdown": 0.6,
+        "min_exposure": 0,
+        "max_exposure": 1
+      },
+      "validity_status": "VALID",
+      "constraint_status": "CONSTRAINT_REJECTED",
+      "rejection_reasons": [
+        "ANNUALIZED_TURNOVER_EXCEEDS_MAXIMUM"
+      ],
+      "initial_target_spy_exposure": 0.73395,
+      "initial_entry_turnover": 0.7338961356931207,
+      "initial_entry_annualized_turnover_lower_bound": 9.247091309733321,
+      "lower_bound_equals_actual_within_1e_12": true,
+      "training_first_signal_date": "2019-09-03",
+      "training_information_cutoff": "2019-08-30"
+    },
+    {
+      "candidate_id": "c_aa16f813288e415fae34648c",
+      "exposure_policy": "constant",
+      "parameters": {
+        "risk": 1
+      },
+      "training_observations": 20,
+      "selection_metric": "net_sharpe",
+      "selection_metric_value": 2.3862600278625368,
+      "undefined_reason": null,
+      "annualized_turnover": 12.598740125987401,
+      "maximum_drawdown": -0.015021853050214196,
+      "average_exposure": 0.9,
+      "minimum_realized_exposure": 0,
+      "maximum_realized_exposure": 1,
+      "configured_constraints": {
+        "max_turnover": 8,
+        "max_drawdown": 0.6,
+        "min_exposure": 0,
+        "max_exposure": 1
+      },
+      "validity_status": "VALID",
+      "constraint_status": "CONSTRAINT_REJECTED",
+      "rejection_reasons": [
+        "ANNUALIZED_TURNOVER_EXCEEDS_MAXIMUM"
+      ],
+      "initial_target_spy_exposure": 1,
+      "initial_entry_turnover": 0.9999000099990002,
+      "initial_entry_annualized_turnover_lower_bound": 12.598740125987401,
+      "lower_bound_equals_actual_within_1e_12": true,
+      "training_first_signal_date": "2019-09-03",
+      "training_information_cutoff": "2019-08-30"
+    },
+    {
+      "candidate_id": "c_e028713b249e51fa3843d778",
+      "exposure_policy": "cash_band",
+      "parameters": {
+        "cash_min": 0.1,
+        "cash_max": 0.2
+      },
+      "training_observations": 20,
+      "selection_metric": "net_sharpe",
+      "selection_metric_value": 2.3796132854607124,
+      "undefined_reason": null,
+      "annualized_turnover": 10.641691149557053,
+      "maximum_drawdown": -0.012735817868148813,
+      "average_exposure": 0.7621613082046566,
+      "minimum_realized_exposure": 0,
+      "maximum_realized_exposure": 0.8478193619373263,
+      "configured_constraints": {
+        "max_turnover": 8,
+        "max_drawdown": 0.6,
+        "min_exposure": 0,
+        "max_exposure": 1
+      },
+      "validity_status": "VALID",
+      "constraint_status": "CONSTRAINT_REJECTED",
+      "rejection_reasons": [
+        "ANNUALIZED_TURNOVER_EXCEEDS_MAXIMUM"
+      ],
+      "initial_target_spy_exposure": 0.84465,
+      "initial_entry_turnover": 0.8445786626632582,
+      "initial_entry_annualized_turnover_lower_bound": 10.641691149557051,
+      "lower_bound_equals_actual_within_1e_12": true,
+      "training_first_signal_date": "2019-09-03",
+      "training_information_cutoff": "2019-08-30"
+    }
+  ],
+  "derivation": "Entry turnover = target / (1 + selection_cost_bps / 10000 * target); annualization = gross turnover * 252 / actual training observations. Later turnover is nonnegative. This is a necessary lower bound and does not run a backtest.",
+  "minimum_candidate_annualized_entry_turnover": 8.684581371806042
+}

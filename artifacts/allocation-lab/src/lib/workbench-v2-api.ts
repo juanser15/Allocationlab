@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { failureFields } from "./workbench-failure";
 import {
   exposureModelSchema,
   attributionFields,
@@ -230,6 +231,7 @@ const optionalMetric = z
   .optional();
 export const resultV2Schema = z
   .object({
+    ...failureFields,
     ...attributionFields,
     contract_version: z.literal("workbench-research-run-result-2.0.0"),
     run_id: z.string(),
@@ -313,13 +315,14 @@ export const resultV2Schema = z
   })
   .passthrough();
 export type ResultV2 = z.infer<typeof resultV2Schema>;
+const attemptV2Schema = attemptSchema.extend(failureFields);
 export const detailV2Schema = boundary.extend({
   contract_version: z.literal(SPEC_V2),
   run_id: z.string(),
   spec: normalizedSpecV2Schema,
-  attempt_history: z.array(attemptSchema),
+  attempt_history: z.array(attemptV2Schema),
   latest_status: runStatusSchema.nullable(),
-  latest_attempt: attemptSchema.nullable(),
+  latest_attempt: attemptV2Schema.nullable(),
   latest_result: z.union([resultV2Schema, z.string()]),
   latest_successful_result: z.union([resultV2Schema, z.string()]),
   warnings: z.array(z.string()),
