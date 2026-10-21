@@ -8,6 +8,9 @@ const publicPort = Number(process.env.PORT || 10000);
 const apiPort = 3001;
 const root = path.resolve("artifacts/allocation-lab/dist/public");
 const indexFile = path.join(root, "index.html");
+const openPreview = process.env.WORKBENCH_PREVIEW_OPEN === "1";
+const sessionTokenKey = "allocationlab.workbench.preview-token";
+const injectedSessionToken = "render-open-preview";
 const mime = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -32,7 +35,21 @@ const api = spawn(
 
 function sendFile(file, response) {
   response.setHeader("Content-Type", mime[path.extname(file).toLowerCase()] || "application/octet-stream");
-  if (path.basename(file) === "index.html") response.setHeader("Cache-Control", "no-store");
+  if (path.basename(file) === "index.html") {
+    response.setHeader("Cache-Control", "no-store");
+    if (openPreview) {
+      fs.readFile(file, "utf8", (error, html) => {
+        if (error) {
+          response.writeHead(500);
+          response.end("Unable to read asset");
+          return;
+        }
+        const injection = `<script>sessionStorage.setItem(${JSON.stringify(sessionTokenKey)},${JSON.stringify(injectedSessionToken)});</script><style>.workbench-header>button{display:none!important}</style>`;
+        response.end(html.includes("</head>") ? html.replace("</head>", `${injection}</head>`) : `${injection}${html}`);
+      });
+      return;
+    }
+  }
   const stream = fs.createReadStream(file);
   stream.on("error", () => {
     if (!response.headersSent) response.writeHead(500);
@@ -58,13 +75,18 @@ const server = http.createServer((request, response) => {
   }
 
   if (parsed.pathname === "/api" || parsed.pathname.startsWith("/api/")) {
+    const headers = { ...request.headers };
+    if (openPreview && parsed.pathname.startsWith("/api/workbench")) {
+      const token = process.env.WORKBENCH_PREVIEW_TOKEN;
+      if (token) headers.authorization = `Bearer ${token}`;
+    }
     const proxy = http.request(
       {
         hostname: "127.0.0.1",
         port: apiPort,
         path: request.url,
         method: request.method,
-        headers: request.headers,
+        headers,
       },
       (upstream) => {
         response.writeHead(upstream.statusCode || 502, upstream.headers);
@@ -100,7 +122,7 @@ const server = http.createServer((request, response) => {
 });
 
 server.listen(publicPort, "0.0.0.0", () => {
-  console.log(`Allocation Lab Render preview on ${publicPort}; API on localhost:${apiPort}`);
+  console.log(`Allocation Lab Render preview on ${publicPort}; API on localhost:${apiPort}; openPreview=${openPreview}`);
 });
 
 function shutdown() {
