@@ -35,9 +35,16 @@ export function FailureNotice({
     style: "percent",
     maximumFractionDigits: 2,
   });
+  const resource = f.error_class === "INTERACTIVE_EXECUTION_CAPACITY_EXCEEDED";
+  const title = resource ? "Backtest exceeds current execution capacity" : f.error_class === "NO_VALID_CANDIDATE" ? "No eligible exposure policy" : "Backtest needs attention";
+  const action = resource ? "Ask the preview owner about extended-run capacity, or explicitly preview a smaller design." : f.error_class === "NO_VALID_CANDIDATE" ? "Review the rejected constraint and preview an explicitly revised design." : f.suggested_user_action;
   return (
     <div className="wd-error wd-failure-notice" role="alert">
-      <strong>{f.safe_message}</strong>
+      <strong>{title}</strong>
+      <p>{f.safe_message}</p>
+      {resource && <p>No execution attempt was created. Candidate eligibility has not been established by the plan.</p>}
+      <p><strong>Next action:</strong> {action}</p>
+      <details className="workbench-audit"><summary>SHOW TECHNICAL DETAILS</summary>
       <p>
         <code>{f.error_class}</code> ·{" "}
         {f.failed_stage.replaceAll("_", " ").toLowerCase()}
@@ -49,6 +56,7 @@ export function FailureNotice({
         </p>
       )}
       <p>{f.actionable_explanation}</p>
+      {context.success && context.data.capacity && <dl>{Object.entries(context.data.capacity).map(([key,value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{String(value)}</dd></div>)}</dl>}
       {candidates.length > 0 && (
         <ul className="list-disc pl-5 my-3 space-y-2">
           {candidates.map((c, i) => (
@@ -63,20 +71,23 @@ export function FailureNotice({
                     ? `Cash ${percent.format(c.parameters.cash_min)}–${percent.format(c.parameters.cash_max)}`
                     : "Cash-band policy"}
               </strong>
-              {" — "}Annualized turnover
+              {" — "}Annualized {c.turnover_constraint_metric === "annualized_recurring_turnover" ? "recurring" : "total (including implementation)"} turnover
               {c.annualized_turnover_lower_bound !== undefined
                 ? " at least"
                 : ""}
               :{" "}
-              {typeof c.annualized_turnover === "number"
+              {typeof c.annualized_recurring_turnover === "number" && c.turnover_constraint_metric === "annualized_recurring_turnover"
+                ? c.annualized_recurring_turnover.toFixed(6)
+                : typeof c.annualized_turnover === "number"
                 ? c.annualized_turnover.toFixed(6)
                 : (c.annualized_turnover_lower_bound?.toFixed(6) ??
                   "NOT_SUPPORTED")}
               . Maximum:{" "}
-              {c.maximum_annualized_turnover ??
+              {c.turnover_constraint_limit ?? c.maximum_annualized_turnover ??
                 (limits.success ? limits.data.max_turnover : undefined) ??
                 "Not returned"}
               .
+              {c.initial_implementation_turnover !== undefined && <p>Initial implementation: {c.initial_implementation_turnover.toFixed(6)}. Recurring: {c.recurring_gross_turnover?.toFixed(6)}. Total: {c.total_gross_turnover?.toFixed(6)}. Simulated cost: {c.realized_simulated_cost?.toFixed(6)}.</p>}
               {c.violated_constraints?.length
                 ? ` Rejected: ${c.violated_constraints.map((r) => r.replaceAll("_", " ").toLowerCase()).join(", ")}.`
                 : c.annualized_turnover_lower_bound !== undefined
@@ -86,9 +97,6 @@ export function FailureNotice({
           ))}
         </ul>
       )}
-      <p>
-        <strong>Next action:</strong> {f.suggested_user_action}
-      </p>
       <p>No dates or training windows were changed automatically.</p>
       <details className="workbench-audit">
         <summary>Diagnostic reference</summary>
@@ -97,6 +105,7 @@ export function FailureNotice({
           Full internal diagnostics remain private in the temporary immutable
           attempt store.
         </p>
+      </details>
       </details>
     </div>
   );

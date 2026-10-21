@@ -1,0 +1,225 @@
+{
+  "status": "PASS",
+  "widths": [
+    360,
+    390,
+    430,
+    768,
+    1440
+  ],
+  "checks": [
+    {
+      "width": 360,
+      "stage": "CONFIGURE_AND_PLAN",
+      "viewport": 360,
+      "document": 360,
+      "overflow": false,
+      "screenshot": "screenshots/plan-360.png"
+    },
+    {
+      "width": 390,
+      "stage": "CONFIGURE_AND_PLAN",
+      "viewport": 390,
+      "document": 390,
+      "overflow": false,
+      "screenshot": "screenshots/plan-390.png"
+    },
+    {
+      "width": 430,
+      "stage": "CONFIGURE_AND_PLAN",
+      "viewport": 430,
+      "document": 430,
+      "overflow": false,
+      "screenshot": "screenshots/plan-430.png"
+    },
+    {
+      "width": 768,
+      "stage": "CONFIGURE_AND_PLAN",
+      "viewport": 768,
+      "document": 768,
+      "overflow": false,
+      "screenshot": "screenshots/plan-768.png"
+    },
+    {
+      "width": 1440,
+      "stage": "CONFIGURE_AND_PLAN",
+      "viewport": 1440,
+      "document": 1440,
+      "overflow": false,
+      "screenshot": "screenshots/plan-1440.png"
+    },
+    {
+      "width": 360,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 360,
+      "document": 360,
+      "overflow": false,
+      "charts": [
+        {
+          "left": 16,
+          "right": 344,
+          "width": 328
+        },
+        {
+          "left": 16,
+          "right": 344,
+          "width": 328
+        },
+        {
+          "left": 16,
+          "right": 344,
+          "width": 328
+        }
+      ],
+      "screenshot": "screenshots/results-360.png"
+    },
+    {
+      "width": 390,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 390,
+      "document": 390,
+      "overflow": false,
+      "charts": [
+        {
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        {
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        {
+          "left": 16,
+          "right": 374,
+          "width": 358
+        }
+      ],
+      "screenshot": "screenshots/results-390.png"
+    },
+    {
+      "width": 430,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 430,
+      "document": 430,
+      "overflow": false,
+      "charts": [
+        {
+          "left": 16,
+          "right": 414,
+          "width": 398
+        },
+        {
+          "left": 16,
+          "right": 414,
+          "width": 398
+        },
+        {
+          "left": 16,
+          "right": 414,
+          "width": 398
+        }
+      ],
+      "screenshot": "screenshots/results-430.png"
+    },
+    {
+      "width": 768,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 768,
+      "document": 768,
+      "overflow": false,
+      "charts": [
+        {
+          "left": 30.71875,
+          "right": 737.28125,
+          "width": 706.5625
+        },
+        {
+          "left": 30.71875,
+          "right": 737.28125,
+          "width": 706.5625
+        },
+        {
+          "left": 30.71875,
+          "right": 737.28125,
+          "width": 706.5625
+        }
+      ],
+      "screenshot": "screenshots/results-768.png"
+    },
+    {
+      "width": 1440,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 1440,
+      "document": 1440,
+      "overflow": false,
+      "charts": [
+        {
+          "left": 57.59375,
+          "right": 1382.40625,
+          "width": 1324.8125
+        },
+        {
+          "left": 57.59375,
+          "right": 1382.40625,
+          "width": 1324.8125
+        },
+        {
+          "left": 57.59375,
+          "right": 1382.40625,
+          "width": 1324.8125
+        }
+      ],
+      "screenshot": "screenshots/results-1440.png"
+    }
+  ],
+  "additional_checks": {
+    "capacity_error_collapsed": true,
+    "real_legacy_failed_attempt_collapsed": true,
+    "failed_card_under_650px": true,
+    "short_training_warning_no_overflow": true,
+    "cross_method_warning_visible": true
+  },
+  "screenshots": [
+    "screenshots/empty-desktop.png",
+    "screenshots/model-transparency-desktop.png",
+    "screenshots/capacity-collapsed-360.png",
+    "screenshots/capacity-collapsed-390.png",
+    "screenshots/capacity-collapsed-430.png",
+    "screenshots/capacity-collapsed-768.png",
+    "screenshots/capacity-collapsed-1440.png",
+    "screenshots/capacity-technical-details.png",
+    "screenshots/actual-failure-collapsed-360.png",
+    "screenshots/actual-failure-collapsed-390.png",
+    "screenshots/actual-failure-collapsed-430.png",
+    "screenshots/actual-failure-collapsed-768.png",
+    "screenshots/actual-failure-collapsed-1440.png",
+    "screenshots/actual-failure-technical-details.png",
+    "screenshots/plan-360.png",
+    "screenshots/plan-390.png",
+    "screenshots/plan-430.png",
+    "screenshots/plan-768.png",
+    "screenshots/plan-1440.png",
+    "screenshots/rolling_monthly-results.png",
+    "screenshots/expanding_monthly-results.png",
+    "screenshots/rolling_quarterly-results.png",
+    "screenshots/arbitrary_cost-results.png",
+    "screenshots/comparison-desktop.png",
+    "screenshots/results-360.png",
+    "screenshots/chart-viewport-360.png",
+    "screenshots/results-390.png",
+    "screenshots/chart-viewport-390.png",
+    "screenshots/results-430.png",
+    "screenshots/chart-viewport-430.png",
+    "screenshots/results-768.png",
+    "screenshots/chart-viewport-768.png",
+    "screenshots/results-1440.png",
+    "screenshots/chart-viewport-1440.png",
+    "screenshots/touch-mobile-fold-review.png",
+    "screenshots/short-training-warning.png",
+    "screenshots/cross-method-comparison-390.png",
+    "screenshots/cross-method-comparison-1440.png"
+  ],
+  "physical_android_tested": false
+}

@@ -129,7 +129,7 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
   // DB shim prevents an unused database connection from entering the worker.
   await esbuild({
     entryPoints: {
-      "workbench-run-worker": path.resolve(artifactDir, "src/workbench-run-worker.ts"),
+      "workbench-run-worker": path.resolve(artifactDir, "src/workbench-runtime-worker.ts"),
     },
     platform: "node",
     bundle: true,

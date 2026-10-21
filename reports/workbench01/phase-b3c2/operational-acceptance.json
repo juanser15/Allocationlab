@@ -1,0 +1,112 @@
+{
+  "status": "PASS",
+  "results": [
+    {
+      "case": "INVALID_STARTUP",
+      "field": "WORKBENCH_MAX_JOBS",
+      "exit_code": 1,
+      "fail_closed": true,
+      "supplied_value_not_logged": true
+    },
+    {
+      "case": "INVALID_STARTUP",
+      "field": "WORKBENCH_MAX_ENGINE_FILES",
+      "exit_code": 1,
+      "fail_closed": true,
+      "supplied_value_not_logged": true
+    },
+    {
+      "case": "INVALID_STARTUP",
+      "field": "WORKBENCH_EXECUTION_TIMEOUT_MS",
+      "exit_code": 1,
+      "fail_closed": true,
+      "supplied_value_not_logged": true
+    },
+    {
+      "case": "INVALID_STARTUP",
+      "field": "WORKBENCH_MAX_OUTPUT_BYTES",
+      "exit_code": 1,
+      "fail_closed": true,
+      "supplied_value_not_logged": true
+    },
+    {
+      "case": "TASK_CAPACITY",
+      "path": "/plan",
+      "http_status": 422,
+      "evidence": {
+        "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+        "number_of_folds": 1,
+        "estimated_jobs": 8,
+        "maximum_jobs": 1,
+        "minimum_required_engine_files": 14,
+        "maximum_engine_files": 512,
+        "no_attempt_created": true,
+        "financially_plannable": true,
+        "failed_fold_id": null,
+        "failed_decision_date": null,
+        "diagnostic_reference": "PRE_RUN_NO_ATTEMPT_CREATED",
+        "capacity": {
+          "number_of_folds": 1,
+          "estimated_jobs": 8,
+          "maximum_jobs": 1,
+          "minimum_required_engine_files": 14,
+          "maximum_engine_files": 512,
+          "no_attempt_created": true
+        },
+        "error_class": "INTERACTIVE_EXECUTION_CAPACITY_EXCEEDED",
+        "failed_stage": "EXECUTION_CAPACITY_PREFLIGHT",
+        "safe_message": "This backtest is larger than the current interactive execution capacity: 8 estimated tasks versus a 1-task limit.",
+        "actionable_explanation": "This design is financially valid enough to plan, but exceeds the current interactive execution capacity. Candidate eligibility still requires execution. No attempt was created.",
+        "suggested_user_action": "Ask the preview owner about extended-run capacity, or explicitly preview a smaller design."
+      }
+    },
+    {
+      "case": "TASK_CAPACITY",
+      "path": "/runs",
+      "http_status": 422,
+      "evidence": {
+        "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+        "number_of_folds": 1,
+        "estimated_jobs": 8,
+        "maximum_jobs": 1,
+        "minimum_required_engine_files": 14,
+        "maximum_engine_files": 512,
+        "no_attempt_created": true,
+        "financially_plannable": true,
+        "failed_fold_id": null,
+        "failed_decision_date": null,
+        "diagnostic_reference": "PRE_RUN_NO_ATTEMPT_CREATED",
+        "capacity": {
+          "number_of_folds": 1,
+          "estimated_jobs": 8,
+          "maximum_jobs": 1,
+          "minimum_required_engine_files": 14,
+          "maximum_engine_files": 512,
+          "no_attempt_created": true
+        },
+        "error_class": "INTERACTIVE_EXECUTION_CAPACITY_EXCEEDED",
+        "failed_stage": "EXECUTION_CAPACITY_PREFLIGHT",
+        "safe_message": "This backtest is larger than the current interactive execution capacity: 8 estimated tasks versus a 1-task limit.",
+        "actionable_explanation": "This design is financially valid enough to plan, but exceeds the current interactive execution capacity. Candidate eligibility still requires execution. No attempt was created.",
+        "suggested_user_action": "Ask the preview owner about extended-run capacity, or explicitly preview a smaller design."
+      }
+    },
+    {
+      "case": "ACTUAL_OUTPUT_BOUND",
+      "status": "FAILED",
+      "error_class": "OUTPUT_OR_LOG_LIMIT",
+      "private_diagnostic_retained": true,
+      "no_private_text_leaked": true,
+      "actual_frontend_schema_accepts_failure": true,
+      "run_id": "rr_24dfa6a8761bdc766c86c2d30bcaff7a3ce955cca0ac99dc43a052b76372e64e"
+    },
+    {
+      "case": "EXPLICIT_RERUN_AFTER_CAPACITY_CHANGE",
+      "status": "SUCCESS",
+      "same_run_id": true,
+      "new_attempt": true,
+      "failed_attempt_unchanged": true,
+      "failed_evidence_visible": true
+    }
+  ]
+}

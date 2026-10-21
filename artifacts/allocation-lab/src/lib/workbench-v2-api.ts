@@ -15,6 +15,9 @@ import {
 } from "./workbench-api";
 
 export const SPEC_V2 = "workbench-research-run-spec-2.0.0" as const;
+export const PRODUCT_SPEC = "workbench-research-run-spec-2.1.0" as const;
+export const RECURRING_V2 = "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2" as const;
+const specVersion = z.enum([SPEC_V2, PRODUCT_SPEC]);
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const nonnegative = z.number().finite().nonnegative();
 const boundary = z.object({
@@ -38,12 +41,15 @@ export const submissionV2Schema = z
     selection_cost_bps: nonnegative,
   })
   .strict();
-export type SubmissionV2 = z.infer<typeof submissionV2Schema>;
+export const productSubmissionSchema = submissionV2Schema.extend({ contract_version: z.literal(PRODUCT_SPEC), turnover_constraint_methodology_version: z.literal(RECURRING_V2) }).strict();
+export const versionedSubmissionSchema = z.union([submissionV2Schema, productSubmissionSchema]);
+export type SubmissionV2 = Omit<z.infer<typeof submissionV2Schema>, "contract_version"> & { contract_version: typeof SPEC_V2 | typeof PRODUCT_SPEC; turnover_constraint_methodology_version?: typeof RECURRING_V2 };
 
 export const capabilitiesV2Schema = boundary
   .extend({
     contract_version: z.literal("workbench-capabilities-2.0.0"),
-    supported_spec_version: z.literal(SPEC_V2),
+    supported_spec_version: specVersion,
+    turnover_constraint_methodology_version: z.literal(RECURRING_V2).optional(),
     supported_research_modes: z.array(z.string()),
     supported_universe: z.array(z.string()),
     supported_validation_methods: z.array(z.string()),
@@ -127,6 +133,7 @@ export const capabilitiesV2Schema = boundary
       max_jobs: z.number().int().positive(),
       timeout_ms: z.number().int().positive(),
       max_output_bytes: z.number().int().positive(),
+      max_engine_files: z.number().int().positive().optional(),
     }),
     warnings: z.array(z.string()),
     model_definition: exposureModelSchema.optional(),
@@ -147,6 +154,7 @@ export function capabilityProblemsV2(c: CapabilitiesV2): string[] {
   const same = (a: string[], b: readonly string[]) =>
     a.length === b.length && [...a].sort().join() === [...b].sort().join();
   const issues: string[] = [];
+  if (c.supported_spec_version === PRODUCT_SPEC && c.turnover_constraint_methodology_version !== RECURRING_V2) issues.push("turnover methodology");
   if (!same(c.supported_research_modes, ["CAPITAL_MARKET_EXPOSURE"]))
     issues.push("research mode");
   if (!same(c.supported_universe, ["SPY"])) issues.push("universe");
@@ -193,8 +201,8 @@ export const foldV2Schema = z
 export type FoldV2 = z.infer<typeof foldV2Schema>;
 export const planV2Schema = boundary
   .extend({
-    contract_version: z.literal(SPEC_V2),
-    normalized_request: submissionV2Schema,
+    contract_version: specVersion,
+    normalized_request: versionedSubmissionSchema,
     derived_engine_calendar: z.object({
       dates: z.object({ start: date, end_exclusive: date }),
       train_months: z.number().int().positive(),
@@ -217,7 +225,7 @@ export const planV2Schema = boundary
   })
   .passthrough();
 export type PlanV2 = z.infer<typeof planV2Schema>;
-export const normalizedSpecV2Schema = submissionV2Schema.passthrough();
+export const normalizedSpecV2Schema = z.union([submissionV2Schema.passthrough(), productSubmissionSchema.passthrough()]);
 const evaluationSchema = z.object({
   evaluation_start: date,
   evaluation_end_exclusive: date,
@@ -233,7 +241,7 @@ export const resultV2Schema = z
   .object({
     ...failureFields,
     ...attributionFields,
-    contract_version: z.literal("workbench-research-run-result-2.0.0"),
+    contract_version: z.enum(["workbench-research-run-result-2.0.0", "workbench-research-run-result-2.1.0"]),
     run_id: z.string(),
     execution_attempt_id: z.string(),
     status: runStatusSchema,
@@ -244,6 +252,7 @@ export const resultV2Schema = z
     storage_classification: z.literal(WORKBENCH_STORAGE_CLASSIFICATION),
     pit_classification: z.literal(WORKBENCH_PIT_CLASSIFICATION),
     evaluation: evaluationSchema.optional(),
+    turnover: z.object({ oos: z.object({ initial_implementation_turnover: nonnegative, recurring_gross_turnover: nonnegative, total_gross_turnover: nonnegative }) }).passthrough().optional(),
     metrics: z.union([
       z
         .object({
@@ -317,7 +326,7 @@ export const resultV2Schema = z
 export type ResultV2 = z.infer<typeof resultV2Schema>;
 const attemptV2Schema = attemptSchema.extend(failureFields);
 export const detailV2Schema = boundary.extend({
-  contract_version: z.literal(SPEC_V2),
+  contract_version: specVersion,
   run_id: z.string(),
   spec: normalizedSpecV2Schema,
   attempt_history: z.array(attemptV2Schema),
@@ -340,7 +349,7 @@ const receiptSchema = boundary.extend({
 });
 export type ReceiptV2 = z.infer<typeof receiptSchema>;
 const listSchema = boundary.extend({
-  contract_version: z.literal(SPEC_V2),
+  contract_version: specVersion,
   runs: z.array(
     z.object({
       run_id: z.string(),
@@ -463,10 +472,10 @@ export class WorkbenchV2Client {
     return this.request("/capabilities", capabilitiesV2Schema);
   }
   plan(spec: SubmissionV2) {
-    return this.request("/plan", planV2Schema, submissionV2Schema.parse(spec));
+    return this.request("/plan", planV2Schema, versionedSubmissionSchema.parse(spec));
   }
   submitRun(spec: SubmissionV2) {
-    return this.request("/runs", receiptSchema, submissionV2Schema.parse(spec));
+    return this.request("/runs", receiptSchema, versionedSubmissionSchema.parse(spec));
   }
   listRuns() {
     return this.request("/runs", listSchema);

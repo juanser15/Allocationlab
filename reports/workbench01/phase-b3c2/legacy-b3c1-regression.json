@@ -1,0 +1,1752 @@
+{
+  "status": "PASS",
+  "test_source": "Unmodified short-window.integration.test.ts executed from a separate runtime tree; its report writes occurred only in that isolated copy.",
+  "exact_case": {
+    "status": "PASS",
+    "outcome": "PRE_RUN_BLOCKED",
+    "exact_request": {
+      "contract_version": "workbench-research-run-spec-2.0.0",
+      "research_mode": "CAPITAL_MARKET_EXPOSURE",
+      "execution_scope": "EMPIRICAL",
+      "universe": "SPY",
+      "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+      "evaluation_start": "2019-10-01",
+      "evaluation_end_exclusive": "2026-10-01",
+      "window_type": "ROLLING",
+      "training_window_months": 1,
+      "rebalance_frequency": "MONTHLY",
+      "transaction_cost_bps": 1,
+      "selection_cost_bps": 1
+    },
+    "requested_fold_count": 84,
+    "plan_http_status": 422,
+    "submit_http_status": 422,
+    "blocker": {
+      "code": "NO_VALID_CANDIDATE",
+      "message": "All exposure policies are necessarily rejected in fold 0: required initial-entry turnover alone exceeds the configured annualized-turnover limit.",
+      "issues": {
+        "error_class": "NO_VALID_CANDIDATE",
+        "failed_stage": "CANDIDATE_SELECTION_PREFLIGHT",
+        "failed_fold_id": 0,
+        "failed_decision_date": "2019-10-01",
+        "safe_message": "All exposure policies are necessarily rejected in fold 0: required initial-entry turnover alone exceeds the configured annualized-turnover limit.",
+        "actionable_explanation": "The training interval contains 20 observations. Even the smallest required entry annualizes to 8.684581, above the fixed limit 8. Net-Sharpe viability and later trading cannot remove this nonnegative entry turnover.",
+        "suggested_user_action": "Review the training history and preview a revised design that can satisfy the existing turnover constraint. More observations may address this entry bound, but the revised plan must be checked again. No dates, window, policies or constraints were changed automatically.",
+        "diagnostic_reference": "PRE_RUN_NO_ATTEMPT_CREATED",
+        "preflight_version": "workbench-selection-necessity-1.0.0",
+        "number_of_folds": 84,
+        "requested_training_window_months": 1,
+        "training_observations": 20,
+        "training_start": "2019-09-01",
+        "training_end_exclusive": "2019-10-01",
+        "configured_maximum_annualized_turnover": 8,
+        "candidates": [
+          {
+            "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+            "exposure_policy": "cash_band",
+            "parameters": {
+              "cash_min": 0.2,
+              "cash_max": 0.2
+            },
+            "bound_status": "PROVEN_INITIAL_ENTRY_LOWER_BOUND",
+            "training_observations": 20,
+            "training_first_decision_date": "2019-09-03",
+            "information_cutoff": "2019-08-30",
+            "initial_target_spy_exposure": 0.8,
+            "initial_entry_turnover": 0.7999360051195904,
+            "annualized_turnover_lower_bound": 10.079193664506839,
+            "maximum_annualized_turnover": 8,
+            "violates_turnover_constraint": true,
+            "minimum_observations_for_this_entry": 26
+          },
+          {
+            "candidate_id": "c_8332586a96d72c52828a005e",
+            "exposure_policy": "cash_band",
+            "parameters": {
+              "cash_min": 0.2,
+              "cash_max": 0.4
+            },
+            "bound_status": "PROVEN_INITIAL_ENTRY_LOWER_BOUND",
+            "training_observations": 20,
+            "training_first_decision_date": "2019-09-03",
+            "information_cutoff": "2019-08-30",
+            "initial_target_spy_exposure": 0.6893,
+            "initial_entry_turnover": 0.6892524898258763,
+            "annualized_turnover_lower_bound": 8.684581371806042,
+            "maximum_annualized_turnover": 8,
+            "violates_turnover_constraint": true,
+            "minimum_observations_for_this_entry": 22
+          },
+          {
+            "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+            "exposure_policy": "cash_band",
+            "parameters": {
+              "cash_min": 0.1,
+              "cash_max": 0.4
+            },
+            "bound_status": "PROVEN_INITIAL_ENTRY_LOWER_BOUND",
+            "training_observations": 20,
+            "training_first_decision_date": "2019-09-03",
+            "information_cutoff": "2019-08-30",
+            "initial_target_spy_exposure": 0.73395,
+            "initial_entry_turnover": 0.7338961356931207,
+            "annualized_turnover_lower_bound": 9.247091309733321,
+            "maximum_annualized_turnover": 8,
+            "violates_turnover_constraint": true,
+            "minimum_observations_for_this_entry": 24
+          },
+          {
+            "candidate_id": "c_aa16f813288e415fae34648c",
+            "exposure_policy": "constant",
+            "parameters": {
+              "risk": 1
+            },
+            "bound_status": "PROVEN_INITIAL_ENTRY_LOWER_BOUND",
+            "training_observations": 20,
+            "training_first_decision_date": "2019-09-03",
+            "information_cutoff": "2019-08-30",
+            "initial_target_spy_exposure": 1,
+            "initial_entry_turnover": 0.9999000099990001,
+            "annualized_turnover_lower_bound": 12.598740125987401,
+            "maximum_annualized_turnover": 8,
+            "violates_turnover_constraint": true,
+            "minimum_observations_for_this_entry": 32
+          },
+          {
+            "candidate_id": "c_e028713b249e51fa3843d778",
+            "exposure_policy": "cash_band",
+            "parameters": {
+              "cash_min": 0.1,
+              "cash_max": 0.2
+            },
+            "bound_status": "PROVEN_INITIAL_ENTRY_LOWER_BOUND",
+            "training_observations": 20,
+            "training_first_decision_date": "2019-09-03",
+            "information_cutoff": "2019-08-30",
+            "initial_target_spy_exposure": 0.84465,
+            "initial_entry_turnover": 0.8445786626632581,
+            "annualized_turnover_lower_bound": 10.641691149557051,
+            "maximum_annualized_turnover": 8,
+            "violates_turnover_constraint": true,
+            "minimum_observations_for_this_entry": 27
+          }
+        ],
+        "estimated_jobs": {
+          "unique_candidates": 5,
+          "cartesian_size": 5,
+          "outer_folds": 84,
+          "inner_folds": 0,
+          "model_fits_estimated_upper_bound": 168,
+          "backtests_estimated": 504,
+          "cost_scenarios": [
+            1
+          ],
+          "total_jobs_estimated": 672,
+          "estimation": "Backtests exact maximum incl. invalid candidates; fits upper bound before winner identities/cache. Prediction cache entries are not model fits.",
+          "candidate_definition_hash": "f6c6316d66c14f03ec9f3ce583ee6cef6bf5d427aa46fbbd37da06372f4a7d72",
+          "max_jobs": 2000
+        }
+      }
+    },
+    "deterministic_repeat": true,
+    "no_execution_attempt_created": true,
+    "no_financial_engine_executed": true,
+    "dates_and_training_unchanged": true
+  },
+  "matrix": {
+    "status": "PASS",
+    "exact_84_fold_request_not_shortened": true,
+    "cases": [
+      {
+        "name": "FULL_84_ROLLING_MONTHLY_1",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2019-10-01",
+          "evaluation_end_exclusive": "2026-10-01",
+          "window_type": "ROLLING",
+          "training_window_months": 1,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "requested_fold_count": 84,
+        "plan_status": "BLOCKED",
+        "execution_status": "NOT_STARTED",
+        "blocker": {
+          "code": "NO_VALID_CANDIDATE",
+          "message": "All exposure policies are necessarily rejected in fold 0: required initial-entry turnover alone exceeds the configured annualized-turnover limit.",
+          "issues": {
+            "error_class": "NO_VALID_CANDIDATE",
+            "failed_stage": "CANDIDATE_SELECTION_PREFLIGHT",
+            "failed_fold_id": 0,
+            "failed_decision_date": "2019-10-01",
+            "safe_message": "All exposure policies are necessarily rejected in fold 0: required initial-entry turnover alone exceeds the configured annualized-turnover limit.",
+            "actionable_explanation": "The training interval contains 20 observations. Even the smallest required entry annualizes to 8.684581, above the fixed limit 8. Net-Sharpe viability and later trading cannot remove this nonnegative entry turnover.",
+            "suggested_user_action": "Review the training history and preview a revised design that can satisfy the existing turnover constraint. More observations may address this entry bound, but the revised plan must be checked again. No dates, window, policies or constraints were changed automatically.",
+            "diagnostic_reference": "PRE_RUN_NO_ATTEMPT_CREATED",
+            "preflight_version": "workbench-selection-necessity-1.0.0",
+            "number_of_folds": 84,
+            "requested_training_window_months": 1,
+            "training_observations": 20,
+            "training_start": "2019-09-01",
+            "training_end_exclusive": "2019-10-01",
+            "configured_maximum_annualized_turnover": 8,
+            "candidates": [
+              {
+                "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "bound_status": "PROVEN_INITIAL_ENTRY_LOWER_BOUND",
+                "training_observations": 20,
+                "training_first_decision_date": "2019-09-03",
+                "information_cutoff": "2019-08-30",
+                "initial_target_spy_exposure": 0.8,
+                "initial_entry_turnover": 0.7999360051195904,
+                "annualized_turnover_lower_bound": 10.079193664506839,
+                "maximum_annualized_turnover": 8,
+                "violates_turnover_constraint": true,
+                "minimum_observations_for_this_entry": 26
+              },
+              {
+                "candidate_id": "c_8332586a96d72c52828a005e",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "bound_status": "PROVEN_INITIAL_ENTRY_LOWER_BOUND",
+                "training_observations": 20,
+                "training_first_decision_date": "2019-09-03",
+                "information_cutoff": "2019-08-30",
+                "initial_target_spy_exposure": 0.6893,
+                "initial_entry_turnover": 0.6892524898258763,
+                "annualized_turnover_lower_bound": 8.684581371806042,
+                "maximum_annualized_turnover": 8,
+                "violates_turnover_constraint": true,
+                "minimum_observations_for_this_entry": 22
+              },
+              {
+                "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "bound_status": "PROVEN_INITIAL_ENTRY_LOWER_BOUND",
+                "training_observations": 20,
+                "training_first_decision_date": "2019-09-03",
+                "information_cutoff": "2019-08-30",
+                "initial_target_spy_exposure": 0.73395,
+                "initial_entry_turnover": 0.7338961356931207,
+                "annualized_turnover_lower_bound": 9.247091309733321,
+                "maximum_annualized_turnover": 8,
+                "violates_turnover_constraint": true,
+                "minimum_observations_for_this_entry": 24
+              },
+              {
+                "candidate_id": "c_aa16f813288e415fae34648c",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "bound_status": "PROVEN_INITIAL_ENTRY_LOWER_BOUND",
+                "training_observations": 20,
+                "training_first_decision_date": "2019-09-03",
+                "information_cutoff": "2019-08-30",
+                "initial_target_spy_exposure": 1,
+                "initial_entry_turnover": 0.9999000099990001,
+                "annualized_turnover_lower_bound": 12.598740125987401,
+                "maximum_annualized_turnover": 8,
+                "violates_turnover_constraint": true,
+                "minimum_observations_for_this_entry": 32
+              },
+              {
+                "candidate_id": "c_e028713b249e51fa3843d778",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "bound_status": "PROVEN_INITIAL_ENTRY_LOWER_BOUND",
+                "training_observations": 20,
+                "training_first_decision_date": "2019-09-03",
+                "information_cutoff": "2019-08-30",
+                "initial_target_spy_exposure": 0.84465,
+                "initial_entry_turnover": 0.8445786626632581,
+                "annualized_turnover_lower_bound": 10.641691149557051,
+                "maximum_annualized_turnover": 8,
+                "violates_turnover_constraint": true,
+                "minimum_observations_for_this_entry": 27
+              }
+            ],
+            "estimated_jobs": {
+              "unique_candidates": 5,
+              "cartesian_size": 5,
+              "outer_folds": 84,
+              "inner_folds": 0,
+              "model_fits_estimated_upper_bound": 168,
+              "backtests_estimated": 504,
+              "cost_scenarios": [
+                1
+              ],
+              "total_jobs_estimated": 672,
+              "estimation": "Backtests exact maximum incl. invalid candidates; fits upper bound before winner identities/cache. Prediction cache entries are not model fits.",
+              "candidate_definition_hash": "f6c6316d66c14f03ec9f3ce583ee6cef6bf5d427aa46fbbd37da06372f4a7d72",
+              "max_jobs": 2000
+            }
+          }
+        },
+        "reproducibility": "IDENTICAL_REPEATED_PREFLIGHT",
+        "no_attempt_created": true
+      },
+      {
+        "name": "FULL_84_ROLLING_MONTHLY_2",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2019-10-01",
+          "evaluation_end_exclusive": "2026-10-01",
+          "window_type": "ROLLING",
+          "training_window_months": 2,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "requested_fold_count": 84,
+        "plan_status": "BLOCKED",
+        "execution_status": "NOT_STARTED",
+        "blocker": {
+          "code": "OUTPUT_OR_LOG_LIMIT",
+          "message": "This exact design cannot fit in the current immutable engine-artifact file budget.",
+          "issues": {
+            "error_class": "OUTPUT_OR_LOG_LIMIT",
+            "failed_stage": "OUTPUT_BUDGET_PREFLIGHT",
+            "failed_fold_id": null,
+            "failed_decision_date": null,
+            "safe_message": "This exact design cannot fit in the current immutable engine-artifact file budget.",
+            "actionable_explanation": "A successful campaign requires at least 1095 engine files; the unchanged store limit is 512.",
+            "suggested_user_action": "This design requires an owner-reviewed resource-capacity change or an explicitly different research design. The service has not shortened dates, training or fold count.",
+            "diagnostic_reference": "PRE_RUN_NO_ATTEMPT_CREATED",
+            "resource": "ENGINE_FILE_COUNT",
+            "minimum_required_engine_files": 1095,
+            "maximum_engine_files": 512,
+            "number_of_folds": 84,
+            "estimated_jobs": {
+              "unique_candidates": 5,
+              "cartesian_size": 5,
+              "outer_folds": 84,
+              "inner_folds": 0,
+              "model_fits_estimated_upper_bound": 252,
+              "backtests_estimated": 504,
+              "cost_scenarios": [
+                1
+              ],
+              "total_jobs_estimated": 756,
+              "estimation": "Backtests exact maximum incl. invalid candidates; fits upper bound before winner identities/cache. Prediction cache entries are not model fits.",
+              "candidate_definition_hash": "f6c6316d66c14f03ec9f3ce583ee6cef6bf5d427aa46fbbd37da06372f4a7d72",
+              "max_jobs": 2000
+            },
+            "preflight_version": "workbench-selection-necessity-1.0.0"
+          }
+        },
+        "reproducibility": "IDENTICAL_REPEATED_PREFLIGHT",
+        "no_attempt_created": true
+      },
+      {
+        "name": "FULL_84_ROLLING_MONTHLY_3",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2019-10-01",
+          "evaluation_end_exclusive": "2026-10-01",
+          "window_type": "ROLLING",
+          "training_window_months": 3,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "requested_fold_count": 84,
+        "plan_status": "BLOCKED",
+        "execution_status": "NOT_STARTED",
+        "blocker": {
+          "code": "OUTPUT_OR_LOG_LIMIT",
+          "message": "This exact design cannot fit in the current immutable engine-artifact file budget.",
+          "issues": {
+            "error_class": "OUTPUT_OR_LOG_LIMIT",
+            "failed_stage": "OUTPUT_BUDGET_PREFLIGHT",
+            "failed_fold_id": null,
+            "failed_decision_date": null,
+            "safe_message": "This exact design cannot fit in the current immutable engine-artifact file budget.",
+            "actionable_explanation": "A successful campaign requires at least 1263 engine files; the unchanged store limit is 512.",
+            "suggested_user_action": "This design requires an owner-reviewed resource-capacity change or an explicitly different research design. The service has not shortened dates, training or fold count.",
+            "diagnostic_reference": "PRE_RUN_NO_ATTEMPT_CREATED",
+            "resource": "ENGINE_FILE_COUNT",
+            "minimum_required_engine_files": 1263,
+            "maximum_engine_files": 512,
+            "number_of_folds": 84,
+            "estimated_jobs": {
+              "unique_candidates": 5,
+              "cartesian_size": 5,
+              "outer_folds": 84,
+              "inner_folds": 0,
+              "model_fits_estimated_upper_bound": 336,
+              "backtests_estimated": 504,
+              "cost_scenarios": [
+                1
+              ],
+              "total_jobs_estimated": 840,
+              "estimation": "Backtests exact maximum incl. invalid candidates; fits upper bound before winner identities/cache. Prediction cache entries are not model fits.",
+              "candidate_definition_hash": "f6c6316d66c14f03ec9f3ce583ee6cef6bf5d427aa46fbbd37da06372f4a7d72",
+              "max_jobs": 2000
+            },
+            "preflight_version": "workbench-selection-necessity-1.0.0"
+          }
+        },
+        "reproducibility": "IDENTICAL_REPEATED_PREFLIGHT",
+        "no_attempt_created": true
+      },
+      {
+        "name": "FULL_84_ROLLING_MONTHLY_6",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2019-10-01",
+          "evaluation_end_exclusive": "2026-10-01",
+          "window_type": "ROLLING",
+          "training_window_months": 6,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "requested_fold_count": 84,
+        "plan_status": "BLOCKED",
+        "execution_status": "NOT_STARTED",
+        "blocker": {
+          "code": "INSUFFICIENT_MODEL_WARMUP_HISTORY",
+          "message": "The model needs complete information-universe observations before training and throughout the fold.",
+          "issues": {
+            "fold_id": 0,
+            "warmup_requirement_observations": 252,
+            "available_warmup_observations": 252,
+            "training_observations": 127,
+            "requested_training_window_months": 6
+          }
+        },
+        "reproducibility": "IDENTICAL_REPEATED_PREFLIGHT",
+        "no_attempt_created": true
+      },
+      {
+        "name": "FULL_84_ROLLING_MONTHLY_12",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2019-10-01",
+          "evaluation_end_exclusive": "2026-10-01",
+          "window_type": "ROLLING",
+          "training_window_months": 12,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "requested_fold_count": 84,
+        "plan_status": "BLOCKED",
+        "execution_status": "NOT_STARTED",
+        "blocker": {
+          "code": "INSUFFICIENT_MODEL_WARMUP_HISTORY",
+          "message": "The model needs complete information-universe observations before training and throughout the fold.",
+          "issues": {
+            "fold_id": 0,
+            "warmup_requirement_observations": 252,
+            "available_warmup_observations": 252,
+            "training_observations": 251,
+            "requested_training_window_months": 12
+          }
+        },
+        "reproducibility": "IDENTICAL_REPEATED_PREFLIGHT",
+        "no_attempt_created": true
+      },
+      {
+        "name": "FULL_84_EXPANDING_MONTHLY_1",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2019-10-01",
+          "evaluation_end_exclusive": "2026-10-01",
+          "window_type": "EXPANDING",
+          "training_window_months": 1,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "requested_fold_count": 84,
+        "plan_status": "BLOCKED",
+        "execution_status": "NOT_STARTED",
+        "blocker": {
+          "code": "RESEARCH_RESOURCE_LIMIT",
+          "message": "The requested design exceeds the bounded estimated-job budget.",
+          "issues": {
+            "estimated_jobs": 4158,
+            "maximum_jobs": 2000
+          }
+        },
+        "reproducibility": "IDENTICAL_REPEATED_PREFLIGHT",
+        "no_attempt_created": true
+      },
+      {
+        "name": "ROLLING_MONTHLY_2_MANY_FOLDS",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2023-01-01",
+          "window_type": "ROLLING",
+          "training_window_months": 2,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "plan_status": "PASS",
+        "execution_status": "SUCCESS",
+        "fold_count": 12,
+        "first_blocker_or_failure": null,
+        "run_id": "rr_42ff0e2fb9b3393fe0ac4522f67a0b0fdd637379af1c98953d7e8fd00be0c76c",
+        "attempt_id": "ea_b55413a4-1ad5-40d0-9faa-5bdeb14812f6",
+        "rerun_attempt_id": "ea_1ed3d0d7-68ff-4ee8-bbc6-4a7365ea06b1",
+        "metrics": {
+          "annualized_turnover": 11.092765361891194,
+          "annualized_volatility": 0.22009519758611362,
+          "cagr": -0.22768058832994975,
+          "economic_claim": "NONE",
+          "evaluation": {
+            "evaluation_end_exclusive": "2023-01-01",
+            "evaluation_start": "2022-01-01",
+            "fold_count": 12,
+            "rebalance_frequency": "MONTHLY",
+            "training_window_months": 2,
+            "window_type": "ROLLING"
+          },
+          "final_research_index": 77.31116199963655,
+          "gross_turnover": 11.04874645172496,
+          "max_drawdown": -0.29534314767565584,
+          "mean_beginning_risky_exposure": 0.8314851996913158,
+          "net_sharpe": -1.063524235974521,
+          "observations": 251,
+          "return_drawdown_ratio": -0.7709018818340329
+        },
+        "hashes": {
+          "financial_result_hash": "98f5060269405db99e9ea6c3f545429225b76d3d585c8cfd08630a8ee99563c7",
+          "passive_control_hash": "a000afc7785cd96ef72ad5d25821fc8f88f2632d1a98a8942afebe0938a28d6a",
+          "matched_beta_control_hash": "75e851e84972194d026ab604eac2ed7c80cbbb016dd42e60811884e7a0a3b690",
+          "attribution_hash": "cc6f5afa7cd5d52bd50099b9bfa1a9c62fb997455addde1169ecb31ba6ae659c"
+        },
+        "reproducibility": "ALL_FOUR_HASHES_AND_TIME_SERIES_IDENTICAL",
+        "actual_file_budget": {
+          "version": "workbench-selection-necessity-1.0.0",
+          "status": "NECESSARY_CONDITIONS_PASSED",
+          "candidate_viability_guaranteed": false,
+          "financial_backtests_executed": 0,
+          "initial_entry_bounds_checked": [
+            {
+              "fold_id": 0,
+              "training_observations": 43,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 1,
+              "training_observations": 42,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 2,
+              "training_observations": 39,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 3,
+              "training_observations": 42,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 4,
+              "training_observations": 43,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 5,
+              "training_observations": 41,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 6,
+              "training_observations": 42,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 7,
+              "training_observations": 41,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 8,
+              "training_observations": 43,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 9,
+              "training_observations": 44,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 10,
+              "training_observations": 42,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 11,
+              "training_observations": 42,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            }
+          ],
+          "minimum_required_engine_files": 159,
+          "maximum_engine_files": 512,
+          "warning": "Preflight checks necessary history, initial-entry turnover and deterministic storage bounds. Net-Sharpe definition, realized drawdown and later turnover still require actual candidate backtesting; eligibility is not guaranteed."
+        },
+        "no_dates_or_windows_changed": true
+      },
+      {
+        "name": "ROLLING_MONTHLY_3_MANY_FOLDS",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2023-01-01",
+          "window_type": "ROLLING",
+          "training_window_months": 3,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "plan_status": "PASS",
+        "execution_status": "SUCCESS",
+        "fold_count": 12,
+        "first_blocker_or_failure": null,
+        "run_id": "rr_c62efd0d4313ec5e71550929ced8dd2d3fe817bbba7760875f9b8727e19d04a4",
+        "attempt_id": "ea_21503713-a460-44b2-9b9e-9c534384e95c",
+        "rerun_attempt_id": "ea_6539304c-dced-4552-9e85-9e76f145ea46",
+        "metrics": {
+          "annualized_turnover": 11.421715926965902,
+          "annualized_volatility": 0.22538186137002927,
+          "cagr": -0.22847448426440042,
+          "economic_claim": "NONE",
+          "evaluation": {
+            "evaluation_end_exclusive": "2023-01-01",
+            "evaluation_start": "2022-01-01",
+            "fold_count": 12,
+            "rebalance_frequency": "MONTHLY",
+            "training_window_months": 3,
+            "window_type": "ROLLING"
+          },
+          "final_research_index": 77.23200617186438,
+          "gross_turnover": 11.376391657414452,
+          "max_drawdown": -0.303269774476675,
+          "mean_beginning_risky_exposure": 0.8567092093233897,
+          "net_sharpe": -1.037911557146987,
+          "observations": 251,
+          "return_drawdown_ratio": -0.7533704427309249
+        },
+        "hashes": {
+          "financial_result_hash": "3dd9caa761f8cf070a174bd6320ce83f3e885d038609686a9ab6e07e9edaf2d3",
+          "passive_control_hash": "e34bec2bb8b349a6522aeff56d638a93a66db2057dd8476653a1de4de38cdf4b",
+          "matched_beta_control_hash": "4310b2252cc840f38de86d6bb2ef6032a0106f1ec799f8cbf7d3a4efae66aae9",
+          "attribution_hash": "a7e704b10fb24ac42bbf2f80586ef8bce73aaf2018e86b9ec0209a9d366f6846"
+        },
+        "reproducibility": "ALL_FOUR_HASHES_AND_TIME_SERIES_IDENTICAL",
+        "actual_file_budget": {
+          "version": "workbench-selection-necessity-1.0.0",
+          "status": "NECESSARY_CONDITIONS_PASSED",
+          "candidate_viability_guaranteed": false,
+          "financial_backtests_executed": 0,
+          "initial_entry_bounds_checked": [
+            {
+              "fold_id": 0,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 1,
+              "training_observations": 63,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 2,
+              "training_observations": 61,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 3,
+              "training_observations": 62,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 4,
+              "training_observations": 62,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 5,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 6,
+              "training_observations": 62,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 7,
+              "training_observations": 62,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 8,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 9,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 10,
+              "training_observations": 65,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 11,
+              "training_observations": 63,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            }
+          ],
+          "minimum_required_engine_files": 183,
+          "maximum_engine_files": 512,
+          "warning": "Preflight checks necessary history, initial-entry turnover and deterministic storage bounds. Net-Sharpe definition, realized drawdown and later turnover still require actual candidate backtesting; eligibility is not guaranteed."
+        },
+        "no_dates_or_windows_changed": true
+      },
+      {
+        "name": "ROLLING_MONTHLY_6_MANY_FOLDS",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2023-01-01",
+          "window_type": "ROLLING",
+          "training_window_months": 6,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "plan_status": "PASS",
+        "execution_status": "SUCCESS",
+        "fold_count": 12,
+        "first_blocker_or_failure": null,
+        "run_id": "rr_3a87219ceff267866c231aab935e1273906c46688f48d14a02d4697b5c9c104b",
+        "attempt_id": "ea_7e021c1d-88e9-47e3-9ca0-ed9c0a0b084b",
+        "rerun_attempt_id": "ea_d24318bf-db17-47c4-8ad9-ca8b99c769fe",
+        "metrics": {
+          "annualized_turnover": 11.44432208186511,
+          "annualized_volatility": 0.22545358199279758,
+          "cagr": -0.23316026548513635,
+          "economic_claim": "NONE",
+          "evaluation": {
+            "evaluation_end_exclusive": "2023-01-01",
+            "evaluation_start": "2022-01-01",
+            "fold_count": 12,
+            "rebalance_frequency": "MONTHLY",
+            "training_window_months": 6,
+            "window_type": "ROLLING"
+          },
+          "final_research_index": 76.76480120092121,
+          "gross_turnover": 11.398908105349772,
+          "max_drawdown": -0.3096389767292328,
+          "mean_beginning_risky_exposure": 0.8588230709676018,
+          "net_sharpe": -1.0645188934863137,
+          "observations": 251,
+          "return_drawdown_ratio": -0.7530068337909084
+        },
+        "hashes": {
+          "financial_result_hash": "c9db6166f567bf46cefb9cca5d79970ed32106afb4c2687ef509a7dee64183d2",
+          "passive_control_hash": "bb07598d0faceaa82f3b2e2cfd1026efbb0ca1ea26ec5cad590a636a9dec7919",
+          "matched_beta_control_hash": "102c5f4ea50c40f20f5dac126eb9794194ad0f37886badd2aebb2294d305d121",
+          "attribution_hash": "38c53f85949c85ae0182a96489d77d241e99d6c07fe209f13ffeb5fcf7a08117"
+        },
+        "reproducibility": "ALL_FOUR_HASHES_AND_TIME_SERIES_IDENTICAL",
+        "actual_file_budget": {
+          "version": "workbench-selection-necessity-1.0.0",
+          "status": "NECESSARY_CONDITIONS_PASSED",
+          "candidate_viability_guaranteed": false,
+          "financial_backtests_executed": 0,
+          "initial_entry_bounds_checked": [
+            {
+              "fold_id": 0,
+              "training_observations": 128,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 1,
+              "training_observations": 127,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 2,
+              "training_observations": 124,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 3,
+              "training_observations": 126,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 4,
+              "training_observations": 125,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 5,
+              "training_observations": 125,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 6,
+              "training_observations": 124,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 7,
+              "training_observations": 124,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 8,
+              "training_observations": 128,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 9,
+              "training_observations": 126,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 10,
+              "training_observations": 127,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 11,
+              "training_observations": 127,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            }
+          ],
+          "minimum_required_engine_files": 255,
+          "maximum_engine_files": 512,
+          "warning": "Preflight checks necessary history, initial-entry turnover and deterministic storage bounds. Net-Sharpe definition, realized drawdown and later turnover still require actual candidate backtesting; eligibility is not guaranteed."
+        },
+        "no_dates_or_windows_changed": true
+      },
+      {
+        "name": "ROLLING_MONTHLY_12_MANY_FOLDS",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2023-01-01",
+          "window_type": "ROLLING",
+          "training_window_months": 12,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "plan_status": "PASS",
+        "execution_status": "SUCCESS",
+        "fold_count": 12,
+        "first_blocker_or_failure": null,
+        "run_id": "rr_7a021dc37544c205539f89aa1b065fc016169b621ab07e566cb1dd1f6418d80d",
+        "attempt_id": "ea_10d07dd7-6c88-41dc-b5d5-7b55578c9b4e",
+        "rerun_attempt_id": "ea_7e0974eb-8398-47ad-ae02-159efa6afc3a",
+        "metrics": {
+          "annualized_turnover": 11.44432208186511,
+          "annualized_volatility": 0.22137972596135427,
+          "cagr": -0.24123403787640818,
+          "economic_claim": "NONE",
+          "evaluation": {
+            "evaluation_end_exclusive": "2023-01-01",
+            "evaluation_start": "2022-01-01",
+            "fold_count": 12,
+            "rebalance_frequency": "MONTHLY",
+            "training_window_months": 12,
+            "window_type": "ROLLING"
+          },
+          "final_research_index": 75.95976333463666,
+          "gross_turnover": 11.398908105349772,
+          "max_drawdown": -0.31687884130838095,
+          "mean_beginning_risky_exposure": 0.8581712180695356,
+          "net_sharpe": -1.136014007735692,
+          "observations": 251,
+          "return_drawdown_ratio": -0.7612816206988192
+        },
+        "hashes": {
+          "financial_result_hash": "e6820616f9af28b9980da139b0b21e043ce067c1757f460e78543f57692f6a1d",
+          "passive_control_hash": "95d8809510c1e5abb0b97e5b5f4197ac33a2126ac364c41db6b9c5d776a2c109",
+          "matched_beta_control_hash": "bebddcb3e9827bb17b2752a983f035918f9c628e21a8623c93b132372cce982b",
+          "attribution_hash": "2a6299079956558e2999238aaf43838fe8b396851a42ed877ecce2c131015f91"
+        },
+        "reproducibility": "ALL_FOUR_HASHES_AND_TIME_SERIES_IDENTICAL",
+        "actual_file_budget": {
+          "version": "workbench-selection-necessity-1.0.0",
+          "status": "NECESSARY_CONDITIONS_PASSED",
+          "candidate_viability_guaranteed": false,
+          "financial_backtests_executed": 0,
+          "initial_entry_bounds_checked": [
+            {
+              "fold_id": 0,
+              "training_observations": 252,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 1,
+              "training_observations": 253,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 2,
+              "training_observations": 253,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 3,
+              "training_observations": 253,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 4,
+              "training_observations": 252,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 5,
+              "training_observations": 253,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 6,
+              "training_observations": 252,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 7,
+              "training_observations": 251,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 8,
+              "training_observations": 252,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 9,
+              "training_observations": 252,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 10,
+              "training_observations": 252,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 11,
+              "training_observations": 252,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            }
+          ],
+          "minimum_required_engine_files": 399,
+          "maximum_engine_files": 512,
+          "warning": "Preflight checks necessary history, initial-entry turnover and deterministic storage bounds. Net-Sharpe definition, realized drawdown and later turnover still require actual candidate backtesting; eligibility is not guaranteed."
+        },
+        "no_dates_or_windows_changed": true
+      },
+      {
+        "name": "EXPANDING_MONTHLY_INITIAL_1_MANY_FOLDS",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2020-05-01",
+          "evaluation_end_exclusive": "2021-05-01",
+          "window_type": "EXPANDING",
+          "training_window_months": 1,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "plan_status": "PASS",
+        "execution_status": "SUCCESS",
+        "fold_count": 12,
+        "first_blocker_or_failure": null,
+        "run_id": "rr_1247aa5e77ad7b449fcd6cb53aa7e6675c0485423d443c7efc0334408f2d38d2",
+        "attempt_id": "ea_7a385048-d6d1-47dd-9747-e078f39a776a",
+        "rerun_attempt_id": "ea_22de15f6-5cbe-4c6a-903f-47d216ebc732",
+        "metrics": {
+          "annualized_turnover": 11.341497095364357,
+          "annualized_volatility": 0.14885765983303587,
+          "cagr": 0.26308178407299776,
+          "economic_claim": "NONE",
+          "evaluation": {
+            "evaluation_end_exclusive": "2021-05-01",
+            "evaluation_start": "2020-05-01",
+            "fold_count": 12,
+            "rebalance_frequency": "MONTHLY",
+            "training_window_months": 1,
+            "window_type": "EXPANDING"
+          },
+          "final_research_index": 126.30817840729978,
+          "gross_turnover": 11.341497095364357,
+          "max_drawdown": -0.07931432537480732,
+          "mean_beginning_risky_exposure": 0.8549383988568757,
+          "net_sharpe": 1.6441919530255102,
+          "observations": 252,
+          "return_drawdown_ratio": 3.3169516708334843
+        },
+        "hashes": {
+          "financial_result_hash": "76a299fbde8e2b88f88841c06495174efef11f4ae3d89554165f0368b644e257",
+          "passive_control_hash": "26c54028d4fe7b4eba5d815e2490a5f7d0b6a292ffdeec195c82a1879fcc5c36",
+          "matched_beta_control_hash": "002e37e4ae0a939fbfefa208eaf64af290a8604e5b7337f590d231964f5b3df7",
+          "attribution_hash": "ced0c2735aed7c5cc30b11dd6057fbecb103b5e13ac5d2d3c47915a950485c7a"
+        },
+        "reproducibility": "ALL_FOUR_HASHES_AND_TIME_SERIES_IDENTICAL",
+        "actual_file_budget": {
+          "version": "workbench-selection-necessity-1.0.0",
+          "status": "NECESSARY_CONDITIONS_PASSED",
+          "candidate_viability_guaranteed": false,
+          "financial_backtests_executed": 0,
+          "initial_entry_bounds_checked": [
+            {
+              "fold_id": 0,
+              "training_observations": 21,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 1,
+              "training_observations": 41,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 2,
+              "training_observations": 63,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 3,
+              "training_observations": 85,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 4,
+              "training_observations": 106,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 5,
+              "training_observations": 127,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 6,
+              "training_observations": 149,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 7,
+              "training_observations": 169,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 8,
+              "training_observations": 191,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 9,
+              "training_observations": 210,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 10,
+              "training_observations": 229,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 11,
+              "training_observations": 252,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            }
+          ],
+          "minimum_required_engine_files": 267,
+          "maximum_engine_files": 512,
+          "warning": "Preflight checks necessary history, initial-entry turnover and deterministic storage bounds. Net-Sharpe definition, realized drawdown and later turnover still require actual candidate backtesting; eligibility is not guaranteed."
+        },
+        "no_dates_or_windows_changed": true
+      },
+      {
+        "name": "ROLLING_QUARTERLY_SHORT_VALID",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2020-04-01",
+          "evaluation_end_exclusive": "2026-10-01",
+          "window_type": "ROLLING",
+          "training_window_months": 3,
+          "rebalance_frequency": "QUARTERLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "plan_status": "PASS",
+        "execution_status": "SUCCESS",
+        "fold_count": 26,
+        "first_blocker_or_failure": null,
+        "run_id": "rr_9d93250b401a69bf3fcd2de98675271b8a56c1b51d654ac4d49e3c11b8b27dee",
+        "attempt_id": "ea_5df9f0f0-313b-4dab-8560-3022edeafe5d",
+        "rerun_attempt_id": "ea_cf1b60c0-8939-48ee-ae84-699a2e489429",
+        "metrics": {
+          "annualized_turnover": 3.8934716075860885,
+          "annualized_volatility": 0.16891040316738043,
+          "cagr": 0.17238996187707278,
+          "economic_claim": "NONE",
+          "evaluation": {
+            "evaluation_end_exclusive": "2026-10-01",
+            "evaluation_start": "2020-04-01",
+            "fold_count": 26,
+            "rebalance_frequency": "QUARTERLY",
+            "training_window_months": 3,
+            "window_type": "ROLLING"
+          },
+          "final_research_index": 280.28387655010545,
+          "gross_turnover": 25.230314028524138,
+          "max_drawdown": -0.306975289259494,
+          "mean_beginning_risky_exposure": 0.940112666664483,
+          "net_sharpe": 1.0261357322482973,
+          "observations": 1633,
+          "return_drawdown_ratio": 0.5615760222685129
+        },
+        "hashes": {
+          "financial_result_hash": "a8dbb3d480ebcde21742db0b2d33239f8a48a06f9fc1b3736999c0d67ea7331a",
+          "passive_control_hash": "bfd7ad9b717bfa732d65a70dd1e517f780304b97f0f40ae3691b111662256c99",
+          "matched_beta_control_hash": "0f4f8025678449d73b139353a29457f8e20504157df5b802aecea0996399b9b6",
+          "attribution_hash": "be9fb1f0e6baae1a5e526d0f0369dab6b12964ba0f7f48303297ce27afd0751c"
+        },
+        "reproducibility": "ALL_FOUR_HASHES_AND_TIME_SERIES_IDENTICAL",
+        "actual_file_budget": {
+          "version": "workbench-selection-necessity-1.0.0",
+          "status": "NECESSARY_CONDITIONS_PASSED",
+          "candidate_viability_guaranteed": false,
+          "financial_backtests_executed": 0,
+          "initial_entry_bounds_checked": [
+            {
+              "fold_id": 0,
+              "training_observations": 62,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 1,
+              "training_observations": 63,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 2,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 3,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 4,
+              "training_observations": 61,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 5,
+              "training_observations": 63,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 6,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 7,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 8,
+              "training_observations": 62,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 9,
+              "training_observations": 62,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 10,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 11,
+              "training_observations": 63,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 12,
+              "training_observations": 62,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 13,
+              "training_observations": 62,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 14,
+              "training_observations": 63,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 15,
+              "training_observations": 63,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 16,
+              "training_observations": 61,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 17,
+              "training_observations": 63,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 18,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 19,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 20,
+              "training_observations": 60,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 21,
+              "training_observations": 62,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 22,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 23,
+              "training_observations": 64,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 24,
+              "training_observations": 61,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            },
+            {
+              "fold_id": 25,
+              "training_observations": 62,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            }
+          ],
+          "minimum_required_engine_files": 289,
+          "maximum_engine_files": 512,
+          "warning": "Preflight checks necessary history, initial-entry turnover and deterministic storage bounds. Net-Sharpe definition, realized drawdown and later turnover still require actual candidate backtesting; eligibility is not guaranteed."
+        },
+        "no_dates_or_windows_changed": true
+      },
+      {
+        "name": "ROLLING_MONTHLY_VALID_ONE_MONTH",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2020-05-01",
+          "evaluation_end_exclusive": "2020-06-01",
+          "window_type": "ROLLING",
+          "training_window_months": 1,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 1,
+          "selection_cost_bps": 1
+        },
+        "plan_status": "PASS",
+        "execution_status": "SUCCESS",
+        "fold_count": 1,
+        "first_blocker_or_failure": null,
+        "run_id": "rr_062d95a0610d9a20a0830f5e4b9b3a4ce68539231da9eca012cf6b5aeb514e1a",
+        "attempt_id": "ea_c11495b3-d0c9-40c2-8840-5ce0477a741d",
+        "rerun_attempt_id": "ea_6154f54d-cb94-4716-b4be-badf1926bc88",
+        "metrics": {
+          "annualized_turnover": 9.620877330565284,
+          "annualized_volatility": 0.1513743372123942,
+          "cagr": 0.982041465569663,
+          "economic_claim": "NONE",
+          "evaluation": {
+            "evaluation_end_exclusive": "2020-06-01",
+            "evaluation_start": "2020-05-01",
+            "fold_count": 1,
+            "rebalance_frequency": "MONTHLY",
+            "training_window_months": 1,
+            "window_type": "ROLLING"
+          },
+          "final_research_index": 105.57968838721084,
+          "gross_turnover": 0.7635616929020067,
+          "max_drawdown": -0.02866332280913564,
+          "mean_beginning_risky_exposure": 0.6916136285087167,
+          "net_sharpe": 4.597301406101715,
+          "observations": 20,
+          "return_drawdown_ratio": 34.26125687202827
+        },
+        "hashes": {
+          "financial_result_hash": "f9ca6edebe41af4e346811a178d5dc29cd22e4b80038749eaa443c2e8a0023f7",
+          "passive_control_hash": "d1b60dbc3daaad73392da4704dcfb63a26f225313b4ab247ef8ca991f85d9d81",
+          "matched_beta_control_hash": "57a169435258fdbcb005a5695941566f6a5c8042920af5d8b6368a0b781d6c50",
+          "attribution_hash": "04ff198a82c2a8eb90a2401a22877b5287be6c0daae76cdf79bc96f69e5b0951"
+        },
+        "reproducibility": "ALL_FOUR_HASHES_AND_TIME_SERIES_IDENTICAL",
+        "actual_file_budget": {
+          "version": "workbench-selection-necessity-1.0.0",
+          "status": "NECESSARY_CONDITIONS_PASSED",
+          "candidate_viability_guaranteed": false,
+          "financial_backtests_executed": 0,
+          "initial_entry_bounds_checked": [
+            {
+              "fold_id": 0,
+              "training_observations": 21,
+              "necessary_entry_condition": "NOT_PROVEN_INFEASIBLE"
+            }
+          ],
+          "minimum_required_engine_files": 14,
+          "maximum_engine_files": 512,
+          "warning": "Preflight checks necessary history, initial-entry turnover and deterministic storage bounds. Net-Sharpe definition, realized drawdown and later turnover still require actual candidate backtesting; eligibility is not guaranteed."
+        },
+        "no_dates_or_windows_changed": true
+      }
+    ],
+    "prior_unique_v2_cases": [
+      {
+        "origin": "B3A",
+        "run_id": "rr_f9c550b6ac0044b898c81e08c07ba7a7a4d66b541fef1db762e28d2f4d185f95",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-03-01",
+          "window_type": "ROLLING",
+          "training_window_months": 24,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 0,
+          "selection_cost_bps": 2.5
+        },
+        "metrics_exact": true,
+        "dynamic_hash_exact": true,
+        "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_EXPECTATION",
+        "financial_result_hash": "190b29f04830ec2f4274d752e4dd9f6933c675f198a6d791d9cb307af9d71cb5"
+      },
+      {
+        "origin": "B3A",
+        "run_id": "rr_22989c7e60497d39fad73396a46918aa797fdd10e3cb7fe23530f92d3d3ad8fd",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-03-01",
+          "window_type": "ROLLING",
+          "training_window_months": 18,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 0,
+          "selection_cost_bps": 2.5
+        },
+        "metrics_exact": true,
+        "dynamic_hash_exact": true,
+        "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_EXPECTATION",
+        "financial_result_hash": "427f3fdba5f1d74f9f505ae99578d0535af2f9f3ddc85b42ecd12ad7485df69b"
+      },
+      {
+        "origin": "B3A",
+        "run_id": "rr_701e54ae66780ec3abadab1cfb5037aa9a115107cbc10c04b248c0b1a844a50a",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-03-01",
+          "window_type": "EXPANDING",
+          "training_window_months": 24,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 0,
+          "selection_cost_bps": 2.5
+        },
+        "metrics_exact": true,
+        "dynamic_hash_exact": true,
+        "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_EXPECTATION",
+        "financial_result_hash": "a6768b1f05151ce86141afac136bb3499cc6cd9474bf44eb5a5789bdd83a344a"
+      },
+      {
+        "origin": "B3A",
+        "run_id": "rr_1fa974aca0fa123fda8d60142dd823d25ddea9c39c77c355de6cf542d5cf0a12",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-07-01",
+          "window_type": "ROLLING",
+          "training_window_months": 24,
+          "rebalance_frequency": "QUARTERLY",
+          "transaction_cost_bps": 0,
+          "selection_cost_bps": 2.5
+        },
+        "metrics_exact": true,
+        "dynamic_hash_exact": true,
+        "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_EXPECTATION",
+        "financial_result_hash": "c8076d5afd127a87a7d24052462b6be2aa5ffd89b958e784dce2ddd7e06b2f7f"
+      },
+      {
+        "origin": "B3A",
+        "run_id": "rr_9a68474dd642273c79b79669897c3ad12bf9f06ce350bcd2ecb4a2700878650a",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-03-01",
+          "window_type": "ROLLING",
+          "training_window_months": 24,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 7.25,
+          "selection_cost_bps": 2.5
+        },
+        "metrics_exact": true,
+        "dynamic_hash_exact": true,
+        "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_EXPECTATION",
+        "financial_result_hash": "f23ecde2a71ee97a085844bb4653ba6699af5c59b348846aba3634cd43f69eb7"
+      },
+      {
+        "origin": "B3C",
+        "run_id": "rr_f26e92f72035d9d176a1d962b4afa0084d233f2575cf5a02918e9a9fcf0dd5a2",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-03-01",
+          "window_type": "ROLLING",
+          "training_window_months": 24,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 0,
+          "selection_cost_bps": 0
+        },
+        "metrics_exact": true,
+        "dynamic_hash_exact": true,
+        "benchmark_and_attribution_hashes_exact": true,
+        "financial_result_hash": "f5821b8b66511b7a6f82766db6aa8a2421f6d32e84110d3e9e27cdc22824b90d"
+      },
+      {
+        "origin": "B3C",
+        "run_id": "rr_75ad6ee5064fc7b725cba35f7cfc7871df434aefe3343162c108af3fd1d5114c",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-03-01",
+          "window_type": "EXPANDING",
+          "training_window_months": 24,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 0,
+          "selection_cost_bps": 0
+        },
+        "metrics_exact": true,
+        "dynamic_hash_exact": true,
+        "benchmark_and_attribution_hashes_exact": true,
+        "financial_result_hash": "0af55e3f0903134ee283d1ab995729221a097c79764f0c2d22141319b54ecdb1"
+      },
+      {
+        "origin": "B3C",
+        "run_id": "rr_db1eb277d91024d6ed2f7b38331afedb62b5110dcd742cfe9af57af6d3d1d2cc",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-07-01",
+          "window_type": "ROLLING",
+          "training_window_months": 24,
+          "rebalance_frequency": "QUARTERLY",
+          "transaction_cost_bps": 0,
+          "selection_cost_bps": 0
+        },
+        "metrics_exact": true,
+        "dynamic_hash_exact": true,
+        "benchmark_and_attribution_hashes_exact": true,
+        "financial_result_hash": "51da8bc5dae4c7bfb9cf4b425a7f5a4db44c4672cac998884e5db416435a78fa"
+      },
+      {
+        "origin": "B3C",
+        "run_id": "rr_e7bcc313aed10ff04ca78a97871ef03eac83edfa2c76fbb0a2c3aa5c4eadb4c8",
+        "request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-03-01",
+          "window_type": "ROLLING",
+          "training_window_months": 24,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 3.125,
+          "selection_cost_bps": 3.125
+        },
+        "metrics_exact": true,
+        "dynamic_hash_exact": true,
+        "benchmark_and_attribution_hashes_exact": true,
+        "financial_result_hash": "e415f9fb955904c69c05c6d364aa47a17cf3384df2060c3cd74f7e5a06ba4068"
+      }
+    ],
+    "prior_b3b_cases_verified": 4,
+    "synthetic_data_used": false,
+    "economic_claim": "NONE"
+  },
+  "failed_evidence": {
+    "status": "PASS",
+    "retained_before_fix_attempt_id": "ea_889333d1-bac9-4a83-87db-7ada5f15202c",
+    "safe_failure": {
+      "run_id": "rr_d6090eb6bfb1871d00bb33e94ecbf5adc4150a7be3cb008c16ada044c69cb57e",
+      "execution_attempt_id": "ea_889333d1-bac9-4a83-87db-7ada5f15202c",
+      "source": "SUBMIT",
+      "requested_at": "2026-10-21T07:56:31.208Z",
+      "status": "FAILED",
+      "stage": "EMPIRICAL_EXECUTION",
+      "started_at": "2026-10-21T07:56:31.211Z",
+      "completed_at": "2026-10-21T07:56:56.746Z",
+      "error_class": "NO_VALID_CANDIDATE",
+      "error_message": "All exposure policies were rejected in fold 0 by the configured research constraints.",
+      "blocker": null,
+      "runtime_diagnostic_reference": "runs/rr_d6090eb6bfb1871d00bb33e94ecbf5adc4150a7be3cb008c16ada044c69cb57e/attempts/ea_889333d1-bac9-4a83-87db-7ada5f15202c/diagnostic.json",
+      "failed_stage": "CANDIDATE_SELECTION",
+      "failed_fold_id": 0,
+      "failed_decision_date": "2019-10-01",
+      "safe_message": "All exposure policies were rejected in fold 0 by the configured research constraints.",
+      "actionable_explanation": "The 20-observation training interval produced defined net-Sharpe scores, but none passed the fixed constraints. Candidate-level constraint breaches are recorded below.",
+      "suggested_user_action": "Review the rejected constraint and training sample, then preview a revised design. No dates, training window, model, policies or constraints were changed automatically.",
+      "diagnostic_reference": "runs/rr_d6090eb6bfb1871d00bb33e94ecbf5adc4150a7be3cb008c16ada044c69cb57e/attempts/ea_889333d1-bac9-4a83-87db-7ada5f15202c/failure-diagnostic-v1.json",
+      "failure_diagnostic": {
+        "actionable_explanation": "The 20-observation training interval produced defined net-Sharpe scores, but none passed the fixed constraints. Candidate-level constraint breaches are recorded below.",
+        "candidates": [
+          {
+            "annualized_turnover": 10.079193664506839,
+            "average_exposure": 0.7224118797585678,
+            "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+            "constraint_status": "CONSTRAINT_REJECTED",
+            "exposure_policy": "cash_band",
+            "maximum_drawdown": -0.012075598466132154,
+            "parameters": {
+              "cash_max": 0.2,
+              "cash_min": 0.2
+            },
+            "selection_metric_value": 2.3776965280032205,
+            "training_observations": 20,
+            "validity_status": "VALID",
+            "violated_constraints": [
+              "MAXIMUM_ANNUALIZED_TURNOVER"
+            ]
+          },
+          {
+            "annualized_turnover": 8.684581371806042,
+            "average_exposure": 0.623605203968968,
+            "candidate_id": "c_8332586a96d72c52828a005e",
+            "constraint_status": "CONSTRAINT_REJECTED",
+            "exposure_policy": "cash_band",
+            "maximum_drawdown": -0.010432562389939504,
+            "parameters": {
+              "cash_max": 0.4,
+              "cash_min": 0.2
+            },
+            "selection_metric_value": 2.3729319991751243,
+            "training_observations": 20,
+            "validity_status": "VALID",
+            "violated_constraints": [
+              "MAXIMUM_ANNUALIZED_TURNOVER"
+            ]
+          },
+          {
+            "annualized_turnover": 9.247091309733321,
+            "average_exposure": 0.6635022159897473,
+            "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+            "constraint_status": "CONSTRAINT_REJECTED",
+            "exposure_policy": "cash_band",
+            "maximum_drawdown": -0.011096328533715893,
+            "parameters": {
+              "cash_max": 0.4,
+              "cash_min": 0.1
+            },
+            "selection_metric_value": 2.374855855835758,
+            "training_observations": 20,
+            "validity_status": "VALID",
+            "violated_constraints": [
+              "MAXIMUM_ANNUALIZED_TURNOVER"
+            ]
+          },
+          {
+            "annualized_turnover": 12.598740125987401,
+            "average_exposure": 0.9,
+            "candidate_id": "c_aa16f813288e415fae34648c",
+            "constraint_status": "CONSTRAINT_REJECTED",
+            "exposure_policy": "constant",
+            "maximum_drawdown": -0.015021853050214196,
+            "parameters": {
+              "risk": 1
+            },
+            "selection_metric_value": 2.3862600278625368,
+            "training_observations": 20,
+            "validity_status": "VALID",
+            "violated_constraints": [
+              "MAXIMUM_ANNUALIZED_TURNOVER"
+            ]
+          },
+          {
+            "annualized_turnover": 10.641691149557053,
+            "average_exposure": 0.7621613082046566,
+            "candidate_id": "c_e028713b249e51fa3843d778",
+            "constraint_status": "CONSTRAINT_REJECTED",
+            "exposure_policy": "cash_band",
+            "maximum_drawdown": -0.012735817868148813,
+            "parameters": {
+              "cash_max": 0.2,
+              "cash_min": 0.1
+            },
+            "selection_metric_value": 2.3796132854607124,
+            "training_observations": 20,
+            "validity_status": "VALID",
+            "violated_constraints": [
+              "MAXIMUM_ANNUALIZED_TURNOVER"
+            ]
+          }
+        ],
+        "contract_version": "workbench-failure-diagnostic-1.0.0",
+        "diagnostic_reference": "runs/rr_d6090eb6bfb1871d00bb33e94ecbf5adc4150a7be3cb008c16ada044c69cb57e/attempts/ea_889333d1-bac9-4a83-87db-7ada5f15202c/failure-diagnostic-v1.json",
+        "error_class": "NO_VALID_CANDIDATE",
+        "evidence_sha256": {
+          "diagnostic.json": "483c9cbcd45c863bd91307ae908f7ba62e833568f9d3df8fdc0d5c3cb061fe30",
+          "engine/jobs/c_69fa5817ae0c57dc27fa7fea/outer-0/inner-train/scenario-1.json": "bcb0a08db5958d924151101a49c0103ea2840b74199c9dbb0bd1ad4956a1aacc",
+          "engine/jobs/c_8332586a96d72c52828a005e/outer-0/inner-train/scenario-1.json": "2034a205691c5711908336bbb7754ad4d134158c679dd825487a93a5d70f2cd1",
+          "engine/jobs/c_8bd28f4f8b5e8e7d2077e17c/outer-0/inner-train/scenario-1.json": "566b06d32d54e1d72ecea8c3c4cc856f385123657aa58849970f251a08778360",
+          "engine/jobs/c_aa16f813288e415fae34648c/outer-0/inner-train/scenario-1.json": "1ea3008e1a169b0daac9529aeaeea21407e399113d173f106fd5dfe2caa0ef9b",
+          "engine/jobs/c_e028713b249e51fa3843d778/outer-0/inner-train/scenario-1.json": "378702d61d8d2e0b15e332c47ae39056a3a800de353a93b9c5a277300a20d5a9",
+          "engine/summary.json": "05174463eb1b41f264d5c9627d9cde0d78409980abc5170ef1fe67813e5979bf"
+        },
+        "failed_decision_date": "2019-10-01",
+        "failed_fold_id": 0,
+        "failed_stage": "CANDIDATE_SELECTION",
+        "private_content_exposed": false,
+        "private_diagnostic_reference": "runs/rr_d6090eb6bfb1871d00bb33e94ecbf5adc4150a7be3cb008c16ada044c69cb57e/attempts/ea_889333d1-bac9-4a83-87db-7ada5f15202c/diagnostic.json",
+        "safe_message": "All exposure policies were rejected in fold 0 by the configured research constraints.",
+        "suggested_user_action": "Review the rejected constraint and training sample, then preview a revised design. No dates, training window, model, policies or constraints were changed automatically."
+      }
+    },
+    "private_diagnostic_still_present": true,
+    "private_diagnostic_sha256_unchanged": true,
+    "original_attempt_files_byte_identical": true,
+    "original_attempt_files": 737,
+    "new_append_only_files": [],
+    "rerun_blocked_before_new_attempt": true,
+    "unauthorized_status": 401,
+    "raw_diagnostic_endpoint_status": 404,
+    "absolute_paths_and_stacks_exposed": false
+  }
+}

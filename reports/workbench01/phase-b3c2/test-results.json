@@ -1,0 +1,97 @@
+{
+  "status": "PASS",
+  "runtime": {
+    "node": "v24.19.0",
+    "python": "3.12.14",
+    "os": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "dependency_installation": "Existing frozen workspace dependencies; no install, package upgrade or lockfile change"
+  },
+  "suites": {
+    "full_backend_workbench_suite": {
+      "tests": 55,
+      "pass": 55,
+      "fail": 0,
+      "skipped": 0,
+      "duration_ms": 600049.686269,
+      "log_file": "full_backend_workbench_suite.log",
+      "log_sha256": "94b39982e69c57f36806361d34d62c3c713ff60a1dc9f113644ce263c2bf6694"
+    },
+    "final_backend_regression_suite": {
+      "tests": 57,
+      "pass": 52,
+      "fail": 0,
+      "skipped": 5,
+      "duration_ms": 6535.85982,
+      "log_file": "final_backend_regression_suite.log",
+      "log_sha256": "580568efc90d6fd51ecc4b79164d5b4a96d8f51b6bf7584249bd298381c162d0"
+    },
+    "isolated_unchanged_b3c1_suite": {
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "duration_ms": 425417.971585,
+      "log_file": "isolated_unchanged_b3c1_suite.log",
+      "log_sha256": "6ae47ba3dbb1b1cff82cb5655e0da909ad1fac3cf2547ad25df602ed24662775"
+    },
+    "frontend_workbench_suite": {
+      "tests": 31,
+      "pass": 31,
+      "fail": 0,
+      "skipped": 0,
+      "duration_ms": 299.262316,
+      "log_file": "frontend_workbench_suite.log",
+      "log_sha256": "a6783033fa67db8a23c639ef2d494a6a7c62fda99e463705288bac8a82889796"
+    }
+  },
+  "five_final_fast_suite_skips": "These existing gated empirical cases passed in the full backend suite with all empirical flags enabled. They were not redundantly rerun in the final fast pass. The two added preservation/comparison tests and updated high-recurring known answer passed in the final suite.",
+  "unchanged_historical_test_report_writes": "B3C.1 integration was executed unchanged in a physically separate runtime tree; originals preserved.",
+  "typechecks": {
+    "backend": "PASS",
+    "frontend": "PASS",
+    "new_research_modules": "PASS",
+    "research_command": "node_modules/.bin/tsc -p research/workbench/tsconfig.json --noEmit"
+  },
+  "production_builds": {
+    "backend": "PASS",
+    "frontend": "PASS",
+    "warnings": "Existing frontend sourcemap notices and >500 kB chunk notice; build succeeds"
+  },
+  "empirical_acceptance": "PASS; four recurring designs plus reruns, nine legacy calendar specifications, exact legacy 0/5 fixtures, capacity-independent repeat and cross-method comparison",
+  "operational_acceptance": {
+    "status": "PASS",
+    "startup_rejections": 4,
+    "resource_block_no_attempt": true,
+    "bounded_failure_private_evidence_and_explicit_rerun": true,
+    "actual_frontend_failure_schema": "PASS"
+  },
+  "pit_checks": "PASS, strict historical cutoffs and prior-OOS reuse; data vintages remain unverified",
+  "chromium": {
+    "status": "PASS",
+    "version": "154.0.8037.57",
+    "widths": [
+      360,
+      390,
+      430,
+      768,
+      1440
+    ],
+    "screenshots": 38,
+    "physical_android_tested": false
+  },
+  "git_diff_check": "PASS",
+  "economic_claim": "NONE",
+  "source_version_refresh": "Type-only corrections produced identical server/worker JavaScript. Current V2 evidence was refreshed; baseline POST reuse and fresh explicit reruns are reported per case. Legacy executions were freshly verified earlier in this phase and are not misrepresented as new when reused.",
+  "empirical_attempts_browser": {
+    "ordinary_v2": 9,
+    "explicit_legacy_compare": 1
+  },
+  "high_recurring_fixture": {
+    "execution_scope": "SYNTHETIC_TEST",
+    "annualized_recurring_turnover": 20.160000000000004,
+    "limit": 8,
+    "candidate_rejected": true,
+    "is_not_empirical_execution_evidence": true
+  },
+  "final_status": "ALL_ACCEPTANCE_CHECKS_PASSED"
+}

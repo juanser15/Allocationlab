@@ -11,6 +11,7 @@ const diagnostic = z
 export const exposureModelSchema = z
   .object({
     name: z.string(),
+    turnover_rule: z.string().optional(),
     decision: z.string(),
     information_window_observations: z.number().int().positive(),
     policy_selection: z.string(),
@@ -144,6 +145,8 @@ export const attributionFields = {
             average_oos_spy_exposure: numeric,
             average_oos_cash: numeric,
             realized_turnover: numeric,
+            training_turnover: z.object({ initial_implementation_turnover: numeric, recurring_gross_turnover: numeric, total_gross_turnover: numeric, annualized_recurring_turnover: numeric, annualized_total_turnover: numeric, turnover_constraint_limit: numeric, turnover_constraint_methodology_version: z.string(), turnover_constraint_metric: z.string(), turnover_constraint_status: z.string() }).passthrough().optional(),
+            oos_turnover: z.object({ initial_implementation_turnover: numeric, recurring_gross_turnover: numeric, total_gross_turnover: numeric }).optional(),
             realized_simulated_cost: numeric,
             oos_observations: numeric,
             audit: z.object({

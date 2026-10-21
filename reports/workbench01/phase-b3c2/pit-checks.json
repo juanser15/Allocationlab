@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "actual_historical_data": true,
+  "fit_contexts_checked": 38,
+  "prediction_contexts_checked": 38,
+  "first_fold_uses_no_own_oos_for_fit": true,
+  "second_fold_can_use_prior_oos": true,
+  "post_cutoff_mutation_start": "2022-02-01",
+  "unchanged_historical_selections": true,
+  "unchanged_fit_artifacts": 38,
+  "model": "STATELESS_PRODUCTION_REGIME",
+  "data_vintage_label": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED"
+}

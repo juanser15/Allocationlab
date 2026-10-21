@@ -23,6 +23,11 @@ const pct = (v: number) =>
   }).format(v);
 const show = (v: unknown, percent = false): ReactNode =>
   typeof v === "number" ? (percent ? pct(v) : number(v, 6)) : "NOT_SUPPORTED";
+export function RecurringTurnoverWarning({ warnings }: { warnings: string[] }) {
+  return warnings.includes("NO_RECURRING_REBALANCE_OBSERVED") ? <p className="wd-notice ce-turnover-warning">
+    At least one selected training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative there. This does not establish low turnover.
+  </p> : null;
+}
 function Diagnostic({
   d,
   percent = false,
@@ -54,9 +59,9 @@ export function CapitalModelSummary({ model }: { model: ExposureModel }) {
             "Information window",
             `${model.information_window_observations} historical observations`,
           ],
-          ["Policy selection", model.policy_selection],
+          ["Selection", model.policy_selection],
           ["Recalibration", model.recalibration],
-          ["Output", model.output],
+          ["Turnover rule", model.turnover_rule ?? "Total turnover constraint including initial implementation (legacy V1)"],
         ].map(([k, v]) => (
           <div key={k}>
             <dt>{k}</dt>
@@ -67,6 +72,7 @@ export function CapitalModelSummary({ model }: { model: ExposureModel }) {
       <p className="ce-model-limitation">{model.limitation}</p>
       <details>
         <summary>How the exposure rule works</summary>
+        <p>Output: {model.output}</p>
         <ol>
           <li>The system computes a regime score from historical prices.</li>
           <li>The selected policy maps that score to a SPY/cash exposure.</li>
@@ -369,6 +375,13 @@ export function CapitalExposureResults({ result: r }: { result: ResultV2 }) {
   return (
     <div className="ce-results">
       <h3>Risk, upside and timing</h3>
+      <RecurringTurnoverWarning warnings={r.warnings} />
+      {typeof r.metrics !== "string" && <dl className="ce-turnover-summary">
+        <div><dt>Recurring turnover</dt><dd>{show(r.turnover?.oos.recurring_gross_turnover)}</dd></div>
+        <div><dt>Total turnover</dt><dd>{show(r.turnover?.oos.total_gross_turnover)}</dd></div>
+        <div><dt>Initial implementation</dt><dd>{show(r.turnover?.oos.initial_implementation_turnover)}</dd></div>
+      </dl>}
+      <p>Turnover is actual traded notional divided by pre-cost NAV. Each independent fold pays its own implementation cost; that entry is excluded only from the recurring eligibility measure.</p>
       <p>
         Compare drawdown and volatility for risk, capture ratios for market
         participation, and the beta-matched residual for timing. These are
@@ -509,7 +522,9 @@ export function CapitalExposureResults({ result: r }: { result: ResultV2 }) {
                   "Training net Sharpe",
                   "Average SPY",
                   "Average cash",
-                  "Turnover",
+                  "Recurring turnover",
+                  "Total turnover",
+                  "Initial implementation",
                   "Simulated cost",
                   "Audit",
                 ].map((h) => (
@@ -542,12 +557,24 @@ export function CapitalExposureResults({ result: r }: { result: ResultV2 }) {
                   <td>{show(p.training_net_sharpe)}</td>
                   <td>{pct(p.average_oos_spy_exposure)}</td>
                   <td>{pct(p.average_oos_cash)}</td>
-                  <td>{show(p.realized_turnover)}</td>
+                  <td>{show(p.oos_turnover?.recurring_gross_turnover)}</td>
+                  <td>{show(p.oos_turnover?.total_gross_turnover ?? p.realized_turnover)}</td>
+                  <td>{show(p.oos_turnover?.initial_implementation_turnover)}</td>
                   <td>{show(p.realized_simulated_cost)}</td>
                   <td>
                     <details className="workbench-inline-audit">
                       <summary>Advanced</summary>
                       <p>Information cutoff: {p.information_cutoff}</p>
+                      {p.training_turnover && <dl>
+                        <div><dt>Training initial implementation</dt><dd>{show(p.training_turnover.initial_implementation_turnover)}</dd></div>
+                        <div><dt>Training recurring turnover</dt><dd>{show(p.training_turnover.recurring_gross_turnover)}</dd></div>
+                        <div><dt>Training total turnover</dt><dd>{show(p.training_turnover.total_gross_turnover)}</dd></div>
+                        <div><dt>Annualized recurring turnover</dt><dd>{show(p.training_turnover.annualized_recurring_turnover)}</dd></div>
+                        <div><dt>Annualized total turnover</dt><dd>{show(p.training_turnover.annualized_total_turnover)}</dd></div>
+                        <div><dt>Constraint measure</dt><dd>{p.training_turnover.turnover_constraint_metric}</dd></div>
+                        <div><dt>Constraint limit</dt><dd>{show(p.training_turnover.turnover_constraint_limit)}</dd></div>
+                        <div><dt>Methodology</dt><dd>{p.training_turnover.turnover_constraint_methodology_version}</dd></div>
+                      </dl>}
                       <code>{p.audit.candidate_id}</code>
                       {p.audit.fit_keys.map((k) => (
                         <code key={k}>{k}</code>
@@ -588,7 +615,7 @@ export function CapitalExposureResults({ result: r }: { result: ResultV2 }) {
               <Diagnostic d={v.capital_efficiency.cagr_per_average_beta} />
             ),
           ],
-          ["Gross turnover", (v) => show(v.gross_turnover)],
+          ["Total gross turnover", (v) => show(v.gross_turnover)],
           ["Realized simulated cost", (v) => show(v.realized_simulated_cost)],
         ]}
       />

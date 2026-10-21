@@ -1,0 +1,200 @@
+{
+  "status": "PASS",
+  "source": "Fresh production-API execution in this phase, before type-only corrections to new V2 source; every legacy financial file and generated executable remains identical.",
+  "legacy_runs": [
+    {
+      "run_id": "rr_f9c550b6ac0044b898c81e08c07ba7a7a4d66b541fef1db762e28d2f4d185f95",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 2.5
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_HASH",
+      "financial_result_hash": "190b29f04830ec2f4274d752e4dd9f6933c675f198a6d791d9cb307af9d71cb5"
+    },
+    {
+      "run_id": "rr_22989c7e60497d39fad73396a46918aa797fdd10e3cb7fe23530f92d3d3ad8fd",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 18,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 2.5
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_HASH",
+      "financial_result_hash": "427f3fdba5f1d74f9f505ae99578d0535af2f9f3ddc85b42ecd12ad7485df69b"
+    },
+    {
+      "run_id": "rr_701e54ae66780ec3abadab1cfb5037aa9a115107cbc10c04b248c0b1a844a50a",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "EXPANDING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 2.5
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_HASH",
+      "financial_result_hash": "a6768b1f05151ce86141afac136bb3499cc6cd9474bf44eb5a5789bdd83a344a"
+    },
+    {
+      "run_id": "rr_1fa974aca0fa123fda8d60142dd823d25ddea9c39c77c355de6cf542d5cf0a12",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-07-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "QUARTERLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 2.5
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_HASH",
+      "financial_result_hash": "c8076d5afd127a87a7d24052462b6be2aa5ffd89b958e784dce2ddd7e06b2f7f"
+    },
+    {
+      "run_id": "rr_9a68474dd642273c79b79669897c3ad12bf9f06ce350bcd2ecb4a2700878650a",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 7.25,
+        "selection_cost_bps": 2.5
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_HASH",
+      "financial_result_hash": "f23ecde2a71ee97a085844bb4653ba6699af5c59b348846aba3634cd43f69eb7"
+    },
+    {
+      "run_id": "rr_f26e92f72035d9d176a1d962b4afa0084d233f2575cf5a02918e9a9fcf0dd5a2",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 0
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": true,
+      "financial_result_hash": "f5821b8b66511b7a6f82766db6aa8a2421f6d32e84110d3e9e27cdc22824b90d"
+    },
+    {
+      "run_id": "rr_75ad6ee5064fc7b725cba35f7cfc7871df434aefe3343162c108af3fd1d5114c",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "EXPANDING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 0
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": true,
+      "financial_result_hash": "0af55e3f0903134ee283d1ab995729221a097c79764f0c2d22141319b54ecdb1"
+    },
+    {
+      "run_id": "rr_db1eb277d91024d6ed2f7b38331afedb62b5110dcd742cfe9af57af6d3d1d2cc",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-07-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "QUARTERLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 0
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": true,
+      "financial_result_hash": "51da8bc5dae4c7bfb9cf4b425a7f5a4db44c4672cac998884e5db416435a78fa"
+    },
+    {
+      "run_id": "rr_e7bcc313aed10ff04ca78a97871ef03eac83edfa2c76fbb0a2c3aa5c4eadb4c8",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 3.125,
+        "selection_cost_bps": 3.125
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": true,
+      "financial_result_hash": "e415f9fb955904c69c05c6d364aa47a17cf3384df2060c3cd74f7e5a06ba4068"
+    },
+    {
+      "B3C1_failed_attempt_files": 737,
+      "byte_identical": true
+    }
+  ],
+  "legacy_body_source_unchanged": true
+}

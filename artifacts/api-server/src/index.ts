@@ -1,7 +1,11 @@
+import { readExecutionCapacity } from "./lib/workbench/execution-capacity";
 import app from "./app";
 import { pool } from "@workspace/db";
 import { logger } from "./lib/logger";
 import { startValidationJobSupervisor } from "./lib/validation-job-supervisor";
+
+// Fail closed before listening; only variable names, never values, are reported.
+readExecutionCapacity();
 
 const rawPort = process.env["PORT"];
 

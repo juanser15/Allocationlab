@@ -1,0 +1,894 @@
+{
+  "status": "PASS",
+  "matrix": [
+    {
+      "case": "A_LEGACY_84",
+      "status": "PRE_RUN_BLOCKED",
+      "reason": "NO_VALID_CANDIDATE"
+    },
+    {
+      "case": "B_RECURRING_84",
+      "status": "PRE_RUN_BLOCKED",
+      "reason": "INTERACTIVE_EXECUTION_CAPACITY_EXCEEDED"
+    },
+    {
+      "case": "C_ONE_MONTH_SINGLE_FOLD",
+      "status": "SUCCESS",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.1.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2019-10-01",
+        "evaluation_end_exclusive": "2019-11-01",
+        "window_type": "ROLLING",
+        "training_window_months": 1,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 1,
+        "selection_cost_bps": 1,
+        "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2"
+      },
+      "run_id": "rr_24dfa6a8761bdc766c86c2d30bcaff7a3ce955cca0ac99dc43a052b76372e64e",
+      "attempt_id": "ea_ffd97e3e-58cc-4442-a401-7f0712b73a0e",
+      "baseline_submission_reused": true,
+      "rerun_attempt_id": "ea_f1227da3-dd80-400d-a230-a8070f246db2",
+      "rerun_created_fresh_engine_attempt": true,
+      "fold_count": 1,
+      "metrics": {
+        "annualized_turnover": 10.955426196510784,
+        "annualized_volatility": 0.10142232515642542,
+        "cagr": 0.7591605920953635,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2019-11-01",
+          "evaluation_start": "2019-10-01",
+          "fold_count": 1,
+          "rebalance_frequency": "MONTHLY",
+          "training_window_months": 1,
+          "window_type": "ROLLING"
+        },
+        "final_research_index": 105.29045269048642,
+        "gross_turnover": 0.9999000099990002,
+        "max_drawdown": -0.019772336526219236,
+        "mean_beginning_risky_exposure": 0.9130434782608695,
+        "net_sharpe": 5.623924305290708,
+        "observations": 23,
+        "return_drawdown_ratio": 38.395087555215014,
+        "initial_implementation_turnover": 0.9999000099990002,
+        "recurring_gross_turnover": 0,
+        "total_gross_turnover": 0.9999000099990002,
+        "initial_implementation_cost": 0.009999000099990002,
+        "recurring_simulated_cost": 0,
+        "realized_simulated_cost": 0.009999000099990002,
+        "annualized_total_turnover": 10.955426196510784,
+        "annualized_recurring_turnover": 0,
+        "annualization_observations": 23,
+        "meaning": "Sum of independent OOS fold books: each fold has its own costed implementation; annualization uses the full aligned OOS observation count."
+      },
+      "costs": {
+        "cost_basis": "actual absolute traded notional",
+        "gross_and_net_distinction": "Net returns include fees charged on actual absolute traded notional.",
+        "realized_transaction_cost": 0.009999000099990002,
+        "selection_cost_bps": 1,
+        "selection_cost_meaning": "Training candidate ranking scenario",
+        "slippage_bps": 0,
+        "transaction_cost_bps": 1,
+        "transaction_cost_meaning": "Selected-candidate OOS evaluation fee"
+      },
+      "hashes": {
+        "financial_result_hash": "2722a50c873adf7fa88af41a43cf9ecb99a4ee4eee37015e0ae2f697f887213e",
+        "passive_control_hash": "accde1792428c100eb998fbd8530fe2662c149ad6a1256500ac539da1b923e42",
+        "matched_beta_control_hash": "79d84044347d4497d862585621d9237cae7c3ddcab2c644ce0a7362ff23b6d2c",
+        "attribution_hash": "ef217ecf5800332eeabae0ca424d4e18c1871e96c10d406307599ca2eb9fe5ce"
+      },
+      "all_hashes_reproduce": true,
+      "exact_fold_plan": true
+    },
+    {
+      "case": "D_RECURRING_MULTI_FOLD",
+      "status": "SUCCESS",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.1.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-05-01",
+        "window_type": "ROLLING",
+        "training_window_months": 6,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 1,
+        "selection_cost_bps": 1,
+        "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2"
+      },
+      "run_id": "rr_2bcd6561842d388740af8dee947e2db561d6109c124db227caba705ccfd0b3d6",
+      "attempt_id": "ea_a21ddec0-7be1-42eb-bdbc-a48def98c44e",
+      "baseline_submission_reused": true,
+      "rerun_attempt_id": "ea_c645b590-fc82-4396-a3e2-640b87ad3928",
+      "rerun_created_fresh_engine_attempt": true,
+      "fold_count": 4,
+      "metrics": {
+        "annualized_turnover": 10.44788319987998,
+        "annualized_volatility": 0.18784693141005593,
+        "cagr": -0.3895087631490677,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2022-05-01",
+          "evaluation_start": "2022-01-01",
+          "fold_count": 4,
+          "rebalance_frequency": "MONTHLY",
+          "training_window_months": 6,
+          "window_type": "ROLLING"
+        },
+        "final_research_index": 85.16492500485298,
+        "gross_turnover": 3.3997080253577714,
+        "max_drawdown": -0.14835074995147024,
+        "mean_beginning_risky_exposure": 0.7629828147910739,
+        "net_sharpe": -2.5313976015777357,
+        "observations": 82,
+        "return_drawdown_ratio": -2.625593488920596,
+        "initial_implementation_turnover": 3.3997080253577714,
+        "recurring_gross_turnover": 0,
+        "total_gross_turnover": 3.3997080253577714,
+        "initial_implementation_cost": 0.03399708025357771,
+        "recurring_simulated_cost": 0,
+        "realized_simulated_cost": 0.03399708025357771,
+        "annualized_total_turnover": 10.44788319987998,
+        "annualized_recurring_turnover": 0,
+        "annualization_observations": 82,
+        "meaning": "Sum of independent OOS fold books: each fold has its own costed implementation; annualization uses the full aligned OOS observation count."
+      },
+      "costs": {
+        "cost_basis": "actual absolute traded notional",
+        "gross_and_net_distinction": "Net returns include fees charged on actual absolute traded notional.",
+        "realized_transaction_cost": 0.03399708025357771,
+        "selection_cost_bps": 1,
+        "selection_cost_meaning": "Training candidate ranking scenario",
+        "slippage_bps": 0,
+        "transaction_cost_bps": 1,
+        "transaction_cost_meaning": "Selected-candidate OOS evaluation fee"
+      },
+      "hashes": {
+        "financial_result_hash": "66b79a1917030c61924339611611e7cb698b226e4e569b445672ff2050c3438e",
+        "passive_control_hash": "65180ffe8295138423ca88e6b173ac47af8d86ed07ebd7b1de170e0904b34ba5",
+        "matched_beta_control_hash": "f0c634f99bc907690dbeac6b8f2b3b3820ee8b6eb47e822af1e958ed5f61e7f6",
+        "attribution_hash": "5c2dcfeb1f0bfef65fb631c8228e6253276e75ffaae6a43335ca9f5f73973015"
+      },
+      "all_hashes_reproduce": true,
+      "exact_fold_plan": true
+    },
+    {
+      "case": "EXPANDING_SHORT_INITIAL",
+      "status": "SUCCESS",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.1.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2020-05-01",
+        "evaluation_end_exclusive": "2020-09-01",
+        "window_type": "EXPANDING",
+        "training_window_months": 1,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 1,
+        "selection_cost_bps": 1,
+        "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2"
+      },
+      "run_id": "rr_c3c760a6930ea535374a5af7f02d8f62d51ac5eda75c6164f84264127b22e624",
+      "attempt_id": "ea_06e9a9a6-9eb5-480e-81a4-72e4e5aaa457",
+      "baseline_submission_reused": true,
+      "rerun_attempt_id": "ea_879a5d5b-17b3-416c-9c5d-d6966135d89f",
+      "rerun_created_fresh_engine_attempt": true,
+      "fold_count": 4,
+      "metrics": {
+        "annualized_turnover": 11.190845541521622,
+        "annualized_volatility": 0.1654474074364165,
+        "cagr": 0.6839891865048997,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2020-09-01",
+          "evaluation_start": "2020-05-01",
+          "fold_count": 4,
+          "rebalance_frequency": "MONTHLY",
+          "training_window_months": 1,
+          "window_type": "EXPANDING"
+        },
+        "final_research_index": 119.21876115954039,
+        "gross_turnover": 3.7746899644021346,
+        "max_drawdown": -0.05474812831077058,
+        "mean_beginning_risky_exposure": 0.853320025679091,
+        "net_sharpe": 3.2355140705953493,
+        "observations": 85,
+        "return_drawdown_ratio": 12.493380278177268,
+        "initial_implementation_turnover": 3.7746899644021346,
+        "recurring_gross_turnover": 0,
+        "total_gross_turnover": 3.7746899644021346,
+        "initial_implementation_cost": 0.03774689964402135,
+        "recurring_simulated_cost": 0,
+        "realized_simulated_cost": 0.03774689964402135,
+        "annualized_total_turnover": 11.190845541521622,
+        "annualized_recurring_turnover": 0,
+        "annualization_observations": 85,
+        "meaning": "Sum of independent OOS fold books: each fold has its own costed implementation; annualization uses the full aligned OOS observation count."
+      },
+      "costs": {
+        "cost_basis": "actual absolute traded notional",
+        "gross_and_net_distinction": "Net returns include fees charged on actual absolute traded notional.",
+        "realized_transaction_cost": 0.03774689964402135,
+        "selection_cost_bps": 1,
+        "selection_cost_meaning": "Training candidate ranking scenario",
+        "slippage_bps": 0,
+        "transaction_cost_bps": 1,
+        "transaction_cost_meaning": "Selected-candidate OOS evaluation fee"
+      },
+      "hashes": {
+        "financial_result_hash": "3179bdcd9bd20e2aa3b5709aacc46d5a91f7b3b8101ce3d1753098daa411e0b0",
+        "passive_control_hash": "67a52ca4448c95269dad2a33519bd828ad53955a2e53d98ca3afd166727ad5f6",
+        "matched_beta_control_hash": "0a966af6740f9233bbba2d3a14d2d43318ab480a07a89a2bb6bfedf428e51215",
+        "attribution_hash": "0c22f2452291fb606cad81d04a71ca9bd29c75162a58aeeaff02df67ae5ae09a"
+      },
+      "all_hashes_reproduce": true,
+      "exact_fold_plan": true
+    },
+    {
+      "case": "QUARTERLY",
+      "status": "SUCCESS",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.1.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-07-01",
+        "window_type": "ROLLING",
+        "training_window_months": 6,
+        "rebalance_frequency": "QUARTERLY",
+        "transaction_cost_bps": 1,
+        "selection_cost_bps": 1,
+        "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2"
+      },
+      "run_id": "rr_5574e61f73d4e7f8f91a38f369b6e68ee643918408978c6025c3779051fb5932",
+      "attempt_id": "ea_cba1f24e-1071-4b43-8a7e-70b66a56a438",
+      "baseline_submission_reused": true,
+      "rerun_attempt_id": "ea_ba2ae48d-efb7-4e45-b3b9-5358dfe8ea66",
+      "rerun_created_fresh_engine_attempt": true,
+      "fold_count": 2,
+      "metrics": {
+        "annualized_turnover": 3.6577312565313296,
+        "annualized_volatility": 0.21787869552592556,
+        "cagr": -0.3334219894629207,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2022-07-01",
+          "evaluation_start": "2022-01-01",
+          "fold_count": 2,
+          "rebalance_frequency": "QUARTERLY",
+          "training_window_months": 6,
+          "window_type": "ROLLING"
+        },
+        "final_research_index": 81.90746774533635,
+        "gross_turnover": 1.7998360151185906,
+        "max_drawdown": -0.2012403778234403,
+        "mean_beginning_risky_exposure": 0.8620557316906284,
+        "net_sharpe": -1.7517839443828318,
+        "observations": 124,
+        "return_drawdown_ratio": -1.6568344438085427,
+        "initial_implementation_turnover": 1.7998360151185906,
+        "recurring_gross_turnover": 0,
+        "total_gross_turnover": 1.7998360151185906,
+        "initial_implementation_cost": 0.017998360151185906,
+        "recurring_simulated_cost": 0,
+        "realized_simulated_cost": 0.017998360151185906,
+        "annualized_total_turnover": 3.6577312565313296,
+        "annualized_recurring_turnover": 0,
+        "annualization_observations": 124,
+        "meaning": "Sum of independent OOS fold books: each fold has its own costed implementation; annualization uses the full aligned OOS observation count."
+      },
+      "costs": {
+        "cost_basis": "actual absolute traded notional",
+        "gross_and_net_distinction": "Net returns include fees charged on actual absolute traded notional.",
+        "realized_transaction_cost": 0.017998360151185906,
+        "selection_cost_bps": 1,
+        "selection_cost_meaning": "Training candidate ranking scenario",
+        "slippage_bps": 0,
+        "transaction_cost_bps": 1,
+        "transaction_cost_meaning": "Selected-candidate OOS evaluation fee"
+      },
+      "hashes": {
+        "financial_result_hash": "a96869dbf8cec9962c29d46066a036ecf6c57d91bd35dc1efcde62e7d426c8a5",
+        "passive_control_hash": "1eaf0f0d3e76fd13ccbd91f4d38071791f720a657a471539abd2faca7a3170ce",
+        "matched_beta_control_hash": "7ddf07463df0754b5328fc6f338a0caf5dfff1146721ded5903264c4f843fd3e",
+        "attribution_hash": "bee4522c5769f0b9da30c145c9aa438d8211aabe1d9eafd3ddf80e85a7ca7224"
+      },
+      "all_hashes_reproduce": true,
+      "exact_fold_plan": true
+    },
+    {
+      "case": "F_METHOD_VERSION_IDENTITY_AND_COMPARE",
+      "status": "PASS",
+      "left": "rr_f26e92f72035d9d176a1d962b4afa0084d233f2575cf5a02918e9a9fcf0dd5a2",
+      "right": "rr_a38ddc232d19167c3814647c092947d2d6e295a16080bb2c77d67c1a0579572d",
+      "comparison": {
+        "research_boundary": "RESEARCH_ONLY",
+        "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+        "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+        "contract_version": "workbench-comparison-2.0.0",
+        "comparison_id": "cmp_bdec6dbbdd402708f561c8a4315ab7a95fecdba32fad6766954eb2dad0ae0d24",
+        "calculation": "READ_ONLY_NO_RECALCULATION",
+        "left": {
+          "run_id": "rr_f26e92f72035d9d176a1d962b4afa0084d233f2575cf5a02918e9a9fcf0dd5a2",
+          "execution_attempt_id": "ea_bd0be5ad-6e77-4a61-8e24-1518728c9315",
+          "financial_result_hash": "f5821b8b66511b7a6f82766db6aa8a2421f6d32e84110d3e9e27cdc22824b90d"
+        },
+        "right": {
+          "run_id": "rr_a38ddc232d19167c3814647c092947d2d6e295a16080bb2c77d67c1a0579572d",
+          "execution_attempt_id": "ea_b6c08080-4f0d-480d-90ff-0e49a77f9e7d",
+          "financial_result_hash": "1c85087aba577156769cb479eb53c9334740d8973b43602424a9cd312d44c12c"
+        },
+        "spec_differences": [
+          {
+            "path": "/code_commit",
+            "left": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+            "right": "05fe3469d74892cf3ef0e9f9335dd27bfaf552f8"
+          },
+          {
+            "path": "/code_version",
+            "left": "09f47e68edf65c55e0204dcb848d95c3572aad949a53d7396845a187b48a2a39",
+            "right": "1077f244087b3d8a69caa3fb12a57090753ae3a4ffcc8e4b3b4aef0bce3fdca0"
+          },
+          {
+            "path": "/contract_version",
+            "left": "workbench-research-run-spec-2.0.0",
+            "right": "workbench-research-run-spec-2.1.0"
+          },
+          {
+            "path": "/engine_versions/adapter",
+            "left": "workbench-capital-calendar-2.0.0",
+            "right": "workbench-capital-recurring-turnover-2.0.0"
+          },
+          {
+            "path": "/engine_versions/capital_engine",
+            "left": "capital-research-1.0.1",
+            "right": "capital-research-recurring-turnover-2.0.0"
+          },
+          {
+            "path": "/identity_namespace",
+            "left": "workbench-research-run-spec-2.0.0",
+            "right": "workbench-research-run-spec-2.1.0"
+          },
+          {
+            "path": "/model_definition/turnover_constraint_methodology_version",
+            "left": "NOT_PRESENT",
+            "right": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2"
+          },
+          {
+            "path": "/turnover_constraint_methodology_version",
+            "left": "NOT_PRESENT",
+            "right": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2"
+          }
+        ],
+        "financial_input_differences": [
+          {
+            "path": "/turnover_constraint_methodology_version",
+            "left": "TOTAL_TURNOVER_INCLUDING_INITIAL_V1",
+            "right": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2"
+          }
+        ],
+        "transaction_cost_difference_bps": 0,
+        "oos_observation_difference": 0,
+        "final_research_index_difference": 0,
+        "realized_cost_difference": 0,
+        "turnover_methodologies": {
+          "left": "TOTAL_TURNOVER_INCLUDING_INITIAL_V1",
+          "right": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2"
+        },
+        "warnings": [
+          "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+          "Comparison reports mechanical differences and does not rank, recommend, or declare a winner.",
+          "TURNOVER_METHODOLOGY_DIFFERS",
+          "The runs apply different candidate-eligibility definitions. Performance differences may reflect both strategy selection and turnover methodology."
+        ]
+      }
+    },
+    {
+      "case": "G_CAPACITY_IS_NON_FINANCIAL",
+      "status": "PASS",
+      "same_run_id": true,
+      "same_financial_hashes": true,
+      "same_engine_financial_artifact_hash": true
+    },
+    {
+      "case": "E_HIGH_RECURRING_TURNOVER_KNOWN_ANSWER",
+      "status": "PASS",
+      "execution_scope": "SYNTHETIC_TEST",
+      "purpose": "Isolated accounting/eligibility known answer, not empirical research",
+      "evidence": {
+        "initial_implementation_turnover": 0.8,
+        "recurring_gross_turnover": 1.6,
+        "total_gross_turnover": 2.4000000000000004,
+        "annualized_total_turnover": 30.240000000000002,
+        "annualized_recurring_turnover": 20.160000000000004,
+        "annualization_observations": 20,
+        "annualization_trading_days": 252,
+        "initial_implementation_date": "2020-01-01",
+        "recurring_trade_days": 2,
+        "initial_implementation_cost": 0.008,
+        "recurring_simulated_cost": 0.016,
+        "realized_simulated_cost": 0.024,
+        "warnings": [],
+        "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+        "turnover_constraint_limit": 8,
+        "turnover_constraint_metric": "annualized_recurring_turnover",
+        "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+        "turnover_constraint_status": "CONSTRAINT_REJECTED"
+      },
+      "candidate_status": "CONSTRAINT_REJECTED",
+      "maximum_turnover_unchanged": 8
+    },
+    {
+      "case": "G_PRE_RUN_RESOURCE_ADMISSION",
+      "status": "PASS",
+      "evidence": {
+        "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+        "number_of_folds": 84,
+        "estimated_jobs": 672,
+        "maximum_jobs": 2000,
+        "minimum_required_engine_files": 927,
+        "maximum_engine_files": 512,
+        "no_attempt_created": true,
+        "financially_plannable": true,
+        "failed_fold_id": null,
+        "failed_decision_date": null,
+        "diagnostic_reference": "PRE_RUN_NO_ATTEMPT_CREATED",
+        "capacity": {
+          "number_of_folds": 84,
+          "estimated_jobs": 672,
+          "maximum_jobs": 2000,
+          "minimum_required_engine_files": 927,
+          "maximum_engine_files": 512,
+          "no_attempt_created": true
+        },
+        "error_class": "INTERACTIVE_EXECUTION_CAPACITY_EXCEEDED",
+        "failed_stage": "EXECUTION_CAPACITY_PREFLIGHT",
+        "safe_message": "This backtest needs at least 927 engine files; current interactive execution capacity is 512 files.",
+        "actionable_explanation": "This design is financially valid enough to plan, but exceeds the current interactive execution capacity. Candidate eligibility still requires execution. No attempt was created.",
+        "suggested_user_action": "Ask the preview owner about extended-run capacity, or explicitly preview a smaller design."
+      },
+      "no_attempt_created": true
+    }
+  ],
+  "legacy_v1_successes": [
+    {
+      "run_id": "rr_f9c550b6ac0044b898c81e08c07ba7a7a4d66b541fef1db762e28d2f4d185f95",
+      "execution_attempt_id": "ea_dc1f443e-3231-462d-bdcd-81b8c859fa0c",
+      "reused_existing_attempt": true,
+      "immutable_attempt_new_jobs": 24,
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 2.5
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_HASH",
+      "financial_result_hash": "190b29f04830ec2f4274d752e4dd9f6933c675f198a6d791d9cb307af9d71cb5"
+    },
+    {
+      "run_id": "rr_22989c7e60497d39fad73396a46918aa797fdd10e3cb7fe23530f92d3d3ad8fd",
+      "execution_attempt_id": "ea_f189f9d3-71be-4919-9309-8e9d176d7f3e",
+      "reused_existing_attempt": true,
+      "immutable_attempt_new_jobs": 24,
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 18,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 2.5
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_HASH",
+      "financial_result_hash": "427f3fdba5f1d74f9f505ae99578d0535af2f9f3ddc85b42ecd12ad7485df69b"
+    },
+    {
+      "run_id": "rr_701e54ae66780ec3abadab1cfb5037aa9a115107cbc10c04b248c0b1a844a50a",
+      "execution_attempt_id": "ea_cf615b21-fb59-4d06-b325-6fc1fa1d0baf",
+      "reused_existing_attempt": true,
+      "immutable_attempt_new_jobs": 24,
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "EXPANDING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 2.5
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_HASH",
+      "financial_result_hash": "a6768b1f05151ce86141afac136bb3499cc6cd9474bf44eb5a5789bdd83a344a"
+    },
+    {
+      "run_id": "rr_1fa974aca0fa123fda8d60142dd823d25ddea9c39c77c355de6cf542d5cf0a12",
+      "execution_attempt_id": "ea_b6de6e85-13dd-47fe-82ad-3be0c596fe83",
+      "reused_existing_attempt": true,
+      "immutable_attempt_new_jobs": 24,
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-07-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "QUARTERLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 2.5
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_HASH",
+      "financial_result_hash": "c8076d5afd127a87a7d24052462b6be2aa5ffd89b958e784dce2ddd7e06b2f7f"
+    },
+    {
+      "run_id": "rr_9a68474dd642273c79b79669897c3ad12bf9f06ce350bcd2ecb4a2700878650a",
+      "execution_attempt_id": "ea_2703bd91-354e-491b-a783-5b33429d72cf",
+      "reused_existing_attempt": true,
+      "immutable_attempt_new_jobs": 24,
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 7.25,
+        "selection_cost_bps": 2.5
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": "NO_PRIOR_BENCHMARK_HASH",
+      "financial_result_hash": "f23ecde2a71ee97a085844bb4653ba6699af5c59b348846aba3634cd43f69eb7"
+    },
+    {
+      "run_id": "rr_f26e92f72035d9d176a1d962b4afa0084d233f2575cf5a02918e9a9fcf0dd5a2",
+      "execution_attempt_id": "ea_bd0be5ad-6e77-4a61-8e24-1518728c9315",
+      "reused_existing_attempt": true,
+      "immutable_attempt_new_jobs": 12,
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 0
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": true,
+      "financial_result_hash": "f5821b8b66511b7a6f82766db6aa8a2421f6d32e84110d3e9e27cdc22824b90d"
+    },
+    {
+      "run_id": "rr_75ad6ee5064fc7b725cba35f7cfc7871df434aefe3343162c108af3fd1d5114c",
+      "execution_attempt_id": "ea_2091cf50-2c9b-4cb4-b726-03175ab1c354",
+      "reused_existing_attempt": true,
+      "immutable_attempt_new_jobs": 12,
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "EXPANDING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 0
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": true,
+      "financial_result_hash": "0af55e3f0903134ee283d1ab995729221a097c79764f0c2d22141319b54ecdb1"
+    },
+    {
+      "run_id": "rr_db1eb277d91024d6ed2f7b38331afedb62b5110dcd742cfe9af57af6d3d1d2cc",
+      "execution_attempt_id": "ea_e244660d-746d-44a5-9dca-49e2fdd0513b",
+      "reused_existing_attempt": true,
+      "immutable_attempt_new_jobs": 12,
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-07-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "QUARTERLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 0
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": true,
+      "financial_result_hash": "51da8bc5dae4c7bfb9cf4b425a7f5a4db44c4672cac998884e5db416435a78fa"
+    },
+    {
+      "run_id": "rr_e7bcc313aed10ff04ca78a97871ef03eac83edfa2c76fbb0a2c3aa5c4eadb4c8",
+      "execution_attempt_id": "ea_b351bf1b-5d38-4b8e-9a13-ab06fbe35133",
+      "reused_existing_attempt": true,
+      "immutable_attempt_new_jobs": 12,
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 3.125,
+        "selection_cost_bps": 3.125
+      },
+      "metrics_exact": true,
+      "financial_hash_exact": true,
+      "benchmark_and_attribution_hashes_exact": true,
+      "financial_result_hash": "e415f9fb955904c69c05c6d364aa47a17cf3384df2060c3cd74f7e5a06ba4068"
+    },
+    {
+      "B3C1_failed_attempt_files": 737,
+      "byte_identical": true
+    }
+  ],
+  "legacy_reuse_disclosure": "Legacy V1-turnover executions were freshly certified earlier in this phase against byte-identical source; this final pass checks their immutable evidence and reports idempotent reuse explicitly. See legacy-financial-execution-proof.json. V2 baseline submission reuse is reported per case, and each explicit rerun executes a fresh immutable engine attempt.",
+  "synthetic_data_used_for_empirical_runs": false,
+  "high_recurring_fixture": "Explicit accounting-only unit test: annualized recurring turnover 20.16 > fixed 8; not empirical evidence",
+  "economic_claim": "NONE",
+  "unit_fixture": {
+    "status": "PASS",
+    "execution_scope": "SYNTHETIC_TEST",
+    "purpose": "Isolated accounting/eligibility known answer, not empirical research",
+    "candidate_id": "synthetic-accounting-test-only",
+    "ledger": [
+      {
+        "date": "2020-01-01",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0.008,
+        "trades": [
+          {
+            "notional": 80
+          }
+        ]
+      },
+      {
+        "date": "2020-01-02",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0.008,
+        "trades": [
+          {
+            "notional": -80
+          }
+        ]
+      },
+      {
+        "date": "2020-01-03",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0.008,
+        "trades": [
+          {
+            "notional": 80
+          }
+        ]
+      },
+      {
+        "date": "2020-01-04",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-05",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-06",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-07",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-08",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-09",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-10",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-11",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-12",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-13",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-14",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-15",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-16",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-17",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-18",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-19",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      },
+      {
+        "date": "2020-01-20",
+        "beginningNav": 100,
+        "etfPnl": 0,
+        "cashPnl": 0,
+        "transactionCosts": 0,
+        "trades": []
+      }
+    ],
+    "observations": 20,
+    "selection_metric_defined": true,
+    "other_constraints_satisfied": true,
+    "evidence": {
+      "initial_implementation_turnover": 0.8,
+      "recurring_gross_turnover": 1.6,
+      "total_gross_turnover": 2.4000000000000004,
+      "annualized_total_turnover": 30.240000000000002,
+      "annualized_recurring_turnover": 20.160000000000004,
+      "annualization_observations": 20,
+      "annualization_trading_days": 252,
+      "initial_implementation_date": "2020-01-01",
+      "recurring_trade_days": 2,
+      "initial_implementation_cost": 0.008,
+      "recurring_simulated_cost": 0.016,
+      "realized_simulated_cost": 0.024,
+      "warnings": [],
+      "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+      "turnover_constraint_limit": 8,
+      "turnover_constraint_metric": "annualized_recurring_turnover",
+      "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+      "turnover_constraint_status": "CONSTRAINT_REJECTED"
+    },
+    "selection_status": "CONSTRAINT_REJECTED"
+  }
+}

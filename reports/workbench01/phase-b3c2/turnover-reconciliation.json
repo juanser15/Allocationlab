@@ -1,0 +1,2933 @@
+{
+  "status": "PASS",
+  "tolerance": 1e-10,
+  "cases": [
+    {
+      "case": "C_ONE_MONTH_SINGLE_FOLD",
+      "turnover": {
+        "methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+        "candidate_training_by_fold": [
+          {
+            "fold_id": 0,
+            "candidates": [
+              {
+                "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 2.3776965280032205,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.7999360051195904,
+                "annualized_total_turnover": 10.079193664506839,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2019-09-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.007999360051195904,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8332586a96d72c52828a005e",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 2.3729319991751243,
+                "initial_implementation_turnover": 0.6892524898258763,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.6892524898258763,
+                "annualized_total_turnover": 8.684581371806042,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2019-09-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.006892524898258763,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.006892524898258763,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 2.374855855835758,
+                "initial_implementation_turnover": 0.7338961356931207,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.7338961356931207,
+                "annualized_total_turnover": 9.247091309733321,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2019-09-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.007338961356931207,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.007338961356931207,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_aa16f813288e415fae34648c",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "selection_metric": 2.3862600278625368,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 12.598740125987401,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2019-09-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_e028713b249e51fa3843d778",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 2.3796132854607124,
+                "initial_implementation_turnover": 0.8445786626632582,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.8445786626632582,
+                "annualized_total_turnover": 10.641691149557053,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2019-09-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.008445786626632583,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.008445786626632583,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              }
+            ]
+          }
+        ],
+        "selected_policy_by_fold": [
+          {
+            "fold_id": 0,
+            "candidate_id": "c_aa16f813288e415fae34648c",
+            "exposure_policy": "constant",
+            "parameters": {
+              "risk": 1
+            },
+            "selection_metric": 2.3862600278625368,
+            "initial_implementation_turnover": 0.9999000099990002,
+            "recurring_gross_turnover": 0,
+            "total_gross_turnover": 0.9999000099990002,
+            "annualized_total_turnover": 12.598740125987401,
+            "annualized_recurring_turnover": 0,
+            "annualization_observations": 20,
+            "annualization_trading_days": 252,
+            "initial_implementation_date": "2019-09-04",
+            "recurring_trade_days": 0,
+            "initial_implementation_cost": 0.009999000099990002,
+            "recurring_simulated_cost": 0,
+            "realized_simulated_cost": 0.009999000099990002,
+            "warnings": [
+              "NO_RECURRING_REBALANCE_OBSERVED"
+            ],
+            "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+            "turnover_constraint_limit": 8,
+            "turnover_constraint_metric": "annualized_recurring_turnover",
+            "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+            "turnover_constraint_status": "ELIGIBLE",
+            "oos_turnover": {
+              "initial_implementation_turnover": 0.9999000099990002,
+              "recurring_gross_turnover": 0,
+              "total_gross_turnover": 0.9999000099990002,
+              "annualized_total_turnover": 10.955426196510784,
+              "annualized_recurring_turnover": 0,
+              "annualization_observations": 23,
+              "annualization_trading_days": 252,
+              "initial_implementation_date": "2019-10-02",
+              "recurring_trade_days": 0,
+              "initial_implementation_cost": 0.009999000099990002,
+              "recurring_simulated_cost": 0,
+              "realized_simulated_cost": 0.009999000099990002,
+              "warnings": [
+                "NO_RECURRING_REBALANCE_OBSERVED"
+              ],
+              "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+            }
+          }
+        ],
+        "oos": {
+          "initial_implementation_turnover": 0.9999000099990002,
+          "recurring_gross_turnover": 0,
+          "total_gross_turnover": 0.9999000099990002,
+          "initial_implementation_cost": 0.009999000099990002,
+          "recurring_simulated_cost": 0,
+          "realized_simulated_cost": 0.009999000099990002,
+          "annualized_total_turnover": 10.955426196510784,
+          "annualized_recurring_turnover": 0,
+          "annualization_observations": 23,
+          "meaning": "Sum of independent OOS fold books: each fold has its own costed implementation; annualization uses the full aligned OOS observation count."
+        },
+        "benchmark_tracks": {
+          "DYNAMIC_EXPOSURE": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 10.955426196510784,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 23,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2019-10-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              }
+            ],
+            "total_gross_turnover": 0.9999000099990002,
+            "recurring_gross_turnover": 0,
+            "initial_implementation_turnover": 0.9999000099990002,
+            "realized_simulated_cost": 0.009999000099990002,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          },
+          "PASSIVE_SPY": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 10.955426196510784,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 23,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2019-10-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              }
+            ],
+            "total_gross_turnover": 0.9999000099990001,
+            "recurring_gross_turnover": 0,
+            "initial_implementation_turnover": 0.9999000099990001,
+            "realized_simulated_cost": 0.009999000099990002,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          },
+          "STATIC_MATCHED_BETA": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 10.955426196510784,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 23,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2019-10-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              }
+            ],
+            "total_gross_turnover": 0.9999000099990001,
+            "recurring_gross_turnover": 0,
+            "initial_implementation_turnover": 0.9999000099990001,
+            "realized_simulated_cost": 0.009999000099990002,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          }
+        }
+      },
+      "hashes": {
+        "financial_result_hash": "2722a50c873adf7fa88af41a43cf9ecb99a4ee4eee37015e0ae2f697f887213e",
+        "passive_control_hash": "accde1792428c100eb998fbd8530fe2662c149ad6a1256500ac539da1b923e42",
+        "matched_beta_control_hash": "79d84044347d4497d862585621d9237cae7c3ddcab2c644ce0a7362ff23b6d2c",
+        "attribution_hash": "ef217ecf5800332eeabae0ca424d4e18c1871e96c10d406307599ca2eb9fe5ce"
+      }
+    },
+    {
+      "case": "D_RECURRING_MULTI_FOLD",
+      "turnover": {
+        "methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+        "candidate_training_by_fold": [
+          {
+            "fold_id": 0,
+            "candidates": [
+              {
+                "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 1.6046927677835274,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0.028770311983110572,
+                "total_gross_turnover": 0.8287063171027009,
+                "annualized_total_turnover": 1.6315155617959425,
+                "annualized_recurring_turnover": 0.056641551716748936,
+                "annualization_observations": 128,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-07-02",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0.00029620482102340166,
+                "realized_simulated_cost": 0.008295564872219306,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8332586a96d72c52828a005e",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 1.498681625475274,
+                "initial_implementation_turnover": 0.711129425897489,
+                "recurring_gross_turnover": 0.156843800044153,
+                "total_gross_turnover": 0.867973225941642,
+                "annualized_total_turnover": 1.7088222885726077,
+                "annualized_recurring_turnover": 0.3087862313369262,
+                "annualization_observations": 128,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-07-02",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.00711129425897489,
+                "recurring_simulated_cost": 0.0016107070521445095,
+                "realized_simulated_cost": 0.0087220013111194,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 1.4547059350709577,
+                "initial_implementation_turnover": 0.766711210884483,
+                "recurring_gross_turnover": 0.2545824806997448,
+                "total_gross_turnover": 1.021293691584228,
+                "annualized_total_turnover": 2.0106719553064485,
+                "annualized_recurring_turnover": 0.5012092588776226,
+                "annualization_observations": 128,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-07-02",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.00766711210884483,
+                "recurring_simulated_cost": 0.002617196816827939,
+                "realized_simulated_cost": 0.01028430892567277,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_aa16f813288e415fae34648c",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "selection_metric": 1.5998376342129297,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 1.9685531446855316,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 128,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-07-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 1.4210854715202004e-18,
+                "realized_simulated_cost": 0.009999000099990003,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_e028713b249e51fa3843d778",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 1.5583778792303877,
+                "initial_implementation_turnover": 0.8555168028378659,
+                "recurring_gross_turnover": 0.07566677770561284,
+                "total_gross_turnover": 0.9311835805434787,
+                "annualized_total_turnover": 1.8332676741949738,
+                "annualized_recurring_turnover": 0.14896896860792527,
+                "annualization_observations": 128,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-07-02",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.008555168028378659,
+                "recurring_simulated_cost": 0.0007820218249331162,
+                "realized_simulated_cost": 0.009337189853311775,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              }
+            ]
+          },
+          {
+            "fold_id": 1,
+            "candidates": [
+              {
+                "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 0.45251994839531234,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0.03342142573260855,
+                "total_gross_turnover": 0.8333574308521989,
+                "annualized_total_turnover": 1.6535911226358595,
+                "annualized_recurring_turnover": 0.06631652980013665,
+                "annualization_observations": 127,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-08-03",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0.00034401600739800386,
+                "realized_simulated_cost": 0.008343376058593907,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8332586a96d72c52828a005e",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 0.33562011429543154,
+                "initial_implementation_turnover": 0.7129891610208625,
+                "recurring_gross_turnover": 0.19937736237328152,
+                "total_gross_turnover": 0.9123665233941441,
+                "annualized_total_turnover": 1.8103650700419238,
+                "annualized_recurring_turnover": 0.3956149237643066,
+                "annualization_observations": 127,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-08-03",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.007129891610208625,
+                "recurring_simulated_cost": 0.0020428920989301216,
+                "realized_simulated_cost": 0.009172783709138746,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 0.2869664735732911,
+                "initial_implementation_turnover": 0.7695007822977975,
+                "recurring_gross_turnover": 0.32634926255594954,
+                "total_gross_turnover": 1.095850044853747,
+                "annualized_total_turnover": 2.174442608686175,
+                "annualized_recurring_turnover": 0.647559166646451,
+                "annualization_observations": 127,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-08-03",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.007695007822977975,
+                "recurring_simulated_cost": 0.0033455202947366715,
+                "realized_simulated_cost": 0.011040528117714646,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_aa16f813288e415fae34648c",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "selection_metric": 0.4441046658576143,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 1.9840535631476224,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 127,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-08-03",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 4.2632564145606015e-18,
+                "realized_simulated_cost": 0.009999000099990007,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_e028713b249e51fa3843d778",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 0.39976803423289586,
+                "initial_implementation_turnover": 0.8564466436320796,
+                "recurring_gross_turnover": 0.09543555195596622,
+                "total_gross_turnover": 0.9518821955880457,
+                "annualized_total_turnover": 1.888774120379429,
+                "annualized_recurring_turnover": 0.1893681818338857,
+                "annualization_observations": 127,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-08-03",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.008564466436320795,
+                "recurring_simulated_cost": 0.000984018541333184,
+                "realized_simulated_cost": 0.009548484977653978,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              }
+            ]
+          },
+          {
+            "fold_id": 2,
+            "candidates": [
+              {
+                "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "selection_metric": -0.30446510618185124,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0.03615194174356038,
+                "total_gross_turnover": 0.8360879468631509,
+                "annualized_total_turnover": 1.699146472657371,
+                "annualized_recurring_turnover": 0.07347007515626787,
+                "annualization_observations": 124,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-09-02",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0.00036493204295282315,
+                "realized_simulated_cost": 0.008364292094148726,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8332586a96d72c52828a005e",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "selection_metric": -0.3864289119951595,
+                "initial_implementation_turnover": 0.7500637362190187,
+                "recurring_gross_turnover": 0.19594703637448563,
+                "total_gross_turnover": 0.9460107725935043,
+                "annualized_total_turnover": 1.922538021722283,
+                "annualized_recurring_turnover": 0.3982149448900837,
+                "annualization_observations": 124,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-09-02",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.007500637362190187,
+                "recurring_simulated_cost": 0.001971583966376052,
+                "realized_simulated_cost": 0.00947222132856624,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "selection_metric": -0.41823698655219704,
+                "initial_implementation_turnover": 0.8251119134151288,
+                "recurring_gross_turnover": 0.3235217072759619,
+                "total_gross_turnover": 1.1486336206910908,
+                "annualized_total_turnover": 2.3343199388238296,
+                "annualized_recurring_turnover": 0.6574795986576,
+                "annualization_observations": 124,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-09-02",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.008251119134151289,
+                "recurring_simulated_cost": 0.0032508313690265173,
+                "realized_simulated_cost": 0.011501950503177805,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_aa16f813288e415fae34648c",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "selection_metric": -0.3048104064664408,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 2.032054859030226,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 124,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-09-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 4.2632564145606015e-18,
+                "realized_simulated_cost": 0.009999000099990007,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_e028713b249e51fa3843d778",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "selection_metric": -0.3387502415389278,
+                "initial_implementation_turnover": 0.8749834336996507,
+                "recurring_gross_turnover": 0.093448878390853,
+                "total_gross_turnover": 0.9684323120905037,
+                "annualized_total_turnover": 1.9681043761839268,
+                "annualized_recurring_turnover": 0.18991223672979804,
+                "annualization_observations": 124,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-09-02",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.008749834336996507,
+                "recurring_simulated_cost": 0.0009432203771415232,
+                "realized_simulated_cost": 0.00969305471413803,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              }
+            ]
+          },
+          {
+            "fold_id": 3,
+            "candidates": [
+              {
+                "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 0.7454235208268649,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0.03466817222422942,
+                "total_gross_turnover": 0.8346041773438198,
+                "annualized_total_turnover": 1.6692083546876395,
+                "annualized_recurring_turnover": 0.06933634444845883,
+                "annualization_observations": 126,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-10-04",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0.0003671447697551017,
+                "realized_simulated_cost": 0.008366504820951004,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8332586a96d72c52828a005e",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 0.6909406726037421,
+                "initial_implementation_turnover": 0.7021107005950469,
+                "recurring_gross_turnover": 0.169612983902862,
+                "total_gross_turnover": 0.8717236844979087,
+                "annualized_total_turnover": 1.7434473689958174,
+                "annualized_recurring_turnover": 0.339225967805724,
+                "annualization_observations": 126,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-10-04",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.007021107005950469,
+                "recurring_simulated_cost": 0.0017888233132594793,
+                "realized_simulated_cost": 0.008809930319209947,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 0.6693182999678176,
+                "initial_implementation_turnover": 0.7531832672235796,
+                "recurring_gross_turnover": 0.28231638020837097,
+                "total_gross_turnover": 1.0354996474319504,
+                "annualized_total_turnover": 2.070999294863901,
+                "annualized_recurring_turnover": 0.5646327604167419,
+                "annualization_observations": 126,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-10-04",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.007531832672235797,
+                "recurring_simulated_cost": 0.0029857908006001993,
+                "realized_simulated_cost": 0.010517623472835998,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_aa16f813288e415fae34648c",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "selection_metric": 0.7465849302586699,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 1.9998000199980004,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 126,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-10-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 4.2632564145606015e-18,
+                "realized_simulated_cost": 0.009999000099990007,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_e028713b249e51fa3843d778",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 0.7235947515516278,
+                "initial_implementation_turnover": 0.8510075724475241,
+                "recurring_gross_turnover": 0.08009849105526957,
+                "total_gross_turnover": 0.9311060635027937,
+                "annualized_total_turnover": 1.8622121270055874,
+                "annualized_recurring_turnover": 0.16019698211053915,
+                "annualization_observations": 126,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-10-04",
+                "recurring_trade_days": 5,
+                "initial_implementation_cost": 0.00851007572447524,
+                "recurring_simulated_cost": 0.000854914977230915,
+                "realized_simulated_cost": 0.009364990701706155,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              }
+            ]
+          }
+        ],
+        "selected_policy_by_fold": [
+          {
+            "fold_id": 0,
+            "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+            "exposure_policy": "cash_band",
+            "parameters": {
+              "cash_min": 0.2,
+              "cash_max": 0.2
+            },
+            "selection_metric": 1.6046927677835274,
+            "initial_implementation_turnover": 0.7999360051195904,
+            "recurring_gross_turnover": 0.028770311983110572,
+            "total_gross_turnover": 0.8287063171027009,
+            "annualized_total_turnover": 1.6315155617959425,
+            "annualized_recurring_turnover": 0.056641551716748936,
+            "annualization_observations": 128,
+            "annualization_trading_days": 252,
+            "initial_implementation_date": "2021-07-02",
+            "recurring_trade_days": 5,
+            "initial_implementation_cost": 0.007999360051195904,
+            "recurring_simulated_cost": 0.00029620482102340166,
+            "realized_simulated_cost": 0.008295564872219306,
+            "warnings": [],
+            "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+            "turnover_constraint_limit": 8,
+            "turnover_constraint_metric": "annualized_recurring_turnover",
+            "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+            "turnover_constraint_status": "ELIGIBLE",
+            "oos_turnover": {
+              "initial_implementation_turnover": 0.7999360051195904,
+              "recurring_gross_turnover": 0,
+              "total_gross_turnover": 0.7999360051195904,
+              "annualized_total_turnover": 10.079193664506839,
+              "annualized_recurring_turnover": 0,
+              "annualization_observations": 20,
+              "annualization_trading_days": 252,
+              "initial_implementation_date": "2022-01-04",
+              "recurring_trade_days": 0,
+              "initial_implementation_cost": 0.007999360051195904,
+              "recurring_simulated_cost": 0,
+              "realized_simulated_cost": 0.007999360051195904,
+              "warnings": [
+                "NO_RECURRING_REBALANCE_OBSERVED"
+              ],
+              "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+            }
+          },
+          {
+            "fold_id": 1,
+            "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+            "exposure_policy": "cash_band",
+            "parameters": {
+              "cash_min": 0.2,
+              "cash_max": 0.2
+            },
+            "selection_metric": 0.45251994839531234,
+            "initial_implementation_turnover": 0.7999360051195904,
+            "recurring_gross_turnover": 0.03342142573260855,
+            "total_gross_turnover": 0.8333574308521989,
+            "annualized_total_turnover": 1.6535911226358595,
+            "annualized_recurring_turnover": 0.06631652980013665,
+            "annualization_observations": 127,
+            "annualization_trading_days": 252,
+            "initial_implementation_date": "2021-08-03",
+            "recurring_trade_days": 5,
+            "initial_implementation_cost": 0.007999360051195904,
+            "recurring_simulated_cost": 0.00034401600739800386,
+            "realized_simulated_cost": 0.008343376058593907,
+            "warnings": [],
+            "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+            "turnover_constraint_limit": 8,
+            "turnover_constraint_metric": "annualized_recurring_turnover",
+            "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+            "turnover_constraint_status": "ELIGIBLE",
+            "oos_turnover": {
+              "initial_implementation_turnover": 0.7999360051195904,
+              "recurring_gross_turnover": 0,
+              "total_gross_turnover": 0.7999360051195904,
+              "annualized_total_turnover": 10.609677541586146,
+              "annualized_recurring_turnover": 0,
+              "annualization_observations": 19,
+              "annualization_trading_days": 252,
+              "initial_implementation_date": "2022-02-02",
+              "recurring_trade_days": 0,
+              "initial_implementation_cost": 0.007999360051195904,
+              "recurring_simulated_cost": 0,
+              "realized_simulated_cost": 0.007999360051195904,
+              "warnings": [
+                "NO_RECURRING_REBALANCE_OBSERVED"
+              ],
+              "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+            }
+          },
+          {
+            "fold_id": 2,
+            "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+            "exposure_policy": "cash_band",
+            "parameters": {
+              "cash_min": 0.2,
+              "cash_max": 0.2
+            },
+            "selection_metric": -0.30446510618185124,
+            "initial_implementation_turnover": 0.7999360051195904,
+            "recurring_gross_turnover": 0.03615194174356038,
+            "total_gross_turnover": 0.8360879468631509,
+            "annualized_total_turnover": 1.699146472657371,
+            "annualized_recurring_turnover": 0.07347007515626787,
+            "annualization_observations": 124,
+            "annualization_trading_days": 252,
+            "initial_implementation_date": "2021-09-02",
+            "recurring_trade_days": 5,
+            "initial_implementation_cost": 0.007999360051195904,
+            "recurring_simulated_cost": 0.00036493204295282315,
+            "realized_simulated_cost": 0.008364292094148726,
+            "warnings": [],
+            "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+            "turnover_constraint_limit": 8,
+            "turnover_constraint_metric": "annualized_recurring_turnover",
+            "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+            "turnover_constraint_status": "ELIGIBLE",
+            "oos_turnover": {
+              "initial_implementation_turnover": 0.7999360051195904,
+              "recurring_gross_turnover": 0,
+              "total_gross_turnover": 0.7999360051195904,
+              "annualized_total_turnover": 8.764516230005947,
+              "annualized_recurring_turnover": 0,
+              "annualization_observations": 23,
+              "annualization_trading_days": 252,
+              "initial_implementation_date": "2022-03-02",
+              "recurring_trade_days": 0,
+              "initial_implementation_cost": 0.007999360051195904,
+              "recurring_simulated_cost": 0,
+              "realized_simulated_cost": 0.007999360051195904,
+              "warnings": [
+                "NO_RECURRING_REBALANCE_OBSERVED"
+              ],
+              "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+            }
+          },
+          {
+            "fold_id": 3,
+            "candidate_id": "c_aa16f813288e415fae34648c",
+            "exposure_policy": "constant",
+            "parameters": {
+              "risk": 1
+            },
+            "selection_metric": 0.7465849302586699,
+            "initial_implementation_turnover": 0.9999000099990002,
+            "recurring_gross_turnover": 0,
+            "total_gross_turnover": 0.9999000099990002,
+            "annualized_total_turnover": 1.9998000199980004,
+            "annualized_recurring_turnover": 0,
+            "annualization_observations": 126,
+            "annualization_trading_days": 252,
+            "initial_implementation_date": "2021-10-04",
+            "recurring_trade_days": 0,
+            "initial_implementation_cost": 0.009999000099990002,
+            "recurring_simulated_cost": 4.2632564145606015e-18,
+            "realized_simulated_cost": 0.009999000099990007,
+            "warnings": [
+              "NO_RECURRING_REBALANCE_OBSERVED"
+            ],
+            "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+            "turnover_constraint_limit": 8,
+            "turnover_constraint_metric": "annualized_recurring_turnover",
+            "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+            "turnover_constraint_status": "ELIGIBLE",
+            "oos_turnover": {
+              "initial_implementation_turnover": 0.9999000099990002,
+              "recurring_gross_turnover": 0,
+              "total_gross_turnover": 0.9999000099990002,
+              "annualized_total_turnover": 12.598740125987401,
+              "annualized_recurring_turnover": 0,
+              "annualization_observations": 20,
+              "annualization_trading_days": 252,
+              "initial_implementation_date": "2022-04-04",
+              "recurring_trade_days": 0,
+              "initial_implementation_cost": 0.009999000099990002,
+              "recurring_simulated_cost": 0,
+              "realized_simulated_cost": 0.009999000099990002,
+              "warnings": [
+                "NO_RECURRING_REBALANCE_OBSERVED"
+              ],
+              "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+            }
+          }
+        ],
+        "oos": {
+          "initial_implementation_turnover": 3.3997080253577714,
+          "recurring_gross_turnover": 0,
+          "total_gross_turnover": 3.3997080253577714,
+          "initial_implementation_cost": 0.03399708025357771,
+          "recurring_simulated_cost": 0,
+          "realized_simulated_cost": 0.03399708025357771,
+          "annualized_total_turnover": 10.44788319987998,
+          "annualized_recurring_turnover": 0,
+          "annualization_observations": 82,
+          "meaning": "Sum of independent OOS fold books: each fold has its own costed implementation; annualization uses the full aligned OOS observation count."
+        },
+        "benchmark_tracks": {
+          "DYNAMIC_EXPOSURE": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.7999360051195904,
+                "annualized_total_turnover": 10.079193664506839,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-01-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.007999360051195904,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 1,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.7999360051195904,
+                "annualized_total_turnover": 10.609677541586146,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 19,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-02-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.007999360051195904,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 2,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.7999360051195904,
+                "annualized_total_turnover": 8.764516230005947,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 23,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-03-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.007999360051195904,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 3,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 12.598740125987401,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-04-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              }
+            ],
+            "total_gross_turnover": 3.3997080253577714,
+            "recurring_gross_turnover": 0,
+            "initial_implementation_turnover": 3.3997080253577714,
+            "realized_simulated_cost": 0.03399708025357771,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          },
+          "PASSIVE_SPY": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 12.598740125987401,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-01-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 1,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 13.261831711565685,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 19,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-02-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 2,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 10.955426196510784,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 23,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-03-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 3,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 12.598740125987401,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-04-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              }
+            ],
+            "total_gross_turnover": 3.9996000399960003,
+            "recurring_gross_turnover": 0,
+            "initial_implementation_turnover": 3.9996000399960003,
+            "realized_simulated_cost": 0.039996000399960006,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          },
+          "STATIC_MATCHED_BETA": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.860000082300703,
+                "recurring_gross_turnover": 0.01922169433444443,
+                "total_gross_turnover": 0.8792217766351473,
+                "annualized_total_turnover": 11.078194385602856,
+                "annualized_recurring_turnover": 0.24219334861399983,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-01-04",
+                "recurring_trade_days": 17,
+                "initial_implementation_cost": 0.00860000082300703,
+                "recurring_simulated_cost": 0.00018305777572156923,
+                "realized_simulated_cost": 0.008783058598728598,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval."
+              },
+              {
+                "fold_id": 1,
+                "initial_implementation_turnover": 0.860000082300703,
+                "recurring_gross_turnover": 0.02488174232182271,
+                "total_gross_turnover": 0.8848818246225258,
+                "annualized_total_turnover": 11.736327358151396,
+                "annualized_recurring_turnover": 0.3300104771104907,
+                "annualization_observations": 19,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-02-02",
+                "recurring_trade_days": 16,
+                "initial_implementation_cost": 0.00860000082300703,
+                "recurring_simulated_cost": 0.0002408672322190853,
+                "realized_simulated_cost": 0.008840868055226114,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval."
+              },
+              {
+                "fold_id": 2,
+                "initial_implementation_turnover": 0.860000082300703,
+                "recurring_gross_turnover": 0.028732278793799176,
+                "total_gross_turnover": 0.888732361094502,
+                "annualized_total_turnover": 9.737415434600631,
+                "annualized_recurring_turnover": 0.31480583721901706,
+                "annualization_observations": 23,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-03-02",
+                "recurring_trade_days": 20,
+                "initial_implementation_cost": 0.00860000082300703,
+                "recurring_simulated_cost": 0.0002860166245742874,
+                "realized_simulated_cost": 0.008886017447581317,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval."
+              },
+              {
+                "fold_id": 3,
+                "initial_implementation_turnover": 0.860000082300703,
+                "recurring_gross_turnover": 0.023932547784523996,
+                "total_gross_turnover": 0.883932630085227,
+                "annualized_total_turnover": 11.13755113907386,
+                "annualized_recurring_turnover": 0.3015501020850023,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-04-04",
+                "recurring_trade_days": 17,
+                "initial_implementation_cost": 0.00860000082300703,
+                "recurring_simulated_cost": 0.00022897789857576076,
+                "realized_simulated_cost": 0.008828978721582791,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval."
+              }
+            ],
+            "total_gross_turnover": 3.5367685924374026,
+            "recurring_gross_turnover": 0.09676826323459031,
+            "initial_implementation_turnover": 3.440000329202812,
+            "realized_simulated_cost": 0.03533892282311882,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          }
+        }
+      },
+      "hashes": {
+        "financial_result_hash": "66b79a1917030c61924339611611e7cb698b226e4e569b445672ff2050c3438e",
+        "passive_control_hash": "65180ffe8295138423ca88e6b173ac47af8d86ed07ebd7b1de170e0904b34ba5",
+        "matched_beta_control_hash": "f0c634f99bc907690dbeac6b8f2b3b3820ee8b6eb47e822af1e958ed5f61e7f6",
+        "attribution_hash": "5c2dcfeb1f0bfef65fb631c8228e6253276e75ffaae6a43335ca9f5f73973015"
+      }
+    },
+    {
+      "case": "EXPANDING_SHORT_INITIAL",
+      "turnover": {
+        "methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+        "candidate_training_by_fold": [
+          {
+            "fold_id": 0,
+            "candidates": [
+              {
+                "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 4.963557206223352,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.7999360051195904,
+                "annualized_total_turnover": 9.599232061435085,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 21,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.007999360051195904,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8332586a96d72c52828a005e",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 4.947314725976279,
+                "initial_implementation_turnover": 0.6218213314186845,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.6218213314186845,
+                "annualized_total_turnover": 7.4618559770242125,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 21,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.006218213314186844,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.006218213314186844,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 4.948355117626373,
+                "initial_implementation_turnover": 0.6327499602152676,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.6327499602152676,
+                "annualized_total_turnover": 7.592999522583212,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 21,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.006327499602152675,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.006327499602152675,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_aa16f813288e415fae34648c",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "selection_metric": 4.980046191712616,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 11.998800119988001,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 21,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_e028713b249e51fa3843d778",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 4.964505136396809,
+                "initial_implementation_turnover": 0.8108642445858137,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.8108642445858137,
+                "annualized_total_turnover": 9.730370935029764,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 21,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.008108642445858138,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.008108642445858138,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              }
+            ]
+          },
+          {
+            "fold_id": 1,
+            "candidates": [
+              {
+                "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 4.023685522840409,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0.018320319996746427,
+                "total_gross_turnover": 0.8182563251163368,
+                "annualized_total_turnover": 5.029282778763826,
+                "annualized_recurring_turnover": 0.11260294241902682,
+                "annualization_observations": 41,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0.00020165938986106937,
+                "realized_simulated_cost": 0.008201019441056973,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8332586a96d72c52828a005e",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 4.082391604356362,
+                "initial_implementation_turnover": 0.6218213314186845,
+                "recurring_gross_turnover": 0.05973220930581106,
+                "total_gross_turnover": 0.6815535407244955,
+                "annualized_total_turnover": 4.189060786892021,
+                "annualized_recurring_turnover": 0.36713455475766793,
+                "annualization_observations": 41,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.006218213314186844,
+                "recurring_simulated_cost": 0.0006440986169113615,
+                "realized_simulated_cost": 0.006862311931098206,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 4.1187404067197475,
+                "initial_implementation_turnover": 0.6327499602152676,
+                "recurring_gross_turnover": 0.10369848110868175,
+                "total_gross_turnover": 0.7364484413239494,
+                "annualized_total_turnover": 4.526463590576469,
+                "annualized_recurring_turnover": 0.6373662741314098,
+                "annualization_observations": 41,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.006327499602152675,
+                "recurring_simulated_cost": 0.0011196187151792927,
+                "realized_simulated_cost": 0.007447118317331968,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_aa16f813288e415fae34648c",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "selection_metric": 4.052431879290059,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 6.1457268907255616,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 41,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 1.4210854715202004e-18,
+                "realized_simulated_cost": 0.009999000099990003,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_e028713b249e51fa3843d778",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 4.060084902541313,
+                "initial_implementation_turnover": 0.8108642445858137,
+                "recurring_gross_turnover": 0.026075379456450838,
+                "total_gross_turnover": 0.8369396240422646,
+                "annualized_total_turnover": 5.1441167136256265,
+                "annualized_recurring_turnover": 0.16026818592745393,
+                "annualization_observations": 41,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.008108642445858138,
+                "recurring_simulated_cost": 0.00028738142603031635,
+                "realized_simulated_cost": 0.008396023871888455,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              }
+            ]
+          },
+          {
+            "fold_id": 2,
+            "candidates": [
+              {
+                "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 2.9427442089408933,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0.03125636119186649,
+                "total_gross_turnover": 0.8311923663114569,
+                "annualized_total_turnover": 3.3247694652458275,
+                "annualized_recurring_turnover": 0.12502544476746597,
+                "annualization_observations": 63,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 2,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0.0003538975266441426,
+                "realized_simulated_cost": 0.008353257577840046,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8332586a96d72c52828a005e",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 2.899090127991727,
+                "initial_implementation_turnover": 0.6218213314186845,
+                "recurring_gross_turnover": 0.06891326140134303,
+                "total_gross_turnover": 0.6907345928200275,
+                "annualized_total_turnover": 2.76293837128011,
+                "annualized_recurring_turnover": 0.2756530456053721,
+                "annualization_observations": 63,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 2,
+                "initial_implementation_cost": 0.006218213314186844,
+                "recurring_simulated_cost": 0.0007491658090230757,
+                "realized_simulated_cost": 0.00696737912320992,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 2.887092525297425,
+                "initial_implementation_turnover": 0.6327499602152676,
+                "recurring_gross_turnover": 0.10690444207452447,
+                "total_gross_turnover": 0.7396544022897921,
+                "annualized_total_turnover": 2.9586176091591683,
+                "annualized_recurring_turnover": 0.4276177682980979,
+                "annualization_observations": 63,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 2,
+                "initial_implementation_cost": 0.006327499602152675,
+                "recurring_simulated_cost": 0.0011565173049909304,
+                "realized_simulated_cost": 0.0074840169071436055,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_aa16f813288e415fae34648c",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "selection_metric": 2.9659370032470993,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 3.9996000399960008,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 63,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 1.4210854715202004e-18,
+                "realized_simulated_cost": 0.009999000099990003,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_e028713b249e51fa3843d778",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 2.936915916069486,
+                "initial_implementation_turnover": 0.8108642445858137,
+                "recurring_gross_turnover": 0.03227079278519532,
+                "total_gross_turnover": 0.8431350373710091,
+                "annualized_total_turnover": 3.3725401494840366,
+                "annualized_recurring_turnover": 0.12908317114078127,
+                "annualization_observations": 63,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 2,
+                "initial_implementation_cost": 0.008108642445858138,
+                "recurring_simulated_cost": 0.0003607052953132751,
+                "realized_simulated_cost": 0.008469347741171413,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              }
+            ]
+          },
+          {
+            "fold_id": 3,
+            "candidates": [
+              {
+                "candidate_id": "c_69fa5817ae0c57dc27fa7fea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 3.113525224858687,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0.03408488503225161,
+                "total_gross_turnover": 0.834020890151842,
+                "annualized_total_turnover": 2.472626639038402,
+                "annualized_recurring_turnover": 0.10105165915444009,
+                "annualization_observations": 85,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 3,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0.00038766252720521383,
+                "realized_simulated_cost": 0.008387022578401118,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8332586a96d72c52828a005e",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 3.0963393611192958,
+                "initial_implementation_turnover": 0.6218213314186845,
+                "recurring_gross_turnover": 0.09968980545174405,
+                "total_gross_turnover": 0.7215111368704284,
+                "annualized_total_turnover": 2.139068311662917,
+                "annualized_recurring_turnover": 0.2955509526334059,
+                "annualization_observations": 85,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 3,
+                "initial_implementation_cost": 0.006218213314186844,
+                "recurring_simulated_cost": 0.0011058957592959544,
+                "realized_simulated_cost": 0.0073241090734827985,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 3.0954765099945263,
+                "initial_implementation_turnover": 0.6327499602152676,
+                "recurring_gross_turnover": 0.15076093846960137,
+                "total_gross_turnover": 0.783510898684869,
+                "annualized_total_turnover": 2.3228793702186707,
+                "annualized_recurring_turnover": 0.446961841109877,
+                "annualization_observations": 85,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 3,
+                "initial_implementation_cost": 0.006327499602152675,
+                "recurring_simulated_cost": 0.0016682924144449528,
+                "realized_simulated_cost": 0.007995792016597628,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_aa16f813288e415fae34648c",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "selection_metric": 3.13646512746661,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 2.9644094414088005,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 85,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 2.842170943040401e-18,
+                "realized_simulated_cost": 0.009999000099990005,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_e028713b249e51fa3843d778",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 3.118159675441736,
+                "initial_implementation_turnover": 0.8108642445858137,
+                "recurring_gross_turnover": 0.0480091536515927,
+                "total_gross_turnover": 0.8588733982374065,
+                "annualized_total_turnover": 2.5463070159508994,
+                "annualized_recurring_turnover": 0.14233302023766306,
+                "annualization_observations": 85,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-04-02",
+                "recurring_trade_days": 3,
+                "initial_implementation_cost": 0.008108642445858138,
+                "recurring_simulated_cost": 0.0005498383548526007,
+                "realized_simulated_cost": 0.008658480800710739,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              }
+            ]
+          }
+        ],
+        "selected_policy_by_fold": [
+          {
+            "fold_id": 0,
+            "candidate_id": "c_aa16f813288e415fae34648c",
+            "exposure_policy": "constant",
+            "parameters": {
+              "risk": 1
+            },
+            "selection_metric": 4.980046191712616,
+            "initial_implementation_turnover": 0.9999000099990002,
+            "recurring_gross_turnover": 0,
+            "total_gross_turnover": 0.9999000099990002,
+            "annualized_total_turnover": 11.998800119988001,
+            "annualized_recurring_turnover": 0,
+            "annualization_observations": 21,
+            "annualization_trading_days": 252,
+            "initial_implementation_date": "2020-04-02",
+            "recurring_trade_days": 0,
+            "initial_implementation_cost": 0.009999000099990002,
+            "recurring_simulated_cost": 0,
+            "realized_simulated_cost": 0.009999000099990002,
+            "warnings": [
+              "NO_RECURRING_REBALANCE_OBSERVED"
+            ],
+            "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+            "turnover_constraint_limit": 8,
+            "turnover_constraint_metric": "annualized_recurring_turnover",
+            "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+            "turnover_constraint_status": "ELIGIBLE",
+            "oos_turnover": {
+              "initial_implementation_turnover": 0.9999000099990002,
+              "recurring_gross_turnover": 0,
+              "total_gross_turnover": 0.9999000099990002,
+              "annualized_total_turnover": 12.598740125987401,
+              "annualized_recurring_turnover": 0,
+              "annualization_observations": 20,
+              "annualization_trading_days": 252,
+              "initial_implementation_date": "2020-05-04",
+              "recurring_trade_days": 0,
+              "initial_implementation_cost": 0.009999000099990002,
+              "recurring_simulated_cost": 0,
+              "realized_simulated_cost": 0.009999000099990002,
+              "warnings": [
+                "NO_RECURRING_REBALANCE_OBSERVED"
+              ],
+              "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+            }
+          },
+          {
+            "fold_id": 1,
+            "candidate_id": "c_8bd28f4f8b5e8e7d2077e17c",
+            "exposure_policy": "cash_band",
+            "parameters": {
+              "cash_min": 0.1,
+              "cash_max": 0.4
+            },
+            "selection_metric": 4.1187404067197475,
+            "initial_implementation_turnover": 0.6327499602152676,
+            "recurring_gross_turnover": 0.10369848110868175,
+            "total_gross_turnover": 0.7364484413239494,
+            "annualized_total_turnover": 4.526463590576469,
+            "annualized_recurring_turnover": 0.6373662741314098,
+            "annualization_observations": 41,
+            "annualization_trading_days": 252,
+            "initial_implementation_date": "2020-04-02",
+            "recurring_trade_days": 1,
+            "initial_implementation_cost": 0.006327499602152675,
+            "recurring_simulated_cost": 0.0011196187151792927,
+            "realized_simulated_cost": 0.007447118317331968,
+            "warnings": [],
+            "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+            "turnover_constraint_limit": 8,
+            "turnover_constraint_metric": "annualized_recurring_turnover",
+            "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+            "turnover_constraint_status": "ELIGIBLE",
+            "oos_turnover": {
+              "initial_implementation_turnover": 0.774989934405134,
+              "recurring_gross_turnover": 0,
+              "total_gross_turnover": 0.774989934405134,
+              "annualized_total_turnover": 8.877157430458807,
+              "annualized_recurring_turnover": 0,
+              "annualization_observations": 22,
+              "annualization_trading_days": 252,
+              "initial_implementation_date": "2020-06-02",
+              "recurring_trade_days": 0,
+              "initial_implementation_cost": 0.0077498993440513406,
+              "recurring_simulated_cost": 0,
+              "realized_simulated_cost": 0.0077498993440513406,
+              "warnings": [
+                "NO_RECURRING_REBALANCE_OBSERVED"
+              ],
+              "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+            }
+          },
+          {
+            "fold_id": 2,
+            "candidate_id": "c_aa16f813288e415fae34648c",
+            "exposure_policy": "constant",
+            "parameters": {
+              "risk": 1
+            },
+            "selection_metric": 2.9659370032470993,
+            "initial_implementation_turnover": 0.9999000099990002,
+            "recurring_gross_turnover": 0,
+            "total_gross_turnover": 0.9999000099990002,
+            "annualized_total_turnover": 3.9996000399960008,
+            "annualized_recurring_turnover": 0,
+            "annualization_observations": 63,
+            "annualization_trading_days": 252,
+            "initial_implementation_date": "2020-04-02",
+            "recurring_trade_days": 0,
+            "initial_implementation_cost": 0.009999000099990002,
+            "recurring_simulated_cost": 1.4210854715202004e-18,
+            "realized_simulated_cost": 0.009999000099990003,
+            "warnings": [
+              "NO_RECURRING_REBALANCE_OBSERVED"
+            ],
+            "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+            "turnover_constraint_limit": 8,
+            "turnover_constraint_metric": "annualized_recurring_turnover",
+            "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+            "turnover_constraint_status": "ELIGIBLE",
+            "oos_turnover": {
+              "initial_implementation_turnover": 0.9999000099990002,
+              "recurring_gross_turnover": 0,
+              "total_gross_turnover": 0.9999000099990002,
+              "annualized_total_turnover": 11.453400114534002,
+              "annualized_recurring_turnover": 0,
+              "annualization_observations": 22,
+              "annualization_trading_days": 252,
+              "initial_implementation_date": "2020-07-02",
+              "recurring_trade_days": 0,
+              "initial_implementation_cost": 0.009999000099990002,
+              "recurring_simulated_cost": 0,
+              "realized_simulated_cost": 0.009999000099990002,
+              "warnings": [
+                "NO_RECURRING_REBALANCE_OBSERVED"
+              ],
+              "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+            }
+          },
+          {
+            "fold_id": 3,
+            "candidate_id": "c_aa16f813288e415fae34648c",
+            "exposure_policy": "constant",
+            "parameters": {
+              "risk": 1
+            },
+            "selection_metric": 3.13646512746661,
+            "initial_implementation_turnover": 0.9999000099990002,
+            "recurring_gross_turnover": 0,
+            "total_gross_turnover": 0.9999000099990002,
+            "annualized_total_turnover": 2.9644094414088005,
+            "annualized_recurring_turnover": 0,
+            "annualization_observations": 85,
+            "annualization_trading_days": 252,
+            "initial_implementation_date": "2020-04-02",
+            "recurring_trade_days": 0,
+            "initial_implementation_cost": 0.009999000099990002,
+            "recurring_simulated_cost": 2.842170943040401e-18,
+            "realized_simulated_cost": 0.009999000099990005,
+            "warnings": [
+              "NO_RECURRING_REBALANCE_OBSERVED"
+            ],
+            "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+            "turnover_constraint_limit": 8,
+            "turnover_constraint_metric": "annualized_recurring_turnover",
+            "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+            "turnover_constraint_status": "ELIGIBLE",
+            "oos_turnover": {
+              "initial_implementation_turnover": 0.9999000099990002,
+              "recurring_gross_turnover": 0,
+              "total_gross_turnover": 0.9999000099990002,
+              "annualized_total_turnover": 11.998800119988001,
+              "annualized_recurring_turnover": 0,
+              "annualization_observations": 21,
+              "annualization_trading_days": 252,
+              "initial_implementation_date": "2020-08-04",
+              "recurring_trade_days": 0,
+              "initial_implementation_cost": 0.009999000099990002,
+              "recurring_simulated_cost": 0,
+              "realized_simulated_cost": 0.009999000099990002,
+              "warnings": [
+                "NO_RECURRING_REBALANCE_OBSERVED"
+              ],
+              "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+            }
+          }
+        ],
+        "oos": {
+          "initial_implementation_turnover": 3.7746899644021346,
+          "recurring_gross_turnover": 0,
+          "total_gross_turnover": 3.7746899644021346,
+          "initial_implementation_cost": 0.03774689964402135,
+          "recurring_simulated_cost": 0,
+          "realized_simulated_cost": 0.03774689964402135,
+          "annualized_total_turnover": 11.190845541521622,
+          "annualized_recurring_turnover": 0,
+          "annualization_observations": 85,
+          "meaning": "Sum of independent OOS fold books: each fold has its own costed implementation; annualization uses the full aligned OOS observation count."
+        },
+        "benchmark_tracks": {
+          "DYNAMIC_EXPOSURE": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 12.598740125987401,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-05-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 1,
+                "initial_implementation_turnover": 0.774989934405134,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.774989934405134,
+                "annualized_total_turnover": 8.877157430458807,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 22,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-06-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.0077498993440513406,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.0077498993440513406,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 2,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 11.453400114534002,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 22,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-07-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 3,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 11.998800119988001,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 21,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-08-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              }
+            ],
+            "total_gross_turnover": 3.7746899644021346,
+            "recurring_gross_turnover": 0,
+            "initial_implementation_turnover": 3.7746899644021346,
+            "realized_simulated_cost": 0.03774689964402135,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          },
+          "PASSIVE_SPY": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 12.598740125987401,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-05-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 1,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 11.453400114534,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 22,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-06-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 2,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 11.453400114534,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 22,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-07-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 3,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 11.998800119988001,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 21,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-08-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              }
+            ],
+            "total_gross_turnover": 3.9996000399960003,
+            "recurring_gross_turnover": 0,
+            "initial_implementation_turnover": 3.9996000399960003,
+            "realized_simulated_cost": 0.039996000399960006,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          },
+          "STATIC_MATCHED_BETA": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.8720541536070904,
+                "recurring_gross_turnover": 0.02157460330696262,
+                "total_gross_turnover": 0.8936287569140529,
+                "annualized_total_turnover": 11.259722337117065,
+                "annualized_recurring_turnover": 0.27184000166772904,
+                "annualization_observations": 20,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-05-04",
+                "recurring_trade_days": 17,
+                "initial_implementation_cost": 0.008720541536070905,
+                "recurring_simulated_cost": 0.00022104812275234166,
+                "realized_simulated_cost": 0.008941589658823247,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval."
+              },
+              {
+                "fold_id": 1,
+                "initial_implementation_turnover": 0.8720541536070904,
+                "recurring_gross_turnover": 0.029375361564663822,
+                "total_gross_turnover": 0.9014295151717543,
+                "annualized_total_turnover": 10.32546535560373,
+                "annualized_recurring_turnover": 0.3364814142861492,
+                "annualization_observations": 22,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-06-02",
+                "recurring_trade_days": 19,
+                "initial_implementation_cost": 0.008720541536070905,
+                "recurring_simulated_cost": 0.000294054469390855,
+                "realized_simulated_cost": 0.00901459600546176,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval."
+              },
+              {
+                "fold_id": 2,
+                "initial_implementation_turnover": 0.8720541536070904,
+                "recurring_gross_turnover": 0.016688690935594806,
+                "total_gross_turnover": 0.888742844542685,
+                "annualized_total_turnover": 10.180145310216211,
+                "annualized_recurring_turnover": 0.19116136889863142,
+                "annualization_observations": 22,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-07-02",
+                "recurring_trade_days": 19,
+                "initial_implementation_cost": 0.008720541536070905,
+                "recurring_simulated_cost": 0.00017050450075229548,
+                "realized_simulated_cost": 0.0088910460368232,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval."
+              },
+              {
+                "fold_id": 3,
+                "initial_implementation_turnover": 0.8720541536070904,
+                "recurring_gross_turnover": 0.00988941610423506,
+                "total_gross_turnover": 0.8819435697113256,
+                "annualized_total_turnover": 10.583322836535908,
+                "annualized_recurring_turnover": 0.1186729932508207,
+                "annualization_observations": 21,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2020-08-04",
+                "recurring_trade_days": 18,
+                "initial_implementation_cost": 0.008720541536070905,
+                "recurring_simulated_cost": 0.00010139698932975136,
+                "realized_simulated_cost": 0.008821938525400655,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval."
+              }
+            ],
+            "total_gross_turnover": 3.5657446863398183,
+            "recurring_gross_turnover": 0.0775280719114563,
+            "initial_implementation_turnover": 3.4882166144283615,
+            "realized_simulated_cost": 0.03566917022650887,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          }
+        }
+      },
+      "hashes": {
+        "financial_result_hash": "3179bdcd9bd20e2aa3b5709aacc46d5a91f7b3b8101ce3d1753098daa411e0b0",
+        "passive_control_hash": "67a52ca4448c95269dad2a33519bd828ad53955a2e53d98ca3afd166727ad5f6",
+        "matched_beta_control_hash": "0a966af6740f9233bbba2d3a14d2d43318ab480a07a89a2bb6bfedf428e51215",
+        "attribution_hash": "0c22f2452291fb606cad81d04a71ca9bd29c75162a58aeeaff02df67ae5ae09a"
+      }
+    },
+    {
+      "case": "QUARTERLY",
+      "turnover": {
+        "methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+        "candidate_training_by_fold": [
+          {
+            "fold_id": 0,
+            "candidates": [
+              {
+                "candidate_id": "c_06b4c7b748cb41eb97f23aea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 1.5899838342817108,
+                "initial_implementation_turnover": 0.8555168028378659,
+                "recurring_gross_turnover": 0.0034465444346584617,
+                "total_gross_turnover": 0.8589633472725243,
+                "annualized_total_turnover": 1.6910840899427824,
+                "annualized_recurring_turnover": 0.006785384355733846,
+                "annualization_observations": 128,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-07-02",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.008555168028378659,
+                "recurring_simulated_cost": 0.00003421049537785734,
+                "realized_simulated_cost": 0.008589378523756516,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_080fdd3793a97ad534334711",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 1.576605879265233,
+                "initial_implementation_turnover": 0.766711210884483,
+                "recurring_gross_turnover": 0.011992416767582047,
+                "total_gross_turnover": 0.778703627652065,
+                "annualized_total_turnover": 1.533072766940003,
+                "annualized_recurring_turnover": 0.023610070511177157,
+                "annualization_observations": 128,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-07-02",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.00766711210884483,
+                "recurring_simulated_cost": 0.00011912914528472669,
+                "realized_simulated_cost": 0.007786241254129557,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_0cfc4e771e20360f25168021",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 1.591897494591506,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0.0013767452613288656,
+                "total_gross_turnover": 0.8013127503809193,
+                "annualized_total_turnover": 1.577584477312435,
+                "annualized_recurring_turnover": 0.0027104672332412044,
+                "annualization_observations": 128,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-07-02",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0.000013672227901041367,
+                "realized_simulated_cost": 0.008013032279096945,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_629c2f09c685c43068dc2d93",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 1.578340653580239,
+                "initial_implementation_turnover": 0.711129425897489,
+                "recurring_gross_turnover": 0.0072542953300117835,
+                "total_gross_turnover": 0.7183837212275007,
+                "annualized_total_turnover": 1.414317951166642,
+                "annualized_recurring_turnover": 0.0142818939309607,
+                "annualization_observations": 128,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-07-02",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.00711129425897489,
+                "recurring_simulated_cost": 0.00007209690209637217,
+                "realized_simulated_cost": 0.007183391161071262,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_99265f451627fb488b898650",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "selection_metric": 1.59983763421293,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 1.9685531446855316,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 128,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-07-02",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 1.4210854715202004e-18,
+                "realized_simulated_cost": 0.009999000099990003,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              }
+            ]
+          },
+          {
+            "fold_id": 1,
+            "candidates": [
+              {
+                "candidate_id": "c_06b4c7b748cb41eb97f23aea",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 0.7307774627356347,
+                "initial_implementation_turnover": 0.8510075724475241,
+                "recurring_gross_turnover": 0.0015970946340643066,
+                "total_gross_turnover": 0.8526046670815884,
+                "annualized_total_turnover": 1.7052093341631769,
+                "annualized_recurring_turnover": 0.003194189268128613,
+                "annualization_observations": 126,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-10-04",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.00851007572447524,
+                "recurring_simulated_cost": 0.00001757363151161684,
+                "realized_simulated_cost": 0.008527649355986858,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_080fdd3793a97ad534334711",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.1,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 0.6897135229732464,
+                "initial_implementation_turnover": 0.7531832672235796,
+                "recurring_gross_turnover": 0.025422669221146058,
+                "total_gross_turnover": 0.7786059364447258,
+                "annualized_total_turnover": 1.5572118728894515,
+                "annualized_recurring_turnover": 0.050845338442292116,
+                "annualization_observations": 126,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-10-04",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.007531832672235797,
+                "recurring_simulated_cost": 0.00027680575719282816,
+                "realized_simulated_cost": 0.007808638429428625,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_0cfc4e771e20360f25168021",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.2
+                },
+                "selection_metric": 0.7503323081131382,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0.017255393469680837,
+                "total_gross_turnover": 0.8171913985892713,
+                "annualized_total_turnover": 1.6343827971785425,
+                "annualized_recurring_turnover": 0.03451078693936167,
+                "annualization_observations": 126,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-10-04",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0.00018883055584947926,
+                "realized_simulated_cost": 0.008188190607045382,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_629c2f09c685c43068dc2d93",
+                "exposure_policy": "cash_band",
+                "parameters": {
+                  "cash_min": 0.2,
+                  "cash_max": 0.4
+                },
+                "selection_metric": 0.7077009874017588,
+                "initial_implementation_turnover": 0.7021107005950469,
+                "recurring_gross_turnover": 0.007586745054419559,
+                "total_gross_turnover": 0.7096974456494665,
+                "annualized_total_turnover": 1.419394891298933,
+                "annualized_recurring_turnover": 0.015173490108839118,
+                "annualization_observations": 126,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-10-04",
+                "recurring_trade_days": 1,
+                "initial_implementation_cost": 0.007021107005950469,
+                "recurring_simulated_cost": 0.00008214868820202526,
+                "realized_simulated_cost": 0.007103255694152494,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              },
+              {
+                "candidate_id": "c_99265f451627fb488b898650",
+                "exposure_policy": "constant",
+                "parameters": {
+                  "risk": 1
+                },
+                "selection_metric": 0.7465849302586698,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 1.9998000199980004,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 126,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2021-10-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+                "turnover_constraint_limit": 8,
+                "turnover_constraint_metric": "annualized_recurring_turnover",
+                "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+                "turnover_constraint_status": "ELIGIBLE"
+              }
+            ]
+          }
+        ],
+        "selected_policy_by_fold": [
+          {
+            "fold_id": 0,
+            "candidate_id": "c_99265f451627fb488b898650",
+            "exposure_policy": "constant",
+            "parameters": {
+              "risk": 1
+            },
+            "selection_metric": 1.59983763421293,
+            "initial_implementation_turnover": 0.9999000099990002,
+            "recurring_gross_turnover": 0,
+            "total_gross_turnover": 0.9999000099990002,
+            "annualized_total_turnover": 1.9685531446855316,
+            "annualized_recurring_turnover": 0,
+            "annualization_observations": 128,
+            "annualization_trading_days": 252,
+            "initial_implementation_date": "2021-07-02",
+            "recurring_trade_days": 0,
+            "initial_implementation_cost": 0.009999000099990002,
+            "recurring_simulated_cost": 1.4210854715202004e-18,
+            "realized_simulated_cost": 0.009999000099990003,
+            "warnings": [
+              "NO_RECURRING_REBALANCE_OBSERVED"
+            ],
+            "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate.",
+            "turnover_constraint_limit": 8,
+            "turnover_constraint_metric": "annualized_recurring_turnover",
+            "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+            "turnover_constraint_status": "ELIGIBLE",
+            "oos_turnover": {
+              "initial_implementation_turnover": 0.9999000099990002,
+              "recurring_gross_turnover": 0,
+              "total_gross_turnover": 0.9999000099990002,
+              "annualized_total_turnover": 4.064109718060452,
+              "annualized_recurring_turnover": 0,
+              "annualization_observations": 62,
+              "annualization_trading_days": 252,
+              "initial_implementation_date": "2022-01-04",
+              "recurring_trade_days": 0,
+              "initial_implementation_cost": 0.009999000099990002,
+              "recurring_simulated_cost": 0,
+              "realized_simulated_cost": 0.009999000099990002,
+              "warnings": [
+                "NO_RECURRING_REBALANCE_OBSERVED"
+              ],
+              "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+            }
+          },
+          {
+            "fold_id": 1,
+            "candidate_id": "c_0cfc4e771e20360f25168021",
+            "exposure_policy": "cash_band",
+            "parameters": {
+              "cash_min": 0.2,
+              "cash_max": 0.2
+            },
+            "selection_metric": 0.7503323081131382,
+            "initial_implementation_turnover": 0.7999360051195904,
+            "recurring_gross_turnover": 0.017255393469680837,
+            "total_gross_turnover": 0.8171913985892713,
+            "annualized_total_turnover": 1.6343827971785425,
+            "annualized_recurring_turnover": 0.03451078693936167,
+            "annualization_observations": 126,
+            "annualization_trading_days": 252,
+            "initial_implementation_date": "2021-10-04",
+            "recurring_trade_days": 1,
+            "initial_implementation_cost": 0.007999360051195904,
+            "recurring_simulated_cost": 0.00018883055584947926,
+            "realized_simulated_cost": 0.008188190607045382,
+            "warnings": [],
+            "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval.",
+            "turnover_constraint_limit": 8,
+            "turnover_constraint_metric": "annualized_recurring_turnover",
+            "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+            "turnover_constraint_status": "ELIGIBLE",
+            "oos_turnover": {
+              "initial_implementation_turnover": 0.7999360051195904,
+              "recurring_gross_turnover": 0,
+              "total_gross_turnover": 0.7999360051195904,
+              "annualized_total_turnover": 3.251352795002206,
+              "annualized_recurring_turnover": 0,
+              "annualization_observations": 62,
+              "annualization_trading_days": 252,
+              "initial_implementation_date": "2022-04-04",
+              "recurring_trade_days": 0,
+              "initial_implementation_cost": 0.007999360051195904,
+              "recurring_simulated_cost": 0,
+              "realized_simulated_cost": 0.007999360051195904,
+              "warnings": [
+                "NO_RECURRING_REBALANCE_OBSERVED"
+              ],
+              "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+            }
+          }
+        ],
+        "oos": {
+          "initial_implementation_turnover": 1.7998360151185906,
+          "recurring_gross_turnover": 0,
+          "total_gross_turnover": 1.7998360151185906,
+          "initial_implementation_cost": 0.017998360151185906,
+          "recurring_simulated_cost": 0,
+          "realized_simulated_cost": 0.017998360151185906,
+          "annualized_total_turnover": 3.6577312565313296,
+          "annualized_recurring_turnover": 0,
+          "annualization_observations": 124,
+          "meaning": "Sum of independent OOS fold books: each fold has its own costed implementation; annualization uses the full aligned OOS observation count."
+        },
+        "benchmark_tracks": {
+          "DYNAMIC_EXPOSURE": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.9999000099990002,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990002,
+                "annualized_total_turnover": 4.064109718060452,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 62,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-01-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 1,
+                "initial_implementation_turnover": 0.7999360051195904,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.7999360051195904,
+                "annualized_total_turnover": 3.251352795002206,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 62,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-04-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.007999360051195904,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.007999360051195904,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              }
+            ],
+            "total_gross_turnover": 1.7998360151185906,
+            "recurring_gross_turnover": 0,
+            "initial_implementation_turnover": 1.7998360151185906,
+            "realized_simulated_cost": 0.017998360151185906,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          },
+          "PASSIVE_SPY": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 4.064109718060452,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 62,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-01-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              },
+              {
+                "fold_id": 1,
+                "initial_implementation_turnover": 0.9999000099990001,
+                "recurring_gross_turnover": 0,
+                "total_gross_turnover": 0.9999000099990001,
+                "annualized_total_turnover": 4.064109718060452,
+                "annualized_recurring_turnover": 0,
+                "annualization_observations": 62,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-04-04",
+                "recurring_trade_days": 0,
+                "initial_implementation_cost": 0.009999000099990002,
+                "recurring_simulated_cost": 0,
+                "realized_simulated_cost": 0.009999000099990002,
+                "warnings": [
+                  "NO_RECURRING_REBALANCE_OBSERVED"
+                ],
+                "recurring_turnover_interpretation": "The training interval contains no portfolio change after initial implementation, so the recurring-turnover constraint is not informative for this candidate."
+              }
+            ],
+            "total_gross_turnover": 1.9998000199980002,
+            "recurring_gross_turnover": 0,
+            "initial_implementation_turnover": 1.9998000199980002,
+            "realized_simulated_cost": 0.019998000199980003,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          },
+          "STATIC_MATCHED_BETA": {
+            "per_fold": [
+              {
+                "fold_id": 0,
+                "initial_implementation_turnover": 0.859606436284646,
+                "recurring_gross_turnover": 0.08147508788727681,
+                "total_gross_turnover": 0.9410815241719227,
+                "annualized_total_turnover": 3.8250410337310408,
+                "annualized_recurring_turnover": 0.3311568088321573,
+                "annualization_observations": 62,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-01-04",
+                "recurring_trade_days": 59,
+                "initial_implementation_cost": 0.00859606436284646,
+                "recurring_simulated_cost": 0.0007618119197015998,
+                "realized_simulated_cost": 0.009357876282548062,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval."
+              },
+              {
+                "fold_id": 1,
+                "initial_implementation_turnover": 0.859606436284646,
+                "recurring_gross_turnover": 0.10359206194441074,
+                "total_gross_turnover": 0.9631984982290569,
+                "annualized_total_turnover": 3.914935831511651,
+                "annualized_recurring_turnover": 0.42105160661276625,
+                "annualization_observations": 62,
+                "annualization_trading_days": 252,
+                "initial_implementation_date": "2022-04-04",
+                "recurring_trade_days": 59,
+                "initial_implementation_cost": 0.00859606436284646,
+                "recurring_simulated_cost": 0.0009369756912892657,
+                "realized_simulated_cost": 0.009533040054135725,
+                "warnings": [],
+                "recurring_turnover_interpretation": "Recurring turnover measures actual subsequent traded notional using the full observed interval."
+              }
+            ],
+            "total_gross_turnover": 1.9042800224009797,
+            "recurring_gross_turnover": 0.18506714983168754,
+            "initial_implementation_turnover": 1.719212872569292,
+            "realized_simulated_cost": 0.018890916336683786,
+            "source": "ACTUAL_CONTROL_FILL_LEDGER_OUTPUTS",
+            "benchmark_hash_unchanged": true
+          }
+        }
+      },
+      "hashes": {
+        "financial_result_hash": "a96869dbf8cec9962c29d46066a036ecf6c57d91bd35dc1efcde62e7d426c8a5",
+        "passive_control_hash": "1eaf0f0d3e76fd13ccbd91f4d38071791f720a657a471539abd2faca7a3170ce",
+        "matched_beta_control_hash": "7ddf07463df0754b5328fc6f338a0caf5dfff1146721ded5903264c4f843fd3e",
+        "attribution_hash": "bee4522c5769f0b9da30c145c9aa438d8211aabe1d9eafd3ddf80e85a7ca7224"
+      }
+    }
+  ],
+  "source": "ACTUAL_CERTIFIED_FILL_LEDGERS"
+}

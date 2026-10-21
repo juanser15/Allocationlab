@@ -1,0 +1,55 @@
+--- certified legacy orchestration (unchanged)
++++ new explicitly versioned recurring orchestration
+@@ -0,0 +1,3 @@
++// Versioned orchestration snapshot of ../capital/engine.ts at 05fe3469.
++// Ledger, returns, costs, fit/PIT, folds, scoring and aggregation remain byte-for-byte
++// equivalent after import rebasing. Only selection eligibility and its evidence differ.
+@@ -4,4 +7,4 @@
+-import { canonical, hash, generateCandidates, makeFolds, innerFolds, type Campaign, type Candidate, type Fold, type Frequency } from "./spec";
+-import { defaultRegistry, modelSpec, type Registry } from "./registry";
+-import { Cache, atomicJson, freezeJson, readJson, writeCsv, immutable } from "./storage";
+-import { correlation, select, summarize, type Metrics, type Observation, type Ranked } from "./metrics";
++import { canonical, hash, generateCandidates, makeFolds, innerFolds, type Campaign, type Candidate, type Fold, type Frequency } from "../capital/spec";
++import { defaultRegistry, modelSpec, type Registry } from "../capital/registry";
++import { Cache, atomicJson, freezeJson, readJson, writeCsv, immutable } from "../capital/storage";
++import { correlation, select, summarize, type Metrics, type Observation, type Ranked } from "../capital/metrics";
+@@ -9 +12,3 @@
+-export const VERSION = "capital-research-1.0.1";
++import { selectRecurring, RECURRING_V2 } from "./turnover-selection";
++
++export const VERSION = "capital-research-recurring-turnover-2.0.0";
+@@ -16 +21 @@
+-export interface RunOptions { registry?: Registry; code_hash?: string; max_new_jobs?: number; cache_root?: string; pause_before_summary?: boolean; }
++export interface RunOptions { registry?: Registry; code_hash?: string; max_new_jobs?: number; cache_root?: string; pause_before_summary?: boolean; maximum_jobs: number; }
+@@ -53 +58,2 @@
+-export function runCampaign(c: Campaign, rows: PriceRow[], root: string, options: RunOptions = {}) {
++export function runCampaign(c: Campaign, rows: PriceRow[], root: string, options: RunOptions) {
++  if ((c.validation_mode as string) !== "traditional" || !Number.isSafeInteger(options.maximum_jobs) || options.maximum_jobs <= 0) throw new Error("Invalid recurring-turnover campaign contract or operational capacity");
+@@ -56,0 +63 @@
++  const { max_jobs: _runtimeBudget, ...financialCampaign } = c;
+@@ -58 +65,2 @@
+-  if (planning.total_jobs_estimated > c.max_jobs) throw new Error(`Safety guard: ${planning.total_jobs_estimated} estimated jobs > max_jobs ${c.max_jobs}; inspect dry-run and edit explicit campaign limit`);
++  delete (planning as Partial<typeof planning>).max_jobs;
++  if (planning.total_jobs_estimated > options.maximum_jobs) throw new Error(`Safety guard: ${planning.total_jobs_estimated} estimated jobs > max_jobs ${options.maximum_jobs}; inspect dry-run and edit explicit campaign limit`);
+@@ -60 +68 @@
+-  const dataHash = hash(rows), experimentHash = hash({ version: VERSION, campaign: c, dataHash,
++  const dataHash = hash(rows), experimentHash = hash({ version: VERSION, campaign: financialCampaign, dataHash,
+@@ -63 +71 @@
+-    experiment_hash: experimentHash, campaign: c, data_hash: dataHash, original_csv_hash: c.data_sha256,
++    experiment_hash: experimentHash, campaign: financialCampaign, data_hash: dataHash, original_csv_hash: c.data_sha256,
+@@ -71 +79 @@
+-      constraints_turnover: "annualized gross actual notional/pretrade NAV", DSR: "NOT_IMPLEMENTED" } });
++      constraints_turnover: RECURRING_V2, DSR: "NOT_IMPLEMENTED" } });
+@@ -73 +81 @@
+-  freezeJson(`${root}/campaign.frozen.json`, c);
++  freezeJson(`${root}/campaign.frozen.json`, financialCampaign);
+@@ -202 +210 @@
+-      const selection = select(c, ranked);
++      const selection = selectRecurring(c, ranked, allJobs, outer.outer_fold);
+@@ -205 +213 @@
+-        rank: r.rank, score: r.score, complexity: r.complexity, ...r.metrics })));
++        rank: r.rank, score: r.score, complexity: r.complexity, ...r.metrics, ...selection.turnover_evidence[r.candidate.candidate_id] })));
+@@ -209,0 +218,3 @@
++        turnover_constraint_methodology_version: RECURRING_V2,
++        selected_turnover: selection.winner ? selection.turnover_evidence[selection.winner.candidate.candidate_id] : null,
++        candidate_turnover: selection.turnover_evidence,

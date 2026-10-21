@@ -1,7 +1,10 @@
 import {
   DESIGN_FIELDS,
   SPEC_V2,
+  PRODUCT_SPEC,
+  RECURRING_V2,
   submissionV2Schema,
+  versionedSubmissionSchema,
   type CapabilitiesV2,
   type DetailV2,
   type FoldV2,
@@ -29,9 +32,10 @@ export function readDesign(
   for (const field of DESIGN_FIELDS)
     if (!form[field].trim()) errors.push(`${FIELD_LABELS[field]} is required.`);
   if (errors.length) return { errors };
-  const parsed = submissionV2Schema.safeParse({
+  const parsed = versionedSubmissionSchema.safeParse({
     ...form,
-    contract_version: SPEC_V2,
+    contract_version: caps.supported_spec_version,
+    ...(caps.supported_spec_version === PRODUCT_SPEC ? { turnover_constraint_methodology_version: RECURRING_V2 } : {}),
     research_mode: "CAPITAL_MARKET_EXPOSURE",
     execution_scope: "EMPIRICAL",
     universe: "SPY",
@@ -108,7 +112,7 @@ export function readStandardDesign(form: DesignForm, caps: CapabilitiesV2) {
   };
 }
 export const sameRequest = (a: SubmissionV2, b: SubmissionV2) =>
-  Object.keys(submissionV2Schema.shape).every(
+  a.turnover_constraint_methodology_version === b.turnover_constraint_methodology_version && Object.keys(submissionV2Schema.shape).every(
     (key) => a[key as keyof SubmissionV2] === b[key as keyof SubmissionV2],
   );
 export function sameFolds(a: FoldV2[], b: FoldV2[]): boolean {

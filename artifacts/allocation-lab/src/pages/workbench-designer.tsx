@@ -38,6 +38,8 @@ import {
 } from "@/lib/workbench-state";
 import {
   DESIGN_FIELDS,
+  PRODUCT_SPEC,
+  RECURRING_V2,
   DesignerApiError,
   WorkbenchV2Client,
   capabilityProblemsV2,
@@ -244,6 +246,7 @@ function ErrorNotice({ error }: { error: unknown }) {
               ? "Refresh status. Do not submit repeatedly; there is no automatic retry."
               : "Review the requested design and the dataset rules, then try again. No input was changed automatically.")}
       </p>
+      <details className="workbench-audit"><summary>SHOW TECHNICAL DETAILS</summary>
       <code>{e.code}</code>
       {detail.length > 0 && (
         <dl className="wd-facts">
@@ -255,6 +258,7 @@ function ErrorNotice({ error }: { error: unknown }) {
           ))}
         </dl>
       )}
+      </details>
     </div>
   );
 }
@@ -1085,7 +1089,7 @@ function History({
               {runs.map((r) => {
                 const result = latestSuccess(r);
                 return (
-                  <tr key={r.run_id}>
+                  <tr key={r.run_id} data-run-id={r.run_id}>
                     <td>{formatTimestamp(r.historyCreatedAt)}</td>
                     <td>
                       {r.spec.evaluation_start} →{" "}
@@ -1094,7 +1098,7 @@ function History({
                     <td>{label(r.spec.window_type)}</td>
                     <td>{r.spec.training_window_months} months</td>
                     <td>{label(r.spec.rebalance_frequency)}</td>
-                    <td>{r.spec.transaction_cost_bps} bps</td>
+                    <td>{r.spec.transaction_cost_bps} bps<small className="wd-muted block">{r.spec.contract_version === PRODUCT_SPEC ? "Recurring turnover" : "Legacy total turnover"}</small></td>
 
                     <td>{result?.evaluation?.fold_count ?? "Not returned"}</td>
                     <td>{r.latest_status}</td>
@@ -1164,6 +1168,7 @@ function Designer({ token, signOut }: { token: string; signOut: () => void }) {
   const problems = caps.data
     ? [
         ...capabilityProblemsV2(caps.data),
+        ...(caps.data.supported_spec_version === PRODUCT_SPEC && caps.data.turnover_constraint_methodology_version === RECURRING_V2 ? [] : ["Recurring-turnover product version"]),
         ...(caps.data.model_definition &&
         caps.data.benchmark_methodology_version
           ? []
@@ -1655,6 +1660,7 @@ function Designer({ token, signOut }: { token: string; signOut: () => void }) {
                     }
                   />
                 )}
+                {active && active.spec.contract_version !== PRODUCT_SPEC && <p className="wd-notice">Legacy turnover definition: initial implementation counts toward the candidate limit. Rerunning preserves this definition.</p>}
                 {receipt?.reused_existing_attempt && (
                   <p className="wd-notice">
                     Existing experiment reused. This submission did not start a

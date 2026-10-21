@@ -1,0 +1,14 @@
+{
+  "extends": "../../artifacts/api-server/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "incremental": false,
+    "composite": false,
+    "typeRoots": [
+      "../../artifacts/api-server/node_modules/@types",
+      "../../node_modules/@types"
+    ]
+  },
+  "include": ["*.ts"],
+  "references": []
+}

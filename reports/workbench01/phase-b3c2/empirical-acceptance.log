@@ -1,0 +1,14 @@
+PASS C_ONE_MONTH_SINGLE_FOLD
+PASS D_RECURRING_MULTI_FOLD
+PASS EXPANDING_SHORT_INITIAL
+PASS QUARTERLY
+PASS legacy rr_f9c550b6ac00
+PASS legacy rr_22989c7e6049
+PASS legacy rr_701e54ae6678
+PASS legacy rr_1fa974aca0fa
+PASS legacy rr_9a68474dd642
+PASS legacy rr_f26e92f72035
+PASS legacy rr_75ad6ee5064f
+PASS legacy rr_db1eb277d910
+PASS legacy rr_e7bcc313aed1
+PASS API acceptance and all nine historical V1-turnover financial regressions

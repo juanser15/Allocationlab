@@ -9,9 +9,20 @@ export const candidateFailureSchema = z.object({
   maximum_annualized_turnover: z
     .union([z.number().finite(), z.literal("NOT_CONFIGURED")])
     .optional(),
+  initial_implementation_turnover: z.number().finite().nonnegative().optional(),
+  recurring_gross_turnover: z.number().finite().nonnegative().optional(),
+  total_gross_turnover: z.number().finite().nonnegative().optional(),
+  annualized_recurring_turnover: z.number().finite().nonnegative().optional(),
+  annualized_total_turnover: z.number().finite().nonnegative().optional(),
+  turnover_constraint_limit: z.number().finite().nonnegative().optional(),
+  turnover_constraint_metric: z.enum(["annualized_total_turnover", "annualized_recurring_turnover"]).optional(),
+  turnover_constraint_methodology_version: z.enum(["TOTAL_TURNOVER_INCLUDING_INITIAL_V1", "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2"]).optional(),
+  turnover_constraint_status: z.string().optional(),
+  realized_simulated_cost: z.number().finite().nonnegative().optional(),
   violated_constraints: z.array(z.string().regex(/^[A-Z_]+$/)).optional(),
 });
 export const failureContextSchema = z.object({
+  capacity: z.object({ number_of_folds: z.number(), estimated_jobs: z.number(), maximum_jobs: z.number(), minimum_required_engine_files: z.number(), maximum_engine_files: z.number(), no_attempt_created: z.boolean() }).optional(),
   candidates: z.array(candidateFailureSchema).optional(),
   failure_diagnostic: z
     .object({ candidates: z.array(candidateFailureSchema) })

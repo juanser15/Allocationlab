@@ -1,0 +1,39 @@
+✔ Standard cost mapping is explicit, exact and distinct backend fields remain supported (1.405149ms)
+✔ No silent defaults and no duplicate hidden cost validation in the standard form (1.020004ms)
+✔ Primary copy has a backtest period and one cost; no engine documentation panel (1.64729ms)
+✔ Model transparency and result attribution are backend-driven, without frontend financial formulas (0.657712ms)
+✔ no recurring change is explained as uninformative, never established low turnover (4.749994ms)
+✔ ordinary design explicitly binds fixed V2 methodology, keeps one cost and has no new financial defaults (1.872847ms)
+✔ capacity failure has a concise primary explanation and collapsed technical evidence (12.826145ms)
+✔ candidate failures hide candidate details initially, and model details stay under expansion (1.448163ms)
+✔ A/B/E: form is empty; validation comes from capabilities; no independent clock fields (2.434135ms)
+✔ C/D: cadence metadata supplies exact read-only monthly and quarterly timing (0.184375ms)
+✔ F/G: exact rolling and expanding backend dates determine geometry, including unequal month lengths (0.546677ms)
+✔ H/I/J/K: no run before current accepted plan; any edited field invalidates it (0.326097ms)
+✔ L: exact executed fold mismatch fails closed without hashing or financial calculations (0.495339ms)
+✔ M/N: arbitrary costs remain explicit, distinct, finite, nonnegative and unrounded (2.445262ms)
+✔ B/O: invalid dates and quarter boundaries never snap or auto-correct (0.706375ms)
+✔ K/Q: plan and run use exactly the strict V2 financial object on ordinary routes (28.396178ms)
+✔ O: backend blockers and 429 evidence propagate once without automatic retries (1.630635ms)
+✔ Compare: overlay only for matching evaluation intervals, no local result differences (0.254971ms)
+✔ Q/R: live /workbench imports V2 designer; no V1 execution or broker controls (0.735729ms)
+✔ Failure card renders the actual safe class, fold, decision date, cause and user action (20.769258ms)
+✔ Only safe contract fields reach the card; private diagnostics and unknown fields are never rendered (2.077262ms)
+✔ Data, history and infrastructure failures retain their own class without an invented training-window remedy (2.202479ms)
+✔ Plan blockers, latest failed attempt and immutable history use the same actionable renderer (1.803103ms)
+✔ Public diagnostic text rejects arbitrary environment assignments without embedding server secret names in the client (0.221681ms)
+✔ A/B/C/P: capability gate accepts only the single certified vertical slice and visible boundaries (1.275074ms)
+✔ C/D/E: submission is exactly five fields and uses the real Phase B1 route (26.062332ms)
+✔ F/H: bounded polling stops at terminal state or timeout and capacity never implies auto-retry (0.348551ms)
+✔ G/I/J/K: successful API evidence drives the primary values and chart without invented metrics (0.401079ms)
+✔ L/M: rerun uses an empty body and attempt evidence remains immutable and separately addressable (2.219774ms)
+✔ N/O: compare calls the read-only route and the client contract has no winner field (0.888727ms)
+✔ Q/T/V: advanced evidence is collapsed, no execution controls exist, and legacy routes remain (6.943991ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 299.262316
