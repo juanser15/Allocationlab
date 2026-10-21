@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "browser": "154.0.8037.57",
+  "actual_production_frontend": true,
+  "actual_built_api": true,
+  "same_origin_relative_requests": true,
+  "isolated_temporary_store": true,
+  "empirical_attempts": 5,
+  "checks": {
+    "unauthorized_fails_closed": true,
+    "empty_initial_financial_fields": true,
+    "capabilities_driven_bounds": true,
+    "no_independent_clock_inputs": true,
+    "real_warmup_blocker_rendered": true,
+    "invalid_quarter_boundary_not_snapped": true,
+    "edit_invalidates_plan_immediately": true,
+    "immutable_rerun_same_identity_new_attempt": true,
+    "idempotent_submission_visible": true,
+    "comparison_read_only_correct_artifacts": true,
+    "no_v1_route_ever_requested": true,
+    "boundaries_visible_advanced_collapsed": true,
+    "no_broker_controls": true,
+    "execution_mismatch_withholds_results": true,
+    "capacity_does_not_auto_retry": true,
+    "no_secret_in_built_bundle": true,
+    "mobile_touch_plan_review_and_run_target": true,
+    "history_rerun_requires_fold_review_in_new_session": true
+  },
+  "page_errors": [],
+  "screenshot_count": 16,
+  "no_deployment": true
+}

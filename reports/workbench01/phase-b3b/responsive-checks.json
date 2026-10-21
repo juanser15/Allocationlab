@@ -1,0 +1,94 @@
+{
+  "status": "PASS",
+  "browser": "Real Chromium",
+  "checks": [
+    {
+      "width": 360,
+      "stage": "PRE_RUN_REVIEW",
+      "viewport": 360,
+      "document": 360,
+      "page_overflow": false,
+      "screenshot": "screenshots/plan-360.png"
+    },
+    {
+      "width": 390,
+      "stage": "PRE_RUN_REVIEW",
+      "viewport": 390,
+      "document": 390,
+      "page_overflow": false,
+      "screenshot": "screenshots/plan-390.png"
+    },
+    {
+      "width": 430,
+      "stage": "PRE_RUN_REVIEW",
+      "viewport": 430,
+      "document": 430,
+      "page_overflow": false,
+      "screenshot": "screenshots/plan-430.png"
+    },
+    {
+      "width": 768,
+      "stage": "PRE_RUN_REVIEW",
+      "viewport": 768,
+      "document": 768,
+      "page_overflow": false,
+      "screenshot": "screenshots/plan-768.png"
+    },
+    {
+      "width": 1440,
+      "stage": "PRE_RUN_REVIEW",
+      "viewport": 1440,
+      "document": 1440,
+      "page_overflow": false,
+      "screenshot": "screenshots/plan-1440.png"
+    },
+    {
+      "width": 360,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 360,
+      "document": 360,
+      "page_overflow": false,
+      "screenshot": "screenshots/results-360.png"
+    },
+    {
+      "width": 390,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 390,
+      "document": 390,
+      "page_overflow": false,
+      "screenshot": "screenshots/results-390.png"
+    },
+    {
+      "width": 430,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 430,
+      "document": 430,
+      "page_overflow": false,
+      "screenshot": "screenshots/results-430.png"
+    },
+    {
+      "width": 768,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 768,
+      "document": 768,
+      "page_overflow": false,
+      "screenshot": "screenshots/results-768.png"
+    },
+    {
+      "width": 1440,
+      "stage": "RESULTS_AND_COMPARE",
+      "viewport": 1440,
+      "document": 1440,
+      "page_overflow": false,
+      "screenshot": "screenshots/results-1440.png"
+    },
+    {
+      "width": 390,
+      "stage": "TOUCH_MOBILE_REVIEW",
+      "viewport": 390,
+      "document": 390,
+      "page_overflow": false,
+      "screenshot": "screenshots/touch-390-fold-map.png"
+    }
+  ]
+}

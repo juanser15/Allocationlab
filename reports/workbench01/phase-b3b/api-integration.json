@@ -1,0 +1,682 @@
+{
+  "status": "PASS",
+  "matrix": [
+    {
+      "name": "rolling_monthly",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 2.5
+      },
+      "run_id": "rr_f9c550b6ac0044b898c81e08c07ba7a7a4d66b541fef1db762e28d2f4d185f95",
+      "execution_attempt_id": "ea_e76cdbee-7b38-47d7-8050-bd0bf630ec89",
+      "plan": {
+        "research_boundary": "RESEARCH_ONLY",
+        "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+        "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "normalized_request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-03-01",
+          "window_type": "ROLLING",
+          "training_window_months": 24,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 0,
+          "selection_cost_bps": 2.5
+        },
+        "derived_engine_calendar": {
+          "dates": {
+            "start": "2020-01-01",
+            "end_exclusive": "2022-03-01"
+          },
+          "train_months": 24,
+          "test_months": 1,
+          "step_months": 1,
+          "window_type": "rolling",
+          "rebalance_frequency": "monthly",
+          "recalibration_frequency": "monthly"
+        },
+        "number_of_folds": 2,
+        "first_training_date": "2020-01-01",
+        "first_oos_date": "2022-01-01",
+        "last_oos_date": "2022-02-28",
+        "folds": [
+          {
+            "fold_id": 0,
+            "training_start": "2020-01-01",
+            "training_end_exclusive": "2022-01-01",
+            "decision_date": "2022-01-03",
+            "information_cutoff": "2021-12-31",
+            "oos_start": "2022-01-01",
+            "oos_end_exclusive": "2022-02-01",
+            "rebalance_frequency": "MONTHLY",
+            "window_type": "ROLLING",
+            "training_observations": 505,
+            "warmup_observations": 2328,
+            "oos_observations": 20
+          },
+          {
+            "fold_id": 1,
+            "training_start": "2020-02-01",
+            "training_end_exclusive": "2022-02-01",
+            "decision_date": "2022-02-01",
+            "information_cutoff": "2022-01-31",
+            "oos_start": "2022-02-01",
+            "oos_end_exclusive": "2022-03-01",
+            "rebalance_frequency": "MONTHLY",
+            "window_type": "ROLLING",
+            "training_observations": 504,
+            "warmup_observations": 2349,
+            "oos_observations": 19
+          }
+        ],
+        "estimated_jobs": {
+          "unique_candidates": 5,
+          "cartesian_size": 5,
+          "outer_folds": 2,
+          "inner_folds": 0,
+          "model_fits_estimated_upper_bound": 50,
+          "backtests_estimated": 24,
+          "cost_scenarios": [
+            0,
+            2.5
+          ],
+          "total_jobs_estimated": 74,
+          "estimation": "Backtests exact maximum incl. invalid candidates; fits upper bound before winner identities/cache. Prediction cache entries are not model fits.",
+          "candidate_definition_hash": "f6c6316d66c14f03ec9f3ce583ee6cef6bf5d427aa46fbbd37da06372f4a7d72",
+          "max_jobs": 2000
+        },
+        "backtests_estimated": 24,
+        "warnings": [
+          "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+          "Independent fold sleeves reset NAV/cash; the compounded OOS index is not a carried-holdings account."
+        ],
+        "blockers": []
+      },
+      "evaluation": {
+        "evaluation_end_exclusive": "2022-03-01",
+        "evaluation_start": "2022-01-01",
+        "fold_count": 2,
+        "rebalance_frequency": "MONTHLY",
+        "training_window_months": 24,
+        "window_type": "ROLLING"
+      },
+      "metrics": {
+        "annualized_turnover": 9.967181538461539,
+        "annualized_volatility": 0.15113820830266686,
+        "cagr": -0.4098261302107765,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2022-03-01",
+          "evaluation_start": "2022-01-01",
+          "fold_count": 2,
+          "rebalance_frequency": "MONTHLY",
+          "training_window_months": 24,
+          "window_type": "ROLLING"
+        },
+        "final_research_index": 92.1629622205388,
+        "gross_turnover": 1.54254,
+        "max_drawdown": -0.10113891977110934,
+        "mean_beginning_risky_exposure": 0.6863241337999073,
+        "net_sharpe": -3.4118119614528433,
+        "observations": 39,
+        "return_drawdown_ratio": -4.052111008682581
+      },
+      "costs": {
+        "cost_basis": "actual absolute traded notional",
+        "gross_and_net_distinction": "Net equals gross because the explicitly stored transaction cost is zero.",
+        "realized_transaction_cost": 0,
+        "selection_cost_bps": 2.5,
+        "selection_cost_meaning": "Training candidate ranking scenario",
+        "slippage_bps": 0,
+        "transaction_cost_bps": 0,
+        "transaction_cost_meaning": "Selected-candidate OOS evaluation fee"
+      },
+      "financial_result_hash": "190b29f04830ec2f4274d752e4dd9f6933c675f198a6d791d9cb307af9d71cb5",
+      "plan_matches_execution": true,
+      "screenshot": "screenshots/rolling_monthly-result.png",
+      "actual_backend_execution": {
+        "artifact_file_count": 143,
+        "artifact_total_bytes": 14006741,
+        "full_campaign_financial_artifact_hash": "37d180e569f0baf63d210cfab4dda6a3f1de94d6394cc0baa2e1cdc92a5245fe",
+        "runtime_artifact_hash": "e7c5d93c26ac64e6164607627dda05338bdda38e0f63fc3ad9accc71e9b0f2ca",
+        "whole_campaign_new_jobs": 24,
+        "whole_campaign_reused_jobs": 0
+      },
+      "rerun": {
+        "run_id": "rr_f9c550b6ac0044b898c81e08c07ba7a7a4d66b541fef1db762e28d2f4d185f95",
+        "execution_attempt_id": "ea_ac5fa20f-9d99-49c0-a6e7-a30f2d31cd29",
+        "attempt_count": 2,
+        "financial_result_hash": "190b29f04830ec2f4274d752e4dd9f6933c675f198a6d791d9cb307af9d71cb5",
+        "financial_outputs_equal": true
+      }
+    },
+    {
+      "name": "expanding_monthly",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "EXPANDING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 2.5
+      },
+      "run_id": "rr_701e54ae66780ec3abadab1cfb5037aa9a115107cbc10c04b248c0b1a844a50a",
+      "execution_attempt_id": "ea_b7fa81f0-4fb0-4ebd-8dc4-b4af8c57eade",
+      "plan": {
+        "research_boundary": "RESEARCH_ONLY",
+        "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+        "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "normalized_request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-03-01",
+          "window_type": "EXPANDING",
+          "training_window_months": 24,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 0,
+          "selection_cost_bps": 2.5
+        },
+        "derived_engine_calendar": {
+          "dates": {
+            "start": "2020-01-01",
+            "end_exclusive": "2022-03-01"
+          },
+          "train_months": 24,
+          "test_months": 1,
+          "step_months": 1,
+          "window_type": "expanding",
+          "rebalance_frequency": "monthly",
+          "recalibration_frequency": "monthly"
+        },
+        "number_of_folds": 2,
+        "first_training_date": "2020-01-01",
+        "first_oos_date": "2022-01-01",
+        "last_oos_date": "2022-02-28",
+        "folds": [
+          {
+            "fold_id": 0,
+            "training_start": "2020-01-01",
+            "training_end_exclusive": "2022-01-01",
+            "decision_date": "2022-01-03",
+            "information_cutoff": "2021-12-31",
+            "oos_start": "2022-01-01",
+            "oos_end_exclusive": "2022-02-01",
+            "rebalance_frequency": "MONTHLY",
+            "window_type": "EXPANDING",
+            "training_observations": 505,
+            "warmup_observations": 2328,
+            "oos_observations": 20
+          },
+          {
+            "fold_id": 1,
+            "training_start": "2020-01-01",
+            "training_end_exclusive": "2022-02-01",
+            "decision_date": "2022-02-01",
+            "information_cutoff": "2022-01-31",
+            "oos_start": "2022-02-01",
+            "oos_end_exclusive": "2022-03-01",
+            "rebalance_frequency": "MONTHLY",
+            "window_type": "EXPANDING",
+            "training_observations": 525,
+            "warmup_observations": 2328,
+            "oos_observations": 19
+          }
+        ],
+        "estimated_jobs": {
+          "unique_candidates": 5,
+          "cartesian_size": 5,
+          "outer_folds": 2,
+          "inner_folds": 0,
+          "model_fits_estimated_upper_bound": 51,
+          "backtests_estimated": 24,
+          "cost_scenarios": [
+            0,
+            2.5
+          ],
+          "total_jobs_estimated": 75,
+          "estimation": "Backtests exact maximum incl. invalid candidates; fits upper bound before winner identities/cache. Prediction cache entries are not model fits.",
+          "candidate_definition_hash": "f6c6316d66c14f03ec9f3ce583ee6cef6bf5d427aa46fbbd37da06372f4a7d72",
+          "max_jobs": 2000
+        },
+        "backtests_estimated": 24,
+        "warnings": [
+          "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+          "Independent fold sleeves reset NAV/cash; the compounded OOS index is not a carried-holdings account."
+        ],
+        "blockers": []
+      },
+      "evaluation": {
+        "evaluation_end_exclusive": "2022-03-01",
+        "evaluation_start": "2022-01-01",
+        "fold_count": 2,
+        "rebalance_frequency": "MONTHLY",
+        "training_window_months": 24,
+        "window_type": "EXPANDING"
+      },
+      "metrics": {
+        "annualized_turnover": 9.967181538461539,
+        "annualized_volatility": 0.15113820830266686,
+        "cagr": -0.4098261302107765,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2022-03-01",
+          "evaluation_start": "2022-01-01",
+          "fold_count": 2,
+          "rebalance_frequency": "MONTHLY",
+          "training_window_months": 24,
+          "window_type": "EXPANDING"
+        },
+        "final_research_index": 92.1629622205388,
+        "gross_turnover": 1.54254,
+        "max_drawdown": -0.10113891977110934,
+        "mean_beginning_risky_exposure": 0.6863241337999073,
+        "net_sharpe": -3.4118119614528433,
+        "observations": 39,
+        "return_drawdown_ratio": -4.052111008682581
+      },
+      "costs": {
+        "cost_basis": "actual absolute traded notional",
+        "gross_and_net_distinction": "Net equals gross because the explicitly stored transaction cost is zero.",
+        "realized_transaction_cost": 0,
+        "selection_cost_bps": 2.5,
+        "selection_cost_meaning": "Training candidate ranking scenario",
+        "slippage_bps": 0,
+        "transaction_cost_bps": 0,
+        "transaction_cost_meaning": "Selected-candidate OOS evaluation fee"
+      },
+      "financial_result_hash": "a6768b1f05151ce86141afac136bb3499cc6cd9474bf44eb5a5789bdd83a344a",
+      "plan_matches_execution": true,
+      "screenshot": "screenshots/expanding_monthly-result.png",
+      "actual_backend_execution": {
+        "artifact_file_count": 145,
+        "artifact_total_bytes": 14291673,
+        "full_campaign_financial_artifact_hash": "cf885f998acbdbba8421519c7ae2545d4fa88dccd1f89162177feab917e3e4e9",
+        "runtime_artifact_hash": "4923bbaecb085fb1e39a8cfa892e7cde3c1db8c2bfbbb7851dc33db52946c70f",
+        "whole_campaign_new_jobs": 24,
+        "whole_campaign_reused_jobs": 0
+      }
+    },
+    {
+      "name": "rolling_quarterly",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-07-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "QUARTERLY",
+        "transaction_cost_bps": 0,
+        "selection_cost_bps": 2.5
+      },
+      "run_id": "rr_1fa974aca0fa123fda8d60142dd823d25ddea9c39c77c355de6cf542d5cf0a12",
+      "execution_attempt_id": "ea_6b6ed33e-56c0-41b6-baef-a5ed0995caec",
+      "plan": {
+        "research_boundary": "RESEARCH_ONLY",
+        "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+        "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "normalized_request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-07-01",
+          "window_type": "ROLLING",
+          "training_window_months": 24,
+          "rebalance_frequency": "QUARTERLY",
+          "transaction_cost_bps": 0,
+          "selection_cost_bps": 2.5
+        },
+        "derived_engine_calendar": {
+          "dates": {
+            "start": "2020-01-01",
+            "end_exclusive": "2022-07-01"
+          },
+          "train_months": 24,
+          "test_months": 3,
+          "step_months": 3,
+          "window_type": "rolling",
+          "rebalance_frequency": "quarterly",
+          "recalibration_frequency": "quarterly"
+        },
+        "number_of_folds": 2,
+        "first_training_date": "2020-01-01",
+        "first_oos_date": "2022-01-01",
+        "last_oos_date": "2022-06-30",
+        "folds": [
+          {
+            "fold_id": 0,
+            "training_start": "2020-01-01",
+            "training_end_exclusive": "2022-01-01",
+            "decision_date": "2022-01-03",
+            "information_cutoff": "2021-12-31",
+            "oos_start": "2022-01-01",
+            "oos_end_exclusive": "2022-04-01",
+            "rebalance_frequency": "QUARTERLY",
+            "window_type": "ROLLING",
+            "training_observations": 505,
+            "warmup_observations": 2328,
+            "oos_observations": 62
+          },
+          {
+            "fold_id": 1,
+            "training_start": "2020-04-01",
+            "training_end_exclusive": "2022-04-01",
+            "decision_date": "2022-04-01",
+            "information_cutoff": "2022-03-31",
+            "oos_start": "2022-04-01",
+            "oos_end_exclusive": "2022-07-01",
+            "rebalance_frequency": "QUARTERLY",
+            "window_type": "ROLLING",
+            "training_observations": 505,
+            "warmup_observations": 2390,
+            "oos_observations": 62
+          }
+        ],
+        "estimated_jobs": {
+          "unique_candidates": 5,
+          "cartesian_size": 5,
+          "outer_folds": 2,
+          "inner_folds": 0,
+          "model_fits_estimated_upper_bound": 18,
+          "backtests_estimated": 24,
+          "cost_scenarios": [
+            0,
+            2.5
+          ],
+          "total_jobs_estimated": 42,
+          "estimation": "Backtests exact maximum incl. invalid candidates; fits upper bound before winner identities/cache. Prediction cache entries are not model fits.",
+          "candidate_definition_hash": "1179d1085fa79a05e64f5dcb8c7fe3be900b3dd9b164a5667616a1b36f3aedfe",
+          "max_jobs": 2000
+        },
+        "backtests_estimated": 24,
+        "warnings": [
+          "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+          "Independent fold sleeves reset NAV/cash; the compounded OOS index is not a carried-holdings account."
+        ],
+        "blockers": []
+      },
+      "evaluation": {
+        "evaluation_end_exclusive": "2022-07-01",
+        "evaluation_start": "2022-01-01",
+        "fold_count": 2,
+        "rebalance_frequency": "QUARTERLY",
+        "training_window_months": 24,
+        "window_type": "ROLLING"
+      },
+      "metrics": {
+        "annualized_turnover": 3.6580645161290324,
+        "annualized_volatility": 0.23363555376374864,
+        "cagr": -0.372041621000306,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2022-07-01",
+          "evaluation_start": "2022-01-01",
+          "fold_count": 2,
+          "rebalance_frequency": "QUARTERLY",
+          "training_window_months": 24,
+          "window_type": "ROLLING"
+        },
+        "final_research_index": 79.53699030790615,
+        "gross_turnover": 1.8,
+        "max_drawdown": -0.23030326595965445,
+        "mean_beginning_risky_exposure": 0.8652743976280309,
+        "net_sharpe": -1.8732348182484397,
+        "observations": 124,
+        "return_drawdown_ratio": -1.6154422276646392
+      },
+      "costs": {
+        "cost_basis": "actual absolute traded notional",
+        "gross_and_net_distinction": "Net equals gross because the explicitly stored transaction cost is zero.",
+        "realized_transaction_cost": 0,
+        "selection_cost_bps": 2.5,
+        "selection_cost_meaning": "Training candidate ranking scenario",
+        "slippage_bps": 0,
+        "transaction_cost_bps": 0,
+        "transaction_cost_meaning": "Selected-candidate OOS evaluation fee"
+      },
+      "financial_result_hash": "c8076d5afd127a87a7d24052462b6be2aa5ffd89b958e784dce2ddd7e06b2f7f",
+      "plan_matches_execution": true,
+      "screenshot": "screenshots/rolling_quarterly-result.png",
+      "actual_backend_execution": {
+        "artifact_file_count": 79,
+        "artifact_total_bytes": 12959948,
+        "full_campaign_financial_artifact_hash": "f0a2a6095066d2758c5e02ccfbeb7c4ba39a9f162dab9887a8e4935cf54c09e7",
+        "runtime_artifact_hash": "a003ceee81b84f6484e71c9487fef278808e1be036b32e9e45ef8b6961386542",
+        "whole_campaign_new_jobs": 24,
+        "whole_campaign_reused_jobs": 0
+      }
+    },
+    {
+      "name": "arbitrary_oos_cost",
+      "spec": {
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "research_mode": "CAPITAL_MARKET_EXPOSURE",
+        "execution_scope": "EMPIRICAL",
+        "universe": "SPY",
+        "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+        "evaluation_start": "2022-01-01",
+        "evaluation_end_exclusive": "2022-03-01",
+        "window_type": "ROLLING",
+        "training_window_months": 24,
+        "rebalance_frequency": "MONTHLY",
+        "transaction_cost_bps": 7.25,
+        "selection_cost_bps": 2.5
+      },
+      "run_id": "rr_9a68474dd642273c79b79669897c3ad12bf9f06ce350bcd2ecb4a2700878650a",
+      "execution_attempt_id": "ea_c1ee301b-e203-4a5c-aa9b-9557fc4f59ad",
+      "plan": {
+        "research_boundary": "RESEARCH_ONLY",
+        "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+        "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+        "contract_version": "workbench-research-run-spec-2.0.0",
+        "normalized_request": {
+          "contract_version": "workbench-research-run-spec-2.0.0",
+          "research_mode": "CAPITAL_MARKET_EXPOSURE",
+          "execution_scope": "EMPIRICAL",
+          "universe": "SPY",
+          "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+          "evaluation_start": "2022-01-01",
+          "evaluation_end_exclusive": "2022-03-01",
+          "window_type": "ROLLING",
+          "training_window_months": 24,
+          "rebalance_frequency": "MONTHLY",
+          "transaction_cost_bps": 7.25,
+          "selection_cost_bps": 2.5
+        },
+        "derived_engine_calendar": {
+          "dates": {
+            "start": "2020-01-01",
+            "end_exclusive": "2022-03-01"
+          },
+          "train_months": 24,
+          "test_months": 1,
+          "step_months": 1,
+          "window_type": "rolling",
+          "rebalance_frequency": "monthly",
+          "recalibration_frequency": "monthly"
+        },
+        "number_of_folds": 2,
+        "first_training_date": "2020-01-01",
+        "first_oos_date": "2022-01-01",
+        "last_oos_date": "2022-02-28",
+        "folds": [
+          {
+            "fold_id": 0,
+            "training_start": "2020-01-01",
+            "training_end_exclusive": "2022-01-01",
+            "decision_date": "2022-01-03",
+            "information_cutoff": "2021-12-31",
+            "oos_start": "2022-01-01",
+            "oos_end_exclusive": "2022-02-01",
+            "rebalance_frequency": "MONTHLY",
+            "window_type": "ROLLING",
+            "training_observations": 505,
+            "warmup_observations": 2328,
+            "oos_observations": 20
+          },
+          {
+            "fold_id": 1,
+            "training_start": "2020-02-01",
+            "training_end_exclusive": "2022-02-01",
+            "decision_date": "2022-02-01",
+            "information_cutoff": "2022-01-31",
+            "oos_start": "2022-02-01",
+            "oos_end_exclusive": "2022-03-01",
+            "rebalance_frequency": "MONTHLY",
+            "window_type": "ROLLING",
+            "training_observations": 504,
+            "warmup_observations": 2349,
+            "oos_observations": 19
+          }
+        ],
+        "estimated_jobs": {
+          "unique_candidates": 5,
+          "cartesian_size": 5,
+          "outer_folds": 2,
+          "inner_folds": 0,
+          "model_fits_estimated_upper_bound": 50,
+          "backtests_estimated": 24,
+          "cost_scenarios": [
+            2.5,
+            7.25
+          ],
+          "total_jobs_estimated": 74,
+          "estimation": "Backtests exact maximum incl. invalid candidates; fits upper bound before winner identities/cache. Prediction cache entries are not model fits.",
+          "candidate_definition_hash": "f6c6316d66c14f03ec9f3ce583ee6cef6bf5d427aa46fbbd37da06372f4a7d72",
+          "max_jobs": 2000
+        },
+        "backtests_estimated": 24,
+        "warnings": [
+          "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+          "Independent fold sleeves reset NAV/cash; the compounded OOS index is not a carried-holdings account."
+        ],
+        "blockers": []
+      },
+      "evaluation": {
+        "evaluation_end_exclusive": "2022-03-01",
+        "evaluation_start": "2022-01-01",
+        "fold_count": 2,
+        "rebalance_frequency": "MONTHLY",
+        "training_window_months": 24,
+        "window_type": "ROLLING"
+      },
+      "metrics": {
+        "annualized_turnover": 9.961604202600691,
+        "annualized_volatility": 0.1510508481059035,
+        "cagr": -0.4140742918784631,
+        "economic_claim": "NONE",
+        "evaluation": {
+          "evaluation_end_exclusive": "2022-03-01",
+          "evaluation_start": "2022-01-01",
+          "fold_count": 2,
+          "rebalance_frequency": "MONTHLY",
+          "training_window_months": 24,
+          "window_type": "ROLLING"
+        },
+        "final_research_index": 92.0599789776885,
+        "gross_turnover": 1.5416768408786785,
+        "max_drawdown": -0.10214331054462178,
+        "mean_beginning_risky_exposure": 0.6863241337999073,
+        "net_sharpe": -3.4615979752717467,
+        "observations": 39,
+        "return_drawdown_ratio": -4.0538561915669735
+      },
+      "costs": {
+        "cost_basis": "actual absolute traded notional",
+        "gross_and_net_distinction": "Net returns include fees charged on actual absolute traded notional.",
+        "realized_transaction_cost": 0.11177157096370419,
+        "selection_cost_bps": 2.5,
+        "selection_cost_meaning": "Training candidate ranking scenario",
+        "slippage_bps": 0,
+        "transaction_cost_bps": 7.25,
+        "transaction_cost_meaning": "Selected-candidate OOS evaluation fee"
+      },
+      "financial_result_hash": "f23ecde2a71ee97a085844bb4653ba6699af5c59b348846aba3634cd43f69eb7",
+      "plan_matches_execution": true,
+      "screenshot": "screenshots/arbitrary_oos_cost-result.png",
+      "actual_backend_execution": {
+        "artifact_file_count": 143,
+        "artifact_total_bytes": 14024089,
+        "full_campaign_financial_artifact_hash": "7570da251d365d41f62194e7aa051e65434a38793d6f2c7fd051309fcd9d07f2",
+        "runtime_artifact_hash": "9af77419495b57af7b917fc2d49faebd19a9ae1bbab22b13784a426e89531be8",
+        "whole_campaign_new_jobs": 24,
+        "whole_campaign_reused_jobs": 0
+      }
+    }
+  ],
+  "comparison": {
+    "research_boundary": "RESEARCH_ONLY",
+    "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+    "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+    "comparison_id": "cmp_2c079513b71e4fe3b0ac85ee86e340083ed720d4770d7195acbdc068c5c44a55",
+    "calculation": "READ_ONLY_NO_RECALCULATION",
+    "left": {
+      "run_id": "rr_f9c550b6ac0044b898c81e08c07ba7a7a4d66b541fef1db762e28d2f4d185f95",
+      "execution_attempt_id": "ea_ac5fa20f-9d99-49c0-a6e7-a30f2d31cd29",
+      "financial_result_hash": "190b29f04830ec2f4274d752e4dd9f6933c675f198a6d791d9cb307af9d71cb5"
+    },
+    "right": {
+      "run_id": "rr_9a68474dd642273c79b79669897c3ad12bf9f06ce350bcd2ecb4a2700878650a",
+      "execution_attempt_id": "ea_c1ee301b-e203-4a5c-aa9b-9557fc4f59ad",
+      "financial_result_hash": "f23ecde2a71ee97a085844bb4653ba6699af5c59b348846aba3634cd43f69eb7"
+    },
+    "spec_differences": [
+      {
+        "path": "/transaction_cost_bps",
+        "left": 0,
+        "right": 7.25
+      }
+    ],
+    "financial_input_differences": [
+      {
+        "path": "/transaction_cost_bps",
+        "left": 0,
+        "right": 7.25
+      }
+    ],
+    "transaction_cost_difference_bps": 7.25,
+    "oos_observation_difference": 0,
+    "final_research_index_difference": -0.10298324285029992,
+    "realized_cost_difference": 0.11177157096370419,
+    "warnings": [
+      "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+      "Comparison reports mechanical differences and does not rank, recommend, or declare a winner."
+    ],
+    "contract_version": "workbench-comparison-2.0.0"
+  },
+  "no_v1_requests": true,
+  "economic_claim": "NONE"
+}

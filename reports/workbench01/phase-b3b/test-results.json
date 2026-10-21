@@ -1,0 +1,184 @@
+{
+  "status": "PASS",
+  "starting_sha": "53e8dfbc564d64e7d2669444e3586f36a5523eec",
+  "new_frontend_unit_tests": {
+    "passed": 11,
+    "failed": 0,
+    "command": "esbuild artifacts/allocation-lab/src/lib/workbench-designer.test.ts --bundle --platform=node --format=esm --packages=external; node --test artifacts/allocation-lab/dist/workbench-designer.test.mjs"
+  },
+  "existing_frontend_tests": {
+    "passed": 7,
+    "failed": 0
+  },
+  "backend_fast_suites": {
+    "total": 32,
+    "passed": 29,
+    "failed": 0,
+    "gated_cases_skipped": 3,
+    "explanation": "Full B3A matrix, PIT proof and B1 empirical campaign are gated in the fast invocation. PIT is executed separately; real B3B browser campaigns and the separate legacy B2 campaign execute actual API research."
+  },
+  "backend_suite_sources": [
+    "calendar-v2.test.ts",
+    "pit-v2.test.ts",
+    "repository-root.test.ts",
+    "version-boundary.test.ts",
+    "workbench.test.ts"
+  ],
+  "pit_empirical_regression": {
+    "passed": 1,
+    "failed": 0,
+    "flag": "WORKBENCH_B3A_PIT=1",
+    "source": "artifacts/api-server/src/lib/workbench/pit-v2.test.ts"
+  },
+  "legacy_authenticated_empirical_regression": {
+    "passed": 1,
+    "failed": 0,
+    "flag": "WORKBENCH_B2_EMPIRICAL_ACCEPTANCE=1",
+    "source": "artifacts/api-server/src/lib/workbench/workbench-b2.integration.test.ts",
+    "evidence": {
+      "status": "PASS",
+      "access_control": "BEARER_TOKEN_ACCEPTED_SERVER_SIDE",
+      "run_a": {
+        "run_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+        "execution_attempt_id": "ea_9bed9c8d-1c3b-4e92-8107-30a9534c0a79",
+        "status": "SUCCESS",
+        "observations": 501,
+        "final_research_index": 107.25445949277757,
+        "realized_transaction_cost": 0,
+        "financial_result_hash": "426533ad89ffb1ad72246a8c8ecdb2a6e7ad8e9d1c50f8e6db713d36e1af7e0d"
+      },
+      "run_a_rerun": {
+        "run_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+        "execution_attempt_id": "ea_35c2779f-9024-4777-88d8-92625bb612ed",
+        "status": "SUCCESS",
+        "attempt_history_count": 2,
+        "same_financial_result_hash": true,
+        "same_metrics": true,
+        "same_time_series": true
+      },
+      "run_b": {
+        "run_id": "rr_26db2418c42692c261ddb63cbfc7b7bd47844ff17e4de5926066d037906e240f",
+        "execution_attempt_id": "ea_75fd6e26-3903-4409-956a-20a864bad08c",
+        "status": "SUCCESS",
+        "observations": 501,
+        "final_research_index": 107.13006040048703,
+        "realized_transaction_cost": 0.1130073297533634,
+        "financial_result_hash": "ed95b4e9782f942905539d37f3a655358e7f106c8162f6a905985288f53f40b8"
+      },
+      "compare": {
+        "calculation": "READ_ONLY_NO_RECALCULATION",
+        "spec_difference_paths": [
+          "/transaction_cost_bps"
+        ],
+        "transaction_cost_difference_bps": 5,
+        "oos_observation_difference": 0,
+        "final_research_index_difference": -0.12439909229054535,
+        "realized_cost_difference": 0.1130073297533634,
+        "attempt_counts_unchanged": true,
+        "winner_declared": false
+      },
+      "boundaries": {
+        "research_boundary": "RESEARCH_ONLY",
+        "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+        "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED"
+      }
+    }
+  },
+  "real_browser": {
+    "status": "PASS",
+    "browser": "154.0.8037.57",
+    "fresh_empirical_attempts": 5,
+    "empirical_configurations": 4,
+    "identical_spec_rerun": true,
+    "checks": {
+      "unauthorized_fails_closed": true,
+      "empty_initial_financial_fields": true,
+      "capabilities_driven_bounds": true,
+      "no_independent_clock_inputs": true,
+      "real_warmup_blocker_rendered": true,
+      "invalid_quarter_boundary_not_snapped": true,
+      "edit_invalidates_plan_immediately": true,
+      "immutable_rerun_same_identity_new_attempt": true,
+      "idempotent_submission_visible": true,
+      "comparison_read_only_correct_artifacts": true,
+      "no_v1_route_ever_requested": true,
+      "boundaries_visible_advanced_collapsed": true,
+      "no_broker_controls": true,
+      "execution_mismatch_withholds_results": true,
+      "capacity_does_not_auto_retry": true,
+      "no_secret_in_built_bundle": true,
+      "mobile_touch_plan_review_and_run_target": true,
+      "history_rerun_requires_fold_review_in_new_session": true
+    },
+    "screenshots": 16,
+    "physical_android_device_tested": false,
+    "mobile_touch_emulation": true
+  },
+  "b3a_financial_regression": {
+    "all_four_run_ids_match": true,
+    "all_four_mapped_metrics_match": true,
+    "all_four_costs_match": true,
+    "all_four_financial_hashes_match": true
+  },
+  "typecheck": {
+    "frontend": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "node_modules/.bin/tsc -p artifacts/allocation-lab/tsconfig.json --noEmit"
+    },
+    "backend": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "node_modules/.bin/tsc -p artifacts/api-server/tsconfig.json --noEmit"
+    }
+  },
+  "production_build": {
+    "frontend": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "PORT=<valid port> BASE_PATH=/ NODE_ENV=production vite build --config vite.config.ts",
+      "assets": {
+        "artifacts/allocation-lab/dist/public/favicon.svg": {
+          "bytes": 163,
+          "sha256": "8ffbde9092b1fa4de97c9481b76f518b131268c82e7c555041925225b1dab6e0"
+        },
+        "artifacts/allocation-lab/dist/public/index.html": {
+          "bytes": 1414,
+          "sha256": "3bc0259a06d13be225e97b9e157d6cc948f0c967c8ca5cdee6e46e7b97355444"
+        },
+        "artifacts/allocation-lab/dist/public/opengraph.jpg": {
+          "bytes": 64111,
+          "sha256": "683ae09be2074202d00e55e78ca8afac05ce553c757f1f837f5b3786a9e5c722"
+        },
+        "artifacts/allocation-lab/dist/public/robots.txt": {
+          "bytes": 23,
+          "sha256": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95"
+        },
+        "artifacts/allocation-lab/dist/public/assets/index-We8_7Y3C.css": {
+          "bytes": 153123,
+          "sha256": "aace7e100a6e3433e4e36cb41bf9d8b322ef054de045801194a3290d6da18c27"
+        },
+        "artifacts/allocation-lab/dist/public/assets/index-DkZJzY5-.js": {
+          "bytes": 1945334,
+          "sha256": "cb7a218600172973ede8928f4c83da823f10b78f825a0d55a0f98ddbc566d771"
+        }
+      },
+      "warnings": [
+        "Existing shared UI primitive source-map-location warnings",
+        "Existing Vite chunk-size advisory"
+      ]
+    },
+    "backend": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "node artifacts/api-server/build.mjs",
+      "actual_built_server_and_worker_used_by_browser": true
+    }
+  },
+  "format_check": "PASS",
+  "git_diff_check": "PASS",
+  "dependencies_added": false,
+  "lockfile_modified": false,
+  "economic_claim": "NONE",
+  "deployment_performed": false
+}
