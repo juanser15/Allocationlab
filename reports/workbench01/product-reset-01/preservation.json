@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "starting_commit": "2201fef03b9930ecdd26613daa28788bfd94ba9f",
+  "starting_branch": "workbench-v1",
+  "starting_working_tree": "CLEAN",
+  "tracked_files_frozen_before_implementation": 2287,
+  "unchanged_baseline_files": 2283,
+  "existing_files_changed": [
+    {
+      "path": "artifacts/allocation-lab/src/App.tsx",
+      "reason": "Route the isolated /workbench view to the new application shell."
+    },
+    {
+      "path": "artifacts/allocation-lab/src/lib/workbench-designer.test.ts",
+      "reason": "Update only the route-import expectation and its label. No financial assertions changed."
+    },
+    {
+      "path": "artifacts/api-server/build.mjs",
+      "reason": "Bundle the new fixed interactive worker alongside existing workers."
+    },
+    {
+      "path": "artifacts/api-server/src/routes/index.ts",
+      "reason": "Register the authenticated interactive router before legacy strict query validation."
+    }
+  ],
+  "protected_financial_or_historical_evidence_drift": [],
+  "preserved_scopes": [
+    "calculator.ts",
+    "research/capital/**",
+    "allocation-core/**",
+    "committed empirical datasets",
+    "all historical reports including Phase A, B1, B2, B3A, B3B, B3C, B3C.1 and B3C.2",
+    "legacy run identity implementation",
+    "B3A fold planner",
+    "V1/V2 turnover methodologies",
+    "B3C benchmark and matched-beta methodologies",
+    "dependency manifests and lockfile"
+  ],
+  "hash_manifest": "protected-hashes.json",
+  "private_original_failed_attempt": {
+    "file_count": 737,
+    "byte_identical": true,
+    "relative_file_hash_manifest_sha256": "2287ef743627b9d92375c64fec3352da5a491ffedb277d628bef0a41b7e3a6d2",
+    "internal_location": "NOT_PUBLISHED"
+  },
+  "interactive_implementation_frozen_before_final_acceptance": {
+    "research/workbench/interactive-engine.ts": "a931dd41139e48350691d29f95c81c60db47f4f7f6de9776392cd851ce7bd4d4",
+    "research/workbench/interactive-ledger.ts": "009248fd2036dbcf4c66a107b672d237eab9469fe8beb3ddd68cb14428382fbe",
+    "research/workbench/interactive-candidates.ts": "41c6d00b18a3f43c71805868064d5c616b8104649b8fc4ad54201a8a21668fbb",
+    "artifacts/api-server/src/lib/workbench/interactive-calendar.ts": "a8def716fbe3cd439b2be25e957ef9d3d993368dded8918280f88e5e33a652ca",
+    "artifacts/api-server/src/lib/workbench/interactive-service.ts": "ff7f2a4812ee4464efda85f474da459d49bdda52b28c425eb1fed66ffbed6db7",
+    "artifacts/api-server/src/lib/workbench/interactive-risk.ts": "9d5feea7c26b2405171b91e7426bda482e47e1cc3ea6463913cf009be2bcb363",
+    "artifacts/api-server/src/workbench-interactive-worker.ts": "6fdaf939a33b40a0f84a4e54f0eb819e39f94ed3d199309d8bb7ca4fd7e19e06"
+  },
+  "interactive_implementation_drift_after_acceptance": [],
+  "source_finalization": "Removed only an extra EOF blank line from the new ledger copy before final acceptance. The equivalence test ignores trailing whitespace only; every financial operation remains identical. New-namespace identity, empirical reconciliation, operational checks, browser acceptance and performance measurements were rerun against this final source.",
+  "legacy_financial_regression": "legacy-financial-regression.json",
+  "interactive_reconciliation": "interactive-certified-reconciliation.json",
+  "git_diff_check": "PASS",
+  "main_changed": false,
+  "render_preview_changed": false,
+  "deployment_performed": false,
+  "new_contract": "allocationlab-interactive-spec-3.0.0",
+  "old_run_migration": "NONE"
+}

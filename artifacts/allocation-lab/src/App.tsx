@@ -12,7 +12,7 @@ import { SettingsDrawerProvider } from "@/context/settings-drawer-context";
 import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
 import { UxPreferencesProvider } from "@/context/ux-preferences-context";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
-import WorkbenchPage from "@/pages/workbench-designer";
+import WorkbenchPage from "@/research/workbench";
 
 const queryClient = new QueryClient({
   defaultOptions: {

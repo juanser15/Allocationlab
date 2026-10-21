@@ -315,7 +315,7 @@ test("Compare: overlay only for matching evaluation intervals, no local result d
     false,
   );
 });
-test("Q/R: live /workbench imports V2 designer; no V1 execution or broker controls", () => {
+test("Q/R: live /workbench imports the Product Reset designer; no V1 execution or broker controls", () => {
   const page = readFileSync(
     "artifacts/allocation-lab/src/pages/workbench-designer.tsx",
     "utf8",
@@ -325,7 +325,7 @@ test("Q/R: live /workbench imports V2 designer; no V1 execution or broker contro
     "utf8",
   );
   const app = readFileSync("artifacts/allocation-lab/src/App.tsx", "utf8");
-  assert.match(app, /import WorkbenchPage from "@\/pages\/workbench-designer"/);
+  assert.match(app, /import WorkbenchPage from "@\/research\/workbench"/);
   assert.doesNotMatch(
     page + client,
     /\/api\/workbench\/v1|from ["'].*pages\/workbench["']/,

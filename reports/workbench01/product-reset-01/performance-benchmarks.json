@@ -1,0 +1,651 @@
+{
+  "status": "MEASURED",
+  "targets": {
+    "cold_ms": 10000,
+    "warm_ms": 3000
+  },
+  "cases": [
+    {
+      "case": "Rolling monthly",
+      "cold_api_ms": 773.097504,
+      "warm_api_ms": 158.99880900000016,
+      "worker_profile": {
+        "cache": {
+          "candidate_hits": 0,
+          "candidate_misses": 72,
+          "prediction_hits": 354,
+          "prediction_misses": 18
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 551.4419,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 953843,
+          "entries": 72,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "display_regime": 9.12547700000016,
+          "ledger_and_targets": 305.0083430000003,
+          "matched_beta": 1.5478269999999839,
+          "metrics": 2.4854989999996633,
+          "passive_control": 0.4151040000000421,
+          "planning": 2.5267279999999914,
+          "regime_calculation": 21.969736000000125,
+          "risk_analytics": 68.52558699999997,
+          "selection": 2.472717999999986
+        },
+        "worker_wall_ms": 654.9984609999999
+      },
+      "warm_profile": {
+        "cache": {
+          "candidate_hits": 72,
+          "candidate_misses": 0,
+          "prediction_hits": 0,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 55.92174,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 953843,
+          "entries": 72,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "matched_beta": 0.854223999999931,
+          "passive_control": 0.13590399999998226,
+          "planning": 2.2607590000000073,
+          "risk_analytics_cache_hit": 1,
+          "selection": 1.6552019999999175
+        },
+        "worker_wall_ms": 60.4574090000001
+      }
+    },
+    {
+      "case": "Expanding monthly",
+      "cold_api_ms": 796.5644579999998,
+      "warm_api_ms": 158.67973900000015,
+      "worker_profile": {
+        "cache": {
+          "candidate_hits": 16,
+          "candidate_misses": 56,
+          "prediction_hits": 661,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 723.2447730000001,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 2564721,
+          "entries": 128,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "ledger_and_targets": 387.270684000001,
+          "matched_beta": 0.8466829999997572,
+          "metrics": 4.613894999999502,
+          "passive_control": 0.1255580000001828,
+          "planning": 3.019078000000036,
+          "risk_analytics": 63.937711000000036,
+          "selection": 2.2264399999994566
+        },
+        "worker_wall_ms": 727.9707779999999
+      },
+      "warm_profile": {
+        "cache": {
+          "candidate_hits": 72,
+          "candidate_misses": 0,
+          "prediction_hits": 0,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 88.61650899999995,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 2564721,
+          "entries": 128,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "matched_beta": 0.8668680000000677,
+          "passive_control": 0.12408599999980652,
+          "planning": 2.717968999999812,
+          "risk_analytics_cache_hit": 1,
+          "selection": 1.6870259999991504
+        },
+        "worker_wall_ms": 93.44756199999983
+      }
+    },
+    {
+      "case": "Rolling quarterly",
+      "cold_api_ms": 224.22975299999962,
+      "warm_api_ms": 87.0537890000005,
+      "worker_profile": {
+        "cache": {
+          "candidate_hits": 0,
+          "candidate_misses": 24,
+          "prediction_hits": 44,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 164.97993700000006,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 2872355,
+          "entries": 152,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "ledger_and_targets": 37.75614100000257,
+          "matched_beta": 0.9036429999996471,
+          "metrics": 1.048516999999265,
+          "passive_control": 0.1259090000003198,
+          "planning": 0.5705440000001545,
+          "risk_analytics": 61.015182999999524,
+          "selection": 0.3187470000011672
+        },
+        "worker_wall_ms": 167.61766599999964
+      },
+      "warm_profile": {
+        "cache": {
+          "candidate_hits": 24,
+          "candidate_misses": 0,
+          "prediction_hits": 0,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 19.63993599999958,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 2872355,
+          "entries": 152,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "matched_beta": 0.6424820000002001,
+          "passive_control": 0.11890799999946466,
+          "planning": 0.6100030000006882,
+          "risk_analytics_cache_hit": 1,
+          "selection": 0.18071000000054482
+        },
+        "worker_wall_ms": 21.689244000000144
+      }
+    },
+    {
+      "case": "Arbitrary nonzero costs",
+      "cold_api_ms": 501.4843490000003,
+      "warm_api_ms": 137.16021999999975,
+      "worker_profile": {
+        "cache": {
+          "candidate_hits": 0,
+          "candidate_misses": 72,
+          "prediction_hits": 372,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 443.3947909999997,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 3827919,
+          "entries": 224,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "ledger_and_targets": 223.64134100000047,
+          "matched_beta": 1.0318349999997736,
+          "metrics": 1.8978379999989556,
+          "passive_control": 0.13531200000034005,
+          "planning": 1.586815999999999,
+          "risk_analytics": 68.00298599999951,
+          "selection": 0.7119069999998828
+        },
+        "worker_wall_ms": 445.99352199999976
+      },
+      "warm_profile": {
+        "cache": {
+          "candidate_hits": 72,
+          "candidate_misses": 0,
+          "prediction_hits": 0,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 50.91161599999941,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 3827919,
+          "entries": 224,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "matched_beta": 0.9614990000000034,
+          "passive_control": 0.11705499999970925,
+          "planning": 1.6860139999998864,
+          "risk_analytics_cache_hit": 1,
+          "selection": 0.5717040000017732
+        },
+        "worker_wall_ms": 54.86372299999948
+      }
+    },
+    {
+      "case": "Short training",
+      "cold_api_ms": 113.07073300000047,
+      "warm_api_ms": 87.80135900000005,
+      "worker_profile": {
+        "cache": {
+          "candidate_hits": 0,
+          "candidate_misses": 36,
+          "prediction_hits": 29,
+          "prediction_misses": 7
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 79.68315299999995,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 3948156,
+          "entries": 260,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "display_regime": 1.6252450000010867,
+          "ledger_and_targets": 33.369525000003705,
+          "matched_beta": 0.5707270000002609,
+          "metrics": 0.3904160000020056,
+          "passive_control": 0.06719100000009348,
+          "planning": 0.6410699999996723,
+          "regime_calculation": 4.4200849999997445,
+          "risk_analytics": 20.85699999999997,
+          "selection": 0.256453999999394
+        },
+        "worker_wall_ms": 83.0046169999996
+      },
+      "warm_profile": {
+        "cache": {
+          "candidate_hits": 36,
+          "candidate_misses": 0,
+          "prediction_hits": 0,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 16.380102999999508,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 3948156,
+          "entries": 260,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "matched_beta": 1.5806549999997515,
+          "passive_control": 0.06371600000056787,
+          "planning": 1.387644999999793,
+          "risk_analytics_cache_hit": 1,
+          "selection": 0.17709600000034698
+        },
+        "worker_wall_ms": 18.080987999999707
+      }
+    },
+    {
+      "case": "Five-year monthly",
+      "cold_api_ms": 3354.8471450000006,
+      "warm_api_ms": 493.5928929999991,
+      "worker_profile": {
+        "cache": {
+          "candidate_hits": 72,
+          "candidate_misses": 288,
+          "prediction_hits": 1440,
+          "prediction_misses": 48
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 3099.6091160000005,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 7748351,
+          "entries": 548,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "display_regime": 17.513974000002236,
+          "ledger_and_targets": 984.2658200000014,
+          "matched_beta": 3.145226000000548,
+          "metrics": 7.350563999998485,
+          "passive_control": 0.5362960000002204,
+          "planning": 9.017880000000332,
+          "regime_calculation": 31.604026999996677,
+          "risk_analytics": 1444.6535300000005,
+          "selection": 4.006405000000086
+        },
+        "worker_wall_ms": 3109.6238139999996
+      },
+      "warm_profile": {
+        "cache": {
+          "candidate_hits": 360,
+          "candidate_misses": 0,
+          "prediction_hits": 0,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 232.84150300000147,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 7748351,
+          "entries": 548,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "matched_beta": 2.9051039999994828,
+          "passive_control": 0.5224450000005163,
+          "planning": 7.602249999999913,
+          "risk_analytics_cache_hit": 1,
+          "selection": 2.3780689999948663
+        },
+        "worker_wall_ms": 242.6539389999998
+      }
+    },
+    {
+      "case": "Seven-year short training",
+      "cold_api_ms": 4167.603992,
+      "warm_api_ms": 525.2169609999983,
+      "worker_profile": {
+        "cache": {
+          "candidate_hits": 67,
+          "candidate_misses": 437,
+          "prediction_hits": 425,
+          "prediction_misses": 12
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 3862.0203249999995,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 9228159,
+          "entries": 985,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "display_regime": 2.871683999994275,
+          "ledger_and_targets": 321.6842149999993,
+          "matched_beta": 3.2298219999993307,
+          "metrics": 3.732438999995793,
+          "passive_control": 1.974605999999767,
+          "planning": 8.347820999999385,
+          "regime_calculation": 7.2344279999979335,
+          "risk_analytics": 3255.3715509999984,
+          "selection": 2.4567880000122386
+        },
+        "worker_wall_ms": 3872.878907999999
+      },
+      "warm_profile": {
+        "cache": {
+          "candidate_hits": 504,
+          "candidate_misses": 0,
+          "prediction_hits": 0,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 203.75825199999963,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 9228159,
+          "entries": 985,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "matched_beta": 7.452841999998782,
+          "passive_control": 0.7868510000007518,
+          "planning": 25.114332000001014,
+          "risk_analytics_cache_hit": 1,
+          "selection": 3.226139000016701
+        },
+        "worker_wall_ms": 221.38530099999844
+      }
+    },
+    {
+      "case": "Custom trading-day anchor",
+      "cold_api_ms": 301.0348600000034,
+      "warm_api_ms": 83.56790099999853,
+      "worker_profile": {
+        "cache": {
+          "candidate_hits": 0,
+          "candidate_misses": 36,
+          "prediction_hits": 174,
+          "prediction_misses": 12
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 248.05276500000036,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 9701294,
+          "entries": 1021,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "display_regime": 4.410082999998849,
+          "ledger_and_targets": 133.72117299999445,
+          "matched_beta": 0.5239970000002359,
+          "metrics": 1.147214000000531,
+          "passive_control": 0.08069099999920581,
+          "planning": 0.8569959999986168,
+          "regime_calculation": 8.741893000002165,
+          "risk_analytics": 30.41865300000063,
+          "selection": 0.46601899999950547
+        },
+        "worker_wall_ms": 251.01185500000065
+      },
+      "warm_profile": {
+        "cache": {
+          "candidate_hits": 36,
+          "candidate_misses": 0,
+          "prediction_hits": 0,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 24.406663000001572,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 9701294,
+          "entries": 1021,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "matched_beta": 0.3571460000021034,
+          "passive_control": 0.06260400000246591,
+          "planning": 0.8036970000030124,
+          "risk_analytics_cache_hit": 1,
+          "selection": 0.2615829999995185
+        },
+        "worker_wall_ms": 26.163531999998668
+      }
+    },
+    {
+      "case": "Weekend anchor",
+      "cold_api_ms": 284.99842799999897,
+      "warm_api_ms": 79.95005700000183,
+      "worker_profile": {
+        "cache": {
+          "candidate_hits": 0,
+          "candidate_misses": 36,
+          "prediction_hits": 174,
+          "prediction_misses": 12
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 239.92602400000033,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 9724544,
+          "entries": 1024,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "display_regime": 3.526285999989341,
+          "ledger_and_targets": 126.08863600001132,
+          "matched_beta": 0.8488849999994272,
+          "metrics": 1.2002909999937401,
+          "passive_control": 0.09514300000228104,
+          "planning": 0.7559160000018892,
+          "regime_calculation": 7.2971009999964735,
+          "risk_analytics": 36.30160999999862,
+          "selection": 0.37959999999657157
+        },
+        "worker_wall_ms": 242.55961899999966
+      },
+      "warm_profile": {
+        "cache": {
+          "candidate_hits": 36,
+          "candidate_misses": 0,
+          "prediction_hits": 0,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 23.859130000000732,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 9724544,
+          "entries": 1024,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "matched_beta": 0.3108070000016596,
+          "passive_control": 0.06144300000232761,
+          "planning": 0.8088349999998172,
+          "risk_analytics_cache_hit": 1,
+          "selection": 0.34110100000179955
+        },
+        "worker_wall_ms": 25.62427200000093
+      }
+    },
+    {
+      "case": "Declared unsupported matched-beta cost",
+      "cold_api_ms": 52.80049399999916,
+      "warm_api_ms": 61.52874399999928,
+      "worker_profile": {
+        "cache": {
+          "candidate_hits": 0,
+          "candidate_misses": 6,
+          "prediction_hits": 6,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 17.249791999998706,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 9665490,
+          "entries": 1024,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "ledger_and_targets": 4.502022000004217,
+          "matched_beta": 0.07470199999806937,
+          "metrics": 0.08059100000537,
+          "passive_control": 0.017034999997122213,
+          "planning": 0.18005099999936647,
+          "risk_analytics": 7.217200999999477,
+          "selection": 0.052118999999947846
+        },
+        "worker_wall_ms": 18.750606000001426
+      },
+      "warm_profile": {
+        "cache": {
+          "candidate_hits": 6,
+          "candidate_misses": 0,
+          "prediction_hits": 0,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 5.656817000002775,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 9665490,
+          "entries": 1024,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "matched_beta": 0.02290500000162865,
+          "passive_control": 0.01607500000318396,
+          "planning": 0.26335499999913736,
+          "risk_analytics_cache_hit": 1,
+          "selection": 0.055994999998802086
+        },
+        "worker_wall_ms": 6.864100999999209
+      }
+    },
+    {
+      "case": "Holiday quarterly anchor",
+      "cold_api_ms": 209.5883160000012,
+      "warm_api_ms": 75.24298600000111,
+      "worker_profile": {
+        "cache": {
+          "candidate_hits": 0,
+          "candidate_misses": 24,
+          "prediction_hits": 38,
+          "prediction_misses": 6
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 152.96499499999845,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 9653168,
+          "entries": 1024,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "display_regime": 1.7807750000029046,
+          "ledger_and_targets": 37.94428900001367,
+          "matched_beta": 0.6468019999992975,
+          "metrics": 0.9034779999929015,
+          "passive_control": 0.11218899999948917,
+          "planning": 0.603966999999102,
+          "regime_calculation": 4.0410700000065845,
+          "risk_analytics": 60.82784199999878,
+          "selection": 0.22250500000154716
+        },
+        "worker_wall_ms": 154.36987500000032
+      },
+      "warm_profile": {
+        "cache": {
+          "candidate_hits": 24,
+          "candidate_misses": 0,
+          "prediction_hits": 0,
+          "prediction_misses": 0
+        },
+        "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+        "certification": "INTERACTIVE_COMPACT",
+        "elapsed_ms": 18.190975000001345,
+        "ledger_cache": {
+          "capacity_bytes": 100663296,
+          "compressed_bytes": 9653168,
+          "entries": 1024,
+          "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+        },
+        "stage_ms": {
+          "matched_beta": 0.5841869999967457,
+          "passive_control": 0.10942500000237487,
+          "planning": 0.5832059999993362,
+          "risk_analytics_cache_hit": 1,
+          "selection": 0.22528700000111712
+        },
+        "worker_wall_ms": 19.657097999999678
+      }
+    }
+  ],
+  "scope": "Actual production API; includes immutable compact result publication and polling. Later uncached references do not affect the earlier cold measurement."
+}

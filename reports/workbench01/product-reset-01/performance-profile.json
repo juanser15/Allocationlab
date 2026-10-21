@@ -1,0 +1,341 @@
+{
+  "status": "MEASURED",
+  "before": {
+    "original_engine": "capital-research-recurring-turnover-2.0.0",
+    "request": {
+      "contract_version": "workbench-research-run-spec-2.0.0",
+      "research_mode": "CAPITAL_MARKET_EXPOSURE",
+      "execution_scope": "EMPIRICAL",
+      "universe": "SPY",
+      "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+      "evaluation_start": "2021-01-01",
+      "evaluation_end_exclusive": "2026-01-01",
+      "window_type": "ROLLING",
+      "training_window_months": 6,
+      "rebalance_frequency": "MONTHLY",
+      "transaction_cost_bps": 1,
+      "selection_cost_bps": 1
+    },
+    "wall_ms": 112176.63464799999,
+    "files": 1277,
+    "bytes": 56947145,
+    "complete": true,
+    "telemetry": {
+      "model_fit_misses": 420,
+      "model_fits_succeeded": 420,
+      "model_fit_hits": 1440,
+      "prediction_misses": 420,
+      "prediction_hits": 1440,
+      "elapsed_ms": 112169.03507700001,
+      "peak_rss_kib": 468748
+    }
+  },
+  "certified_cpu_profile": {
+    "fresh_reexecution_wall_ms": 111861.595836,
+    "sampled_cpu_ms": 111988.009,
+    "exclusive_stack_categories": [
+      {
+        "stage": "Canonicalization, hashing and copies",
+        "sampled_ms": 97253.106,
+        "share": 0.8684242792458253
+      },
+      {
+        "stage": "Certified ledger and engine overhead",
+        "sampled_ms": 6780.601,
+        "share": 0.0605475627305777
+      },
+      {
+        "stage": "Garbage collection",
+        "sampled_ms": 4166.065,
+        "share": 0.03720099175975171
+      },
+      {
+        "stage": "Other / bootstrap / orchestration",
+        "sampled_ms": 2901.837,
+        "share": 0.02591203313561901
+      },
+      {
+        "stage": "Model / indicator calculations",
+        "sampled_ms": 496.709,
+        "share": 0.004435376648226686
+      },
+      {
+        "stage": "Filesystem and immutable artifacts",
+        "sampled_ms": 362.644,
+        "share": 0.003238239551164804
+      },
+      {
+        "stage": "Metrics and candidate selection",
+        "sampled_ms": 27.047,
+        "share": 0.0002415169288347648
+      }
+    ],
+    "largest_leaf_functions": [
+      {
+        "function": "canonical",
+        "sampled_ms": 56166.795
+      },
+      {
+        "function": "",
+        "sampled_ms": 31076.591
+      },
+      {
+        "function": "subset",
+        "sampled_ms": 7998.808
+      },
+      {
+        "function": "(garbage collector)",
+        "sampled_ms": 4166.065
+      },
+      {
+        "function": "update",
+        "sampled_ms": 3636.716
+      },
+      {
+        "function": "structuredClone",
+        "sampled_ms": 2997.834
+      },
+      {
+        "function": "execute",
+        "sampled_ms": 1687.864
+      },
+      {
+        "function": "runBacktestEngine.initialNav",
+        "sampled_ms": 1602.187
+      },
+      {
+        "function": "immutable",
+        "sampled_ms": 491.84
+      },
+      {
+        "function": "scoped",
+        "sampled_ms": 453.136
+      },
+      {
+        "function": "runBacktestEngine",
+        "sampled_ms": 361.674
+      },
+      {
+        "function": "computeRegime",
+        "sampled_ms": 278.859
+      }
+    ],
+    "method": "Node V8 statistical CPU profile. Classifications use sampled call stacks; these are CPU estimates, not additive wall-time stage timers. Another original-engine run was profiled after the initial wall baseline."
+  },
+  "after_stage_method": "Production worker per-stage performance.now() measurements. ledger_and_targets includes nested model/display-regime time, so those nested entries must not be summed twice. End-to-end API time includes result persistence and polling.",
+  "after": {
+    "request": {
+      "contract_version": "allocationlab-interactive-spec-3.0.0",
+      "research_mode": "CAPITAL_MARKET_EXPOSURE",
+      "execution_scope": "EMPIRICAL",
+      "universe": "SPY",
+      "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+      "evaluation_start": "2021-01-01",
+      "evaluation_end_exclusive": "2026-01-01",
+      "window_type": "ROLLING",
+      "training_window_months": 6,
+      "rebalance_frequency": "MONTHLY",
+      "transaction_cost_bps": 1,
+      "selection_cost_bps": 1,
+      "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2"
+    },
+    "process_cold": true,
+    "cold_api_ms": 4219.553159,
+    "warm_api_ms": 509.3419350000004,
+    "cold_worker": {
+      "cache": {
+        "candidate_hits": 0,
+        "candidate_misses": 360,
+        "prediction_hits": 1794,
+        "prediction_misses": 66
+      },
+      "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+      "certification": "INTERACTIVE_COMPACT",
+      "elapsed_ms": 3828.786961,
+      "ledger_cache": {
+        "capacity_bytes": 100663296,
+        "compressed_bytes": 4754143,
+        "entries": 360,
+        "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+      },
+      "stage_ms": {
+        "display_regime": 24.590876000000662,
+        "ledger_and_targets": 1432.0805360000018,
+        "matched_beta": 4.197193999999854,
+        "metrics": 11.139560000000529,
+        "passive_control": 0.9291910000001735,
+        "planning": 8.503280999999987,
+        "regime_calculation": 57.32298700000092,
+        "risk_analytics": 1491.0818,
+        "selection": 11.38017500000069
+      },
+      "worker_wall_ms": 3927.656398
+    },
+    "warm_worker": {
+      "cache": {
+        "candidate_hits": 360,
+        "candidate_misses": 0,
+        "prediction_hits": 0,
+        "prediction_misses": 0
+      },
+      "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+      "certification": "INTERACTIVE_COMPACT",
+      "elapsed_ms": 236.62153000000035,
+      "ledger_cache": {
+        "capacity_bytes": 100663296,
+        "compressed_bytes": 4754143,
+        "entries": 360,
+        "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+      },
+      "stage_ms": {
+        "matched_beta": 2.8486089999996693,
+        "passive_control": 0.5996589999995194,
+        "planning": 7.766630000000077,
+        "risk_analytics_cache_hit": 1,
+        "selection": 5.228555000000597
+      },
+      "worker_wall_ms": 250.40456600000016
+    },
+    "same_financial_hashes": true,
+    "explicit_new_attempt": true,
+    "financial_observations": 1255,
+    "financial_index": 148.1626925336546,
+    "storage": "Two compact financial payloads per run/attempt plus small immutable lifecycle records, no per-candidate engine files",
+    "targets": {
+      "cold_under_10_seconds": true,
+      "warm_under_3_seconds": true
+    },
+    "run_id": "rr_f32ab99d20f4f57eac908ba48e169d045ef647810b0cd294023c78193b313749"
+  },
+  "after_training_24_months": {
+    "request": {
+      "contract_version": "allocationlab-interactive-spec-3.0.0",
+      "research_mode": "CAPITAL_MARKET_EXPOSURE",
+      "execution_scope": "EMPIRICAL",
+      "universe": "SPY",
+      "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+      "evaluation_start": "2021-10-01",
+      "evaluation_end_exclusive": "2026-10-01",
+      "window_type": "ROLLING",
+      "training_window_months": 24,
+      "rebalance_frequency": "MONTHLY",
+      "transaction_cost_bps": 1,
+      "selection_cost_bps": 1,
+      "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2"
+    },
+    "process_cold": true,
+    "cold_api_ms": 9271.696229000001,
+    "warm_api_ms": 1099.7323219999998,
+    "cold_worker": {
+      "cache": {
+        "candidate_hits": 0,
+        "candidate_misses": 360,
+        "prediction_hits": 7176,
+        "prediction_misses": 84
+      },
+      "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+      "certification": "INTERACTIVE_COMPACT",
+      "elapsed_ms": 8848.727598000001,
+      "ledger_cache": {
+        "capacity_bytes": 100663296,
+        "compressed_bytes": 17149282,
+        "entries": 360,
+        "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+      },
+      "stage_ms": {
+        "display_regime": 27.274687999998605,
+        "ledger_and_targets": 4476.8928240000005,
+        "matched_beta": 4.910216000000219,
+        "metrics": 22.237855000005766,
+        "passive_control": 1.3055459999995946,
+        "planning": 16.52706599999999,
+        "regime_calculation": 65.1540019999984,
+        "risk_analytics": 1505.612306,
+        "selection": 15.528214999998454
+      },
+      "worker_wall_ms": 8952.274034
+    },
+    "warm_worker": {
+      "cache": {
+        "candidate_hits": 360,
+        "candidate_misses": 0,
+        "prediction_hits": 0,
+        "prediction_misses": 0
+      },
+      "cache_policy": "SNAPSHOT_SOURCE_CANDIDATE_CALENDAR_COST_BOOK_BOUND",
+      "certification": "INTERACTIVE_COMPACT",
+      "elapsed_ms": 765.1717219999991,
+      "ledger_cache": {
+        "capacity_bytes": 100663296,
+        "compressed_bytes": 17149282,
+        "entries": 360,
+        "serialization": "LOSSLESS_JSON_DEFLATE_LEVEL_1"
+      },
+      "stage_ms": {
+        "matched_beta": 4.464147999999113,
+        "passive_control": 0.6141299999999319,
+        "planning": 14.890355999999883,
+        "risk_analytics_cache_hit": 1,
+        "selection": 12.369572000003245
+      },
+      "worker_wall_ms": 785.2533469999998
+    },
+    "same_financial_hashes": true,
+    "explicit_new_attempt": true,
+    "financial_observations": 1254,
+    "financial_index": 156.31512109388376,
+    "storage": "Two compact financial payloads per run/attempt plus small immutable lifecycle records, no per-candidate engine files",
+    "targets": {
+      "cold_under_10_seconds": true,
+      "warm_under_3_seconds": true
+    },
+    "run_id": "rr_6cf3916cb4702b5d9006955cdc5cb8708f37da415d87a9ff3d02959d2289467e"
+  },
+  "target_assessment": {
+    "representative_6_month_training": {
+      "cold_ms": 4219.553159,
+      "warm_ms": 509.3419350000004,
+      "original_full_campaign_ms": 112176.63464799999,
+      "targets": {
+        "cold_under_10_seconds": true,
+        "warm_under_3_seconds": true
+      }
+    },
+    "wider_24_month_training": {
+      "cold_ms": 9271.696229000001,
+      "warm_ms": 1099.7323219999998,
+      "cold_target_difference_ms": -728.303770999999,
+      "targets": {
+        "cold_under_10_seconds": true,
+        "warm_under_3_seconds": true
+      }
+    },
+    "dominant_24_month_cold_stage": {
+      "stage": "ledger_and_targets",
+      "elapsed_ms": 4476.8928240000005,
+      "risk_analytics_ms": 1505.612306,
+      "explanation": "Every candidate traverses the actual daily self-financing ledger. Remaining time includes exact hashing, lossless book serialization and orchestration. Nested regime timers are not added twice."
+    },
+    "work_omission": "NONE: same five candidates and every requested fold. No economics, period or capacity default was changed.",
+    "limit": "Measured on this execution host; no preview-runtime latency SLA."
+  },
+  "earlier_same_arithmetic_measurements": {
+    "note": "Measurements made before removing a terminal blank line from the new source copy. Source-bound identities were refreshed afterward; no financial arithmetic changed. Retained to disclose host variability and the observed cold-target miss.",
+    "six_month_training": {
+      "cold_api_ms": 4076.0952209999996,
+      "warm_api_ms": 492.9826839999996,
+      "targets": {
+        "cold_under_10_seconds": true,
+        "warm_under_3_seconds": true
+      }
+    },
+    "twenty_four_month_training": {
+      "cold_api_ms": 10388.118218000001,
+      "warm_api_ms": 1049.5609299999996,
+      "targets": {
+        "cold_under_10_seconds": false,
+        "warm_under_3_seconds": true
+      }
+    }
+  }
+}

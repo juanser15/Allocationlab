@@ -1,0 +1,122 @@
+{
+  "status": "PASS",
+  "browser": "154.0.8037.57",
+  "source": "Actual production frontend and API, isolated temporary store, committed empirical inputs",
+  "cases": [
+    {
+      "case": "Rolling monthly",
+      "status": "SUCCESS",
+      "actual_api": true
+    },
+    {
+      "case": "Expanding monthly",
+      "status": "SUCCESS",
+      "actual_api": true
+    },
+    {
+      "case": "Rolling quarterly",
+      "status": "SUCCESS",
+      "actual_api": true
+    },
+    {
+      "case": "Arbitrary costs and weekend anchor",
+      "status": "SUCCESS",
+      "actual_api": true
+    },
+    {
+      "case": "Deliberate drawdown-constraint rejection and explicit retry",
+      "status": "EXPECTED_FAILED",
+      "error_class": "NO_VALID_CANDIDATE",
+      "immutable_attempts": 2,
+      "prior_failed_bytes_unchanged": true,
+      "technical_details_collapsed": true
+    }
+  ],
+  "rerun": {
+    "same_run_id": true,
+    "new_attempt": true,
+    "all_four_hashes_identical": true
+  },
+  "comparison": {
+    "runs": 4,
+    "read_only": true,
+    "no_winner": true,
+    "mobile_touch_selection": true
+  },
+  "no_fixture_defaults": true,
+  "only_one_cost": true,
+  "standard_cost_mapping": true,
+  "primary_workflow": "CONFIGURE_RUN_PROGRESS_RESULTS",
+  "no_mandatory_preview_or_review": true,
+  "legacy_v1_requests": 0,
+  "future_modules": "READ_ONLY_NOT_ENABLED_NO_INPUTS",
+  "audit_all_sections_collapsed": true,
+  "diagnostics_collapsed": true,
+  "failed_attempt_retry": {
+    "error_class": "NO_VALID_CANDIDATE",
+    "failed_attempts": 2,
+    "same_run_id": true,
+    "different_attempt_ids": true,
+    "earlier_failure_bytes_unchanged": true,
+    "no_unrelated_failure_in_history": true
+  },
+  "token_not_in_built_assets": true,
+  "console_errors": [],
+  "screenshots": [
+    "screenshots/setup-360.png",
+    "screenshots/setup-390.png",
+    "screenshots/setup-430.png",
+    "screenshots/setup-768.png",
+    "screenshots/setup-1440.png",
+    "screenshots/progress-1440.png",
+    "screenshots/progress-390.png",
+    "screenshots/results-360.png",
+    "screenshots/results-390.png",
+    "screenshots/results-430.png",
+    "screenshots/results-768.png",
+    "screenshots/results-1440.png",
+    "screenshots/constraint-failure-390.png",
+    "screenshots/compare-360.png",
+    "screenshots/compare-390.png",
+    "screenshots/compare-430.png",
+    "screenshots/compare-768.png",
+    "screenshots/compare-1440.png",
+    "screenshots/audit-360.png",
+    "screenshots/audit-390.png",
+    "screenshots/audit-430.png",
+    "screenshots/audit-768.png",
+    "screenshots/audit-1440.png",
+    "screenshots/audit-folds-1440.png",
+    "screenshots/audit-folds-390.png",
+    "screenshots/future-module-390.png",
+    "screenshots/contextual-error-390.png"
+  ],
+  "visual_review": {
+    "status": "PASS",
+    "question": "Does this look like institutional financial research software?",
+    "answer": "YES",
+    "reviewed_screenshots": [
+      "screenshots/setup-390.png",
+      "screenshots/setup-1440.png",
+      "screenshots/progress-390.png",
+      "screenshots/progress-1440.png",
+      "screenshots/results-390.png",
+      "screenshots/results-1440.png",
+      "screenshots/compare-390.png",
+      "screenshots/compare-1440.png",
+      "screenshots/audit-390.png",
+      "screenshots/audit-1440.png",
+      "screenshots/constraint-failure-390.png"
+    ],
+    "observations": [
+      "Persistent ordered research-module navigation and restrained navy/white/teal styling.",
+      "Compact empty financial form, minimal model context and no poster-style methodology panel.",
+      "Actual backend progress and submitted design remain together without a separate status page.",
+      "Research charts dominate results; dense metric matrices scroll within their own containers.",
+      "Touch selection compares four actual immutable runs with neutral series and an explicit date-range warning.",
+      "Eight audit sections and technical failure evidence are collapsed by default.",
+      "Readable mobile controls and no page-level horizontal overflow at every required width."
+    ],
+    "scope": "Actual Chromium responsive screenshots; not physical-device certification."
+  }
+}
