@@ -1,0 +1,109 @@
+{
+  "status": "PASS",
+  "starting_sha": "6fad66396f890eb1111f7feffb0bb81300d8efaa",
+  "root_cause": "WorkbenchRunStore required .git while the execution path used certified file markers; Railway runtime images omit Git metadata.",
+  "before_fix": {
+    "isolated_runtime": true,
+    "git_metadata_present": false,
+    "required_application_files_present": true,
+    "result": "EXPECTED_FAILURE",
+    "error_code": "REPOSITORY_ROOT_NOT_FOUND",
+    "safe_message": "The certified repository root could not be resolved before initializing Workbench storage."
+  },
+  "marker_contract": [
+    "configs/capital-research/acceptance-traditional.json",
+    "research/capital/engine.ts",
+    "artifacts/api-server/package.json",
+    "package.json"
+  ],
+  "discovery": {
+    "starts": ["dirname(fileURLToPath(import.meta.url))", "process.cwd()"],
+    "search": "UPWARD",
+    "qualified_root_resolved_with_realpath": true,
+    "marker_files_must_be_regular_non_symlinks": true,
+    "marker_realpaths_must_remain_within_root": true,
+    "git_metadata_required": false,
+    "explicit_environment_override_added": false,
+    "shared_by": ["WorkbenchRunStore", "executeCapitalResearchAttempt", "workbench-run-worker"]
+  },
+  "root_regression_tests": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0,
+    "requirements": {
+      "markers_with_git": "PASS",
+      "markers_without_git": "PASS",
+      "missing_campaign": "FAIL_CLOSED",
+      "missing_engine": "FAIL_CLOSED",
+      "missing_api_package": "FAIL_CLOSED",
+      "package_only_directory": "FAIL_CLOSED",
+      "symlinked_repository_overlap": "REJECTED",
+      "store_inside_repository": "REJECTED",
+      "repository_inside_store": "REJECTED",
+      "dedicated_tmp_store": "ALLOWED",
+      "store_adapter_worker_agreement": "PASS"
+    }
+  },
+  "railway_like_smoke": {
+    "status": "PASS",
+    "production_backend_build": true,
+    "isolated_source_runtime_tree": true,
+    "git_metadata_present": false,
+    "isolated_tmp_store": true,
+    "preview_test_token_injected": true,
+    "capabilities_http_status": 200,
+    "repository_root_error_present": false,
+    "zero_bps_submission_http_status": 202,
+    "zero_bps_terminal_status": "SUCCESS",
+    "zero_bps_observations": 501,
+    "zero_bps_final_research_index": 107.25445949277757,
+    "zero_bps_realized_transaction_cost": 0,
+    "zero_bps_financial_result_hash": "426533ad89ffb1ad72246a8c8ecdb2a6e7ad8e9d1c50f8e6db713d36e1af7e0d"
+  },
+  "financial_regression": {
+    "status": "PASS",
+    "zero_bps": {
+      "run_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+      "observations": 501,
+      "final_research_index": 107.25445949277757,
+      "realized_transaction_cost": 0,
+      "financial_result_hash": "426533ad89ffb1ad72246a8c8ecdb2a6e7ad8e9d1c50f8e6db713d36e1af7e0d"
+    },
+    "five_bps": {
+      "run_id": "rr_26db2418c42692c261ddb63cbfc7b7bd47844ff17e4de5926066d037906e240f",
+      "observations": 501,
+      "final_research_index": 107.13006040048703,
+      "realized_transaction_cost": 0.1130073297533634,
+      "financial_result_hash": "ed95b4e9782f942905539d37f3a655358e7f106c8162f6a905985288f53f40b8"
+    },
+    "zero_bps_rerun_identical": true
+  },
+  "validation": {
+    "root_tests": "9/9 PASS",
+    "backend_fast_tests": "11 PASS, 1 empirical case separated",
+    "b1_empirical_backend_tests": "12/12 PASS",
+    "b2_authenticated_integration": "1/1 PASS",
+    "frontend_tests": "7/7 PASS",
+    "backend_typecheck": "PASS",
+    "frontend_typecheck": "PASS",
+    "backend_production_build": "PASS",
+    "frontend_production_build": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "preservation": {
+    "calculator_sha256": "c0e64df753f97c69390a146e72f05b5f1915e9f9532512e9076f6284677c57bc",
+    "capital_engine_sha256": "525d591e065c05502d0ba900b039afa43bc07ffa039b582cd9dce3924245ceb1",
+    "campaign_sha256": "9ad484bc22d2120f583b08fe1a951d22ddb34525f8c89feee28a813a336c1c64",
+    "empirical_data_sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+    "workbench_contracts_sha256": "fe75ecb06d525044a1513a02d3786ee5f68d5917d008f43587abe8144f766686",
+    "run_identity_sha256": "44735c586dc53bac839d61ac0a80ba8311c306a76ca945a952c6d6e40505dd4a",
+    "pnpm_lock_sha256": "93e6db6345768119ed2729c407865a7d45a0e3afa623d200662b258d16b75819",
+    "certified_financial_source_changed": false,
+    "certified_dataset_changed": false,
+    "phase_a_evidence_changed": false,
+    "transaction_cost_semantics_changed": false,
+    "run_identity_semantics_changed": false,
+    "financial_result_hashing_changed": false,
+    "financial_result_drift": false
+  }
+}

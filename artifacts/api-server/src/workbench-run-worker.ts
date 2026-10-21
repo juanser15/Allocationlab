@@ -7,9 +7,9 @@ import {
   realpathSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { isAbsolute, relative, resolve, sep } from "node:path";
 import { parseCsv } from "./lib/calculator";
+import { resolveWorkbenchRepositoryRoot } from "./lib/workbench/repository-root";
 import type {
   CapitalExecutionEvidence,
   CapitalResultArtifact,
@@ -134,25 +134,6 @@ function isExecuteMessage(value: unknown): value is ExecuteMessage {
 function isWithin(parent: string, candidate: string): boolean {
   const rel = relative(parent, candidate);
   return rel === "" || (!rel.startsWith(`..${sep}`) && rel !== ".." && !isAbsolute(rel));
-}
-
-function findRepositoryRoot(): string {
-  const starts = [dirname(fileURLToPath(import.meta.url)), process.cwd()];
-  const visited = new Set<string>();
-  for (const start of starts) {
-    let cursor = resolve(start);
-    while (!visited.has(cursor)) {
-      visited.add(cursor);
-      if (
-        existsSync(resolve(cursor, CAMPAIGN_PATH)) &&
-        existsSync(resolve(cursor, "research/capital/engine.ts"))
-      ) return realpathSync(cursor);
-      const parent = dirname(cursor);
-      if (parent === cursor) break;
-      cursor = parent;
-    }
-  }
-  throw new Error("Fixed repository root not found");
 }
 
 function codeHash(repositoryRoot: string): string {
@@ -300,7 +281,7 @@ function artifact(
 }
 
 function execute(message: ExecuteMessage): CapitalExecutionEvidence {
-  const repositoryRoot = findRepositoryRoot();
+  const repositoryRoot = resolveWorkbenchRepositoryRoot({ moduleUrl: import.meta.url });
   const configuredRoot = process.env.WORKBENCH_RUN_DIR ?? "/tmp/allocationlab-workbench-runs";
   if (!isAbsolute(configuredRoot) || !existsSync(configuredRoot)) {
     throw new Error("Unsafe temporary run-store root");

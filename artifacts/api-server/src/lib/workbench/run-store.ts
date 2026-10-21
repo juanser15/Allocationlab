@@ -5,7 +5,7 @@ import {
 } from "node:fs/promises";
 import { hostname, tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolveWorkbenchRepositoryRoot } from "./repository-root";
 
 export const DEFAULT_WORKBENCH_RUN_DIR = join(tmpdir(), "allocationlab-workbench-runs");
 export const WORKBENCH_STORAGE_STATUS = "TEMPORARY_RESEARCH_STORAGE" as const;
@@ -263,26 +263,6 @@ async function publishImmutable(path: string, value: Buffer, maxBytes: number): 
   }
 }
 
-async function discoverRepositoryRoot(): Promise<string | null> {
-  const starts = [dirname(fileURLToPath(import.meta.url)), process.cwd()];
-  const visited = new Set<string>();
-  for (const start of starts) {
-    let current = resolve(start);
-    while (!visited.has(current)) {
-      visited.add(current);
-      if (
-        await exists(join(current, ".git")) &&
-        await exists(join(current, "configs/capital-research/acceptance-traditional.json")) &&
-        await exists(join(current, "research/capital/engine.ts"))
-      ) return realpath(current);
-      const parent = dirname(current);
-      if (parent === current) break;
-      current = parent;
-    }
-  }
-  return null;
-}
-
 /** Resolve an absent path through its nearest existing ancestor without creating it. */
 async function prospectiveRealPath(path: string): Promise<string> {
   const missing: string[] = [];
@@ -322,7 +302,10 @@ export class WorkbenchRunStore {
       throw new WorkbenchRunStoreError("RUN_ROOT_NOT_ABSOLUTE", "WORKBENCH_RUN_DIR must be absolute.");
     const repositoryRoot = options.repositoryRoot
       ? await realpath(options.repositoryRoot).catch(() => resolve(options.repositoryRoot!))
-      : await discoverRepositoryRoot();
+      : (() => {
+          try { return resolveWorkbenchRepositoryRoot({ moduleUrl: import.meta.url }); }
+          catch { return null; }
+        })();
     if (!repositoryRoot)
       throw new WorkbenchRunStoreError(
         "REPOSITORY_ROOT_NOT_FOUND",

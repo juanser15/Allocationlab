@@ -3,6 +3,7 @@ import { existsSync, lstatSync, mkdirSync, realpathSync, readdirSync } from "nod
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveWorkbenchRepositoryRoot } from "./repository-root";
 
 export const WORKBENCH_ADAPTER_VERSION = "workbench-b1-capital-adapter-1.0.0";
 export const WORKBENCH_PIT_CLASSIFICATION =
@@ -179,28 +180,6 @@ function isWithin(parent: string, candidate: string): boolean {
   return rel === "" || (!rel.startsWith(`..${sep}`) && rel !== ".." && !isAbsolute(rel));
 }
 
-function findRepositoryRoot(): string {
-  const starts = [dirname(fileURLToPath(import.meta.url)), process.cwd()];
-  const visited = new Set<string>();
-  for (const start of starts) {
-    let cursor = resolve(start);
-    while (!visited.has(cursor)) {
-      visited.add(cursor);
-      if (
-        existsSync(resolve(cursor, "configs/capital-research/acceptance-traditional.json")) &&
-        existsSync(resolve(cursor, "research/capital/engine.ts"))
-      ) return realpathSync(cursor);
-      const parent = dirname(cursor);
-      if (parent === cursor) break;
-      cursor = parent;
-    }
-  }
-  throw new CapitalExecutionError(
-    "WORKBENCH_UNSAFE_STORAGE_ROOT",
-    "The fixed Allocation Lab repository root could not be resolved.",
-  );
-}
-
 /** Resolve existing ancestors before creation so symlinked parents cannot
  * defer a repository-overlap check until after mkdir has already written. */
 function projectedRealPath(path: string): string {
@@ -353,7 +332,16 @@ export async function executeCapitalResearchAttempt(
   }
 
   const limits = validatedLimits(options.limits);
-  const repositoryRoot = findRepositoryRoot();
+  let repositoryRoot: string;
+  try {
+    repositoryRoot = resolveWorkbenchRepositoryRoot({ moduleUrl: import.meta.url });
+  } catch (error) {
+    throw new CapitalExecutionError(
+      "WORKBENCH_UNSAFE_STORAGE_ROOT",
+      "The fixed Allocation Lab repository root could not be resolved.",
+      error instanceof Error ? error.message : "Repository marker discovery failed.",
+    );
+  }
   const configuredRoot = process.env.WORKBENCH_RUN_DIR ?? "/tmp/allocationlab-workbench-runs";
   if (!isAbsolute(configuredRoot)) {
     throw new CapitalExecutionError(
