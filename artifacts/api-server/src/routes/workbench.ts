@@ -3,11 +3,13 @@ import {
   PIT_CLASSIFICATION,
   RESEARCH_BOUNDARY,
   STORAGE_CLASSIFICATION,
+  RESEARCH_RUN_SPEC_VERSION,
   WorkbenchContractValidationError,
 } from "../lib/workbench/contracts";
 import { WORKBENCH_CAPABILITIES } from "../lib/workbench/capabilities";
 import { WorkbenchRunStoreError } from "../lib/workbench/run-store";
 import { WorkbenchService, createWorkbenchService } from "../lib/workbench/service";
+import { CalendarContractError } from "../lib/workbench/calendar-v2";
 
 const MAX_REQUEST_BYTES = 16 * 1024;
 
@@ -26,12 +28,14 @@ function logicalBodyBytes(req: Request): number {
   catch { return MAX_REQUEST_BYTES + 1; }
 }
 
-function safeError(req: Request, res: Response, error: unknown): void {
+export function safeError(req: Request, res: Response, error: unknown): void {
   let status = 500;
   let code = "WORKBENCH_INTERNAL_ERROR";
   let message = "The research service could not complete the request.";
   let issues: unknown;
-  if (error instanceof WorkbenchContractValidationError) {
+  if (error instanceof CalendarContractError) {
+    status = error.statusCode; code = error.code; message = error.message; issues = error.details;
+  } else if (error instanceof WorkbenchContractValidationError) {
     status = error.statusCode;
     code = error.code;
     message = "The research run specification is invalid.";
@@ -68,7 +72,7 @@ function noUnexpectedQuery(req: Request, allowed: readonly string[]): boolean {
   return Object.keys(req.query).every((key) => allowed.includes(key));
 }
 
-export function createWorkbenchRouter(source?: ServiceSource): IRouter {
+export function createWorkbenchRouter(source?: ServiceSource, prefix = "/workbench"): IRouter {
   const router: IRouter = Router();
   let cached: Promise<WorkbenchService> | null = null;
   const service = async (): Promise<WorkbenchService> => {
@@ -78,8 +82,15 @@ export function createWorkbenchRouter(source?: ServiceSource): IRouter {
     cached ??= createWorkbenchService();
     return cached;
   };
+  const requireLegacyRun = async (runId: string): Promise<WorkbenchService> => {
+    const instance = await service();
+    const spec = (await instance.store.getRun(runId)).normalized_spec as { contract_version?: string };
+    if (spec.contract_version !== RESEARCH_RUN_SPEC_VERSION)
+      throw new WorkbenchRunStoreError("INVALID_CONTRACT_VERSION", "This run belongs to a different contract version; use its versioned API.");
+    return instance;
+  };
 
-  router.get("/workbench/capabilities", (req, res): void => {
+  router.get(`${prefix}/capabilities`, (req, res): void => {
     if (!noUnexpectedQuery(req, [])) {
       res.status(400).json({ ...responseBoundary, error: {
         code: "INVALID_QUERY", message: "Capabilities does not accept query parameters.",
@@ -89,7 +100,7 @@ export function createWorkbenchRouter(source?: ServiceSource): IRouter {
     res.json(WORKBENCH_CAPABILITIES);
   });
 
-  router.post("/workbench/runs", async (req, res): Promise<void> => {
+  router.post(`${prefix}/runs`, async (req, res): Promise<void> => {
     if (!noUnexpectedQuery(req, [])) {
       res.status(400).json({ ...responseBoundary, error: {
         code: "INVALID_QUERY", message: "Run submission does not accept query parameters.",
@@ -105,18 +116,23 @@ export function createWorkbenchRouter(source?: ServiceSource): IRouter {
     } catch (error) { safeError(req, res, error); }
   });
 
-  router.get("/workbench/runs", async (req, res): Promise<void> => {
+  router.get(`${prefix}/runs`, async (req, res): Promise<void> => {
     if (!noUnexpectedQuery(req, [])) {
       res.status(400).json({ ...responseBoundary, error: {
         code: "INVALID_QUERY", message: "The run list does not accept query parameters.",
       } });
       return;
     }
-    try { res.json(await (await service()).listRuns()); }
+    try {
+      const instance = await service();
+      const list = await instance.listRuns();
+      const legacy = await Promise.all(list.runs.map(async run => ({ run, spec: await instance.store.readNormalizedSpec(run.run_id) as { contract_version?: string } })));
+      res.json({ ...list, runs: legacy.filter(item => item.spec.contract_version === RESEARCH_RUN_SPEC_VERSION).map(item => item.run) });
+    }
     catch (error) { safeError(req, res, error); }
   });
 
-  router.get("/workbench/runs/:runId", async (req, res): Promise<void> => {
+  router.get(`${prefix}/runs/:runId`, async (req, res): Promise<void> => {
     if (!noUnexpectedQuery(req, [])) {
       res.status(400).json({ ...responseBoundary, error: {
         code: "INVALID_QUERY", message: "Run retrieval does not accept query parameters.",
@@ -124,11 +140,11 @@ export function createWorkbenchRouter(source?: ServiceSource): IRouter {
       return;
     }
     const runId = Array.isArray(req.params.runId) ? req.params.runId[0] : req.params.runId;
-    try { res.json(await (await service()).getRun(runId)); }
+    try { res.json(await (await requireLegacyRun(runId)).getRun(runId)); }
     catch (error) { safeError(req, res, error); }
   });
 
-  router.post("/workbench/runs/:runId/rerun", async (req, res): Promise<void> => {
+  router.post(`${prefix}/runs/:runId/rerun`, async (req, res): Promise<void> => {
     if (!noUnexpectedQuery(req, [])) {
       res.status(400).json({ ...responseBoundary, error: {
         code: "INVALID_QUERY", message: "Rerun does not accept query parameters.",
@@ -146,12 +162,12 @@ export function createWorkbenchRouter(source?: ServiceSource): IRouter {
     }
     const runId = Array.isArray(req.params.runId) ? req.params.runId[0] : req.params.runId;
     try {
-      const submitted = await (await service()).rerun(runId);
+      const submitted = await (await requireLegacyRun(runId)).rerun(runId);
       res.status(submitted.status === "BLOCKED" ? 429 : 202).json(submitted);
     } catch (error) { safeError(req, res, error); }
   });
 
-  router.get("/workbench/compare", async (req, res): Promise<void> => {
+  router.get(`${prefix}/compare`, async (req, res): Promise<void> => {
     if (!noUnexpectedQuery(req, ["leftRunId", "rightRunId"])) {
       res.status(400).json({ ...responseBoundary, error: {
         code: "INVALID_QUERY", message: "Compare accepts only leftRunId and rightRunId.",
@@ -166,11 +182,15 @@ export function createWorkbenchRouter(source?: ServiceSource): IRouter {
       } });
       return;
     }
-    try { res.json(await (await service()).compare(left, right)); }
+    try {
+      const instance = await requireLegacyRun(left);
+      await requireLegacyRun(right);
+      res.json(await instance.compare(left, right));
+    }
     catch (error) { safeError(req, res, error); }
   });
 
   return router;
 }
 
-export default createWorkbenchRouter();
+export default createWorkbenchRouter(undefined, "/workbench/v1");

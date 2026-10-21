@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "access_control": "BEARER_TOKEN_ACCEPTED_SERVER_SIDE",
+  "run_a": {
+    "run_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+    "execution_attempt_id": "ea_c81dff42-8e0a-4ae5-ab40-d209ad87f607",
+    "status": "SUCCESS",
+    "observations": 501,
+    "final_research_index": 107.25445949277757,
+    "realized_transaction_cost": 0,
+    "financial_result_hash": "426533ad89ffb1ad72246a8c8ecdb2a6e7ad8e9d1c50f8e6db713d36e1af7e0d"
+  },
+  "run_a_rerun": {
+    "run_id": "rr_a82ff034c9128b9668fc32bf81c0337efa3059744b072ced788f6d9126bd4c26",
+    "execution_attempt_id": "ea_d01e8849-22c8-43e1-9c79-464fc26446eb",
+    "status": "SUCCESS",
+    "attempt_history_count": 2,
+    "same_financial_result_hash": true,
+    "same_metrics": true,
+    "same_time_series": true
+  },
+  "run_b": {
+    "run_id": "rr_26db2418c42692c261ddb63cbfc7b7bd47844ff17e4de5926066d037906e240f",
+    "execution_attempt_id": "ea_e87c5ebc-3496-4353-904d-ffb718118e6c",
+    "status": "SUCCESS",
+    "observations": 501,
+    "final_research_index": 107.13006040048703,
+    "realized_transaction_cost": 0.1130073297533634,
+    "financial_result_hash": "ed95b4e9782f942905539d37f3a655358e7f106c8162f6a905985288f53f40b8"
+  },
+  "compare": {
+    "calculation": "READ_ONLY_NO_RECALCULATION",
+    "spec_difference_paths": [
+      "/transaction_cost_bps"
+    ],
+    "transaction_cost_difference_bps": 5,
+    "oos_observation_difference": 0,
+    "final_research_index_difference": -0.12439909229054535,
+    "realized_cost_difference": 0.1130073297533634,
+    "attempt_counts_unchanged": true,
+    "winner_declared": false
+  },
+  "boundaries": {
+    "research_boundary": "RESEARCH_ONLY",
+    "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+    "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED"
+  },
+  "contract_version": "workbench-research-run-spec-1.0.0",
+  "route_prefix": "/api/workbench/v1",
+  "fixture": "configs/capital-research/acceptance-traditional.json",
+  "fixture_changed": false,
+  "financial_drift": false,
+  "validation": {
+    "b1_backend_with_empirical": "12/12 PASS",
+    "b2_authenticated_integration": "1/1 PASS",
+    "legacy_identity_byte_identical": true,
+    "legacy_financial_hashing_unchanged": true
+  }
+}

@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveWorkbenchRepositoryRoot } from "./repository-root";
+import { ADAPTER_V2, parseSubmissionV2, type SubmissionV2 } from "./calendar-v2";
 
 export const WORKBENCH_ADAPTER_VERSION = "workbench-b1-capital-adapter-1.0.0";
 export const WORKBENCH_PIT_CLASSIFICATION =
@@ -19,8 +20,14 @@ export interface CapitalExecutionInput {
   executionAttemptId: string;
   transactionCostBps: SupportedTransactionCostBps;
 }
+export interface CapitalExecutionInputV2 {
+  runId: string;
+  executionAttemptId: string;
+  transactionCostBps: number;
+  productSpec: SubmissionV2;
+}
 export interface CapitalScenarioMetrics {
-  scenario: SupportedTransactionCostBps;
+  scenario: number;
   observations: number;
   cagr: number;
   net_sharpe: number;
@@ -52,7 +59,7 @@ export interface CapitalSelectedFold {
 export interface CapitalSelectedJob {
   outer_fold: number;
   candidate_id: string;
-  scenario: SupportedTransactionCostBps;
+  scenario: number;
   job_hash: string;
   result_hash: string;
   fit_keys: string[];
@@ -79,11 +86,11 @@ export interface CapitalResultArtifact {
 }
 
 export interface CapitalExecutionEvidence {
-  adapter_version: typeof WORKBENCH_ADAPTER_VERSION;
+  adapter_version: string;
   pit_classification: typeof WORKBENCH_PIT_CLASSIFICATION;
   storage_status: typeof WORKBENCH_STORAGE_STATUS;
   real_money_boundary: typeof WORKBENCH_REAL_MONEY_BOUNDARY;
-  requested_transaction_cost_bps: SupportedTransactionCostBps;
+  requested_transaction_cost_bps: number;
   engine: {
     engine_version: string;
     experiment_id: string;
@@ -307,7 +314,7 @@ function terminateWorker(child: ChildProcess): void {
 }
 
 export async function executeCapitalResearchAttempt(
-  input: CapitalExecutionInput,
+  input: CapitalExecutionInput | CapitalExecutionInputV2,
   options: CapitalExecutionAdapterOptions = {},
 ): Promise<CapitalExecutionOutcome> {
   if (executionActive) {
@@ -316,14 +323,20 @@ export async function executeCapitalResearchAttempt(
       "One empirical research execution is already running.",
     );
   }
+  const dynamic = input && typeof input === "object" && "productSpec" in input;
+  let dynamicValid = false;
+  if (dynamic) {
+    try { dynamicValid = parseSubmissionV2(input.productSpec).transaction_cost_bps === input.transactionCostBps; }
+    catch { dynamicValid = false; }
+  }
   if (
     !input ||
     typeof input !== "object" ||
     Object.keys(input).sort().join("|") !==
-      "executionAttemptId|runId|transactionCostBps" ||
+      (dynamic ? "executionAttemptId|productSpec|runId|transactionCostBps" : "executionAttemptId|runId|transactionCostBps") ||
     !RUN_ID_PATTERN.test(input.runId) ||
     !EXECUTION_ATTEMPT_ID_PATTERN.test(input.executionAttemptId) ||
-    (input.transactionCostBps !== 0 && input.transactionCostBps !== 5)
+    (dynamic ? !dynamicValid : input.transactionCostBps !== 0 && input.transactionCostBps !== 5)
   ) {
     throw new CapitalExecutionError(
       "WORKBENCH_INVALID_EXECUTION_INPUT",
@@ -551,7 +564,7 @@ export async function executeCapitalResearchAttempt(
         }
         if (isWorkerSuccess(message)) {
           if (
-            message.result.adapter_version !== WORKBENCH_ADAPTER_VERSION ||
+            message.result.adapter_version !== (dynamic ? ADAPTER_V2 : WORKBENCH_ADAPTER_VERSION) ||
             message.result.pit_classification !== WORKBENCH_PIT_CLASSIFICATION ||
             message.result.storage_status !== WORKBENCH_STORAGE_STATUS ||
             message.result.real_money_boundary !== WORKBENCH_REAL_MONEY_BOUNDARY ||
@@ -632,10 +645,11 @@ export async function executeCapitalResearchAttempt(
 
       child.send({
         type: "execute-workbench-capital",
-        protocol_version: 1,
+        protocol_version: dynamic ? 2 : 1,
         run_id: input.runId,
         execution_attempt_id: input.executionAttemptId,
         transaction_cost_bps: input.transactionCostBps,
+        ...(dynamic ? { product_spec: input.productSpec } : {}),
       });
     });
   } finally {

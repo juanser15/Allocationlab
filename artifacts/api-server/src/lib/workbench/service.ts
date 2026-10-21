@@ -81,7 +81,7 @@ function fullStoredSpec(view: StoredRunView): ResearchRunSpec {
   };
 }
 
-function receipt(attempt: AttemptView, reused: boolean, executionRequested: boolean): WorkbenchSubmissionReceipt {
+export function receipt(attempt: AttemptView, reused: boolean, executionRequested: boolean): WorkbenchSubmissionReceipt {
   return {
     ...boundary(),
     run_id: attempt.attempt.run_id,
@@ -97,7 +97,7 @@ function resultArtifactPath(ref: AttemptRef, path: string): string {
   return `runs/${ref.runId}/attempts/${ref.executionAttemptId}/engine/${path}`;
 }
 
-function successfulResult(
+export function successfulResult(
   ref: AttemptRef,
   attempt: AttemptView,
   outcome: CapitalExecutionOutcome,
@@ -240,7 +240,7 @@ function successfulResult(
   };
 }
 
-function terminalResult(
+export function terminalResult(
   ref: AttemptRef,
   attempt: AttemptView,
   status: "FAILED" | "BLOCKED",
@@ -293,7 +293,7 @@ function terminalResult(
   };
 }
 
-function publicAttempt(attempt: AttemptView) {
+export function publicAttempt(attempt: AttemptView) {
   const attemptReference =
     `runs/${attempt.attempt.run_id}/attempts/${attempt.attempt.execution_attempt_id}`;
   return {

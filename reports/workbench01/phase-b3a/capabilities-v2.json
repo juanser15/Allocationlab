@@ -1,0 +1,307 @@
+{
+  "research_boundary": "RESEARCH_ONLY",
+  "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+  "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+  "contract_version": "workbench-capabilities-2.0.0",
+  "supported_spec_version": "workbench-research-run-spec-2.0.0",
+  "supported_research_modes": [
+    "CAPITAL_MARKET_EXPOSURE"
+  ],
+  "supported_universe": [
+    "SPY"
+  ],
+  "supported_validation_methods": [
+    "TRADITIONAL_WALK_FORWARD"
+  ],
+  "path": "reports/cl02/adjusted-closes.csv",
+  "sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+  "parsed_data_hash": "f7436db75e7c6ed35938e6248c48c162c051cd8a99457a5c386910b36f6c743e",
+  "observations": 4023,
+  "data_first_observation": "2010-10-01",
+  "data_last_observation": "2026-09-30",
+  "supported_evaluation_start_min": "2019-08-01",
+  "supported_evaluation_end_max": "2026-10-01",
+  "earliest_complete_training_start": "2019-07-01",
+  "evaluation_start_min_rule": "Conditional on user training months/cadence; plan validates each fold without shifting dates.",
+  "supported_window_types": [
+    "ROLLING",
+    "EXPANDING"
+  ],
+  "supported_rebalance_frequencies": [
+    "MONTHLY",
+    "QUARTERLY"
+  ],
+  "training_window_rules": {
+    "required": true,
+    "positive_integer_months": true,
+    "maximum_months": 1200,
+    "minimum_training_observations": 2,
+    "model_fit_required_observations": 0,
+    "model_fit": "STATELESS",
+    "selection_score": "net_sharpe requires at least two training returns and a defined score; eligibility is determined by the unchanged engine",
+    "model_warmup_observations_before_training": 252,
+    "no_automatic_extension": true
+  },
+  "date_rules": {
+    "evaluation_is_oos": true,
+    "month_start_required": true,
+    "quarterly_start": "CALENDAR_QUARTER_START",
+    "complete_folds_required": true,
+    "no_date_adjustment": true
+  },
+  "transaction_cost_rules": {
+    "fields": [
+      "transaction_cost_bps",
+      "selection_cost_bps"
+    ],
+    "required": true,
+    "finite": true,
+    "minimum": 0,
+    "rounding": "NONE",
+    "selection_and_oos_distinct": true
+  },
+  "timing_semantics": {
+    "oos_horizon_source": "REBALANCE_FREQUENCY",
+    "step_source": "REBALANCE_FREQUENCY",
+    "recalibration_source": "REBALANCE_FREQUENCY",
+    "monthly_months": 1,
+    "quarterly_months": 3
+  },
+  "editable_fields": [
+    {
+      "field": "evaluation_start",
+      "editable": true,
+      "required": true,
+      "default_source": "USER_SUPPLIED",
+      "default_value": "NO_DEFAULT",
+      "type": "string",
+      "validation_rule": "ISO month start; exact complete OOS periods within dataset/history bounds",
+      "backend_mapping": "Campaign.dates.start = evaluation_start - training_window_months"
+    },
+    {
+      "field": "evaluation_end_exclusive",
+      "editable": true,
+      "required": true,
+      "default_source": "USER_SUPPLIED",
+      "default_value": "NO_DEFAULT",
+      "type": "string",
+      "validation_rule": "ISO month start; exact complete OOS periods within dataset/history bounds",
+      "backend_mapping": "Campaign.dates.end_exclusive"
+    },
+    {
+      "field": "window_type",
+      "editable": true,
+      "required": true,
+      "default_source": "USER_SUPPLIED",
+      "default_value": "NO_DEFAULT",
+      "type": "string",
+      "validation_rule": "ROLLING | EXPANDING",
+      "backend_mapping": "Campaign.window_type"
+    },
+    {
+      "field": "training_window_months",
+      "editable": true,
+      "required": true,
+      "default_source": "USER_SUPPLIED",
+      "default_value": "NO_DEFAULT",
+      "type": "number",
+      "validation_rule": "Positive integer <=1200; actual training >=2 rows for ranking, stateless fit has no learned-history minimum, separate 252-row indicator warmup required",
+      "backend_mapping": "Campaign.train_months"
+    },
+    {
+      "field": "rebalance_frequency",
+      "editable": true,
+      "required": true,
+      "default_source": "USER_SUPPLIED",
+      "default_value": "NO_DEFAULT",
+      "type": "string",
+      "validation_rule": "MONTHLY | QUARTERLY",
+      "backend_mapping": "Campaign.rebalance_frequency, recalibration_frequency, test_months and step_months"
+    },
+    {
+      "field": "transaction_cost_bps",
+      "editable": true,
+      "required": true,
+      "default_source": "USER_SUPPLIED",
+      "default_value": "NO_DEFAULT",
+      "type": "number",
+      "validation_rule": "Finite nonnegative number, no rounding",
+      "backend_mapping": "Campaign.transaction_cost_bps OOS scenario"
+    },
+    {
+      "field": "selection_cost_bps",
+      "editable": true,
+      "required": true,
+      "default_source": "USER_SUPPLIED",
+      "default_value": "NO_DEFAULT",
+      "type": "number",
+      "validation_rule": "Finite nonnegative number, no rounding",
+      "backend_mapping": "Campaign.selection_cost_bps training ranking scenario"
+    }
+  ],
+  "fixed_model_definition": {
+    "strategy_id": "capital-research-grid-selector",
+    "model_family": "current_regime",
+    "model_fit": "STATELESS",
+    "candidate_space": [
+      {
+        "base": {
+          "model_family": "current_regime",
+          "input_set": [
+            "XLK",
+            "XLC",
+            "XLRE",
+            "XLI",
+            "XLY",
+            "XLF",
+            "XLU",
+            "XLE",
+            "XLV",
+            "XLB",
+            "EEM",
+            "EWJ",
+            "AAXJ",
+            "EWG",
+            "EUFN",
+            "SPY",
+            "GLD",
+            "TLT",
+            "IEF",
+            "VNQ",
+            "EFA",
+            "DBC"
+          ],
+          "transformations": [
+            {
+              "name": "identity"
+            }
+          ],
+          "model_parameters": {
+            "lookback_rows": 252
+          },
+          "exposure_policy": "cash_band",
+          "exposure_parameters": {
+            "cash_min": 0.1,
+            "cash_max": 0.2
+          }
+        },
+        "axes": {
+          "exposure_parameters.cash_min": [
+            0.1,
+            0.2
+          ],
+          "exposure_parameters.cash_max": [
+            0.2,
+            0.4
+          ]
+        }
+      },
+      {
+        "base": {
+          "model_family": "current_regime",
+          "input_set": [
+            "XLK",
+            "XLC",
+            "XLRE",
+            "XLI",
+            "XLY",
+            "XLF",
+            "XLU",
+            "XLE",
+            "XLV",
+            "XLB",
+            "EEM",
+            "EWJ",
+            "AAXJ",
+            "EWG",
+            "EUFN",
+            "SPY",
+            "GLD",
+            "TLT",
+            "IEF",
+            "VNQ",
+            "EFA",
+            "DBC"
+          ],
+          "transformations": [
+            {
+              "name": "identity"
+            }
+          ],
+          "model_parameters": {
+            "lookback_rows": 252
+          },
+          "exposure_policy": "constant",
+          "exposure_parameters": {
+            "risk": 1
+          }
+        }
+      }
+    ],
+    "constraints": {
+      "max_turnover": 8,
+      "max_drawdown": 0.6,
+      "min_exposure": 0,
+      "max_exposure": 1
+    },
+    "selection_metric": "net_sharpe",
+    "information_universe": [
+      "XLK",
+      "XLC",
+      "XLRE",
+      "XLI",
+      "XLY",
+      "XLF",
+      "XLU",
+      "XLE",
+      "XLV",
+      "XLB",
+      "EEM",
+      "EWJ",
+      "AAXJ",
+      "EWG",
+      "EUFN",
+      "SPY",
+      "GLD",
+      "TLT",
+      "IEF",
+      "VNQ",
+      "EFA",
+      "DBC"
+    ],
+    "warmup_rows": 252,
+    "cash_yield": {
+      "type": "constant",
+      "daily": 0,
+      "reference_daily": 0
+    },
+    "slippage_bps": 0,
+    "execution": "next_close",
+    "independent_fold_initial_nav": 100
+  },
+  "engine_identity": {
+    "certified_engine_commit": "b9950f7cbe128f9d761597a5e216d777cc3059a3",
+    "version": "capital-research-1.0.1",
+    "adapter_version": "workbench-capital-calendar-2.0.0",
+    "code_version": "09f47e68edf65c55e0204dcb848d95c3572aad949a53d7396845a187b48a2a39"
+  },
+  "temporary_storage": {
+    "status": "TEMPORARY_RESEARCH_STORAGE",
+    "durability": "NONE"
+  },
+  "resource_limits": {
+    "maximum_concurrent_executions": 1,
+    "max_jobs": 2000,
+    "timeout_ms": 120000,
+    "max_output_bytes": 67108864
+  },
+  "compatibility": {
+    "old_preview_ui": "CAPABILITY_CONTRACT_MISMATCH_EXECUTION_DISABLED",
+    "legacy_api": "/api/workbench/v1",
+    "legacy_purpose": "CERTIFICATION_FIXTURE_ONLY"
+  },
+  "warnings": [
+    "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+    "Current-regime fit is stateless; no learned estimator is implied."
+  ]
+}

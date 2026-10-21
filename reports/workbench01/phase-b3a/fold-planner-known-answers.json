@@ -1,0 +1,253 @@
+{
+  "status": "PASS",
+  "interpretation": "Temporal known answers against the actual dataset calendar; model-history validation is separate. The 2020 example is blocked for incomplete information-universe warmup and is not empirical execution evidence.",
+  "rolling": {
+    "request": {
+      "contract_version": "workbench-research-run-spec-2.0.0",
+      "research_mode": "CAPITAL_MARKET_EXPOSURE",
+      "execution_scope": "EMPIRICAL",
+      "universe": "SPY",
+      "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+      "evaluation_start": "2020-01-01",
+      "evaluation_end_exclusive": "2020-05-01",
+      "training_window_months": 24,
+      "window_type": "ROLLING",
+      "rebalance_frequency": "MONTHLY",
+      "transaction_cost_bps": 0,
+      "selection_cost_bps": 2.5
+    },
+    "number_of_folds": 4,
+    "derived_engine_calendar": {
+      "dates": {
+        "start": "2018-01-01",
+        "end_exclusive": "2020-05-01"
+      },
+      "train_months": 24,
+      "test_months": 1,
+      "step_months": 1,
+      "window_type": "rolling",
+      "rebalance_frequency": "monthly",
+      "recalibration_frequency": "monthly"
+    },
+    "folds": [
+      {
+        "fold_id": 0,
+        "training_start": "2018-01-01",
+        "training_end_exclusive": "2020-01-01",
+        "decision_date": "2020-01-02",
+        "information_cutoff": "2019-12-31",
+        "oos_start": "2020-01-01",
+        "oos_end_exclusive": "2020-02-01",
+        "rebalance_frequency": "MONTHLY",
+        "window_type": "ROLLING",
+        "training_observations": 503,
+        "warmup_observations": 1825,
+        "oos_observations": 21
+      },
+      {
+        "fold_id": 1,
+        "training_start": "2018-02-01",
+        "training_end_exclusive": "2020-02-01",
+        "decision_date": "2020-02-03",
+        "information_cutoff": "2020-01-31",
+        "oos_start": "2020-02-01",
+        "oos_end_exclusive": "2020-03-01",
+        "rebalance_frequency": "MONTHLY",
+        "window_type": "ROLLING",
+        "training_observations": 503,
+        "warmup_observations": 1846,
+        "oos_observations": 19
+      },
+      {
+        "fold_id": 2,
+        "training_start": "2018-03-01",
+        "training_end_exclusive": "2020-03-01",
+        "decision_date": "2020-03-02",
+        "information_cutoff": "2020-02-28",
+        "oos_start": "2020-03-01",
+        "oos_end_exclusive": "2020-04-01",
+        "rebalance_frequency": "MONTHLY",
+        "window_type": "ROLLING",
+        "training_observations": 503,
+        "warmup_observations": 1865,
+        "oos_observations": 22
+      },
+      {
+        "fold_id": 3,
+        "training_start": "2018-04-01",
+        "training_end_exclusive": "2020-04-01",
+        "decision_date": "2020-04-01",
+        "information_cutoff": "2020-03-31",
+        "oos_start": "2020-04-01",
+        "oos_end_exclusive": "2020-05-01",
+        "rebalance_frequency": "MONTHLY",
+        "window_type": "ROLLING",
+        "training_observations": 504,
+        "warmup_observations": 1886,
+        "oos_observations": 21
+      }
+    ]
+  },
+  "expanding": {
+    "request": {
+      "contract_version": "workbench-research-run-spec-2.0.0",
+      "research_mode": "CAPITAL_MARKET_EXPOSURE",
+      "execution_scope": "EMPIRICAL",
+      "universe": "SPY",
+      "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+      "evaluation_start": "2020-01-01",
+      "evaluation_end_exclusive": "2020-05-01",
+      "training_window_months": 24,
+      "window_type": "EXPANDING",
+      "rebalance_frequency": "MONTHLY",
+      "transaction_cost_bps": 0,
+      "selection_cost_bps": 2.5
+    },
+    "number_of_folds": 4,
+    "derived_engine_calendar": {
+      "dates": {
+        "start": "2018-01-01",
+        "end_exclusive": "2020-05-01"
+      },
+      "train_months": 24,
+      "test_months": 1,
+      "step_months": 1,
+      "window_type": "expanding",
+      "rebalance_frequency": "monthly",
+      "recalibration_frequency": "monthly"
+    },
+    "folds": [
+      {
+        "fold_id": 0,
+        "training_start": "2018-01-01",
+        "training_end_exclusive": "2020-01-01",
+        "decision_date": "2020-01-02",
+        "information_cutoff": "2019-12-31",
+        "oos_start": "2020-01-01",
+        "oos_end_exclusive": "2020-02-01",
+        "rebalance_frequency": "MONTHLY",
+        "window_type": "EXPANDING",
+        "training_observations": 503,
+        "warmup_observations": 1825,
+        "oos_observations": 21
+      },
+      {
+        "fold_id": 1,
+        "training_start": "2018-01-01",
+        "training_end_exclusive": "2020-02-01",
+        "decision_date": "2020-02-03",
+        "information_cutoff": "2020-01-31",
+        "oos_start": "2020-02-01",
+        "oos_end_exclusive": "2020-03-01",
+        "rebalance_frequency": "MONTHLY",
+        "window_type": "EXPANDING",
+        "training_observations": 524,
+        "warmup_observations": 1825,
+        "oos_observations": 19
+      },
+      {
+        "fold_id": 2,
+        "training_start": "2018-01-01",
+        "training_end_exclusive": "2020-03-01",
+        "decision_date": "2020-03-02",
+        "information_cutoff": "2020-02-28",
+        "oos_start": "2020-03-01",
+        "oos_end_exclusive": "2020-04-01",
+        "rebalance_frequency": "MONTHLY",
+        "window_type": "EXPANDING",
+        "training_observations": 543,
+        "warmup_observations": 1825,
+        "oos_observations": 22
+      },
+      {
+        "fold_id": 3,
+        "training_start": "2018-01-01",
+        "training_end_exclusive": "2020-04-01",
+        "decision_date": "2020-04-01",
+        "information_cutoff": "2020-03-31",
+        "oos_start": "2020-04-01",
+        "oos_end_exclusive": "2020-05-01",
+        "rebalance_frequency": "MONTHLY",
+        "window_type": "EXPANDING",
+        "training_observations": 565,
+        "warmup_observations": 1825,
+        "oos_observations": 21
+      }
+    ]
+  },
+  "quarterly": {
+    "request": {
+      "contract_version": "workbench-research-run-spec-2.0.0",
+      "research_mode": "CAPITAL_MARKET_EXPOSURE",
+      "execution_scope": "EMPIRICAL",
+      "universe": "SPY",
+      "validation_protocol": "TRADITIONAL_WALK_FORWARD",
+      "evaluation_start": "2022-01-01",
+      "evaluation_end_exclusive": "2022-10-01",
+      "training_window_months": 24,
+      "window_type": "ROLLING",
+      "rebalance_frequency": "QUARTERLY",
+      "transaction_cost_bps": 0,
+      "selection_cost_bps": 2.5
+    },
+    "number_of_folds": 3,
+    "derived_engine_calendar": {
+      "dates": {
+        "start": "2020-01-01",
+        "end_exclusive": "2022-10-01"
+      },
+      "train_months": 24,
+      "test_months": 3,
+      "step_months": 3,
+      "window_type": "rolling",
+      "rebalance_frequency": "quarterly",
+      "recalibration_frequency": "quarterly"
+    },
+    "folds": [
+      {
+        "fold_id": 0,
+        "training_start": "2020-01-01",
+        "training_end_exclusive": "2022-01-01",
+        "decision_date": "2022-01-03",
+        "information_cutoff": "2021-12-31",
+        "oos_start": "2022-01-01",
+        "oos_end_exclusive": "2022-04-01",
+        "rebalance_frequency": "QUARTERLY",
+        "window_type": "ROLLING",
+        "training_observations": 505,
+        "warmup_observations": 2328,
+        "oos_observations": 62
+      },
+      {
+        "fold_id": 1,
+        "training_start": "2020-04-01",
+        "training_end_exclusive": "2022-04-01",
+        "decision_date": "2022-04-01",
+        "information_cutoff": "2022-03-31",
+        "oos_start": "2022-04-01",
+        "oos_end_exclusive": "2022-07-01",
+        "rebalance_frequency": "QUARTERLY",
+        "window_type": "ROLLING",
+        "training_observations": 505,
+        "warmup_observations": 2390,
+        "oos_observations": 62
+      },
+      {
+        "fold_id": 2,
+        "training_start": "2020-07-01",
+        "training_end_exclusive": "2022-07-01",
+        "decision_date": "2022-07-01",
+        "information_cutoff": "2022-06-30",
+        "oos_start": "2022-07-01",
+        "oos_end_exclusive": "2022-10-01",
+        "rebalance_frequency": "QUARTERLY",
+        "window_type": "ROLLING",
+        "training_observations": 504,
+        "warmup_observations": 2453,
+        "oos_observations": 64
+      }
+    ]
+  },
+  "programmatic_combinations": 48,
+  "no_overlapping_oos": true
+}

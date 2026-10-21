@@ -1,0 +1,58 @@
+{
+  "starting_sha": "089f09ffc6905717ce1591cd78c5e2b708863c36",
+  "status": "PASS",
+  "protected_files_checked": 2079,
+  "unexpected_changed_paths": [],
+  "protected_manifest_sha256_before": "bf72d51a83eaaf5cfb9a004961362ea0b245cdf06ed4cdd8e9e66beba3291c38",
+  "protected_manifest_sha256_after": "bf72d51a83eaaf5cfb9a004961362ea0b245cdf06ed4cdd8e9e66beba3291c38",
+  "authorized_existing_changes": [
+    "artifacts/api-server/src/lib/workbench/execution-adapter.ts",
+    "artifacts/api-server/src/lib/workbench/service.ts",
+    "artifacts/api-server/src/lib/workbench/workbench-b2.integration.test.ts",
+    "artifacts/api-server/src/routes/index.ts",
+    "artifacts/api-server/src/routes/workbench.ts",
+    "artifacts/api-server/src/workbench-run-worker.ts"
+  ],
+  "groups": {
+    "certified_financial_source": {
+      "files": 77,
+      "manifest_sha256_before": "ede0d3df53756d733e97eb7211120c5cbcbd2697f51d3d2d3a70f6c85260155c",
+      "manifest_sha256_after": "ede0d3df53756d733e97eb7211120c5cbcbd2697f51d3d2d3a70f6c85260155c",
+      "changed": 0
+    },
+    "phase_a_evidence": {
+      "files": 352,
+      "manifest_sha256_before": "ff059a5ff0c17e559c5853162f7b4f9a2cddc60a3f7fbf7047d47adc9dbe7157",
+      "manifest_sha256_after": "ff059a5ff0c17e559c5853162f7b4f9a2cddc60a3f7fbf7047d47adc9dbe7157",
+      "changed": 0
+    },
+    "certified_datasets_and_artifacts": {
+      "files": 333,
+      "manifest_sha256_before": "38f4b58b6470ed09c84041c2b726ed6b9fdbab06070f6fbfae1404d7cbe64048",
+      "manifest_sha256_after": "38f4b58b6470ed09c84041c2b726ed6b9fdbab06070f6fbfae1404d7cbe64048",
+      "changed": 0
+    },
+    "legacy_result_contract_and_identity": {
+      "files": 2,
+      "manifest_sha256_before": "53e350ebf49c2eedcb91072c9adbec679e8264d1bb88555c3eee896009efd871",
+      "manifest_sha256_after": "53e350ebf49c2eedcb91072c9adbec679e8264d1bb88555c3eee896009efd871",
+      "changed": 0
+    }
+  },
+  "validation": {
+    "backend_typecheck": "PASS",
+    "frontend_typecheck": "PASS",
+    "backend_build": "PASS",
+    "frontend_build": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "semantic_preservation": {
+    "legacy_identity_implementation": "BYTE_IDENTICAL",
+    "legacy_wire_result_contract": "BYTE_IDENTICAL",
+    "legacy_service_changes": "EXPORT_EXISTING_MAPPING_HELPERS_ONLY",
+    "legacy_financial_hashing": "UNCHANGED",
+    "certified_campaign": "BYTE_IDENTICAL",
+    "new_contract": "EXPLICIT_V2_NAMESPACE",
+    "frontend_source": "BYTE_IDENTICAL"
+  }
+}

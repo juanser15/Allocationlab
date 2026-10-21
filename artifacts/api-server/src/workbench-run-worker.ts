@@ -10,6 +10,7 @@ import { tmpdir } from "node:os";
 import { isAbsolute, relative, resolve, sep } from "node:path";
 import { parseCsv } from "./lib/calculator";
 import { resolveWorkbenchRepositoryRoot } from "./lib/workbench/repository-root";
+import { executeDynamicCampaign, isExecutionV2Message } from "./lib/workbench/execution-v2";
 import type {
   CapitalExecutionEvidence,
   CapitalResultArtifact,
@@ -494,6 +495,10 @@ function send(message: unknown): void {
 
 process.once("message", (message: unknown) => {
   try {
+    if (isExecutionV2Message(message)) {
+      send({ type: "workbench-capital-result", protocol_version: 1, result: executeDynamicCampaign(message) });
+      return;
+    }
     if (!isExecuteMessage(message)) throw new Error("Invalid fixed worker protocol message");
     send({
       type: "workbench-capital-result",

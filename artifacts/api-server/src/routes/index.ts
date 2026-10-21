@@ -30,6 +30,7 @@ import d2AllocationModeComparisonsRouter from "./d2-allocation-mode-comparisons"
 import d3ForecastComparisonsRouter from "./d3-forecast-comparisons";
 import portfolioHistoryRouter from "./portfolio-history";
 import workbenchRouter from "./workbench";
+import workbenchV2Router from "./workbench-v2";
 
 const router: IRouter = Router();
 
@@ -64,5 +65,6 @@ router.use(d2AllocationModeComparisonsRouter);
 router.use(d3ForecastComparisonsRouter);
 router.use(portfolioHistoryRouter);
 router.use(workbenchRouter);
+router.use(workbenchV2Router);
 
 export default router;

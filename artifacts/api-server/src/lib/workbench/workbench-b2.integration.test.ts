@@ -23,7 +23,8 @@ async function request(baseUrl: string, path: string, init: RequestInit = {}) {
   headers.set("authorization", `Bearer ${token}`);
   headers.set("accept", "application/json");
   if (init.body !== undefined) headers.set("content-type", "application/json");
-  const response = await fetch(`${baseUrl}${path}`, { ...init, headers });
+  // B1/B2 certification remains explicitly versioned as a fixture contract.
+  const response = await fetch(`${baseUrl}${path.replace(/^\/api\/workbench/, "/api/workbench/v1")}`, { ...init, headers });
   const text = await response.text();
   const body = JSON.parse(text);
   assert.ok(response.ok, `${response.status} ${text}`);
