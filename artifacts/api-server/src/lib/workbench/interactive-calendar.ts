@@ -5,6 +5,7 @@ import { canonicalJson, calculateRunId } from "./identity";
 import { resolveWorkbenchRepositoryRoot } from "./repository-root";
 import { readExecutionCapacity } from "./execution-capacity";
 import { productModelDefinition, RECURRING_V2 } from "./turnover-product";
+import { applyResearchDatasetOverride, activeResearchDatasetStatus } from "./research-datasets";
 export const INTERACTIVE_SPEC = "allocationlab-interactive-spec-3.0.0" as const;
 export const ANCHORED_CALENDAR = "ANCHORED_NEXT_TRADING_DAY_V1" as const;
 export interface InteractiveRequest {
@@ -39,8 +40,15 @@ export interface InteractiveFold {
  fold_id:number;training_start:string;training_end_exclusive:string;decision_date:string;information_cutoff:string;oos_start:string;oos_end_exclusive:string;
  intended_rebalance_date:string;training_observations:number;warmup_observations:number;oos_observations:number;partial_final_period:boolean;
 }
-let prepared:DatasetV2|undefined;
-export const preparedDataset=()=>prepared??=loadDatasetV2();
+let prepared: { key: string; data: DatasetV2 } | undefined;
+export const preparedDataset=()=>{
+ const status=activeResearchDatasetStatus();
+ const key=status.dataset_id;
+ if(prepared?.key===key)return prepared.data;
+ const data=applyResearchDatasetOverride(loadDatasetV2());
+ prepared={key,data};
+ return data;
+};
 export function interactiveCodeVersion(data=preparedDataset()){
  const root=resolveWorkbenchRepositoryRoot({moduleUrl:import.meta.url});
  return sha256(canonicalJson({certified:data.code_version,files:Object.fromEntries([
