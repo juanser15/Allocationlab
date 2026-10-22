@@ -8,6 +8,17 @@ import {
   pct,
   researchApi,
 } from "./coordinated-ui";
+function shiftMonths(date: string, months: number) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return "";
+  const [y, m, d] = date.split("-").map(Number);
+  const first = new Date(Date.UTC(y, m - 1 + months, 1));
+  const last = new Date(
+    Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  first.setUTCDate(Math.min(d, last));
+  return first.toISOString().slice(0, 10);
+}
+
 export type ResearchScope = "PORTFOLIO" | "CAPITAL_EXPOSURE";
 export const runScope = (spec: any): ResearchScope =>
   spec?.research_scope ?? "PORTFOLIO";
@@ -95,6 +106,14 @@ export function ExecutionWorkspace({
         .toISOString()
         .slice(0, 10)
     : undefined;
+  const requestedTrainingStart =
+    draft.evaluation_start && Number.isFinite(draft.training_window_months)
+      ? shiftMonths(draft.evaluation_start, -draft.training_window_months)
+      : "";
+  const trainingBeforeData =
+    !!requestedTrainingStart &&
+    !!caps?.data_first_observation &&
+    requestedTrainingStart < caps.data_first_observation;
   async function check() {
     setError("");
     try {
@@ -275,10 +294,22 @@ export function ExecutionWorkspace({
               </label>
             </div>
             {caps && (
-              <p className="cp-note">
-                Data through {caps.data_last_observation}. Latest To
-                (exclusive): {maxEnd}.
-              </p>
+              <div className="cp-result-context">
+                <strong>
+                  Active data · {caps.data_source === "YAHOO_FINANCE_RESEARCH" ? "Yahoo Finance" : "Internal snapshot"}
+                </strong>
+                <small>
+                  Available {caps.data_first_observation} → {caps.data_last_observation}
+                  {requestedTrainingStart ? ` · this design trains from ${requestedTrainingStart}` : ""}
+                </small>
+              </div>
+            )}
+            {trainingBeforeData && (
+              <div className="cp-error" role="alert">
+                This setup needs training history from {requestedTrainingStart},
+                but the active dataset begins on {caps.data_first_observation}.
+                Move From later, shorten the training window, or load earlier data.
+              </div>
             )}
             <p className="cp-note">
               Your training window is used as entered, without a statistical
