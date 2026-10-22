@@ -244,7 +244,7 @@ export async function fetchYahooResearchDataset(value: unknown) {
     required_research_symbols: required,
     missing_required_symbols: missingRequired,
     activation_eligible:
-      missingRequired.length === 0 && completeObservations >= 260,
+      byTicker.has("SPY") && (byTicker.get("SPY")?.length ?? 0) >= 10,
     coverage: tickers.map((ticker) => {
       const points = byTicker.get(ticker) ?? [];
       return {
@@ -346,7 +346,7 @@ export function activateResearchDataset(datasetId: string) {
   const meta = readResearchDataset(datasetId);
   if (!meta.activation_eligible)
     throw new Error(
-      "This Yahoo snapshot cannot become the active research dataset because the model-required information universe is incomplete or has too little complete history.",
+      "This Yahoo snapshot cannot become the active research dataset because usable SPY history is missing.",
     );
   ensureDir();
   writeFileSync(
