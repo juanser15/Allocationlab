@@ -49,9 +49,21 @@ app.use(
 // retain their existing access assumptions.
 app.use("/api/workbench", createWorkbenchPreviewAccess());
 app.use(cors());
+
+const DATASET_RESTORE_PATH = "/api/workbench/coordinated/data/restore";
+app.use(
+  DATASET_RESTORE_PATH,
+  express.json({ limit: "8mb" }),
+);
+
 // Workbench run specifications are intentionally small. Parse them with the
 // service's tighter bound before the broader upload-oriented API parser.
+// Exact Yahoo snapshot restoration is the single bounded exception.
 app.use("/api/workbench", (request, response, next) => {
+  if ((request.originalUrl ?? "").split("?")[0] === DATASET_RESTORE_PATH) {
+    next();
+    return;
+  }
   const contentLength = request.get("content-length");
   const declaredBytes = contentLength && /^\d+$/.test(contentLength)
     ? Number(contentLength)
