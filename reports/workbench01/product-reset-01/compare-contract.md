@@ -1,0 +1,9 @@
+# N-run comparison
+
+POST `/api/workbench/interactive/compare` accepts only `{run_ids:[...]}`: 2–100 unique successful interactive experiments. One hundred is the existing bounded temporary-list capacity and payload/read bound, not a financial limit. No arbitrary two-run restriction remains. Up to eight neutral colored curves are displayed for readability; every selected run remains in the table.
+
+The backend reads successful immutable result records only. When a later attempt is failed, blocked or running, the response explicitly warns that comparison uses the latest successful immutable attempt and returns both the latest status and the compared SUCCESS status; history continues showing the later attempt. It returns attempt IDs, metrics, turnover, actual equity/drawdown points, hashes and a configuration matrix identifying differences in dates, model/code version, window type, training, cadence, OOS cost, selection cost and turnover methodology. It never invokes the worker or recalculates performance. Records are projected sequentially and the response is bounded by the existing server output budget; an oversized selection returns 413 with an explicit capacity message. Calculation/runtime version differences are also warned.
+
+Date-range differences produce a visible comparability warning. Curves preserve actual date membership and missing points; no fake shared periods or benchmark are generated. Tables scroll within their container. Model/calculation hashes are collapsed; primary labels are plain language. No relative green/red performance coloring, winner or recommendation is used.
+
+Ordinary new interactive runs use fixed recurring-turnover V2. Methodology is nonetheless explicit in every comparison row. Legacy contracts remain distinct and are not silently mixed into this history or migrated. The pre-existing cross-methodology V1/V2 warning contract remains preserved and regression-tested at its original API.

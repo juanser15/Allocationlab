@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "WORKBENCH_MAX_JOBS",
+      "status": "PRE_RUN_BLOCKED",
+      "blocker": {
+        "code": "INTERACTIVE_CAPACITY_EXCEEDED",
+        "message": "This design exceeds current interactive capacity: 10 tasks requested vs 1 available.",
+        "issues": {
+          "fold_count": 1,
+          "estimated_jobs": 10,
+          "maximum_jobs": 1,
+          "compact_engine_files": 2,
+          "maximum_files": 512,
+          "no_attempt_created": true
+        }
+      },
+      "no_attempt_created": true
+    },
+    {
+      "case": "WORKBENCH_MAX_ENGINE_FILES",
+      "status": "PRE_RUN_BLOCKED",
+      "blocker": {
+        "code": "INTERACTIVE_CAPACITY_EXCEEDED",
+        "message": "This design exceeds the current interactive result-storage capacity. No execution attempt was created.",
+        "issues": {
+          "fold_count": 1,
+          "estimated_jobs": 10,
+          "maximum_jobs": 2000,
+          "compact_engine_files": 2,
+          "maximum_files": 1,
+          "no_attempt_created": true
+        }
+      },
+      "no_attempt_created": true
+    },
+    {
+      "case": "Bounded output failure",
+      "status": "FAILED",
+      "error_class": "OUTPUT_OR_LOG_LIMIT",
+      "private_diagnostic_exists": true,
+      "no_stack_or_path_leakage": true,
+      "failed_attempt_retained": true
+    },
+    {
+      "case": "Explicit rerun after output-bound failure",
+      "status": "SUCCESS",
+      "same_financial_run_id": true,
+      "new_attempt": true,
+      "prior_failed_bytes_unchanged": true
+    },
+    {
+      "case": "Compare earlier success with visible later failure",
+      "status": "PASS",
+      "read_only": true,
+      "latest_failure_not_hidden": true,
+      "explicit_successful_attempt_selected": true
+    }
+  ],
+  "auth_401": true,
+  "unsupported_media_415": true,
+  "oversize_413": true,
+  "path_traversal_rejected": true,
+  "unexpected_query_rejected": true,
+  "defaults_not_increased": true
+}

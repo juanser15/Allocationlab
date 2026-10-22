@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "test": "Deliberate future-only perturbation in an in-memory copy; no dataset file changed. This is a leakage property test, not a substitute empirical run.",
+  "first_fold_candidate_and_targets_identical": true,
+  "first_fold_oos_path_identical": true,
+  "all_runtime_cutoff_assertions_passed": true,
+  "calendar": "ANCHORED_NEXT_TRADING_DAY_V1",
+  "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED"
+}

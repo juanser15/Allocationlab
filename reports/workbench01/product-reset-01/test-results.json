@@ -1,0 +1,201 @@
+{
+  "status": "PASS",
+  "starting_commit": "2201fef03b9930ecdd26613daa28788bfd94ba9f",
+  "runtime": {
+    "node": "v24.19.0",
+    "pnpm": "11.25.0",
+    "python": "Python 3.12.14",
+    "os": "Linux 6.18.55 x86_64"
+  },
+  "reproducible_commands": [
+    "node artifacts/api-server/tests/product-reset.run-tests.mjs",
+    "node artifacts/api-server/tests/product-reset.run-tests.mjs --empirical",
+    "PLAYWRIGHT_MODULE=/path/to/existing/playwright node artifacts/api-server/tests/product-reset.run-tests.mjs --browser"
+  ],
+  "runner_behavior": "Uses existing installed toolchain. Builds fixed workers, compiles all Workbench/backend and frontend test entries, runs three strict typechecks, tests, production frontend build and git diff --check. Flags add self-contained empirical/reference, operational/performance and real-browser acceptance. It does not regenerate historical evidence.",
+  "backend_workbench": {
+    "current_fast_suite": {
+      "tests": 68,
+      "pass": 62,
+      "fail": 0,
+      "empirical_gates_skipped": 6
+    },
+    "gated_suite_resolution": "All six gated tests were executed separately against the unmodified legacy contracts. The initial copied-runtime suite had 65/66 passing: its C1 migration fixture was incorrectly placed inside the copied repository and correctly rejected by the overlap guard. The fixture copy was moved outside the repository. The unchanged C1 test then passed completely (1/1, including all empirical reruns and private failed-attempt migration). No source or historical evidence was changed to resolve the harness error.",
+    "unique_current_tests_covered_across_runs": 68,
+    "unresolved_failures": 0,
+    "new_interactive_tests": 10,
+    "topics": [
+      "arbitrary anchors, leap/end-of-month dates, weekend/holiday shifts, rolling/expanding and quarterly folds",
+      "strict inputs and versioned identity",
+      "exact mechanical financial-ledger/source equivalence",
+      "candidate-grid equivalence",
+      "future-data perturbation cannot change an earlier decision or its OOS path"
+    ]
+  },
+  "frontend": {
+    "tests": 131,
+    "pass": 131,
+    "fail": 0,
+    "skipped": 0,
+    "new_product_tests": 5
+  },
+  "financial_regressions": {
+    "legacy_zero_bps": {
+      "observations": 501,
+      "final_index": 107.25445949277757,
+      "realized_cost": 0,
+      "status": "UNCHANGED"
+    },
+    "legacy_five_bps": {
+      "observations": 501,
+      "final_index": 107.13006040048703,
+      "realized_cost": 0.1130073297533634,
+      "status": "UNCHANGED"
+    },
+    "earlier_calendar_and_B3C_successes": "Nine prior spec-2.0 success fixtures plus the available one-month-success fixture retain prior IDs and financial values/hashes; benchmark hashes are checked where the prior fixture produced them.",
+    "recurring_methodology_successes": 4,
+    "retained_84_fold_legacy_blocker": "UNCHANGED",
+    "private_failed_attempt_files_preserved": 737,
+    "evidence": "legacy-financial-regression.json"
+  },
+  "interactive_acceptance": {
+    "cases": 11,
+    "same_spec_rerun": true,
+    "new_attempts": true,
+    "progress_monotonic": true,
+    "terminal_progress_100": true,
+    "eta_nonnegative": true,
+    "financial_tolerance": 0,
+    "uncached_full_ledger_reference": true,
+    "fresh_prior_contract_crosschecks": 4,
+    "fresh_original_five_year_path": {
+      "observations": 1255,
+      "all_daily_returns_and_exposures_exact": true,
+      "all_selected_candidate_ids_exact": true,
+      "metrics_exact": true,
+      "original_engine_version": "capital-research-recurring-turnover-2.0.0"
+    },
+    "retained_tmp_input_required": false,
+    "evidence": "interactive-certified-reconciliation.json"
+  },
+  "operations": {
+    "status": "PASS",
+    "evidence": "operational-acceptance.json",
+    "checks": [
+      "authentication and missing token fail closed",
+      "unexpected input/query, traversal, media and size bounds",
+      "pre-run task/file capacity blocks create no attempt",
+      "actual output failure stays FAILED with private evidence",
+      "explicit same-identity rerun succeeds without changing earlier failed bytes",
+      "later failed attempt is visible while read-only compare explicitly uses earlier success"
+    ]
+  },
+  "pit": {
+    "status": "PASS",
+    "evidence": "pit-validation.json",
+    "classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED"
+  },
+  "typechecks": [
+    {
+      "project": "artifacts/api-server",
+      "command": "node node_modules/typescript/bin/tsc -p artifacts/api-server/tsconfig.json --noEmit",
+      "status": "PASS"
+    },
+    {
+      "project": "research/workbench",
+      "command": "node node_modules/typescript/bin/tsc -p research/workbench/tsconfig.json --noEmit",
+      "status": "PASS"
+    },
+    {
+      "project": "artifacts/allocation-lab",
+      "command": "node node_modules/typescript/bin/tsc -p artifacts/allocation-lab/tsconfig.json --noEmit",
+      "status": "PASS"
+    }
+  ],
+  "production_builds": {
+    "backend": "PASS",
+    "frontend": "PASS",
+    "frontend_modules": 2561,
+    "warnings": [
+      "Existing Vite/Radix sourcemap-location warnings.",
+      "Combined legacy/application JS chunk exceeds Vite 500 KiB advisory threshold; emitted uncompressed JS is approximately 1.94 MB. No production performance claim is made."
+    ]
+  },
+  "browser": {
+    "status": "PASS",
+    "version": "154.0.8037.57",
+    "viewports": [
+      360,
+      390,
+      430,
+      768,
+      1440
+    ],
+    "screenshots": 27,
+    "mobile_touch_selection": true,
+    "actual_constraint_failure_and_immutable_retry": true,
+    "console_errors": [],
+    "token_absent_from_built_assets": true,
+    "visual_review": "PASS",
+    "physical_android_device": false,
+    "evidence": [
+      "browser-acceptance.json",
+      "mobile-acceptance.json"
+    ]
+  },
+  "performance": {
+    "evidence": [
+      "performance-profile.json",
+      "performance-benchmarks.json"
+    ],
+    "six_month_training_five_year": {
+      "cold_ms": 4219.553159,
+      "warm_ms": 509.3419350000004
+    },
+    "twenty_four_month_training_five_year": {
+      "cold_ms": 9271.696229000001,
+      "warm_ms": 1099.7323219999998,
+      "cold_target_met": true,
+      "dominant_stage": "ledger_and_targets",
+      "dominant_stage_ms": 4476.8928240000005
+    },
+    "interpretation": "All work is retained. Both measured cases and the dominant exact ledger stage are reported, including target misses when present. Performance is measured on this host, not a preview-runtime SLA."
+  },
+  "preservation": "PASS",
+  "git_diff_check": "PASS",
+  "local_verification_log_sha256": [
+    {
+      "name": "reset-final-complete.log",
+      "sha256": "e663b7ecbec40915136de0bda9fa9187bb4bf2d63cf4e312de82790f2c653e27"
+    },
+    {
+      "name": "reset-full-backend-tests.log",
+      "sha256": "3d7a959b45edace6a7d104159ed0486ec5c2af4f1b792bf2d9a573a2b27b2689"
+    },
+    {
+      "name": "reset-c1-migration-corrected.log",
+      "sha256": "737f127f5994ad1cbbe580148d8bab6fc4545532e8de4069a6d31e3788e1c501"
+    },
+    {
+      "name": "reset-legacy-c2-acceptance.log",
+      "sha256": "f820e68c07bafe2838c75dd1bab33fb0fd653c066f4f370ff4804fee30aef763"
+    },
+    {
+      "name": "reset-self-contained-acceptance.log",
+      "sha256": "ac705cff35bf265f712333768b99b0974fabefce49294f88699b537331c15d0b"
+    },
+    {
+      "name": "reset-final-operational.log",
+      "sha256": "fbce591b8aa0ab18520e888d8b47652ed45d67cb383b8ee53a40c77ded561f10"
+    },
+    {
+      "name": "reset-performance-final.log",
+      "sha256": "a8181827abf8434726764babb62eb86f3320a39fa920f574e13ff79f7b315fc0"
+    },
+    {
+      "name": "reset-performance-24.log",
+      "sha256": "1018e8d389bab0f6fecf444bf65eb2d9d364536b0190189ceee5cc64894da359"
+    }
+  ],
+  "publication_gate": "PASS. Publication itself is recorded by the commit and final remote-branch verification."
+}

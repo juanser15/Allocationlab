@@ -1,0 +1,169 @@
+{
+  "status": "PASS",
+  "physical_device": false,
+  "browser": "Chromium responsive viewport; Android-size widths, not physical Android certification",
+  "checks": [
+    {
+      "screen": "setup",
+      "width": 360,
+      "scroll": 360,
+      "overflow": false
+    },
+    {
+      "screen": "setup",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "setup",
+      "width": 430,
+      "scroll": 430,
+      "overflow": false
+    },
+    {
+      "screen": "setup",
+      "width": 768,
+      "scroll": 768,
+      "overflow": false
+    },
+    {
+      "screen": "setup",
+      "width": 1440,
+      "scroll": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "progress",
+      "width": 1440,
+      "scroll": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "progress",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "results",
+      "width": 360,
+      "scroll": 360,
+      "overflow": false
+    },
+    {
+      "screen": "results",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "results",
+      "width": 430,
+      "scroll": 430,
+      "overflow": false
+    },
+    {
+      "screen": "results",
+      "width": 768,
+      "scroll": 768,
+      "overflow": false
+    },
+    {
+      "screen": "results",
+      "width": 1440,
+      "scroll": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "constraint-failure",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "compare",
+      "width": 360,
+      "scroll": 360,
+      "overflow": false
+    },
+    {
+      "screen": "compare",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "compare",
+      "width": 430,
+      "scroll": 430,
+      "overflow": false
+    },
+    {
+      "screen": "compare",
+      "width": 768,
+      "scroll": 768,
+      "overflow": false
+    },
+    {
+      "screen": "compare",
+      "width": 1440,
+      "scroll": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "audit",
+      "width": 360,
+      "scroll": 360,
+      "overflow": false
+    },
+    {
+      "screen": "audit",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "audit",
+      "width": 430,
+      "scroll": 430,
+      "overflow": false
+    },
+    {
+      "screen": "audit",
+      "width": 768,
+      "scroll": 768,
+      "overflow": false
+    },
+    {
+      "screen": "audit",
+      "width": 1440,
+      "scroll": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "audit-folds",
+      "width": 1440,
+      "scroll": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "audit-folds",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "future-module",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "contextual-error",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    }
+  ]
+}

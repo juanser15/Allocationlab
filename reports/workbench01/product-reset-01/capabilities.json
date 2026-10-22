@@ -1,0 +1,266 @@
+{
+  "research_boundary": "RESEARCH_ONLY",
+  "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+  "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+  "contract_version": "allocationlab-interactive-capabilities-3.0.0",
+  "supported_spec_version": "allocationlab-interactive-spec-3.0.0",
+  "supported_modes": [
+    "CAPITAL_MARKET_EXPOSURE"
+  ],
+  "supported_universe": [
+    "SPY"
+  ],
+  "data_snapshot": {
+    "path": "reports/cl02/adjusted-closes.csv",
+    "sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+    "parsed_data_hash": "f7436db75e7c6ed35938e6248c48c162c051cd8a99457a5c386910b36f6c743e",
+    "observations": 4023,
+    "data_first_observation": "2010-10-01",
+    "data_last_observation": "2026-09-30"
+  },
+  "data_first_observation": "2010-10-01",
+  "data_last_observation": "2026-09-30",
+  "supported_evaluation_end_max": "2026-10-01",
+  "supported_window_types": [
+    "ROLLING",
+    "EXPANDING"
+  ],
+  "supported_rebalance_frequencies": [
+    "MONTHLY",
+    "QUARTERLY"
+  ],
+  "date_rules": {
+    "arbitrary_calendar_dates": true,
+    "calendar": "ANCHORED_NEXT_TRADING_DAY_V1",
+    "trading_day_rule": "NEXT_TRADING_DAY",
+    "execution": "NEXT_OBSERVED_CLOSE",
+    "month_end": "CLAMP_FROM_ORIGINAL_ANCHOR",
+    "final_period": "EXPLICIT_PARTIAL_ALLOWED_MINIMUM_THREE_SESSIONS",
+    "to_is_exclusive": true
+  },
+  "training_window_rules": {
+    "minimum_months": 1,
+    "maximum_months": 1200,
+    "minimum_training_observations": 2,
+    "warmup_observations": 252,
+    "no_automatic_extension": true
+  },
+  "cost_rules": {
+    "minimum": 0,
+    "finite": true,
+    "rounding": "NONE",
+    "standard_mode": "SELECTION_EQUALS_OOS"
+  },
+  "model_definition": {
+    "name": "Current Regime Score — baseline",
+    "decision": "Dynamic SPY/cash exposure",
+    "information_window_observations": 252,
+    "policy_selection": "Net Sharpe after costs",
+    "recalibration": "At every portfolio rebalance",
+    "output": "Target SPY exposure and cash allocation",
+    "product_meaning": "This stage tests SPY versus cash exposure. It does not allocate capital among ETFs.",
+    "limitation": "This is a deterministic baseline rule. It is not an HMM, Markov-switching model or machine-learning classifier.",
+    "components": [
+      {
+        "key": "trend",
+        "label": "Trend",
+        "weight": 0.25,
+        "availability": "COMPUTED"
+      },
+      {
+        "key": "breadth",
+        "label": "Breadth",
+        "weight": 0.2,
+        "availability": "COMPUTED"
+      },
+      {
+        "key": "volatility",
+        "label": "Volatility",
+        "weight": 0.2,
+        "availability": "COMPUTED"
+      },
+      {
+        "key": "liquidity",
+        "label": "Liquidity",
+        "weight": 0.1,
+        "availability": "COMPUTED"
+      },
+      {
+        "key": "credit",
+        "label": "Credit",
+        "weight": 0.1,
+        "availability": "PRICE_PROXY_WHEN_AVAILABLE"
+      },
+      {
+        "key": "commodities",
+        "label": "Commodities",
+        "weight": 0.08,
+        "availability": "PRICE_PROXY_WHEN_AVAILABLE"
+      },
+      {
+        "key": "cross_asset",
+        "label": "Cross-Asset Confirmation",
+        "weight": 0.07,
+        "availability": "PRICE_PROXY_WHEN_AVAILABLE"
+      },
+      {
+        "key": "dollar",
+        "label": "Dollar",
+        "weight": 0,
+        "availability": "UNAVAILABLE_IN_THIS_MODEL"
+      },
+      {
+        "key": "rates",
+        "label": "Rates",
+        "weight": 0,
+        "availability": "UNAVAILABLE_IN_THIS_MODEL"
+      },
+      {
+        "key": "earnings_revision",
+        "label": "Earnings Revision",
+        "weight": 0,
+        "availability": "UNAVAILABLE_IN_THIS_MODEL"
+      }
+    ],
+    "score_range": {
+      "minimum": 0,
+      "maximum": 100
+    },
+    "regime_thresholds": [
+      {
+        "minimum_score": 70,
+        "label": "Risk-On"
+      },
+      {
+        "minimum_score": 55,
+        "label": "Constructive"
+      },
+      {
+        "minimum_score": 40,
+        "label": "Neutral"
+      },
+      {
+        "minimum_score": 25,
+        "label": "Cautious"
+      },
+      {
+        "minimum_score": 0,
+        "label": "Risk-Off"
+      }
+    ],
+    "weight_normalization": "Available weighted components are normalized by their total weight; unavailable components contribute no weight.",
+    "cash_exposure_mapping": "Within each selected cash band: cash = cash_min + (cash_max - cash_min) × (1 - score / 100), bounded to that band. SPY target = 1 - cash. Constant policies ignore the score and use their fixed exposure.",
+    "candidate_policy_set": [
+      {
+        "policy": "cash_band",
+        "parameters": {
+          "cash_min": 0.2,
+          "cash_max": 0.2
+        },
+        "information_window_observations": 252,
+        "description": "Cash band 0.2 to 0.2"
+      },
+      {
+        "policy": "cash_band",
+        "parameters": {
+          "cash_min": 0.2,
+          "cash_max": 0.4
+        },
+        "information_window_observations": 252,
+        "description": "Cash band 0.2 to 0.4"
+      },
+      {
+        "policy": "cash_band",
+        "parameters": {
+          "cash_min": 0.1,
+          "cash_max": 0.4
+        },
+        "information_window_observations": 252,
+        "description": "Cash band 0.1 to 0.4"
+      },
+      {
+        "policy": "constant",
+        "parameters": {
+          "risk": 1
+        },
+        "information_window_observations": 252,
+        "description": "Constant SPY exposure 1"
+      },
+      {
+        "policy": "cash_band",
+        "parameters": {
+          "cash_min": 0.1,
+          "cash_max": 0.2
+        },
+        "information_window_observations": 252,
+        "description": "Cash band 0.1 to 0.2"
+      }
+    ],
+    "fixed_selection_metric": "net_sharpe",
+    "fixed_model_versions": {
+      "models": {
+        "current_regime": "production-regime-adapter-1"
+      },
+      "policies": {
+        "cash_band": "current-cash-policy-1",
+        "constant": "fixed-risk-policy-1"
+      }
+    },
+    "execution": "Next observed close after each decision; holdings drift inside a fold. Beginning risky exposure differs from the target exposure.",
+    "cash_return_convention": {
+      "type": "constant",
+      "daily": 0,
+      "reference_daily": 0
+    },
+    "reference_universe": [
+      "XLK",
+      "XLC",
+      "XLRE",
+      "XLI",
+      "XLY",
+      "XLF",
+      "XLU",
+      "XLE",
+      "XLV",
+      "XLB",
+      "EEM",
+      "EWJ",
+      "AAXJ",
+      "EWG",
+      "EUFN",
+      "SPY",
+      "GLD",
+      "TLT",
+      "IEF",
+      "VNQ",
+      "EFA",
+      "DBC"
+    ],
+    "turnover_constraint_methodology_version": "RECURRING_TURNOVER_EXCLUDING_INITIAL_V2",
+    "turnover_rule": "Recurring turnover constraint; initial implementation still pays costs",
+    "turnover_rule_source": "MODEL_DEFINITION_FIXED",
+    "turnover_constraint_limit": 8
+  },
+  "resource_limits": {
+    "max_jobs": 2000,
+    "max_engine_files": 512,
+    "timeout_ms": 120000,
+    "max_output_bytes": 67108864,
+    "maximum_concurrent_executions": 1,
+    "classification": "CURRENT_EXECUTION_CAPACITY",
+    "financial_identity_input": false
+  },
+  "execution_modes": {
+    "interactive": "AVAILABLE",
+    "certification": "FUTURE_NOT_IMPLEMENTED"
+  },
+  "comparison": {
+    "maximum_table_runs": 100,
+    "maximum_displayed_curves": 8
+  },
+  "temporary_storage": {
+    "classification": "TEMPORARY_RESEARCH_STORAGE",
+    "durability": "NONE"
+  },
+  "code_version": "0c54ec7662d2ee92bf85aa64fb286a35896f247c502250923c06f86b08372ec3"
+}
