@@ -143,6 +143,16 @@ export function requestFromSpec(spec: CoordinatedSpec) {
 }
 export function planCoordinated(value: unknown, data = preparedDataset()) {
   const request = parseCoordinated(value);
+  // The coordinated engine uses the user's training window directly.
+  // Fixed-lookback regime indicators consume information available up to the
+  // decision date; they do not require an additional warmup block before the
+  // beginning of training. The legacy interactive planner's pre-training
+  // warmup is therefore disabled here and replaced by model-specific history
+  // validation below.
+  const calendarData = {
+    ...data,
+    fixture: { ...data.fixture, warmup_rows: 0 },
+  };
   const base = planInteractive(
     {
       contract_version: INTERACTIVE_SPEC,
@@ -159,8 +169,38 @@ export function planCoordinated(value: unknown, data = preparedDataset()) {
       selection_cost_bps: request.transaction_cost_bps,
       turnover_constraint_methodology_version: RECURRING_V2,
     },
-    data,
+    calendarData,
   );
+
+  const fixedLookbackObservations =
+    request.regime_model === "TREND"
+      ? 200
+      : request.regime_model === "TREND_VOL"
+        ? 253
+        : request.regime_model === "CURRENT"
+          ? 10
+          : 0;
+  if (fixedLookbackObservations > 0) {
+    for (const fold of base.folds) {
+      const availableBeforeDecision = data.rows.filter(
+        (row) => row.date < fold.decision_date,
+      ).length;
+      if (availableBeforeDecision < fixedLookbackObservations)
+        throw new CalendarContractError(
+          "INSUFFICIENT_MODEL_HISTORY",
+          "The selected regime model does not yet have enough prior market history at the first decision date.",
+          {
+            fold_id: fold.fold_id,
+            decision_date: fold.decision_date,
+            available_observations: availableBeforeDecision,
+            required_observations: fixedLookbackObservations,
+            regime_model: request.regime_model,
+            data_first_observation: data.snapshot.data_first_observation,
+          },
+          422,
+        );
+    }
+  }
   const history = data.rows.filter(
     (r) =>
       r.date >= base.folds[0].training_start &&
@@ -257,6 +297,9 @@ export function coordinatedCapabilities() {
     data_snapshot: data.snapshot,
     data_first_observation: data.snapshot.data_first_observation,
     data_last_observation: data.snapshot.data_last_observation,
+    data_source: (data.snapshot as any).source ?? "INTERNAL_CERTIFIED_SNAPSHOT",
+    dataset_id: (data.snapshot as any).dataset_id ?? "internal",
+    dataset_fetched_at: (data.snapshot as any).fetched_at ?? null,
     models: ["CURRENT", "TREND", "TREND_VOL", "HMM"],
     control_modes: ["MAX_EXPOSURE", "RISK_BUDGET"],
     research_scopes: ["PORTFOLIO", "CAPITAL_EXPOSURE"],
