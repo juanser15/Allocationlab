@@ -242,10 +242,12 @@ export function DataUniverse({
           </div>
 
           {dataset.missing_required_symbols?.length > 0 && (
-            <div className="cp-error">
-              Missing model-universe symbols:{" "}
-              {dataset.missing_required_symbols.join(", ")}
-            </div>
+            <p className="cp-note">
+              Optional regime inputs unavailable:{" "}
+              {dataset.missing_required_symbols.join(", ")}. The Current
+              Regime model uses the available components and renormalizes
+              their weights.
+            </p>
           )}
 
           {dataset.coverage?.length > 0 && (
