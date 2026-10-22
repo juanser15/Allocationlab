@@ -9,6 +9,15 @@ import {
   CalendarContractError,
 } from "../lib/workbench/calendar-v2";
 import { safeError } from "./workbench";
+import {
+  activeResearchDatasetStatus,
+  activateInternalDataset,
+  activateResearchDataset,
+  fetchYahooResearchDataset,
+  readResearchDataset,
+  readResearchDatasetCsv,
+  requiredResearchSymbols,
+} from "../lib/workbench/research-datasets";
 const router = Router();
 let servicePromise: Promise<CoordinatedService> | undefined;
 const service = () => (servicePromise ??= CoordinatedService.open());
@@ -32,6 +41,109 @@ router.get("/workbench/coordinated/capabilities", (req, res) => {
     safeError(req, res, e);
   }
 });
+
+router.get("/workbench/coordinated/data", (_req, res) => {
+  res.json({
+    ...boundaryV2,
+    active_dataset: activeResearchDatasetStatus(),
+    required_research_symbols: requiredResearchSymbols(),
+  });
+});
+router.get("/workbench/coordinated/data/:datasetId", (req, res) => {
+  try {
+    res.json({
+      ...boundaryV2,
+      dataset: readResearchDataset(String(req.params.datasetId)),
+    });
+  } catch (error) {
+    safeError(
+      req,
+      res,
+      new CalendarContractError(
+        "RESEARCH_DATASET_NOT_FOUND",
+        error instanceof Error ? error.message : "Research dataset was not found.",
+        {},
+        404,
+      ),
+    );
+  }
+});
+router.get("/workbench/coordinated/data/:datasetId.csv", (req, res) => {
+  try {
+    const datasetId = String(req.params.datasetId);
+    const csv = readResearchDatasetCsv(datasetId);
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="allocationlab-${datasetId}.csv"`,
+    );
+    res.send(csv);
+  } catch (error) {
+    safeError(
+      req,
+      res,
+      new CalendarContractError(
+        "RESEARCH_DATASET_NOT_FOUND",
+        error instanceof Error ? error.message : "Research dataset was not found.",
+        {},
+        404,
+      ),
+    );
+  }
+});
+router.post("/workbench/coordinated/data/yahoo", async (req, res) => {
+  try {
+    const dataset = await fetchYahooResearchDataset(req.body);
+    res.status(201).json({ ...boundaryV2, dataset });
+  } catch (error) {
+    safeError(
+      req,
+      res,
+      new CalendarContractError(
+        "YAHOO_DATA_FETCH_FAILED",
+        error instanceof Error ? error.message : "Yahoo Finance data could not be fetched.",
+        {},
+        422,
+      ),
+    );
+  }
+});
+router.post("/workbench/coordinated/data/active", (req, res) => {
+  try {
+    if (
+      !req.body ||
+      typeof req.body !== "object" ||
+      Array.isArray(req.body) ||
+      Object.keys(req.body).some((key) => key !== "dataset_id") ||
+      typeof req.body.dataset_id !== "string"
+    )
+      throw new CalendarContractError(
+        "INVALID_DATASET_SELECTION",
+        "Supply exactly one dataset_id.",
+        {},
+        422,
+      );
+    const active =
+      req.body.dataset_id === "internal"
+        ? activateInternalDataset()
+        : activateResearchDataset(req.body.dataset_id);
+    res.json({ ...boundaryV2, active_dataset: active });
+  } catch (error) {
+    safeError(
+      req,
+      res,
+      error instanceof CalendarContractError
+        ? error
+        : new CalendarContractError(
+            "DATASET_ACTIVATION_FAILED",
+            error instanceof Error ? error.message : "Research dataset could not be activated.",
+            {},
+            422,
+          ),
+    );
+  }
+});
+
 router.post("/workbench/coordinated/plan", (req, res) => {
   try {
     res.json(planCoordinated(req.body));
