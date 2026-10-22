@@ -11,6 +11,7 @@ import {
 } from "./coordinated-execution";
 import { Card, models, names, pct, researchApi } from "./coordinated-ui";
 import { DataUniverse } from "./data-universe";
+import { restoreRememberedYahooDataset } from "./dataset-persistence";
 import "./coordinated.css";
 
 const initial: CoordinatedRequest = {
@@ -91,7 +92,15 @@ export function CoordinatedWorkbench({
       .then(setCaps)
       .catch((e) => setAccessError(e.message));
   useEffect(() => {
-    void load();
+    void (async () => {
+      try {
+        await restoreRememberedYahooDataset();
+      } catch {
+        // If browser persistence is unavailable or invalid, the normal
+        // capabilities request below remains the source of truth.
+      }
+      await load();
+    })();
   }, []);
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -191,6 +200,19 @@ export function CoordinatedWorkbench({
           Baseline reference ↗
         </button>
       </header>
+      {caps && (
+        <div className="cp-reference-bar">
+          <strong>
+            Data · {caps.data_source === "YAHOO_FINANCE_RESEARCH" ? "Yahoo Finance" : "Internal snapshot"}
+          </strong>
+          <span>
+            {caps.data_first_observation} → {caps.data_last_observation}
+            {caps.dataset_id && caps.dataset_id !== "internal"
+              ? ` · ${String(caps.dataset_id).slice(0, 16)}…`
+              : ""}
+          </span>
+        </div>
+      )}
       <div className="cp-shell">
         <nav className="cp-nav" aria-label="Research modules">
           <small>RESEARCH SECTIONS</small>
@@ -248,7 +270,7 @@ export function CoordinatedWorkbench({
               </div>
             </div>
           )}
-                    {module === "Data & Universe" && <DataUniverse />}
+                    {module === "Data & Universe" && <DataUniverse onDatasetChange={load} />}
           {module === "Signals" && (
             <div className="cp-section-body">
               <nav className="cp-subtabs" aria-label="Signal sections">
