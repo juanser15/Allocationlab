@@ -1,71 +1,34 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, researchApi } from "./coordinated-ui";
-
-type DataStatus = {
-  active_dataset: any;
-  required_research_symbols: string[];
-};
-type YahooDataset = {
-  dataset_id: string;
-  source: string;
-  fetched_at: string;
-  requested_start: string;
-  requested_end: string;
-  price_field: string;
-  tickers: string[];
-  successful_tickers: string[];
-  failed_tickers: Array<{ ticker: string; error: string }>;
-  observations: number;
-  first_observation: string | null;
-  last_observation: string | null;
-  complete_observations: number;
-  missing_required_symbols: string[];
-  activation_eligible: boolean;
-  coverage: Array<{
-    ticker: string;
-    observations: number;
-    first_observation: string | null;
-    last_observation: string | null;
-    missing_on_union_calendar: number;
-  }>;
-  sha256: string;
-  note: string;
-};
+import {
+  fetchDatasetCsv,
+  forgetYahooSnapshot,
+  rememberYahooSnapshot,
+} from "./dataset-persistence";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const defaultStart = () => {
   const d = new Date();
-  d.setUTCFullYear(d.getUTCFullYear() - 7);
+  d.setUTCFullYear(d.getUTCFullYear() - 10);
   return d.toISOString().slice(0, 10);
 };
-const tokenHeader = () => {
-  const token = sessionStorage.getItem("allocationlab.workbench.preview-token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
 
-export function DataUniverse() {
-  const [status, setStatus] = useState<DataStatus | null>(null);
-  const [source, setSource] = useState<"INTERNAL" | "YAHOO">("YAHOO");
+export function DataUniverse({
+  onDatasetChange,
+}: {
+  onDatasetChange?: () => void;
+}) {
+  const [status, setStatus] = useState<any>(null);
+  const [dataset, setDataset] = useState<any>(null);
+  const [source, setSource] = useState<"YAHOO" | "INTERNAL">("YAHOO");
   const [tickers, setTickers] = useState("SPY, QQQ, TLT, GLD");
   const [from, setFrom] = useState(defaultStart);
   const [to, setTo] = useState(today);
-  const [dataset, setDataset] = useState<YahooDataset | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
 
-  const loadStatus = async () => {
-    try {
-      const value = (await researchApi("/data")) as DataStatus;
-      setStatus(value);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    }
-  };
-  useEffect(() => {
-    void loadStatus();
-  }, []);
-
-  const parsedTickers = useMemo(
+  const parsed = useMemo(
     () =>
       [...new Set(
         tickers
@@ -76,282 +39,249 @@ export function DataUniverse() {
     [tickers],
   );
 
+  const load = async () => {
+    const value = await researchApi("/data");
+    setStatus(value);
+    const active = value.active_dataset;
+    if (active?.source === "YAHOO_FINANCE_RESEARCH") {
+      setSource("YAHOO");
+      setDataset(active);
+      if (active.tickers) setTickers(active.tickers.join(", "));
+      if (active.requested_start) setFrom(active.requested_start);
+      if (active.requested_end) setTo(active.requested_end);
+    }
+  };
+
+  useEffect(() => {
+    void load().catch((e) => setError(e.message));
+  }, []);
+
   async function fetchYahoo() {
     setBusy(true);
     setError("");
-    setDataset(null);
+    setWarning("");
     try {
       const response = await researchApi("/data/yahoo", {
-        tickers: parsedTickers,
+        tickers: parsed,
         start: from,
         end: to,
       });
-      setDataset(response.dataset as YahooDataset);
-      await loadStatus();
+      const ds = response.dataset;
+      setDataset(ds);
+      if (ds.activation_eligible) {
+        await researchApi("/data/active", { dataset_id: ds.dataset_id });
+        try {
+          await rememberYahooSnapshot(ds);
+        } catch {
+          setWarning(
+            "Yahoo data is active, but this browser could not save the exact snapshot for restart recovery. Download the CSV as a backup.",
+          );
+        }
+        onDatasetChange?.();
+      }
+      await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError((e as Error).message);
     } finally {
       setBusy(false);
     }
   }
 
-  async function activate(datasetId: string) {
+  async function useInternal() {
     setBusy(true);
     setError("");
     try {
-      await researchApi("/data/active", { dataset_id: datasetId });
-      await loadStatus();
+      await researchApi("/data/active", { dataset_id: "internal" });
+      forgetYahooSnapshot();
+      setDataset(null);
+      setSource("INTERNAL");
+      await load();
+      onDatasetChange?.();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError((e as Error).message);
     } finally {
       setBusy(false);
     }
   }
 
-  async function downloadCsv() {
-    if (!dataset) return;
-    setError("");
+  async function download() {
+    if (!dataset?.dataset_id) return;
     try {
-      const response = await fetch(
-        "/api/workbench/coordinated/data/" +
-          encodeURIComponent(dataset.dataset_id) +
-          ".csv",
-        { headers: tokenHeader() },
+      const csv = await fetchDatasetCsv(dataset.dataset_id);
+      const url = URL.createObjectURL(
+        new Blob([csv], { type: "text/csv;charset=utf-8" }),
       );
-      if (!response.ok) throw new Error("CSV download failed.");
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = `allocationlab-${dataset.dataset_id}.csv`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `allocationlab-${dataset.dataset_id}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
       URL.revokeObjectURL(url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError((e as Error).message);
     }
   }
 
   const active = status?.active_dataset;
+  const activeYahoo = active?.source === "YAHOO_FINANCE_RESEARCH";
 
   return (
     <div className="cp-section-body">
-      {error && (
-        <div className="cp-error" role="alert">
-          {error}
-        </div>
-      )}
+      {error && <div className="cp-error">{error}</div>}
+      {warning && <div className="cp-error">{warning}</div>}
 
-      <Card title="Research data source">
+      <Card title="Active dataset">
+        <div className="cp-metrics">
+          <div>
+            <small>Source</small>
+            <strong>{activeYahoo ? "Yahoo Finance" : "Internal snapshot"}</strong>
+          </div>
+          <div>
+            <small>Coverage</small>
+            <strong>
+              {active?.first_observation ?? active?.data_first_observation ?? "—"}
+              {" → "}
+              {active?.last_observation ?? active?.data_last_observation ?? "—"}
+            </strong>
+          </div>
+          <div>
+            <small>Dataset</small>
+            <strong>
+              {active?.dataset_id && active.dataset_id !== "internal"
+                ? active.dataset_id.slice(0, 16) + "…"
+                : "internal"}
+            </strong>
+          </div>
+        </div>
+        <p className="cp-note">
+          The active dataset is shared by every research section. Changing tabs
+          does not change it.
+        </p>
+      </Card>
+
+      <Card title="Get market data">
         <div className="cp-fields">
           <label>
             Source
             <select
-              aria-label="Research data source"
               value={source}
-              onChange={(e) =>
-                setSource(e.target.value as "INTERNAL" | "YAHOO")
-              }
+              onChange={(e) => setSource(e.target.value as any)}
             >
-              <option value="INTERNAL">Internal research snapshot</option>
               <option value="YAHOO">Yahoo Finance · adjusted close</option>
+              <option value="INTERNAL">Internal research snapshot</option>
             </select>
           </label>
         </div>
 
-        <div className="cp-result-context">
-          Active dataset ·{" "}
-          <strong>
-            {active?.source === "YAHOO_FINANCE_RESEARCH"
-              ? "Yahoo Finance"
-              : "Internal snapshot"}
-          </strong>
-          {active?.dataset_id && active.dataset_id !== "internal" && (
-            <small>{active.dataset_id}</small>
-          )}
-        </div>
-
-        {source === "INTERNAL" ? (
-          <>
-            <p className="cp-note">
-              Use the committed Allocation Lab research snapshot. Switching the
-              active dataset changes future run identity; existing results are
-              not rewritten.
-            </p>
-            <div className="cp-actions">
-              <button
-                className="cp-primary"
-                disabled={busy || active?.dataset_id === "internal"}
-                onClick={() => void activate("internal")}
-              >
-                {active?.dataset_id === "internal"
-                  ? "Internal snapshot active"
-                  : "Use internal snapshot"}
-              </button>
-            </div>
-          </>
-        ) : (
+        {source === "YAHOO" ? (
           <>
             <div className="cp-fields">
               <label>
                 Tickers
-                <input
-                  value={tickers}
-                  onChange={(e) => setTickers(e.target.value)}
-                  placeholder="SPY, QQQ, TLT, GLD"
-                />
+                <input value={tickers} onChange={(e) => setTickers(e.target.value)} />
               </label>
               <label>
                 From
-                <input
-                  type="date"
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value)}
-                />
+                <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
               </label>
               <label>
                 To
-                <input
-                  type="date"
-                  value={to}
-                  max={today()}
-                  onChange={(e) => setTo(e.target.value)}
-                />
+                <input type="date" max={today()} value={to} onChange={(e) => setTo(e.target.value)} />
               </label>
             </div>
             <div className="cp-actions">
               <button
                 onClick={() =>
-                  setTickers(
-                    (status?.required_research_symbols ?? []).join(", "),
-                  )
+                  setTickers((status?.required_research_symbols ?? []).join(", "))
                 }
-                disabled={!status?.required_research_symbols?.length}
               >
-                Load model-required universe
+                Load model universe
               </button>
               <button
                 className="cp-primary"
-                disabled={busy || !parsedTickers.length || !from || !to}
+                disabled={busy || !parsed.length}
                 onClick={() => void fetchYahoo()}
               >
-                {busy ? "Fetching Yahoo…" : "Fetch Yahoo data"}
+                {busy ? "Fetching…" : "Fetch & activate"}
               </button>
             </div>
             <p className="cp-note">
-              Yahoo Finance is a research source, not an independently
-              point-in-time-certified vendor feed. Fetching data does not
-              silently change the active backtest dataset.
+              A valid Yahoo snapshot becomes active immediately and is saved in
+              this browser for exact recovery after a Render restart. Yahoo data
+              remains research-grade and not independently PIT-certified.
             </p>
           </>
+        ) : (
+          <div className="cp-actions">
+            <button
+              className="cp-primary"
+              disabled={busy || active?.dataset_id === "internal"}
+              onClick={() => void useInternal()}
+            >
+              {active?.dataset_id === "internal"
+                ? "Internal snapshot active"
+                : "Switch to internal snapshot"}
+            </button>
+          </div>
         )}
       </Card>
 
       {dataset && (
-        <>
-          <Card title="Fetched dataset">
-            <div className="cp-metrics">
-              <div>
-                <small>Rows</small>
-                <strong>{dataset.observations}</strong>
-              </div>
-              <div>
-                <small>Coverage</small>
-                <strong>
-                  {dataset.first_observation ?? "—"} →{" "}
-                  {dataset.last_observation ?? "—"}
-                </strong>
-              </div>
-              <div>
-                <small>Tickers</small>
-                <strong>
-                  {dataset.successful_tickers.length} / {dataset.tickers.length}
-                </strong>
-              </div>
-              <div>
-                <small>Complete model rows</small>
-                <strong>{dataset.complete_observations}</strong>
-              </div>
+        <Card title="Dataset quality">
+          <div className="cp-metrics">
+            <div><small>Rows</small><strong>{dataset.observations ?? "—"}</strong></div>
+            <div><small>First</small><strong>{dataset.first_observation ?? "—"}</strong></div>
+            <div><small>Last</small><strong>{dataset.last_observation ?? "—"}</strong></div>
+            <div>
+              <small>Tickers</small>
+              <strong>
+                {dataset.successful_tickers?.length ?? 0} / {dataset.tickers?.length ?? 0}
+              </strong>
             </div>
+          </div>
 
-            <p className="cp-note">{dataset.note}</p>
+          {dataset.missing_required_symbols?.length > 0 && (
+            <div className="cp-error">
+              Missing model-universe symbols:{" "}
+              {dataset.missing_required_symbols.join(", ")}
+            </div>
+          )}
 
-            {dataset.failed_tickers.length > 0 && (
-              <div className="cp-error">
-                {dataset.failed_tickers.map((row) => (
-                  <div key={row.ticker}>
-                    {row.ticker}: {row.error}
-                  </div>
-                ))}
-              </div>
-            )}
-
+          {dataset.coverage?.length > 0 && (
             <div className="cp-scroll">
               <table>
                 <thead>
                   <tr>
-                    <th>Ticker</th>
-                    <th>Observations</th>
-                    <th>First</th>
-                    <th>Last</th>
-                    <th>Missing</th>
+                    <th>Ticker</th><th>Obs.</th><th>First</th><th>Last</th><th>Missing</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {dataset.coverage.map((row) => (
-                    <tr key={row.ticker}>
-                      <td>{row.ticker}</td>
-                      <td>{row.observations}</td>
-                      <td>{row.first_observation ?? "—"}</td>
-                      <td>{row.last_observation ?? "—"}</td>
-                      <td>{row.missing_on_union_calendar}</td>
+                  {dataset.coverage.map((r: any) => (
+                    <tr key={r.ticker}>
+                      <td>{r.ticker}</td>
+                      <td>{r.observations}</td>
+                      <td>{r.first_observation ?? "—"}</td>
+                      <td>{r.last_observation ?? "—"}</td>
+                      <td>{r.missing_on_union_calendar}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+          )}
 
-            {dataset.missing_required_symbols.length > 0 && (
-              <p className="cp-note">
-                Not activatable for the current models yet. Missing required
-                research symbols: {dataset.missing_required_symbols.join(", ")}.
-              </p>
-            )}
-
-            <div className="cp-actions">
-              <button onClick={() => void downloadCsv()}>
-                Download CSV
-              </button>
-              <button
-                className="cp-primary"
-                disabled={busy || !dataset.activation_eligible}
-                onClick={() => void activate(dataset.dataset_id)}
-              >
+          <div className="cp-actions">
+            <button onClick={() => void download()}>Download CSV</button>
+            {dataset.activation_eligible && (
+              <span className="cp-valid">
                 {active?.dataset_id === dataset.dataset_id
-                  ? "Active research dataset"
-                  : "Use in research workspace"}
-              </button>
-            </div>
-
-            <details>
-              <summary>Dataset identity</summary>
-              <pre>
-                {JSON.stringify(
-                  {
-                    dataset_id: dataset.dataset_id,
-                    source: dataset.source,
-                    fetched_at: dataset.fetched_at,
-                    price_field: dataset.price_field,
-                    sha256: dataset.sha256,
-                  },
-                  null,
-                  2,
-                )}
-              </pre>
-            </details>
-          </Card>
-        </>
+                  ? "Active"
+                  : "Ready"}
+              </span>
+            )}
+          </div>
+        </Card>
       )}
     </div>
   );
