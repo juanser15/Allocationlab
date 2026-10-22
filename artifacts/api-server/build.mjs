@@ -130,6 +130,7 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
   await esbuild({
     entryPoints: {
       "workbench-run-worker": path.resolve(artifactDir, "src/workbench-runtime-worker.ts"),
+      "workbench-coordinated-worker": path.resolve(artifactDir, "src/workbench-coordinated-worker.ts"),
       "workbench-interactive-worker": path.resolve(artifactDir, "src/workbench-interactive-worker.ts"),
     },
     platform: "node",

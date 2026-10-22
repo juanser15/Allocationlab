@@ -186,6 +186,9 @@ async function syncDirectory(path: string): Promise<void> {
     handle = await open(path, fsConstants.O_RDONLY | (fsConstants.O_DIRECTORY ?? 0));
     await handle.sync();
   } catch (error) {
+    // Windows can open a directory but does not support FlushFileBuffers on
+    // that handle. File-content fsync remains mandatory; Linux is unchanged.
+    if (process.platform === "win32" && handle && errno(error) === "EPERM") return;
     if (!["EINVAL", "ENOTSUP", "EBADF"].includes(errno(error) ?? "")) throw error;
   } finally {
     await handle?.close().catch(() => undefined);

@@ -315,7 +315,7 @@ test("Compare: overlay only for matching evaluation intervals, no local result d
     false,
   );
 });
-test("Q/R: live /workbench imports the Product Reset designer; no V1 execution or broker controls", () => {
+test("Q/R: live /workbench uses coordinated UI and preserves the Product Reset reference; no V1 execution or broker controls", () => {
   const page = readFileSync(
     "artifacts/allocation-lab/src/pages/workbench-designer.tsx",
     "utf8",
@@ -325,7 +325,9 @@ test("Q/R: live /workbench imports the Product Reset designer; no V1 execution o
     "utf8",
   );
   const app = readFileSync("artifacts/allocation-lab/src/App.tsx", "utf8");
-  assert.match(app, /import WorkbenchPage from "@\/research\/workbench"/);
+  assert.match(app, /import WorkbenchPage from "@\/research\/coordinated"/);
+  const coordinated = readFileSync("artifacts/allocation-lab/src/research/coordinated.tsx", "utf8");
+  assert.match(coordinated, /import Baseline from "\.\/workbench"/);
   assert.doesNotMatch(
     page + client,
     /\/api\/workbench\/v1|from ["'].*pages\/workbench["']/,
