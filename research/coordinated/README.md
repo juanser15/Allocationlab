@@ -34,8 +34,9 @@ to hmmlearn. Inputs are daily SPY log returns inside each training window.
 Baum–Welch EM uses scaled forward/backward probabilities; three deterministic
 initializations start with transition persistence 0.85, 0.95 and 0.98. Fits require
 likelihood convergence within 300 iterations, tolerance `1e-6*(1+abs(previous))`;
-a material likelihood decrease or a state with less than five effective training
-observations rejects that initialization. Daily emission variance floor is
+a material likelihood decrease or undefined EM arithmetic rejects that
+initialization. There is no fixed minimum return count or per-state sample quota.
+Daily emission variance floor is
 `1e-10`. Highest training likelihood among converged fits is selected. States are
 ordered by training variance, never future returns. The last forward-filtered
 probability of the higher-volatility state is the defensive score. No future
@@ -65,7 +66,13 @@ once. Prices can move between the information cutoff and fill.
 
 ## Time, identity and execution
 
-At least 253 training prices are required. Rolling/expanding windows and
+The user selects the training window. There is no fixed statistical minimum,
+including for HMM; windows are never extended automatically. Historical means,
+covariance and HMM use exactly that window. Fixed-lookback indicators retain their
+own causal feature history (200-price moving average / 252-return volatility),
+separately recorded in decision evidence. Undefined calculations or an actual
+failure to converge remain explicit errors, without changing the selected window.
+Rolling/expanding windows and
 monthly/quarterly dates use the existing anchor-relative calendar; a non-trading
 anchor moves to the next observed session. Inputs stop before the decision date;
 fills occur at the next observed close. All subsequent holdings carry forward.

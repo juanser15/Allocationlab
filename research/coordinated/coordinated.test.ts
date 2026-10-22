@@ -113,9 +113,14 @@ test("Optimizer respects correlated portfolio risk, box constraints and total ex
 });
 test("Explicit validation and financial identities; no silent date or universe repair", () => {
   assert.throws(() => planCoordinated({ ...request, etfs: [] }));
-  assert.throws(() =>
-    planCoordinated({ ...request, training_window_months: 6 }),
-  );
+  for (const training_window_months of [1, 3, 6]) {
+    const plan = planCoordinated({ ...request, training_window_months });
+    assert.equal(
+      plan.normalized_request.training_window_months,
+      training_window_months,
+    );
+    assert.ok(plan.folds.every((f) => f.training_observations < 253));
+  }
   assert.throws(() => planCoordinated({ ...request, risk_budget: 0 }));
   assert.throws(() => planCoordinated({ ...request, surprise: 1 }));
   const id = coordinatedRunId(normalizeCoordinated(request));
@@ -129,6 +134,62 @@ test("Explicit validation and financial identities; no silent date or universe r
     id,
     coordinatedRunId(
       normalizeCoordinated({ ...request, etfs: [...request.etfs].reverse() }),
+    ),
+  );
+});
+test("Short user-selected HMM samples are fitted without a return-count or state-mass quota", () => {
+  const returns = [
+    0.001, -0.003, 0.002, 0.02, -0.03, 0.025, -0.001, 0.002, -0.002, -0.025,
+    0.03, -0.02,
+  ];
+  const result = fitGaussianHMM(returns);
+  assert.equal(result.training_returns, returns.length);
+  assert.ok(result.probabilities.every(Number.isFinite));
+});
+test("One- and six-month HMM windows run unchanged under both capital controls", () => {
+  const data = preparedDataset();
+  for (const training_window_months of [1, 6]) {
+    for (const control_mode of ["MAX_EXPOSURE", "RISK_BUDGET"] as const) {
+      const design = { ...request, training_window_months, control_mode };
+      const result = runCoordinated(normalizeCoordinated(design, data), data);
+      assert.equal(
+        result.plan.normalized_request.training_window_months,
+        training_window_months,
+      );
+      for (const decision of result.decisions) {
+        assert.equal(
+          decision.regime.training_returns,
+          decision.training_observations - 1,
+        );
+        assert.equal(
+          decision.regime_observations,
+          decision.training_observations,
+        );
+        assert.equal(
+          decision.estimates.observations,
+          decision.training_observations - 1,
+        );
+        assert.equal(
+          decision.regime_information_start,
+          data.rows.find((r) => r.date >= decision.training_start)!.date,
+        );
+      }
+    }
+  }
+});
+test("User's 2020–2026 HMM design accepts the selected six-month rolling window", () => {
+  const data = preparedDataset();
+  const design = {
+    ...request,
+    evaluation_start: "2020-01-01",
+    evaluation_end_exclusive: "2026-10-01",
+    training_window_months: 6,
+  };
+  const result = runCoordinated(normalizeCoordinated(design, data), data);
+  assert.equal(result.decisions.length, 81);
+  assert.ok(
+    result.decisions.every(
+      (d) => d.regime.training_returns === d.training_observations - 1,
     ),
   );
 });

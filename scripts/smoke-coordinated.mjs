@@ -6,7 +6,7 @@ const request = {
   contract_version: "allocationlab-coordinated-1.0.0",
   evaluation_start: "2024-01-21",
   evaluation_end_exclusive: "2024-07-21",
-  training_window_months: 24,
+  training_window_months: 6,
   window_type: "ROLLING",
   rebalance_frequency: "MONTHLY",
   transaction_cost_bps: 10,

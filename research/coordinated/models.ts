@@ -46,10 +46,10 @@ export function filterGaussian(
   return { posterior: p, alpha, emissions, scales, logLikelihood };
 }
 export function fitGaussianHMM(returns: number[]) {
-  if (returns.length < 120 || returns.some((v) => !Number.isFinite(v)))
+  if (!returns.length || returns.some((v) => !Number.isFinite(v)))
     throw new ResearchError(
       "HMM_HISTORY_REQUIRED",
-      "HMM requires at least 120 finite daily returns.",
+      "HMM input contains no returns or contains nonfinite returns.",
     );
   // Percentage units stabilize likelihood computations. Floors are declared,
   // fixed model parameters, not data replacements.
@@ -97,7 +97,8 @@ export function fitGaussianHMM(returns: number[]) {
         return z.map((q) => q / sum(z));
       });
       const mass = [0, 1].map((j) => sum(gamma.map((g) => g[j])));
-      if (Math.min(...mass) < 5) break;
+      // Reject only undefined EM arithmetic, never a statistical sample quota.
+      if (mass.some((value) => !Number.isFinite(value) || value <= 0)) break;
       const counts = [
         [0, 0],
         [0, 0],
@@ -166,6 +167,11 @@ export function fitGaussianHMM(returns: number[]) {
 }
 
 export function moments(prices: number[][], shrinkage: number) {
+  if (prices.length < 3)
+    throw new ResearchError(
+      "OPTIMIZATION_INVALID_RISK",
+      "Sample covariance is undefined for fewer than two returns in the selected window. No observations were added.",
+    );
   const n = prices[0].length,
     r = prices.slice(1).map((p, t) => p.map((v, j) => v / prices[t][j] - 1));
   const mean = Array.from(

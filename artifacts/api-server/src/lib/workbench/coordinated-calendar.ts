@@ -120,13 +120,6 @@ export function planCoordinated(value: unknown, data = preparedDataset()) {
     },
     data,
   );
-  if (base.folds.some((f) => f.training_observations < 253))
-    throw new CalendarContractError(
-      "INSUFFICIENT_TRAINING_HISTORY",
-      "Each training window needs at least 253 observed prices for the shared models and covariance estimate.",
-      {},
-      422,
-    );
   const history = data.rows.filter(
     (r) =>
       r.date >= base.folds[0].training_start &&
@@ -215,6 +208,6 @@ export function coordinatedCapabilities() {
     data_last_observation: data.snapshot.data_last_observation,
     models: ["CURRENT", "TREND", "TREND_VOL", "HMM"],
     control_modes: ["MAX_EXPOSURE", "RISK_BUDGET"],
-    minimum_training_observations: 253,
+    training_history_policy: "USER_SELECTED_WINDOW_NO_STATISTICAL_MINIMUM",
   };
 }

@@ -791,7 +791,7 @@ export default function CoordinatedWorkbench() {
                       {number(
                         "training_window_months",
                         "Training window · months",
-                        { min: 13, max: 1200 },
+                        { min: 1, max: 1200 },
                       )}
                       {select("window_type", "Window", {
                         ROLLING: "Rolling",
@@ -810,8 +810,9 @@ export default function CoordinatedWorkbench() {
                     <p className="cp-note">
                       One continuous portfolio. Calendar anchors use the next
                       trading day; orders fill at the following observed close.
-                      Models use information strictly before the decision. At
-                      least 253 training prices required.
+                      Models use information strictly before the decision. Your
+                      selected training window is used as entered, without a
+                      statistical sample minimum or automatic extension.
                     </p>
                     <div className="cp-actions">
                       <button

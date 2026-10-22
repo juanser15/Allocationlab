@@ -137,9 +137,13 @@ export function runCoordinated(
           available.every((r) => r.date < signalDate),
       );
       const training = available.filter((r) => r.date >= fold.training_start);
+      // Learned estimates use exactly the user's training window. Fixed-lookback
+      // indicators use their own causal feature history, independently of fit length.
+      const regimeHistory =
+        request.regime_model === "HMM" ? training : available.slice(-253);
       const regime = classify(
         request.regime_model,
-        training,
+        regimeHistory,
         data.fixture.reference_universe,
       );
       const defensive =
@@ -179,6 +183,8 @@ export function runCoordinated(
       );
       decisions.push({
         ...fold,
+        regime_information_start: regimeHistory[0].date,
+        regime_observations: regimeHistory.length,
         regime,
         multiplier,
         maximum_exposure: cap,
