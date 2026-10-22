@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { StrategySummary } from "./strategy-summary";
 import type { ResearchSubmission } from "../../../api-server/src/lib/workbench/coordinated-contract";
 import {
   Card,
@@ -168,7 +169,7 @@ export function ExecutionWorkspace({
         <p>
           {study
             ? "Optional independent research: apply the capital policy directly to SPY and cash, then compare with passive SPY. Portfolio ETF selection and optimization are excluded."
-            : "Execute the complete configured strategy using Capital Exposure and Portfolio Construction. This is the only section that runs the integrated portfolio backtest."}
+            : "Capital policy + portfolio construction. Review the draft inputs, then check and run the backtest."}
         </p>
       </div>
       <nav className="cp-tabs" aria-label={`${label} views`}>
@@ -340,55 +341,7 @@ export function ExecutionWorkspace({
               </p>
             )}
           </Card>
-          <aside className="cp-summary">
-            <div className="cp-eyebrow">
-              {study ? "INDEPENDENT STUDY" : "CONFIGURED PORTFOLIO"}
-            </div>
-            <h2>{study ? "SPY + cash only" : "Inputs to this backtest"}</h2>
-            <dl>
-              <dt>Regime</dt>
-              <dd>{models[draft.regime_model]}</dd>
-              <dt>Capital policy</dt>
-              <dd>
-                {draft.control_mode === "MAX_EXPOSURE"
-                  ? `${pct(draft.maximum_exposure)} maximum exposure`
-                  : `${pct(draft.risk_budget)} volatility budget`}
-              </dd>
-              <dt>Response</dt>
-              <dd>
-                {draft.regime_response === "ADAPTIVE" ? "Adaptive" : "Fixed"}
-              </dd>
-              <dt>Assets</dt>
-              <dd>
-                {study
-                  ? "SPY · Cash"
-                  : "etfs" in draft
-                    ? draft.etfs.join(" · ")
-                    : ""}
-              </dd>
-              <dt>Allocation</dt>
-              <dd>
-                {study
-                  ? "Direct exposure policy · no optimizer"
-                  : "Mean–variance + trading costs"}
-              </dd>
-            </dl>
-            <p className="cp-note">
-              {study
-                ? "The study invests the allowed exposure directly in SPY. A risk budget is converted to SPY weight using its estimated volatility."
-                : "Forecasts currently use historical means. Alternative asset-alpha models are not enabled."}
-            </p>
-            {!study && (
-              <div className="cp-actions">
-                <button onClick={() => navigate("Capital Exposure")}>
-                  Edit capital policy
-                </button>
-                <button onClick={() => navigate("Portfolio Construction")}>
-                  Edit construction
-                </button>
-              </div>
-            )}
-          </aside>
+          <StrategySummary draft={draft} study={study} navigate={navigate} />
         </div>
       )}
       {view === "Progress" && (
@@ -641,3 +594,4 @@ export function ExecutionWorkspace({
     </section>
   );
 }
+

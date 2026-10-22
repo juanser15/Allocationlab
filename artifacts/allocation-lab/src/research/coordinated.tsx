@@ -13,6 +13,7 @@ import { Card, models, names, pct, researchApi } from "./coordinated-ui";
 import { DataUniverse } from "./data-universe";
 import { restoreRememberedYahooDataset } from "./dataset-persistence";
 import "./coordinated.css";
+import { StrategySummary } from "./strategy-summary";
 
 const initial: CoordinatedRequest = {
   contract_version: COORDINATED_SPEC,
@@ -224,6 +225,7 @@ export function CoordinatedWorkbench({
             >
               <span>{String(i + 1).padStart(2, "0")}</span>
               {name}
+              {i >= 5 && <small className="cp-unavailable">Not available</small>}
             </button>
           ))}
           <div className="cp-nav-note">
@@ -406,7 +408,8 @@ export function CoordinatedWorkbench({
             </nav>
           )}
           {module === "Capital Exposure" && capitalView === "Policy" && (
-            <div className="cp-section-body">
+            <div className="cp-columns cp-policy-layout">
+              <div>
               <Card title="Choose a capital control">
                 <div className="cp-options">
                   <button
@@ -448,7 +451,7 @@ export function CoordinatedWorkbench({
                 </div>
                 <p className="cp-note">
                   {draft.control_mode === "MAX_EXPOSURE"
-                    ? "Portfolio Construction may invest below this ceiling and hold more cash."
+                    ? "This is an exposure ceiling, not a fully invested budget. Portfolio Construction may invest less and retain additional cash."
                     : "Estimated from the full ETF covariance matrix. This is not a guaranteed realized-volatility or loss limit."}
                 </p>
               </Card>
@@ -482,30 +485,16 @@ export function CoordinatedWorkbench({
                   Edit regime classifier in Signals →
                 </button>
               </Card>
-              <Card title="Optional independent research">
-                <p>
-                  Study the active capital policy on SPY/cash against passive
-                  SPY, separately from the ETF portfolio.
-                </p>
-                <p className="cp-note">
-                  The study applies the allowed capital directly to SPY; a
-                  volatility budget is converted to a SPY weight. Portfolio ETF
-                  selection and optimization are excluded. Dates, results and
-                  history belong to this independent study.
-                </p>
-                <button onClick={openStudy}>
-                  Study SPY/cash independently →
-                </button>
-              </Card>
-              <Card title="Portfolio connection">
-                <p>
-                  The configured policy is passed to Portfolio Construction.
-                  Execute the complete portfolio strategy in Backtesting.
-                </p>
-                <button onClick={() => navigate("Portfolio Construction")}>
-                  Continue to Portfolio Construction →
-                </button>
-              </Card>
+              <details className="cp-optional-study">
+                <summary>Optional independent research · SPY/cash</summary>
+                <p className="cp-note">Apply this policy directly to SPY and compare with passive SPY. ETF selection and optimization are excluded; dates and history are separate.</p>
+                <button onClick={openStudy}>Study SPY/cash independently →</button>
+              </details>
+              <div className="cp-actions">
+                <button className="cp-primary" onClick={() => navigate("Portfolio Construction")}>Continue to Portfolio Construction →</button>
+              </div>
+              </div>
+              <StrategySummary draft={draft} navigate={navigate} />
             </div>
           )}
           {module === "Capital Exposure" &&
@@ -700,3 +689,4 @@ export function CoordinatedWorkbench({
 export default function WorkbenchPage() {
   return <CoordinatedWorkbench />;
 }
+
