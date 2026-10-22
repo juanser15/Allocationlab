@@ -16,7 +16,11 @@ import {
 } from "../../artifacts/api-server/src/lib/workbench/coordinated-calendar";
 import type { DatasetV2 } from "../../artifacts/api-server/src/lib/workbench/calendar-v2";
 import { fitGaussianHMM, moments, optimize, ResearchError } from "./models";
-import { isCapitalStudy } from "../../artifacts/api-server/src/lib/workbench/coordinated-contract";
+import {
+  isCapitalStudy,
+  DEFAULT_FORECAST,
+} from "../../artifacts/api-server/src/lib/workbench/coordinated-contract";
+import { buildAssetForecast } from "./forecasts";
 
 function ledgerPoints(ledger: BacktestLedgerEntry[], costBps: number) {
   let high = 100;
@@ -159,6 +163,7 @@ export function runCoordinated(
     },
     {
       ...defaultBacktestConfig(),
+      warmupDays: 0,
       startDate: request.evaluation_start,
       executionTiming: "next_close",
       transactionCostBps: request.transaction_cost_bps,
@@ -211,6 +216,15 @@ export function runCoordinated(
         (t) => ((ctx!.quantities[t] ?? 0) * last.prices[t]) / ctx!.nav,
       );
       let solution: ReturnType<typeof optimize>;
+      const forecast = study
+        ? null
+        : buildAssetForecast(
+            request.forecast ?? DEFAULT_FORECAST,
+            available,
+            etfs,
+            estimates.mean,
+            request.rebalance_frequency === "MONTHLY" ? 1 / 12 : 1 / 4,
+          );
       if (study) {
         const spyVolatility = Math.sqrt(estimates.covariance[0][0]);
         if (!Number.isFinite(spyVolatility) || spyVolatility <= 0)
@@ -230,14 +244,19 @@ export function runCoordinated(
           risk_multiplier: 0,
         };
       } else
-        solution = optimize(estimates.mean, estimates.covariance, prior, {
-          cap,
-          maxWeight: request.maximum_etf_weight,
-          riskAversion: request.risk_aversion,
-          cost: request.transaction_cost_bps / 10000,
-          horizon: request.rebalance_frequency === "MONTHLY" ? 1 / 12 : 1 / 4,
-          volatility: budget,
-        });
+        solution = optimize(
+          forecast!.annual_mean,
+          estimates.covariance,
+          prior,
+          {
+            cap,
+            maxWeight: request.maximum_etf_weight,
+            riskAversion: request.risk_aversion,
+            cost: request.transaction_cost_bps / 10000,
+            horizon: forecast!.horizon_years,
+            volatility: budget,
+          },
+        );
       const weights = Object.fromEntries(
         etfs.map((t, i) => [t, solution.weights[i]]),
       );
@@ -263,6 +282,7 @@ export function runCoordinated(
               risk_multiplier: solution.risk_multiplier,
             },
         estimates,
+        forecast,
         prior_weights: Object.fromEntries(etfs.map((t, i) => [t, prior[i]])),
       });
       display = {
@@ -326,6 +346,7 @@ export function runCoordinated(
       },
       {
         ...defaultBacktestConfig(),
+        warmupDays: 0,
         startDate: request.evaluation_start,
         executionTiming: "next_close",
         transactionCostBps: request.transaction_cost_bps,
@@ -376,11 +397,63 @@ export function runCoordinated(
       ? "Publishing exposure study and SPY benchmark"
       : "Publishing portfolio results",
   );
+  const pairs: {
+    predicted: number;
+    realized: number;
+    ticker: string;
+    decision_date: string;
+    label_end: string;
+  }[] = [];
+  for (const decision of decisions) {
+    const horizon = decision.forecast?.horizon_sessions;
+    if (!horizon) continue;
+    const execution =
+        data.rows.findIndex((r) => r.date === decision.decision_date) + 1,
+      end = execution + horizon;
+    if (
+      !data.rows[end] ||
+      data.rows[end].date >= request.evaluation_end_exclusive
+    )
+      continue;
+    for (const prediction of decision.forecast.predictions)
+      pairs.push({
+        predicted: prediction.expected_return,
+        realized:
+          data.rows[end].prices[prediction.ticker] /
+            data.rows[execution].prices[prediction.ticker] -
+          1,
+        ticker: prediction.ticker,
+        decision_date: decision.decision_date,
+        label_end: data.rows[end].date,
+      });
+  }
+  const avg = (x: number[]) => x.reduce((s, v) => s + v, 0) / x.length;
+  const pMean = avg(pairs.map((p) => p.predicted)),
+    rMean = avg(pairs.map((p) => p.realized));
+  const covariance = pairs.reduce(
+      (s, p) => s + (p.predicted - pMean) * (p.realized - rMean),
+      0,
+    ),
+    denominator = Math.sqrt(
+      pairs.reduce((s, p) => s + (p.predicted - pMean) ** 2, 0) *
+        pairs.reduce((s, p) => s + (p.realized - rMean) ** 2, 0),
+    );
+  const forecastDiagnostics = {
+    pairs: pairs.length,
+    correlation: denominator > 0 ? covariance / denominator : null,
+    mean_absolute_error: pairs.length
+      ? avg(pairs.map((p) => Math.abs(p.predicted - p.realized)))
+      : null,
+    definition: "POOLED_MATURED_ASSET_DECISION_PAIRS_WITHIN_EVALUATION_ONLY",
+    inference: "DESCRIPTIVE_ONLY_OVERLAPPING_OUTCOMES_NOT_INDEPENDENT",
+    observations: pairs,
+  };
   return {
     status: "SUCCESS",
     plan,
     ...financial,
     research_scope: study ? "CAPITAL_EXPOSURE" : "PORTFOLIO",
+    ...(!study ? { forecast_diagnostics: forecastDiagnostics } : {}),
     ...(benchmark ? { benchmark } : {}),
     financial_result_hash: hash(
       benchmark ? { ...financial, benchmark } : financial,

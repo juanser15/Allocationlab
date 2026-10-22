@@ -1,4 +1,6 @@
 import test from "node:test";
+import "./forecasts.test";
+import "./data.test";
 import assert from "node:assert/strict";
 import { fitGaussianHMM, filterGaussian, optimize, quadratic } from "./models";
 import { runCoordinated } from "./engine";

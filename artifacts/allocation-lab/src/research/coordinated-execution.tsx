@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import type { ResearchSubmission } from "../../../api-server/src/lib/workbench/coordinated-contract";
+import {
+  forecastNames,
+  type ResearchSubmission,
+} from "../../../api-server/src/lib/workbench/coordinated-contract";
+import { ForecastEvidence } from "./coordinated-forecasts";
 import {
   Card,
   MetricCards,
@@ -296,11 +300,17 @@ export function ExecutionWorkspace({
             {caps && (
               <div className="cp-result-context">
                 <strong>
-                  Active data · {caps.data_source === "YAHOO_FINANCE_RESEARCH" ? "Yahoo Finance" : "Internal snapshot"}
+                  Active data ·{" "}
+                  {caps.data_source === "YAHOO_FINANCE_RESEARCH"
+                    ? "Yahoo Finance"
+                    : "Internal snapshot"}
                 </strong>
                 <small>
-                  Available {caps.data_first_observation} → {caps.data_last_observation}
-                  {requestedTrainingStart ? ` · this design trains from ${requestedTrainingStart}` : ""}
+                  Available {caps.data_first_observation} →{" "}
+                  {caps.data_last_observation}
+                  {requestedTrainingStart
+                    ? ` · this design trains from ${requestedTrainingStart}`
+                    : ""}
                 </small>
               </div>
             )}
@@ -308,7 +318,8 @@ export function ExecutionWorkspace({
               <div className="cp-error" role="alert">
                 This setup needs training history from {requestedTrainingStart},
                 but the active dataset begins on {caps.data_first_observation}.
-                Move From later, shorten the training window, or load earlier data.
+                Move From later, shorten the training window, or load earlier
+                data.
               </div>
             )}
             <p className="cp-note">
@@ -376,7 +387,7 @@ export function ExecutionWorkspace({
             <p className="cp-note">
               {study
                 ? "The study invests the allowed exposure directly in SPY. A risk budget is converted to SPY weight using its estimated volatility."
-                : "Forecasts currently use historical means. Alternative asset-alpha models are not enabled."}
+                : `Forecast: ${"forecast" in draft ? (draft.forecast?.model ?? "HISTORICAL_MEAN") : "HISTORICAL_MEAN"}. Dataset: ${draft.dataset_id ?? "REFERENCE"}. Configure asset signals in Signals.`}
             </p>
             {!study && (
               <div className="cp-actions">
@@ -511,6 +522,7 @@ export function ExecutionWorkspace({
                 )}
               </div>
             </Card>
+            {!study && <ForecastEvidence result={result} spec={saved} />}
             <p className="cp-note">
               Actual costs: {result.metrics.costs.toFixed(4)} index units.
               Positions carry between rebalances; market movement can cause
@@ -539,7 +551,9 @@ export function ExecutionWorkspace({
                 <thead>
                   <tr>
                     <th>Period</th>
-                    <th>Model</th>
+                    <th>Regime</th>
+                    {!study && <th>Forecast</th>}
+                    <th>Dataset</th>
                     <th>Control</th>
                     <th>Status</th>
                     <th />
@@ -554,6 +568,22 @@ export function ExecutionWorkspace({
                       </td>
                       <td>
                         {models[row.spec.regime_model as keyof typeof models]}
+                      </td>
+                      {!study && (
+                        <td>
+                          {
+                            forecastNames[
+                              (row.spec.forecast?.model ??
+                                "HISTORICAL_MEAN") as keyof typeof forecastNames
+                            ]
+                          }
+                        </td>
+                      )}
+                      <td>
+                        {!row.spec.dataset_id ||
+                        ["REFERENCE", "internal"].includes(row.spec.dataset_id)
+                          ? "Reference"
+                          : `Yahoo · ${row.spec.dataset_id.slice(0, 8)}`}
                       </td>
                       <td>
                         {row.spec.control_mode === "MAX_EXPOSURE"

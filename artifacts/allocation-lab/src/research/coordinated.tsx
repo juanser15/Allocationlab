@@ -4,7 +4,10 @@ import {
   COORDINATED_SPEC,
   type CoordinatedRequest,
   type CapitalStudyRequest,
+  DEFAULT_FORECAST,
+  forecastNames,
 } from "../../../api-server/src/lib/workbench/coordinated-contract";
+import { ForecastDesign, ForecastEvidence } from "./coordinated-forecasts";
 import {
   ExecutionWorkspace,
   type CalendarField,
@@ -15,6 +18,8 @@ import { restoreRememberedYahooDataset } from "./dataset-persistence";
 import "./coordinated.css";
 
 const initial: CoordinatedRequest = {
+  dataset_id: "internal",
+  forecast: DEFAULT_FORECAST,
   contract_version: COORDINATED_SPEC,
   research_scope: "PORTFOLIO",
   evaluation_start: "",
@@ -64,6 +69,7 @@ export function capitalStudyDesign(
     maximum_etf_weight,
     risk_aversion,
     covariance_shrinkage,
+    forecast,
     research_scope,
     ...shared
   } = request;
@@ -89,7 +95,14 @@ export function CoordinatedWorkbench({
     [lastPortfolio, setLastPortfolio] = useState<any>(null);
   const load = () =>
     researchApi("/capabilities")
-      .then(setCaps)
+      .then((next) => {
+        setCaps(next);
+        setDraft((previous) => ({ ...previous, dataset_id: next.dataset_id }));
+        setStudyDraft((previous) => ({
+          ...previous,
+          dataset_id: next.dataset_id,
+        }));
+      })
       .catch((e) => setAccessError(e.message));
   useEffect(() => {
     void (async () => {
@@ -117,6 +130,7 @@ export function CoordinatedWorkbench({
       control_mode: policy.control_mode,
       maximum_exposure: policy.maximum_exposure,
       risk_budget: policy.risk_budget,
+      dataset_id: policy.dataset_id,
       regime_model: policy.regime_model,
       regime_response: policy.regime_response,
       defensive_multiplier: policy.defensive_multiplier,
@@ -203,7 +217,10 @@ export function CoordinatedWorkbench({
       {caps && (
         <div className="cp-reference-bar">
           <strong>
-            Data · {caps.data_source === "YAHOO_FINANCE_RESEARCH" ? "Yahoo Finance" : "Internal snapshot"}
+            Data ·{" "}
+            {caps.data_source === "YAHOO_FINANCE_RESEARCH"
+              ? "Yahoo Finance"
+              : "Internal snapshot"}
           </strong>
           <span>
             {caps.data_first_observation} → {caps.data_last_observation}
@@ -270,7 +287,9 @@ export function CoordinatedWorkbench({
               </div>
             </div>
           )}
-                    {module === "Data & Universe" && <DataUniverse onDatasetChange={load} />}
+          <div hidden={module !== "Data & Universe"}>
+            <DataUniverse onDatasetChange={load} capabilities={caps} />
+          </div>
           {module === "Signals" && (
             <div className="cp-section-body">
               <nav className="cp-subtabs" aria-label="Signal sections">
@@ -307,82 +326,84 @@ export function CoordinatedWorkbench({
                       Configure capital response →
                     </button>
                   </Card>
-                  <Card title="Asset forecasts">
-                    <p>
-                      Historical arithmetic returns, annualized at 252 sessions
-                      and estimated inside each training window.
-                    </p>
-                    <p className="cp-note">
-                      Alternative asset-alpha models are not enabled. Signal
-                      configuration does not start a portfolio backtest.
-                    </p>
-                  </Card>
+                  <ForecastDesign
+                    value={draft.forecast}
+                    onChange={(value) => change("forecast", value)}
+                  />
                 </>
               ) : (
-                <Card title="Observed signal diagnostics">
-                  {lastPortfolio ? (
-                    <>
-                      <p>
-                        Latest selected full-portfolio result · information
-                        cutoff{" "}
-                        {
-                          lastPortfolio.result.decisions.at(-1)
-                            .information_cutoff
-                        }{" "}
-                        ·{" "}
-                        {
-                          models[
-                            lastPortfolio.spec
-                              .regime_model as keyof typeof models
-                          ]
-                        }
-                        .
+                <>
+                  <ForecastEvidence
+                    result={lastPortfolio?.result}
+                    spec={lastPortfolio?.spec}
+                  />
+                  <Card title="Observed signal diagnostics">
+                    {lastPortfolio ? (
+                      <>
+                        <p>
+                          Latest selected full-portfolio result · information
+                          cutoff{" "}
+                          {
+                            lastPortfolio.result.decisions.at(-1)
+                              .information_cutoff
+                          }{" "}
+                          ·{" "}
+                          {
+                            models[
+                              lastPortfolio.spec
+                                .regime_model as keyof typeof models
+                            ]
+                          }
+                          .
+                        </p>
+                        {lastPortfolio.spec.regime_model === "HMM" && (
+                          <div className="cp-metrics">
+                            <div>
+                              <small>Higher-volatility probability</small>
+                              <strong>
+                                {pct(
+                                  lastPortfolio.result.decisions.at(-1).regime
+                                    .high_risk_probability,
+                                )}
+                              </strong>
+                            </div>
+                            <div>
+                              <small>Converged initializations</small>
+                              <strong>
+                                {
+                                  lastPortfolio.result.decisions.at(-1).regime
+                                    .converged_initializations
+                                }{" "}
+                                / 3
+                              </strong>
+                            </div>
+                          </div>
+                        )}
+                        <details>
+                          <summary>
+                            Model evidence from that saved result
+                          </summary>
+                          <pre>
+                            {JSON.stringify(
+                              lastPortfolio.result.decisions.at(-1).regime,
+                              null,
+                              2,
+                            )}
+                          </pre>
+                        </details>
+                      </>
+                    ) : (
+                      <p className="cp-empty">
+                        No full-portfolio result selected yet. Open or execute a
+                        portfolio backtest in Backtesting to inspect its
+                        recorded diagnostics.
                       </p>
-                      {lastPortfolio.spec.regime_model === "HMM" && (
-                        <div className="cp-metrics">
-                          <div>
-                            <small>Higher-volatility probability</small>
-                            <strong>
-                              {pct(
-                                lastPortfolio.result.decisions.at(-1).regime
-                                  .high_risk_probability,
-                              )}
-                            </strong>
-                          </div>
-                          <div>
-                            <small>Converged initializations</small>
-                            <strong>
-                              {
-                                lastPortfolio.result.decisions.at(-1).regime
-                                  .converged_initializations
-                              }{" "}
-                              / 3
-                            </strong>
-                          </div>
-                        </div>
-                      )}
-                      <details>
-                        <summary>Model evidence from that saved result</summary>
-                        <pre>
-                          {JSON.stringify(
-                            lastPortfolio.result.decisions.at(-1).regime,
-                            null,
-                            2,
-                          )}
-                        </pre>
-                      </details>
-                    </>
-                  ) : (
-                    <p className="cp-empty">
-                      No full-portfolio result selected yet. Open or execute a
-                      portfolio backtest in Backtesting to inspect its recorded
-                      diagnostics.
-                    </p>
-                  )}
-                  <button onClick={() => navigate("Backtesting")}>
-                    Open Backtesting →
-                  </button>
-                </Card>
+                    )}
+                    <button onClick={() => navigate("Backtesting")}>
+                      Open Backtesting →
+                    </button>
+                  </Card>
+                </>
               )}
             </div>
           )}
@@ -539,31 +560,44 @@ export function CoordinatedWorkbench({
               </nav>
               {portfolioView === "ETF Selection" ? (
                 <Card title="Eligible investment universe">
+                  {caps && draft.etfs.some((t) => !caps.etfs.includes(t)) && (
+                    <p className="cp-error">
+                      Selected symbols missing from this dataset:{" "}
+                      {draft.etfs
+                        .filter((t) => !caps.etfs.includes(t))
+                        .join(" · ")}
+                      . Deselect them explicitly or choose a dataset that
+                      contains them.
+                    </p>
+                  )}
                   <p className="cp-note">
                     Eligibility is configured here. Final portfolio weights are
                     determined jointly by the optimizer.
                   </p>
                   <div className="cp-etfs">
-                    {(caps?.etfs ?? Object.keys(names)).map(
-                      (ticker: string) => (
-                        <label key={ticker} className="cp-etf">
-                          <input
-                            type="checkbox"
-                            checked={draft.etfs.includes(ticker)}
-                            onChange={(e) =>
-                              change(
-                                "etfs",
-                                e.target.checked
-                                  ? [...draft.etfs, ticker]
-                                  : draft.etfs.filter((t) => t !== ticker),
-                              )
-                            }
-                          />
-                          <strong>{ticker}</strong>
-                          <span>{names[ticker]}</span>
-                        </label>
-                      ),
-                    )}
+                    {[
+                      ...new Set([
+                        ...(caps?.etfs ?? Object.keys(names)),
+                        ...draft.etfs,
+                      ]),
+                    ].map((ticker: string) => (
+                      <label key={ticker} className="cp-etf">
+                        <input
+                          type="checkbox"
+                          checked={draft.etfs.includes(ticker)}
+                          onChange={(e) =>
+                            change(
+                              "etfs",
+                              e.target.checked
+                                ? [...draft.etfs, ticker]
+                                : draft.etfs.filter((t) => t !== ticker),
+                            )
+                          }
+                        />
+                        <strong>{ticker}</strong>
+                        <span>{names[ticker]}</span>
+                      </label>
+                    ))}
                   </div>
                   <p className="cp-note">
                     Missing prices block a design; assets are not interpolated
@@ -596,10 +630,27 @@ export function CoordinatedWorkbench({
                       )}
                     </div>
                     <p className="cp-note">
-                      Uses historical return estimates, covariance and the
-                      carried portfolio holdings. Cash earns 0%. Asset-alpha
-                      models are not yet enabled.
+                      Uses the selected asset forecast, shared covariance and
+                      carried holdings. Cash earns 0%.
                     </p>
+                  </Card>
+                  <Card title="Forecast input">
+                    <p>
+                      {
+                        forecastNames[
+                          draft.forecast?.model ?? "HISTORICAL_MEAN"
+                        ]
+                      }
+                    </p>
+                    <p className="cp-note">
+                      {draft.forecast?.model === "HISTORICAL_MEAN" ||
+                      !draft.forecast
+                        ? "Historical arithmetic mean reference."
+                        : `Expected arithmetic returns over ${draft.forecast.horizon_sessions} sessions. Forecast and covariance horizons are aligned; annualized volatility limits retain their own units.`}
+                    </p>
+                    <button onClick={() => navigate("Signals")}>
+                      Edit asset forecasts in Signals →
+                    </button>
                   </Card>
                   <Card title="Shared risk estimate">
                     <div className="cp-fields">

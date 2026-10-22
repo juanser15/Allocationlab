@@ -1,5 +1,6 @@
 import {
   preparedDataset,
+  loadCoordinatedDataset,
   normalizeCoordinated,
   coordinatedRunId,
 } from "./lib/workbench/coordinated-calendar";
@@ -17,7 +18,7 @@ process.on("message", (message: any) => {
     return;
   try {
     const t = performance.now(),
-      data = preparedDataset(),
+      data = loadCoordinatedDataset(message.request?.dataset_id),
       spec = normalizeCoordinated(message.request, data);
     if (coordinatedRunId(spec) !== message.run_id)
       throw new Error(

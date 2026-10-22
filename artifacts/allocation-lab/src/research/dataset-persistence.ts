@@ -1,7 +1,7 @@
 import { researchApi } from "./coordinated-ui";
 
 const KEY = "allocationlab.yahoo.active-snapshot.v1";
-const tokenHeader = () => {
+const tokenHeader = (): Record<string, string> => {
   const token = sessionStorage.getItem("allocationlab.workbench.preview-token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };

@@ -1,10 +1,5 @@
 import { createHash } from "node:crypto";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { parseCsv } from "../calculator";
@@ -117,8 +112,7 @@ async function fetchYahooTicker(
     "&interval=1d&events=div%2Csplits&includeAdjustedClose=true";
   const response = await fetch(url, {
     headers: {
-      "User-Agent":
-        "Mozilla/5.0 AllocationLab/1.0 research-data-preview",
+      "User-Agent": "Mozilla/5.0 AllocationLab/1.0 research-data-preview",
       Accept: "application/json",
     },
     signal: AbortSignal.timeout(15000),
@@ -132,19 +126,30 @@ async function fetchYahooTicker(
       String(error.description || error.code || "Yahoo Finance error"),
     );
   const result = body?.chart?.result?.[0];
+  if (result?.meta?.currency !== "USD")
+    throw new Error(
+      `The portfolio engine requires USD instruments; Yahoo reports ${result?.meta?.currency ?? "unknown currency"}. No FX conversion was assumed.`,
+    );
   const timestamps: number[] = Array.isArray(result?.timestamp)
     ? result.timestamp
     : [];
   const adjusted: Array<number | null> =
-    result?.indicators?.adjclose?.[0]?.adjclose ??
-    result?.indicators?.quote?.[0]?.close ??
-    [];
+    result?.indicators?.adjclose?.[0]?.adjclose ?? [];
+  if (!adjusted.length)
+    throw new Error(
+      "Yahoo returned no adjusted closes; raw-close fallback is not allowed.",
+    );
   const points: Array<{ date: string; value: number }> = [];
   for (let i = 0; i < Math.min(timestamps.length, adjusted.length); i++) {
     const value = Number(adjusted[i]);
     if (!Number.isFinite(value) || value <= 0) continue;
     const date = new Date(timestamps[i] * 1000).toISOString().slice(0, 10);
-    if (date < start || date > end) continue;
+    if (
+      date < start ||
+      date > end ||
+      date >= new Date().toISOString().slice(0, 10)
+    )
+      continue;
     points.push({ date, value });
   }
   const unique = new Map(points.map((p) => [p.date, p.value]));
@@ -160,8 +165,14 @@ export async function fetchYahooResearchDataset(value: unknown) {
     end?: unknown;
   };
   const tickers = normalizeTickers(input?.tickers);
-  if (!validDate(input?.start) || !validDate(input?.end) || input.start > input.end)
+  if (
+    !validDate(input?.start) ||
+    !validDate(input?.end) ||
+    input.start > input.end
+  )
     throw new Error("Choose valid From and To dates.");
+  const start = input.start,
+    end = input.end;
 
   const byTicker = new Map<string, Array<{ date: string; value: number }>>();
   const failed: Array<{ ticker: string; error: string }> = [];
@@ -172,7 +183,10 @@ export async function fetchYahooResearchDataset(value: unknown) {
     const results = await Promise.all(
       batch.map(async (ticker) => {
         try {
-          return { ticker, points: await fetchYahooTicker(ticker, input.start!, input.end!) };
+          return {
+            ticker,
+            points: await fetchYahooTicker(ticker, start, end),
+          };
         } catch (error) {
           return {
             ticker,
@@ -182,8 +196,14 @@ export async function fetchYahooResearchDataset(value: unknown) {
       }),
     );
     for (const result of results) {
-      if ("points" in result) byTicker.set(result.ticker, result.points);
-      else failed.push({ ticker: result.ticker, error: result.error });
+      if (result.points?.length) byTicker.set(result.ticker, result.points);
+      else
+        failed.push({
+          ticker: result.ticker,
+          error:
+            result.error ??
+            "Yahoo returned no completed daily observations in the requested interval.",
+        });
     }
   }
   if (!byTicker.size)
@@ -217,15 +237,17 @@ export async function fetchYahooResearchDataset(value: unknown) {
     required.every((ticker) => maps.get(ticker)?.has(date)),
   ).length;
   const digest = hash(csv);
-  const datasetId = "yf_" + hash(
-    JSON.stringify({
-      tickers,
-      start: input.start,
-      end: input.end,
-      digest,
-      price_field: "adjusted_close",
-    }),
-  );
+  const datasetId =
+    "yf_" +
+    hash(
+      JSON.stringify({
+        tickers,
+        start: input.start,
+        end: input.end,
+        digest,
+        price_field: "adjusted_close",
+      }),
+    );
   const metadata: ResearchDatasetMetadata = {
     dataset_id: datasetId,
     source: "YAHOO_FINANCE_RESEARCH",
@@ -244,7 +266,7 @@ export async function fetchYahooResearchDataset(value: unknown) {
     required_research_symbols: required,
     missing_required_symbols: missingRequired,
     activation_eligible:
-      byTicker.has("SPY") && (byTicker.get("SPY")?.length ?? 0) >= 10,
+      byTicker.has("SPY") && (byTicker.get("SPY")?.length ?? 0) > 0,
     coverage: tickers.map((ticker) => {
       const points = byTicker.get(ticker) ?? [];
       return {
@@ -256,16 +278,22 @@ export async function fetchYahooResearchDataset(value: unknown) {
       };
     }),
     sha256: digest,
-    note:
-      "Yahoo Finance research snapshot. Adjusted-close data is not independently point-in-time certified and must not be represented as certified historical vendor data.",
+    note: "Yahoo Finance research snapshot. Adjusted-close data is not independently point-in-time certified and must not be represented as certified historical vendor data.",
   };
   ensureDir();
+  if (existsSync(metaPath(datasetId))) {
+    if (hash(readResearchDatasetCsv(datasetId)) !== digest)
+      throw new Error("Stored snapshot hash conflict.");
+    return readResearchDataset(datasetId);
+  }
   writeFileSync(csvPath(datasetId), csv, "utf8");
   writeFileSync(metaPath(datasetId), JSON.stringify(metadata, null, 2), "utf8");
   return metadata;
 }
 
-export function readResearchDataset(datasetId: string): ResearchDatasetMetadata {
+export function readResearchDataset(
+  datasetId: string,
+): ResearchDatasetMetadata {
   const path = metaPath(datasetId);
   if (!existsSync(path)) throw new Error("Research dataset was not found.");
   return JSON.parse(readFileSync(path, "utf8")) as ResearchDatasetMetadata;
@@ -334,6 +362,11 @@ export function restoreResearchDataset(value: unknown) {
     throw new Error("Research dataset coverage does not match metadata.");
 
   ensureDir();
+  if (existsSync(metaPath(metadata.dataset_id))) {
+    if (hash(readResearchDatasetCsv(metadata.dataset_id)) !== digest)
+      throw new Error("Stored snapshot hash conflict.");
+    return readResearchDataset(metadata.dataset_id);
+  }
   writeFileSync(csvPath(metadata.dataset_id), payload.csv, "utf8");
   writeFileSync(
     metaPath(metadata.dataset_id),
@@ -351,7 +384,10 @@ export function activateResearchDataset(datasetId: string) {
   ensureDir();
   writeFileSync(
     ACTIVE_FILE,
-    JSON.stringify({ dataset_id: datasetId, activated_at: new Date().toISOString() }),
+    JSON.stringify({
+      dataset_id: datasetId,
+      activated_at: new Date().toISOString(),
+    }),
     "utf8",
   );
   return activeResearchDatasetStatus();
@@ -360,7 +396,10 @@ export function activateInternalDataset() {
   ensureDir();
   writeFileSync(
     ACTIVE_FILE,
-    JSON.stringify({ dataset_id: "internal", activated_at: new Date().toISOString() }),
+    JSON.stringify({
+      dataset_id: "internal",
+      activated_at: new Date().toISOString(),
+    }),
     "utf8",
   );
   return activeResearchDatasetStatus();
@@ -369,7 +408,9 @@ function activeId(): string {
   if (!existsSync(ACTIVE_FILE)) return "internal";
   try {
     const parsed = JSON.parse(readFileSync(ACTIVE_FILE, "utf8"));
-    return typeof parsed.dataset_id === "string" ? parsed.dataset_id : "internal";
+    return typeof parsed.dataset_id === "string"
+      ? parsed.dataset_id
+      : "internal";
   } catch {
     return "internal";
   }
@@ -391,16 +432,19 @@ export function activeResearchDatasetStatus() {
       source: "INTERNAL_CERTIFIED_SNAPSHOT" as const,
       active: true,
       required_research_symbols: requiredResearchSymbols(),
-      warning: "The prior temporary research dataset is unavailable after a restart.",
+      warning:
+        "The prior temporary research dataset is unavailable after a restart.",
     };
   }
 }
-export function applyResearchDatasetOverride<T extends {
-  rows: any[];
-  fixture: any;
-  snapshot: any;
-  code_version: string;
-}>(base: T): T {
+export function applyResearchDatasetOverride<
+  T extends {
+    rows: any[];
+    fixture: any;
+    snapshot: any;
+    code_version: string;
+  },
+>(base: T): T {
   const status = activeResearchDatasetStatus();
   if (status.dataset_id === "internal") return base;
   const meta = status as ResearchDatasetMetadata & { active: true };

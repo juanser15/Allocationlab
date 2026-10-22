@@ -18,7 +18,11 @@ import {
   type ResearchSubmission,
   PORTFOLIO_FIELDS,
   isCapitalStudy,
+  DEFAULT_FORECAST,
+  type ForecastConfig,
 } from "./coordinated-contract";
+import { loadCoordinatedDataset } from "./coordinated-data";
+export { loadCoordinatedDataset };
 export {
   COORDINATED_SPEC,
   ETF_UNIVERSE,
@@ -26,6 +30,8 @@ export {
   type ResearchSubmission,
 };
 export const requestFields = [
+  "dataset_id",
+  "forecast",
   "research_scope",
   "contract_version",
   "evaluation_start",
@@ -64,6 +70,8 @@ export function parseCoordinated(value: unknown): ResearchSubmission {
       .filter(
         (k) =>
           k !== "research_scope" &&
+          k !== "dataset_id" &&
+          k !== "forecast" &&
           !(
             v.research_scope === "CAPITAL_EXPOSURE" &&
             PORTFOLIO_FIELDS.includes(k as any)
@@ -85,6 +93,14 @@ export function parseCoordinated(value: unknown): ResearchSubmission {
     invalid(
       "Capital Exposure studies take only the capital policy and study calendar. ETF selection and optimizer inputs belong to Portfolio Construction.",
     );
+  if (
+    v.dataset_id !== undefined &&
+    (typeof v.dataset_id !== "string" ||
+      !/^(REFERENCE|internal|yf_[a-f0-9]{64})$/.test(v.dataset_id))
+  )
+    invalid("Choose a valid dataset snapshot.");
+  if (!isCapitalStudy(v) && v.forecast !== undefined)
+    validateForecast(v.forecast, invalid);
   for (const [key, allowed] of Object.entries({
     control_mode: ["MAX_EXPOSURE", "RISK_BUDGET"],
     regime_model: ["CURRENT", "TREND", "TREND_VOL", "HMM"],
@@ -117,9 +133,13 @@ export function parseCoordinated(value: unknown): ResearchSubmission {
       !v.etfs.length ||
       v.etfs.length > 8 ||
       new Set(v.etfs).size !== v.etfs.length ||
-      v.etfs.some((t) => !ETF_UNIVERSE.includes(t as any))
+      v.etfs.some(
+        (t) => typeof t !== "string" || !/^[A-Z0-9.^=-]{1,24}$/.test(t),
+      )
     )
-      invalid("Choose one to eight distinct supported ETFs.");
+      invalid(
+        "Choose one to eight distinct assets present in the selected dataset.",
+      );
   }
   if (
     v.regime_response === "ADAPTIVE" &&
@@ -130,7 +150,89 @@ export function parseCoordinated(value: unknown): ResearchSubmission {
   // Validation of dates and calendar is shared with the existing contract.
   return isCapitalStudy(v)
     ? { ...v }
-    : { ...v, research_scope: "PORTFOLIO", etfs: [...v.etfs].sort() };
+    : {
+        ...v,
+        research_scope: "PORTFOLIO",
+        etfs: [...v.etfs].sort(),
+        ...(v.forecast
+          ? {
+              forecast: JSON.parse(
+                JSON.stringify(v.forecast),
+              ) as ForecastConfig,
+            }
+          : {}),
+      };
+}
+function validateForecast(f: ForecastConfig, invalid: (m: string) => void) {
+  if (
+    !f ||
+    typeof f !== "object" ||
+    Array.isArray(f) ||
+    Object.keys(f).some(
+      (k) =>
+        ![
+          "model",
+          "horizon_sessions",
+          "training_sessions",
+          "ridge_penalty",
+          "manual_base_return",
+          "manual_score_return",
+          "signals",
+        ].includes(k),
+    ) ||
+    !["HISTORICAL_MEAN", "MANUAL_SCORE", "SIGNAL_RIDGE"].includes(f.model)
+  )
+    invalid("Choose a supported, explicit forecast model.");
+  for (const key of ["horizon_sessions", "training_sessions"] as const)
+    if (!Number.isSafeInteger(f[key]) || f[key] <= 0)
+      invalid(
+        `${key} must be a positive whole number of sessions. No statistical minimum applies.`,
+      );
+  if (!Number.isFinite(f.ridge_penalty) || f.ridge_penalty <= 0)
+    invalid("Ridge penalty must be finite and positive.");
+  if (![f.manual_base_return, f.manual_score_return].every(Number.isFinite))
+    invalid(
+      "Manual forecast assumptions must be finite returns over the selected horizon.",
+    );
+  if (
+    !Array.isArray(f.signals) ||
+    !f.signals.length ||
+    f.signals.length > 4 ||
+    f.signals.some((s) => !s || typeof s !== "object" || Array.isArray(s)) ||
+    new Set(f.signals.map((s) => s.id)).size !== f.signals.length
+  )
+    invalid("Choose distinct defined asset signals.");
+  for (const s of f.signals)
+    if (
+      !s ||
+      Object.keys(s).some(
+        (k) =>
+          ![
+            "id",
+            "enabled",
+            "lookback_sessions",
+            "skip_sessions",
+            "weight",
+          ].includes(k),
+      ) ||
+      !["MOMENTUM", "RELATIVE_MOMENTUM", "TREND", "REVERSAL"].includes(s.id) ||
+      typeof s.enabled !== "boolean" ||
+      !Number.isSafeInteger(s.lookback_sessions) ||
+      s.lookback_sessions < 1 ||
+      !Number.isSafeInteger(s.skip_sessions) ||
+      s.skip_sessions < 0 ||
+      !Number.isFinite(s.weight)
+    )
+      invalid(
+        "Each signal requires its explicit positive lookback, nonnegative skip, enabled state and finite manual weight.",
+      );
+  if (f.model !== "HISTORICAL_MEAN" && !f.signals.some((s) => s.enabled))
+    invalid("Enable at least one asset signal.");
+  if (
+    f.model === "MANUAL_SCORE" &&
+    !f.signals.some((s) => s.enabled && s.weight !== 0)
+  )
+    invalid("Manual mapping requires a nonzero signal weight.");
 }
 export function requestFromSpec(spec: CoordinatedSpec) {
   return parseCoordinated(
@@ -141,17 +243,17 @@ export function requestFromSpec(spec: CoordinatedSpec) {
     ),
   );
 }
-export function planCoordinated(value: unknown, data = preparedDataset()) {
+export function planCoordinated(
+  value: unknown,
+  data = loadCoordinatedDataset((value as ResearchSubmission)?.dataset_id),
+) {
   const request = parseCoordinated(value);
-  // The coordinated engine uses the user's training window directly.
-  // Fixed-lookback regime indicators consume information available up to the
-  // decision date; they do not require an additional warmup block before the
-  // beginning of training. The legacy interactive planner's pre-training
-  // warmup is therefore disabled here and replaced by model-specific history
-  // validation below.
+  const symbols = ["SPY"];
+  // No warmup before training is imposed. Fixed-lookback classifiers instead
+  // validate their actual feature history through each decision cutoff.
   const calendarData = {
     ...data,
-    fixture: { ...data.fixture, warmup_rows: 0 },
+    fixture: { ...data.fixture, warmup_rows: 0, reference_universe: symbols },
   };
   const base = planInteractive(
     {
@@ -171,35 +273,36 @@ export function planCoordinated(value: unknown, data = preparedDataset()) {
     },
     calendarData,
   );
-
-  const fixedLookbackObservations =
-    request.regime_model === "TREND"
-      ? 200
-      : request.regime_model === "TREND_VOL"
-        ? 253
-        : request.regime_model === "CURRENT"
-          ? 10
-          : 0;
-  if (fixedLookbackObservations > 0) {
-    for (const fold of base.folds) {
-      const availableBeforeDecision = data.rows.filter(
-        (row) => row.date < fold.decision_date,
-      ).length;
-      if (availableBeforeDecision < fixedLookbackObservations)
-        throw new CalendarContractError(
-          "INSUFFICIENT_MODEL_HISTORY",
-          "The selected regime model does not yet have enough prior market history at the first decision date.",
-          {
-            fold_id: fold.fold_id,
-            decision_date: fold.decision_date,
-            available_observations: availableBeforeDecision,
-            required_observations: fixedLookbackObservations,
-            regime_model: request.regime_model,
-            data_first_observation: data.snapshot.data_first_observation,
-          },
-          422,
-        );
-    }
+  for (const fold of base.folds) {
+    const available = data.rows.filter((r) => r.date < fold.decision_date);
+    const lookback =
+      request.regime_model === "CURRENT"
+        ? 10
+        : request.regime_model === "TREND"
+          ? 200
+          : request.regime_model === "TREND_VOL"
+            ? 253
+            : 0;
+    if (
+      available.length < lookback ||
+      available
+        .slice(-lookback || available.length)
+        .some((r) =>
+          symbols.some(
+            (t) => !Number.isFinite(r.prices[t]) || r.prices[t] <= 0,
+          ),
+        )
+    )
+      throw new CalendarContractError(
+        "REGIME_FEATURE_HISTORY_REQUIRED",
+        `The selected ${request.regime_model} classifier requires its defined price inputs through the decision cutoff. Choose a compatible dataset, model or dates.`,
+        {
+          fold_id: fold.fold_id,
+          required_symbols: symbols,
+          lookback_prices: lookback,
+        },
+        422,
+      );
   }
   const history = data.rows.filter(
     (r) =>
@@ -227,7 +330,7 @@ export function planCoordinated(value: unknown, data = preparedDataset()) {
       boundaryV2.pit_classification,
       "One continuous long-only portfolio; zero cash yield; next observed close fills. Constraints apply to decision targets, not intraperiod drift.",
       "Risk budget is an estimated annualized volatility ceiling, not a guaranteed loss limit.",
-      "Historical mean and covariance estimates; no point-in-time vintage certification.",
+      "Forecast horizon and return units are recorded per decision. Daily covariance uses linear horizon scaling; no point-in-time vintage certification.",
       ...(isCapitalStudy(request)
         ? [
             "Independent capital policy study: SPY/cash only; no ETF optimization. Passive SPY buys once at the same first next-close fill, with the same costs and zero cash yield.",
@@ -244,12 +347,18 @@ export function planCoordinated(value: unknown, data = preparedDataset()) {
     ),
   };
 }
-export function normalizeCoordinated(value: unknown, data = preparedDataset()) {
+export function normalizeCoordinated(
+  value: unknown,
+  data = loadCoordinatedDataset((value as ResearchSubmission)?.dataset_id),
+) {
   const plan = planCoordinated(value, data),
     root = resolveWorkbenchRepositoryRoot({ moduleUrl: import.meta.url });
   const files = [
     "artifacts/api-server/src/lib/workbench/coordinated-contract.ts",
     "research/coordinated/models.ts",
+    "research/coordinated/forecasts.ts",
+    "artifacts/api-server/src/lib/workbench/coordinated-data.ts",
+    "artifacts/api-server/src/lib/yahoo.ts",
     "research/coordinated/engine.ts",
     "artifacts/api-server/src/lib/workbench/coordinated-calendar.ts",
     "artifacts/api-server/src/lib/workbench/coordinated-service.ts",
@@ -257,6 +366,7 @@ export function normalizeCoordinated(value: unknown, data = preparedDataset()) {
   ];
   return {
     ...plan.normalized_request,
+    dataset_id: (data.snapshot as any).dataset_id ?? "internal",
     identity_namespace: COORDINATED_SPEC,
     data_snapshot: data.snapshot,
     code_version: sha256(
@@ -274,7 +384,7 @@ export function normalizeCoordinated(value: unknown, data = preparedDataset()) {
       accounting: "CONTINUOUS_HOLDINGS",
       forecast: isCapitalStudy(plan.normalized_request)
         ? "UNUSED_CAPITAL_POLICY_ONLY"
-        : "HISTORICAL_ARITHMETIC_MEAN_252",
+        : (plan.normalized_request.forecast?.model ?? "HISTORICAL_MEAN"),
       covariance: isCapitalStudy(plan.normalized_request)
         ? "SPY_SAMPLE_VARIANCE_252"
         : "SAMPLE_DIAGONAL_SHRINKAGE_252",
@@ -288,12 +398,19 @@ export function normalizeCoordinated(value: unknown, data = preparedDataset()) {
 const baseCalendar = "ANCHORED_NEXT_TRADING_DAY_V1";
 export type CoordinatedSpec = ReturnType<typeof normalizeCoordinated>;
 export const coordinatedRunId = (s: CoordinatedSpec) => calculateRunId(s);
-export function coordinatedCapabilities() {
-  const data = preparedDataset();
+export function coordinatedCapabilities(datasetId?: string) {
+  const data = loadCoordinatedDataset(datasetId);
   return {
     ...boundaryV2,
     supported_spec_version: COORDINATED_SPEC,
-    etfs: ETF_UNIVERSE,
+    etfs:
+      (data.snapshot as any).dataset_id &&
+      (data.snapshot as any).dataset_id !== "internal"
+        ? [...new Set(data.rows.flatMap((r) => Object.keys(r.prices)))].sort()
+        : ETF_UNIVERSE,
+
+    forecast_models: ["HISTORICAL_MEAN", "MANUAL_SCORE", "SIGNAL_RIDGE"],
+    default_forecast: DEFAULT_FORECAST,
     data_snapshot: data.snapshot,
     data_first_observation: data.snapshot.data_first_observation,
     data_last_observation: data.snapshot.data_last_observation,

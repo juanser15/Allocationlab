@@ -15,8 +15,10 @@ const defaultStart = () => {
 
 export function DataUniverse({
   onDatasetChange,
+  capabilities,
 }: {
   onDatasetChange?: () => void;
+  capabilities?: any;
 }) {
   const [status, setStatus] = useState<any>(null);
   const [dataset, setDataset] = useState<any>(null);
@@ -29,13 +31,14 @@ export function DataUniverse({
   const [warning, setWarning] = useState("");
 
   const parsed = useMemo(
-    () =>
-      [...new Set(
+    () => [
+      ...new Set(
         tickers
           .split(/[\s,;]+/)
           .map((x) => x.trim().toUpperCase())
           .filter(Boolean),
-      )],
+      ),
+    ],
     [tickers],
   );
 
@@ -54,7 +57,7 @@ export function DataUniverse({
 
   useEffect(() => {
     void load().catch((e) => setError(e.message));
-  }, []);
+  }, [capabilities?.dataset_id]);
 
   async function fetchYahoo() {
     setBusy(true);
@@ -135,14 +138,22 @@ export function DataUniverse({
         <div className="cp-metrics">
           <div>
             <small>Source</small>
-            <strong>{activeYahoo ? "Yahoo Finance" : "Internal snapshot"}</strong>
+            <strong>
+              {activeYahoo ? "Yahoo Finance" : "Internal snapshot"}
+            </strong>
           </div>
           <div>
             <small>Coverage</small>
             <strong>
-              {active?.first_observation ?? active?.data_first_observation ?? "—"}
+              {active?.first_observation ??
+                active?.data_first_observation ??
+                capabilities?.data_first_observation ??
+                "—"}
               {" → "}
-              {active?.last_observation ?? active?.data_last_observation ?? "—"}
+              {active?.last_observation ??
+                active?.data_last_observation ??
+                capabilities?.data_last_observation ??
+                "—"}
             </strong>
           </div>
           <div>
@@ -179,21 +190,35 @@ export function DataUniverse({
             <div className="cp-fields">
               <label>
                 Tickers
-                <input value={tickers} onChange={(e) => setTickers(e.target.value)} />
+                <input
+                  value={tickers}
+                  onChange={(e) => setTickers(e.target.value)}
+                />
               </label>
               <label>
                 From
-                <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+                <input
+                  type="date"
+                  value={from}
+                  onChange={(e) => setFrom(e.target.value)}
+                />
               </label>
               <label>
                 To
-                <input type="date" max={today()} value={to} onChange={(e) => setTo(e.target.value)} />
+                <input
+                  type="date"
+                  max={today()}
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
+                />
               </label>
             </div>
             <div className="cp-actions">
               <button
                 onClick={() =>
-                  setTickers((status?.required_research_symbols ?? []).join(", "))
+                  setTickers(
+                    (status?.required_research_symbols ?? []).join(", "),
+                  )
                 }
               >
                 Load model universe
@@ -230,13 +255,23 @@ export function DataUniverse({
       {dataset && (
         <Card title="Dataset quality">
           <div className="cp-metrics">
-            <div><small>Rows</small><strong>{dataset.observations ?? "—"}</strong></div>
-            <div><small>First</small><strong>{dataset.first_observation ?? "—"}</strong></div>
-            <div><small>Last</small><strong>{dataset.last_observation ?? "—"}</strong></div>
+            <div>
+              <small>Rows</small>
+              <strong>{dataset.observations ?? "—"}</strong>
+            </div>
+            <div>
+              <small>First</small>
+              <strong>{dataset.first_observation ?? "—"}</strong>
+            </div>
+            <div>
+              <small>Last</small>
+              <strong>{dataset.last_observation ?? "—"}</strong>
+            </div>
             <div>
               <small>Tickers</small>
               <strong>
-                {dataset.successful_tickers?.length ?? 0} / {dataset.tickers?.length ?? 0}
+                {dataset.successful_tickers?.length ?? 0} /{" "}
+                {dataset.tickers?.length ?? 0}
               </strong>
             </div>
           </div>
@@ -244,9 +279,9 @@ export function DataUniverse({
           {dataset.missing_required_symbols?.length > 0 && (
             <p className="cp-note">
               Optional regime inputs unavailable:{" "}
-              {dataset.missing_required_symbols.join(", ")}. The Current
-              Regime model uses the available components and renormalizes
-              their weights.
+              {dataset.missing_required_symbols.join(", ")}. The Current Regime
+              model uses the available components and renormalizes their
+              weights.
             </p>
           )}
 
@@ -255,7 +290,11 @@ export function DataUniverse({
               <table>
                 <thead>
                   <tr>
-                    <th>Ticker</th><th>Obs.</th><th>First</th><th>Last</th><th>Missing</th>
+                    <th>Ticker</th>
+                    <th>Obs.</th>
+                    <th>First</th>
+                    <th>Last</th>
+                    <th>Missing</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -277,9 +316,7 @@ export function DataUniverse({
             <button onClick={() => void download()}>Download CSV</button>
             {dataset.activation_eligible && (
               <span className="cp-valid">
-                {active?.dataset_id === dataset.dataset_id
-                  ? "Active"
-                  : "Ready"}
+                {active?.dataset_id === dataset.dataset_id ? "Active" : "Ready"}
               </span>
             )}
           </div>

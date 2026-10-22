@@ -610,3 +610,33 @@
   flex-basis: 100%;
   margin-top: 0 !important;
 }
+.cp-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 16px 0;
+}
+.cp-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.cp-table-wrap th,
+.cp-table-wrap td {
+  padding: 10px;
+  border-bottom: 1px solid var(--cp-line);
+}
+.cp-table-wrap input[type="number"] {
+  min-width: 85px;
+  width: 100%;
+}
+.cp-dataset {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--cp-line);
+}
+.cp-dataset summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.cp-dataset .cp-note {
+  overflow-wrap: anywhere;
+}

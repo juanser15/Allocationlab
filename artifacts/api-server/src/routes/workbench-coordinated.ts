@@ -25,12 +25,10 @@ const service = () => (servicePromise ??= CoordinatedService.open());
 router.use("/workbench/coordinated", (req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
   if (Object.keys(req.query).length) {
-    res
-      .status(400)
-      .json({
-        ...boundaryV2,
-        error: { code: "INVALID_QUERY", message: "Unexpected query fields." },
-      });
+    res.status(400).json({
+      ...boundaryV2,
+      error: { code: "INVALID_QUERY", message: "Unexpected query fields." },
+    });
     return;
   }
   next();
@@ -38,6 +36,24 @@ router.use("/workbench/coordinated", (req, res, next) => {
 router.get("/workbench/coordinated/capabilities", (req, res) => {
   try {
     res.json(coordinatedCapabilities());
+  } catch (e) {
+    safeError(req, res, e);
+  }
+});
+router.post("/workbench/coordinated/dataset-capabilities", (req, res) => {
+  try {
+    if (
+      !req.body ||
+      Object.keys(req.body).some((k) => k !== "dataset_id") ||
+      typeof req.body.dataset_id !== "string"
+    )
+      throw new CalendarContractError(
+        "INVALID_DATASET_ID",
+        "Choose a dataset snapshot.",
+        {},
+        422,
+      );
+    res.json(coordinatedCapabilities(req.body.dataset_id));
   } catch (e) {
     safeError(req, res, e);
   }
@@ -62,7 +78,9 @@ router.get("/workbench/coordinated/data/metadata/:datasetId", (req, res) => {
       res,
       new CalendarContractError(
         "RESEARCH_DATASET_NOT_FOUND",
-        error instanceof Error ? error.message : "Research dataset was not found.",
+        error instanceof Error
+          ? error.message
+          : "Research dataset was not found.",
         {},
         404,
       ),
@@ -85,7 +103,9 @@ router.get("/workbench/coordinated/data/:datasetId.csv", (req, res) => {
       res,
       new CalendarContractError(
         "RESEARCH_DATASET_NOT_FOUND",
-        error instanceof Error ? error.message : "Research dataset was not found.",
+        error instanceof Error
+          ? error.message
+          : "Research dataset was not found.",
         {},
         404,
       ),
@@ -102,7 +122,9 @@ router.post("/workbench/coordinated/data/yahoo", async (req, res) => {
       res,
       new CalendarContractError(
         "YAHOO_DATA_FETCH_FAILED",
-        error instanceof Error ? error.message : "Yahoo Finance data could not be fetched.",
+        error instanceof Error
+          ? error.message
+          : "Yahoo Finance data could not be fetched.",
         {},
         422,
       ),
@@ -126,7 +148,9 @@ router.post("/workbench/coordinated/data/restore", (req, res) => {
       res,
       new CalendarContractError(
         "DATASET_RESTORE_FAILED",
-        error instanceof Error ? error.message : "Saved research dataset could not be restored.",
+        error instanceof Error
+          ? error.message
+          : "Saved research dataset could not be restored.",
         {},
         422,
       ),
@@ -162,7 +186,9 @@ router.post("/workbench/coordinated/data/active", (req, res) => {
         ? error
         : new CalendarContractError(
             "DATASET_ACTIVATION_FAILED",
-            error instanceof Error ? error.message : "Research dataset could not be activated.",
+            error instanceof Error
+              ? error.message
+              : "Research dataset could not be activated.",
             {},
             422,
           ),
