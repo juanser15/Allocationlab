@@ -10,6 +10,7 @@ import {
   type CalendarField,
 } from "./coordinated-execution";
 import { Card, models, names, pct, researchApi } from "./coordinated-ui";
+import { DataUniverse } from "./data-universe";
 import "./coordinated.css";
 
 const initial: CoordinatedRequest = {
@@ -247,41 +248,7 @@ export function CoordinatedWorkbench({
               </div>
             </div>
           )}
-          {module === "Data & Universe" && (
-            <div className="cp-section-body">
-              <Card title="Shared dataset">
-                <p>
-                  {caps
-                    ? `${caps.data_first_observation} → ${caps.data_last_observation}`
-                    : "Loading dataset…"}
-                </p>
-                <p className="cp-note">
-                  Existing adjusted-close snapshot. Data vintage is not
-                  point-in-time certified. Calendar, trading cost and execution
-                  settings are configured separately in Backtesting or in an
-                  optional independent exposure study.
-                </p>
-              </Card>
-              <Card title="Investment universe">
-                <p>
-                  Available ETFs:{" "}
-                  {(caps?.etfs ?? Object.keys(names)).join(" · ")}.
-                </p>
-                <p className="cp-note">
-                  Current eligible portfolio ETFs:{" "}
-                  {draft.etfs.join(" · ") || "None selected"}.
-                </p>
-                <button
-                  onClick={() => {
-                    setPortfolioView("ETF Selection");
-                    navigate("Portfolio Construction");
-                  }}
-                >
-                  Edit ETF Selection →
-                </button>
-              </Card>
-            </div>
-          )}
+                    {module === "Data & Universe" && <DataUniverse />}
           {module === "Signals" && (
             <div className="cp-section-body">
               <nav className="cp-subtabs" aria-label="Signal sections">
