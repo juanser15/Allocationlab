@@ -275,6 +275,73 @@ export function readResearchDatasetCsv(datasetId: string) {
   if (!existsSync(path)) throw new Error("Research dataset was not found.");
   return readFileSync(path, "utf8");
 }
+export function restoreResearchDataset(value: unknown) {
+  const payload = value as {
+    metadata?: unknown;
+    csv?: unknown;
+  };
+  if (!payload || typeof payload !== "object")
+    throw new Error("A research dataset snapshot is required.");
+  if (typeof payload.csv !== "string" || payload.csv.length === 0)
+    throw new Error("Research dataset CSV is required.");
+  const metadata = payload.metadata as ResearchDatasetMetadata;
+  if (
+    !metadata ||
+    typeof metadata !== "object" ||
+    metadata.source !== "YAHOO_FINANCE_RESEARCH" ||
+    !ID_RE.test(String(metadata.dataset_id)) ||
+    !Array.isArray(metadata.tickers) ||
+    !metadata.tickers.length
+  )
+    throw new Error("Research dataset metadata is invalid.");
+
+  const digest = hash(payload.csv);
+  if (digest !== metadata.sha256)
+    throw new Error("Research dataset hash does not match the saved snapshot.");
+
+  const headers = payload.csv
+    .split(/\r?\n/, 1)[0]
+    .split(",")
+    .slice(1)
+    .map((x) => x.trim().replace(/"/g, ""));
+  if (
+    headers.length !== metadata.tickers.length ||
+    headers.some((ticker, i) => ticker !== metadata.tickers[i])
+  )
+    throw new Error("Research dataset ticker columns do not match metadata.");
+
+  const expectedId =
+    "yf_" +
+    hash(
+      JSON.stringify({
+        tickers: metadata.tickers,
+        start: metadata.requested_start,
+        end: metadata.requested_end,
+        digest,
+        price_field: "adjusted_close",
+      }),
+    );
+  if (expectedId !== metadata.dataset_id)
+    throw new Error("Research dataset identity does not reconcile.");
+
+  const rows = parseCsv(payload.csv);
+  if (!rows.length)
+    throw new Error("Research dataset contains no usable observations.");
+  if (
+    rows[0].date !== metadata.first_observation ||
+    rows.at(-1)!.date !== metadata.last_observation
+  )
+    throw new Error("Research dataset coverage does not match metadata.");
+
+  ensureDir();
+  writeFileSync(csvPath(metadata.dataset_id), payload.csv, "utf8");
+  writeFileSync(
+    metaPath(metadata.dataset_id),
+    JSON.stringify(metadata, null, 2),
+    "utf8",
+  );
+  return metadata;
+}
 export function activateResearchDataset(datasetId: string) {
   const meta = readResearchDataset(datasetId);
   if (!meta.activation_eligible)
