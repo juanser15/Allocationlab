@@ -17,6 +17,7 @@ import {
   readResearchDataset,
   readResearchDatasetCsv,
   requiredResearchSymbols,
+  restoreResearchDataset,
 } from "../lib/workbench/research-datasets";
 const router = Router();
 let servicePromise: Promise<CoordinatedService> | undefined;
@@ -108,6 +109,31 @@ router.post("/workbench/coordinated/data/yahoo", async (req, res) => {
     );
   }
 });
+router.post("/workbench/coordinated/data/restore", (req, res) => {
+  try {
+    const restored = restoreResearchDataset(req.body);
+    const active = restored.activation_eligible
+      ? activateResearchDataset(restored.dataset_id)
+      : activeResearchDatasetStatus();
+    res.json({
+      ...boundaryV2,
+      dataset: restored,
+      active_dataset: active,
+    });
+  } catch (error) {
+    safeError(
+      req,
+      res,
+      new CalendarContractError(
+        "DATASET_RESTORE_FAILED",
+        error instanceof Error ? error.message : "Saved research dataset could not be restored.",
+        {},
+        422,
+      ),
+    );
+  }
+});
+
 router.post("/workbench/coordinated/data/active", (req, res) => {
   try {
     if (
