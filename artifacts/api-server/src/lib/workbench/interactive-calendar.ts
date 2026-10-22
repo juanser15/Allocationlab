@@ -54,7 +54,7 @@ export function interactiveCodeVersion(data=preparedDataset()){
  return sha256(canonicalJson({certified:data.code_version,files:Object.fromEntries([
  "research/workbench/interactive-ledger.ts","research/workbench/interactive-candidates.ts","research/workbench/interactive-engine.ts","research/workbench/turnover-selection.ts",
  "artifacts/api-server/src/lib/workbench/interactive-calendar.ts","artifacts/api-server/src/lib/workbench/interactive-risk.ts",
- "artifacts/api-server/src/lib/workbench/interactive-service.ts","artifacts/api-server/src/workbench-interactive-worker.ts",
+ "artifacts/api-server/src/lib/workbench/interactive-service.ts","artifacts/api-server/src/lib/workbench/research-datasets.ts","artifacts/api-server/src/workbench-interactive-worker.ts",
  "artifacts/api-server/src/lib/workbench/exposure-controls.ts",
  "artifacts/api-server/src/lib/allocation-core/risk-analytics/analytics.ts","artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics.ts",
  "artifacts/api-server/src/lib/allocation-core/risk-analytics/estimators.ts","artifacts/api-server/src/lib/allocation-core/validation.ts","artifacts/api-server/src/lib/allocation-core/contracts.ts",
