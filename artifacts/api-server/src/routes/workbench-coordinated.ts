@@ -49,7 +49,7 @@ router.get("/workbench/coordinated/data", (_req, res) => {
     required_research_symbols: requiredResearchSymbols(),
   });
 });
-router.get("/workbench/coordinated/data/:datasetId", (req, res) => {
+router.get("/workbench/coordinated/data/metadata/:datasetId", (req, res) => {
   try {
     res.json({
       ...boundaryV2,
