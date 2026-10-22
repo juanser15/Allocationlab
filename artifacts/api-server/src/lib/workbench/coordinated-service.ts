@@ -13,7 +13,7 @@ import {
   COORDINATED_SPEC,
   requestFromSpec,
   type CoordinatedSpec,
-  type CoordinatedRequest,
+  type ResearchSubmission,
 } from "./coordinated-calendar";
 import { boundaryV2, CalendarContractError } from "./calendar-v2";
 // The financial engine lives outside the API package, using its existing typed
@@ -78,7 +78,7 @@ export class CoordinatedService {
       return this.start(id, spec, "RERUN");
     });
   }
-  private request(spec: CoordinatedSpec): CoordinatedRequest {
+  private request(spec: CoordinatedSpec): ResearchSubmission {
     return requestFromSpec(spec);
   }
   private async start(

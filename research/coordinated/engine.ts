@@ -4,6 +4,7 @@ import {
   defaultBacktestConfig,
   type PriceRow,
   type EnrichedRegimeScores,
+  type BacktestLedgerEntry,
 } from "../../artifacts/api-server/src/lib/calculator";
 import { runScheduledLedger } from "../workbench/interactive-ledger";
 import { summarize } from "../capital/metrics";
@@ -15,6 +16,43 @@ import {
 } from "../../artifacts/api-server/src/lib/workbench/coordinated-calendar";
 import type { DatasetV2 } from "../../artifacts/api-server/src/lib/workbench/calendar-v2";
 import { fitGaussianHMM, moments, optimize, ResearchError } from "./models";
+import { isCapitalStudy } from "../../artifacts/api-server/src/lib/workbench/coordinated-contract";
+
+function ledgerPoints(ledger: BacktestLedgerEntry[], costBps: number) {
+  let high = 100;
+  return ledger.map((day) => {
+    const gross = day.trades.reduce((s, t) => s + Math.abs(t.notional), 0);
+    assert.ok(
+      Math.abs(
+        day.beginningNav +
+          day.etfPnl +
+          day.cashPnl -
+          day.transactionCosts -
+          day.endingNav,
+      ) < 1e-8,
+    );
+    assert.ok(
+      Math.abs(day.transactionCosts - (gross * costBps) / 10000) < 1e-8,
+    );
+    high = Math.max(high, day.endingNav);
+    return {
+      date: day.date,
+      index: day.endingNav,
+      drawdown: day.endingNav / high - 1,
+      net_return: day.netPnl / day.beginningNav,
+      exposure: 1 - day.endingCash / day.endingNav,
+      cash_allocation: day.endingCash / day.endingNav,
+      turnover: gross / (day.beginningNav + day.etfPnl),
+      costs: day.transactionCosts,
+      weights: Object.fromEntries(
+        day.endingPositions.map((p) => [
+          p.ticker,
+          p.marketValue / day.endingNav,
+        ]),
+      ),
+    };
+  });
+}
 
 export function classify(
   model: string,
@@ -67,6 +105,8 @@ export function runCoordinated(
     request = requestFromSpec(spec),
     plan = planCoordinated(request, data),
     decisions: any[] = [];
+  const study = isCapitalStudy(request),
+    etfs = study ? ["SPY"] : request.etfs;
   let completed = 0;
   const progress = (stage: string) => {
     completed++;
@@ -101,7 +141,7 @@ export function runCoordinated(
   };
   const result = runScheduledLedger(
     data.rows.filter((r) => r.date < request.evaluation_end_exclusive),
-    request.etfs.map((ticker) => ({
+    etfs.map((ticker) => ({
       ticker,
       name: ticker,
       sector: "Selected ETF",
@@ -114,7 +154,7 @@ export function runCoordinated(
       maxEtfWeight: 1,
       minEtfWeight: 0,
       minInclusionThreshold: 0,
-      targetActiveEtfs: request.etfs.length,
+      targetActiveEtfs: etfs.length,
       diversificationEnabled: false,
     },
     {
@@ -163,23 +203,43 @@ export function runCoordinated(
           ? request.risk_budget * multiplier
           : null;
       const estimates = moments(
-        training.map((r) => request.etfs.map((t) => r.prices[t])),
-        request.covariance_shrinkage,
+        training.map((r) => etfs.map((t) => r.prices[t])),
+        study ? 1 : request.covariance_shrinkage,
       );
       const last = available.at(-1)!;
-      const prior = request.etfs.map(
+      const prior = etfs.map(
         (t) => ((ctx!.quantities[t] ?? 0) * last.prices[t]) / ctx!.nav,
       );
-      const solution = optimize(estimates.mean, estimates.covariance, prior, {
-        cap,
-        maxWeight: request.maximum_etf_weight,
-        riskAversion: request.risk_aversion,
-        cost: request.transaction_cost_bps / 10000,
-        horizon: request.rebalance_frequency === "MONTHLY" ? 1 / 12 : 1 / 4,
-        volatility: budget,
-      });
+      let solution: ReturnType<typeof optimize>;
+      if (study) {
+        const spyVolatility = Math.sqrt(estimates.covariance[0][0]);
+        if (!Number.isFinite(spyVolatility) || spyVolatility <= 0)
+          throw new ResearchError(
+            "OPTIMIZATION_INVALID_RISK",
+            "SPY volatility is undefined in the selected study window.",
+          );
+        const exposure =
+          budget === null ? cap : Math.min(1, budget / spyVolatility);
+        solution = {
+          weights: [exposure],
+          cash: 1 - exposure,
+          exposure,
+          volatility: exposure * spyVolatility,
+          residual: 0,
+          iterations: 0,
+          risk_multiplier: 0,
+        };
+      } else
+        solution = optimize(estimates.mean, estimates.covariance, prior, {
+          cap,
+          maxWeight: request.maximum_etf_weight,
+          riskAversion: request.risk_aversion,
+          cost: request.transaction_cost_bps / 10000,
+          horizon: request.rebalance_frequency === "MONTHLY" ? 1 / 12 : 1 / 4,
+          volatility: budget,
+        });
       const weights = Object.fromEntries(
-        request.etfs.map((t, i) => [t, solution.weights[i]]),
+        etfs.map((t, i) => [t, solution.weights[i]]),
       );
       decisions.push({
         ...fold,
@@ -192,22 +252,29 @@ export function runCoordinated(
         weights,
         cash: solution.cash,
         estimated_volatility: solution.volatility,
-        optimizer: {
-          residual: solution.residual,
-          iterations: solution.iterations,
-          risk_multiplier: solution.risk_multiplier,
-        },
+        decision_method: study
+          ? "CAPITAL_POLICY_SPY_CASH"
+          : "PORTFOLIO_OPTIMIZATION",
+        optimizer: study
+          ? null
+          : {
+              residual: solution.residual,
+              iterations: solution.iterations,
+              risk_multiplier: solution.risk_multiplier,
+            },
         estimates,
-        prior_weights: Object.fromEntries(
-          request.etfs.map((t, i) => [t, prior[i]]),
-        ),
+        prior_weights: Object.fromEntries(etfs.map((t, i) => [t, prior[i]])),
       });
       display = {
         ...display,
         label: request.regime_model,
         composite: (1 - defensive!) * 100,
       };
-      progress("Classifying regime and optimizing portfolio");
+      progress(
+        study
+          ? "Applying SPY/cash capital policy"
+          : "Classifying regime and optimizing portfolio",
+      );
       return weights;
     },
     {
@@ -232,49 +299,92 @@ export function runCoordinated(
       d.date >= request.evaluation_start &&
       d.date < request.evaluation_end_exclusive,
   );
-  let high = 100;
-  const points = ledger.map((day) => {
-    const gross = day.trades.reduce((s, t) => s + Math.abs(t.notional), 0);
-    assert.ok(
-      Math.abs(
-        day.beginningNav +
-          day.etfPnl +
-          day.cashPnl -
-          day.transactionCosts -
-          day.endingNav,
-      ) < 1e-8,
-    );
-    assert.ok(
-      Math.abs(
-        day.transactionCosts - (gross * request.transaction_cost_bps) / 10000,
-      ) < 1e-8,
-    );
-    high = Math.max(high, day.endingNav);
-    return {
-      date: day.date,
-      index: day.endingNav,
-      drawdown: day.endingNav / high - 1,
-      net_return: day.netPnl / day.beginningNav,
-      exposure: 1 - day.endingCash / day.endingNav,
-      cash_allocation: day.endingCash / day.endingNav,
-      turnover: gross / (day.beginningNav + day.etfPnl),
-      costs: day.transactionCosts,
-      weights: Object.fromEntries(
-        day.endingPositions.map((p) => [
-          p.ticker,
-          p.marketValue / day.endingNav,
-        ]),
-      ),
-    };
-  });
+  const points = ledgerPoints(ledger, request.transaction_cost_bps);
   const metrics = summarize(points, 0),
     financial = { metrics, points, decisions };
-  progress("Publishing portfolio results");
+  let benchmark: any = undefined;
+  if (study) {
+    const passive = runScheduledLedger(
+      data.rows.filter((r) => r.date < request.evaluation_end_exclusive),
+      [
+        {
+          ticker: "SPY",
+          name: "SPY",
+          sector: "Passive benchmark",
+          enabled: true,
+          priorWeight: 0,
+        },
+      ],
+      {
+        cashMin: 0,
+        cashMax: 1,
+        maxEtfWeight: 1,
+        minEtfWeight: 0,
+        minInclusionThreshold: 0,
+        targetActiveEtfs: 1,
+        diversificationEnabled: false,
+      },
+      {
+        ...defaultBacktestConfig(),
+        startDate: request.evaluation_start,
+        executionTiming: "next_close",
+        transactionCostBps: request.transaction_cost_bps,
+        slippageBps: 0,
+        maxTurnoverPerRebalance: 1,
+        cashYieldAnnual: 0,
+      },
+      null,
+      undefined,
+      () => ({ SPY: 1 }),
+      {
+        initialNav: 100,
+        initialCash: 100,
+        initialHoldings: {},
+        dailyCashYield: 0,
+        allowShortPositions: false,
+        d5GrossTradeCosts: true,
+      },
+      [plan.folds[0].decision_date],
+      () => display,
+    );
+    if (!passive.hasSufficientData)
+      throw new ResearchError(
+        "EXECUTION_ACCOUNTING_FAILURE",
+        "Passive SPY benchmark could not be calculated.",
+        { reason: passive.insufficientReason },
+      );
+    const passiveLedger = passive.dailyLedger.filter(
+        (d) =>
+          d.date >= request.evaluation_start &&
+          d.date < request.evaluation_end_exclusive,
+      ),
+      passivePoints = ledgerPoints(passiveLedger, request.transaction_cost_bps);
+    assert.deepEqual(
+      passivePoints.map((p) => p.date),
+      points.map((p) => p.date),
+    );
+    benchmark = {
+      label: "Passive SPY",
+      methodology: "BUY_ONCE_SAME_FIRST_NEXT_CLOSE_AND_COSTS",
+      metrics: summarize(passivePoints, 0),
+      points: passivePoints,
+      ledger: passiveLedger,
+    };
+  }
+  progress(
+    study
+      ? "Publishing exposure study and SPY benchmark"
+      : "Publishing portfolio results",
+  );
   return {
     status: "SUCCESS",
     plan,
     ...financial,
-    financial_result_hash: hash(financial),
+    research_scope: study ? "CAPITAL_EXPOSURE" : "PORTFOLIO",
+    ...(benchmark ? { benchmark } : {}),
+    financial_result_hash: hash(
+      benchmark ? { ...financial, benchmark } : financial,
+    ),
     warnings: plan.warnings,
     accounting: {
       initial_nav: 100,
@@ -283,7 +393,9 @@ export function runCoordinated(
       continuous_holdings: true,
       cash_yield: 0,
       cost_basis: "ABSOLUTE_TRADED_NOTIONAL",
-      constraint_scope: "DECISION_TARGETS_ALL_SELECTED_ETFS",
+      constraint_scope: study
+        ? "DECISION_TARGETS_SPY_CASH"
+        : "DECISION_TARGETS_ALL_SELECTED_ETFS",
       execution: "NEXT_OBSERVED_CLOSE",
     },
     execution_profile: { elapsed_ms: performance.now() - started },

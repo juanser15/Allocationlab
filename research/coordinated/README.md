@@ -7,6 +7,29 @@ The result is one continuous long-only ETF/cash ledger. The original SPY/cash
 model, candidate selection, independent-fold methodology and UI remain available
 through **Baseline reference**, with their original contract and identities.
 
+## Section ownership and independent capital research
+
+Data & Universe, Signals, Capital Exposure and Portfolio Construction own their
+configuration controls. Full-portfolio execution, calendar, progress, results,
+history and audit belong to **Backtesting**. They are not repeated in the
+configuration sections. ETF Selection remains inside Portfolio Construction.
+
+Capital Exposure has an explicit, optional **Independent study · SPY/cash** view.
+It snapshots the chosen capital policy and has its own calendar, execution state,
+results and history. `research_scope: CAPITAL_EXPOSURE` requests exclude all ETF
+selection and optimizer fields. Portfolio requests use `research_scope: PORTFOLIO`
+(the default for older stored requests). Scope is part of immutable run identity.
+
+An independent study does not call the portfolio optimizer. In exposure mode it
+invests the regime-adjusted allowed exposure directly in SPY and holds the rest
+in cash. In risk mode SPY weight is `min(1, adjusted_budget / estimated_SPY_vol)`.
+The scalar volatility estimate uses the selected training window. Passive SPY
+starts in cash, buys once at the same first next-close fill, incurs the same
+transaction cost rate and then holds. Both books use zero cash yield and the same
+observation dates. They have separate self-financing ledgers and cost totals.
+Study results are never presented as full-portfolio backtests or mixed into their
+history. A background completion updates only its own execution workspace.
+
 ## Explicit scope
 
 - Exposure mode: sum of all selected ETF weights is at most the exposure ceiling.

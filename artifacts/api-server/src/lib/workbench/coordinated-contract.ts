@@ -10,6 +10,7 @@ export const ETF_UNIVERSE = [
   "VNQ",
 ] as const;
 export interface CoordinatedRequest {
+  research_scope?: "PORTFOLIO";
   contract_version: typeof COORDINATED_SPEC;
   evaluation_start: string;
   evaluation_end_exclusive: string;
@@ -28,3 +29,20 @@ export interface CoordinatedRequest {
   risk_aversion: number;
   covariance_shrinkage: number;
 }
+export const PORTFOLIO_FIELDS = [
+  "etfs",
+  "maximum_etf_weight",
+  "risk_aversion",
+  "covariance_shrinkage",
+] as const;
+export type CapitalStudyRequest = Omit<
+  CoordinatedRequest,
+  (typeof PORTFOLIO_FIELDS)[number] | "research_scope"
+> & {
+  research_scope: "CAPITAL_EXPOSURE";
+};
+export type ResearchSubmission = CoordinatedRequest | CapitalStudyRequest;
+export const isCapitalStudy = (
+  request: ResearchSubmission,
+): request is CapitalStudyRequest =>
+  request.research_scope === "CAPITAL_EXPOSURE";

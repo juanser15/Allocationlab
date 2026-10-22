@@ -71,10 +71,49 @@ assert.notEqual(
   first.latest_result.execution_attempt_id,
 );
 assert.ok((await api("/runs")).runs.some((r) => r.run_id === submitted.run_id));
+assert.equal(first.spec.research_scope, "PORTFOLIO");
+assert.equal(first.latest_result.research_scope, "PORTFOLIO");
+assert.equal(first.latest_result.benchmark, undefined);
+const {
+  etfs,
+  maximum_etf_weight,
+  risk_aversion,
+  covariance_shrinkage,
+  ...shared
+} = request;
+const studyRequest = { ...shared, research_scope: "CAPITAL_EXPOSURE" };
+const studyReceipt = await api("/runs", studyRequest),
+  study = await complete(studyReceipt.run_id);
+assert.notEqual(study.run_id, first.run_id);
+assert.equal(study.spec.research_scope, "CAPITAL_EXPOSURE");
+assert.ok(!Object.hasOwn(study.spec, "etfs"));
+assert.equal(study.latest_result.research_scope, "CAPITAL_EXPOSURE");
+assert.ok(
+  study.latest_result.decisions.every(
+    (d) => d.optimizer === null && Object.keys(d.weights).join() === "SPY",
+  ),
+);
+assert.deepEqual(
+  study.latest_result.points.map((p) => p.date),
+  study.latest_result.benchmark.points.map((p) => p.date),
+);
+const listed = (await api("/runs")).runs;
+assert.ok(
+  listed.some(
+    (r) =>
+      r.run_id === study.run_id && r.spec.research_scope === "CAPITAL_EXPOSURE",
+  ),
+);
+assert.ok(
+  listed.some(
+    (r) => r.run_id === first.run_id && r.spec.research_scope === "PORTFOLIO",
+  ),
+);
 console.log(
   JSON.stringify({
     status: "PASS",
     run_id: submitted.run_id,
+    study_run_id: study.run_id,
     attempts: second.attempt_history.length,
     decisions: 6,
     financial_result_hash: second.latest_result.financial_result_hash,

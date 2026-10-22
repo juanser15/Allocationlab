@@ -9,7 +9,9 @@ import {
   coordinatedRunId,
   preparedDataset,
   type CoordinatedRequest,
+  parseCoordinated,
 } from "../../artifacts/api-server/src/lib/workbench/coordinated-calendar";
+import type { CapitalStudyRequest } from "../../artifacts/api-server/src/lib/workbench/coordinated-contract";
 const request: CoordinatedRequest = {
   contract_version: COORDINATED_SPEC,
   evaluation_start: "2024-01-21",
@@ -29,6 +31,127 @@ const request: CoordinatedRequest = {
   risk_aversion: 5,
   covariance_shrinkage: 0.2,
 };
+function studyDesign(
+  change: Partial<CapitalStudyRequest> = {},
+): CapitalStudyRequest {
+  const {
+    etfs,
+    maximum_etf_weight,
+    risk_aversion,
+    covariance_shrinkage,
+    research_scope,
+    ...shared
+  } = request;
+  return {
+    ...shared,
+    research_scope: "CAPITAL_EXPOSURE",
+    training_window_months: 6,
+    ...change,
+  };
+}
+test("Capital studies have a distinct identity and reject portfolio optimizer inputs", () => {
+  const study = studyDesign(),
+    normalized = normalizeCoordinated(study);
+  assert.equal(normalized.research_scope, "CAPITAL_EXPOSURE");
+  assert.equal(normalized.methodology.optimizer, "NONE_CAPITAL_POLICY_ONLY");
+  assert.ok(!Object.hasOwn(normalized, "etfs"));
+  assert.notEqual(
+    coordinatedRunId(normalized),
+    coordinatedRunId(
+      normalizeCoordinated({ ...request, training_window_months: 6 }),
+    ),
+  );
+  for (const field of [
+    { etfs: ["SPY"] },
+    { risk_aversion: 5 },
+    { maximum_etf_weight: 0.4 },
+    { covariance_shrinkage: 0.2 },
+  ])
+    assert.throws(
+      () => parseCoordinated({ ...study, ...field }),
+      /only the capital policy/,
+    );
+  assert.throws(() =>
+    parseCoordinated({ ...study, research_scope: "UNKNOWN" }),
+  );
+});
+test("Independent exposure policy directly sets SPY/cash weights and uses a same-calendar passive benchmark", () => {
+  const data = preparedDataset(),
+    result = runCoordinated(normalizeCoordinated(studyDesign(), data), data);
+  assert.equal(result.research_scope, "CAPITAL_EXPOSURE");
+  assert.deepEqual(
+    result.points.map((p) => p.date),
+    result.benchmark.points.map((p: any) => p.date),
+  );
+  assert.equal(
+    result.ledger.find((d) => d.trades.length)!.date,
+    result.benchmark.ledger.find((d: any) => d.trades.length).date,
+  );
+  assert.equal(
+    result.benchmark.ledger.filter((d: any) => d.trades.length).length,
+    1,
+  );
+  for (const decision of result.decisions) {
+    assert.deepEqual(Object.keys(decision.weights), ["SPY"]);
+    assert.equal(decision.weights.SPY, decision.maximum_exposure);
+    assert.equal(decision.cash, 1 - decision.maximum_exposure);
+    assert.equal(decision.optimizer, null);
+    assert.equal(decision.decision_method, "CAPITAL_POLICY_SPY_CASH");
+  }
+  for (const day of result.benchmark.ledger)
+    assert.ok(
+      Math.abs(
+        day.transactionCosts -
+          day.trades.reduce(
+            (s: number, t: any) => s + Math.abs(t.notional),
+            0,
+          ) *
+            0.001,
+      ) < 1e-8,
+    );
+});
+test("Independent risk budget maps to SPY exposure without mean-variance optimization", () => {
+  const data = preparedDataset(),
+    result = runCoordinated(
+      normalizeCoordinated(studyDesign({ control_mode: "RISK_BUDGET" }), data),
+      data,
+    );
+  for (const d of result.decisions) {
+    const expected = Math.min(
+      1,
+      d.risk_budget / Math.sqrt(d.estimates.covariance[0][0]),
+    );
+    assert.ok(Math.abs(d.weights.SPY - expected) < 1e-12);
+    assert.ok(d.estimated_volatility <= d.risk_budget + 1e-8);
+    assert.equal(d.optimizer, null);
+  }
+});
+test("Fixed 100% SPY study reconciles to passive SPY; zero exposure stays in cash", () => {
+  const data = preparedDataset();
+  const invested = runCoordinated(
+    normalizeCoordinated(
+      studyDesign({ regime_response: "FIXED", maximum_exposure: 1 }),
+      data,
+    ),
+    data,
+  );
+  assert.ok(
+    Math.abs(
+      invested.metrics.final_index - invested.benchmark.metrics.final_index,
+    ) < 1e-8,
+  );
+  const cash = runCoordinated(
+    normalizeCoordinated(
+      studyDesign({ regime_response: "FIXED", maximum_exposure: 0 }),
+      data,
+    ),
+    data,
+  );
+  assert.equal(cash.metrics.final_index, 100);
+  assert.equal(cash.metrics.costs, 0);
+  assert.ok(cash.points.every((p) => p.exposure === 0));
+  assert.ok(cash.benchmark.metrics.costs > 0);
+});
 test("Forward filtering matches exhaustive hidden-path enumeration", () => {
   const x = [0.2, -0.5, 0.8],
     m = [-0.3, 0.5],
