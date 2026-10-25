@@ -2,6 +2,7 @@ import { Router } from "express";
 import { CoordinatedService } from "../lib/workbench/coordinated-service";
 import {
   coordinatedCapabilities,
+  deriveExperimentBounds,
   planCoordinated,
 } from "../lib/workbench/coordinated-calendar";
 import {
@@ -193,6 +194,14 @@ router.post("/workbench/coordinated/data/active", (req, res) => {
             422,
           ),
     );
+  }
+});
+
+router.post("/workbench/coordinated/bounds", (req, res) => {
+  try {
+    res.json(deriveExperimentBounds(req.body));
+  } catch (e) {
+    safeError(req, res, e);
   }
 });
 
