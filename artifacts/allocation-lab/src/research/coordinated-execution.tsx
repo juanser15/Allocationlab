@@ -60,6 +60,7 @@ export function ExecutionWorkspace({
     [run, setRun] = useState<any>(null),
     [runs, setRuns] = useState<any[]>([]),
     [plan, setPlan] = useState<any>(null),
+    [bounds, setBounds] = useState<any>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   useEffect(() => {
@@ -110,19 +111,71 @@ export function ExecutionWorkspace({
         .toISOString()
         .slice(0, 10)
     : undefined;
-  const requestedTrainingStart =
-    draft.evaluation_start && Number.isFinite(draft.training_window_months)
-      ? shiftMonths(draft.evaluation_start, -draft.training_window_months)
-      : "";
-  const trainingBeforeData =
-    !!requestedTrainingStart &&
-    !!caps?.data_first_observation &&
-    requestedTrainingStart < caps.data_first_observation;
+
+  useEffect(() => {
+    if (!visible || !caps) return;
+    let cancelled = false;
+    const seedStart = draft.evaluation_start || caps.data_first_observation;
+    const seedEnd = draft.evaluation_end_exclusive || maxEnd;
+    if (!seedStart || !seedEnd) return;
+    void researchApi("/bounds", {
+      ...draft,
+      research_scope: scope,
+      evaluation_start: seedStart,
+      evaluation_end_exclusive: seedEnd,
+    })
+      .then((next) => {
+        if (cancelled) return;
+        setBounds(next);
+        if (
+          !draft.evaluation_start ||
+          draft.evaluation_start < next.earliest_supported_evaluation_start
+        )
+          onChange(
+            "evaluation_start",
+            next.earliest_supported_evaluation_start,
+          );
+        if (
+          !draft.evaluation_end_exclusive ||
+          draft.evaluation_end_exclusive >
+            next.latest_supported_evaluation_end_exclusive
+        )
+          onChange(
+            "evaluation_end_exclusive",
+            next.latest_supported_evaluation_end_exclusive,
+          );
+      })
+      .catch((e) => {
+        if (!cancelled) setError((e as Error).message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    visible,
+    caps?.dataset_id,
+    caps?.data_first_observation,
+    caps?.data_last_observation,
+    draft.dataset_id,
+    draft.training_window_months,
+    draft.regime_model,
+    "forecast" in draft ? draft.forecast : null,
+    "etfs" in draft ? draft.etfs.join("|") : "SPY",
+  ]);
   async function check() {
     setError("");
     try {
       const p = await researchApi("/plan", { ...draft, research_scope: scope });
       setPlan(p);
+      setBounds(p.experiment_bounds ?? bounds);
+      if (
+        p.normalized_request?.evaluation_start &&
+        p.normalized_request.evaluation_start !== draft.evaluation_start
+      )
+        onChange(
+          "evaluation_start",
+          p.normalized_request.evaluation_start,
+        );
       return p;
     } catch (e) {
       setError((e as Error).message);
@@ -138,12 +191,19 @@ export function ExecutionWorkspace({
   async function execute() {
     setBusy(true);
     try {
-      if (!(await check())) {
+      const checked = await check();
+      if (!checked) {
         setBusy(false);
         return;
       }
       const receipt = await researchApi("/runs", {
         ...draft,
+        evaluation_start:
+          checked.normalized_request?.evaluation_start ??
+          draft.evaluation_start,
+        evaluation_end_exclusive:
+          checked.normalized_request?.evaluation_end_exclusive ??
+          draft.evaluation_end_exclusive,
         research_scope: scope,
       });
       setRun(null);
@@ -209,9 +269,10 @@ export function ExecutionWorkspace({
           >
             <div className="cp-fields">
               <label>
-                From
+                First OOS date
                 <input
                   type="date"
+                  min={bounds?.earliest_supported_evaluation_start}
                   value={draft.evaluation_start}
                   onInput={(e) =>
                     onChange("evaluation_start", e.currentTarget.value)
@@ -306,27 +367,19 @@ export function ExecutionWorkspace({
                     : "Internal snapshot"}
                 </strong>
                 <small>
-                  Available {caps.data_first_observation} →{" "}
+                  Dataset {caps.data_first_observation} →{" "}
                   {caps.data_last_observation}
-                  {requestedTrainingStart
-                    ? ` · this design trains from ${requestedTrainingStart}`
+                  {bounds?.earliest_supported_evaluation_start
+                    ? ` · earliest OOS for this experiment: ${bounds.earliest_supported_evaluation_start}`
                     : ""}
                 </small>
               </div>
             )}
-            {trainingBeforeData && (
-              <div className="cp-error" role="alert">
-                This setup needs training history from {requestedTrainingStart},
-                but the active dataset begins on {caps.data_first_observation}.
-                Move From later, shorten the training window, or load earlier
-                data.
-              </div>
-            )}
             <p className="cp-note">
-              Your training window is used as entered, without a statistical
-              sample minimum or automatic extension. Information stops before
-              each decision; fills occur at the next observed close. Cash yield:
-              0%.
+              The dataset is fixed first. Training windows and causal model
+              lookbacks consume earlier observations, so the first OOS date is
+              derived automatically. You may choose a later start, but not an
+              earlier one. Nothing is imputed or extended.
             </p>
             <div className="cp-actions">
               <button disabled={busy || !caps} onClick={() => void check()}>
@@ -346,8 +399,9 @@ export function ExecutionWorkspace({
             </div>
             {plan && (
               <p className="cp-valid">
-                Design checked · {plan.number_of_folds} decisions · training
-                window {plan.normalized_request.training_window_months} months.
+                Design checked · OOS starts {plan.effective_evaluation_start} ·{" "}
+                {plan.number_of_folds} decisions · training window{" "}
+                {plan.normalized_request.training_window_months} months.
               </p>
             )}
           </Card>
