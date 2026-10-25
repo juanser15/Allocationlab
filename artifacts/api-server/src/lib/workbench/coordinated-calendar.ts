@@ -5,6 +5,8 @@ import {
   preparedDataset,
   INTERACTIVE_SPEC,
   interactiveCodeVersion,
+  anchoredMonth,
+  lowerBound,
 } from "./interactive-calendar";
 import { RECURRING_V2 } from "./turnover-product";
 import { CalendarContractError, sha256, boundaryV2 } from "./calendar-v2";
@@ -243,11 +245,102 @@ export function requestFromSpec(spec: CoordinatedSpec) {
     ),
   );
 }
-export function planCoordinated(
+
+function regimeLookbackSessions(model: ResearchSubmission["regime_model"]) {
+  return model === "TREND_VOL" ? 253 : model === "TREND" ? 200 : model === "CURRENT" ? 10 : 0;
+}
+function forecastLookbackSessions(request: ResearchSubmission) {
+  if (isCapitalStudy(request)) return 0;
+  const forecast = request.forecast ?? DEFAULT_FORECAST;
+  if (forecast.model === "HISTORICAL_MEAN") return 0;
+  const enabled = forecast.signals.filter((s) => s.enabled);
+  const signalLookback = enabled.length
+    ? Math.max(...enabled.map((s) => s.lookback_sessions + s.skip_sessions + 1))
+    : 0;
+  if (forecast.model === "MANUAL_SCORE") return signalLookback;
+  return signalLookback + forecast.training_sessions + forecast.horizon_sessions + 2;
+}
+export function deriveExperimentBounds(
   value: unknown,
   data = loadCoordinatedDataset((value as ResearchSubmission)?.dataset_id),
 ) {
   const request = parseCoordinated(value);
+  const rows = data.rows;
+  if (!rows.length)
+    throw new CalendarContractError("EMPTY_DATASET", "The selected dataset contains no observations.", {}, 422);
+
+  const requiredSymbols = [
+    ...new Set(["SPY", ...(isCapitalStudy(request) ? [] : request.etfs)]),
+  ];
+  let commonStartIndex = 0;
+  for (const ticker of requiredSymbols) {
+    const index = rows.findIndex(
+      (row) => Number.isFinite(row.prices[ticker]) && row.prices[ticker] > 0,
+    );
+    if (index < 0)
+      throw new CalendarContractError(
+        "DATASET_SYMBOL_MISSING",
+        `The selected dataset does not contain required symbol ${ticker}.`,
+        { ticker },
+        422,
+      );
+    commonStartIndex = Math.max(commonStartIndex, index);
+  }
+
+  const commonStart = rows[commonStartIndex].date;
+  const trainingBoundary = anchoredMonth(commonStart, request.training_window_months);
+  const trainingIndex = lowerBound(rows, trainingBoundary);
+  const causalSessions = Math.max(
+    regimeLookbackSessions(request.regime_model),
+    forecastLookbackSessions(request),
+  );
+  const causalIndex = Math.min(rows.length - 1, commonStartIndex + causalSessions);
+  const earliestIndex = Math.max(trainingIndex, causalIndex);
+  const earliest = rows[earliestIndex]?.date;
+  if (!earliest)
+    throw new CalendarContractError(
+      "INSUFFICIENT_DATA_FOR_EXPERIMENT",
+      "The selected dataset ends before the requested experiment can begin.",
+      { common_data_start: commonStart, training_window_months: request.training_window_months, causal_sessions: causalSessions },
+      422,
+    );
+
+  const last = rows.at(-1)!.date;
+  const latestEndExclusive = new Date(Date.parse(last) + 86400000)
+    .toISOString()
+    .slice(0, 10);
+
+  return {
+    ...boundaryV2,
+    dataset_id: (data.snapshot as any).dataset_id ?? "internal",
+    dataset_start: data.snapshot.data_first_observation,
+    dataset_end: data.snapshot.data_last_observation,
+    common_required_data_start: commonStart,
+    earliest_supported_evaluation_start: earliest,
+    latest_supported_evaluation_end_exclusive: latestEndExclusive,
+    training_window_months: request.training_window_months,
+    regime_lookback_sessions: regimeLookbackSessions(request.regime_model),
+    forecast_lookback_sessions: forecastLookbackSessions(request),
+    effective_causal_lookback_sessions: causalSessions,
+    required_symbols: requiredSymbols,
+    rule:
+      "DATASET_FIRST_THEN_EXPERIMENT_CONSUMES_HISTORY_V1",
+  };
+}
+
+export function planCoordinated(
+  value: unknown,
+  data = loadCoordinatedDataset((value as ResearchSubmission)?.dataset_id),
+) {
+  const requested = parseCoordinated(value);
+  const bounds = deriveExperimentBounds(requested, data);
+  const request =
+    requested.evaluation_start < bounds.earliest_supported_evaluation_start
+      ? {
+          ...requested,
+          evaluation_start: bounds.earliest_supported_evaluation_start,
+        }
+      : requested;
   const symbols = ["SPY"];
   // No warmup before training is imposed. Fixed-lookback classifiers instead
   // validate their actual feature history through each decision cutoff.
@@ -324,6 +417,9 @@ export function planCoordinated(
   return {
     ...base,
     normalized_request: request,
+    requested_evaluation_start: requested.evaluation_start,
+    effective_evaluation_start: request.evaluation_start,
+    experiment_bounds: bounds,
     total_work_units: base.folds.length + 2,
     estimated_jobs: base.folds.length + 2,
     warnings: [
@@ -331,6 +427,11 @@ export function planCoordinated(
       "One continuous long-only portfolio; zero cash yield; next observed close fills. Constraints apply to decision targets, not intraperiod drift.",
       "Risk budget is an estimated annualized volatility ceiling, not a guaranteed loss limit.",
       "Forecast horizon and return units are recorded per decision. Daily covariance uses linear horizon scaling; no point-in-time vintage certification.",
+      ...(requested.evaluation_start !== request.evaluation_start
+        ? [
+            `The requested start ${requested.evaluation_start} precedes the first statistically usable OOS date. The experiment therefore begins on ${request.evaluation_start}; earlier observations are consumed by training/lookbacks.`,
+          ]
+        : []),
       ...(isCapitalStudy(request)
         ? [
             "Independent capital policy study: SPY/cash only; no ETF optimization. Passive SPY buys once at the same first next-close fill, with the same costs and zero cash yield.",
