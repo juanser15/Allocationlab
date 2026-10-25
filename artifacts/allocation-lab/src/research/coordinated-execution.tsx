@@ -12,17 +12,6 @@ import {
   pct,
   researchApi,
 } from "./coordinated-ui";
-function shiftMonths(date: string, months: number) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return "";
-  const [y, m, d] = date.split("-").map(Number);
-  const first = new Date(Date.UTC(y, m - 1 + months, 1));
-  const last = new Date(
-    Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0),
-  ).getUTCDate();
-  first.setUTCDate(Math.min(d, last));
-  return first.toISOString().slice(0, 10);
-}
-
 export type ResearchScope = "PORTFOLIO" | "CAPITAL_EXPOSURE";
 export const runScope = (spec: any): ResearchScope =>
   spec?.research_scope ?? "PORTFOLIO";
