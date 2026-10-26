@@ -9,6 +9,7 @@ const apiPort = 3001;
 const root = path.resolve("artifacts/allocation-lab/dist/public");
 const indexFile = path.join(root, "index.html");
 const openPreview = process.env.WORKBENCH_PREVIEW_OPEN === "1";
+const liveSmoke = process.env.WORKBENCH_P0_LIVE_SMOKE === "1";
 const sessionTokenKey = "allocationlab.workbench.preview-token";
 const injectedSessionToken = "render-open-preview";
 const mime = {
@@ -32,6 +33,93 @@ const api = spawn(
   ["--enable-source-maps", "artifacts/api-server/dist/index.mjs"],
   { stdio: "inherit", env: { ...process.env, PORT: String(apiPort), RENDER_LOCAL_API: "1" } },
 );
+
+function localApi(pathname, method = "GET", body) {
+  const token = process.env.WORKBENCH_PREVIEW_TOKEN;
+  return new Promise((resolve, reject) => {
+    const payload = body === undefined ? null : JSON.stringify(body);
+    const headers = {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(payload ? { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(payload) } : {}),
+    };
+    const request = http.request(
+      { hostname: "127.0.0.1", port: apiPort, path: pathname, method, headers },
+      (response) => {
+        let data = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk) => {
+          data += chunk;
+          if (data.length > 8192) data = data.slice(0, 8192);
+        });
+        response.on("end", () => resolve({ status: response.statusCode || 0, body: data }));
+      },
+    );
+    request.on("error", reject);
+    if (payload) request.write(payload);
+    request.end();
+  });
+}
+
+async function runLiveSmoke() {
+  if (!liveSmoke) return;
+  let workspace = null;
+  for (let attempt = 0; attempt < 20; attempt++) {
+    try {
+      workspace = await localApi("/api/workbench/library/workspace");
+      if (workspace.status !== 502 && workspace.status !== 503) break;
+    } catch {}
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  console.log(
+    "P0_LIVE_SMOKE_POSTGRES",
+    JSON.stringify({
+      status: workspace?.status ?? 0,
+      ok: workspace?.status === 200,
+      body: String(workspace?.body ?? "").slice(0, 1000),
+    }),
+  );
+
+  try {
+    const yahoo = await fetch(
+      "https://query1.finance.yahoo.com/v8/finance/chart/SPY?period1=1735776000&period2=1736553600&interval=1d&events=div%2Csplits&includeAdjustedClose=true",
+      {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "AllocationLab/1.0 live-smoke",
+        },
+        redirect: "error",
+        signal: AbortSignal.timeout(15000),
+      },
+    );
+    const text = await yahoo.text();
+    let observations = null;
+    try {
+      const body = JSON.parse(text);
+      observations = body?.chart?.result?.[0]?.timestamp?.length ?? 0;
+    } catch {}
+    console.log(
+      "P0_LIVE_SMOKE_YAHOO",
+      JSON.stringify({
+        status: yahoo.status,
+        ok: yahoo.ok,
+        observations,
+      }),
+    );
+  } catch (error) {
+    console.log(
+      "P0_LIVE_SMOKE_YAHOO",
+      JSON.stringify({
+        status: 0,
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+      }),
+    );
+  }
+}
+
+if (liveSmoke) {
+  setTimeout(() => void runLiveSmoke(), 2500);
+}
 
 function sendFile(file, response) {
   response.setHeader("Content-Type", mime[path.extname(file).toLowerCase()] || "application/octet-stream");
