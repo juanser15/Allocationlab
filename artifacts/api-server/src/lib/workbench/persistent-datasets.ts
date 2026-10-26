@@ -114,6 +114,48 @@ async function boundedText(response: Response): Promise<string> {
   try { while (true) { const { value, done } = await reader.read(); if (done) break; bytes += value.byteLength; if (bytes > MAX_SOURCE_BYTES) throw new Error("SOURCE_TOO_LARGE"); parts.push(Buffer.from(value)); } } finally { await reader.cancel().catch(() => {}); }
   return Buffer.concat(parts).toString("utf8");
 }
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+async function fetchYahooChart(
+  ticker: string,
+  start: string,
+  end: string,
+  transport: typeof fetch,
+  deadline: AbortSignal,
+): Promise<Response> {
+  const hosts = ["query2.finance.yahoo.com", "query1.finance.yahoo.com"];
+  let lastStatus = 0;
+  for (let round = 0; round < 2; round++) {
+    for (const host of hosts) {
+      const url = new URL("https://" + host + "/v8/finance/chart/" + encodeURIComponent(ticker));
+      url.search = new URLSearchParams({
+        period1: String(Date.parse(start) / 1000),
+        period2: String(Date.parse(end) / 1000 + 86400),
+        interval: "1d",
+        events: "div,splits",
+        includeAdjustedClose: "true",
+      }).toString();
+      const response = await transport(url, {
+        headers: {
+          Accept: "application/json,text/plain,*/*",
+          "Accept-Language": "en-US,en;q=0.9",
+          "Cache-Control": "no-cache",
+          "User-Agent":
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        },
+        signal: AbortSignal.any([deadline, AbortSignal.timeout(15000)]),
+        redirect: "error",
+      });
+      if (response.ok) return response;
+      lastStatus = response.status;
+      await response.body?.cancel().catch(() => {});
+      if (![403, 429, 500, 502, 503, 504].includes(response.status))
+        throw new Error("SOURCE_HTTP_" + response.status);
+    }
+    if (round === 0) await sleep(450);
+  }
+  throw new Error("SOURCE_HTTP_" + lastStatus);
+}
 /** Injectable transport is for local contract tests only. Production always uses fixed Yahoo HTTPS URLs. */
 export async function ingestYahoo(value: unknown, transport: typeof fetch = fetch): Promise<{ csv: string; metadata: DatasetMetadata }> {
   const input = object(value, ["tickers", "start", "end", "frequency", "price_field"]);
@@ -127,13 +169,10 @@ export async function ingestYahoo(value: unknown, transport: typeof fetch = fetc
   const observedCalendar = new Set<string>();
   const points = new Map<string, Map<string, number>>(), rawHashes: Record<string, string> = {}, failed: DatasetQuality["failed_tickers"] = [];
   let duplicates = 0, invalid = 0, totalBytes = 0;
-  for (let offset = 0; offset < tickers.length; offset += 4) {
-    await Promise.all(tickers.slice(offset, offset + 4).map(async ticker => {
+  for (let offset = 0; offset < tickers.length; offset += 2) {
+    await Promise.all(tickers.slice(offset, offset + 2).map(async ticker => {
       try {
-        const url = new URL("https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(ticker));
-        url.search = new URLSearchParams({ period1: String(Date.parse(input.start) / 1000), period2: String(Date.parse(input.end) / 1000 + 86400), interval: "1d", events: "div,splits", includeAdjustedClose: "true" }).toString();
-        const response = await transport(url, { headers: { Accept: "application/json", "User-Agent": "AllocationLab/1.0 research-datasets" }, signal: AbortSignal.any([deadline, AbortSignal.timeout(15000)]), redirect: "error" });
-        if (!response.ok) throw new Error("SOURCE_HTTP_" + response.status);
+        const response = await fetchYahooChart(ticker, input.start, input.end, transport, deadline);
         const text = await boundedText(response); totalBytes += Buffer.byteLength(text); if (totalBytes > MAX_TOTAL_SOURCE_BYTES) throw new Error("SOURCE_BATCH_TOO_LARGE");
         rawHashes[ticker] = hash(text); const body = JSON.parse(text), result = body?.chart?.result?.[0];
         if (body?.chart?.error || !result) throw new Error("SOURCE_SYMBOL_UNAVAILABLE");
@@ -157,6 +196,7 @@ export async function ingestYahoo(value: unknown, transport: typeof fetch = fetc
         failed.push({ ticker, error: code });
       }
     }));
+    if (offset + 2 < tickers.length) await sleep(120);
   }
   if (!points.size) return fail("YAHOO_DATA_FETCH_FAILED", "Yahoo Finance returned no usable daily adjusted-close observations. No dataset was saved or activated.", { failed_tickers: failed }, 502);
   const dates = [...observedCalendar].sort();
