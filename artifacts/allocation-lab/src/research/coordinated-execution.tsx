@@ -1,3 +1,4 @@
+import { sourceLabel } from "./dataset-persistence";
 import { useEffect, useState } from "react";
 import {
   forecastNames,
@@ -101,70 +102,13 @@ export function ExecutionWorkspace({
         .slice(0, 10)
     : undefined;
 
-  useEffect(() => {
-    if (!visible || !caps) return;
-    let cancelled = false;
-    const seedStart = draft.evaluation_start || caps.data_first_observation;
-    const seedEnd = draft.evaluation_end_exclusive || maxEnd;
-    if (!seedStart || !seedEnd) return;
-    void researchApi("/bounds", {
-      ...draft,
-      research_scope: scope,
-      evaluation_start: seedStart,
-      evaluation_end_exclusive: seedEnd,
-    })
-      .then((next) => {
-        if (cancelled) return;
-        setBounds(next);
-        if (
-          !draft.evaluation_start ||
-          draft.evaluation_start < next.earliest_supported_evaluation_start
-        )
-          onChange(
-            "evaluation_start",
-            next.earliest_supported_evaluation_start,
-          );
-        if (
-          !draft.evaluation_end_exclusive ||
-          draft.evaluation_end_exclusive >
-            next.latest_supported_evaluation_end_exclusive
-        )
-          onChange(
-            "evaluation_end_exclusive",
-            next.latest_supported_evaluation_end_exclusive,
-          );
-      })
-      .catch((e) => {
-        if (!cancelled) setError((e as Error).message);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    visible,
-    caps?.dataset_id,
-    caps?.data_first_observation,
-    caps?.data_last_observation,
-    draft.dataset_id,
-    draft.training_window_months,
-    draft.regime_model,
-    "forecast" in draft ? draft.forecast : null,
-    "etfs" in draft ? draft.etfs.join("|") : "SPY",
-  ]);
   async function check() {
     setError("");
     try {
       const p = await researchApi("/plan", { ...draft, research_scope: scope });
       setPlan(p);
       setBounds(p.experiment_bounds ?? bounds);
-      if (
-        p.normalized_request?.evaluation_start &&
-        p.normalized_request.evaluation_start !== draft.evaluation_start
-      )
-        onChange(
-          "evaluation_start",
-          p.normalized_request.evaluation_start,
-        );
+      if (p.normalized_request.evaluation_start !== draft.evaluation_start || p.normalized_request.evaluation_end_exclusive !== draft.evaluation_end_exclusive) throw new Error("The planner changed the requested dates. Execution is blocked.");
       return p;
     } catch (e) {
       setError((e as Error).message);
@@ -261,7 +205,7 @@ export function ExecutionWorkspace({
                 First OOS date
                 <input
                   type="date"
-                  min={bounds?.earliest_supported_evaluation_start}
+
                   value={draft.evaluation_start}
                   onInput={(e) =>
                     onChange("evaluation_start", e.currentTarget.value)
@@ -351,9 +295,7 @@ export function ExecutionWorkspace({
               <div className="cp-result-context">
                 <strong>
                   Active data ·{" "}
-                  {caps.data_source === "YAHOO_FINANCE_RESEARCH"
-                    ? "Yahoo Finance"
-                    : "Internal snapshot"}
+                  {sourceLabel(caps.dataset_source)}
                 </strong>
                 <small>
                   Dataset {caps.data_first_observation} →{" "}
@@ -623,10 +565,7 @@ export function ExecutionWorkspace({
                         </td>
                       )}
                       <td>
-                        {!row.spec.dataset_id ||
-                        ["REFERENCE", "internal"].includes(row.spec.dataset_id)
-                          ? "Reference"
-                          : `Yahoo · ${row.spec.dataset_id.slice(0, 8)}`}
+                        {sourceLabel(row.spec.dataset_source)} · v{row.spec.dataset_version}
                       </td>
                       <td>
                         {row.spec.control_mode === "MAX_EXPOSURE"

@@ -134,7 +134,7 @@ export function ResearchChart({
 }
 export async function researchApi(path: string, body?: unknown) {
   const token = sessionStorage.getItem("allocationlab.workbench.preview-token");
-  const response = await fetch("/api/workbench/coordinated" + path, {
+  const response = await fetch("/api/workbench/p0" + path, {
     method: body === undefined ? "GET" : "POST",
     headers: {
       ...(body === undefined ? {} : { "Content-Type": "application/json" }),

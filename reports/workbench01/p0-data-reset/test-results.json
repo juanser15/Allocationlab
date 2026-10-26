@@ -1,0 +1,55 @@
+{
+  "status": "LOCAL_CHECKS_PASS_LIVE_PROVIDER_GATE_BLOCKED",
+  "runtime": {
+    "node": "v24.19.0",
+    "pnpm": "11.25.0",
+    "python": "Python 3.12.14",
+    "os": "Linux; isolated local PostgreSQL 17.11; Chromium 154.0.8037.57"
+  },
+  "tests": [
+    {
+      "command": "node scripts/test-p0.mjs",
+      "passed": 7,
+      "failed": 0,
+      "scope": "Provider parsing/QA, fail-closed input, bootstrap and post-initialization outage errors"
+    },
+    {
+      "command": "node scripts/test-coordinated.mjs",
+      "passed": 36,
+      "failed": 0,
+      "scope": "Existing coordinated empirical math, PIT, model, interactive and frontend regressions"
+    },
+    {
+      "command": "node scripts/p0-acceptance.mjs",
+      "passed": 18,
+      "failed": 0,
+      "scope": "Production API/worker + real PostgreSQL + labelled provider fixture, immutable versions, pinned data, restart and clean runtime"
+    },
+    {
+      "command": "node scripts/p0-browser.mjs",
+      "status": "PASS",
+      "scope": "Production assets/API, Chromium, separate local Postgres; navigation, refresh, QA/save/activate/versioning, 8 screenshots"
+    }
+  ],
+  "backend_typecheck": "PASS",
+  "frontend_typecheck": "PASS",
+  "backend_production_build": "PASS",
+  "frontend_production_build": "PASS",
+  "build_warnings": [
+    "Existing Vite source-map location warnings for UI primitives",
+    "Frontend bundle over 500 kB advisory; no bundle-splitting feature work in P0"
+  ],
+  "git_diff_check": "PASS",
+  "preservation": "PASS; see preservation.json",
+  "live_yahoo": {
+    "status": "BLOCKED",
+    "reason": "Managed restricted egress denies query1.finance.yahoo.com; CONNECT 403",
+    "provider_fixture_is_not_live_acceptance": true,
+    "required_next_checks": [
+      "Live SPY 2010 through latest retrieval",
+      "Live CURRENT model-input universe retrieval",
+      "Save/activate/restart/clean-runtime research using actual fetched version"
+    ]
+  },
+  "deployment_performed": false
+}

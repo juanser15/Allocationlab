@@ -1,0 +1,24 @@
+
+  artifacts/api-server/dist/index.mjs                        4.9mb ⚠️
+  artifacts/api-server/dist/validation-job-worker.mjs        2.8mb ⚠️
+  artifacts/api-server/dist/pino-worker.mjs                153.0kb
+  artifacts/api-server/dist/pino-file.mjs                  141.7kb
+  artifacts/api-server/dist/pino-pretty.mjs                114.1kb
+  artifacts/api-server/dist/thread-stream-worker.mjs         7.3kb
+  artifacts/api-server/dist/index.mjs.map                    8.9mb
+  artifacts/api-server/dist/validation-job-worker.mjs.map    5.0mb
+  artifacts/api-server/dist/pino-worker.mjs.map            256.9kb
+  artifacts/api-server/dist/pino-file.mjs.map              229.0kb
+  artifacts/api-server/dist/pino-pretty.mjs.map            204.0kb
+  artifacts/api-server/dist/thread-stream-worker.mjs.map    12.0kb
+
+⚡ Done in 369ms
+
+  artifacts/api-server/dist/workbench-run-worker.mjs              227.8kb
+  artifacts/api-server/dist/workbench-interactive-worker.mjs      154.1kb
+  artifacts/api-server/dist/workbench-coordinated-worker.mjs      151.0kb
+  artifacts/api-server/dist/workbench-coordinated-worker.mjs.map  532.8kb
+  artifacts/api-server/dist/workbench-interactive-worker.mjs.map  524.6kb
+  artifacts/api-server/dist/workbench-run-worker.mjs.map          520.5kb
+
+⚡ Done in 35ms

@@ -34,7 +34,11 @@ import coordinatedRouter from "./workbench-coordinated";
 import interactiveRouter from "./workbench-interactive";
 import workbenchV2Router from "./workbench-v2";
 
+import dataLibraryRouter from "./workbench-data-library";
+import p0Router from "./workbench-p0";
 const router: IRouter = Router();
+router.use(dataLibraryRouter);
+router.use(p0Router);
 
 router.use(healthRouter);
 router.use(universeRouter);

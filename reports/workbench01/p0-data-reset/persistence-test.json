@@ -1,0 +1,144 @@
+{
+  "status": "PASS_LOCAL_POSTGRES",
+  "checks": [
+    {
+      "name": "Internal snapshot persisted and active",
+      "status": "PASS"
+    },
+    {
+      "name": "Preview authentication protects persistent endpoints",
+      "status": "PASS"
+    },
+    {
+      "name": "Legacy ephemeral mutations cannot bypass retirement with casing or trailing slash",
+      "status": "PASS"
+    },
+    {
+      "name": "Fetch/save do not activate; fixture explicitly labelled",
+      "status": "PASS"
+    },
+    {
+      "name": "Refresh creates immutable version even when normalized bytes match",
+      "status": "PASS"
+    },
+    {
+      "name": "Active external dataset drives capabilities",
+      "status": "PASS"
+    },
+    {
+      "name": "CURRENT permits SPY-only and preserves exact user calendar",
+      "status": "PASS"
+    },
+    {
+      "name": "Missing SPY",
+      "status": "PASS",
+      "blocker": {
+        "code": "DATASET_SYMBOL_MISSING",
+        "message": "The active dataset has no SPY observations. This model requires SPY price history.",
+        "issues": {
+          "dataset_id": "yf_ce2dda7d97924d6e99b747bc5034fe5d",
+          "dataset_version": 1,
+          "dataset_hash": "0e24f7982ccc8279bd6054ed07d3e2d0978b88cd42a1bcbbf4c7ad961c668c39",
+          "dataset_source": "YAHOO_FINANCE",
+          "requested_backtest_start": "2025-03-17",
+          "requested_backtest_end": "2025-06-17",
+          "training_start": "2024-09-17",
+          "feature_warmup_start": "2025-03-03",
+          "required_feature_observations": 10,
+          "available_feature_observations": 3635,
+          "dataset_first_date": "2010-10-01",
+          "dataset_last_date": "2026-09-30",
+          "required_symbol": "SPY"
+        }
+      }
+    },
+    {
+      "name": "Training before dataset",
+      "status": "PASS",
+      "blocker": {
+        "code": "INSUFFICIENT_TRAINING_HISTORY",
+        "message": "Your 24-month training window requires history from 2009-12-01, but the active dataset starts 2010-10-01.",
+        "issues": {
+          "dataset_id": "yf_f205c82663054a30bf7ab819b2f2bafb",
+          "dataset_version": 1,
+          "dataset_hash": "7fefffe2f2891d33a0df1fdd409b356b313751ec2caf34693b672d46b268dfbf",
+          "dataset_source": "YAHOO_FINANCE",
+          "requested_backtest_start": "2011-12-01",
+          "requested_backtest_end": "2012-06-01",
+          "training_start": "2009-12-01",
+          "feature_warmup_start": "2011-11-16",
+          "required_feature_observations": 10,
+          "available_feature_observations": 295,
+          "dataset_first_date": "2010-10-01",
+          "dataset_last_date": "2026-09-30"
+        }
+      }
+    },
+    {
+      "name": "End beyond data",
+      "status": "PASS",
+      "blocker": {
+        "code": "EVALUATION_BEYOND_DATA_RANGE",
+        "message": "Active dataset ends 2026-09-30. Requested end 2026-10-26 is beyond its available coverage.",
+        "issues": {
+          "dataset_id": "yf_f205c82663054a30bf7ab819b2f2bafb",
+          "dataset_version": 1,
+          "dataset_hash": "7fefffe2f2891d33a0df1fdd409b356b313751ec2caf34693b672d46b268dfbf",
+          "dataset_source": "YAHOO_FINANCE",
+          "requested_backtest_start": "2025-03-17",
+          "requested_backtest_end": "2026-10-26",
+          "training_start": "2024-09-17",
+          "feature_warmup_start": "2025-03-03",
+          "required_feature_observations": 10,
+          "available_feature_observations": 3635,
+          "dataset_first_date": "2010-10-01",
+          "dataset_last_date": "2026-09-30",
+          "supported_end_exclusive": "2026-10-01"
+        }
+      }
+    },
+    {
+      "name": "Unavailable ID",
+      "status": "PASS",
+      "blocker": {
+        "code": "DATASET_UNAVAILABLE",
+        "message": "The requested immutable dataset is unavailable. No replacement dataset was used.",
+        "issues": {
+          "dataset_id": "yf_ffffffffffffffffffffffffffffffff"
+        }
+      }
+    },
+    {
+      "name": "Actual worker matches unchanged financial engine with explicit persisted rows",
+      "status": "PASS"
+    },
+    {
+      "name": "Downloaded CSV reproduces persisted normalized hash",
+      "status": "PASS"
+    },
+    {
+      "name": "Active change cannot redirect old run or explicit rerun",
+      "status": "PASS"
+    },
+    {
+      "name": "New selected dataset changes run identity",
+      "status": "PASS"
+    },
+    {
+      "name": "Database rejects mutation and deletion of version used by run",
+      "status": "PASS"
+    },
+    {
+      "name": "API restart restores exact active data and executes again",
+      "status": "PASS"
+    },
+    {
+      "name": "Clean runtime without Git or old tmp restores DB data and execution",
+      "status": "PASS"
+    }
+  ],
+  "live_yahoo": "BLOCKED_NETWORK_POLICY_QUERY1_FINANCE_YAHOO_COM",
+  "canonical_store": "POSTGRES_METADATA_AND_GZIP_PAYLOAD",
+  "test_database": "isolated local PostgreSQL17",
+  "clean_runtime_simulation": true
+}

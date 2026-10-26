@@ -14,11 +14,11 @@ import {
 } from "./coordinated-execution";
 import { Card, models, names, pct, researchApi } from "./coordinated-ui";
 import { DataUniverse } from "./data-universe";
-import { restoreRememberedYahooDataset } from "./dataset-persistence";
+
 import "./coordinated.css";
 
 const initial: CoordinatedRequest = {
-  dataset_id: "internal",
+  dataset_id: "",
   forecast: DEFAULT_FORECAST,
   contract_version: COORDINATED_SPEC,
   research_scope: "PORTFOLIO",
@@ -96,6 +96,7 @@ export function CoordinatedWorkbench({
   const load = () =>
     researchApi("/capabilities")
       .then((next) => {
+        setAccessError("");
         setCaps(next);
         setDraft((previous) => ({ ...previous, dataset_id: next.dataset_id }));
         setStudyDraft((previous) => ({
@@ -103,18 +104,8 @@ export function CoordinatedWorkbench({
           dataset_id: next.dataset_id,
         }));
       })
-      .catch((e) => setAccessError(e.message));
-  useEffect(() => {
-    void (async () => {
-      try {
-        await restoreRememberedYahooDataset();
-      } catch {
-        // If browser persistence is unavailable or invalid, the normal
-        // capabilities request below remains the source of truth.
-      }
-      await load();
-    })();
-  }, []);
+      .catch((e) => { setCaps(null); setAccessError(e.message); });
+  useEffect(() => { void load(); const refresh=()=>void load(); window.addEventListener("focus",refresh); return()=>window.removeEventListener("focus",refresh); }, []);
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, [module, capitalView, portfolioView, signalView, baseline]);
@@ -122,7 +113,7 @@ export function CoordinatedWorkbench({
     key: K,
     value: CoordinatedRequest[K],
   ) => setDraft((d) => ({ ...d, [key]: value }));
-  const navigate = (name: string) => setModule(name);
+  const navigate = (name: string) => { setModule(name); void load(); };
   function openStudy() {
     const policy = capitalStudyDesign(draft);
     setStudyDraft((previous) => ({
@@ -210,26 +201,8 @@ export function CoordinatedWorkbench({
         <span className="cp-logo">AL</span>
         <strong>Allocation Lab</strong>
         <span className="cp-badge">Research workspace</span>
-        <button className="cp-reference" onClick={() => setBaseline(true)}>
-          Baseline reference ↗
-        </button>
       </header>
-      {caps && (
-        <div className="cp-reference-bar">
-          <strong>
-            Data ·{" "}
-            {caps.data_source === "YAHOO_FINANCE_RESEARCH"
-              ? "Yahoo Finance"
-              : "Internal snapshot"}
-          </strong>
-          <span>
-            {caps.data_first_observation} → {caps.data_last_observation}
-            {caps.dataset_id && caps.dataset_id !== "internal"
-              ? ` · ${String(caps.dataset_id).slice(0, 16)}…`
-              : ""}
-          </span>
-        </div>
-      )}
+      {caps && <div className="cp-reference-bar"><button onClick={()=>navigate("Data & Universe")} aria-label="Active workspace dataset">DATA · {caps.dataset_source === "YAHOO_FINANCE" ? "Yahoo" : "Internal Snapshot"} · Daily · through {caps.data_last_observation}</button></div>}
       <div className="cp-shell">
         <nav className="cp-nav" aria-label="Research modules">
           <small>RESEARCH SECTIONS</small>
@@ -249,12 +222,12 @@ export function CoordinatedWorkbench({
             Run the portfolio in Backtesting.
             <br />
             <br />
-            Research only · temporary storage
+            Research only · temporary run storage
           </div>
         </nav>
-        <main className="cp-main">
+        <main className={`cp-main ${module === "Data & Universe" ? "du-main" : ""}`}>
           <div className="cp-eyebrow">
-            {module === "Backtesting"
+            {module === "Data & Universe" ? "DATA MANAGEMENT" : module === "Backtesting"
               ? "FULL PORTFOLIO RESEARCH"
               : "STRATEGY CONFIGURATION"}
           </div>

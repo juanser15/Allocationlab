@@ -1,0 +1,223 @@
+{
+  "status": "PASS",
+  "scope": "Persisted committed historical observations transported through explicitly labelled Yahoo wire fixture; no claim of live Yahoo download",
+  "spec": {
+    "contract_version": "allocationlab-coordinated-1.0.0",
+    "dataset_id": "yf_f205c82663054a30bf7ab819b2f2bafb",
+    "research_scope": "CAPITAL_EXPOSURE",
+    "evaluation_start": "2025-03-17",
+    "evaluation_end_exclusive": "2025-06-17",
+    "training_window_months": 6,
+    "window_type": "ROLLING",
+    "rebalance_frequency": "MONTHLY",
+    "transaction_cost_bps": 1,
+    "control_mode": "MAX_EXPOSURE",
+    "maximum_exposure": 0.6,
+    "risk_budget": 0.1,
+    "regime_model": "CURRENT",
+    "regime_response": "FIXED",
+    "defensive_multiplier": 0.5
+  },
+  "run_id": "rr_25a8d64e136677d85b8660f101ad18a32a6c4825f7e4496df351c548cecad574",
+  "plan": {
+    "research_boundary": "RESEARCH_ONLY",
+    "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+    "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+    "calendar_methodology": "ANCHORED_NEXT_TRADING_DAY_V1",
+    "normalized_request": {
+      "contract_version": "allocationlab-coordinated-1.0.0",
+      "dataset_id": "yf_f205c82663054a30bf7ab819b2f2bafb",
+      "research_scope": "CAPITAL_EXPOSURE",
+      "evaluation_start": "2025-03-17",
+      "evaluation_end_exclusive": "2025-06-17",
+      "training_window_months": 6,
+      "window_type": "ROLLING",
+      "rebalance_frequency": "MONTHLY",
+      "transaction_cost_bps": 1,
+      "control_mode": "MAX_EXPOSURE",
+      "maximum_exposure": 0.6,
+      "risk_budget": 0.1,
+      "regime_model": "CURRENT",
+      "regime_response": "FIXED",
+      "defensive_multiplier": 0.5
+    },
+    "folds": [
+      {
+        "fold_id": 0,
+        "training_start": "2024-09-17",
+        "training_end_exclusive": "2025-03-17",
+        "decision_date": "2025-03-17",
+        "information_cutoff": "2025-03-14",
+        "oos_start": "2025-03-17",
+        "oos_end_exclusive": "2025-04-17",
+        "intended_rebalance_date": "2025-03-17",
+        "training_observations": 123,
+        "warmup_observations": 3512,
+        "oos_observations": 23,
+        "partial_final_period": false
+      },
+      {
+        "fold_id": 1,
+        "training_start": "2024-10-17",
+        "training_end_exclusive": "2025-04-17",
+        "decision_date": "2025-04-17",
+        "information_cutoff": "2025-04-16",
+        "oos_start": "2025-04-17",
+        "oos_end_exclusive": "2025-05-17",
+        "intended_rebalance_date": "2025-04-17",
+        "training_observations": 124,
+        "warmup_observations": 3534,
+        "oos_observations": 21,
+        "partial_final_period": false
+      },
+      {
+        "fold_id": 2,
+        "training_start": "2024-11-17",
+        "training_end_exclusive": "2025-05-17",
+        "decision_date": "2025-05-19",
+        "information_cutoff": "2025-05-16",
+        "oos_start": "2025-05-17",
+        "oos_end_exclusive": "2025-06-17",
+        "intended_rebalance_date": "2025-05-17",
+        "training_observations": 123,
+        "warmup_observations": 3556,
+        "oos_observations": 20,
+        "partial_final_period": false
+      }
+    ],
+    "number_of_folds": 3,
+    "total_work_units": 5,
+    "estimated_jobs": 5,
+    "derived_timing": {
+      "months": 1,
+      "step_months": 1,
+      "recalibration": "EVERY_REBALANCE"
+    },
+    "warnings": [
+      "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+      "One continuous long-only portfolio; zero cash yield; next observed close fills. Constraints apply to decision targets, not intraperiod drift.",
+      "Risk budget is an estimated annualized volatility ceiling, not a guaranteed loss limit.",
+      "Forecast horizon and return units are recorded per decision. Daily covariance uses linear horizon scaling; no point-in-time vintage certification.",
+      "Independent capital policy study: SPY/cash only; no ETF optimization. Passive SPY buys once at the same first next-close fill, with the same costs and zero cash yield."
+    ],
+    "blockers": [],
+    "plan_hash": "6239cd343b4f8dedbdd23865373c9a7726d76ca55cb6227dfbea6af5aafd0583",
+    "requested_evaluation_start": "2025-03-17",
+    "effective_evaluation_start": "2025-03-17",
+    "experiment_bounds": {
+      "research_boundary": "RESEARCH_ONLY",
+      "pit_classification": "PIT_MECHANICS_ENFORCED_DATA_VINTAGE_UNVERIFIED",
+      "storage_classification": "TEMPORARY_RESEARCH_STORAGE",
+      "dataset_id": "yf_f205c82663054a30bf7ab819b2f2bafb",
+      "dataset_start": "2010-10-01",
+      "dataset_end": "2026-09-30",
+      "common_required_data_start": "2010-10-01",
+      "earliest_supported_evaluation_start": "2011-04-01",
+      "latest_supported_evaluation_end_exclusive": "2026-10-01",
+      "training_window_months": 6,
+      "regime_lookback_sessions": 10,
+      "forecast_lookback_sessions": 0,
+      "effective_causal_lookback_sessions": 10,
+      "required_symbols": [
+        "SPY"
+      ],
+      "rule": "DATASET_FIRST_THEN_EXPERIMENT_CONSUMES_HISTORY_V1"
+    },
+    "dataset_id": "yf_f205c82663054a30bf7ab819b2f2bafb",
+    "dataset_version": 1,
+    "dataset_hash": "7fefffe2f2891d33a0df1fdd409b356b313751ec2caf34693b672d46b268dfbf",
+    "dataset_source": "YAHOO_FINANCE",
+    "data_identity": {
+      "dataset_id": "yf_f205c82663054a30bf7ab819b2f2bafb",
+      "dataset_version": 1,
+      "dataset_hash": "7fefffe2f2891d33a0df1fdd409b356b313751ec2caf34693b672d46b268dfbf",
+      "dataset_source": "YAHOO_FINANCE"
+    },
+    "coverage": {
+      "dataset_id": "yf_f205c82663054a30bf7ab819b2f2bafb",
+      "dataset_version": 1,
+      "dataset_hash": "7fefffe2f2891d33a0df1fdd409b356b313751ec2caf34693b672d46b268dfbf",
+      "dataset_source": "YAHOO_FINANCE",
+      "requested_backtest_start": "2025-03-17",
+      "requested_backtest_end": "2025-06-17",
+      "training_start": "2024-09-17",
+      "feature_warmup_start": "2025-03-03",
+      "required_feature_observations": 10,
+      "available_feature_observations": 3635,
+      "dataset_first_date": "2010-10-01",
+      "dataset_last_date": "2026-09-30"
+    },
+    "identity_namespace": "allocationlab-persistent-data-1.0.0"
+  },
+  "dataset": {
+    "qa": {
+      "warnings": [
+        "Yahoo Finance research data: historical vintages are unverified."
+      ],
+      "large_gaps": [],
+      "per_ticker": [
+        {
+          "last": "2026-09-30",
+          "first": "2010-10-01",
+          "ticker": "SPY",
+          "missing": 0,
+          "observations": 4023,
+          "coverage_percent": 100
+        }
+      ],
+      "failed_tickers": [],
+      "duplicate_dates": 0,
+      "successful_tickers": [
+        "SPY"
+      ],
+      "complete_case_observations": 4023,
+      "invalid_nonpositive_prices": 0,
+      "union_calendar_observations": 4023
+    },
+    "notes": "TEST PROVIDER FIXTURE: committed historical observations; not a live Yahoo fetch.",
+    "source": "YAHOO_FINANCE",
+    "tickers": [
+      "SPY"
+    ],
+    "frequency": "DAILY",
+    "qa_status": "WARNINGS",
+    "row_count": 4023,
+    "actual_end": "2026-09-30",
+    "created_at": "2026-10-26T20:01:18.073Z",
+    "dataset_id": "yf_f205c82663054a30bf7ab819b2f2bafb",
+    "fetched_at": "2026-10-26T20:01:17.940Z",
+    "pit_status": "VINTAGE_UNVERIFIED",
+    "refresh_of": null,
+    "price_field": "ADJUSTED_CLOSE",
+    "actual_start": "2010-10-01",
+    "dataset_hash": "7fefffe2f2891d33a0df1fdd409b356b313751ec2caf34693b672d46b268dfbf",
+    "dataset_name": "P0 test SPY 1793044877782",
+    "requested_end": "2026-10-26",
+    "missing_values": 0,
+    "dataset_version": 1,
+    "raw_source_hash": "400f5537e585b1de2f194ddfae18ecd4b3bd60e1571424db4c27195acbc6afac",
+    "requested_start": "2010-01-01",
+    "storage_location": "postgres:allocationlab_dataset_versions/yf_f205c82663054a30bf7ab819b2f2bafb",
+    "adjustment_convention": "Yahoo provider adjusted close; provider historical revisions are not independently vintage verified",
+    "per_ticker_observations": {
+      "SPY": 4023
+    },
+    "requested_end_convention": "INCLUSIVE"
+  },
+  "financial_result_hash": "34f1d9a426e8033b2811c71f495a0d68086c31ec0cdec3509a5e30a1a0e3daa9",
+  "metrics": {
+    "cagr": 0.20823638921086673,
+    "costs": 0.006545497242552572,
+    "exposure": 0.5954939266789613,
+    "final_index": 104.92137599511182,
+    "max_drawdown": -0.0832812453939561,
+    "net_sharpe": 1.0932686337983402,
+    "observations": 64,
+    "return_drawdown_ratio": 2.500399558457839,
+    "turnover": 0.6542376420008877,
+    "turnover_annualized": 2.5760607153784956,
+    "volatility": 0.18903030473145482
+  },
+  "unchanged_engine_exact": true,
+  "workspace_change_does_not_redirect": true
+}

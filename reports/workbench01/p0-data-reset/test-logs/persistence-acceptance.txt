@@ -1,0 +1,18 @@
+PASS Internal snapshot persisted and active
+PASS Preview authentication protects persistent endpoints
+PASS Legacy ephemeral mutations cannot bypass retirement with casing or trailing slash
+PASS Fetch/save do not activate; fixture explicitly labelled
+PASS Refresh creates immutable version even when normalized bytes match
+PASS Active external dataset drives capabilities
+PASS CURRENT permits SPY-only and preserves exact user calendar
+PASS Missing SPY
+PASS Training before dataset
+PASS End beyond data
+PASS Unavailable ID
+PASS Actual worker matches unchanged financial engine with explicit persisted rows
+PASS Downloaded CSV reproduces persisted normalized hash
+PASS Active change cannot redirect old run or explicit rerun
+PASS New selected dataset changes run identity
+PASS Database rejects mutation and deletion of version used by run
+PASS API restart restores exact active data and executes again
+PASS Clean runtime without Git or old tmp restores DB data and execution

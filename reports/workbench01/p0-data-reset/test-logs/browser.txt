@@ -1,0 +1,1 @@
+PASS data UI, navigation, refresh and 390/1440 screenshots

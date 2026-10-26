@@ -1,0 +1,44 @@
+✔ Feature oracle: price momentum, average-tie relative rank, signed trend and reversal (3.353575ms)
+✔ Manual mapping records assumed horizon returns; scores are not implicit percentages (1.08792ms)
+✔ Ridge analytic solution, training scaler and a single observation have no sample quota (0.428957ms)
+✔ Ridge label oracle matches prior-cutoff, decision then next-close fills and excludes pending outcomes (0.414955ms)
+✔ All forecast providers feed the optimizer and preserve the historical mean reference (171.101025ms)
+✔ Future price perturbations cannot change earlier Ridge coefficients, forecasts or allocations (22.662176ms)
+✔ Restored Yahoo snapshots preserve short histories, missing values and explicit immutable run data (66.598907ms)
+✔ Capital studies have a distinct identity and reject portfolio optimizer inputs (5.747736ms)
+✔ Independent exposure policy directly sets SPY/cash weights and uses a same-calendar passive benchmark (345.647013ms)
+✔ Independent risk budget maps to SPY exposure without mean-variance optimization (279.532776ms)
+✔ Fixed 100% SPY study reconciles to passive SPY; zero exposure stays in cash (444.666109ms)
+✔ Forward filtering matches exhaustive hidden-path enumeration (0.279121ms)
+✔ HMM is deterministic, orders states by variance and rejects degenerate samples (24.786068ms)
+✔ Optimizer matches analytical one-asset optimum and binding volatility ceiling (0.364159ms)
+✔ Optimizer respects correlated portfolio risk, box constraints and total exposure (1.827505ms)
+✔ Explicit validation and financial identities; no silent date or universe repair (9.641375ms)
+✔ Short user-selected HMM samples are fitted without a return-count or state-mass quota (0.741748ms)
+✔ One- and six-month HMM windows run unchanged under both capital controls (504.902724ms)
+✔ User's 2020–2026 HMM design accepts the selected six-month rolling window (1586.298003ms)
+✔ Both controls and all classifiers run on real data with one self-financing ledger (387.528185ms)
+✔ Future price mutations cannot change prior HMM decisions or existing portfolio path (340.049864ms)
+✔ Arbitrary dates and arbitrary finite nonnegative costs are explicit; unknown/invalid values fail closed (2.117212ms)
+✔ Monthly schedule is anchored to the requested day; no month-start snapping (126.332635ms)
+✔ Weekend/holiday shifts use next observed session, preserve requested intervals and strict cutoffs (1.244767ms)
+✔ Quarterly cadence advances three months from arbitrary anchor; expanding training start remains fixed (0.785174ms)
+✔ End-of-month anchor clamps independently, final partial period is explicit, empty final sleeves fail closed (1.505009ms)
+✔ History and capacity validation do not move dates, and no full backtest occurs in planning (1.18101ms)
+✔ Versioned identity changes with financial inputs, excludes operational capacity, old source remains untouched (10.222522ms)
+✔ Close-fill snapshot and certified risk wrapper preserve all financial arithmetic byte-for-byte (3.958638ms)
+✔ Candidate enumeration is exactly the certified grid for monthly and quarterly clocks, without a month-start side effect (3.518475ms)
+✔ Future-only observation mutation cannot change an earlier anchored decision, candidate ranking or OOS path (846.347367ms)
+✔ No silent financial values, no mandatory preview/review workflow, full optimizer shell (10.637537ms)
+✔ Primary errors are concise and technical evidence remains collapsed (2.774573ms)
+✔ Progress displays backend-defined units and ETA; no manufactured percentage (17.536679ms)
+✔ Client uses authenticated same-origin interactive API; N-run compare accepts more than two (1.037204ms)
+✔ No source fixture defaults; only one Trading Costs form field; audit is a separate tab (0.482758ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4297.727933

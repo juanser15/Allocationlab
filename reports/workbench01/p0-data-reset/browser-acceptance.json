@@ -1,0 +1,85 @@
+{
+  "status": "PASS_UI_WITH_LABELLED_PROVIDER_FIXTURE",
+  "live_yahoo_download": "BLOCKED_NETWORK_POLICY",
+  "browser": "154.0.8037.57",
+  "screenshots": [
+    "screenshots/data-library-390.png",
+    "screenshots/data-library-1440.png",
+    "screenshots/fetch-yahoo-390.png",
+    "screenshots/fetch-yahoo-1440.png",
+    "screenshots/fetched-qa-390.png",
+    "screenshots/fetched-qa-1440.png",
+    "screenshots/active-dataset-390.png",
+    "screenshots/active-dataset-1440.png"
+  ],
+  "responsive": [
+    {
+      "screen": "data-library",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "data-library",
+      "width": 1440,
+      "scroll": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "fetch-yahoo",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "fetch-yahoo",
+      "width": 1440,
+      "scroll": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "fetched-qa",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "fetched-qa",
+      "width": 1440,
+      "scroll": 1440,
+      "overflow": false
+    },
+    {
+      "screen": "active-dataset",
+      "width": 390,
+      "scroll": 390,
+      "overflow": false
+    },
+    {
+      "screen": "active-dataset",
+      "width": 1440,
+      "scroll": 1440,
+      "overflow": false
+    }
+  ],
+  "navigation_across_every_module_retains_active": true,
+  "browser_refresh_retains_active": true,
+  "stale_browser_snapshot_does_not_override_server": true,
+  "no_data_cross_module_ctas": true,
+  "fetch_does_not_activate": true,
+  "save_does_not_activate": true,
+  "explicit_activation": true,
+  "console_errors": [],
+  "visual_review": "PASS: inspected rendered mobile/desktop library, fetch, QA and active-data views; contained table scroll, readable labels, no page overflow",
+  "refresh_retains_name_and_creates_version_without_activation": true,
+  "screenshots_sha256": {
+    "screenshots/data-library-390.png": "51f74c237509ccba40c8884b64ad3d64d3259a69e3cc6373481857ffcc9f2a50",
+    "screenshots/data-library-1440.png": "832d39ace01197cfc735f2d0413f06f196fbae0ee32c45c78e608b962054da0c",
+    "screenshots/fetch-yahoo-390.png": "e8416f97c259a3fe0c1a2c78d641c207cfcb76270acc154a10e455d7c619fb61",
+    "screenshots/fetch-yahoo-1440.png": "be4a2ade0873d653c43b521889a34a6b93c96df5dff95ae0ab4b290b4a715910",
+    "screenshots/fetched-qa-390.png": "ee80a42a59efac7d549cc6da8fcdf43493e8175105e2281252bc02166e5835a7",
+    "screenshots/fetched-qa-1440.png": "9a112e00a7672da7e4fc61b5e1bfd0ed480c11015fa8a806364cc609c65dba91",
+    "screenshots/active-dataset-390.png": "6a130844b46cee66b07c46369e6b171d36b80fadaf3d0d5adcc57abd2cc1368e",
+    "screenshots/active-dataset-1440.png": "93ce1dd41502fa96626765c7f614c0b48b20aa13c4352b6a2e8aa4dc03f4e761"
+  }
+}

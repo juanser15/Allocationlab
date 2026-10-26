@@ -1,0 +1,15 @@
+✔ QA preserves missing cells, exact union/common calendar and explicit gaps (1.823721ms)
+✔ Yahoo uses fixed host/adjusted close, keeps missing/invalid evidence and does not fill (18.87825ms)
+✔ A failed optional symbol remains visible and never substitutes raw close (1.344078ms)
+✔ Identical duplicates counted; conflicting duplicates reject affected symbol (1.343347ms)
+✔ Unknown fields, arbitrary paths, invalid dates and non-daily sources never fetch (0.398962ms)
+✔ Unavailable PostgreSQL fails closed, safely and without internal dataset fallback (0.424771ms)
+✔ Post-initialization database outage preserves DATASET_UNAVAILABLE for explicit reads (73.73823ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 205.989251

@@ -1,0 +1,9 @@
+{
+  "status": "PASS_FOR_PERSISTENCE_LIVE_YAHOO_GATE_BLOCKED",
+  "provider_evidence": "TEST_PROVIDER_WIRE_FIXTURE_FROM_COMMITTED_OBSERVATIONS",
+  "dataset_id": "yf_f205c82663054a30bf7ab819b2f2bafb",
+  "dataset_hash": "7fefffe2f2891d33a0df1fdd409b356b313751ec2caf34693b672d46b268dfbf",
+  "api_restart": true,
+  "clean_runtime_no_git_no_old_tmp": true,
+  "financial_hash_reproduced": true
+}

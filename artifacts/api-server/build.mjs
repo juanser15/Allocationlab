@@ -155,6 +155,15 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
     `,
     },
   });
+  // Persistent-data workers require the real Postgres pool; legacy workers
+  // retain their original pure-calculator shim and source contracts.
+  await esbuild({
+    entryPoints: { "workbench-p0-worker": path.resolve(artifactDir, "src/workbench-p0-worker.ts") },
+    platform: "node", bundle: true, format: "esm", outdir: distDir,
+    outExtension: { ".js": ".mjs" }, external: ["*.node", "pg-native"], sourcemap: "linked",
+    banner: { js: `import {createRequire as __p0Require} from 'node:module'; import {fileURLToPath as __p0Url} from 'node:url'; import {dirname as __p0Dir} from 'node:path'; globalThis.require=__p0Require(import.meta.url);globalThis.__filename=__p0Url(import.meta.url);globalThis.__dirname=__p0Dir(globalThis.__filename);` },
+  });
+
 }
 
 buildAll().catch((err) => {

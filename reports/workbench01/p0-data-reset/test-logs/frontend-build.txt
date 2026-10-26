@@ -1,0 +1,18 @@
+vite v7.3.5 building client environment for production...
+transforming...
+artifacts/allocation-lab/src/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+artifacts/allocation-lab/src/components/ui/sheet.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+artifacts/allocation-lab/src/components/ui/select.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+artifacts/allocation-lab/src/components/ui/label.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+✓ 2570 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/public/index.html                     1.41 kB │ gzip:   0.55 kB
+dist/public/assets/index-us7tCWi2.css    166.70 kB │ gzip:  28.21 kB
+dist/public/assets/index-Bw55oXTJ.js   2,002.96 kB │ gzip: 530.39 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 5.16s
