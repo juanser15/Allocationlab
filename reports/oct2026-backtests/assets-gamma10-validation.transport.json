@@ -1,8 +1,0 @@
-{
-  "endpoint": "/validation-runs/546",
-  "method": "GET",
-  "status": 200,
-  "startedAt": "2026-10-01T16:24:32.516Z",
-  "completedAt": "2026-10-01T16:24:34.821Z",
-  "responseSha256": "962f0e30f81f182fab281497ae371f84791bef7b5a15916171648ca6bfe66461"
-}

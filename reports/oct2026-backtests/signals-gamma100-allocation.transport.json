@@ -1,8 +1,0 @@
-{
-  "endpoint": "/allocations",
-  "method": "POST",
-  "status": 201,
-  "startedAt": "2026-10-01T16:31:30.107Z",
-  "completedAt": "2026-10-01T16:31:52.509Z",
-  "responseSha256": "17d000ea961093f1389dde07f5cb4f16b9178ec29436cdcaf233212f364ca4a8"
-}

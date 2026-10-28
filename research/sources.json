@@ -1,0 +1,82 @@
+[
+  {
+    "key": "qlib",
+    "title": "Qlib Alpha158 implementation",
+    "url": "https://github.com/microsoft/qlib/blob/main/qlib/contrib/data/loader.py",
+    "publicationDate": null,
+    "credibility": "Official implementation/documentation; evidence for functionality, not profitability",
+    "savedEvidencePath": "research/sources/alpha-area-0.md"
+  },
+  {
+    "key": "rd-agent",
+    "title": "Microsoft RD-Agent",
+    "url": "https://github.com/microsoft/RD-Agent",
+    "publicationDate": null,
+    "credibility": "Official implementation/documentation; evidence for functionality, not profitability",
+    "savedEvidencePath": "research/sources/alpha-area-0.md"
+  },
+  {
+    "key": "rd-paper",
+    "title": "R&D-Agent-Quant",
+    "url": "https://arxiv.org/abs/2505.15155",
+    "publicationDate": "2025-09-25",
+    "credibility": "Author preprint; empirical claims not independently replicated",
+    "savedEvidencePath": "research/sources/alpha-area-0.md"
+  },
+  {
+    "key": "alphalens",
+    "title": "Alphalens diagnostics",
+    "url": "https://quantopian.github.io/alphalens/alphalens.html",
+    "publicationDate": null,
+    "credibility": "Official implementation/documentation; evidence for functionality, not profitability",
+    "savedEvidencePath": "research/sources/alpha-area-1.md"
+  },
+  {
+    "key": "pbo",
+    "title": "Probability of Backtest Overfitting",
+    "url": "https://www.davidhbailey.com/dhbpapers/backtest-prob.pdf",
+    "publicationDate": "2015-02-27",
+    "credibility": "Primary academic manuscript",
+    "savedEvidencePath": "research/sources/alpha-area-1.md"
+  },
+  {
+    "key": "dsr",
+    "title": "Deflated Sharpe Ratio",
+    "url": "https://www.davidhbailey.com/dhbpapers/deflated-sharpe.pdf",
+    "publicationDate": "2014-07-31",
+    "credibility": "Primary academic manuscript",
+    "savedEvidencePath": "research/sources/alpha-area-1.md"
+  },
+  {
+    "key": "time-split",
+    "title": "TimeSeriesSplit",
+    "url": "https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html",
+    "publicationDate": null,
+    "credibility": "Official implementation/documentation; evidence for functionality, not profitability",
+    "savedEvidencePath": "research/sources/alpha-area-1.md"
+  },
+  {
+    "key": "qc-alpha",
+    "title": "QuantConnect Alpha Key Concepts",
+    "url": "https://www.quantconnect.com/docs/v2/writing-algorithms/algorithm-framework/alpha/key-concepts",
+    "publicationDate": null,
+    "credibility": "Official implementation/documentation; evidence for functionality, not profitability",
+    "savedEvidencePath": "research/sources/alpha-area-2.md"
+  },
+  {
+    "key": "qc-portfolio",
+    "title": "QuantConnect Portfolio Construction",
+    "url": "https://www.quantconnect.com/docs/v2/writing-algorithms/algorithm-framework/portfolio-construction/key-concepts",
+    "publicationDate": null,
+    "credibility": "Official implementation/documentation; evidence for functionality, not profitability",
+    "savedEvidencePath": "research/sources/alpha-area-2.md"
+  },
+  {
+    "key": "qc-export",
+    "title": "QuantConnect Signal Exports",
+    "url": "https://www.quantconnect.com/docs/v2/writing-algorithms/live-trading/signal-exports/key-concepts",
+    "publicationDate": null,
+    "credibility": "Official implementation/documentation; evidence for functionality, not profitability",
+    "savedEvidencePath": "research/sources/alpha-area-2.md"
+  }
+]

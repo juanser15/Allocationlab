@@ -1,0 +1,38 @@
+import assert from "node:assert/strict";
+import { once } from "node:events";
+import { mkdtemp, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import test from "node:test";
+import express from "express";
+import { createWorkbenchRouter } from "../../routes/workbench";
+import { createWorkbenchV2Router } from "../../routes/workbench-v2";
+import { WorkbenchRunStore } from "./run-store";
+import { WorkbenchService } from "./service";
+import { calculateRunId } from "./identity";
+import { RESEARCH_RUN_SPEC_VERSION } from "./contracts";
+import { SPEC_V2 } from "./calendar-v2";
+
+test("V1 and V2 lists, reads, reruns and comparisons cannot mix contract versions", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "workbench-version-boundary-"));
+  const previous = process.env.WORKBENCH_RUN_DIR; process.env.WORKBENCH_RUN_DIR = root;
+  const store = await WorkbenchRunStore.open({ root });
+  const v1 = { contract_version: RESEARCH_RUN_SPEC_VERSION, identity_namespace: "TEST_V1", transaction_cost_bps: 0 };
+  const v2 = { contract_version: SPEC_V2, identity_namespace: SPEC_V2, transaction_cost_bps: 7.25 };
+  const id1 = calculateRunId(v1), id2 = calculateRunId(v2);
+  await store.ensureRun(id1, v1); await store.ensureRun(id2, v2);
+  const service = await WorkbenchService.open({ store, executeAttempt: async () => { throw new Error("This version-boundary test must never execute research"); } });
+  const app = express(); app.use(express.json()); app.use(createWorkbenchRouter(service, "/workbench/v1")); app.use(createWorkbenchV2Router());
+  const server = app.listen(0); await once(server, "listening"); const base = `http://127.0.0.1:${(server.address() as any).port}`;
+  t.after(async () => { await new Promise<void>(resolve => server.close(() => resolve()));
+    if (previous === undefined) delete process.env.WORKBENCH_RUN_DIR; else process.env.WORKBENCH_RUN_DIR = previous;
+    await rm(root, { recursive: true, force: true }); });
+  const list1 = await (await fetch(`${base}/workbench/v1/runs`)).json() as any;
+  const list2 = await (await fetch(`${base}/workbench/runs`)).json() as any;
+  assert.deepEqual(list1.runs.map((r: any) => r.run_id), [id1]); assert.deepEqual(list2.runs.map((r: any) => r.run_id), [id2]);
+  assert.equal((await fetch(`${base}/workbench/v1/runs/${id2}`)).status, 400);
+  assert.equal((await fetch(`${base}/workbench/runs/${id1}`)).status, 400);
+  assert.equal((await fetch(`${base}/workbench/v1/runs/${id2}/rerun`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" })).status, 400);
+  assert.equal((await fetch(`${base}/workbench/v1/compare?leftRunId=${id1}&rightRunId=${id2}`)).status, 400);
+  assert.equal((await store.getRun(id2)).attempt_history.length, 0);
+});

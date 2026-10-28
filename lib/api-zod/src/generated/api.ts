@@ -9,6 +9,106 @@ import * as zod from 'zod';
 
 
 /**
+ * Streams progress followed by exactly one result or error. A result is sent only after the fetched draft is persisted. Does not activate or save a named dataset version.
+ * @summary Fetch Yahoo adjusted-close data with real progress
+ */
+export const fetchResearchDataStreamBodyTickersMax = 64;
+
+
+
+export const FetchResearchDataStreamBody = zod.object({
+  "tickers": zod.array(zod.string()).min(1).max(fetchResearchDataStreamBodyTickersMax),
+  "start": zod.coerce.date(),
+  "end": zod.coerce.date(),
+  "frequency": zod.enum(['DAILY']),
+  "price_field": zod.enum(['ADJUSTED_CLOSE'])
+})
+
+export const FetchResearchDataStreamResponse = zod.unknown()
+
+
+/**
+ * @summary Read append-only reviews bound to frozen research evidence
+ */
+export const getResearchReviewsPathRunIdRegExp = new RegExp('^rr_[a-f0-9]{64}$');
+
+
+export const GetResearchReviewsParams = zod.object({
+  "runId": zod.coerce.string().regex(getResearchReviewsPathRunIdRegExp)
+})
+
+export const getResearchReviewsResponseEventsItemOneActorMax = 120;
+
+export const getResearchReviewsResponseEventsItemOneNoteMax = 2000;
+
+
+
+export const GetResearchReviewsResponse = zod.object({
+  "state": zod.enum(['DRAFT', 'CALCULATED', 'REVIEWED', 'APPROVED', 'REJECTED']),
+  "events": zod.array(zod.object({
+  "execution_attempt_id": zod.string(),
+  "decision": zod.enum(['REVIEWED', 'APPROVED', 'REJECTED']),
+  "actor": zod.string().min(1).max(getResearchReviewsResponseEventsItemOneActorMax),
+  "note": zod.string().min(1).max(getResearchReviewsResponseEventsItemOneNoteMax)
+}).and(zod.object({
+  "id": zod.string(),
+  "run_id": zod.string(),
+  "result_hash": zod.string(),
+  "created_at": zod.coerce.date(),
+  "actor_type": zod.enum(['DECLARED_NOT_AUTHENTICATED'])
+}))),
+  "approval_blockers": zod.array(zod.string())
+})
+
+
+/**
+ * @summary Record a declared review of the latest successful research attempt
+ */
+export const recordResearchReviewPathRunIdRegExp = new RegExp('^rr_[a-f0-9]{64}$');
+
+
+export const RecordResearchReviewParams = zod.object({
+  "runId": zod.coerce.string().regex(recordResearchReviewPathRunIdRegExp)
+})
+
+export const recordResearchReviewBodyActorMax = 120;
+
+export const recordResearchReviewBodyNoteMax = 2000;
+
+
+
+export const RecordResearchReviewBody = zod.object({
+  "execution_attempt_id": zod.string(),
+  "decision": zod.enum(['REVIEWED', 'APPROVED', 'REJECTED']),
+  "actor": zod.string().min(1).max(recordResearchReviewBodyActorMax),
+  "note": zod.string().min(1).max(recordResearchReviewBodyNoteMax)
+})
+
+export const recordResearchReviewResponseEventsItemOneActorMax = 120;
+
+export const recordResearchReviewResponseEventsItemOneNoteMax = 2000;
+
+
+
+export const RecordResearchReviewResponse = zod.object({
+  "state": zod.enum(['DRAFT', 'CALCULATED', 'REVIEWED', 'APPROVED', 'REJECTED']),
+  "events": zod.array(zod.object({
+  "execution_attempt_id": zod.string(),
+  "decision": zod.enum(['REVIEWED', 'APPROVED', 'REJECTED']),
+  "actor": zod.string().min(1).max(recordResearchReviewResponseEventsItemOneActorMax),
+  "note": zod.string().min(1).max(recordResearchReviewResponseEventsItemOneNoteMax)
+}).and(zod.object({
+  "id": zod.string(),
+  "run_id": zod.string(),
+  "result_hash": zod.string(),
+  "created_at": zod.coerce.date(),
+  "actor_type": zod.enum(['DECLARED_NOT_AUTHENTICATED'])
+}))),
+  "approval_blockers": zod.array(zod.string())
+})
+
+
+/**
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({

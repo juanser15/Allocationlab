@@ -1,7 +1,11 @@
+import { readExecutionCapacity } from "./lib/workbench/execution-capacity";
 import app from "./app";
 import { pool } from "@workspace/db";
 import { logger } from "./lib/logger";
 import { startValidationJobSupervisor } from "./lib/validation-job-supervisor";
+
+// Fail closed before listening; only variable names, never values, are reported.
+readExecutionCapacity();
 
 const rawPort = process.env["PORT"];
 
@@ -17,7 +21,8 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-const server = app.listen(port, (err) => {
+const host = process.env["RENDER_LOCAL_API"] === "1" ? "127.0.0.1" : undefined;
+const server = app.listen({ port, host }, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
     process.exit(1);

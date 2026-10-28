@@ -28,6 +28,62 @@ tags:
   - name: selection-policies
 
 paths:
+  /workbench/library/fetch-stream:
+    post:
+      operationId: fetchResearchDataStream
+      summary: Fetch Yahoo adjusted-close data with real progress
+      description: Streams progress followed by exactly one result or error. A result is sent only after the fetched draft is persisted. Does not activate or save a named dataset version.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataFetchInput"
+      responses:
+        "200":
+          description: Newline-delimited DataFetchEvent records. Errors after streaming begins are terminal error records, not successful results.
+          content:
+            application/x-ndjson:
+              schema:
+                type: string
+              x-event-schema:
+                $ref: "#/components/schemas/DataFetchEvent"
+        "401":
+          description: Access denied
+  /workbench/p0/runs/{runId}/reviews:
+    parameters:
+      - in: path
+        name: runId
+        required: true
+        schema: { type: string, pattern: '^rr_[a-f0-9]{64}$' }
+    get:
+      operationId: getResearchReviews
+      tags: [results]
+      summary: Read append-only reviews bound to frozen research evidence
+      responses:
+        '200':
+          description: Review state and explicit approval blockers
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ResearchReviewState' }
+        '404': { description: Research record does not exist }
+    post:
+      operationId: recordResearchReview
+      tags: [results]
+      summary: Record a declared review of the latest successful research attempt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ResearchReviewRequest' }
+      responses:
+        '201':
+          description: Append-only decision recorded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ResearchReviewState' }
+        '409': { description: Stale attempt or unresolved approval blockers }
+        '422': { description: "Invalid reviewer, note or decision" }
   /healthz:
     get:
       operationId: healthCheck
@@ -2278,6 +2334,117 @@ components:
         maximum: 5000
         default: 1000
   schemas:
+    CapitalSignalFrequency:
+      type: string
+      enum: [REBALANCE_ONLY, DAILY]
+      default: REBALANCE_ONLY
+      description: Independent capital clock. DAILY refreshes capital on every trading-session decision using earlier closes, with execution at the next observed close. ETF composition is optimized only at portfolio rebalance dates.
+    NewResearchCashPolicy:
+      type: object
+      additionalProperties: false
+      required: [type, annual_rate]
+      description: Forced cash convention for all new persistent research until explicitly changed. Cash allocation is unaffected; no SGOV history is required.
+      properties:
+        type:
+          type: string
+          enum: [ZERO_RETURN]
+        annual_rate:
+          type: number
+          enum: [0]
+          description: Annual cash return as a decimal, fixed at exactly zero.
+    HistoricalSgovCashPolicy:
+      type: object
+      additionalProperties: false
+      required: [type, ticker]
+      description: Retained for interpreting immutable historical records, not accepted for new research.
+      properties:
+        type:
+          type: string
+          enum: [SGOV_TOTAL_RETURN]
+        ticker:
+          type: string
+          enum: [SGOV]
+    ResearchCashPolicy:
+      oneOf:
+        - $ref: "#/components/schemas/NewResearchCashPolicy"
+        - $ref: "#/components/schemas/HistoricalSgovCashPolicy"
+    DataFetchInput:
+      type: object
+      additionalProperties: false
+      required: [tickers, start, end, frequency, price_field]
+      properties:
+        tickers:
+          type: array
+          minItems: 1
+          maxItems: 64
+          items: { type: string }
+        start: { type: string, format: date }
+        end: { type: string, format: date }
+        frequency: { type: string, enum: [DAILY] }
+        price_field: { type: string, enum: [ADJUSTED_CLOSE] }
+    DataFetchProgress:
+      type: object
+      required: [phase, total, completed, successful, failed, remaining, current_symbols, failed_symbols, elapsed_ms, estimated_remaining_ms, percent, message]
+      properties:
+        phase: { type: string, enum: [DOWNLOADING, FINALIZING, COMPLETE] }
+        total: { type: integer, minimum: 1 }
+        completed: { type: integer, minimum: 0 }
+        successful: { type: integer, minimum: 0 }
+        failed: { type: integer, minimum: 0 }
+        remaining: { type: integer, minimum: 0 }
+        current_symbols: { type: array, items: { type: string } }
+        failed_symbols: { type: array, items: { type: string } }
+        elapsed_ms: { type: number, minimum: 0 }
+        estimated_remaining_ms: { type: [number, "null"] }
+        percent: { type: integer, minimum: 0, maximum: 100 }
+        message: { type: string }
+    DataFetchEvent:
+      type: object
+      required: [type]
+      properties:
+        type: { type: string, enum: [progress, result, error, heartbeat] }
+        progress:
+          $ref: "#/components/schemas/DataFetchProgress"
+        draft:
+          type: object
+          additionalProperties: true
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+    ResearchReviewRequest:
+      type: object
+      additionalProperties: false
+      required: [execution_attempt_id, decision, actor, note]
+      properties:
+        execution_attempt_id: { type: string }
+        decision: { type: string, enum: [REVIEWED, APPROVED, REJECTED] }
+        actor: { type: string, minLength: 1, maxLength: 120 }
+        note: { type: string, minLength: 1, maxLength: 2000 }
+    ResearchReviewEvent:
+      allOf:
+        - $ref: '#/components/schemas/ResearchReviewRequest'
+        - type: object
+          required: [id, run_id, result_hash, created_at, actor_type]
+          properties:
+            id: { type: string }
+            run_id: { type: string }
+            result_hash: { type: string }
+            created_at: { type: string, format: date-time }
+            actor_type: { type: string, enum: [DECLARED_NOT_AUTHENTICATED] }
+    ResearchReviewState:
+      type: object
+      required: [state, events, approval_blockers]
+      properties:
+        state: { type: string, enum: [DRAFT, CALCULATED, REVIEWED, APPROVED, REJECTED] }
+        events:
+          type: array
+          items: { $ref: '#/components/schemas/ResearchReviewEvent' }
+        approval_blockers:
+          type: array
+          items: { type: string }
     FactorRegimeWeights:
       type: object
       properties:

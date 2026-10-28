@@ -1,8 +1,0 @@
-{
-  "endpoint": "/validation-jobs",
-  "method": "POST",
-  "status": 202,
-  "startedAt": "2026-10-01T16:23:57.691Z",
-  "completedAt": "2026-10-01T16:24:01.508Z",
-  "responseSha256": "928e2875575f46ca67ffe1f9a97c8149cbe7e555cb652e48a8410a9f0e03874c"
-}

@@ -12,6 +12,7 @@ import { SettingsDrawerProvider } from "@/context/settings-drawer-context";
 import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
 import { UxPreferencesProvider } from "@/context/ux-preferences-context";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
+import WorkbenchPage from "@/research/coordinated";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,13 +23,14 @@ const queryClient = new QueryClient({
   },
 });
 
-function Router() {
+function LegacyRouter() {
   return (
     <AppLayout>
       <SettingsDrawer />
       <OnboardingTour />
       <Switch>
         <Route path="/" component={Dashboard} />
+        <Route path="/legacy" component={Dashboard} />
         <Route path="/portfolio-lab" component={PortfolioLab} />
         <Route path="/investment-committee" component={InvestmentCommittee} />
         <Route path="/etf/:ticker" component={EtfDetail} />
@@ -46,6 +48,16 @@ function Router() {
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
+  );
+}
+
+function Router() {
+  return (
+    <Switch>
+      <Route path="/"><Redirect to="/workbench" /></Route>
+      <Route path="/workbench" component={WorkbenchPage} />
+      <Route><LegacyRouter /></Route>
+    </Switch>
   );
 }
 

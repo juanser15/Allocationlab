@@ -122,6 +122,48 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
     `,
     },
   });
+
+  // The Workbench campaign runs in a fixed child process so the Express
+  // event loop can continue serving status polls. Bundle it separately: the
+  // empirical path uses only pure calculator functions, so the existing A1
+  // DB shim prevents an unused database connection from entering the worker.
+  await esbuild({
+    entryPoints: {
+      "workbench-run-worker": path.resolve(artifactDir, "src/workbench-runtime-worker.ts"),
+      "workbench-coordinated-worker": path.resolve(artifactDir, "src/workbench-coordinated-worker.ts"),
+      "workbench-interactive-worker": path.resolve(artifactDir, "src/workbench-interactive-worker.ts"),
+    },
+    platform: "node",
+    bundle: true,
+    format: "esm",
+    outdir: distDir,
+    outExtension: { ".js": ".mjs" },
+    logLevel: "info",
+    alias: {
+      "@workspace/db": path.resolve(artifactDir, "src/lib/calculator.a1.db-shim.ts"),
+    },
+    external: ["*.node"],
+    sourcemap: "linked",
+    banner: {
+      js: `import { createRequire as __bannerCrReq } from 'node:module';
+import __bannerPath from 'node:path';
+import __bannerUrl from 'node:url';
+
+globalThis.require = __bannerCrReq(import.meta.url);
+globalThis.__filename = __bannerUrl.fileURLToPath(import.meta.url);
+globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
+    `,
+    },
+  });
+  // Persistent-data workers require the real Postgres pool; legacy workers
+  // retain their original pure-calculator shim and source contracts.
+  await esbuild({
+    entryPoints: { "workbench-p0-worker": path.resolve(artifactDir, "src/workbench-p0-worker.ts") },
+    platform: "node", bundle: true, format: "esm", outdir: distDir,
+    outExtension: { ".js": ".mjs" }, external: ["*.node", "pg-native"], sourcemap: "linked",
+    banner: { js: `import {createRequire as __p0Require} from 'node:module'; import {fileURLToPath as __p0Url} from 'node:url'; import {dirname as __p0Dir} from 'node:path'; globalThis.require=__p0Require(import.meta.url);globalThis.__filename=__p0Url(import.meta.url);globalThis.__dirname=__p0Dir(globalThis.__filename);` },
+  });
+
 }
 
 buildAll().catch((err) => {

@@ -1,0 +1,24 @@
+.am-root{position:relative;margin:16px 0;max-width:560px;min-width:0}
+.cp-workspace .am-trigger{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:42px;text-align:left;border-color:#ced9e1}
+.am-count{font-weight:550;color:var(--cp-ink)}
+.am-caret{color:var(--cp-muted)}
+.am-chips{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:10px 0 0}
+.am-chips li{font-size:12px;padding:3px 9px;border-radius:999px;background:#e3eef2;color:#173e51;font-weight:550;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.am-chips .am-more{background:transparent;border:1px solid var(--cp-line);color:var(--cp-muted);font-weight:400}
+.am-warn{font-size:12px;margin-top:8px!important;color:#853d25}
+.am-panel{position:absolute;z-index:30;top:46px;left:0;right:0;background:#fff;border:1px solid #ced9e1;border-radius:9px;box-shadow:0 10px 28px rgba(23,62,81,.14);padding:12px;animation:am-in .14s ease-out}
+@keyframes am-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.am-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0}
+.cp-workspace .am-tools button{padding:5px 10px;font-size:12px}
+.am-tools small{margin-left:auto}
+.am-list{max-height:min(300px,45vh);overflow-y:auto;border-top:1px solid var(--cp-line);border-bottom:1px solid var(--cp-line);overscroll-behavior:contain}
+.cp-workspace .am-option{display:grid;grid-template-columns:18px 52px minmax(0,1fr);align-items:center;gap:10px;flex-direction:row;padding:9px 6px;border-bottom:1px solid #eef2f4;cursor:pointer}
+.am-option:hover{background:#f2f7f9}
+.cp-workspace .am-option input{width:16px;height:16px;min-height:0;padding:0;accent-color:#214e61}
+.am-option strong{color:var(--cp-ink);overflow-wrap:anywhere;min-width:0}
+.am-option span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.am-empty{padding:18px 6px;font-size:12px;color:var(--cp-muted)}
+.am-foot{display:flex;justify-content:flex-end;margin-top:10px}
+.am-meta{font-size:12px;color:var(--cp-muted);overflow-wrap:anywhere}
+.am-meta strong{color:var(--cp-ink);font-weight:550}
+@media (max-width:440px){.am-tools small{margin-left:0;flex-basis:100%}}

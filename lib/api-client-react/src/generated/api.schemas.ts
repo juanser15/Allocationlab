@@ -5,6 +5,208 @@
  * Allocation Lab v2 API
  * OpenAPI spec version: 0.1.0
  */
+/**
+ * Independent capital clock. DAILY refreshes capital on every trading-session decision using earlier closes, with execution at the next observed close. ETF composition is optimized only at portfolio rebalance dates.
+ */
+export type CapitalSignalFrequency = typeof CapitalSignalFrequency[keyof typeof CapitalSignalFrequency];
+
+
+export const CapitalSignalFrequency = {
+  REBALANCE_ONLY: 'REBALANCE_ONLY',
+  DAILY: 'DAILY',
+} as const;
+
+export type NewResearchCashPolicyType = typeof NewResearchCashPolicyType[keyof typeof NewResearchCashPolicyType];
+
+
+export const NewResearchCashPolicyType = {
+  ZERO_RETURN: 'ZERO_RETURN',
+} as const;
+
+/**
+ * Annual cash return as a decimal, fixed at exactly zero.
+ */
+export type NewResearchCashPolicyAnnualRate = typeof NewResearchCashPolicyAnnualRate[keyof typeof NewResearchCashPolicyAnnualRate];
+
+
+export const NewResearchCashPolicyAnnualRate = {
+  NUMBER_0: 0,
+} as const;
+
+/**
+ * Forced cash convention for all new persistent research until explicitly changed. Cash allocation is unaffected; no SGOV history is required.
+ */
+export interface NewResearchCashPolicy {
+  type: NewResearchCashPolicyType;
+  /** Annual cash return as a decimal, fixed at exactly zero. */
+  annual_rate: NewResearchCashPolicyAnnualRate;
+}
+
+export type HistoricalSgovCashPolicyType = typeof HistoricalSgovCashPolicyType[keyof typeof HistoricalSgovCashPolicyType];
+
+
+export const HistoricalSgovCashPolicyType = {
+  SGOV_TOTAL_RETURN: 'SGOV_TOTAL_RETURN',
+} as const;
+
+export type HistoricalSgovCashPolicyTicker = typeof HistoricalSgovCashPolicyTicker[keyof typeof HistoricalSgovCashPolicyTicker];
+
+
+export const HistoricalSgovCashPolicyTicker = {
+  SGOV: 'SGOV',
+} as const;
+
+/**
+ * Retained for interpreting immutable historical records, not accepted for new research.
+ */
+export interface HistoricalSgovCashPolicy {
+  type: HistoricalSgovCashPolicyType;
+  ticker: HistoricalSgovCashPolicyTicker;
+}
+
+export type ResearchCashPolicy = NewResearchCashPolicy | HistoricalSgovCashPolicy;
+
+export type DataFetchInputFrequency = typeof DataFetchInputFrequency[keyof typeof DataFetchInputFrequency];
+
+
+export const DataFetchInputFrequency = {
+  DAILY: 'DAILY',
+} as const;
+
+export type DataFetchInputPriceField = typeof DataFetchInputPriceField[keyof typeof DataFetchInputPriceField];
+
+
+export const DataFetchInputPriceField = {
+  ADJUSTED_CLOSE: 'ADJUSTED_CLOSE',
+} as const;
+
+export interface DataFetchInput {
+  /**
+     * @minItems 1
+     * @maxItems 64
+     */
+  tickers: string[];
+  start: string;
+  end: string;
+  frequency: DataFetchInputFrequency;
+  price_field: DataFetchInputPriceField;
+}
+
+export type DataFetchProgressPhase = typeof DataFetchProgressPhase[keyof typeof DataFetchProgressPhase];
+
+
+export const DataFetchProgressPhase = {
+  DOWNLOADING: 'DOWNLOADING',
+  FINALIZING: 'FINALIZING',
+  COMPLETE: 'COMPLETE',
+} as const;
+
+export interface DataFetchProgress {
+  phase: DataFetchProgressPhase;
+  /** @minimum 1 */
+  total: number;
+  /** @minimum 0 */
+  completed: number;
+  /** @minimum 0 */
+  successful: number;
+  /** @minimum 0 */
+  failed: number;
+  /** @minimum 0 */
+  remaining: number;
+  current_symbols: string[];
+  failed_symbols: string[];
+  /** @minimum 0 */
+  elapsed_ms: number;
+  /** @nullable */
+  estimated_remaining_ms: number | null;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  percent: number;
+  message: string;
+}
+
+export type DataFetchEventType = typeof DataFetchEventType[keyof typeof DataFetchEventType];
+
+
+export const DataFetchEventType = {
+  progress: 'progress',
+  result: 'result',
+  error: 'error',
+  heartbeat: 'heartbeat',
+} as const;
+
+export type DataFetchEventDraft = { [key: string]: unknown };
+
+export type DataFetchEventError = {
+  code: string;
+  message: string;
+};
+
+export interface DataFetchEvent {
+  type: DataFetchEventType;
+  progress?: DataFetchProgress;
+  draft?: DataFetchEventDraft;
+  error?: DataFetchEventError;
+}
+
+export type ResearchReviewRequestDecision = typeof ResearchReviewRequestDecision[keyof typeof ResearchReviewRequestDecision];
+
+
+export const ResearchReviewRequestDecision = {
+  REVIEWED: 'REVIEWED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+export interface ResearchReviewRequest {
+  execution_attempt_id: string;
+  decision: ResearchReviewRequestDecision;
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  actor: string;
+  /**
+     * @minLength 1
+     * @maxLength 2000
+     */
+  note: string;
+}
+
+export type ResearchReviewEventActorType = typeof ResearchReviewEventActorType[keyof typeof ResearchReviewEventActorType];
+
+
+export const ResearchReviewEventActorType = {
+  DECLARED_NOT_AUTHENTICATED: 'DECLARED_NOT_AUTHENTICATED',
+} as const;
+
+export type ResearchReviewEvent = ResearchReviewRequest & {
+  id: string;
+  run_id: string;
+  result_hash: string;
+  created_at: string;
+  actor_type: ResearchReviewEventActorType;
+};
+
+export type ResearchReviewStateState = typeof ResearchReviewStateState[keyof typeof ResearchReviewStateState];
+
+
+export const ResearchReviewStateState = {
+  DRAFT: 'DRAFT',
+  CALCULATED: 'CALCULATED',
+  REVIEWED: 'REVIEWED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+export interface ResearchReviewState {
+  state: ResearchReviewStateState;
+  events: ResearchReviewEvent[];
+  approval_blockers: string[];
+}
+
 export interface FactorRegimeWeights {
   /** @nullable */
   riskOn: number | null;

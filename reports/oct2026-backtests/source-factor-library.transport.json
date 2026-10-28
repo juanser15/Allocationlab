@@ -1,8 +1,0 @@
-{
-  "endpoint": "/factors/library",
-  "method": "GET",
-  "status": 200,
-  "startedAt": "2026-10-01T16:15:50.872Z",
-  "completedAt": "2026-10-01T16:15:51.082Z",
-  "responseSha256": "2dba00a5503d2db155718eebdddbcb7b9f397f1d427c62fc51d952e90b651f4c"
-}

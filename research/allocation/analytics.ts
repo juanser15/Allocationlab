@@ -1,0 +1,36 @@
+/** All economic/risk attribution uses frozen AL02. PSR/Sortino are new declared diagnostics. */
+import {basicMetrics,conditionalMetrics,rollingBetas,regression,DEFAULT_REGRESSION,mean,type Pair} from '../../artifacts/api-server/src/lib/allocation-core/risk-analytics/analytics';
+import type {PriceObservation} from '../../artifacts/api-server/src/lib/allocation-core/risk-analytics/estimators';
+import type {BacktestLedgerEntry} from '../../artifacts/api-server/src/lib/calculator';
+import type {Campaign,Job,Metric,Ranking,Candidate} from './contracts';
+export const PSR_VERSION='probabilistic-sharpe-1.0.0';
+/** Abramowitz-Stegun 26.2.17 standard normal CDF, absolute error <= 7.5e-8. */
+export function normalCdf(z:number){const x=Math.abs(z),t=1/(1+.2316419*x),p=1-Math.exp(-x*x/2)/Math.sqrt(2*Math.PI)*t*(.319381530+t*(-.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));return z>=0?p:1-p;}
+export function psr(excess:number[],benchmarkAnnualSharpe=0){const base={methodology:PSR_VERSION,benchmark_sharpe_annual:benchmarkAnnualSharpe,sample_length:excess.length,assumptions:'IID/STATIONARY_FINITE_FOURTH_MOMENT; no multiple-testing/autocorrelation correction',DSR:'NOT_IMPLEMENTED'};
+ if(excess.length<3||excess.some(x=>!Number.isFinite(x))||!Number.isFinite(benchmarkAnnualSharpe))return{...base,status:'INSUFFICIENT_DATA',probability:null};
+ const n=excess.length,m=mean(excess),centered=excess.map(x=>x-m),m2=mean(centered.map(x=>x*x));if(m2===0)return{...base,status:'INSUFFICIENT_DATA',probability:null};
+ const std=Math.sqrt(m2*n/(n-1)),sr=m/std,skew=mean(centered.map(x=>x**3))/m2**1.5,kurt=mean(centered.map(x=>x**4))/m2**2,den=1-skew*sr+(kurt-1)/4*sr*sr;
+ if(!(den>0))return{...base,status:'NUMERICAL_FAILURE',probability:null};const z=(sr-benchmarkAnnualSharpe/Math.sqrt(252))*Math.sqrt(n-1)/Math.sqrt(den);
+ return{...base,status:'VALID',observed_sharpe_daily:sr,observed_sharpe_annual:sr*Math.sqrt(252),skewness:skew,kurtosis_non_excess:kurt,z,probability:normalCdf(z)};
+}
+export function metrics(ledger:BacktestLedgerEntry[],market:Map<string,number>,history:PriceObservation[],rf:number){
+ if(ledger.length<2)throw Error('INSUFFICIENT_DATA: performance needs two intervals');
+ const pairs:Pair[]=ledger.map(d=>({date:d.date,portfolio:d.netPnl/d.beginningNav,market:market.get(d.date)!,rf}));
+ if(pairs.some(p=>!Number.isFinite(p.market)))throw Error('Missing benchmark return');
+ const end=pairs.at(-1)!.date,base=basicMetrics(pairs,ledger[0].intervalStart),conditional=conditionalMetrics(pairs,history,end),capm=regression(pairs,'CAPM',end,DEFAULT_REGRESSION),timing=regression(pairs,'TREYNOR_MAZUY',end,DEFAULT_REGRESSION),excess=pairs.map(p=>p.portfolio-rf),m=mean(excess),variance=excess.reduce((s,x)=>s+(x-m)**2,0)/(pairs.length-1),down=mean(excess.map(x=>Math.min(0,x)**2));
+ const turnover=ledger.reduce((s,d)=>s+d.trades.reduce((a,t)=>a+Math.abs(t.notional),0)/(d.beginningNav+d.etfPnl+d.cashPnl),0),fees=ledger.reduce((s,d)=>s+d.transactionCosts,0);
+ const stats={...base,sharpe:variance>0?Math.sqrt(252)*m/Math.sqrt(variance):null,sortino:down>0?Math.sqrt(252)*m/Math.sqrt(down):null,max_drawdown_adjusted:base.max_drawdown<0?base.cagr/Math.abs(base.max_drawdown):null,beta:conditional.full_beta.value,downside_beta:conditional.downside_beta.value,tail_beta:conditional.tail_beta['0.05'].value,alpha:capm.alpha_annualized,turnover:turnover*252/ledger.length,costs:fees,mean_risky_allocation:mean(ledger.map(d=>d.beginningPositions.reduce((s,p)=>s+p.weight,0))),mean_cash:mean(ledger.map(d=>d.beginningCash/d.beginningNav))};
+ return{metrics:stats,attribution:{conditional,rolling63:rollingBetas(pairs,63,end),rolling126:rollingBetas(pairs,126,end),capm,timing,psr:psr(excess),pairs}};
+}
+export function metricValue(m:Record<string,any>,type:Metric,c:Campaign):number|null {let v:unknown;switch(type){case'SHARPE':v=m.sharpe;break;case'SORTINO':v=m.sortino;break;case'CAGR':v=m.cagr;break;case'MAX_DRAWDOWN_ADJUSTED':v=m.max_drawdown_adjusted;break;case'CAPM_ALPHA':v=m.alpha;break;case'UTILITY_RETURN_MINUS_RISK':v=m.cagr-c.selection.utility_risk_aversion!*m.annualized_volatility**2;break;default:return null;}return typeof v==='number'&&Number.isFinite(v)?v:null;}
+export function rank(c:Campaign,cs:Candidate[],jobs:Job[],market:Map<string,number>,history:PriceObservation[]):Ranking[]{
+ const summary=cs.map(candidate=>{const found=jobs.filter(j=>j.candidate_id===candidate.candidate_id&&j.scenario_bps===c.selection.selection_scenario_bps),bad=found.find(j=>j.status!=='VALID');if(!found.length||bad)return{candidate_id:candidate.candidate_id,status:bad?.status??'INSUFFICIENT_DATA',rank:null,metrics:null,reason:bad?.reason??'No complete evaluation'} as Ranking;
+ if(found.some(j=>!j.decisions.length||j.decisions.some(d=>d.status!=='VALID'||d.portfolio_gate?.status!=='PASS'||candidate.spec.signal_gate.required&&d.signal_gate?.status!=='PASS')))return{candidate_id:candidate.candidate_id,status:'GATE_FAIL',rank:null,metrics:null,reason:'Selection cannot trust a VALID label without mandatory gate PASS at every decision'};
+ const ledger=found.flatMap(j=>j.tracks.NORMALIZED!.ledger).sort((a,b)=>a.date.localeCompare(b.date));if(new Set(ledger.map(x=>x.date)).size!==ledger.length)throw Error('Overlapping selection intervals');let stats:Record<string,any>;try{stats=metrics(ledger,market,history,c.risk_free_daily).metrics;}catch(e){return{candidate_id:candidate.candidate_id,status:'INSUFFICIENT_DATA',rank:null,metrics:null,reason:String(e)};}
+ return{candidate_id:candidate.candidate_id,status:'VALID',rank:null,metrics:stats,reason:null} as Ranking;});
+ const control=summary.find(x=>c.controls.candidate_ids.includes(x.candidate_id)&&x.status==='VALID')?.metrics;
+ for(const r of summary)if(r.metrics){const m=r.metrics,h=c.selection.hurdles,errors:string[]=[];for(const [key,limit]of Object.entries(h)){const v=key==='min_incremental_cagr'?control?m.cagr-control.cagr:null:key==='min_alpha'?m.alpha:key==='max_beta'?m.beta:key==='max_downside_beta'?m.downside_beta:key==='max_tail_beta'?m.tail_beta:key==='max_drawdown'?Math.abs(m.max_drawdown):m.turnover;if(v===null||v===undefined||!Number.isFinite(v)||(key.startsWith('min_')?v<limit!:v>limit!))errors.push(key);}
+ const priorities=c.selection.metric==='MULTI_METRIC_LEXICOGRAPHIC'?c.selection.lexicographic:[{metric:c.selection.metric,direction:'MAX' as const}];if(priorities.some(p=>metricValue(m,p.metric,c)===null))errors.push('Missing selection metric');if(errors.length){r.status='SCREENED_OUT';r.reason=errors.join(';');}}
+ const priorities=c.selection.metric==='MULTI_METRIC_LEXICOGRAPHIC'?c.selection.lexicographic:[{metric:c.selection.metric,direction:'MAX' as const}];
+ const valid=summary.filter(x=>x.status==='VALID').sort((a,b)=>{for(const p of priorities){const d=metricValue(b.metrics!,p.metric,c)!-metricValue(a.metrics!,p.metric,c)!;if(d)return p.direction==='MAX'?d:-d;}const turn=a.metrics!.turnover-b.metrics!.turnover;if(turn)return turn;const complexity=(id:string)=>JSON.stringify(cs.find(x=>x.candidate_id===id)!.spec.objective).length;return complexity(a.candidate_id)-complexity(b.candidate_id)||a.candidate_id.localeCompare(b.candidate_id);});valid.forEach((x,i)=>x.rank=i+1);return summary.sort((a,b)=>(a.rank??Infinity)-(b.rank??Infinity)||a.candidate_id.localeCompare(b.candidate_id));
+}

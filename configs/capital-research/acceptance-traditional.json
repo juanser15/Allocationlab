@@ -1,0 +1,161 @@
+{
+  "experiment_id": "cl03-acceptance-traditional",
+  "validation_mode": "traditional",
+  "window_type": "rolling",
+  "dates": {
+    "start": "2020-01-01",
+    "end_exclusive": "2024-01-01"
+  },
+  "train_months": 24,
+  "test_months": 12,
+  "step_months": 12,
+  "inner_train_months": 12,
+  "inner_test_months": 6,
+  "inner_step_months": 6,
+  "rebalance_frequency": "monthly",
+  "recalibration_frequency": "monthly",
+  "search_method": "grid",
+  "candidate_budget": 200,
+  "candidate_space": [
+    {
+      "base": {
+        "model_family": "current_regime",
+        "input_set": [
+          "XLK",
+          "XLC",
+          "XLRE",
+          "XLI",
+          "XLY",
+          "XLF",
+          "XLU",
+          "XLE",
+          "XLV",
+          "XLB",
+          "EEM",
+          "EWJ",
+          "AAXJ",
+          "EWG",
+          "EUFN",
+          "SPY",
+          "GLD",
+          "TLT",
+          "IEF",
+          "VNQ",
+          "EFA",
+          "DBC"
+        ],
+        "transformations": [
+          {
+            "name": "identity"
+          }
+        ],
+        "model_parameters": {
+          "lookback_rows": 252
+        },
+        "exposure_policy": "cash_band",
+        "exposure_parameters": {
+          "cash_min": 0.1,
+          "cash_max": 0.2
+        }
+      },
+      "axes": {
+        "exposure_parameters.cash_min": [
+          0.1,
+          0.2
+        ],
+        "exposure_parameters.cash_max": [
+          0.2,
+          0.4
+        ]
+      }
+    },
+    {
+      "base": {
+        "model_family": "current_regime",
+        "input_set": [
+          "XLK",
+          "XLC",
+          "XLRE",
+          "XLI",
+          "XLY",
+          "XLF",
+          "XLU",
+          "XLE",
+          "XLV",
+          "XLB",
+          "EEM",
+          "EWJ",
+          "AAXJ",
+          "EWG",
+          "EUFN",
+          "SPY",
+          "GLD",
+          "TLT",
+          "IEF",
+          "VNQ",
+          "EFA",
+          "DBC"
+        ],
+        "transformations": [
+          {
+            "name": "identity"
+          }
+        ],
+        "model_parameters": {
+          "lookback_rows": 252
+        },
+        "exposure_policy": "constant",
+        "exposure_parameters": {
+          "risk": 1
+        }
+      }
+    }
+  ],
+  "selection_metric": "net_sharpe",
+  "constraints": {
+    "max_turnover": 8,
+    "max_drawdown": 0.6,
+    "min_exposure": 0,
+    "max_exposure": 1
+  },
+  "transaction_cost_bps": [
+    0,
+    5
+  ],
+  "selection_cost_bps": 5,
+  "cash_yield": {
+    "type": "constant",
+    "daily": 0,
+    "reference_daily": 0
+  },
+  "risk_asset": "SPY",
+  "reference_universe": [
+    "XLK",
+    "XLC",
+    "XLRE",
+    "XLI",
+    "XLY",
+    "XLF",
+    "XLU",
+    "XLE",
+    "XLV",
+    "XLB",
+    "EEM",
+    "EWJ",
+    "AAXJ",
+    "EWG",
+    "EUFN",
+    "SPY",
+    "GLD",
+    "TLT",
+    "IEF",
+    "VNQ",
+    "EFA",
+    "DBC"
+  ],
+  "data_csv": "reports/cl02/adjusted-closes.csv",
+  "data_sha256": "b4a4fa0e0ddb6f639521acbe7398740904860a933391081d06e783339e6c7bc0",
+  "data_provenance": "Persisted adjusted-close CSV; vendor authenticity unverified. Neither vendor verification nor synthetic origin is established.",
+  "warmup_rows": 252,
+  "max_jobs": 2000
+}

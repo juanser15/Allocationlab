@@ -1,0 +1,87 @@
+import {canonicalHash,metadata,object,timestamp} from '../validation';
+import {eigen} from '../assets-engine/numerics';
+import {VERSION,OBJECTIVES,type StrategyInput,type PositionMap,type StrategyInstance,type StrategyCovariance,type ExpectedStrategyReturns,type BetaArtifact,type AssetCovariance} from './contracts';
+const META=['as_of','information_cutoff','provenance'];
+const digest=(v:unknown)=>typeof v==='string'&&/^[a-f0-9]{64}$/.test(v);
+export const mapHash=(m:PositionMap)=>canonicalHash({units:m.units,exposures:m.exposures,internal_residual_capital:m.internal_residual_capital,residual_semantics:m.residual_semantics,funding:m.funding});
+export const riskHash=(m:StrategyCovariance)=>canonicalHash({kind:m.kind,axis_ids:m.axis_ids,series_units:m.series_units,capital_basis:m.capital_basis,frequency:m.frequency,covariance:m.covariance});
+export const muHash=(m:ExpectedStrategyReturns)=>canonicalHash({kind:m.kind,axis_ids:m.axis_ids,series_units:m.series_units,capital_basis:m.capital_basis,frequency:m.frequency,values:m.values});
+export const betaHash=(m:BetaArtifact)=>canonicalHash({axis_ids:m.axis_ids,values:m.values,beta_method:m.beta_method,benchmark:m.benchmark,window:m.window});
+export const assetRiskHash=(m:AssetCovariance)=>canonicalHash({kind:m.kind,axis_ids:m.axis_ids,covariance:m.covariance,units:m.units});
+export const economicIdentity=(s:StrategyInstance)=>canonicalHash({family:s.strategy_family_id,universe:s.underlying_universe_id,underlying_ids:[...s.underlying_ids].sort(),version:s.strategy_version,parameterization_hash:s.parameterization_hash});
+export function validateInput(value:unknown):string[] {
+ const errors:string[]=[];
+ try{
+ const r=object(value,[...META,'schema_version','allocation_mode','convention','streams','risk_model','expected_returns','strategy_betas','asset_betas','asset_covariance','previous_allocation','strategy_constraints','implementation_constraints','objective','solver','incremental_cost'],'strategy_input',errors),x=r as unknown as StrategyInput;
+ metadata(r,'input',errors);
+ if(x.schema_version!==VERSION||x.allocation_mode!=='ALPHA_STREAMS'||x.convention!=='NONNEGATIVE_FULLY_ALLOCATED_STRATEGY_CAPITAL')errors.push('Invalid strategy convention/version');
+ if(timestamp(x.as_of)===null||timestamp(x.information_cutoff)===null||timestamp(x.information_cutoff)!>=timestamp(x.as_of)!)errors.push('Strict prior-decision information cutoff required');
+ const point=(v:unknown,name:string,keys:string[])=>{const p=object(v,[...META,...keys],name,errors);metadata(p,name,errors,x,true);if(!(p.provenance as StrategyInstance['provenance'])?.model)errors.push(name+': model/version required');return p;};
+ const finiteRecord=(v:unknown,name:string):Record<string,number>=>{if(!v||typeof v!=='object'||Array.isArray(v)){errors.push(name+': record required');return{};}const z=v as Record<string,number>;if(Object.entries(z).some(([k,n])=>!validId(k)||!Number.isFinite(n)))errors.push(name+': finite values/IDs required');return z;};
+ if(!Array.isArray(x.streams)||!x.streams.length)return [...errors,'Nonempty strategy instances required'];
+ const ids=x.streams.map(s=>s.strategy_instance_id),assets=[...new Set(x.streams.flatMap(s=>Object.keys(s.unit_position_map.exposures)))].sort();
+ if(ids.some(a=>!validId(a))||new Set(ids).size!==ids.length)errors.push('Unique strategy IDs and tradable maps required');
+ const exact=(a:string[],b:string[])=>Array.isArray(a)&&a.length===b.length&&new Set(a).size===a.length&&[...a].sort().every((v,i)=>v===[...b].sort()[i]);
+ const units=x.streams[0].historical_series.units;
+ if(!['NET_RETURN_PER_UNIT_CAPITAL','NET_PNL_PER_UNIT_CAPITAL'].includes(units))errors.push('NET per-capital histories required, not signal scores/gross returns/dollar P&L');
+ const seen=new Map<string,StrategyInstance[]>();
+ for(const s of x.streams){
+  point(s,'instance:'+s.strategy_instance_id,['kind','strategy_instance_id','strategy_family_id','underlying_universe_id','underlying_ids','strategy_version','parameterization_hash','configuration','separate_execution_sleeve_id','historical_series','unit_position_map','forecast','execution_convention','availability']);
+  if(s.kind!=='STRATEGY_INSTANCE'||![s.strategy_family_id,s.underlying_universe_id,s.strategy_version].every(validId)||!Array.isArray(s.underlying_ids)||!s.underlying_ids.length||s.underlying_ids.some(a=>!validId(a))||new Set(s.underlying_ids).size!==s.underlying_ids.length||!digest(s.parameterization_hash)||s.parameterization_hash!==canonicalHash(s.configuration))errors.push('Invalid strategy identity/configuration hash');
+  if(s.separate_execution_sleeve_id!==null&&!validId(s.separate_execution_sleeve_id))errors.push('Invalid separate execution sleeve identity');
+  const identity=economicIdentity(s);seen.set(identity,[...(seen.get(identity)??[]),s]);
+  object(s.historical_series,['units','capital_basis','frequency','dates','values'],'history',errors);const h=s.historical_series;
+  if(h.units!==units||h.capital_basis!=='BEGINNING_STREAM_CAPITAL'||h.frequency!=='DAILY'||!Array.isArray(h.dates)||h.dates.length!==h.values.length||h.dates.length<2||h.dates.some((d,i)=>timestamp(d)===null||timestamp(d)!>timestamp(s.information_cutoff)!||i>0&&d<=h.dates[i-1])||h.values.some(v=>!Number.isFinite(v)||v<=-1))errors.push('History units/basis/common convention, chronology or prior availability invalid');
+  object(s.availability,['first_observation','version_available_at'],'availability',errors);
+  if(timestamp(s.availability.first_observation)===null||s.availability.first_observation>h.dates[0]||timestamp(s.availability.version_available_at)===null||timestamp(s.availability.version_available_at)!>timestamp(x.information_cutoff)!)errors.push('Version/history not yet available');
+  const m=s.unit_position_map;point(m,'map',['units','exposures','internal_residual_capital','residual_semantics','funding','map_hash']);finiteRecord(m.exposures,'map.exposures');
+  if(m.units!=='instrument_exposure_per_unit_allocated_stream_capital'||m.residual_semantics!=='STREAM_HELD_NOT_EXTERNALLY_REDEPLOYABLE'||!['LONG_ONLY_FUNDED','SIGNED_OR_EXTERNAL_FINANCING'].includes(m.funding)||!Number.isFinite(m.internal_residual_capital)||m.internal_residual_capital<0||m.internal_residual_capital>1||m.map_hash!==mapHash(m))errors.push('Invalid unit map, residual semantics/hash/funding');
+  if(m.funding==='LONG_ONLY_FUNDED'&&(Object.values(m.exposures).some(v=>v<0)||Math.abs(Object.values(m.exposures).reduce((a,b)=>a+b,0)+m.internal_residual_capital-1)>x.solver.feasibility_tolerance))errors.push('Long-only map capital must reconcile to positions plus separately held internal residual');
+  const e=object(s.execution_convention,['signal_timing','rebalance_timing','execution_lag_sessions','internal_costs','internal_cash_yield','description'],'execution',errors);
+  if(!validId(e.signal_timing)||!validId(e.rebalance_timing)||!validId(e.description)||!Number.isInteger(e.execution_lag_sessions)||Number(e.execution_lag_sessions)<0||e.internal_costs!=='EMBEDDED_IN_NET_HISTORY'||e.internal_cash_yield!=='EMBEDDED_IN_NET_HISTORY')errors.push('Explicit execution and embedded NET cost/cash-yield convention required');
+  if(s.forecast!==null)validateMu(s.forecast,[s.strategy_instance_id],h.units,'instance.forecast');
+ }
+ for(const group of seen.values())if(group.length>1&&(group.some(s=>s.separate_execution_sleeve_id===null)||new Set(group.map(s=>s.separate_execution_sleeve_id)).size!==group.length))errors.push('Exact economic duplicates require explicitly distinct execution sleeves');
+ const cfg=object(x.solver,['feasibility_tolerance','stationarity_tolerance','psd_tolerance','symmetry_tolerance','erc_relative_tolerance','max_iterations','max_faces','max_supports'],'solver',errors);
+ if(Object.keys(cfg).length!==8||Object.entries(cfg).some(([k,v])=>typeof v!=='number'||!Number.isFinite(v)||v<=0||k.startsWith('max_')&&!Number.isSafeInteger(v)))errors.push('All bounded positive solver settings required');
+ function matrix(c:number[][],axis:string[],name:string){if(!Array.isArray(c)||c.length!==axis.length||c.some(row=>!Array.isArray(row)||row.length!==axis.length||row.some(v=>!Number.isFinite(v)))){errors.push(name+': finite square matrix required');return;}
+  if(c.some((r,i)=>r[i]<0||r.some((v,j)=>Math.abs(v-c[j][i])>x.solver.symmetry_tolerance))){errors.push(name+': symmetric covariance required');return;}
+  const sym=c.map((r,i)=>r.map((v,j)=>(v+c[j][i])/2)),e=eigen(sym,x.solver.max_iterations);if(!e.converged)errors.push('NUMERICAL_FAILURE: '+name+': PSD eigencertificate did not converge');else if(Math.min(...e.values)<-x.solver.psd_tolerance)errors.push(name+': covariance not PSD');}
+ const cov=x.risk_model;point(cov,'strategy_covariance',['kind','axis_ids','series_units','capital_basis','frequency','covariance','artifact_hash']);
+ if(cov.kind!=='STRATEGY_RETURN_COVARIANCE'||!exact(cov.axis_ids,ids)||cov.series_units!==units||cov.capital_basis!=='BEGINNING_STREAM_CAPITAL'||cov.frequency!=='DAILY'||cov.artifact_hash!==riskHash(cov))errors.push('Strategy covariance axis/NET units/basis/hash invalid');matrix(cov.covariance,cov.axis_ids,'strategy covariance');
+ function validateMu(mu:ExpectedStrategyReturns,axis:string[],u:string,name:string){point(mu,name,['kind','axis_ids','series_units','capital_basis','frequency','values','artifact_hash']);finiteRecord(mu.values,name+'.values');if(mu.kind!=='EXTERNAL_STRATEGY_EXPECTED_RETURN'||!exact(mu.axis_ids,axis)||!exact(Object.keys(mu.values),axis)||mu.series_units!==u||mu.capital_basis!=='BEGINNING_STREAM_CAPITAL'||mu.frequency!=='DAILY'||mu.artifact_hash!==muHash(mu))errors.push(name+': external PIT return axis/units/hash required');}
+ if(x.expected_returns!==null)validateMu(x.expected_returns,ids,units,'expected_returns');
+ for(const [b,axis,method]of [[x.strategy_betas,ids,'STRATEGY_RETURN_SAMPLE_COV_VARIANCE'],[x.asset_betas,assets,'CURRENT_POSITION_ASSET_BETA']] as const)if(b){point(b,'beta',['axis_ids','values','beta_method','benchmark','window','artifact_hash']);finiteRecord(b.values,'beta.values');object(b.window,['start','end','observations'],'beta.window',errors);if(!exact(b.axis_ids,axis)||!exact(Object.keys(b.values),axis)||b.beta_method!==method||!validId(b.benchmark)||b.artifact_hash!==betaHash(b)||timestamp(b.window.start)===null||timestamp(b.window.end)===null||b.window.start>b.window.end||b.window.end>b.information_cutoff||!Number.isInteger(b.window.observations)||b.window.observations<2)errors.push('Invalid/distinct beta method, axis, window or hash');}
+ if(x.asset_covariance){const m=x.asset_covariance;point(m,'asset_covariance',['kind','axis_ids','covariance','units','artifact_hash']);if(m.kind!=='CURRENT_ASSET_RETURN_COVARIANCE'||!exact(m.axis_ids,assets)||m.units!=='daily_decimal_return_squared'||m.artifact_hash!==assetRiskHash(m))errors.push('Asset covariance axis/units/hash invalid');matrix(m.covariance,m.axis_ids,'asset covariance');}
+ if(x.previous_allocation){const p=x.previous_allocation;point(p,'previous',['units','allocations','instrument_exposures']);const a=finiteRecord(p.allocations,'previous.a');finiteRecord(p.instrument_exposures,'previous.x');if(p.units!=='fraction_of_strategy_risk_capital'||!exact(Object.keys(a),ids)||Object.values(a).some(v=>v<0)||Math.abs(Object.values(a).reduce((s,v)=>s+v,0)-1)>x.solver.feasibility_tolerance)errors.push('Previous strategy allocation must reconcile on same strategy axis');}
+ const sc=object(x.strategy_constraints,['bounds','family_caps','underlying_group_caps','max_active_strategies','turnover_cap'],'strategy_constraints',errors),ic=object(x.implementation_constraints,['instrument_bounds','group_limits','max_gross','min_net','max_net'],'implementation_constraints',errors);
+ for(const [id,b]of Object.entries(x.strategy_constraints.bounds)){object(b,['min','max'],'strategy bound',errors);if(!ids.includes(id)||![b.min,b.max].every(Number.isFinite)||b.min<0||b.max>1)errors.push('Invalid strategy bound');}
+ for(const g of x.strategy_constraints.family_caps){object(g,['id','max'],'family cap',errors);if(!x.streams.some(s=>s.strategy_family_id===g.id)||!Number.isFinite(g.max)||g.max<0||g.max>1)errors.push('Invalid family cap');}
+ for(const g of x.strategy_constraints.underlying_group_caps){object(g,['id','underlying_ids','max'],'underlying group',errors);if(!validId(g.id)||!g.underlying_ids.length||g.underlying_ids.some(a=>!x.streams.some(s=>s.underlying_ids.includes(a)))||new Set(g.underlying_ids).size!==g.underlying_ids.length||!Number.isFinite(g.max)||g.max<0||g.max>1)errors.push('Invalid underlying strategy-group cap');}
+ if(Object.keys(sc).length!==5||x.strategy_constraints.max_active_strategies!==null&&(!Number.isInteger(x.strategy_constraints.max_active_strategies)||x.strategy_constraints.max_active_strategies<1||x.strategy_constraints.max_active_strategies>ids.length)||x.strategy_constraints.turnover_cap!==null&&(!x.previous_allocation||!Number.isFinite(x.strategy_constraints.turnover_cap)||x.strategy_constraints.turnover_cap<0||x.strategy_constraints.turnover_cap>2))errors.push('Strategy cardinality/turnover settings invalid');
+ for(const [id,b]of Object.entries(x.implementation_constraints.instrument_bounds)){object(b,['max_absolute','min_net','max_net'],'instrument bound',errors);if(Object.keys(b).length!==3||!assets.includes(id)||Object.values(b).some(v=>v!==null&&!Number.isFinite(v))||b.max_absolute!==null&&b.max_absolute<0)errors.push('Invalid post-map instrument bounds');}
+ for(const g of x.implementation_constraints.group_limits){object(g,['id','instruments','basis','min','max'],'post-map group',errors);if(!validId(g.id)||!g.instruments.length||new Set(g.instruments).size!==g.instruments.length||g.instruments.some(a=>!assets.includes(a))||!['NET','GROSS'].includes(g.basis)||[g.min,g.max].some(v=>v!==null&&!Number.isFinite(v))||g.basis==='GROSS'&&g.min!==null&&g.min!==0)errors.push('Post-map groups require NET limits or convex GROSS upper limit (nonzero gross floor unsupported)');}
+ if(Object.keys(ic).length!==5||[x.implementation_constraints.min_net,x.implementation_constraints.max_net,x.implementation_constraints.max_gross].some(v=>v!==null&&!Number.isFinite(v))||x.implementation_constraints.max_gross!==null&&x.implementation_constraints.max_gross<0)errors.push('Invalid aggregate exposure bounds');
+ const o=object(x.objective,['type',...(x.objective?.type==='MEAN_VARIANCE'?['gamma']:x.objective?.type==='MAX_SHARPE'?['rf_stream']:[])],'objective',errors);
+ if(!Object.hasOwn(OBJECTIVES,String(o.type))||x.objective.type==='MEAN_VARIANCE'&&(!Number.isFinite(x.objective.gamma)||x.objective.gamma<=0)||x.objective.type==='MAX_SHARPE'&&!Number.isFinite(x.objective.rf_stream))errors.push('Explicit objective/gamma/rf required; no switch');
+ if(x.incremental_cost){const c=x.incremental_cost;point(c,'incremental_cost',['source','basis','units','methodology','embedded_in_stream_history','bps','trades']);if(c.source!=='NET'||c.basis!=='ACTUAL_INSTRUMENT_TRADE_NOTIONAL'||c.units!=='CAPITAL_CURRENCY'||c.methodology!=='ABS_NOTIONAL_TIMES_BPS_V1'||c.embedded_in_stream_history!==false||!Number.isFinite(c.bps)||c.bps<0||!Array.isArray(c.trades)||new Set(c.trades.map(t=>t.trade_id)).size!==c.trades.length)errors.push('Incremental costs must be non-embedded, actual instrument notional only');for(const t of c.trades){object(t,['instrument_id','trade_id','signed_notional'],'trade',errors);if(!assets.includes(t.instrument_id)||!validId(t.trade_id)||!Number.isFinite(t.signed_notional))errors.push('Invalid actual incremental trade');}}
+ canonicalHash(value);
+ }catch(error){errors.push('Malformed/nonfinite canonical input: '+String(error));}
+ return errors;
+}
+function validId(v:unknown):v is string{return typeof v==='string'&&!!v.trim()&&!['CASH','masterCash','totalCash','__proto__','constructor','prototype'].includes(v);}
+/** Complete versioned snapshots: future payloads never enter validation/hash/selection.
+ * Caller must supply historical versions, never substitute the current definition. */
+export function selectSnapshot(snapshots:StrategyInput[],decision:string):StrategyInput|null {
+ const d=timestamp(decision);if(d===null)throw Error('Invalid decision date');
+ const eligible=snapshots.filter(s=>timestamp(s.as_of)!==null&&timestamp(s.information_cutoff)!==null&&timestamp(s.provenance.data_available_at)!==null&&timestamp(s.as_of)!<=d&&timestamp(s.information_cutoff)!<d&&timestamp(s.provenance.data_available_at)!<d).sort((a,b)=>timestamp(a.as_of)!-timestamp(b.as_of)!);
+ if(!eligible.length)return null;const s=eligible.at(-1)!;
+ if(eligible.filter(x=>timestamp(x.as_of)===timestamp(s.as_of)).length!==1)throw Error('Ambiguous historical snapshot');
+ return {...structuredClone(s),as_of:decision};
+}
+/** Select only a genuinely available historical position-map version. */
+export function selectPositionMap(history:PositionMap[],cutoff:string):PositionMap|null {
+ const t=timestamp(cutoff);if(t===null)throw Error('Invalid map cutoff');
+ const eligible=history.filter(m=>timestamp(m.as_of)!==null&&timestamp(m.information_cutoff)!==null&&timestamp(m.provenance.data_available_at)!==null&&timestamp(m.as_of)!<=t&&timestamp(m.information_cutoff)!<=t&&timestamp(m.provenance.data_available_at)!<=t).sort((a,b)=>timestamp(a.as_of)!-timestamp(b.as_of)!);
+ if(!eligible.length)return null;const m=eligible.at(-1)!;if(eligible.filter(v=>timestamp(v.as_of)===timestamp(m.as_of)).length!==1)throw Error('Ambiguous map history');return structuredClone(m);
+}

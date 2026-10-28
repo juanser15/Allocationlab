@@ -1,0 +1,16 @@
+import {Router} from "express";
+import {InteractiveService} from "../lib/workbench/interactive-service";
+import {interactiveCapabilities,planInteractive} from "../lib/workbench/interactive-calendar";
+import {boundaryV2,CalendarContractError} from "../lib/workbench/calendar-v2";
+import {safeError} from "./workbench";
+const router=Router();let servicePromise:Promise<InteractiveService>|undefined;
+const service=()=>servicePromise??=InteractiveService.open();
+router.use("/workbench/interactive",(req,res,next)=>{res.setHeader("Cache-Control","no-store");if(Object.keys(req.query).length){res.status(400).json({...boundaryV2,error:{code:"INVALID_QUERY",message:"Unexpected query fields."}});return}next()});
+router.get("/workbench/interactive/capabilities",(req,res)=>{try{res.json(interactiveCapabilities())}catch(e){safeError(req,res,e)}});
+router.post("/workbench/interactive/plan",(req,res)=>{try{res.json(planInteractive(req.body))}catch(e){safeError(req,res,e)}});
+router.post("/workbench/interactive/runs",async(req,res)=>{try{const r=await(await service()).submit(req.body);res.status(r.status==="BLOCKED"?429:r.execution_requested||r.status==="RUNNING"?202:200).json(r)}catch(e){safeError(req,res,e)}});
+router.get("/workbench/interactive/runs",async(req,res)=>{try{res.json(await(await service()).list())}catch(e){safeError(req,res,e)}});
+router.get("/workbench/interactive/runs/:runId",async(req,res)=>{try{res.json(await(await service()).get(String(req.params.runId)))}catch(e){safeError(req,res,e)}});
+router.post("/workbench/interactive/runs/:runId/rerun",async(req,res)=>{try{if(!req.body||typeof req.body!=="object"||Array.isArray(req.body)||Object.keys(req.body).length)throw new CalendarContractError("INVALID_RERUN","Rerun takes an empty object.");const r=await(await service()).rerun(String(req.params.runId));res.status(r.status==="BLOCKED"?429:202).json(r)}catch(e){safeError(req,res,e)}});
+router.post("/workbench/interactive/compare",async(req,res)=>{try{if(!req.body||Object.keys(req.body).join()!=="run_ids")throw new CalendarContractError("INVALID_COMPARISON","Supply only the run_ids array.");res.json(await(await service()).compare(req.body.run_ids))}catch(e){safeError(req,res,e)}});
+export default router;

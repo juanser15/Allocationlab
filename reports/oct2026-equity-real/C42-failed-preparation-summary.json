@@ -1,9 +1,0 @@
-{
-  "requested": 42,
-  "computed": 42,
-  "readyCanonical": 33,
-  "statuses": {
-    "INSUFFICIENT_HISTORY": 9,
-    "READY": 33
-  }
-}

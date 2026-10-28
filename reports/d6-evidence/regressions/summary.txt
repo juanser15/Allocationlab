@@ -1,5 +1,0 @@
-Typecheck: PASS
-Test suites: 26; exit failures: 0
-Tests: 138; passed: 137; failed: 0; skipped: 1
-Full individual logs and per-suite counts: summary.tsv
-C1-C3 omitted (trace-only change). No optional seed flag enabled.

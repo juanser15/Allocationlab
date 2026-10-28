@@ -49,6 +49,7 @@ import type {
   CompareArchiveParams,
   Constraints,
   ConstraintsInput,
+  DataFetchInput,
   DecisionLog,
   DecisionLogStatusInput,
   ErrorResponse,
@@ -94,6 +95,8 @@ import type {
   PricesUploadInput,
   ReportInput,
   ReportResult,
+  ResearchReviewRequest,
+  ResearchReviewState,
   RiskModelComparison,
   RiskModelComparisonInput,
   RiskModelComparisonReplay,
@@ -147,6 +150,225 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getFetchResearchDataStreamUrl = () => {
+
+
+
+
+  return `/api/workbench/library/fetch-stream`
+}
+
+/**
+ * Streams progress followed by exactly one result or error. A result is sent only after the fetched draft is persisted. Does not activate or save a named dataset version.
+ * @summary Fetch Yahoo adjusted-close data with real progress
+ */
+export const fetchResearchDataStream = async (dataFetchInput: DataFetchInput, options?: RequestInit): Promise<Response> => {
+
+  return customFetch<Response>(getFetchResearchDataStreamUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(dataFetchInput)
+  }
+);}
+
+
+
+
+export const getFetchResearchDataStreamMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fetchResearchDataStream>>, TError,{data: BodyType<DataFetchInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof fetchResearchDataStream>>, TError,{data: BodyType<DataFetchInput>}, TContext> => {
+
+const mutationKey = ['fetchResearchDataStream'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof fetchResearchDataStream>>, {data: BodyType<DataFetchInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  fetchResearchDataStream(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FetchResearchDataStreamMutationResult = NonNullable<Awaited<ReturnType<typeof fetchResearchDataStream>>>
+    export type FetchResearchDataStreamMutationBody = BodyType<DataFetchInput>
+    export type FetchResearchDataStreamMutationError = ErrorType<void>
+
+    /**
+ * @summary Fetch Yahoo adjusted-close data with real progress
+ */
+export const useFetchResearchDataStream = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fetchResearchDataStream>>, TError,{data: BodyType<DataFetchInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof fetchResearchDataStream>>,
+        TError,
+        {data: BodyType<DataFetchInput>},
+        TContext
+      > => {
+      return useMutation(getFetchResearchDataStreamMutationOptions(options));
+    }
+
+export const getGetResearchReviewsUrl = (runId: string,) => {
+
+
+
+
+  return `/api/workbench/p0/runs/${runId}/reviews`
+}
+
+/**
+ * @summary Read append-only reviews bound to frozen research evidence
+ */
+export const getResearchReviews = async (runId: string, options?: RequestInit): Promise<ResearchReviewState> => {
+
+  return customFetch<ResearchReviewState>(getGetResearchReviewsUrl(runId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetResearchReviewsQueryKey = (runId: string,) => {
+    return [
+    `/api/workbench/p0/runs/${runId}/reviews`
+    ] as const;
+    }
+
+
+export const getGetResearchReviewsQueryOptions = <TData = Awaited<ReturnType<typeof getResearchReviews>>, TError = ErrorType<void>>(runId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getResearchReviews>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetResearchReviewsQueryKey(runId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getResearchReviews>>> = ({ signal }) => getResearchReviews(runId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: runId !== null && runId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getResearchReviews>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetResearchReviewsQueryResult = NonNullable<Awaited<ReturnType<typeof getResearchReviews>>>
+export type GetResearchReviewsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Read append-only reviews bound to frozen research evidence
+ */
+
+export function useGetResearchReviews<TData = Awaited<ReturnType<typeof getResearchReviews>>, TError = ErrorType<void>>(
+ runId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getResearchReviews>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetResearchReviewsQueryOptions(runId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getRecordResearchReviewUrl = (runId: string,) => {
+
+
+
+
+  return `/api/workbench/p0/runs/${runId}/reviews`
+}
+
+/**
+ * @summary Record a declared review of the latest successful research attempt
+ */
+export const recordResearchReview = async (runId: string,
+    researchReviewRequest: ResearchReviewRequest, options?: RequestInit): Promise<ResearchReviewState> => {
+
+  return customFetch<ResearchReviewState>(getRecordResearchReviewUrl(runId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(researchReviewRequest)
+  }
+);}
+
+
+
+
+export const getRecordResearchReviewMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordResearchReview>>, TError,{runId: string;data: BodyType<ResearchReviewRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof recordResearchReview>>, TError,{runId: string;data: BodyType<ResearchReviewRequest>}, TContext> => {
+
+const mutationKey = ['recordResearchReview'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof recordResearchReview>>, {runId: string;data: BodyType<ResearchReviewRequest>}> = (props) => {
+          const {runId,data} = props ?? {};
+
+          return  recordResearchReview(runId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RecordResearchReviewMutationResult = NonNullable<Awaited<ReturnType<typeof recordResearchReview>>>
+    export type RecordResearchReviewMutationBody = BodyType<ResearchReviewRequest>
+    export type RecordResearchReviewMutationError = ErrorType<void>
+
+    /**
+ * @summary Record a declared review of the latest successful research attempt
+ */
+export const useRecordResearchReview = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordResearchReview>>, TError,{runId: string;data: BodyType<ResearchReviewRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof recordResearchReview>>,
+        TError,
+        {runId: string;data: BodyType<ResearchReviewRequest>},
+        TContext
+      > => {
+      return useMutation(getRecordResearchReviewMutationOptions(options));
+    }
 
 export const getHealthCheckUrl = () => {
 
