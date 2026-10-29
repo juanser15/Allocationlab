@@ -1,0 +1,21 @@
+{
+  "base_commit": "afead86bb66dff84eae19b855b9572ee726422c2",
+  "baseline_tracked_files": 1203,
+  "unchanged_baseline_files": 1201,
+  "unchanged_financial_and_workbench_source_files": 169,
+  "unchanged_manifest_sha256": "320031e1af6bcd535f56eef6bf11b1ea2227d8e5278a5dc6b07136c0ac340098",
+  "modified_existing_files": [
+    "artifacts/allocation-lab/src/research/coordinated-execution.tsx",
+    "artifacts/api-server/src/routes/workbench-p0.ts"
+  ],
+  "all_other_baseline_blobs_unchanged": true,
+  "run_identity_implementation_unchanged": true,
+  "normalization_source_unchanged": true,
+  "workers_ledger_optimizers_hmm_and_costs_unchanged": true,
+  "historical_reports_and_result_hashes_modified": false,
+  "source_projection_mutation_tests": "PASS",
+  "private_csv_present": false,
+  "live_database_or_replit_accessed": false,
+  "pr3_modified": false,
+  "interpretation": "Only reporting modules plus UI/route integration changed; source-only proof is not private-runtime certification."
+}

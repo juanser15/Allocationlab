@@ -1,0 +1,23 @@
+{
+  "baseline": "0617e7b565806bc17e86688bcfbf3d17eb700575",
+  "scope": "ANALYTICAL_FIXTURES_NO_PRIVATE_DATA",
+  "instrumentation": "Observation of final quantity values only; matching and assertion unchanged",
+  "cases": [
+    {
+      "symbol": "XLF",
+      "residual": 1.1102230246251565e-16,
+      "source_ending_quantity": 0,
+      "old_tolerance": 1.1102230246251566e-26,
+      "error_class": "BLOTTER_LEDGER_INCONSISTENT",
+      "message": "FIFO open quantities do not reconcile."
+    },
+    {
+      "symbol": "XLY",
+      "residual": 1.3877787807814457e-17,
+      "source_ending_quantity": 0,
+      "old_tolerance": 1.3877787807814457e-27,
+      "error_class": "BLOTTER_LEDGER_INCONSISTENT",
+      "message": "FIFO open quantities do not reconcile."
+    }
+  ]
+}

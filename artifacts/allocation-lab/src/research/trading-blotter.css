@@ -1,0 +1,195 @@
+.trading-blotter {
+  color: #243341;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 14px;
+  line-height: 1.5;
+  border-top: 2px solid #18364b;
+  padding: 18px 0;
+}
+.trading-blotter h2 {
+  font-size: 22px;
+  margin: 0;
+}
+.trading-blotter h3 {
+  font-size: 17px;
+}
+.trading-blotter p {
+  margin: 8px 0;
+}
+.blotter-note {
+  color: #536573;
+  font-size: 13px;
+}
+.blotter-attempt {
+  display: block;
+  max-width: 100%;
+  margin: 16px 0;
+}
+.trading-blotter select,
+.trading-blotter input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid #bbc6ce;
+  border-radius: 3px;
+  background: white;
+  color: #243341;
+  font: inherit;
+  box-sizing: border-box;
+}
+.trading-blotter button {
+  padding: 9px 13px;
+  min-height: 40px;
+  border: 1px solid #b8c6cf;
+  border-radius: 3px;
+  background: #fff;
+  color: #18364b;
+  font: inherit;
+  cursor: pointer;
+}
+.trading-blotter button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.trading-blotter button[aria-pressed="true"] {
+  background: #18364b;
+  color: white;
+  border-color: #18364b;
+}
+.blotter-tabs,
+.blotter-toolbar,
+.blotter-pages {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.blotter-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 10px;
+}
+.blotter-filters label {
+  font-size: 13px;
+  min-width: 0;
+}
+.blotter-toolbar span {
+  font-size: 12px;
+  color: #536573;
+}
+.blotter-scroll {
+  max-height: 560px;
+  max-width: 100%;
+  overflow: auto;
+  border: 1px solid #d6dfe4;
+  overscroll-behavior-x: contain;
+}
+.blotter-scroll table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+.blotter-scroll caption {
+  text-align: left;
+  font-weight: 600;
+  padding: 10px;
+  background: #edf2f5;
+}
+.blotter-scroll th {
+  position: sticky;
+  top: 0;
+  background: #edf2f5;
+  text-align: left;
+  color: #18364b;
+}
+.blotter-scroll td,
+.blotter-scroll th {
+  padding: 9px 12px;
+  border-bottom: 1px solid #d6dfe4;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.blotter-scroll tbody tr:nth-child(even) {
+  background: #f7f9fa;
+}
+.blotter-detail {
+  border-top: 1px solid #b8c6cf;
+  padding-top: 12px;
+  margin-top: 20px;
+  min-width: 0;
+}
+.blotter-detail dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+.blotter-detail dl div {
+  min-width: 0;
+}
+.blotter-detail dt {
+  font-size: 12px;
+  color: #536573;
+}
+.blotter-detail dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.trading-blotter details {
+  margin: 12px 0;
+}
+.trading-blotter summary {
+  cursor: pointer;
+  min-height: 36px;
+  color: #18364b;
+}
+.trading-blotter pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 420px;
+  overflow: auto;
+  background: #edf2f5;
+  padding: 12px;
+  font-size: 12px;
+}
+.blotter-empty {
+  padding: 12px;
+}
+.blotter-pages {
+  justify-content: space-between;
+}
+@media (max-width: 600px) {
+  .trading-blotter {
+    font-size: 14px;
+  }
+  .blotter-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .blotter-attempt select {
+    font-size: 12px;
+  }
+  .blotter-tabs button {
+    flex: 1 1 100%;
+    text-align: left;
+  }
+  .blotter-toolbar button {
+    flex: 1;
+  }
+  .blotter-detail dl {
+    grid-template-columns: 1fr;
+  }
+  .blotter-pages span {
+    font-size: 12px;
+  }
+  .blotter-scroll {
+    width: 100%;
+  }
+}
+@media (max-width: 390px) {
+  .blotter-filters {
+    grid-template-columns: 1fr;
+  }
+}

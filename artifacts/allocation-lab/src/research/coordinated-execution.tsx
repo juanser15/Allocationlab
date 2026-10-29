@@ -2,6 +2,7 @@ import { NoEffectWarning, PolicySummary, freqLabel, freqOf, policySentence } fro
 import { BacktestInputs } from "./backtest-inputs";
 import { portfolioFeasibilityIssue } from "../../../api-server/src/lib/workbench/portfolio-feasibility";
 import { ExecutionProgress } from "./execution-progress";
+import { TradingBlotterPanel } from "./trading-blotter";
 import { sourceLabel } from "./dataset-persistence";
 import type { useBacktestRange } from "./use-backtest-range";
 import { useEffect, useRef, useState } from "react";
@@ -41,7 +42,7 @@ export type CalendarField =
   | "rebalance_frequency"
   | "transaction_cost_bps"
   | "slippage_bps";
-type View = "Configure" | "Progress" | "Results" | "History" | "Audit";
+type View = "Configure" | "Progress" | "Results" | "Blotter" | "History" | "Audit";
 interface Props {
   calendarRange: ReturnType<typeof useBacktestRange>;
   scope: ResearchScope;
@@ -109,7 +110,7 @@ export function ExecutionWorkspace({
         else {
           setBusy(false);
           if (record.latest_status === "SUCCESS") {
-            setView("Results");
+            setView(current => current === "Blotter" ? "Blotter" : "Results");
             onCompleted?.(record.latest_successful_result, record.spec);
           }
         }
@@ -155,11 +156,11 @@ export function ExecutionWorkspace({
       return null;
     }
   }
-  function open(id: string) {
+  function open(id: string, target: View = "Progress") {
     setRun(null);
     setRunId(id);
     setRefresh((n) => n + 1);
-    setView("Progress");
+    setView(target);
   }
   async function execute() {
     setBusy(true);
@@ -268,7 +269,7 @@ export function ExecutionWorkspace({
       </div>
       <nav className="cp-tabs" aria-label={`${label} views`}>
         {(
-          ["Configure", "Progress", "Results", "History", "Audit"] as const
+          ["Configure", "Progress", "Results", "Blotter", "History", "Audit"] as const
         ).map((tab) => (
           <button
             key={tab}
@@ -509,6 +510,7 @@ export function ExecutionWorkspace({
             </div>
             {study && <PolicySummary policy={saved} label="Rule executed in this saved run" testId="text-study-executed-policy" />}
             <CapitalClockSummary clock={result.capital_clock} spec={saved} />
+            <button onClick={() => setView("Blotter")}>Inspect trading blotter</button>
             <MetricCards metrics={result.metrics} />
             {study && result.benchmark && (
               <Card title="Capital exposure policy versus passive SPY">
@@ -609,6 +611,7 @@ export function ExecutionWorkspace({
             </p>
           </Card>
         ))}
+      {view === "Blotter" && <TradingBlotterPanel key={runId ?? "empty"} record={run} />}
       {view === "History" && (
         <Card
           title={
@@ -675,6 +678,7 @@ export function ExecutionWorkspace({
                       </td>
                       <td>
                         <button onClick={() => open(row.run_id)}>Open</button>
+                        <button onClick={() => open(row.run_id, "Blotter")}>Blotter</button>
                       </td>
                     </tr>
                   ))}
@@ -700,6 +704,7 @@ export function ExecutionWorkspace({
                 {run.latest_status} · {run.run_id}
               </p>
               <RunEngineIdentity spec={run.spec} currentMethod={caps?.constrained_optimizer_methodology_version} />
+              <button onClick={() => setView("Blotter")}>Inspect immutable trading blotter</button>
               <details>
                 <summary>Saved configuration and provenance</summary>
                 <pre>

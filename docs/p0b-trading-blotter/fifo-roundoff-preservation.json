@@ -1,0 +1,18 @@
+{
+  "base_commit": "0617e7b565806bc17e86688bcfbf3d17eb700575",
+  "protected_baseline_files": 1223,
+  "all_other_baseline_blobs_byte_identical": true,
+  "changed_existing_files": [
+    "artifacts/api-server/src/lib/workbench/trading-blotter.ts",
+    "docs/p0b-trading-blotter/README.md",
+    "scripts/test-p0b-blotter.mjs"
+  ],
+  "protected_manifest_sha256": "4ca0e510cf193d6d08038a896c289d5b0d06fd2be4b2d9996486c5eec3261e53",
+  "financial_engines_original_ledgers_normalizers_and_run_identities_changed": false,
+  "historical_result_or_test_evidence_overwritten": false,
+  "source_immutable_input_and_financial_hash_tests": "PASS",
+  "PR3_or_active_Replit_or_live_database_modified": false,
+  "private_historical_data_read_or_published": false,
+  "private_backtests_rerun": false,
+  "only_derived_reporting_version_and_hashes_change": true
+}
