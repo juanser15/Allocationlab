@@ -24,9 +24,9 @@ export function BacktestInputs({ draft, caps }: { draft: any; caps: any }) {
     : `Up to ${pct(calm)} invested · at least ${pct(1 - calm)} cash${adaptive ? ` → full stress: up to ${pct(stress)} invested · at least ${pct(1 - stress)} cash (${reductionPct(draft.defensive_multiplier)}% reduction)` : " · fixed ceiling"}`;
   const rows: [string, string, string][] = [
     ["Candidates", `${draft.etfs?.length ?? 0} selected · candidates, not holdings`, "candidates"],
-    ["Final holdings", m ? `${m.minimum_positions} min · ${m.maximum_positions} max when invested · explicit risk-off cash allowed` : "No holding-count mandate · may hold zero to all candidates", "holdings"],
-    ["Max weight per asset", `${pct(draft.maximum_etf_weight)} of total NAV`, "max-weight"],
-    ["Min weight per held asset", m ? `${pct(m.minimum_weight)} of total NAV` : "None · no mandate", "min-weight"],
+    ["Final holdings", m ? `${m.minimum_positions} min · ${m.maximum_positions} max at strategic construction · explicit risk-off cash allowed` : "No holding-count mandate · may hold zero to all candidates", "holdings"],
+    ["Max weight per asset", `${pct(draft.maximum_etf_weight)} of total NAV at construction`, "max-weight"],
+    ["Min weight per held asset", m ? `${pct(m.minimum_weight)} of total NAV at construction; HMM scaling and market drift may take effective weights below this floor` : "None · no mandate", "min-weight"],
     ["Exposure rule", exposure, "exposure"],
     ["Model", `${models[draft.regime_model as keyof typeof models] ?? draft.regime_model} · ${forecastNames[(draft.forecast?.model ?? "HISTORICAL_MEAN") as keyof typeof forecastNames]} · mean–variance + costs`, "model"],
     ["Dataset", caps ? `${sourceLabel(caps.dataset_source)}${caps.dataset_version != null ? ` · v${caps.dataset_version}` : ""} · ${draft.dataset_id}` : String(draft.dataset_id || "Not loaded"), "dataset"],

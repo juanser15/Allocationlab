@@ -16,7 +16,8 @@ import { CONSTRAINT_TOLERANCE } from '../../artifacts/api-server/src/lib/workben
 
 const controlled: typeof classify = (_model, history) => ({
   model: 'SYNTHETIC_SOURCE_TEST_SIGNAL',
-  defensive_score: (Date.parse(history.at(-1)!.date) / 86400000) % 2,
+  // Causal synthetic clock stress: calm, positive de-risking, and explicit cash.
+  defensive_score: [0, .99, 1][(Date.parse(history.at(-1)!.date) / 86400000) % 3],
   high_risk_probability: null,
   label: 'SYNTHETIC_SOURCE_TEST_SIGNAL',
 }) as any;
@@ -106,10 +107,10 @@ test('HTTP: impossible exposure/cardinality/floor mandates and data coverage fai
   } finally { await api.stop(); }
 });
 
-test('HTTP: Configure→plan→run→results handles 12 candidates, max10 and 3% minimum through more than 85 causal signals', async () => {
+for (const floor of [.025, .03]) test(`HTTP: ${floor * 100}% strategic floor survives positive HMM scaling and cash through more than 85 causal signals`, async () => {
   const api = await sourceServer();
   try {
-    const request = optimizerTestRequest({ evaluation_end_exclusive: '2024-06-01' });
+    const request = optimizerTestRequest({ evaluation_end_exclusive: '2024-06-01', mandate: { minimum_positions: 1, maximum_positions: 10, minimum_weight: floor } });
     const before = structuredClone(request);
     const denied = await api.call('/plan', request, false); assert.equal(denied.status, 401);
     const plan = await api.call('/plan', request);
@@ -126,18 +127,38 @@ test('HTTP: Configure→plan→run→results handles 12 candidates, max10 and 3%
     assert.deepEqual(result.plan.folds, plan.body.folds);
     assert.ok(result.capital_clock.signals.length > 85);
     assert.ok(result.validation_evidence.accounting.passed);
+    const signals = result.capital_clock.signals;
+    assert.equal(result.mandate_evidence.length, plan.body.number_of_folds);
+    assert.equal(signals.filter((signal: any) => signal.optimizer_refreshed).length, plan.body.number_of_folds);
+    assert.ok(signals.some((signal: any) => signal.exposure === 0), 'Cash remains an explicit capital state');
+    assert.ok(signals.some((signal: any) => signal.exposure > 0 && signal.exposure < floor), 'Positive HMM exposure can put every effective holding below construction floor');
+    assert.ok(result.capital_target_evidence.every((audit: any) => audit.passed));
     for (const decision of result.decisions) {
-      const active = Object.values(decision.weights as Record<string, number>).filter((weight: number) => weight > 1e-10);
-      if (active.length) {
-        assert.ok(active.length <= 10 && active.length >= 1);
-        assert.ok(active.every(weight => weight >= .03 - 1e-8 && weight <= request.maximum_etf_weight + 1e-8));
-      }
+      const strategic = Object.values(decision.optimizer.optimized_nav_weights as Record<string, number>);
+      const active = strategic.filter((weight: number) => weight > 1e-10);
+      assert.ok(active.length <= 10 && active.length >= 1);
+      assert.ok(active.every(weight => weight >= floor - CONSTRAINT_TOLERANCE && weight <= request.maximum_etf_weight + CONSTRAINT_TOLERANCE));
       assert.equal(decision.optimizer.audit.status, 'CONVERGED_FEASIBLE_SUPPORT');
-      assert.ok(decision.optimizer.audit.support_size >= 1 && decision.optimizer.audit.support_size <= 10);
-      assert.ok(Object.values(decision.optimizer.effective_constraint_residuals as Record<string, number>).every(value => value <= CONSTRAINT_TOLERANCE));
-      assert.ok(active.reduce((sum, weight) => sum + weight, 0) <= decision.maximum_exposure + CONSTRAINT_TOLERANCE);
+      assert.equal(decision.optimizer.audit.support_size, active.length);
+      assert.equal(decision.optimizer.constraint_scope, 'STRATEGIC_NAV_TARGET_AT_SCHEDULED_REBALANCE');
+      assert.ok(Object.values(decision.optimizer.construction_constraint_residuals as Record<string, number>).every(value => value <= CONSTRAINT_TOLERANCE));
+      assert.ok(Object.values(decision.optimizer.effective_policy_residuals as Record<string, number>).every(value => value <= CONSTRAINT_TOLERANCE));
+      assert.equal(Object.hasOwn(decision.optimizer.effective_policy_residuals, 'minimum_weight'), false, 'Construction floors are not effective execution safety constraints');
+      assert.ok(Object.values(decision.weights as Record<string, number>).reduce((sum, weight) => sum + weight, 0) <= decision.maximum_exposure + CONSTRAINT_TOLERANCE);
       assert.ok(decision.information_cutoff < decision.decision_date);
     }
+    for (const signal of signals) {
+      assert.ok(signal.rebalance_date || !signal.optimizer_refreshed, 'Capital changes cannot cause intramonth optimization');
+      const source = result.decisions.find((decision: any) => decision.decision_date === signal.source_optimizer_date);
+      assert.ok(source, 'Every capital target retains the scheduled strategic source');
+      assert.deepEqual(signal.frozen_risky_proportions, source.capital_overlay.frozen_risky_proportions);
+      const effective = Object.values(signal.frozen_risky_proportions as Record<string, number>).map(proportion => proportion * signal.exposure);
+      assert.ok(effective.every(weight => Number.isFinite(weight) && weight >= 0));
+      assert.ok(effective.reduce((sum, weight) => sum + weight, 0) <= 1 + CONSTRAINT_TOLERANCE);
+      assert.ok(signal.information_cutoff < signal.decision_date);
+      if (signal.execution_date) assert.ok(signal.execution_date > signal.decision_date);
+    }
+    assert.ok(result.ledger.some((day: any) => day.transactionCosts > 0), 'Initial/re-entry costs remain real');
     const again = await api.call('/runs', request);
     assert.equal(again.body.reused_existing_attempt, true);
     assert.equal(api.stats().executions, 1);

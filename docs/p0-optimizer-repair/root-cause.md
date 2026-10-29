@@ -1,6 +1,6 @@
 # P0 optimizer repair: source audit and implementation
 
-Implementation baseline: `90b7b7e2e7ff0a04364be58f8f59cfd801a8e382`, branch `source/replit-code-baseline-20261028`. Contract: [Issue #2](https://github.com/juanser15/Allocationlab/issues/2), including its three comments. Phase 0 is resolved. This is a source-only repair, not certification of the private Replit runtime.
+Implementation baseline: `90b7b7e2e7ff0a04364be58f8f59cfd801a8e382`, branch `source/replit-code-baseline-20261028`. Contract: [Issue #2](https://github.com/juanser15/Allocationlab/issues/2), including the [owner-approved construction/overlay amendment](https://github.com/juanser15/Allocationlab/issues/2#issuecomment-6490494153). Phase 0 is resolved. This is a source-only repair, not certification of the private Replit runtime.
 
 ## Before repair
 
@@ -24,10 +24,10 @@ The snapshot's enable-mandate action used minimum holdings of one, but it could 
 
 At scheduled allocation dates the solver produces composition under the baseline capital policy. Daily capital monitoring applies the existing causal overlay to that frozen composition. Cash-to-invested transitions reuse it; the overlay does not trigger optimization. Explicit zero-risk cash is exempt from positive holdings in both daily and rebalance-only monitoring.
 
-Positive exposure can become incompatible with the NAV floor of a frozen composition. This is reported as `SOLVER_INFEASIBLE` with reason `FROZEN_COMPOSITION_EXPOSURE_CONFLICT`, decision date, source optimization date, required/available exposure and constraints. It never silently removes small holdings, changes composition or substitutes cash. Such future covariance/overlay feasibility cannot be promised by static preflight.
+The previous `55abe601` implementation incorrectly re-applied construction floors to effective overlay targets. The owner-approved correction applies cardinality and per-asset weight bounds only to strategic total-NAV targets at scheduled rebalances, before capital scaling in either monitoring mode. Positive effective weights below those floors and later market drift are permitted. Separate execution safety checks preserve funding, universe, exposure/risk policy and timing; no extra allocation solve or drift-correction trade is introduced. See `strategic-target-correction.md`.
 
 The HMM fitter, regime calculations, capital-clock formulas, next-close ledger, cost/slippage mathematics and cash-yield accounting are unchanged. Tests cover genuine Gaussian-HMM repeated intramonth cash transitions as well as a separately labelled controlled clock-stress fixture with more than 85 daily signals. Future-price perturbations cannot alter earlier decisions. Existing public synthetic capital-clock financial goldens reproduce.
 
 ## Evidence boundary
 
-The HTTP acceptance harness runs real routing, authentication, parsing, planning, normalization, constrained optimization, engine and result mapping against synthetic data and an injected in-memory store. It does not test PostgreSQL durability or production worker IPC. Private-data golden regressions and the original user workspace remain pending in Replit. See `issue-acceptance.md`, `replit-verification.md` and `test-results.json`.
+The HTTP acceptance harness runs real routing, authentication, parsing, planning, normalization, constrained optimization, engine and result mapping against synthetic data and an injected in-memory store. It does not test PostgreSQL durability or production worker IPC. Private-data golden regressions and the original user workspace remain pending in Replit. See `issue-acceptance.md`, `replit-verification.md` and `correction-test-results.json`.

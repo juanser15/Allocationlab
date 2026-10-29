@@ -43,6 +43,6 @@ export function capitalClockEvidence(frequency: "DAILY" | "REBALANCE_ONLY", sign
       sum(ledger.filter(d => d.executionSignalDate && !overlayDates.has(d.executionSignalDate)), "slippage"),
     cost_attribution: "Cash amounts on initial NAV 100. Overlay-only costs are actual fees/slippage on non-optimizer-date signals. Joint scheduled-rebalance trades are reported separately; no hypothetical causal split is claimed.",
     sleeve_convention: "Normalize the existing optimizer's unadjusted-policy risky weights; retain its total-risk allocation as the overlay ceiling. Regime changes never invoke the optimizer between rebalance dates. Zero optimizer allocation stays cash until the next optimizer decision.",
-    mandate_convention: "In Daily mode, positive-risk targets retain weight and holding mandates; a deliberate fully-cash capital signal is exempt from minimum holdings. No floor uplift or fallback allocation is introduced.",
+    mandate_convention: "Position-count and per-asset weight limits constrain strategic NAV targets at scheduled allocation rebalances. Subsequent capital-overlay scaling and market drift may cross construction floors/caps without triggering re-optimization or errors. Execution safety and the capital exposure policy remain enforced.",
   };
 }

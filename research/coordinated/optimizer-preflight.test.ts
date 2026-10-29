@@ -40,7 +40,9 @@ test("Joint 1–10 holdings and 3% floor accepts eleven eligible assets without 
  assert.equal(portfolioFeasibilityIssue(request),null);
  const plan=planP0WithData(request,data);assert.equal(plan.normalized_request.etfs.length,11);
  assert.equal(plan.static_feasibility.budget_semantics,"CEILING");assert.equal(plan.number_of_folds,3);
- assert.equal(plan.static_feasibility.optimizer_methodology_version,"cardinality-active-support-1.0.0");
+ assert.equal(plan.static_feasibility.optimizer_methodology_version,"cardinality-active-support-2.0.0");
+ assert.equal(plan.static_feasibility.portfolio_constraint_scope,"STRATEGIC_NAV_TARGET_AT_SCHEDULED_REBALANCE");
+ assert.equal(plan.static_feasibility.capital_overlay_and_market_drift_reapply_construction_limits,false);
  for(const f of plan.folds){assert.ok(f.training_end_exclusive<=f.decision_date);assert.ok(f.information_cutoff<f.decision_date);}
 });
 test("Analytic impossible mandates identify the precise inequality; ceiling is not equality",()=>{
@@ -51,14 +53,28 @@ test("Analytic impossible mandates identify the precise inequality; ceiling is n
  assert.equal(portfolioFeasibilityIssue(ceiling),null);
  assert.match(portfolioFeasibilityIssue(ceiling,"EXACT")!.message,/60%.*100%/);
 });
-test("Explicit cash is allowed in both clocks; positive full-stress incompatibility is blocked",()=>{
+test("Explicit cash is allowed in both clocks; stress overlay does not reapply construction floors",()=>{
  for(const capital_signal_frequency of ["DAILY","REBALANCE_ONLY"]){
   assert.ok(parseP0({...request,maximum_exposure:0,capital_signal_frequency}));
   assert.ok(parseP0({...request,regime_response:"ADAPTIVE",defensive_multiplier:0,capital_signal_frequency,control_mode:"RISK_BUDGET"}));
  }
- assert.ok(portfolioFeasibilityIssue({...request,regime_response:"ADAPTIVE",defensive_multiplier:.1,mandate:{minimum_positions:4,maximum_positions:10,minimum_weight:.03}}));
+ assert.equal(portfolioFeasibilityIssue({...request,regime_response:"ADAPTIVE",defensive_multiplier:.1,mandate:{minimum_positions:4,maximum_positions:10,minimum_weight:.03}}),null);
  assert.equal(portfolioFeasibilityIssue({...request,regime_response:"ADAPTIVE",defensive_multiplier:0}),null);
- assert.match(portfolioFeasibilityWarnings({...request,regime_response:"ADAPTIVE",defensive_multiplier:0}).join(),/frozen ETF composition/);
+ assert.match(portfolioFeasibilityWarnings({...request,regime_response:"ADAPTIVE",defensive_multiplier:0}).join(),/strategic NAV targets at scheduled allocation rebalances/);
+});
+test("2.5% and 3% construction floors accept lower positive HMM exposure while retaining impossible strategic-budget blockers",()=>{
+ for(const minimum_weight of [.025,.03])for(const capital_signal_frequency of ["DAILY","REBALANCE_ONLY"]){
+  const r={...request,maximum_exposure:.6,regime_response:"ADAPTIVE",defensive_multiplier:.01,capital_signal_frequency,mandate:{minimum_positions:4,maximum_positions:10,minimum_weight}};
+  const before=structuredClone(r);
+  const plan=planP0WithData(r,data);
+  assert.deepEqual(plan.normalized_request.mandate,r.mandate);
+  assert.equal(plan.normalized_request.defensive_multiplier,.01);
+  assert.equal(plan.static_feasibility.capital_overlay_and_market_drift_reapply_construction_limits,false);
+  assert.ok(plan.warnings.some(w=>/without an error or corrective trade/.test(w)));
+  assert.deepEqual(r,before,"Preflight must not change the chosen dates, mandate or HMM response");
+  const required=4*minimum_weight;
+  assert.throws(()=>planP0WithData({...r,maximum_exposure:required-.001},data),(e:any)=>e.code==="PORTFOLIO_CONSTRAINT"&&e.details.required_exposure===required);
+ }
 });
 test("Data coverage error includes requested and earliest dates without modifying the design",()=>{
  const r={...request,evaluation_start:"2022-03-03",evaluation_end_exclusive:"2022-06-03",training_window_months:6};const before=structuredClone(r);
@@ -78,4 +94,23 @@ test("Boundary date, missing symbols and causal holes are distinct coverage fail
  assert.throws(()=>planP0WithData({...request,etfs:["NOTINDATA"],mandate:{minimum_positions:1,maximum_positions:1,minimum_weight:.03}},data),(e:any)=>e.code==="DATA_COVERAGE"&&e.details.reason_code==="DATASET_SYMBOL_MISSING");
  const hole=structuredClone(data);delete hole.rows.find(r=>r.date==="2024-01-02")!.prices.SPY;
  assert.throws(()=>planP0WithData(request,hole),(e:any)=>e.code==="DATA_COVERAGE"&&/HISTORY/.test(e.details.reason_code));
+});
+test("Latest-starting selected ticker explains the current executable bound without moving requested dates",()=>{
+ const late=structuredClone(data);
+ for(const row of late.rows)if(row.date<"2023-06-19")delete row.prices.ETF10;
+ const r={...request,regime_model:"HMM",training_window_months:12,evaluation_start:"2023-01-03",evaluation_end_exclusive:"2024-12-03"};
+ const before=structuredClone(r),bounds=deriveExperimentBounds(engineRequest(r),late);
+ assert.equal(bounds.dataset_start,"2022-01-03");
+ assert.equal(bounds.common_required_data_start,"2023-06-19");
+ assert.equal(bounds.required_symbol_first_observations.ETF10,"2023-06-19");
+ assert.equal(bounds.required_symbol_first_observations.SPY,"2022-01-03");
+ assert.deepEqual(bounds.limiting_symbols,["ETF10"]);
+ assert.equal(bounds.training_ready_date,"2024-06-19");
+ assert.equal(bounds.earliest_supported_evaluation_start,"2024-06-19");
+ assert.throws(()=>planP0WithData(r,late),(e:any)=>e.code==="DATA_COVERAGE"&&e.details.earliest_supported_evaluation_start==="2024-06-19"&&e.details.limiting_symbols[0]==="ETF10");
+ assert.deepEqual(r,before);
+ const withoutLate={...r,etfs:r.etfs.filter((t:string)=>t!=="ETF10")};
+ const earlier=deriveExperimentBounds(engineRequest(withoutLate),late);
+ assert.equal(earlier.earliest_supported_evaluation_start,"2023-01-03");
+ assert.ok(earlier.earliest_supported_evaluation_start<bounds.earliest_supported_evaluation_start);
 });

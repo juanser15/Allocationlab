@@ -4,7 +4,8 @@ import { portfolioFeasibilityIssue } from "../../../api-server/src/lib/workbench
 import { ExecutionProgress } from "./execution-progress";
 import { sourceLabel } from "./dataset-persistence";
 import type { useBacktestRange } from "./use-backtest-range";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { requestCurrentPlan, researchDesignChangedError, researchDraftKey } from "./backtest-range";
 import {
   forecastNames,
   type ResearchSubmission,
@@ -70,11 +71,15 @@ export function ExecutionWorkspace({
     [runs, setRuns] = useState<any[]>([]),
     [historyLoading, setHistoryLoading] = useState(false),
     [historyError, setHistoryError] = useState(""),
-    [plan, setPlan] = useState<any>(null),
-    [bounds, setBounds] = useState<any>(null),
+    [planRecord, setPlanRecord] = useState<{ key: string; value: any } | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [errorInfo, setErrorInfo] = useState<Pick<ResearchRequestError, "category" | "code" | "suggestedAction">>({});
+  const request = { ...draft, research_scope: scope };
+  const requestKey = researchDraftKey(request);
+  const currentRequest = useRef({ key: requestKey, request });
+  currentRequest.current = { key: requestKey, request };
+  const plan = planRecord?.key === requestKey ? planRecord.value : null;
   const captureError = (error: unknown) => {
     const failure = error as ResearchRequestError;
     setError(failure.message);
@@ -84,7 +89,7 @@ export function ExecutionWorkspace({
     if (visible) window.scrollTo({ top: 0 });
   }, [visible, view]);
   useEffect(() => {
-    setPlan(null);
+    setPlanRecord(null);
     setError("");
     setErrorInfo({});
   }, [draft]);
@@ -129,6 +134,7 @@ export function ExecutionWorkspace({
   const invalidCalendar = !draft.evaluation_start || !draft.evaluation_end_exclusive || draft.evaluation_start >= draft.evaluation_end_exclusive || !Number.isSafeInteger(draft.training_window_months) || draft.training_window_months <= 0 || draft.training_window_months > 1200;
   const invalidCosts = !Number.isFinite(draft.transaction_cost_bps) || draft.transaction_cost_bps < 0 || draft.transaction_cost_bps > 1000 || !Number.isFinite(draft.slippage_bps ?? 0) || (draft.slippage_bps ?? 0) < 0 || (draft.slippage_bps ?? 0) > 1000;
   async function check() {
+    const submitted = currentRequest.current;
     setError("");
     setErrorInfo({});
     if (!study) {
@@ -139,13 +145,13 @@ export function ExecutionWorkspace({
       }
     }
     try {
-      const p = await researchApi("/plan", { ...draft, research_scope: scope });
-      setPlan(p);
-      setBounds(p.experiment_bounds ?? bounds);
-      if (p.normalized_request.evaluation_start !== draft.evaluation_start || p.normalized_request.evaluation_end_exclusive !== draft.evaluation_end_exclusive) throw new Error("The planner changed the requested dates. Execution is blocked.");
-      return p;
+      const p = await requestCurrentPlan(submitted.request,
+        request => researchApi("/plan", request),
+        () => currentRequest.current.key === submitted.key);
+      setPlanRecord({ key: submitted.key, value: p });
+      return submitted;
     } catch (e) {
-      captureError(e);
+      captureError(currentRequest.current.key === submitted.key ? e : researchDesignChangedError());
       return null;
     }
   }
@@ -163,16 +169,8 @@ export function ExecutionWorkspace({
         setBusy(false);
         return;
       }
-      const receipt = await researchApi("/runs", {
-        ...draft,
-        evaluation_start:
-          checked.normalized_request?.evaluation_start ??
-          draft.evaluation_start,
-        evaluation_end_exclusive:
-          checked.normalized_request?.evaluation_end_exclusive ??
-          draft.evaluation_end_exclusive,
-        research_scope: scope,
-      });
+      if (currentRequest.current.key !== checked.key) throw researchDesignChangedError();
+      const receipt = await researchApi("/runs", checked.request);
       setRun(null);
       setRunId(receipt.run_id);
       setRefresh((n) => n + 1);
@@ -331,11 +329,7 @@ export function ExecutionWorkspace({
               {calendarRange.busy ? "Finding executable range…" : "Use full executable range"}
             </button>
             {calendarRange.error && <p className="cp-error" role="alert">Full range unavailable: {calendarRange.error} Dates have not been substituted.</p>}
-            {calendarRange.bounds && <p className="cp-note">
-              Full range: {calendarRange.bounds.earliest_supported_evaluation_start} → {calendarRange.bounds.latest_supported_evaluation_end_exclusive} (exclusive).
-              {" "}Last dataset observation: {caps?.data_last_observation}. Reapply the full range after changing training or warmup settings if desired.
-              {" "}Data gaps, cash coverage and investment constraints are validated separately before execution.
-            </p>}
+            <ExecutableRangeEvidence bounds={calendarRange.bounds} busy={calendarRange.busy} />
             <details className="cp-advanced" data-testid={study ? "details-study-advanced" : undefined}>
               <summary>
                 {study
@@ -388,17 +382,14 @@ export function ExecutionWorkspace({
                 <small>
                   Dataset {caps.data_first_observation} →{" "}
                   {caps.data_last_observation}
-                  {bounds?.earliest_supported_evaluation_start
-                    ? ` · earliest OOS for this experiment: ${bounds.earliest_supported_evaluation_start}`
-                    : ""}
                 </small>
               </div>
             )}
             {!study && <p className="cp-note">
               The dataset is fixed first. Training windows and causal model
-              lookbacks consume earlier observations, so the first OOS date is
-              derived automatically. You may choose a later start, but not an
-              earlier one. Nothing is imputed or extended.
+              lookbacks consume earlier observations. The earliest executable date
+              is calculated for the current design; your selected dates are not
+              moved. Nothing is imputed or extended.
             </p>}
             <div className="cp-actions">
               <button
@@ -416,7 +407,7 @@ export function ExecutionWorkspace({
             </div>
             <p className="cp-note">
               Running validates the design first; conflicts stop the run and are
-              shown with the settings to change.{!study && " Final weights must meet the holdings mandate at each rebalance. If the optimizer's solution does not meet it, the run stops with a specific reason; weights are never adjusted silently."}
+              shown with the settings to change.{!study && " Strategic NAV targets must meet the holdings mandate at each scheduled allocation rebalance. Later capital-exposure changes and market drift may move effective weights outside those construction bounds without triggering another optimization."}
             </p>
             {plan && (
               <p className="cp-valid">
@@ -678,7 +669,7 @@ export function ExecutionWorkspace({
                             qcLabel(row.spec.quality_control)}
                         </td>
                       )}
-                      <td>{row.review_state ?? row.status}</td>
+                      <td>{row.review_state ?? row.status}<RunEngineIdentity spec={row.spec} currentMethod={caps?.constrained_optimizer_methodology_version} compact /></td>
                       <td>
                         <StorageBadge record={row} compact />
                       </td>
@@ -708,6 +699,7 @@ export function ExecutionWorkspace({
               <p>
                 {run.latest_status} · {run.run_id}
               </p>
+              <RunEngineIdentity spec={run.spec} currentMethod={caps?.constrained_optimizer_methodology_version} />
               <details>
                 <summary>Saved configuration and provenance</summary>
                 <pre>
@@ -771,6 +763,33 @@ export function ExecutionWorkspace({
 }
 
 const NR = "Not recorded";
+/** Current /bounds response only. No date or coverage calculation lives here. */
+export function ExecutableRangeEvidence({ bounds, busy }: { bounds: any; busy: boolean }) {
+  if (busy) return <p className="cp-note" role="status">Updating the executable range for the current design… Your selected dates are unchanged.</p>;
+  if (!bounds) return null;
+  return <div className="cp-note" data-testid="text-current-executable-range">
+    <p>Executable range for the current design: {bounds.earliest_supported_evaluation_start} → {bounds.latest_supported_evaluation_end_exclusive} (exclusive). Your selected dates are unchanged; use the full-range action only if you want to replace them.</p>
+    <p>Common required price history begins {bounds.common_required_data_start ?? NR}.
+      {bounds.limiting_symbols?.length ? ` Latest-starting required assets: ${bounds.limiting_symbols.join(", ")}.` : ""}
+      {` Training: ${bounds.training_window_months ?? NR} months; causal feature history: ${bounds.effective_causal_lookback_sessions ?? NR} observations.`}
+      {" "}Data gaps, cash coverage and construction constraints are checked separately before execution.</p>
+  </div>;
+}
+/** Read-only interpretation of recorded identity. Never retags stored attempts. */
+export function RunEngineIdentity({ spec, currentMethod, compact = false }: { spec: any; currentMethod?: string; compact?: boolean }) {
+  const method = spec?.methodology?.optimizer_methodology_version;
+  const portfolio = runScope(spec) === "PORTFOLIO";
+  const constrained = portfolio && !!spec?.mandate;
+  const historical = portfolio && (!method || (constrained && !!currentMethod && method !== currentMethod));
+  const label = historical ? "Historical engine · different or unrecorded methodology"
+    : constrained && currentMethod ? "Current methodology · recorded run" : "Recorded engine identity";
+  return <div data-testid="text-run-engine-identity">
+    <small>{label}</small>
+    {!compact && <dl><dt>Methodology</dt><dd>{method ?? NR}</dd><dt>Code version</dt><dd style={{ overflowWrap: "anywhere" }}>{spec?.code_version ?? NR}</dd><dt>Engine version</dt><dd>{spec?.engine_version ?? NR}</dd></dl>}
+    {compact && <details><summary>Engine identity</summary><p>{method ?? NR}</p><p style={{ overflowWrap: "anywhere" }}>Code: {spec?.code_version ?? NR}</p></details>}
+    {!compact && historical && <p className="cp-note">This immutable attempt uses a different methodology or did not record one. Its failure is historical evidence, not a verification of the current engine. No stored status or identity was changed.</p>}
+  </div>;
+}
 const num = (v: unknown, digits = 4) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(digits) : NR);
 /** Frozen clock label: prefers recorded clock, then saved spec. Never the current draft. */
 function CapitalClockSummary({ clock, spec }: { clock: any; spec: any }) {

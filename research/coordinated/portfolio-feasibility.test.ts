@@ -67,6 +67,18 @@ test("A low maximum-weight capacity does not require full investment or silently
   assert.ok(parseP0(r), "12 × 3% < 100% ceiling is valid; remainder may stay cash");
   assert.equal(r.maximum_exposure, 1);
 });
+test("2.5% and 3% strategic floors do not impose a minimum capital-overlay exposure", () => {
+  for (const minimum_weight of [.025, .03]) for (const capital_signal_frequency of ["DAILY", "REBALANCE_ONLY"]) {
+    const r = { ...request, maximum_exposure: .6, regime_response: "ADAPTIVE", defensive_multiplier: .01,
+      capital_signal_frequency, mandate: { minimum_positions: 8, maximum_positions: 12, minimum_weight } };
+    const before = structuredClone(r);
+    assert.equal(portfolioFeasibilityIssue(r), null);
+    assert.deepEqual(parseP0(r).mandate, r.mandate);
+    assert.deepEqual(r, before);
+    assert.ok(portfolioFeasibilityIssue({ ...r, maximum_exposure: minimum_weight * 8 - .001 }),
+      "The strategic construction budget must still fund the construction mandate");
+  }
+});
 test("100% ceiling plus 100% stress reduction is valid in Daily mode, including full-cash targets", () => {
   const r = { ...request, maximum_exposure: 1, regime_response: "ADAPTIVE",
     defensive_multiplier: 0, capital_signal_frequency: "DAILY" };

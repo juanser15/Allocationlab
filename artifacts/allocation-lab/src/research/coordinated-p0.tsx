@@ -285,7 +285,7 @@ export function MandateFields({
             )
           }
         />
-        Apply a final-holdings count and minimum-weight mandate
+        Apply strategic holdings and weight limits at scheduled rebalances
       </label>
       {value && (
         <div className="cp-fields">
@@ -308,11 +308,14 @@ export function MandateFields({
         candidates: {selected} candidate{selected === 1 ? "" : "s"} may exceed the
         maximum positions. All weights are fractions of total NAV, including
         cash. Maximum weight remains the per-asset limit above ({pct(maxWeight)}).
-        Mandates apply to the portfolio only, never to the SPY/cash study. The
+        Mandates apply to strategic portfolio targets at scheduled rebalances,
+        before HMM exposure scaling, never to the SPY/cash study. The
         optimizer searches bounded candidate supports and solves with holding-count
         and position-size constraints in place. No post-solve rounding, pruning
         or redistribution is used to manufacture compliance. Explicit risk-off
-        cash is valid in either capital monitoring mode.
+        cash is valid in either capital monitoring mode. Subsequent HMM scaling
+        and market drift may cross these construction bounds without an error
+        or an extra allocation rebalance.
       </p>
     </details>
   );

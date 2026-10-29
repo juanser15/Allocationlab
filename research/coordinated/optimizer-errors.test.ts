@@ -24,7 +24,7 @@ async function responseFor(error: unknown) {
 const publicFailures: Array<{ category: ResearchFailureCategory; message: string; details: Record<string, unknown> }> = [
   { category: 'PORTFOLIO_CONSTRAINT', message: 'Minimum final holdings must be a positive whole number.', details: { field: 'minimum_positions', received: 0 } },
   { category: 'DATA_COVERAGE', message: 'Training requires 2020-09-01, but the selected dataset begins 2021-01-01.', details: { training_start: '2020-09-01', dataset_first: '2021-01-01' } },
-  { category: 'SOLVER_INFEASIBLE', message: 'No compliant allocation was found under the exposure and support constraints.', details: { reason: 'FROZEN_COMPOSITION_EXPOSURE_CONFLICT', minimum_required_exposure: .12, available_exposure: .1 } },
+  { category: 'SOLVER_INFEASIBLE', message: 'No strategic support satisfies the construction risk constraint.', details: { reason: 'CONSTRUCTION_RISK_INFEASIBLE', minimum_attainable_volatility: .12, risk_budget: .1 } },
   { category: 'NUMERICAL_FAILURE', message: 'The optimizer did not satisfy its convergence certificate.', details: { reason: 'OPTIMIZER_NOT_CONVERGED', constraint_residual: .004 } },
 ];
 

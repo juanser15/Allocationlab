@@ -1,12 +1,12 @@
 # Cardinality-aware optimizer methodology
 
-Authority: `research/coordinated/constrained-optimizer.ts`, called by the mandate-aware branch of `research/coordinated/models.ts::optimize`. Version: `cardinality-active-support-1.0.0`, defined with the shared numerical constants in `artifacts/api-server/src/lib/workbench/portfolio-numerics.ts`.
+Authority: `research/coordinated/constrained-optimizer.ts`, called by the mandate-aware branch of `research/coordinated/models.ts::optimize`. Version: `cardinality-active-support-2.0.0`, defined with the shared numerical constants in `artifacts/api-server/src/lib/workbench/portfolio-numerics.ts`.
 
 This repair uses deterministic support exploration with constrained continuous re-optimization. It does not introduce an external MIQP solver, dependency, license or network service. The small and medium eligible universes can be searched under an explicit support budget, using the existing mean–variance and trading-cost objective. The result is a certified feasible solution on the selected support, not a claim of global optimality over a large discrete universe.
 
 ## Financial objective and constraints
 
-Let `x` be risky-asset weights on **total NAV**, `p` the prior actual NAV weights, `mu` annualized expected returns, `Sigma` annualized covariance, `h` the existing rebalance horizon, `a` the existing risk-aversion coefficient and `c` the existing one-rebalance proportional trading-cost assumption. The unchanged objective is minimized:
+Version 2 changes when construction constraints apply; the numerical optimizer and objective are unchanged. Let `x` be pre-HMM strategic risky-asset weights at a scheduled rebalance on **total NAV**, `p` the prior actual NAV weights, `mu` annualized expected returns, `Sigma` annualized covariance, `h` the existing rebalance horizon, `a` the existing risk-aversion coefficient and `c` the existing one-rebalance proportional trading-cost assumption. The unchanged objective is minimized:
 
 ```text
 F(x) = 0.5 h a x' Sigma x - h mu' x + c sum_i |x_i - p_i|
@@ -109,6 +109,6 @@ The `n^3` term is the risk-matrix check; `k^2` is a covariance product; `60*k` b
 
 Without a holdings mandate, `models.ts::optimize` retains the original continuous solver body and runtime return shape. The repair does not change HMM fitting/filtering, expected-return models, covariance estimation, cash yield, ledger fills or transaction-cost mathematics.
 
-The daily capital layer retains its independent clock and frozen intramonth ETF composition. A positive daily exposure that cannot support the frozen composition's NAV floors is an explicit dynamic constraint failure; it is not repaired by rerunning allocation intramonth. Explicit all-cash risk-off remains valid. The engine integration documents these behaviors separately.
+The capital layer retains its independent clock and frozen intramonth ETF composition. In both monitoring modes, HMM-effective weights may fall below construction floors; market drift may cross construction bounds. These are permitted, not solver failures. Separate effective-policy safety checks remain. Explicit all-cash risk-off is valid. The next scheduled target must again meet construction constraints; see `strategic-target-correction.md`.
 
 `constrained-optimizer.test.ts` uses labelled source-only mathematical fixtures. It checks the two post-solve mandate defects, multiple cardinalities, analytical scalar L1 solutions, retained-holding kinks, liquidated prior holdings, a correlated analytical optimum, binding volatility, convex infeasibility evidence, an exact certificate oracle, deterministic bounded search and ill-conditioned false-step rejection. The legacy analytical no-mandate result remains exact. These tests do not use or replace the excluded private historical dataset and do not establish full empirical/runtime certification.

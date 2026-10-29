@@ -1,6 +1,6 @@
-/** Shared necessary feasibility conditions for configuration and the API.
- * This contract does not predict a realized covariance matrix or promise that a
- * frozen intramonth composition will remain feasible at every future overlay. */
+/** Shared necessary feasibility conditions for strategic portfolio construction.
+ * Capital-overlay scaling and subsequent market drift do not reapply holdings or
+ * position-size construction limits. Future strategic covariance is still unknown. */
 import { MIN_ACTIVE_WEIGHT } from "./portfolio-numerics";
 export interface PortfolioFeasibilityInput {
   research_scope?: string;
@@ -96,16 +96,12 @@ export function portfolioFeasibilityIssue(
       ["mandate.maximum_positions", "maximum_etf_weight", "maximum_exposure"],
       "Increase position capacity or change the explicitly required investment budget.",
       { inequality: "maximum_positions * maximum_weight >= exact_exposure", maximum_position_capacity: m.maximum_positions * max, exact_exposure: cap });
-  if (request.control_mode === "MAX_EXPOSURE" && request.regime_response === "ADAPTIVE" &&
-      typeof request.defensive_multiplier === "number" && request.defensive_multiplier > 0 && request.defensive_multiplier < 1 &&
-      required > cap * request.defensive_multiplier)
-    return issue(`The full-stress positive exposure ceiling is ${percent(cap * request.defensive_multiplier)}, but ${m.minimum_positions} holdings at ${percent(m.minimum_weight)} require ${percent(required)}.`,
-      ["mandate.minimum_positions", "mandate.minimum_weight", "maximum_exposure", "defensive_multiplier"],
-      "Change the mandate or the explicit positive full-stress exposure ceiling. No exposure, dates or weights were adjusted.",
-      { inequality: "minimum_positions * effective_minimum_weight <= maximum_exposure * defensive_multiplier", required_exposure: required, minimum_positive_exposure_ceiling: cap * request.defensive_multiplier });
+  // The baseline cap funds strategic NAV targets at scheduled rebalances.
+  // HMM scaling is a separate capital decision; its reduced exposure is not a
+  // new portfolio construction budget and must not trigger a floor blocker.
   return null;
 }
 export function portfolioFeasibilityWarnings(request: PortfolioFeasibilityInput): string[] {
-  if (!request.mandate || request.regime_response !== "ADAPTIVE") return [];
-  return ["Static feasibility is a necessary-condition check. A positive future capital overlay may make the frozen ETF composition incompatible with NAV position floors or risk limits; execution then reports SOLVER_INFEASIBLE without reoptimizing intramonth or changing the mandate. Explicit risk-off cash remains valid."];
+  if (!request.mandate) return [];
+  return ["Holdings and position-size constraints apply to strategic NAV targets at scheduled allocation rebalances. Capital-overlay changes and market drift may move effective holdings outside those construction limits without an error or corrective trade. Static preflight does not guarantee future strategic risk estimates or solver convergence."];
 }
