@@ -1,0 +1,208 @@
+{
+  "scope": "SOURCE_ONLY_ANALYTICAL_SYNTHETIC_AND_PUBLIC_GOLDEN_TESTS",
+  "baseline": "90b7b7e2e7ff0a04364be58f8f59cfd801a8e382",
+  "runtime": {
+    "node": "v24.19.0",
+    "pnpm": "11.25.0 (preinstalled dependencies; no install or lockfile changes)"
+  },
+  "totals": {
+    "tests": 72,
+    "pass": 72,
+    "fail": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "suite": "optimizer_repair",
+      "command": "node scripts/test-optimizer-repair.mjs",
+      "exit_code": 0,
+      "tests": 49,
+      "pass": 49,
+      "fail": 0,
+      "skipped": 0,
+      "cases": [
+        "HTTP: invalid minimum-holdings values are actionable 4xx before service opening or run creation",
+        "HTTP: impossible exposure/cardinality/floor mandates and data coverage fail before any run is created",
+        "HTTP: Configure\u2192plan\u2192run\u2192results handles 12 candidates, max10 and 3% minimum through more than 85 causal signals",
+        "HTTP safeError: PORTFOLIO_CONSTRAINT preserves its actionable public category and bounded evidence",
+        "HTTP safeError: DATA_COVERAGE preserves its actionable public category and bounded evidence",
+        "HTTP safeError: SOLVER_INFEASIBLE preserves its actionable public category and bounded evidence",
+        "HTTP safeError: NUMERICAL_FAILURE preserves its actionable public category and bounded evidence",
+        "HTTP safeError: unknown exceptions cannot expose messages, stack paths or forged public error properties",
+        "Research failure helper keeps the four categories and distinct next actions without treating numerical failure as proven infeasibility",
+        "Failure stage uses the structured solver stage instead of stale preparing progress, with a strict allowlist",
+        "Invalid minimum holdings disables Run and exposes the actual actionable contract error",
+        "Valid 1\u201310 and 3% controls enable Run; changed impossibilities disable it immediately",
+        "Mandate editor makes count construction and explicit cash semantics visible",
+        "Research failure keeps the exact safe explanation and category with technical detail collapsed",
+        "API client preserves safe categorized failure without inventing or exposing raw diagnostics",
+        "Independent two-asset feasible-grid oracle: 30 deterministic PSD, cost, support and risk cases",
+        "Original 11-holdings and below-3% failures: actual engine constructs invested mandate targets",
+        "Daily capital switches repeatedly through cash while monthly constrained composition stays frozen",
+        "Future prices cannot affect earlier constrained decisions or capital signals; reruns reproduce",
+        "Both monitoring modes honor explicitly all-cash policies despite positive minimum holdings",
+        "A positive intramonth NAV-floor conflict fails explicitly without changing frozen weights",
+        "Actual HMM daily refits produce repeated cash/re-entry with frozen monthly composition on a labelled regime fixture",
+        "Exact failure: malformed minimum final holdings is rejected before loading data or creating a run",
+        "Coherent finite cardinalities and candidate selection are authoritative and never clamped",
+        "Joint 1\u201310 holdings and 3% floor accepts eleven eligible assets without promising all are held",
+        "Analytic impossible mandates identify the precise inequality; ceiling is not equality",
+        "Explicit cash is allowed in both clocks; positive full-stress incompatibility is blocked",
+        "Data coverage error includes requested and earliest dates without modifying the design",
+        "Warmup beyond available data cannot be clamped to the dataset's final row",
+        "Boundary date, missing symbols and causal holes are distinct coverage failures",
+        "Original failure: 11+ eligible assets and maximum ten never publishes eleven holdings",
+        "Original failure: 3% floor is enforced inside each support solve",
+        "Known-answer fixed support respects retained-trade L1 kink and NAV floors",
+        "Exposure stays a ceiling: a valid mandate need not consume its entire budget",
+        "Cardinality/floor combinations remain jointly feasible across deterministic fixtures",
+        "Analytic impossible holdings budget is rejected before solving",
+        "Explicit zero exposure is all cash despite minimum holdings",
+        "Excluded old positions are charged in support objective, not silently forgiven",
+        "Volatility binds within the support subproblem without breaking floors",
+        "Correlated risk floors produce an evidenced infeasible status, never scaled weights",
+        "Negative covariance diversification is considered rather than assuming the floor minimizes risk",
+        "Invalid numeric inputs and indefinite covariance remain numerical failures",
+        "No-mandate analytical golden is unchanged",
+        "A bounded search without a feasible support does not claim mathematical infeasibility",
+        "Zero economic floor still satisfies the single positive-support convention",
+        "Small exhaustive mathematical problem matches independently enumerated one-asset optima",
+        "Composite certificate solves L1 kink/ceiling linearization exactly",
+        "Correlated continuous support agrees with an independent analytical optimum",
+        "Tiny steps caused by ill-conditioning cannot masquerade as convergence"
+      ]
+    },
+    {
+      "suite": "legacy_capital_clock",
+      "command": "node scripts/test-capital-clock.mjs",
+      "exit_code": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0,
+      "cases": [
+        "Rebalance-only and absent clock match frozen pre-clock financial hashes exactly",
+        "Daily portfolio switches cash/risk repeatedly while optimizer and quality run only at scheduled dates",
+        "Daily unchanged exposure produces no drift rebalancing, and the due initial order is not lost",
+        "SPY/cash has the same daily signals, switching, timing and real overlay costs without an optimizer",
+        "Real HMM refits daily on rolling/expanding windows, and future/execution-close prices cannot affect earlier signals",
+        "Monthly and quarterly calendars refresh composition only at their own folds",
+        "Daily clock is frozen in identity, rejects unknown frequency and preserves explicit full-cash defense",
+        "Overlay proportions survive zero exposure and risk-budget changes never violate baseline max allocation",
+        "Both clocks accept the explicit zero-defensive risk-budget policy"
+      ]
+    },
+    {
+      "suite": "backtest_range",
+      "command": "node scripts/test-backtest-range.mjs",
+      "exit_code": 0,
+      "tests": 7,
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0,
+      "cases": [
+        "Dataset defaults initialize once; refresh and navigation cannot reset dates",
+        "A late default response cannot overwrite either manually edited calendar",
+        "Dataset changes reset intent; old responses and out-of-order resets are discarded",
+        "Explicit full range replaces prior manual dates, but preserves edits made while it loads",
+        "Independent calendars do not overwrite one another",
+        "Exclusive To includes the final observation; UTC month/year/leap transitions are exact",
+        "Use server training/warmup bounds, not the first raw observation or today's date"
+      ]
+    },
+    {
+      "suite": "execution_runtime",
+      "command": "node scripts/test-execution-runtime.mjs",
+      "exit_code": 0,
+      "tests": 7,
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0,
+      "cases": [
+        "Daily gets a bounded 30-minute budget; rebalance-only keeps its previous two-minute runtime",
+        "Forward progress survives the old two-minute cutoff; a truly stalled worker expires once",
+        "Heartbeats without completed work cannot extend the stall limit",
+        "Continuous forward progress cannot extend the total runtime bound; cleanup disarms both timers",
+        "Failed progress survives a fresh service instance with no in-memory progress map",
+        "Old failed attempts never render waiting or a running ETA when progress counters are absent",
+        "Running, failed-with-progress and completed states show truthful counters and timing"
+      ]
+    }
+  ],
+  "validation": [
+    {
+      "name": "workspace_references",
+      "command": "node node_modules/typescript/bin/tsc --build",
+      "exit_code": 0,
+      "status": "PASS",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "backend_typecheck",
+      "command": "node node_modules/typescript/bin/tsc -p artifacts/api-server/tsconfig.json --noEmit",
+      "exit_code": 0,
+      "status": "PASS",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "frontend_typecheck",
+      "command": "node node_modules/typescript/bin/tsc -p artifacts/allocation-lab/tsconfig.json --noEmit",
+      "exit_code": 0,
+      "status": "PASS",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "strict_new_solver",
+      "command": "node node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target es2022 --module esnext --moduleResolution bundler research/coordinated/constrained-optimizer.ts artifacts/api-server/src/lib/workbench/portfolio-numerics.ts",
+      "exit_code": 0,
+      "status": "PASS",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "backend_build",
+      "command": "node artifacts/api-server/build.mjs",
+      "exit_code": 0,
+      "status": "PASS",
+      "log_sha256": "cb635926a172afc994cadd586f08e5f2f400d8fdd521ea9e1fe744857b8b7407"
+    },
+    {
+      "name": "frontend_build",
+      "command": "PORT=5173 BASE_PATH=/ node artifacts/allocation-lab/node_modules/vite/bin/vite.js build --config artifacts/allocation-lab/vite.config.ts",
+      "exit_code": 0,
+      "status": "PASS",
+      "log_sha256": "5210bccff86f87341c18929c10621f46169f3bc43fb4a347b9a95ee031898050"
+    },
+    {
+      "name": "diff_check",
+      "command": "git diff --check",
+      "exit_code": 0,
+      "status": "PASS"
+    }
+  ],
+  "analytical_oracle": {
+    "cases": 30,
+    "deterministic_repetitions": 30,
+    "grid_step": 0.005,
+    "objective_tolerance": 1e-07,
+    "global_optimality_proof": false
+  },
+  "before_repair": "before-repair.json: three exact failure classes reproduced using pinned baseline source",
+  "build_warnings": [
+    "Existing frontend component sourcemap-location warnings.",
+    "Frontend bundle remains above Vite 500 kB chunk warning; no unrelated splitting/refactor performed."
+  ],
+  "limitations": [
+    "Private reports/cl02/adjusted-closes.csv intentionally absent; no empirical/golden private result claim.",
+    "HTTP acceptance injects an in-memory adapter; production PostgreSQL and child-worker IPC not certified.",
+    "Frontend tests are server-rendered/configuration tests; actual Replit browser, saved workspace hydration and long campaign require owner-approved follow-up.",
+    "A supplementary strict check of the complete research dependency graph exposes five pre-existing boundary type diagnostics; normal backend/frontend project typechecks and strict standalone new solver pass. See replit-verification.md.",
+    "Direct pnpm script invocation triggered automatic dependency provisioning into an unwritable home directory; used existing installed tool binaries without changing dependencies."
+  ],
+  "pending_private_acceptance": [
+    "Original user configurations and complete multi-signal historical campaign",
+    "Persisted PostgreSQL run/attempt behavior and actual worker IPC",
+    "Private known-feasible PnL, costs, turnover and benchmark golden comparisons",
+    "Real browser configuration and active saved workspace regression"
+  ],
+  "release_status": "SOURCE_REPAIR_READY_FOR_DRAFT_REVIEW_PRIVATE_RUNTIME_ACCEPTANCE_PENDING"
+}

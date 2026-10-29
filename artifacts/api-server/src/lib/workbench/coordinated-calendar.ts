@@ -148,13 +148,6 @@ export function parseCoordinated(value: unknown): ResearchSubmission {
           ? "The candidate universe contains duplicate symbols. Select each asset only once."
           : "A candidate symbol has an invalid format. Select the asset using the active dataset selector.");
   }
-  if (
-    v.regime_response === "ADAPTIVE" &&
-    v.control_mode === "RISK_BUDGET" &&
-    v.defensive_multiplier === 0 &&
-    v.capital_signal_frequency !== "DAILY"
-  )
-    invalid("A risk budget requires a positive defensive multiplier.");
   // Validation of dates and calendar is shared with the existing contract.
   return isCapitalStudy(v)
     ? { ...v }
@@ -300,7 +293,7 @@ export function deriveExperimentBounds(
     regimeLookbackSessions(request.regime_model),
     forecastLookbackSessions(request),
   );
-  const causalIndex = Math.min(rows.length - 1, commonStartIndex + causalSessions);
+  const causalIndex = commonStartIndex + causalSessions;
   const earliestIndex = Math.max(trainingIndex, causalIndex);
   const earliest = rows[earliestIndex]?.date;
   if (!earliest)

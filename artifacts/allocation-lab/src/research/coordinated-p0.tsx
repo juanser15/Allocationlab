@@ -275,11 +275,12 @@ export function MandateFields({
         <input
           type="checkbox"
           checked={!!value}
+          disabled={!value && selected < 1}
           data-testid="input-mandate-enabled"
           onChange={(e) =>
             onChange(
               e.target.checked
-                ? { minimum_positions: 1, maximum_positions: Math.max(1, selected), minimum_weight: 0 }
+                ? { minimum_positions: 1, maximum_positions: selected, minimum_weight: 0 }
                 : undefined,
             )
           }
@@ -290,11 +291,11 @@ export function MandateFields({
         <div className="cp-fields">
           <label>
             Minimum final holdings
-            <input type="number" min={1} value={Number.isNaN(value.minimum_positions) ? "" : value.minimum_positions} onInput={(e) => set("minimum_positions", e.currentTarget.value)} />
+            <input type="number" min={1} step={1} aria-label="Minimum final holdings" aria-invalid={!Number.isSafeInteger(value.minimum_positions) || value.minimum_positions < 1} value={Number.isNaN(value.minimum_positions) ? "" : value.minimum_positions} onInput={(e) => set("minimum_positions", e.currentTarget.value)} />
           </label>
           <label>
             Maximum final holdings
-            <input type="number" min={1} value={Number.isNaN(value.maximum_positions) ? "" : value.maximum_positions} onInput={(e) => set("maximum_positions", e.currentTarget.value)} />
+            <input type="number" min={1} step={1} aria-label="Maximum final holdings" aria-invalid={!Number.isSafeInteger(value.maximum_positions) || value.maximum_positions < value.minimum_positions || value.maximum_positions > selected} value={Number.isNaN(value.maximum_positions) ? "" : value.maximum_positions} onInput={(e) => set("maximum_positions", e.currentTarget.value)} />
           </label>
           <label>
             Minimum weight per held asset (% of NAV)
@@ -308,9 +309,10 @@ export function MandateFields({
         maximum positions. All weights are fractions of total NAV, including
         cash. Maximum weight remains the per-asset limit above ({pct(maxWeight)}).
         Mandates apply to the portfolio only, never to the SPY/cash study. The
-        optimizer does not search over position counts; the server checks each
-        resulting allocation and rejects violations. Nothing is relaxed,
-        redistributed or replaced by a fallback.
+        optimizer searches bounded candidate supports and solves with holding-count
+        and position-size constraints in place. No post-solve rounding, pruning
+        or redistribution is used to manufacture compliance. Explicit risk-off
+        cash is valid in either capital monitoring mode.
       </p>
     </details>
   );

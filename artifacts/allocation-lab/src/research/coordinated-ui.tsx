@@ -132,6 +132,14 @@ export function ResearchChart({
     </div>
   );
 }
+export interface ResearchRequestError extends Error {
+  category?: string;
+  code?: string;
+  suggestedAction?: string;
+}
+export function ResearchFailureNotice({ message, category, code, action }: { message: string; category?: string; code?: string; action?: string }) {
+  return <div className="cp-error" role="alert"><p>{message}</p>{action && <p>{action}</p>}{(category || code) && <details><summary>Show technical details</summary>{category && <p>Category: {category}</p>}{code && <p>Code: {code}</p>}</details>}</div>;
+}
 export async function researchApi(path: string, body?: unknown) {
   const token = sessionStorage.getItem("allocationlab.workbench.preview-token");
   const response = await fetch("/api/workbench/p0" + path, {
@@ -144,10 +152,14 @@ export async function researchApi(path: string, body?: unknown) {
   });
   const value = await response.json();
   if (!response.ok)
-    throw new Error(
+    throw Object.assign(new Error(
       value.error?.message ??
         value.message ??
         "The research request could not be completed.",
-    );
+    ), {
+      category: value.error?.category,
+      code: value.error?.code,
+      suggestedAction: value.error?.issues?.suggestion,
+    } satisfies Omit<ResearchRequestError, "name" | "message">);
   return value;
 }

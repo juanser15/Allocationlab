@@ -47,8 +47,8 @@ test("Feasibility identifies the exact conflicting holding constraints", () => {
   const universe = issue({ etfs: candidates.slice(0, 4) })!;
   assert.deepEqual(universe.fields, ["mandate.minimum_positions", "etfs"]);
   assert.match(universe.message, /8.*4/);
-  // A maximum is an upper bound, not an obligation to hold that many assets.
-  assert.equal(issue({ mandate: { minimum_positions: 8, maximum_positions: 40, minimum_weight: .025 } }), null);
+  // Issue #2 requires the explicit interval to satisfy Kmax <= eligible N.
+  assert.match(issue({ mandate: { minimum_positions: 8, maximum_positions: 40, minimum_weight: .025 } })!.message, /Maximum holdings.*selected candidates/);
 });
 test("Weight-floor conflicts and required invested capital are checked before execution", () => {
   const weight = issue({ maximum_etf_weight: .02 })!;
@@ -74,14 +74,14 @@ test("100% ceiling plus 100% stress reduction is valid in Daily mode, including 
   assert.equal(portfolioFeasibilityIssue(r), null);
   assert.ok(validateTargets("2024-01-22", Object.fromEntries(candidates.map(t => [t, 0])), r).passed);
   assert.equal(portfolioFeasibilityIssue({ ...r, maximum_exposure: 0 }), null);
-  assert.ok(issue({ maximum_exposure: 0 }), "Legacy all-cash/min-holdings semantics remain unchanged");
+  assert.equal(issue({ maximum_exposure: 0 }), null, "Explicit all-cash is valid for either monitoring clock");
   assert.ok(parseP0({ ...r, control_mode: "RISK_BUDGET" }));
 });
 test("Dataset membership is verified individually before the calendar or optimizer", () => {
   const data = dataset();
   assert.throws(() => planP0WithData({ ...request, etfs: ["SPY", "NOTINDATA"], mandate: undefined }, data),
-    (e: any) => e.code === "CANDIDATES_NOT_IN_DATASET" && /NOTINDATA/.test(e.message) &&
-      e.details.missing_symbols[0] === "NOTINDATA");
+    (e: any) => e.code === "DATA_COVERAGE" && e.details.reason_code === "DATASET_SYMBOL_MISSING" && /NOTINDATA/.test(e.message) &&
+      e.details.ticker === "NOTINDATA");
 });
 test("All supported internal candidates pass actual preflight and execute a short unfrozen-mandate run", () => {
   const data = dataset();
@@ -101,7 +101,7 @@ test("Final targets must satisfy holdings and weight requirements; nothing is tr
   for (const weights of [{ SPY: .2 }, { SPY: .1, EFA: .1, IEF: .1 }, { SPY: .05, EFA: .2 }]) {
     const before = { ...weights };
     assert.throws(() => validateTargets("2024-01-22", weights, r),
-      (e: any) => e.code === "MANDATE_BREACH" && /holdings|minimum per held asset/.test(e.message));
+      (e: any) => e.code === "NUMERICAL_FAILURE" && e.details.reason === "MANDATE_AUDIT_FAILURE" && /holdings|minimum per held asset/.test(e.message));
     assert.deepEqual(weights, before);
   }
 });

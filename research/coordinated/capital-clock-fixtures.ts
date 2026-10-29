@@ -1,10 +1,9 @@
-import { preparedDataset } from "../../artifacts/api-server/src/lib/workbench/coordinated-calendar";
+import { sourceOnlyDataset } from "./optimizer-test-fixtures";
 import type { P0Dataset } from "../../artifacts/api-server/src/lib/workbench/p0-calendar";
 import { COORDINATED_SPEC, CURRENT_CASH_POLICY } from "../../artifacts/api-server/src/lib/workbench/coordinated-contract";
 
 /** Deterministic TEST_ONLY prices; never stored or represented as vendor data. */
 export function clockData(): P0Dataset {
-  const source = preparedDataset();
   const rows = [];
   for (let t = Date.parse("2021-01-01"), i = 0; t <= Date.parse("2024-06-01"); t += 86400000) {
     const day = new Date(t);
@@ -17,7 +16,7 @@ export function clockData(): P0Dataset {
     i++;
   }
   const binding = { dataset_id: `internal_${"0".repeat(64)}`, dataset_version: 1, dataset_hash: "0".repeat(64), dataset_source: "TEST_ONLY" };
-  return { ...source, rows, binding, snapshot: { ...source.snapshot, data_first_observation: rows[0].date, data_last_observation: rows.at(-1)!.date } };
+  return { ...sourceOnlyDataset(rows), binding };
 }
 export function clockRequest(scope = "PORTFOLIO", clock: "DAILY" | "REBALANCE_ONLY" | undefined = "DAILY"): any {
   return {

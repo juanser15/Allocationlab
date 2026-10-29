@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { SUPPORT_TOLERANCE, CONSTRAINT_TOLERANCE } from "../../artifacts/api-server/src/lib/workbench/portfolio-numerics";
 import { runCoordinated } from "./engine";
 import { remuneratedLedger } from "../workbench/institutional-ledger";
 import { hash } from "../capital/spec";
@@ -21,8 +22,9 @@ export function institutionalMetrics(points: Observation[], cash: Map<string, nu
   return { ...base, net_sharpe: variance > 0 ? (first + meanDelta) / Math.sqrt(variance) * Math.sqrt(252) : null };
 }
 export function validateTargets(date: string, targets: Record<string, number>, request: ReturnType<typeof requestFromP0Spec>, benchmark = false) {
-  const weights = Object.values(targets), active = weights.filter(w => w > 1e-10), exposure = weights.reduce((s, w) => s + w, 0);
+  const weights = Object.values(targets), active = weights.filter(w => w > SUPPORT_TOLERANCE), exposure = weights.reduce((s, w) => s + w, 0);
   const cash = 1 - exposure, m = request.mandate;
+  const explicitAllCash = weights.length > 0 && weights.every(w => w === 0);
   const study = request.research_scope === "CAPITAL_EXPOSURE";
   const within = weights.every(w => Number.isFinite(w) && w >= -1e-10) && exposure <= 1 + 1e-8 && cash >= -1e-8;
   const cap = benchmark || request.control_mode !== "MAX_EXPOSURE" ? 1 : request.maximum_exposure;
@@ -32,13 +34,13 @@ export function validateTargets(date: string, targets: Record<string, number>, r
     candidate_universe: Object.keys(targets).every(t => allowed.includes(t)),
     maximum_exposure: exposure <= cap + 1e-8,
     maximum_weight: benchmark || study || weights.every(w => w <= request.maximum_etf_weight + 1e-8),
-    holding_count: !m || benchmark || (request.capital_signal_frequency === "DAILY" && exposure <= 1e-10) || (active.length >= m.minimum_positions && active.length <= m.maximum_positions),
-    minimum_weight: !m || benchmark || active.every(w => w >= m.minimum_weight - 1e-8),
+    holding_count: !m || benchmark || explicitAllCash || (active.length >= m.minimum_positions && active.length <= m.maximum_positions),
+    minimum_weight: !m || benchmark || active.every(w => w >= m.minimum_weight - CONSTRAINT_TOLERANCE),
   };
-  const evidence = { decision_date: date, passed: Object.values(checks).every(Boolean), checks, exposure, cash, positions: active.length, scope: "DECISION_TARGETS_NOT_POST_TRADE_DRIFT", tolerance: 1e-8 };
+  const evidence = { decision_date: date, passed: Object.values(checks).every(Boolean), checks, exposure, cash, positions: active.length, scope: "DECISION_TARGETS_NOT_POST_TRADE_DRIFT", tolerance: CONSTRAINT_TOLERANCE };
   if (!evidence.passed) {
-    // Reject invalid targets, never manufacture a compliant portfolio by
-    // truncating weights, raising floors or re-running a different objective.
+    // This is an assertion/audit gate. Mandates are constructed inside the
+    // optimizer; an escaped breach is a numerical/integration defect, not a request to repair weights.
     const n = (x: number) => `${Number((x * 100).toFixed(4))}%`;
     const conflict =
       !checks.holding_count
@@ -55,7 +57,7 @@ export function validateTargets(date: string, targets: Record<string, number>, r
                   fields: ["maximum_exposure"] }
               : { message: "Calculated targets violate the frozen mandate's long-only, funding or candidate-universe rules. No fallback, floor uplift or redistribution was applied.",
                   fields: ["etfs"] };
-    throw new CalendarContractError("MANDATE_BREACH", conflict.message, { ...evidence, fields: conflict.fields }, 422);
+    throw new CalendarContractError("NUMERICAL_FAILURE", "Post-solve mandate audit failed. No portfolio was published. " + conflict.message, { category: "NUMERICAL_FAILURE", reason: "MANDATE_AUDIT_FAILURE", ...evidence, fields: conflict.fields }, 422);
   }
   return evidence;
 }
@@ -110,7 +112,7 @@ export function runInstitutional(spec: P0Spec, data: P0Dataset, progress: (p: an
     metrics_convention: { sharpe: "Mean portfolio net return minus zero cash return, divided by sample standard deviation of those excess returns, multiplied by sqrt(252). Undefined when variance is zero.", volatility: "Portfolio net-return sample standard deviation, annualized sqrt(252); not excess-return volatility.", annualization: "252 observed sessions; not calendar-year CAGR.", turnover: "Gross actual fill notional / pretrade NAV inclusive of cash income.", benchmark: "Passive SPY: identical dates, initial cash, first next-close fill and fee/slippage conventions." },
     cash_reference: cashReference,
     mandate_evidence: mandates,
-    capital_gate: study ? { status: "ISOLATED_COMPOSITION_VERIFIED", fixed_risk_asset: "SPY", optimizer: "NONE", quality_gate: "NOT_USED_CAPITAL_ONLY", fallback: "NONE", policy: request.regime_model, response: request.regime_response } : { status: "COORDINATED_CAPITAL_AND_PORTFOLIO", fixed_risk_asset: null, optimizer: "EXISTING_CONVENTIONAL_OPTIMIZER", fallback: "NONE", policy: request.regime_model, response: request.regime_response },
+    capital_gate: study ? { status: "ISOLATED_COMPOSITION_VERIFIED", fixed_risk_asset: "SPY", optimizer: "NONE", quality_gate: "NOT_USED_CAPITAL_ONLY", fallback: "NONE", policy: request.regime_model, response: request.regime_response } : { status: "COORDINATED_CAPITAL_AND_PORTFOLIO", fixed_risk_asset: null, optimizer: request.mandate ? "CARDINALITY_AWARE_CONSTRAINED_SUPPORT_SEARCH" : "EXISTING_CONVENTIONAL_OPTIMIZER", fallback: "NONE", policy: request.regime_model, response: request.regime_response },
     quality_gate_evidence: study ? { status: "NOT_REQUIRED_CAPITAL_ONLY", every_rebalance: false, reason: "Fixed SPY sleeve; no ETF ranking, PCA gate or allocation optimizer is consumed." } : {
       enabled: request.quality_control!.enabled, policy_version: STRUCTURAL_POLICY.version, policy_hash: QUALITY_POLICY_HASH, policy: STRUCTURAL_POLICY,
       status: !request.quality_control!.enabled ? "OFF_OBSERVE_ONLY" : quality.decisions.some(d => d.warnings.length) ? "WARN" : "PASS",

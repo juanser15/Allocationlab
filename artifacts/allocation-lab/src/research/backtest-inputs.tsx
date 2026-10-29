@@ -24,7 +24,7 @@ export function BacktestInputs({ draft, caps }: { draft: any; caps: any }) {
     : `Up to ${pct(calm)} invested · at least ${pct(1 - calm)} cash${adaptive ? ` → full stress: up to ${pct(stress)} invested · at least ${pct(1 - stress)} cash (${reductionPct(draft.defensive_multiplier)}% reduction)` : " · fixed ceiling"}`;
   const rows: [string, string, string][] = [
     ["Candidates", `${draft.etfs?.length ?? 0} selected · candidates, not holdings`, "candidates"],
-    ["Final holdings", m ? `${m.minimum_positions} min · ${m.maximum_positions} max when invested${draft.capital_signal_frequency === "DAILY" ? " · fully cash allowed" : ""}` : "No holding-count mandate · may hold zero to all candidates", "holdings"],
+    ["Final holdings", m ? `${m.minimum_positions} min · ${m.maximum_positions} max when invested · explicit risk-off cash allowed` : "No holding-count mandate · may hold zero to all candidates", "holdings"],
     ["Max weight per asset", `${pct(draft.maximum_etf_weight)} of total NAV`, "max-weight"],
     ["Min weight per held asset", m ? `${pct(m.minimum_weight)} of total NAV` : "None · no mandate", "min-weight"],
     ["Exposure rule", exposure, "exposure"],
@@ -38,7 +38,7 @@ export function BacktestInputs({ draft, caps }: { draft: any; caps: any }) {
     ["Cash", cashPolicyLabel(draft.cash_policy), "cash"],
   ];
   return (<>
-    {conflict && <div className="cp-error" role="alert" data-testid="text-portfolio-conflict">
+    {conflict && <div className="cp-error" role="alert" id="portfolio-constraint-feedback" data-testid="text-portfolio-conflict">
       <strong>{conflict.message}</strong><p>{conflict.suggestion}</p>
     </div>}
     <dl data-testid="list-backtest-inputs">

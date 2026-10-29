@@ -26,6 +26,8 @@ import {
   models,
   pct,
   researchApi,
+  ResearchFailureNotice,
+  type ResearchRequestError,
 } from "./coordinated-ui";
 export type ResearchScope = "PORTFOLIO" | "CAPITAL_EXPOSURE";
 export const runScope = (spec: any): ResearchScope =>
@@ -71,13 +73,20 @@ export function ExecutionWorkspace({
     [plan, setPlan] = useState<any>(null),
     [bounds, setBounds] = useState<any>(null),
     [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [errorInfo, setErrorInfo] = useState<Pick<ResearchRequestError, "category" | "code" | "suggestedAction">>({});
+  const captureError = (error: unknown) => {
+    const failure = error as ResearchRequestError;
+    setError(failure.message);
+    setErrorInfo({ category: failure.category, code: failure.code, suggestedAction: failure.suggestedAction });
+  };
   useEffect(() => {
     if (visible) window.scrollTo({ top: 0 });
   }, [visible, view]);
   useEffect(() => {
     setPlan(null);
     setError("");
+    setErrorInfo({});
   }, [draft]);
   useEffect(() => {
     if (!runId) return;
@@ -101,7 +110,7 @@ export function ExecutionWorkspace({
         }
       } catch (e) {
         if (!stopped) {
-          setError((e as Error).message);
+          captureError(e);
           setBusy(false);
         }
       }
@@ -116,10 +125,14 @@ export function ExecutionWorkspace({
       run?.latest_status === "SUCCESS" ? run.latest_successful_result : null,
     latest = result?.decisions?.at(-1),
     saved = run?.spec;
+  const constraintIssue = portfolioFeasibilityIssue(draft as any);
+  const invalidCalendar = !draft.evaluation_start || !draft.evaluation_end_exclusive || draft.evaluation_start >= draft.evaluation_end_exclusive || !Number.isSafeInteger(draft.training_window_months) || draft.training_window_months <= 0 || draft.training_window_months > 1200;
+  const invalidCosts = !Number.isFinite(draft.transaction_cost_bps) || draft.transaction_cost_bps < 0 || draft.transaction_cost_bps > 1000 || !Number.isFinite(draft.slippage_bps ?? 0) || (draft.slippage_bps ?? 0) < 0 || (draft.slippage_bps ?? 0) > 1000;
   async function check() {
     setError("");
+    setErrorInfo({});
     if (!study) {
-      const issue = portfolioFeasibilityIssue(draft as any);
+      const issue = constraintIssue;
       if (issue) {
         setError(`${issue.message} ${issue.suggestion}`);
         return null;
@@ -132,7 +145,7 @@ export function ExecutionWorkspace({
       if (p.normalized_request.evaluation_start !== draft.evaluation_start || p.normalized_request.evaluation_end_exclusive !== draft.evaluation_end_exclusive) throw new Error("The planner changed the requested dates. Execution is blocked.");
       return p;
     } catch (e) {
-      setError((e as Error).message);
+      captureError(e);
       return null;
     }
   }
@@ -167,7 +180,7 @@ export function ExecutionWorkspace({
       if (!["RUNNING", "PENDING"].includes(receipt.status)) setBusy(false);
     } catch (e) {
       setBusy(false);
-      setError((e as Error).message);
+      captureError(e);
     }
   }
   async function history() {
@@ -179,7 +192,7 @@ export function ExecutionWorkspace({
       setRuns(response.runs.filter((row: any) => runScope(row.spec) === scope));
     } catch (e) {
       setHistoryError((e as Error).message);
-      setError((e as Error).message);
+      captureError(e);
     } finally {
       setHistoryLoading(false);
     }
@@ -269,14 +282,10 @@ export function ExecutionWorkspace({
         ))}
       </nav>
       {error && (
-        <div className="cp-error" role="alert">
-          {error}
-        </div>
+        <ResearchFailureNotice message={error} category={errorInfo.category} code={errorInfo.code} action={errorInfo.suggestedAction} />
       )}
       {run?.latest_status === "FAILED" && (
-        <div className="cp-error" role="alert">
-          {run.latest_result?.safe_message}
-        </div>
+        <ResearchFailureNotice message={run.latest_result?.safe_message} category={run.latest_result?.error_category} code={run.latest_result?.error_class} action={run.latest_result?.suggested_user_action} />
       )}
       {!study && run?.latest_status === "FAILED" && (view === "Results" || view === "Progress" || view === "Audit") && (
         <GateFailureEvidence failure={run.latest_result} />
@@ -394,7 +403,8 @@ export function ExecutionWorkspace({
             <div className="cp-actions">
               <button
                 className="cp-primary"
-                disabled={busy || calendarRange.busy || !caps}
+                disabled={busy || calendarRange.busy || !caps || !!constraintIssue || invalidCalendar || invalidCosts}
+                aria-describedby={constraintIssue ? "portfolio-constraint-feedback" : undefined}
                 onClick={() => void execute()}
               >
                 {busy
@@ -731,6 +741,7 @@ export function ExecutionWorkspace({
                 onClick={async () => {
                   try {
                     setError("");
+                    setErrorInfo({});
                     const receipt = await researchApi(
                       `/runs/${run.run_id}/rerun`,
                       {},
@@ -741,7 +752,7 @@ export function ExecutionWorkspace({
                     setBusy(true);
                     setView("Progress");
                   } catch (e) {
-                    setError((e as Error).message);
+                    captureError(e);
                   }
                 }}
               >
