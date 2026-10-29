@@ -1,7 +1,7 @@
 /** Read-only institutional reporting. Never imported by normalization or execution. */
 import { createHash } from "node:crypto";
 import type { BacktestLedgerEntry, BacktestPosition } from "../calculator";
-export const BLOTTER_VERSION = "institutional-fifo-blotter-1.0.0";
+export const BLOTTER_VERSION = "institutional-fifo-blotter-1.0.1";
 export const BLOTTER_TOLERANCE = 1e-8;
 export const REASONS = [
   "INITIAL_ALLOCATION",
@@ -215,6 +215,38 @@ const quantityClose = (a: number, b: number, scale = 0) =>
   Math.abs(a - b) <=
   1e-10 * Math.max(Number.MIN_VALUE, Math.abs(a), Math.abs(b), scale);
 
+/** Forward roundoff bound, scaled only by observed inventory/fills; no absolute share floor. */
+export function fifoQuantityTolerance(
+  grossQuantity: number,
+  peakQuantity: number,
+  operations: number,
+): number {
+  requireValid(
+    finite(grossQuantity) &&
+      grossQuantity >= 0 &&
+      finite(peakQuantity) &&
+      peakQuantity >= 0 &&
+      Number.isSafeInteger(operations) &&
+      operations > 0,
+    "Invalid FIFO quantity reference.",
+  );
+  const nu = operations * Number.EPSILON;
+  requireValid(nu < 1, "FIFO roundoff bound is unavailable.");
+  return Math.min((nu / (1 - nu)) * grossQuantity, 1e-10 * peakQuantity);
+}
+function compensatedSum(values: number[]): number {
+  let sum = 0,
+    correction = 0;
+  for (const value of values) {
+    const next = sum + value;
+    correction +=
+      Math.abs(sum) >= Math.abs(value)
+        ? sum - next + value
+        : value - next + sum;
+    sum = next;
+  }
+  return sum + correction;
+}
 const position = (ps: BacktestPosition[], symbol: string) =>
   ps.find((p) => p.ticker === symbol);
 const defensive = (s: Evidence | undefined) =>
@@ -922,9 +954,59 @@ export function projectTradingBlotter(input: BlotterInput): TradingBlotter {
       basis_status: entry ? "KNOWN" : "UNKNOWN_INITIAL_BASIS",
     };
   }
+  type QuantityHistory = {
+    sum: number;
+    correction: number;
+    peak: number;
+    operations: number;
+    fills: number;
+  };
+  const history = new Map<string, QuantityHistory>();
+  const adjustments: Evidence[] = [];
+  const lastFill = new Map<string, string>();
+  for (const fill of executions)
+    lastFill.set(`${fill.ledger_day_index}:${fill.symbol}`, fill.fill_id);
+  const reference = (symbol: string) => {
+    let r = history.get(symbol);
+    if (!r) {
+      const initial =
+        position(ledger[0].beginningPositions, symbol)?.quantity ?? 0;
+      r = {
+        sum: initial,
+        correction: 0,
+        peak: initial,
+        operations: 8,
+        fills: 0,
+      };
+      history.set(symbol, r);
+    }
+    return r;
+  };
+  const tolerance = (r: QuantityHistory, extra = 0) =>
+    fifoQuantityTolerance(r.sum + r.correction, r.peak, r.operations + extra);
+  const addHistory = (r: QuantityHistory, q: number) => {
+    const next = r.sum + q;
+    r.correction += Math.abs(r.sum) >= q ? r.sum - next + q : q - next + r.sum;
+    r.sum = next;
+  };
   for (const fill of executions) {
     const queue = queues.get(fill.symbol) ?? [];
     queues.set(fill.symbol, queue);
+    const day = ledger[fill.ledger_day_index],
+      expected = position(day.endingPositions, fill.symbol)?.quantity ?? 0;
+    const finalSymbolFill =
+      lastFill.get(`${fill.ledger_day_index}:${fill.symbol}`) === fill.fill_id;
+    const flat = expected === 0 && finalSymbolFill && fill.side === "SELL";
+    const h = reference(fill.symbol);
+    addHistory(h, fill.quantity);
+    h.operations += 8;
+    h.fills++;
+    h.peak = Math.max(
+      h.peak,
+      fill.quantity,
+      position(day.beginningPositions, fill.symbol)?.quantity ?? 0,
+      expected,
+    );
     if (fill.side === "BUY") {
       queue.push({
         id: id("lot", fill.fill_id),
@@ -942,11 +1024,73 @@ export function projectTradingBlotter(input: BlotterInput): TradingBlotter {
       mi = 0;
     while (remaining > 0) {
       const lot = queue[heads.get(fill.symbol) ?? 0];
-      requireValid(!!lot, "Sell exceeds available FIFO inventory.");
-      const quantity = Math.min(remaining, lot.quantity),
-        finishes = remaining - quantity <= Number.EPSILON * 32 * fill.quantity,
-        consumesLot =
-          lot.quantity - quantity <= Number.EPSILON * 32 * lot.quantity;
+      if (!lot) {
+        const bound = tolerance(h),
+          row = lots.at(-1);
+        if (!row)
+          throw new BlotterError(
+            "BLOTTER_LEDGER_INCONSISTENT",
+            "Sell exceeds available FIFO inventory.",
+          );
+        requireValid(
+          flat &&
+            remaining <= bound &&
+            !!row &&
+            row.exit_fill_id === fill.fill_id,
+          "Sell exceeds available FIFO inventory.",
+        );
+        requireValid(
+          close(remaining * fill.execution_price, 0),
+          "FIFO quantity roundoff has material monetary value.",
+        );
+        const fee = fill.fees - chargedFees,
+          slip = fill.slippage - chargedSlippage;
+        requireValid(
+          close(Math.abs(fee) + Math.abs(slip), 0),
+          "FIFO rounding costs are material.",
+        );
+        row.exit_fees += fee;
+        row.exit_slippage += slip;
+        if (row.net_realized_pnl !== null) {
+          row.net_realized_pnl -= fee + slip;
+          row.net_return_on_invested_cost =
+            row.net_realized_pnl /
+            (row.quantity * row.entry_price! +
+              row.entry_fees! +
+              row.entry_slippage!);
+        }
+        adjustments.push({
+          symbol: fill.symbol,
+          execution_session_date: day.date,
+          source_fill_id: fill.fill_id,
+          kind: "SELL_QUANTITY_ROUNDOFF",
+          quantity: remaining,
+          quantity_tolerance: bound,
+          fees: fee,
+          slippage: slip,
+          match_id: row.match_id,
+        });
+        remaining = 0;
+        break;
+      }
+      h.operations += 4;
+      const quantity = Math.min(remaining, lot.quantity);
+      // A real positive source position must never be erased by a local epsilon.
+      const finishes =
+        quantity === remaining ||
+        (flat && remaining - quantity <= Number.EPSILON * 32 * fill.quantity);
+      const consumesLot =
+        quantity === lot.quantity ||
+        (flat &&
+          lot.quantity - quantity <= Number.EPSILON * 32 * lot.quantity &&
+          close(
+            (lot.quantity - quantity) *
+              Math.max(
+                lot.fill?.execution_price ?? fill.execution_price,
+                fill.execution_price,
+              ),
+            0,
+          ));
       const entryFees =
         lot.fees === null
           ? null
@@ -960,11 +1104,11 @@ export function projectTradingBlotter(input: BlotterInput): TradingBlotter {
             ? lot.slippage
             : (lot.slippage * quantity) / lot.quantity;
       const exitFees = finishes
-          ? fill.fees - chargedFees
-          : (fill.fees * quantity) / fill.quantity,
-        exitSlippage = finishes
-          ? fill.slippage - chargedSlippage
-          : (fill.slippage * quantity) / fill.quantity;
+        ? fill.fees - chargedFees
+        : (fill.fees * quantity) / fill.quantity;
+      const exitSlippage = finishes
+        ? fill.slippage - chargedSlippage
+        : (fill.slippage * quantity) / fill.quantity;
       lots.push(
         lotRow(
           lot,
@@ -985,20 +1129,110 @@ export function projectTradingBlotter(input: BlotterInput): TradingBlotter {
       remaining -= quantity;
       if (lot.quantity === 0)
         heads.set(fill.symbol, (heads.get(fill.symbol) ?? 0) + 1);
-      if (remaining > 0 && remaining <= Number.EPSILON * 32 * fill.quantity) {
-        remaining = 0;
+    }
+    if (flat) {
+      const pending = queue.slice(heads.get(fill.symbol) ?? 0),
+        residual = compensatedSum(pending.map((l) => l.quantity)),
+        bound = tolerance(h, pending.length + 2);
+      requireValid(residual <= bound, "FIFO open quantities do not reconcile.");
+      requireValid(
+        close(
+          compensatedSum(
+            pending.map(
+              (l) =>
+                l.quantity *
+                  Math.max(
+                    l.fill?.execution_price ?? fill.execution_price,
+                    fill.execution_price,
+                  ) +
+                (l.fees ?? 0) +
+                (l.slippage ?? 0),
+            ),
+          ),
+          0,
+        ),
+        "FIFO quantity roundoff has material monetary value.",
+      );
+      for (const lot of pending) {
+        const row = [...lots]
+          .reverse()
+          .find((r) => r.lot_id === lot.id && r.exit_fill_id === fill.fill_id);
+        if (row) {
+          Object.assign(
+            row,
+            lotRow(
+              lot,
+              row.quantity + lot.quantity,
+              row.entry_fees === null ? null : row.entry_fees + (lot.fees ?? 0),
+              row.entry_slippage === null
+                ? null
+                : row.entry_slippage + (lot.slippage ?? 0),
+              fill,
+              row.exit_fees,
+              row.exit_slippage,
+              row.match_id,
+            ),
+          );
+        } else {
+          // This is an allocation of an existing closing fill, never another execution.
+          lots.push(
+            lotRow(
+              lot,
+              lot.quantity,
+              lot.fees,
+              lot.slippage,
+              fill,
+              0,
+              0,
+              id("roundoff-match", fill.fill_id, lot.id),
+            ),
+          );
+        }
+        adjustments.push({
+          symbol: fill.symbol,
+          execution_session_date: day.date,
+          source_fill_id: fill.fill_id,
+          kind: "FLAT_INVENTORY_ROUNDOFF",
+          quantity: lot.quantity,
+          quantity_tolerance: bound,
+          entry_fees: lot.fees,
+          entry_slippage: lot.slippage,
+          lot_id: lot.id,
+          match_id: row?.match_id ?? id("roundoff-match", fill.fill_id, lot.id),
+        });
       }
+      heads.set(fill.symbol, queue.length);
     }
   }
+  const quantityEvidence: Evidence[] = [];
   for (const [symbol, allLots] of queues) {
-    const queue = allLots.slice(heads.get(symbol) ?? 0);
+    const queue = allLots.slice(heads.get(symbol) ?? 0),
+      actual = compensatedSum(queue.map((l) => l.quantity)),
+      expected = position(last.endingPositions, symbol)?.quantity ?? 0;
+    const h = reference(symbol),
+      bound = tolerance(h, queue.length + 2);
     requireValid(
-      quantityClose(
-        sum(queue.map((l) => l.quantity)),
-        position(last.endingPositions, symbol)?.quantity ?? 0,
-      ),
+      Math.abs(actual - expected) <= bound &&
+        (expected === 0 ? actual === 0 : actual > 0),
       "FIFO open quantities do not reconcile.",
     );
+    requireValid(
+      close(
+        Math.abs(actual - expected) *
+          (position(last.endingPositions, symbol)?.price ?? 0),
+        0,
+      ),
+      "FIFO quantity mismatch has material monetary value.",
+    );
+    quantityEvidence.push({
+      symbol,
+      initial_plus_gross_traded_quantity: h.sum + h.correction,
+      peak_recorded_inventory_quantity: h.peak,
+      roundoff_operations: h.operations + queue.length + 2,
+      quantity_tolerance: bound,
+      source_ending_quantity: expected,
+      fifo_ending_quantity: actual,
+    });
     for (const lot of queue)
       lots.push(
         lotRow(
@@ -1038,6 +1272,13 @@ export function projectTradingBlotter(input: BlotterInput): TradingBlotter {
   const reconciliation = {
     status: "PASS",
     tolerance: BLOTTER_TOLERANCE,
+    fifo_quantity_policy: {
+      version: "HISTORICAL_INVENTORY_ROUNDOFF_V1",
+      reference: "INITIAL_PLUS_ACTUAL_GROSS_TRADED_QUANTITY",
+      absolute_share_floor: 0,
+      evidence: quantityEvidence,
+      adjustments,
+    },
     ...totals,
     realized_net_pnl: known ? realized : null,
     unrealized_net_pnl: known ? unrealized : null,

@@ -16,7 +16,7 @@ Tables have contained scrolling, 50-row pages, bounded server pagination, symbol
 - Closed gross P&L is `matched quantity * (exit price - entry price)`. Net P&L deducts allocated entry/exit fees and slippage. Open gross unrealized P&L uses the last recorded adjusted close; net unrealized deducts remaining entry charges only, with no assumed liquidation cost. Open exits remain null.
 - Net return on invested cost divides net matched/open P&L by entry notional plus entry fees/slippage. It is neither daily portfolio return nor alpha. Holding sessions count observed ledger intervals; calendar days use session-date differences, not fabricated intraday times.
 - Pre-existing inventory without original entry evidence has `UNKNOWN_INITIAL_BASIS`: entry date/price, entry costs and related P&L remain null. Quantity/cash/NAV reconciliation still runs. A full FIFO P&L claim is `NOT_SUPPORTED_UNKNOWN_INITIAL_BASIS`.
-- Quantity accounting uses a relative `1e-10` tolerance scaled to the traded book. FIFO exhaustion handles residuals within 32 machine epsilons of the lot/fill quantity, avoiding phantom microscopic lots. Financial comparisons use `1e-8 * max(1, abs(a), abs(b))`. Original fills and ledger numbers are never rounded or changed.
+- Quantity accounting uses the history-scaled forward-roundoff policy described in `fifo-roundoff-fix.md`, capped at the existing `1e-10` relative peak-book margin. True-zero closing inventory can absorb explicitly audited dust; positive inventory is never erased by a local epsilon. Financial comparisons use `1e-8 * max(1, abs(a), abs(b))`. Original fills and ledger numbers are never rounded or changed.
 
 ## Verifiable reasons
 
@@ -28,7 +28,7 @@ Strategic construction limits remain scoped to scheduled pre-HMM NAV targets. Th
 
 ## Source binding and preservation
 
-`institutional-fifo-blotter-1.0.0` has an independent ledger checksum, projection-content hash and source-bound blotter hash. Re-projecting identical input reproduces all rows and hashes. A different execution attempt has different fill/lot identities and blotter hash, while the same source spec/ledger/evidence has the same content hash. Stored source run/result hashes remain unchanged. Mismatched result run/attempt, recorded engine or dataset identities fail closed.
+`institutional-fifo-blotter-1.0.1` has an independent ledger checksum, projection-content hash and source-bound blotter hash. Re-projecting identical input reproduces all rows and hashes. A different execution attempt has different fill/lot identities and blotter hash, while the same source spec/ledger/evidence has the same content hash. Stored source run/result hashes remain unchanged. Mismatched result run/attempt, recorded engine or dataset identities fail closed.
 
 Only the existing route-registration file and frontend workspace integration are edited; new reporting modules are not imported by run normalization, financial execution or the worker. The engine, optimizer, capital clock, ledgers, costs, existing source configurations, datasets and historical evidence remain byte-identical to the reviewed baseline. See `preservation.json`.
 
@@ -56,3 +56,5 @@ node scripts/test-execution-runtime.mjs
 The browser harness mounts the real component and calls the real authenticated route against explicitly synthetic immutable fixtures and an injected read-only store. It is not a replacement frontend or a claim about the deployed Replit app. The 1,601-fill scenario checks real pagination. Screenshots are labelled synthetic and contain no owner token or private prices. See `test-results.json`, `browser-acceptance.json` and `acceptance.md`.
 
 Private historical 22-ETF, PostgreSQL/production-worker and complete deployed-app certification remain separate. Apply only the reviewed repair/feature delta to an approved isolated copy of the original Replit lineage after owner approval. Never merge the source-only snapshot wholesale or modify the active application/database as part of this feature.
+
+The incremental FIFO correction and its current test evidence are in `fifo-roundoff-fix.md` and `fifo-roundoff-tests.json`. Original `test-results.json` remains the historical feature baseline.

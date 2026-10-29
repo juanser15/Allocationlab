@@ -14,6 +14,7 @@ const { build } = require("esbuild"),
   out = mkdtempSync(resolve(tmpdir(), "allocationlab-p0b-tests-"));
 const entries = {
   financial: "tests/p0b/blotter.test.ts",
+  dust: "tests/p0b/fifo-dust.test.ts",
   frontend: "tests/p0b/blotter-ui.test.tsx",
 };
 await build({
