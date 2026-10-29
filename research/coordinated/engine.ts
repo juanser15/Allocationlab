@@ -24,6 +24,25 @@ import {
 import { buildAssetForecast } from "./forecasts";
 import { anchoredMonth } from "../../artifacts/api-server/src/lib/workbench/interactive-calendar";
 import { riskyTemplate, overlayExposure, capitalClockEvidence, EXPOSURE_TOLERANCE } from "./capital-clock";
+import { SUPPORT_TOLERANCE, CONSTRAINT_TOLERANCE, PORTFOLIO_CONSTRAINT_SCOPE } from "../../artifacts/api-server/src/lib/workbench/portfolio-numerics";
+import type { CoordinatedRequest } from "../../artifacts/api-server/src/lib/workbench/coordinated-contract";
+
+/** Overlay targets enforce execution safety, not strategic construction floors.
+ * Portfolio composition constraints belong to the scheduled strategic solve. */
+function assertEffectiveCapitalTarget(
+  weights: number[], volatility: number, cap: number, budget: number | null,
+  context: Record<string, unknown>,
+) {
+  const exposure = weights.reduce((sum, weight) => sum + weight, 0);
+  if (weights.every(weight => Number.isFinite(weight) && weight >= -CONSTRAINT_TOLERANCE) &&
+      Number.isFinite(volatility) && exposure <= Math.min(1, cap) + CONSTRAINT_TOLERANCE &&
+      (budget === null || volatility <= budget + CONSTRAINT_TOLERANCE)) return;
+  throw new ResearchError("NUMERICAL_FAILURE", "Capital overlay failed its execution-safety audit. No targets were published.", {
+    category: "NUMERICAL_FAILURE", reason: "CAPITAL_OVERLAY_SAFETY_FAILURE",
+    failed_stage: "CAPITAL_OVERLAY", ...context, actual_exposure: exposure,
+    estimated_volatility: volatility, effective_exposure_ceiling: cap, effective_risk_budget: budget,
+  });
+}
 
 function ledgerPoints(ledger: BacktestLedgerEntry[], costBps: number) {
   let high = 100;
@@ -110,7 +129,7 @@ export function runCoordinated(
   onProgress: (p: any) => void = () => {},
   ledgerRunner: typeof runScheduledLedger = runScheduledLedger,
   observeQuality?: (context: QualityContext) => QualityDecision,
-  dependencies: { classifyCapital?: typeof classify } = {},
+  dependencies: { classifyCapital?: typeof classify; onStrategicTargets?: (date: string, weights: Record<string, number>) => void } = {},
 ) {
   const started = performance.now(),
     request = requestFromSpec(spec),
@@ -118,7 +137,13 @@ export function runCoordinated(
     decisions: any[] = [];
   const study = isCapitalStudy(request),
     etfs = study ? ["SPY"] : request.etfs;
+  // Lower-level requestFromSpec intentionally strips institutional fields.
+  // Take the frozen mandate from the run spec so it reaches portfolio construction.
+  const mandate = study ? undefined : (spec as CoordinatedSpec & Pick<CoordinatedRequest, "mandate">).mandate;
   const daily = request.capital_signal_frequency === "DAILY";
+  // Mandated construction is strategic in either capital monitoring mode.
+  // Unmandated rebalance-only runs retain their legacy numerical path.
+  const separateComposition = daily || !!mandate;
   const signalDates = daily
     ? data.rows.filter(r => r.date >= plan.folds[0].decision_date && r.date < request.evaluation_end_exclusive).map(r => r.date)
     : plan.folds.map(f => f.decision_date);
@@ -216,7 +241,7 @@ export function runCoordinated(
       // indicators use their own causal feature history, independently of fit length.
       const regimeHistory =
         request.regime_model === "HMM" ? training : available.slice(-253);
-      const regime = (daily ? dependencies.classifyCapital ?? classify : classify)(
+      const regime = (dependencies.classifyCapital ?? classify)(
         request.regime_model,
         regimeHistory,
         data.fixture.reference_universe,
@@ -241,6 +266,7 @@ export function runCoordinated(
         training.map((r) => etfs.map((t) => r.prices[t])),
         study ? 1 : request.covariance_shrinkage,
       );
+      let optimizerCalled = false;
       const recordCapitalSignal = (exposure: number, forceTrade: boolean) => {
         const changed = previousExposure === null || Math.abs(exposure - previousExposure) > EXPOSURE_TOLERANCE;
         const tradeRequested = forceTrade || changed;
@@ -248,7 +274,7 @@ export function runCoordinated(
           decision_date: signalDate, information_cutoff: fold.information_cutoff,
           training_start: fold.training_start, training_observations: training.length,
           execution_date: data.rows.find(r => r.date > signalDate && r.date < request.evaluation_end_exclusive)?.date ?? null,
-          optimizer_refreshed: !study && !!scheduledFold,
+          optimizer_refreshed: !study && !!scheduledFold && (mandate ? optimizerCalled : true),
           rebalance_date: !!scheduledFold,
           source_optimizer_date: templateDate,
           exposure, frozen_risky_proportions: Object.fromEntries(etfs.map((t, i) => [t, template.proportions[i]])),
@@ -261,6 +287,10 @@ export function runCoordinated(
       };
       if (daily && !scheduledFold) {
         const overlay = overlayExposure(template, estimates.covariance, cap, budget);
+        if (mandate) assertEffectiveCapitalTarget(overlay.weights, overlay.volatility, cap, budget, {
+          decision_date: signalDate, information_cutoff: fold.information_cutoff,
+          source_optimizer_date: templateDate,
+        });
         const tradeRequested = recordCapitalSignal(overlay.exposure, false);
         progress("Refreshing daily capital signal · ETF optimizer not run");
         return tradeRequested ? Object.fromEntries(etfs.map((t, i) => [t, overlay.weights[i]])) : null;
@@ -298,28 +328,53 @@ export function runCoordinated(
           iterations: 0,
           risk_multiplier: 0,
         };
-      } else
+      } else {
+        const optimizerCap = separateComposition ? (request.control_mode === "MAX_EXPOSURE" ? request.maximum_exposure : 1) : cap;
+        const optimizerRiskBudget = separateComposition && budget !== null ? request.risk_budget : budget;
+        if (optimizerCap === 0 || optimizerRiskBudget === 0) {
+          // Explicit capital risk-off, not an optimizer fallback or underflow test.
+          solution = { weights: etfs.map(() => 0), cash: 1, exposure: 0, volatility: 0,
+            residual: 0, iterations: 0, risk_multiplier: 0 };
+        } else try {
+        optimizerCalled = true;
         solution = optimize(
           forecast!.annual_mean,
           estimates.covariance,
           prior,
           {
-            cap: daily ? (request.control_mode === "MAX_EXPOSURE" ? request.maximum_exposure : 1) : cap,
+            cap: optimizerCap,
             maxWeight: request.maximum_etf_weight,
             riskAversion: request.risk_aversion,
             cost: request.transaction_cost_bps / 10000,
             horizon: forecast!.horizon_years,
-            volatility: daily && budget !== null ? request.risk_budget : budget,
+            volatility: optimizerRiskBudget,
+            ...(mandate ? { mandate } : {}),
           },
         );
+        } catch (error) {
+          if (error instanceof ResearchError) throw new ResearchError(error.code, error.message, {
+            ...error.details, failed_stage: "PORTFOLIO_OPTIMIZATION", fold_id: fold.fold_id,
+            decision_date: signalDate, information_cutoff: fold.information_cutoff,
+          });
+          throw error;
+        }
+      }
+      // Audit the actual solver output before the independently scheduled capital
+      // policy scales it. Drift and later overlay targets are not construction.
+      const strategicSolution = solution;
+      if (!study) dependencies.onStrategicTargets?.(signalDate, Object.fromEntries(etfs.map((ticker, i) => [ticker, strategicSolution.weights[i]])));
       let preOverlayWeights: number[] | null = null;
-      if (daily) {
+      if (separateComposition) {
         if (!study) {
           preOverlayWeights = [...solution.weights];
           template = riskyTemplate(solution.weights);
         }
         templateDate = signalDate;
         const overlay = overlayExposure(template, estimates.covariance, cap, budget);
+        if (mandate) assertEffectiveCapitalTarget(overlay.weights, overlay.volatility, cap, budget, {
+          fold_id: fold.fold_id, decision_date: signalDate, information_cutoff: fold.information_cutoff,
+          source_optimizer_date: templateDate,
+        });
         solution = { ...solution, weights: overlay.weights, exposure: overlay.exposure, cash: 1 - overlay.exposure, volatility: overlay.volatility };
         recordCapitalSignal(overlay.exposure, true);
       }
@@ -328,7 +383,7 @@ export function runCoordinated(
       );
       decisions.push({
         ...fold,
-        ...(daily ? { capital_overlay: {
+        ...(separateComposition ? { capital_overlay: {
           pre_overlay_optimizer_weights: preOverlayWeights,
           baseline_maximum_exposure: template.maximum_exposure,
           frozen_risky_proportions: Object.fromEntries(etfs.map((t, i) => [t, template.proportions[i]])),
@@ -354,6 +409,38 @@ export function runCoordinated(
               residual: solution.residual,
               iterations: solution.iterations,
               risk_multiplier: solution.risk_multiplier,
+              ...(mandate ? {
+                audit: solution.audit ?? { status: "ALL_CASH_CAPITAL_POLICY", selected_support: [], support_size: 0 },
+                selected_support_tickers: etfs.filter((_t, i) => (preOverlayWeights ?? solution.weights)[i] > SUPPORT_TOLERANCE),
+                optimized_nav_weights: Object.fromEntries(etfs.map((t, i) => [t, (preOverlayWeights ?? solution.weights)[i]])),
+                effective_nav_weights: weights,
+                constraint_scope: PORTFOLIO_CONSTRAINT_SCOPE,
+                construction_constraint_residuals: {
+                  exposure_ceiling: Math.max(0, strategicSolution.exposure - (request.control_mode === "MAX_EXPOSURE" ? request.maximum_exposure : 1)),
+                  maximum_weight: Math.max(0, ...strategicSolution.weights.map(w => w - request.maximum_etf_weight)),
+                  minimum_weight: strategicSolution.weights.every(w => w === 0) ? 0 : Math.max(0, ...strategicSolution.weights.filter(w => w > SUPPORT_TOLERANCE).map(w => mandate.minimum_weight - w)),
+                  minimum_holdings: strategicSolution.weights.every(w => w === 0) ? 0 : Math.max(0, mandate.minimum_positions - strategicSolution.weights.filter(w => w > SUPPORT_TOLERANCE).length),
+                  maximum_holdings: Math.max(0, strategicSolution.weights.filter(w => w > SUPPORT_TOLERANCE).length - mandate.maximum_positions),
+                  volatility_ceiling: request.control_mode === "RISK_BUDGET" ? Math.max(0, strategicSolution.volatility - request.risk_budget) : 0,
+                },
+                effective_policy_residuals: {
+                  exposure_ceiling: Math.max(0, solution.exposure - cap),
+                  funding: Math.max(0, solution.exposure - 1),
+                  negative_weight: Math.max(0, ...solution.weights.map(w => -w)),
+                  volatility_ceiling: budget === null ? 0 : Math.max(0, solution.volatility - budget),
+                },
+                construction_floor_deviation_due_to_overlay: Math.max(0, ...solution.weights.filter(w => w > SUPPORT_TOLERANCE).map(w => mandate.minimum_weight - w)),
+                effective_construction_observation: {
+                  scope: "OBSERVATION_ONLY_NOT_CONSTRUCTION_VALIDATION",
+                  positive_holdings: solution.weights.filter(w => w > SUPPORT_TOLERANCE).length,
+                  minimum_positive_nav_weight: solution.weights.some(w => w > SUPPORT_TOLERANCE) ? Math.min(...solution.weights.filter(w => w > SUPPORT_TOLERANCE)) : null,
+                  construction_floor_shortfall: Math.max(0, ...solution.weights.filter(w => w > SUPPORT_TOLERANCE).map(w => mandate.minimum_weight - w)),
+                  overlay_or_drift_departure_allowed: true,
+                },
+                frozen_mandate: mandate,
+                exposure_policy: "CEILING_WITH_CASH_RESIDUAL",
+                capital_overlay_separate: separateComposition,
+              } : {}),
             },
         estimates,
         forecast,
@@ -543,15 +630,15 @@ export function runCoordinated(
       cost_basis: "ABSOLUTE_TRADED_NOTIONAL",
       constraint_scope: study
         ? "DECISION_TARGETS_SPY_CASH"
-        : "DECISION_TARGETS_ALL_SELECTED_ETFS",
+        : mandate ? PORTFOLIO_CONSTRAINT_SCOPE : "DECISION_TARGETS_ALL_SELECTED_ETFS",
       execution: "NEXT_OBSERVED_CLOSE",
     },
     capital_clock: capitalClockEvidence(
       daily ? "DAILY" : "REBALANCE_ONLY",
-      daily ? capitalSignals : decisions.map(d => ({
+      separateComposition ? capitalSignals : decisions.map(d => ({
         decision_date: d.decision_date, information_cutoff: d.information_cutoff,
         training_start: d.training_start, execution_date: data.rows.find(r => r.date > d.decision_date && r.date < request.evaluation_end_exclusive)?.date ?? null,
-        optimizer_refreshed: !study, rebalance_date: true, exposure: 1 - d.cash, trade_requested: true,
+        optimizer_refreshed: !study && d.optimizer?.audit?.status !== "ALL_CASH_CAPITAL_POLICY", rebalance_date: true, exposure: 1 - d.cash, trade_requested: true,
         frozen_risky_proportions: null,
       })),
       ledger,

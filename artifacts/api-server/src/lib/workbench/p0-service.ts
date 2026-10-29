@@ -1,3 +1,4 @@
+import { researchFailureCategory, researchFailureAction, researchFailureStage } from "./research-error-category";
 import { persistentDatasetStore } from "./persistent-datasets";
 import { DurableResearchStore, DURABLE_RESEARCH } from "./durable-research-store";
 import { fork, type ChildProcess } from "node:child_process";
@@ -333,6 +334,7 @@ export class P0Service {
           ? e.code
           : "INTERACTIVE_WORKER_FAILURE";
       const known = [
+        "PORTFOLIO_CONSTRAINT", "DATA_COVERAGE", "SOLVER_INFEASIBLE", "NUMERICAL_FAILURE", "FROZEN_COMPOSITION_EXPOSURE_CONFLICT",
         "DATASET_UNAVAILABLE",
         "SIGNAL_HISTORY_REQUIRED", "SIGNAL_UNIVERSE_REQUIRED", "FORECAST_TRAINING_REQUIRED", "FORECAST_NUMERICAL_FAILURE", "INVALID_FORECAST",
         "HMM_NUMERICAL_FAILURE",
@@ -358,6 +360,7 @@ export class P0Service {
         run_id: ref.runId,
         execution_attempt_id: ref.executionAttemptId,
         error_class: code,
+        ...(researchFailureCategory(code) ? { error_category: researchFailureCategory(code) } : {}),
         safe_message: known
           ? e.message
           : "The research worker could not complete this attempt.",
@@ -365,7 +368,7 @@ export class P0Service {
           code === "NO_VALID_CANDIDATE"
             ? "The model could not select a policy under its existing constraints. No inputs were changed."
             : "No inputs were changed and no result was substituted.",
-        suggested_user_action: [
+        suggested_user_action: researchFailureAction(researchFailureCategory(code)) ?? ([
           "OUTPUT_OR_LOG_LIMIT",
           "EXECUTION_TIMEOUT",
           "EXECUTION_STALLED",
@@ -373,11 +376,10 @@ export class P0Service {
           ? "Ask the preview owner to review current execution capacity before explicitly rerunning."
           : known
             ? "Review the design and the technical evidence before explicitly rerunning."
-            : "Ask the preview owner to inspect the private diagnostic before rerunning.",
+            : "Ask the preview owner to inspect the private diagnostic before rerunning."),
         failed_fold_id: details.fold_id ?? null,
         failed_decision_date: details.decision_date ?? null,
-        failed_stage:
-          this.progress.get(ref.executionAttemptId)?.stage ?? "PREPARING_DATA",
+        failed_stage: researchFailureStage(details, this.progress.get(ref.executionAttemptId)?.stage),
         diagnostic_reference: "PRIVATE_ATTEMPT_DIAGNOSTIC",
         technical_details: details,
         runtime_progress: {

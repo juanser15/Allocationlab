@@ -1,0 +1,18 @@
+{
+  "status": "PHASE_0_RESOLVED_SOURCE_PARITY_VERIFIED",
+  "repository": "juanser15/Allocationlab",
+  "source_branch": "source/replit-code-baseline-20261028",
+  "fetched_commit": "90b7b7e2e7ff0a04364be58f8f59cfd801a8e382",
+  "required_commit": "90b7b7e2e7ff0a04364be58f8f59cfd801a8e382",
+  "snapshot_parent": "1163a0b574b573004372a3a2fc8752810dea7ef9",
+  "repair_branch": "fix/p0-cardinality-aware-optimizer",
+  "included_source_files_verified": 1170,
+  "blob_and_mode_mismatches": [],
+  "declared_replit_commit": "d51dd4a4fefbdd6a05dedf112b345ca7b3debf71",
+  "declared_replit_tree": "b3f25ef56116f596968e36545d51ab0dc078b526",
+  "runtime_parity": "NOT_CLAIMED_PRIVATE_DATA_AND_DATABASE_EXCLUDED",
+  "issue_comments_read": 3,
+  "phase_0_resolution_comment": "https://github.com/juanser15/Allocationlab/issues/2#issuecomment-6468571277",
+  "private_data_recovered_or_substituted": false,
+  "source_manifest_sha256": "d312d496de3ba87e2e9c8b9d8b589847f508978e0a69d5723df23de72815b429"
+}

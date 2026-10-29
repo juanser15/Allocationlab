@@ -114,11 +114,11 @@ test("Monthly and quarterly calendars refresh composition only at their own fold
 test("Daily clock is frozen in identity, rejects unknown frequency and preserves explicit full-cash defense", () => {
   const data = clockData(), request = clockRequest();
   assert.notEqual(p0RunId(normalizeP0WithData(request, data)), p0RunId(normalizeP0WithData({ ...request, capital_signal_frequency: "REBALANCE_ONLY" }, data)));
-  assert.throws(() => normalizeP0WithData({ ...request, capital_signal_frequency: "HOURLY" }, data), /frequency/);
+  assert.throws(() => normalizeP0WithData({ ...request, capital_signal_frequency: "HOURLY" }, data), /monitoring|frequency/);
   const mandate = { minimum_positions: 2, maximum_positions: 3, minimum_weight: .01 };
   assert.ok(validateTargets("2024-01-22", { SPY: 0, EFA: 0 }, { ...request, mandate }).passed);
-  assert.throws(() => validateTargets("2024-01-22", { SPY: 0, EFA: 0 }, { ...request, mandate, capital_signal_frequency: "REBALANCE_ONLY" }), (e: any) => e.code === "MANDATE_BREACH");
-  assert.throws(() => validateTargets("2024-01-22", { SPY: .001, EFA: .001 }, { ...request, mandate }), (e: any) => e.code === "MANDATE_BREACH");
+  assert.ok(validateTargets("2024-01-22", { SPY: 0, EFA: 0 }, { ...request, mandate, capital_signal_frequency: "REBALANCE_ONLY" }).passed);
+  assert.throws(() => validateTargets("2024-01-22", { SPY: .001, EFA: .001 }, { ...request, mandate }), (e: any) => e.code === "NUMERICAL_FAILURE");
 });
 test("Overlay proportions survive zero exposure and risk-budget changes never violate baseline max allocation", () => {
   const template = riskyTemplate([.4, .2]);
@@ -129,7 +129,7 @@ test("Overlay proportions survive zero exposure and risk-budget changes never vi
   const risk = overlayExposure(template, [[.04, 0], [0, .09]], 1, .03);
   assert.ok(risk.volatility <= .03 + 1e-12 && risk.exposure <= .6 + 1e-12);
 });
-test("Daily risk-budget can liquidate fully; rebalance-only retains its original positive-multiplier requirement", () => {
+test("Both clocks accept the explicit zero-defensive risk-budget policy", () => {
   for (const scope of ["PORTFOLIO", "CAPITAL_EXPOSURE"]) {
     const request = { ...clockRequest(scope), control_mode: "RISK_BUDGET" };
     const result = run(request);
@@ -137,6 +137,6 @@ test("Daily risk-budget can liquidate fully; rebalance-only retains its original
     assert.ok(result.capital_clock.signals.some(s => s.exposure > 0));
     assert.ok(result.capital_clock.intramonth_exposure_changes > 4);
     assert.ok(result.validation_evidence.accounting.passed);
-    assert.throws(() => normalizeP0WithData({ ...request, capital_signal_frequency: "REBALANCE_ONLY" }, clockData()), /positive defensive multiplier/);
+    assert.ok(normalizeP0WithData({ ...request, capital_signal_frequency: "REBALANCE_ONLY" }, clockData()));
   }
 });

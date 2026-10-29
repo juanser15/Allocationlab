@@ -148,13 +148,6 @@ export function parseCoordinated(value: unknown): ResearchSubmission {
           ? "The candidate universe contains duplicate symbols. Select each asset only once."
           : "A candidate symbol has an invalid format. Select the asset using the active dataset selector.");
   }
-  if (
-    v.regime_response === "ADAPTIVE" &&
-    v.control_mode === "RISK_BUDGET" &&
-    v.defensive_multiplier === 0 &&
-    v.capital_signal_frequency !== "DAILY"
-  )
-    invalid("A risk budget requires a positive defensive multiplier.");
   // Validation of dates and calendar is shared with the existing contract.
   return isCapitalStudy(v)
     ? { ...v }
@@ -279,6 +272,7 @@ export function deriveExperimentBounds(
     ...new Set(["SPY", ...(isCapitalStudy(request) ? [] : request.etfs)]),
   ];
   let commonStartIndex = 0;
+  const requiredSymbolFirstObservations: Record<string, string> = {};
   for (const ticker of requiredSymbols) {
     const index = rows.findIndex(
       (row) => Number.isFinite(row.prices[ticker]) && row.prices[ticker] > 0,
@@ -290,24 +284,29 @@ export function deriveExperimentBounds(
         { ticker },
         422,
       );
+    requiredSymbolFirstObservations[ticker] = rows[index].date;
     commonStartIndex = Math.max(commonStartIndex, index);
   }
 
   const commonStart = rows[commonStartIndex].date;
+  const limitingSymbols = requiredSymbols.filter(ticker => requiredSymbolFirstObservations[ticker] === commonStart);
   const trainingBoundary = anchoredMonth(commonStart, request.training_window_months);
   const trainingIndex = lowerBound(rows, trainingBoundary);
   const causalSessions = Math.max(
     regimeLookbackSessions(request.regime_model),
     forecastLookbackSessions(request),
   );
-  const causalIndex = Math.min(rows.length - 1, commonStartIndex + causalSessions);
+  const causalIndex = commonStartIndex + causalSessions;
   const earliestIndex = Math.max(trainingIndex, causalIndex);
   const earliest = rows[earliestIndex]?.date;
   if (!earliest)
     throw new CalendarContractError(
       "INSUFFICIENT_DATA_FOR_EXPERIMENT",
       "The selected dataset ends before the requested experiment can begin.",
-      { common_data_start: commonStart, training_window_months: request.training_window_months, causal_sessions: causalSessions },
+      { common_data_start: commonStart, required_symbol_first_observations: requiredSymbolFirstObservations,
+        limiting_symbols: limitingSymbols, training_window_months: request.training_window_months,
+        training_ready_date: rows[trainingIndex]?.date ?? null, feature_ready_date: rows[causalIndex]?.date ?? null,
+        causal_sessions: causalSessions },
       422,
     );
 
@@ -322,12 +321,16 @@ export function deriveExperimentBounds(
     dataset_start: data.snapshot.data_first_observation,
     dataset_end: data.snapshot.data_last_observation,
     common_required_data_start: commonStart,
+    required_symbol_first_observations: requiredSymbolFirstObservations,
+    limiting_symbols: limitingSymbols,
     earliest_supported_evaluation_start: earliest,
     latest_supported_evaluation_end_exclusive: latestEndExclusive,
     training_window_months: request.training_window_months,
     regime_lookback_sessions: regimeLookbackSessions(request.regime_model),
     forecast_lookback_sessions: forecastLookbackSessions(request),
     effective_causal_lookback_sessions: causalSessions,
+    training_ready_date: rows[trainingIndex]?.date ?? null,
+    feature_ready_date: rows[causalIndex]?.date ?? null,
     required_symbols: requiredSymbols,
     rule:
       "DATASET_FIRST_THEN_EXPERIMENT_CONSUMES_HISTORY_V1",

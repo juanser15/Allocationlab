@@ -47,6 +47,15 @@ test("No mandate is described without inventing a minimum or guaranteed number o
   assert.match(html, /None · no mandate/);
   assert.equal(cashPolicyLabel(draft.cash_policy), "Cash return assumption: 0%");
 });
+
+test("Mandate summary distinguishes strategic construction floors from permitted HMM scaling and drift", () => {
+  for (const minimum_weight of [.025, .03]) {
+    const html = renderToStaticMarkup(<BacktestInputs draft={{ ...draft, mandate: { ...draft.mandate, minimum_weight } }} caps={caps} />);
+    assert.match(html, /at strategic construction/);
+    assert.match(html, /HMM scaling and market drift may take effective weights below this floor/);
+    assert.doesNotMatch(html, /max when invested/);
+  }
+});
 test("Final-holdings fields allow more than eight without silently clamping the mandate", () => {
   const m = { minimum_positions: 9, maximum_positions: 12, minimum_weight: .025 };
   const before = { ...m };

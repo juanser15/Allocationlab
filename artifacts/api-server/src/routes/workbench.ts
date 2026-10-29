@@ -1,3 +1,4 @@
+import { researchFailureCategory } from "../lib/workbench/research-error-category";
 import { Router, type IRouter, type Request, type Response } from "express";
 import {
   PIT_CLASSIFICATION,
@@ -52,7 +53,7 @@ export function safeError(req: Request, res: Response, error: unknown): void {
   req.log?.error?.({ err: error, code, status }, "Workbench request failed");
   res.status(status).json({
     ...responseBoundary,
-    error: { code, message, ...(issues === undefined ? {} : { issues }) },
+    error: { code, message, ...(researchFailureCategory(code) ? { category: researchFailureCategory(code) } : {}), ...(issues === undefined ? {} : { issues }) },
   });
 }
 

@@ -1,0 +1,20 @@
+/** Source-only analytical reproduction. Reads reviewed public source objects;
+ * never accesses private historical data or the original Replit history. */
+import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
+import { mkdtemp, writeFile } from 'node:fs/promises';
+import { resolve, relative, join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+const require=createRequire(new URL('../artifacts/api-server/package.json',import.meta.url));
+const {build}=require('esbuild');
+const baseline='90b7b7e2e7ff0a04364be58f8f59cfd801a8e382',root=process.cwd();
+const dir=await mkdtemp('/tmp/allocationlab-optimizer-before-');
+await build({stdin:{contents:`import {optimize} from './research/coordinated/models';import {validateTargets} from './research/coordinated/institutional';import {portfolioFeasibilityIssue} from './artifacts/api-server/src/lib/workbench/portfolio-feasibility';export {optimize,validateTargets,portfolioFeasibilityIssue};`,resolveDir:root,loader:'ts'},outfile:join(dir,'baseline.mjs'),bundle:true,platform:'node',format:'esm',alias:{'@workspace/db':resolve('research/coordinated/institutional-unit-db-shim.ts')},banner:{js:"import{createRequire as cr}from'node:module';globalThis.require=cr(import.meta.url);"},plugins:[{name:'pinned-reviewed-source',setup(b){b.onLoad({filter:/\.(ts|tsx)$/},args=>{const path=relative(root,args.path);if(path.startsWith('..')||path.includes('node_modules'))return;return{contents:execFileSync('git',['show',`${baseline}:${path}`],{cwd:root,encoding:'utf8'}),loader:path.endsWith('.tsx')?'tsx':'ts',resolveDir:resolve(args.path,'..')};});}}]});
+const {optimize,validateTargets,portfolioFeasibilityIssue}=await import(pathToFileURL(join(dir,'baseline.mjs')));
+const request=n=>({research_scope:'PORTFOLIO',etfs:Array.from({length:n},(_,i)=>'TEST'+i),maximum_exposure:1,control_mode:'MAX_EXPOSURE',maximum_etf_weight:1,mandate:{minimum_positions:1,maximum_positions:Math.min(n,10),minimum_weight:.03}});
+const options={cap:1,maxWeight:1,riskAversion:1,cost:0,horizon:1,volatility:null};
+const run=(mean)=>{const covariance=mean.map((_,i)=>mean.map((_,j)=>+(i===j)));const solution=optimize(mean,covariance,mean.map(()=>0),options);let failure;try{validateTargets('TEST_ONLY',Object.fromEntries(solution.weights.map((x,i)=>['TEST'+i,x])),request(mean.length));}catch(e){failure={code:e.code,message:e.message};}return{weights:solution.weights,positive_holdings:solution.weights.filter(w=>w>1e-10).length,minimum_positive_weight:Math.min(...solution.weights.filter(w=>w>1e-10)),post_solve_failure:failure};};
+const invalid={...request(11),mandate:{minimum_positions:0,maximum_positions:10,minimum_weight:.03}};
+const result={baseline,evidence_scope:'ANALYTICAL_SYNTHETIC_INPUTS_ONLY_NO_PRIVATE_DATA',invalid_minimum_holdings:portfolioFeasibilityIssue(invalid),below_three_percent:run([.1,.001]),eleven_against_ten:run(Array(11).fill(.2))};
+if(!result.invalid_minimum_holdings||!result.below_three_percent.post_solve_failure||result.eleven_against_ten.positive_holdings!==11||!result.eleven_against_ten.post_solve_failure)throw Error('Baseline failures not reproduced');
+console.log(JSON.stringify(result,null,2));

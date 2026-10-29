@@ -1,0 +1,15 @@
+The continuous solver could return eleven holdings against a maximum of ten or positive NAV weights below the 3% floor because the mandate was checked only after optimization. Invalid holding-count drafts could also leave Run enabled. This repair passes the frozen mandate into deterministic constrained support optimization and applies shared feasibility checks before run creation.
+
+Relates to #2. Base: `source/replit-code-baseline-20261028` at `90b7b7e2e7ff0a04364be58f8f59cfd801a8e382`. All 1,170 source manifest entries were verified. This draft contains only the repair delta; do not merge the source snapshot into original Replit history or `main`.
+
+- At most 128 deterministic supports, each re-optimized with cardinality, minimum/maximum NAV weights, exposure ceiling, existing mean–variance/L1 cost objective and volatility limit. Numerical gap and constraint certificates are recorded; no post-solve weight repair. Large support spaces have no global-optimality guarantee.
+- Daily HMM capital monitoring remains independent of allocation rebalancing, with frozen intramonth composition and explicit all-cash behavior. Construction floors apply only to strategic pre-HMM targets at scheduled rebalances. Effective HMM weights and market drift may cross those floors without errors or unscheduled allocation trades.
+- Shared UI/API preflight, causal coverage bounds and four actionable failure categories. Existing stored runs are not migrated.
+- Historical evidence for the first repair commit: 72 source-only tests passed, zero failures/skips: solver/preflight/frontend/real HTTP synthetic integration (49), public capital-clock goldens (9), backtest range (7), execution runtime (7). Independent oracle coverage includes 30 deterministic analytical cases, each repeated. All three original failure classes reproduce against pinned baseline source.
+- Backend/frontend project typechecks, strict standalone solver typecheck, both production builds and `git diff --check` pass. 88 protected files are byte-identical, as are the original HMM/moments region and no-mandate continuous solver body.
+
+**The original 72-test evidence does not certify the owner-approved temporal correction.** See `strategic-target-correction.md` and `correction-test-results.json` for revised evidence.
+
+**Private runtime acceptance remains pending.** The HTTP harness injects synthetic data and an in-memory adapter; it does not certify PostgreSQL, production worker IPC, the private historical CSV, the original long owner campaign or a deployed browser. A supplementary full research strict check exposes five pre-existing boundary type diagnostics; normal project checks pass. Do not approve production readiness from these source-only tests.
+
+Review [root cause](root-cause.md), [solver method](solver-methodology.md), [all ten acceptance criteria](issue-acceptance.md), [test evidence](test-results.json) and [private Replit verification](replit-verification.md) in `docs/p0-optimizer-repair/`. No merge, deployment, Replit change or private dataset publication was performed.

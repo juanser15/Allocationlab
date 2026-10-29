@@ -1,3 +1,7 @@
+import {
+  solveCardinalityPortfolio,
+  type HoldingsMandate,
+} from "./constrained-optimizer";
 /** Deterministic two-state Gaussian HMM. EM uses training observations only;
  * the returned posterior is a forward filter at the training cutoff. */
 export class ResearchError extends Error {
@@ -191,6 +195,11 @@ export function moments(prices: number[][], shrinkage: number) {
 export const quadratic = (w: number[], s: number[][]) =>
   sum(w.map((v, i) => v * sum(w.map((q, j) => s[i][j] * q))));
 
+export type OptimizationResult = Omit<
+  ReturnType<typeof solveCardinalityPortfolio>,
+  "audit"
+> & { audit?: ReturnType<typeof solveCardinalityPortfolio>["audit"] };
+
 /** Proximal gradient for convex mean-variance + one-rebalance L1 trading cost.
  * Cash has zero return/variance. The volatility ceiling is enforced by a dual
  * multiplier; each inner problem uses the same boxes and exposure ceiling. */
@@ -205,8 +214,28 @@ export function optimize(
     cost: number;
     horizon: number;
     volatility: number | null;
+    mandate?: HoldingsMandate;
   },
-) {
+): OptimizationResult {
+  if (options.mandate) {
+    try {
+      return solveCardinalityPortfolio(mean, covariance, prior, {
+        ...options,
+        mandate: options.mandate,
+      });
+    } catch (error) {
+      const e = error as {
+        code?: string;
+        message: string;
+        details?: Record<string, unknown>;
+      };
+      throw new ResearchError(
+        e.code ?? "NUMERICAL_FAILURE",
+        e.message,
+        e.details,
+      );
+    }
+  }
   const n = mean.length,
     rowNorm = Math.max(...covariance.map((row) => sum(row.map(Math.abs))));
   if (

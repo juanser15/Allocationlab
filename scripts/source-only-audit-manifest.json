@@ -1,0 +1,266 @@
+{
+  "standalone_source_files": [
+    "artifacts/allocation-lab/src/components/portfolio-lab/alpha-stream-builder-wiring.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/alpha-stream-draft.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/b2-draft-transition.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/explicit-calculation-gating.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/history-replay-inspector.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/pm-shell-ui.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/pm-view-wiring.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/portfolio-history-state.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/portfolio-result-summary.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/portfolio-run-action.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/portfolio-working-draft.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/prepared-input-selection.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/starting-portfolio.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/starting-selection-store.test.ts",
+    "artifacts/allocation-lab/src/components/portfolio-lab/validation-job-state.test.ts",
+    "artifacts/allocation-lab/src/lib/workbench-failure.test.ts",
+    "artifacts/allocation-lab/src/lib/workbench.test.ts",
+    "artifacts/api-server/src/lib/allocation-b2.signal-ridge.test.ts",
+    "artifacts/api-server/src/lib/allocation-b2.test.ts",
+    "artifacts/api-server/src/lib/b3-policy.test.ts",
+    "artifacts/api-server/src/lib/b3-signal-ridge.test.ts",
+    "artifacts/api-server/src/lib/b3-validation-store.test.ts",
+    "artifacts/api-server/src/lib/c1-contribution.test.ts",
+    "artifacts/api-server/src/lib/c1-replay-integrity.test.ts",
+    "artifacts/api-server/src/lib/c2-diagnostics.test.ts",
+    "artifacts/api-server/src/lib/c3-selection.test.ts",
+    "artifacts/api-server/src/lib/calculator.a1.test.ts",
+    "artifacts/api-server/src/lib/calculator.a3.constraints.test.ts",
+    "artifacts/api-server/src/lib/calculator.a3.test.ts",
+    "artifacts/api-server/src/lib/calculator.cl01-regressions.test.ts",
+    "artifacts/api-server/src/lib/calculator.cl01.test.ts",
+    "artifacts/api-server/src/lib/d1-factor-model.test.ts",
+    "artifacts/api-server/src/lib/d3-b2-integration.test.ts",
+    "artifacts/api-server/src/lib/d3-b3-policy.test.ts",
+    "artifacts/api-server/src/lib/d4-b3-policy.test.ts",
+    "artifacts/api-server/src/lib/d4-diagnostics.test.ts",
+    "artifacts/api-server/src/lib/d5-b3-policy.test.ts",
+    "artifacts/api-server/src/lib/d5-simple-history.test.ts",
+    "artifacts/api-server/src/lib/forecast-d3.test.ts",
+    "artifacts/api-server/src/lib/portfolio-history-projection.test.ts",
+    "artifacts/api-server/src/lib/prepared-input-summary.test.ts",
+    "artifacts/api-server/src/lib/prepared-inputs.b1.test.ts",
+    "artifacts/api-server/src/lib/price-ohlc.test.ts",
+    "artifacts/api-server/src/lib/robust-solver-d4.test.ts",
+    "artifacts/api-server/src/lib/run-snapshot.a2.test.ts",
+    "artifacts/api-server/src/lib/signal-ridge-panel.test.ts",
+    "artifacts/api-server/src/lib/signal-ridge.test.ts",
+    "artifacts/api-server/src/lib/signed-overlay-d2.test.ts",
+    "artifacts/api-server/src/lib/validation-job-supervisor-control.test.ts",
+    "artifacts/api-server/src/lib/c3-experiment-store.test.ts",
+    "artifacts/api-server/src/lib/d1-risk-comparison.test.ts",
+    "artifacts/api-server/src/lib/d2-allocation-mode-comparison.test.ts",
+    "artifacts/api-server/src/lib/d3-forecast-comparison.test.ts",
+    "artifacts/api-server/src/lib/d5-simple-fixture.test.ts",
+    "artifacts/allocation-lab/src/research/asset-multiselect.test.tsx",
+    "artifacts/allocation-lab/src/research/capital-policy.test.tsx",
+    "artifacts/allocation-lab/src/research/fetch-progress.test.tsx"
+  ],
+  "certified_source_suites": [
+    {
+      "file": "research/capital/engine.test.ts",
+      "kind": "node"
+    },
+    {
+      "file": "research/capital/hardening-regressions.test.ts",
+      "kind": "node"
+    },
+    {
+      "file": "research/capital/validation.test.ts",
+      "kind": "node"
+    },
+    {
+      "file": "artifacts/api-server/src/lib/allocation-core/contracts.test.ts",
+      "kind": "node"
+    },
+    {
+      "file": "artifacts/api-server/src/lib/allocation-core/amendment-a.test.ts",
+      "kind": "node"
+    },
+    {
+      "file": "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.test.ts",
+      "kind": "custom"
+    },
+    {
+      "file": "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.test.ts",
+      "kind": "custom"
+    },
+    {
+      "file": "research/bank/bank.test.ts",
+      "kind": "custom"
+    }
+  ],
+  "mixed_coordinated": {
+    "entrypoints": [
+      "research/coordinated/coordinated.test.ts",
+      "research/coordinated/institutional.test.ts",
+      "research/coordinated/portfolio-feasibility.test.ts",
+      "artifacts/allocation-lab/src/research/backtest-inputs.test.tsx"
+    ],
+    "selected_test_names": [
+      "Forward filtering matches exhaustive hidden-path enumeration",
+      "HMM is deterministic, orders states by variance and rejects degenerate samples",
+      "Optimizer matches analytical one-asset optimum and binding volatility ceiling",
+      "Optimizer respects correlated portfolio risk, box constraints and total exposure",
+      "Short user-selected HMM samples are fitted without a return-count or state-mass quota",
+      "Feature oracle: price momentum, average-tie relative rank, signed trend and reversal",
+      "Manual mapping records assumed horizon returns; scores are not implicit percentages",
+      "Ridge analytic solution, training scaler and a single observation have no sample quota",
+      "Ridge label oracle matches prior-cutoff, decision then next-close fills and excludes pending outcomes",
+      "Explicit policy selection is validated; isolated capital cannot receive a portfolio quality policy",
+      "Known ranking/PCA oracle, null first stability, exact training coverage and policy identity",
+      "Constant cross-sectional ranking blocks ON before optimization, OFF only observes",
+      "Missing input, stale last quote and future observations are explicit, never filled",
+      "Direct asset returns do not invent signal PCA or a cross-sectional selection requirement",
+      "Rank reversal is a warning, not a portfolio substitution; history is cutoff/window bounded",
+      "SGOV interval convention fails closed on holes, including the previous observation",
+      "Current policy forces exactly zero and rejects missing, historical, positive or extra cash inputs",
+      "Zero cash is independent of SGOV history and values, excludes To, and does not invent intervals",
+      "Zero-cash ledger reconciles all-cash and invested positions, real fees, slippage and drift",
+      "Independent tiny ledger oracle: cash accrues before execution, holdings drift without implicit trades",
+      "Fee/slippage oracle is based on actual fills; all-cash reference has zero excess Sharpe variance",
+      "Mandate violations reject rather than fix solver weights or transfer cash",
+      "Twenty candidates and an 8\u201312 final-holdings mandate are accepted, without clamping or input mutation",
+      "Candidate duplicates and empty candidates are rejected with a specific actionable reason",
+      "Feasibility identifies the exact conflicting holding constraints",
+      "Weight-floor conflicts and required invested capital are checked before execution",
+      "A low maximum-weight capacity does not require full investment or silently change inputs",
+      "2.5% and 3% strategic floors do not impose a minimum capital-overlay exposure",
+      "100% ceiling plus 100% stress reduction is valid in Daily mode, including full-cash targets",
+      "Final targets must satisfy holdings and weight requirements; nothing is truncated or raised",
+      "The continuous objective and weight solution remain unchanged for existing valid inputs",
+      "Backtest summary separates candidates, final holdings, cash return and investment ceilings",
+      "Conflicting constraints are highlighted at their exact summary rows, with a specific fix",
+      "No mandate is described without inventing a minimum or guaranteed number of holdings",
+      "Mandate summary distinguishes strategic construction floors from permitted HMM scaling and drift",
+      "Final-holdings fields allow more than eight without silently clamping the mandate",
+      "Capital policy explains the valid 100%-stress reduction without implying cash allocation is zero"
+    ],
+    "unavailable_cases": [
+      {
+        "file": "research/coordinated/coordinated.test.ts",
+        "name": "Capital studies have a distinct identity and reject portfolio optimizer inputs",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/coordinated.test.ts",
+        "name": "Independent exposure policy directly sets SPY/cash weights and uses a same-calendar passive benchmark",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/coordinated.test.ts",
+        "name": "Independent risk budget maps to SPY exposure without mean-variance optimization",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/coordinated.test.ts",
+        "name": "Fixed 100% SPY study reconciles to passive SPY; zero exposure stays in cash",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/coordinated.test.ts",
+        "name": "Explicit validation and financial identities; no silent date or universe repair",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/coordinated.test.ts",
+        "name": "One- and six-month HMM windows run unchanged under both capital controls",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/coordinated.test.ts",
+        "name": "User's 2020\u20132026 HMM design accepts the selected six-month rolling window",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/coordinated.test.ts",
+        "name": "Both controls and all classifiers run on real data with one self-financing ledger",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/coordinated.test.ts",
+        "name": "Future price mutations cannot change prior HMM decisions or existing portfolio path",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/forecasts.test.ts",
+        "name": "All forecast providers feed the optimizer and preserve the historical mean reference",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/forecasts.test.ts",
+        "name": "Future price perturbations cannot change earlier Ridge coefficients, forecasts or allocations",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/quality.test.ts",
+        "name": "Walk-forward ON/OFF passing gates preserve exact weights, fills and returns; one gate per rebalance",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/quality.test.ts",
+        "name": "Future-only price perturbation cannot change earlier forecasts, quality evidence or allocations",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/quality.test.ts",
+        "name": "Expanding quarterly walk-forward evaluates the gate exactly once per actual rebalance",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/quality.test.ts",
+        "name": "Window-bounded Ridge forecasts and quality cannot see later prices or pending labels",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/institutional.test.ts",
+        "name": "New portfolio and isolated capital runs both execute without SGOV and freeze zero-cash provenance",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/portfolio-feasibility.test.ts",
+        "name": "Dataset membership is verified individually before the calendar or optimizer",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/portfolio-feasibility.test.ts",
+        "name": "All supported internal candidates pass actual preflight and execute a short unfrozen-mandate run",
+        "reason": "Requires excluded private CSV through preparedDataset or default normalization"
+      },
+      {
+        "file": "research/coordinated/data.test.ts",
+        "name": "Restored Yahoo snapshots preserve short histories, missing values and explicit immutable run data",
+        "reason": "Last assertion explicitly loads private internal snapshot"
+      }
+    ]
+  },
+  "unavailable_suites": [
+    "artifacts/api-server/src/lib/workbench/calendar-v2.test.ts: private CSV at module initialization",
+    "artifacts/api-server/src/lib/workbench/short-window.test.ts: private CSV and B3C.1 reports",
+    "artifacts/api-server/src/lib/workbench/turnover-v2.test.ts: private CSV and B3C.1 reports",
+    "artifacts/api-server/src/lib/workbench/exposure-controls.test.ts: excluded reports/al02/oracle-fixtures.json",
+    "artifacts/api-server/src/lib/workbench/version-boundary.test.ts: V2 service initialization needs private CSV",
+    "artifacts/api-server/src/lib/workbench/{workbench-b2.integration,exposure-attribution,short-window.integration,pit-v2}.test.ts: owner-enabled private empirical runtime",
+    "artifacts/api-server/src/lib/allocation-core/{assets-engine,risk-analytics,gates}: excluded oracle/frozen reports",
+    "research/{allocation,pipeline,governance,active-pipeline}: excluded frozen reports",
+    "artifacts/api-server/src/lib/{validation-runs.a21,validation-jobs.integration,c2-experiment-store,c3-ui-fixture}.test.ts: private PostgreSQL or retained private fixtures",
+    "artifacts/api-server/src/lib/long-only-canonicalization.test.ts: excluded captured solver reports",
+    "artifacts/allocation-lab/src/lib/{capital-exposure,turnover-product,workbench-designer}.test.ts: excluded B3A reports",
+    "scripts/p0-unit.test.mjs: mixed bootstrap requires private CSV, separately selected source-only tests may run with owner-reviewed harness"
+  ],
+  "known_baseline_failure": {
+    "file": "artifacts/api-server/src/lib/workbench/interactive.test.ts",
+    "test": "Close-fill snapshot and certified risk wrapper preserve all financial arithmetic byte-for-byte",
+    "baseline_commit": "55abe601c15cf9f86b077ea47c469083a7b22648",
+    "reason": "Byte-comparison predates separateCapitalClock branches already present in baseline interactive-ledger; no assertion is relaxed.",
+    "proof_files": [
+      "artifacts/api-server/src/lib/workbench/interactive.test.ts",
+      "artifacts/api-server/src/lib/calculator.ts",
+      "research/workbench/interactive-ledger.ts",
+      "artifacts/api-server/src/lib/workbench/exposure-attribution.ts",
+      "artifacts/api-server/src/lib/workbench/interactive-risk.ts"
+    ]
+  }
+}

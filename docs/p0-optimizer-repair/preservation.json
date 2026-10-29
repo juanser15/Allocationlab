@@ -1,0 +1,542 @@
+{
+  "baseline": "90b7b7e2e7ff0a04364be58f8f59cfd801a8e382",
+  "protected_file_count": 88,
+  "all_protected_files_byte_identical": true,
+  "protected_files": [
+    {
+      "path": "SOURCE_SYNC.md",
+      "baseline_sha256": "e086e59adaea987f518fd66fde84426c7031ce54e960b78ff0b5c35d458328c2",
+      "current_sha256": "e086e59adaea987f518fd66fde84426c7031ce54e960b78ff0b5c35d458328c2",
+      "unchanged": true
+    },
+    {
+      "path": "SOURCE_SYNC_PARITY.json",
+      "baseline_sha256": "d312d496de3ba87e2e9c8b9d8b589847f508978e0a69d5723df23de72815b429",
+      "current_sha256": "d312d496de3ba87e2e9c8b9d8b589847f508978e0a69d5723df23de72815b429",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/adapters.ts",
+      "baseline_sha256": "cf8652b5ac150ff4d451b80de10a98d25fd906b21c1e2000476db60218d806aa",
+      "current_sha256": "cf8652b5ac150ff4d451b80de10a98d25fd906b21c1e2000476db60218d806aa",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/amendment-a.test.ts",
+      "baseline_sha256": "ffca31b099d018bea0fad4e6e273ca8f41f39a53bc9189abe231f07ff6f5113d",
+      "current_sha256": "ffca31b099d018bea0fad4e6e273ca8f41f39a53bc9189abe231f07ff6f5113d",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/artifacts.ts",
+      "baseline_sha256": "09b55a94ee1d8bc2a0f26a84209217eb8480e2fbd6b0f72cf63890b56779113d",
+      "current_sha256": "09b55a94ee1d8bc2a0f26a84209217eb8480e2fbd6b0f72cf63890b56779113d",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/contracts.ts",
+      "baseline_sha256": "674986899e25102a12a2f300933dd592e612719d2ab8bf997d6c5782c84e072c",
+      "current_sha256": "674986899e25102a12a2f300933dd592e612719d2ab8bf997d6c5782c84e072c",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.test.ts",
+      "baseline_sha256": "c1a90f6686f030969b8a17a1f509e5211ace2ad79410b1204245532074d91e00",
+      "current_sha256": "c1a90f6686f030969b8a17a1f509e5211ace2ad79410b1204245532074d91e00",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/engine.ts",
+      "baseline_sha256": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+      "current_sha256": "1b80d05d23fcb9ed424d180eca9bbe18ce580bc316472c72d4d9c8be833cb8b6",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/fixtures.mjs",
+      "baseline_sha256": "e09babdeb6f2ab28ce3f2372fc0b27c3b7aa7d5f111054dcfc808ec44a9e7be1",
+      "current_sha256": "e09babdeb6f2ab28ce3f2372fc0b27c3b7aa7d5f111054dcfc808ec44a9e7be1",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/independent.py",
+      "baseline_sha256": "b1a1deac7f8b6c6355f37caec3c49ab90a6960999431454b7191852ddb7e0741",
+      "current_sha256": "b1a1deac7f8b6c6355f37caec3c49ab90a6960999431454b7191852ddb7e0741",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/numerics.ts",
+      "baseline_sha256": "29bc238ebde9d61835e1e2881f837645c016a641a4bbd18ded788a85dbf30c86",
+      "current_sha256": "29bc238ebde9d61835e1e2881f837645c016a641a4bbd18ded788a85dbf30c86",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/oracles.py",
+      "baseline_sha256": "1432cf9512c5294e23ee1ca2fc8b2658e13b6048559aa29a87ba59a7f80f8286",
+      "current_sha256": "1432cf9512c5294e23ee1ca2fc8b2658e13b6048559aa29a87ba59a7f80f8286",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/render.py",
+      "baseline_sha256": "598972067a9fef89de97b8f8c9bbbba8fa3a30456b54f85488a2465013d1fd49",
+      "current_sha256": "598972067a9fef89de97b8f8c9bbbba8fa3a30456b54f85488a2465013d1fd49",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/replay.ts",
+      "baseline_sha256": "2f9be3be82dd22e240b1434a0e1e3947b7d620fe6c76d96799956a74797187a3",
+      "current_sha256": "2f9be3be82dd22e240b1434a0e1e3947b7d620fe6c76d96799956a74797187a3",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/sensitivity.ts",
+      "baseline_sha256": "c2fe631552c4b821d8ba8c283a43cb8f1311ea17d9f791cb00eb46b9e2683c12",
+      "current_sha256": "c2fe631552c4b821d8ba8c283a43cb8f1311ea17d9f791cb00eb46b9e2683c12",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/assets-engine/solver.ts",
+      "baseline_sha256": "edb8166320b3cde9e51d0a85ca6c0ba6d4f5c6586c5c6abc621ffffd5ab0fd9b",
+      "current_sha256": "edb8166320b3cde9e51d0a85ca6c0ba6d4f5c6586c5c6abc621ffffd5ab0fd9b",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/composition.ts",
+      "baseline_sha256": "e8b348eaafdd9aa656ef28bedf5d73e16282bc5138aec4c688321b80a25b8b00",
+      "current_sha256": "e8b348eaafdd9aa656ef28bedf5d73e16282bc5138aec4c688321b80a25b8b00",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/contracts.test.ts",
+      "baseline_sha256": "734b5c6fc55fe239e568146088b023c5d386260f6479ad18481aa1050237c2b7",
+      "current_sha256": "734b5c6fc55fe239e568146088b023c5d386260f6479ad18481aa1050237c2b7",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/contracts.ts",
+      "baseline_sha256": "cfeb3b171b7bd19a1cd198865b18c46b73864b9a03c66c34423d420206934e8a",
+      "current_sha256": "cfeb3b171b7bd19a1cd198865b18c46b73864b9a03c66c34423d420206934e8a",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/certify.ts",
+      "baseline_sha256": "351b7d39c978657a487d566f375de79c79a128cec72e614f957256273d5eeb3c",
+      "current_sha256": "351b7d39c978657a487d566f375de79c79a128cec72e614f957256273d5eeb3c",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/contracts.ts",
+      "baseline_sha256": "7f475bc8142669eb84be1183a5b1113e624c8ffd74a864bccb0c0b9e1c399d54",
+      "current_sha256": "7f475bc8142669eb84be1183a5b1113e624c8ffd74a864bccb0c0b9e1c399d54",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.test.ts",
+      "baseline_sha256": "05fb415d0a12cfb44b5183dc850141f9cd0aea9362a0d8098fbea24332241d63",
+      "current_sha256": "05fb415d0a12cfb44b5183dc850141f9cd0aea9362a0d8098fbea24332241d63",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/engine.ts",
+      "baseline_sha256": "12f65ba6fd55745303406e0a1fd86a0b57dcf8806b205bc380bc85e9a42d86a5",
+      "current_sha256": "12f65ba6fd55745303406e0a1fd86a0b57dcf8806b205bc380bc85e9a42d86a5",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/fixtures.ts",
+      "baseline_sha256": "f679bfc6c08f849808d0b53acd77b7cb72903369b51b1933e27a434eb9cfff4a",
+      "current_sha256": "f679bfc6c08f849808d0b53acd77b7cb72903369b51b1933e27a434eb9cfff4a",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/independent.py",
+      "baseline_sha256": "64f89f053434defd3ad555307d911b59f1a6d47b22cfba0e1c3e57e3ab5e0571",
+      "current_sha256": "64f89f053434defd3ad555307d911b59f1a6d47b22cfba0e1c3e57e3ab5e0571",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/render.py",
+      "baseline_sha256": "c7abc5cfeff98de9e6b80caaf6721f94cf44368f6cec23a48956529891d4232f",
+      "current_sha256": "c7abc5cfeff98de9e6b80caaf6721f94cf44368f6cec23a48956529891d4232f",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/sensitivity.ts",
+      "baseline_sha256": "5ad225c28a0352050f1fd8d285f010de3f7b9b6f29089bf4c7b73d6e0a354521",
+      "current_sha256": "5ad225c28a0352050f1fd8d285f010de3f7b9b6f29089bf4c7b73d6e0a354521",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/solver.ts",
+      "baseline_sha256": "16ae52d6512e2eb28e7bc363b63b5ff07c84f90e0eaf145c2e665a2a21f7d279",
+      "current_sha256": "16ae52d6512e2eb28e7bc363b63b5ff07c84f90e0eaf145c2e665a2a21f7d279",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/factors-engine/validation.ts",
+      "baseline_sha256": "5bdd9d75f47482b445264b4ca8c0c70daea12d542d967f6385bc7913282912bc",
+      "current_sha256": "5bdd9d75f47482b445264b4ca8c0c70daea12d542d967f6385bc7913282912bc",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/gates/adapters.ts",
+      "baseline_sha256": "3136b99437dbc6a540bcdc763594f4a09c72b4af719e3780f1bd676f2430101d",
+      "current_sha256": "3136b99437dbc6a540bcdc763594f4a09c72b4af719e3780f1bd676f2430101d",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/gates/common.ts",
+      "baseline_sha256": "b2e5f95b9a796af11e569899acbc6b2c42c6f3754e941775739f9496fc52bdbc",
+      "current_sha256": "b2e5f95b9a796af11e569899acbc6b2c42c6f3754e941775739f9496fc52bdbc",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/gates/contracts.ts",
+      "baseline_sha256": "e1a3af29b9c24f0f3ed59613608c49ff6152cdc8019316bcd5c0d2ee97e7f49d",
+      "current_sha256": "e1a3af29b9c24f0f3ed59613608c49ff6152cdc8019316bcd5c0d2ee97e7f49d",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/gates/fixtures.ts",
+      "baseline_sha256": "9ab2db22ed623a9c29da143f4e635c6b38fdcdc97538a55e343043de04ca1607",
+      "current_sha256": "9ab2db22ed623a9c29da143f4e635c6b38fdcdc97538a55e343043de04ca1607",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/gates/gates.test.ts",
+      "baseline_sha256": "66947c610fcb39823a8bf8a57243f2c2bf50ff9a17543816009c3be5ac90a750",
+      "current_sha256": "66947c610fcb39823a8bf8a57243f2c2bf50ff9a17543816009c3be5ac90a750",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/gates/independent.py",
+      "baseline_sha256": "9a50760d621972088a84a14316ae440b88030ff2beb47577b9660a02072336df",
+      "current_sha256": "9a50760d621972088a84a14316ae440b88030ff2beb47577b9660a02072336df",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/gates/portfolio.ts",
+      "baseline_sha256": "2527e0f9440599883a6f2b287c0ffb743eb6fab2105f2ecd46f6926774266fb4",
+      "current_sha256": "2527e0f9440599883a6f2b287c0ffb743eb6fab2105f2ecd46f6926774266fb4",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/gates/render.py",
+      "baseline_sha256": "e497677e532c6ecb7a97e1d48ccc49b35dfae91d5ba4abef05daab2e3beef2b6",
+      "current_sha256": "e497677e532c6ecb7a97e1d48ccc49b35dfae91d5ba4abef05daab2e3beef2b6",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/gates/replay.ts",
+      "baseline_sha256": "75f0918621e1be4120c7aace816ec22097f41d7d9fe4fa6bdf077e160df107dc",
+      "current_sha256": "75f0918621e1be4120c7aace816ec22097f41d7d9fe4fa6bdf077e160df107dc",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/gates/signal.ts",
+      "baseline_sha256": "1e4635d337774869903e8b4bdb22011dbd6259fcf10e430374def1d5ffac3759",
+      "current_sha256": "1e4635d337774869903e8b4bdb22011dbd6259fcf10e430374def1d5ffac3759",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/analytics.test.ts",
+      "baseline_sha256": "4f9cbfc8437bfff45713a575326d08f52f49a8034d65a9483b6aba8bc67184e8",
+      "current_sha256": "4f9cbfc8437bfff45713a575326d08f52f49a8034d65a9483b6aba8bc67184e8",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/analytics.ts",
+      "baseline_sha256": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6",
+      "current_sha256": "351b30d8ae73cc0a9d0a29e3e8ef493283c5a27dae4a203670b87ee58d4888e6",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/diagnostics.ts",
+      "baseline_sha256": "4c7c9e5445a64ee222e8c69cf2a4e7f60207180fdf9b3473bc07157280b56c08",
+      "current_sha256": "4c7c9e5445a64ee222e8c69cf2a4e7f60207180fdf9b3473bc07157280b56c08",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/estimators.ts",
+      "baseline_sha256": "d1de31f4b74846dcc8022e2c197b31d6311ce8e5e380b5f9bd65297d41698770",
+      "current_sha256": "d1de31f4b74846dcc8022e2c197b31d6311ce8e5e380b5f9bd65297d41698770",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/independent-check.py",
+      "baseline_sha256": "5f57af441379f6263969dda1a02e30692d8effd5e3a8aa2953f905a8f130d0e2",
+      "current_sha256": "5f57af441379f6263969dda1a02e30692d8effd5e3a8aa2953f905a8f130d0e2",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/prepare-inputs.py",
+      "baseline_sha256": "53b490c37f0eadb156d318fee43ba9096542b9e240a51c1c3efa9d099878b9e9",
+      "current_sha256": "53b490c37f0eadb156d318fee43ba9096542b9e240a51c1c3efa9d099878b9e9",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/render.py",
+      "baseline_sha256": "3c032d1fda7007dae9e95445ef051c9fce2e6c2a85f56e8a4c0c5828b3d35db3",
+      "current_sha256": "3c032d1fda7007dae9e95445ef051c9fce2e6c2a85f56e8a4c0c5828b3d35db3",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/risk-analytics/replay-cl02.ts",
+      "baseline_sha256": "2a48cc42163a9ccc3746372ee06d97cacb1212c90a5249dbf251f304676b5126",
+      "current_sha256": "2a48cc42163a9ccc3746372ee06d97cacb1212c90a5249dbf251f304676b5126",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/risk-mandate.ts",
+      "baseline_sha256": "5905a1b9e6d6b868ec1c0d4f96367160329663b15d9ee2da86403839b7dc9dc0",
+      "current_sha256": "5905a1b9e6d6b868ec1c0d4f96367160329663b15d9ee2da86403839b7dc9dc0",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/risk-metrics.ts",
+      "baseline_sha256": "06b24826dd2ac644a6a51cc1f5d37c31e9266196837798d6268bf5c75aa9e316",
+      "current_sha256": "06b24826dd2ac644a6a51cc1f5d37c31e9266196837798d6268bf5c75aa9e316",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/analytics.ts",
+      "baseline_sha256": "e3321ce5e30c27f3c68dc910fce394422426a5371b3b788dfa6fb2cd9fc87596",
+      "current_sha256": "e3321ce5e30c27f3c68dc910fce394422426a5371b3b788dfa6fb2cd9fc87596",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/certify.ts",
+      "baseline_sha256": "6ef9823536c32ac8d5886d8b445cc59841e446bbe5fa22182dd3076173a6c630",
+      "current_sha256": "6ef9823536c32ac8d5886d8b445cc59841e446bbe5fa22182dd3076173a6c630",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/contracts.ts",
+      "baseline_sha256": "c48be987b0d5660d7cb172e16604e3ced785d87df94158e75d334291eee9bff8",
+      "current_sha256": "c48be987b0d5660d7cb172e16604e3ced785d87df94158e75d334291eee9bff8",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.test.ts",
+      "baseline_sha256": "2cbbd9361c6cdb4a8c20c103d357ad2b200fc5006ccf6a56658571649d11e8a3",
+      "current_sha256": "2cbbd9361c6cdb4a8c20c103d357ad2b200fc5006ccf6a56658571649d11e8a3",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/engine.ts",
+      "baseline_sha256": "061a77ca7e8b4ae3f11ac8070f6b3404f26d2fe956f0f5b022bda0bc7e7d8c0c",
+      "current_sha256": "061a77ca7e8b4ae3f11ac8070f6b3404f26d2fe956f0f5b022bda0bc7e7d8c0c",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/fixtures.ts",
+      "baseline_sha256": "96cceaf2ae35f8f5e4acc1ecbb323fcfc6be6309ff7fedbff4077c6fdc8ccd5b",
+      "current_sha256": "96cceaf2ae35f8f5e4acc1ecbb323fcfc6be6309ff7fedbff4077c6fdc8ccd5b",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/history.ts",
+      "baseline_sha256": "7c69ff24ed2c425cf17d1caa868fbec970b55184739d110432e0d297fa7d9e23",
+      "current_sha256": "7c69ff24ed2c425cf17d1caa868fbec970b55184739d110432e0d297fa7d9e23",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/independent.py",
+      "baseline_sha256": "3f878099528ba9539266bc752efd71350ef05b22ebe8975b8b332116e8063648",
+      "current_sha256": "3f878099528ba9539266bc752efd71350ef05b22ebe8975b8b332116e8063648",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/render.py",
+      "baseline_sha256": "2469f7480f69131ca628798c51e98aa1436e7aa81f38280be562c42551f14335",
+      "current_sha256": "2469f7480f69131ca628798c51e98aa1436e7aa81f38280be562c42551f14335",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/sensitivity.ts",
+      "baseline_sha256": "cf43e16f1a903ccbd1f61535983858334ac1f3f9a4d165b2677fb3852423356b",
+      "current_sha256": "cf43e16f1a903ccbd1f61535983858334ac1f3f9a4d165b2677fb3852423356b",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/solver.ts",
+      "baseline_sha256": "d5c197ce96b7309102591d118189340ba553324d17da5d1307fb0b260edfdbb1",
+      "current_sha256": "d5c197ce96b7309102591d118189340ba553324d17da5d1307fb0b260edfdbb1",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/strategy-engine/validation.ts",
+      "baseline_sha256": "2fa5c2752e305c17733d6717123708345435e38a43945cca04319af743505948",
+      "current_sha256": "2fa5c2752e305c17733d6717123708345435e38a43945cca04319af743505948",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/allocation-core/validation.ts",
+      "baseline_sha256": "31bc8f62dc6452c14139bbd09229947f6d1e8b31d51206ea32cd228afdd40a0f",
+      "current_sha256": "31bc8f62dc6452c14139bbd09229947f6d1e8b31d51206ea32cd228afdd40a0f",
+      "unchanged": true
+    },
+    {
+      "path": "artifacts/api-server/src/lib/calculator.ts",
+      "baseline_sha256": "c0e64df753f97c69390a146e72f05b5f1915e9f9532512e9076f6284677c57bc",
+      "current_sha256": "c0e64df753f97c69390a146e72f05b5f1915e9f9532512e9076f6284677c57bc",
+      "unchanged": true
+    },
+    {
+      "path": "configs/capital-research/acceptance-nested.json",
+      "baseline_sha256": "df0e7d50b1a1003e4c25e823322934a3839eacb395b306e818f97a738e7af15c",
+      "current_sha256": "df0e7d50b1a1003e4c25e823322934a3839eacb395b306e818f97a738e7af15c",
+      "unchanged": true
+    },
+    {
+      "path": "configs/capital-research/acceptance-traditional.json",
+      "baseline_sha256": "9ad484bc22d2120f583b08fe1a951d22ddb34525f8c89feee28a813a336c1c64",
+      "current_sha256": "9ad484bc22d2120f583b08fe1a951d22ddb34525f8c89feee28a813a336c1c64",
+      "unchanged": true
+    },
+    {
+      "path": "configs/capital-research/budget-200.json",
+      "baseline_sha256": "19bef22e8ee870453f09a9ca0e53b9d38c5ac5cec6d81fdc7d4ed28b510b458d",
+      "current_sha256": "19bef22e8ee870453f09a9ca0e53b9d38c5ac5cec6d81fdc7d4ed28b510b458d",
+      "unchanged": true
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "baseline_sha256": "93e6db6345768119ed2729c407865a7d45a0e3afa623d200662b258d16b75819",
+      "current_sha256": "93e6db6345768119ed2729c407865a7d45a0e3afa623d200662b258d16b75819",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/README.md",
+      "baseline_sha256": "8e3159e82948f06240ae4b97a6aede8b6324de9614920a054337bb92e2e7ff21",
+      "current_sha256": "8e3159e82948f06240ae4b97a6aede8b6324de9614920a054337bb92e2e7ff21",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/cli.ts",
+      "baseline_sha256": "4d12a6b0324179ce048f75a59bb5cdcdb2c66579af8eadcc2efa7bf100e7b93c",
+      "current_sha256": "4d12a6b0324179ce048f75a59bb5cdcdb2c66579af8eadcc2efa7bf100e7b93c",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/engine.test.ts",
+      "baseline_sha256": "e809fc5fb9ca38a3d01a79086ae7130bbce85a4455951610e44e313a1caaa9f2",
+      "current_sha256": "e809fc5fb9ca38a3d01a79086ae7130bbce85a4455951610e44e313a1caaa9f2",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/engine.ts",
+      "baseline_sha256": "525d591e065c05502d0ba900b039afa43bc07ffa039b582cd9dce3924245ceb1",
+      "current_sha256": "525d591e065c05502d0ba900b039afa43bc07ffa039b582cd9dce3924245ceb1",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/finalize-validation.py",
+      "baseline_sha256": "73c6c57e092bae314711e5dbdc2368e21ce56a981a551ac52d6cb36eb2790c03",
+      "current_sha256": "73c6c57e092bae314711e5dbdc2368e21ce56a981a551ac52d6cb36eb2790c03",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/hardening-regressions.test.ts",
+      "baseline_sha256": "f17f2fb767adea4d1a8b5a7098df9008db2e1917b35a27e00f57d30838d9e895",
+      "current_sha256": "f17f2fb767adea4d1a8b5a7098df9008db2e1917b35a27e00f57d30838d9e895",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/metrics.ts",
+      "baseline_sha256": "ebf05115ee8486f7305ef8c281b693afc3e04df91d3f58c5d4af7d1256364208",
+      "current_sha256": "ebf05115ee8486f7305ef8c281b693afc3e04df91d3f58c5d4af7d1256364208",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/oracle.ts",
+      "baseline_sha256": "9a82f64a0cac55e0bf0cbeebaf0f4e13daeaaa1d744cecfd2e3d05a83653c2ff",
+      "current_sha256": "9a82f64a0cac55e0bf0cbeebaf0f4e13daeaaa1d744cecfd2e3d05a83653c2ff",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/qa-campaign.ts",
+      "baseline_sha256": "c2aaba4987f2a535169acb551baf6263b085b0c1dc44c9cd33f97ce7a9a7ff79",
+      "current_sha256": "c2aaba4987f2a535169acb551baf6263b085b0c1dc44c9cd33f97ce7a9a7ff79",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/qa.ts",
+      "baseline_sha256": "2fc2524922144430807763032bf4cedaa3e0ff4071901462a06a3b3f55cbf665",
+      "current_sha256": "2fc2524922144430807763032bf4cedaa3e0ff4071901462a06a3b3f55cbf665",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/registry.ts",
+      "baseline_sha256": "320470caeffd0a03509b3e63922aa91079c6086dc17c25f5992fcc1f2d4e8fdc",
+      "current_sha256": "320470caeffd0a03509b3e63922aa91079c6086dc17c25f5992fcc1f2d4e8fdc",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/render.py",
+      "baseline_sha256": "1bfd52886a8bf579f7e17f948ba956be016f7fe5f23f798715e722745a28f4a0",
+      "current_sha256": "1bfd52886a8bf579f7e17f948ba956be016f7fe5f23f798715e722745a28f4a0",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/replay.py",
+      "baseline_sha256": "e7d450b714404e787bb6321655e4f2f8204ad8fbad0dc8b435aab15417f4a19b",
+      "current_sha256": "e7d450b714404e787bb6321655e4f2f8204ad8fbad0dc8b435aab15417f4a19b",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/spec.ts",
+      "baseline_sha256": "44e1c382b1029c99eb137d3a139590a1d8090f8ad24b726325bc567571cd352f",
+      "current_sha256": "44e1c382b1029c99eb137d3a139590a1d8090f8ad24b726325bc567571cd352f",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/storage.ts",
+      "baseline_sha256": "ce0f0df6dbc9a69f8f5e4525e3bf04f181fd87dbbf2ed7104734c61240d29dd2",
+      "current_sha256": "ce0f0df6dbc9a69f8f5e4525e3bf04f181fd87dbbf2ed7104734c61240d29dd2",
+      "unchanged": true
+    },
+    {
+      "path": "research/capital/validation.test.ts",
+      "baseline_sha256": "2f480fef53193676ae68aaa6745c6be34161b2bd531991fabfd3d788cabf49f0",
+      "current_sha256": "2f480fef53193676ae68aaa6745c6be34161b2bd531991fabfd3d788cabf49f0",
+      "unchanged": true
+    },
+    {
+      "path": "research/coordinated/capital-clock.ts",
+      "baseline_sha256": "5efcd86bb2dde40d0c1524cf9b5e9cdf4c4e66d3c75776e9307e11e34af1c582",
+      "current_sha256": "5efcd86bb2dde40d0c1524cf9b5e9cdf4c4e66d3c75776e9307e11e34af1c582",
+      "unchanged": true
+    },
+    {
+      "path": "research/coordinated/fixtures/pre-capital-clock.json",
+      "baseline_sha256": "db77cade87f5a55f7cbdd776ba1bdc2f8c31ddd55b8312de444401027c01aa46",
+      "current_sha256": "db77cade87f5a55f7cbdd776ba1bdc2f8c31ddd55b8312de444401027c01aa46",
+      "unchanged": true
+    },
+    {
+      "path": "research/coordinated/quality.ts",
+      "baseline_sha256": "76d8462937c6903a29ada27d248f280112528180a18e961855c330601653a9ec",
+      "current_sha256": "76d8462937c6903a29ada27d248f280112528180a18e961855c330601653a9ec",
+      "unchanged": true
+    },
+    {
+      "path": "research/workbench/institutional-ledger.ts",
+      "baseline_sha256": "19db9863a8cd8abf56b6c31ec72cb096db1c87944e72e0e8684490d7a684f997",
+      "current_sha256": "19db9863a8cd8abf56b6c31ec72cb096db1c87944e72e0e8684490d7a684f997",
+      "unchanged": true
+    },
+    {
+      "path": "research/workbench/interactive-ledger.ts",
+      "baseline_sha256": "44ed0c60db6c512873694a275d24c9edc4b4fcdf377bed994a7362e3d2916bf9",
+      "current_sha256": "44ed0c60db6c512873694a275d24c9edc4b4fcdf377bed994a7362e3d2916bf9",
+      "unchanged": true
+    }
+  ],
+  "models_hmm_and_moments_region_unchanged": true,
+  "original_no_mandate_solver_body_byte_identical": true,
+  "historical_private_reports_changed": false,
+  "private_dataset_present": false,
+  "stored_runs_migrated": false,
+  "intentional_changes": "Mandate-aware solver, shared preflight, engine/overlay constraint audit and public error metadata; new code/version enters new run identity. Existing persisted specs and results are untouched.",
+  "public_goldens": "Capital-clock financial hashes passed; private historical goldens pending Replit."
+}

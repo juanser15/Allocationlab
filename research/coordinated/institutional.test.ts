@@ -136,5 +136,5 @@ test("Mandate violations reject rather than fix solver weights or transfer cash"
   const request: any = { ...design, research_scope: "PORTFOLIO", maximum_exposure: .5, maximum_etf_weight: .3, etfs: ["SPY", "EFA"], mandate: { minimum_positions: 2, maximum_positions: 2, minimum_weight: .1 } };
   assert.ok(validateTargets("2024-01-02", { SPY: .25, EFA: .25 }, request).passed);
   for (const weights of [{ SPY: .5 }, { SPY: .05, EFA: .3 }, { SPY: .3, GLD: .2 }, { SPY: -.1, EFA: .3 }])
-    assert.throws(() => validateTargets("2024-01-02", weights, request), (e: any) => e.code === "MANDATE_BREACH");
+    assert.throws(() => validateTargets("2024-01-02", weights, request), (e: any) => e.code === "NUMERICAL_FAILURE" && e.details.reason === "MANDATE_AUDIT_FAILURE");
 });

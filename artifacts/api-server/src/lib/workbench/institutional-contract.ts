@@ -18,14 +18,13 @@ export function parseInstitutional(value: ResearchSubmission) {
     if (q !== undefined) fail("The isolated SPY/cash study cannot receive portfolio Quality Control.");
   } else if (!q || Object.keys(q).sort().join() !== "enabled,policy_version" || typeof q.enabled !== "boolean" || q.policy_version !== "STRUCTURAL_V1")
     fail("Explicit Quality Control ON/OFF and policy STRUCTURAL_V1 are required for a new portfolio run.");
-  if (m) {
+  if (m !== undefined) {
     if (value.research_scope === "CAPITAL_EXPOSURE") fail("The isolated SPY/cash study cannot receive ETF selection or mandate inputs.");
-    if (Object.keys(m).sort().join() !== "maximum_positions,minimum_positions,minimum_weight")
-      fail("The final-holdings mandate requires minimum holdings, maximum holdings and minimum weight per held asset.");
+
   }
   const conflict = portfolioFeasibilityIssue(value);
   if (conflict)
-    throw new CalendarContractError(conflict.code, `${conflict.message} ${conflict.suggestion}`, { fields: conflict.fields, suggestion: conflict.suggestion }, 422);
+    throw new CalendarContractError(conflict.code, `${conflict.message} ${conflict.suggestion}`, { category: conflict.code, fields: conflict.fields, suggestion: conflict.suggestion, ...conflict.details }, 422);
   return { cash_policy: { ...CURRENT_CASH_POLICY }, slippage_bps: slippage, ...(m ? { mandate: { ...m } } : {}), ...(q ? { quality_control: { ...q } } : {}) };
 }
 /** Current cash return is explicitly zero on each observed calendar interval.

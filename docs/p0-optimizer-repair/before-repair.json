@@ -1,0 +1,45 @@
+{
+  "baseline": "90b7b7e2e7ff0a04364be58f8f59cfd801a8e382",
+  "evidence_scope": "ANALYTICAL_SYNTHETIC_INPUTS_ONLY_NO_PRIVATE_DATA",
+  "invalid_minimum_holdings": {
+    "code": "PORTFOLIO_CONSTRAINT_CONFLICT",
+    "message": "Minimum final holdings must be a positive whole number.",
+    "fields": [
+      "mandate.minimum_positions"
+    ],
+    "suggestion": "Enter the minimum number of assets the portfolio must hold."
+  },
+  "below_three_percent": {
+    "weights": [
+      0.1,
+      0.001
+    ],
+    "positive_holdings": 2,
+    "minimum_positive_weight": 0.001,
+    "post_solve_failure": {
+      "code": "MANDATE_BREACH",
+      "message": "An optimized asset weight is below the 3% minimum per held asset. Lower the minimum weight or change the candidate selection; weights were not raised automatically."
+    }
+  },
+  "eleven_against_ten": {
+    "weights": [
+      0.09090909090909088,
+      0.09090909090909088,
+      0.09090909090909088,
+      0.09090909090909088,
+      0.09090909090909088,
+      0.09090909090909088,
+      0.09090909090909088,
+      0.09090909090909088,
+      0.09090909090909088,
+      0.09090909090909088,
+      0.09090909090909088
+    ],
+    "positive_holdings": 11,
+    "minimum_positive_weight": 0.09090909090909088,
+    "post_solve_failure": {
+      "code": "MANDATE_BREACH",
+      "message": "The optimizer produced 11 holdings; the final-holdings mandate requires 1–10. Adjust the holdings mandate or candidate selection."
+    }
+  }
+}

@@ -3,36 +3,89 @@ export type CalendarDates = {
   evaluation_end_exclusive: string;
 };
 export type DateField = keyof CalendarDates;
-type Ticket = { dataset: string; generation: number; edits: Record<DateField, number> };
+type Ticket = { dataset: string; context: string; mode: "INITIAL" | "OBSERVE" | "EXPLICIT"; generation: number; edits: Record<DateField, number> };
 
 /** Session-owned intent: tab changes and repeated metadata reads are not resets. */
 export class BacktestRangeIntent {
   private dataset = "";
+  private context = "";
   private generation = 0;
   private edits: Record<DateField, number> = { evaluation_start: 0, evaluation_end_exclusive: 0 };
 
-  enterDataset(dataset: string): Ticket | null {
+  enterDataset(dataset: string, context = ""): Ticket | null {
     if (!dataset || dataset === this.dataset) return null;
     this.dataset = dataset;
     this.edits = { evaluation_start: 0, evaluation_end_exclusive: 0 };
-    return this.reset(dataset);
+    return this.begin(dataset, context, "INITIAL");
   }
-  reset(dataset: string): Ticket {
+  private begin(dataset: string, context: string, mode: Ticket["mode"]): Ticket {
     this.dataset = dataset;
-    return { dataset, generation: ++this.generation, edits: { ...this.edits } };
+    this.context = context;
+    return { dataset, context, mode, generation: ++this.generation, edits: { ...this.edits } };
+  }
+  observe(dataset: string, context: string): Ticket | null {
+    if (dataset !== this.dataset) return this.enterDataset(dataset, context);
+    return context === this.context ? null : this.begin(dataset, context, "OBSERVE");
+  }
+  reset(dataset: string, context = ""): Ticket {
+    return this.begin(dataset, context, "EXPLICIT");
   }
   edit(field: DateField) { this.edits[field]++; }
   isCurrent(ticket: Ticket) {
-    return ticket.dataset === this.dataset && ticket.generation === this.generation;
+    return ticket.dataset === this.dataset && ticket.context === this.context && ticket.generation === this.generation;
   }
-  resolve(ticket: Ticket, dates: CalendarDates): Partial<CalendarDates> | null {
+  resolve(ticket: Ticket, dates: CalendarDates, existing?: CalendarDates): Partial<CalendarDates> | null {
     if (!this.isCurrent(ticket)) return null;
+    if (ticket.mode === "OBSERVE") return {};
     return Object.fromEntries(
       (Object.keys(dates) as DateField[])
         .filter(field => ticket.edits[field] === this.edits[field])
+        .filter(field => ticket.mode !== "INITIAL" || !existing?.[field])
         .map(field => [field, dates[field]]),
     );
   }
+}
+
+/** UI request correlation only; this is not a financial/run identity. Dates are
+ * excluded because /bounds evaluates available history, not a requested run. */
+export function backtestBoundsKey(draft: Record<string, unknown>, caps: any): string {
+  const { evaluation_start: _start, evaluation_end_exclusive: _end, ...configuration } = draft;
+  return researchDraftKey({ configuration, dataset: {
+    dataset_id: caps?.dataset_id, dataset_version: caps?.dataset_version,
+    dataset_hash: caps?.dataset_hash, first: caps?.data_first_observation, last: caps?.data_last_observation,
+  } });
+}
+export function researchDraftKey(value: unknown): string {
+  const ordered = (v: any): any => Array.isArray(v) ? v.map(ordered)
+    : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map(k => [k, ordered(v[k])])) : v;
+  return JSON.stringify(ordered(value));
+}
+export interface BacktestBoundsState { context: string; busy: boolean; error: string; bounds: any }
+/** Mask old metadata during the render preceding the new request effect too. */
+export function currentBacktestBounds(state: BacktestBoundsState, context: string, ready: boolean) {
+  return ready && state.context === context ? state : { context, busy: ready, error: "", bounds: null };
+}
+
+/** Both success and failure belong to the design submitted to /plan. A late
+ * failure must not describe old coverage requirements as current UI feedback. */
+export const researchDesignChangedError = () => new Error("The design changed while it was being checked. Review the current configuration and run it again; no run was submitted.");
+export async function requestCurrentPlan<T extends CalendarDates>(
+  request: T,
+  load: (request: T) => Promise<any>,
+  isCurrent: () => boolean,
+) {
+  let plan: any;
+  try {
+    plan = await load(request);
+  } catch (error) {
+    if (!isCurrent()) throw researchDesignChangedError();
+    throw error;
+  }
+  if (!isCurrent()) throw researchDesignChangedError();
+  if (plan.normalized_request?.evaluation_start !== request.evaluation_start ||
+      plan.normalized_request?.evaluation_end_exclusive !== request.evaluation_end_exclusive)
+    throw new Error("The planner changed the requested dates. Execution is blocked.");
+  return plan;
 }
 
 export function nextCalendarDay(date: string) {
