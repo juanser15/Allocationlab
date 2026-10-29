@@ -1,0 +1,127 @@
+{
+  "scope": "SOURCE_ONLY_SYNTHETIC_COMPONENT_AND_AUTHENTICATED_API_NOT_REPLIT_RUNTIME",
+  "results": [
+    {
+      "check": "unauthorized_UI",
+      "status": "PASS"
+    },
+    {
+      "check": "signal_date_filter",
+      "status": "PASS"
+    },
+    {
+      "check": "search_side_sort_CSV",
+      "status": "PASS"
+    },
+    {
+      "check": "execution_FIFO_drill_link",
+      "status": "PASS"
+    },
+    {
+      "check": "FIFO_open_lot_and_partial_exits",
+      "status": "PASS"
+    },
+    {
+      "check": "position_drift_no_fill",
+      "status": "PASS"
+    },
+    {
+      "check": "responsive_execution",
+      "width": 360,
+      "status": "PASS",
+      "geometry": {
+        "page": 360,
+        "viewport": 360,
+        "table": 1194,
+        "container": 326
+      },
+      "screenshot": "executions-360.png"
+    },
+    {
+      "check": "responsive_execution",
+      "width": 390,
+      "status": "PASS",
+      "geometry": {
+        "page": 390,
+        "viewport": 390,
+        "table": 1194,
+        "container": 356
+      },
+      "screenshot": "executions-390.png"
+    },
+    {
+      "check": "responsive_execution",
+      "width": 430,
+      "status": "PASS",
+      "geometry": {
+        "page": 430,
+        "viewport": 430,
+        "table": 1194,
+        "container": 396
+      },
+      "screenshot": "executions-430.png"
+    },
+    {
+      "check": "responsive_execution",
+      "width": 768,
+      "status": "PASS",
+      "geometry": {
+        "page": 768,
+        "viewport": 768,
+        "table": 1194,
+        "container": 734
+      },
+      "screenshot": "executions-768.png"
+    },
+    {
+      "check": "responsive_execution",
+      "width": 1440,
+      "status": "PASS",
+      "geometry": {
+        "page": 1440,
+        "viewport": 1440,
+        "table": 1366,
+        "container": 1366
+      },
+      "screenshot": "executions-1440.png"
+    },
+    {
+      "check": "lots",
+      "width": 390,
+      "status": "PASS",
+      "screenshot": "lots-390.png"
+    },
+    {
+      "check": "lots",
+      "width": 1440,
+      "status": "PASS",
+      "screenshot": "lots-1440.png"
+    },
+    {
+      "check": "positions",
+      "width": 390,
+      "status": "PASS",
+      "screenshot": "positions-390.png"
+    },
+    {
+      "check": "positions",
+      "width": 1440,
+      "status": "PASS",
+      "screenshot": "positions-1440.png"
+    },
+    {
+      "check": "1601_fills_UI_pagination",
+      "status": "PASS",
+      "elapsed_ms": 501
+    },
+    {
+      "check": "token_absent_frontend_bundle",
+      "status": "PASS"
+    },
+    {
+      "check": "no_browser_errors",
+      "status": "PASS"
+    }
+  ],
+  "token_in_screenshots": false
+}
